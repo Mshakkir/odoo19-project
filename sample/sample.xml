@@ -1,0 +1,4 @@
+<menuitem id="menu_mis_balance_sheet_custom"
+          name="Custom Balance Sheet"
+          parent="mis_builder.menu_mis_reports"
+          action="action_mis_balance_sheet_custom"/>

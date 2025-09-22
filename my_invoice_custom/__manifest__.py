@@ -14,6 +14,7 @@
         'l10n_gcc_invoice',
     ],
     'data': [
+        'report/report.xml',
         'report/report_templates.xml',
     ],
     'installable': True,

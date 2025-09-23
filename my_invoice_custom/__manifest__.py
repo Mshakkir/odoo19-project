@@ -1,6 +1,6 @@
 {
     'name': 'Custom Invoice Report',
-    'version': '16.0.1.0.0',   # OCA style or just "1.0" works too
+    'version': '19.0.1.0.0',
     'category': 'Accounting',
     'summary': 'Customizations for GCC Invoice Template',
     'description': """
@@ -16,11 +16,7 @@
         'report/report.xml',
         'report/report_templates.xml',
     ],
-    'assets': {
-        'web.report_assets_common': [
-            'my_invoice_custom/static/src/css/custom_report.css',
-        ],
-    },
+    'assets': {},
     'installable': True,
     'application': False,
     'license': 'LGPL-3',

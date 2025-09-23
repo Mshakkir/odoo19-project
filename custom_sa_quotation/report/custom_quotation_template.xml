@@ -90,46 +90,47 @@
                                         <span>عرض سعر</span>
                                     </div>
                                 </div>
-                            </t>
 
-<!--                                &lt;!&ndash; ===== Customer & Quote Info ===== &ndash;&gt;-->
-<!--                                <table width="100%"-->
-<!--                                       style="border: 1px solid #000; border-collapse: collapse; font-size: 13px; margin-bottom:5px; margin-top: 5px; height:30px;">-->
-<!--                                    <tr>-->
-<!--                                        <td width="50%"-->
-<!--                                            style="border-right: 1px solid #000; vertical-align: top; padding: 10px;">-->
-<!--                                            <div style="font-weight: bold; padding: 5px; margin-bottom: 5px; background-color: #9e9d9d; color:#080808;">-->
-<!--                                                Customer Name &amp; Address /-->
-<!--                                                <span>اسم العميل وعنوانه</span>-->
-<!--                                            </div>-->
-<!--                                            <div>-->
-<!--                                                Attn:-->
-<!--                                                <span t-esc="o.partner_id.name"/>-->
-<!--                                                <br/>-->
-<!--                                                <span t-esc="o.partner_id.city"/>-->
-<!--                                                <br/>-->
-<!--                                                MOB:-->
-<!--                                               <span t-esc="o.partner_id.phone or ''"/>-->
-<!--                                            </div>-->
-<!--                                        </td>-->
-<!--                                        <td width="50%" style="vertical-align: top; padding: 10px;">-->
-<!--                                            <div style="font-weight: bold; padding: 5px; margin-bottom: 5px; background-color: #9e9d9d; color:#080808;">-->
-<!--                                                Quote / Project Description /-->
-<!--                                                <span>عرض سعر</span>-->
-<!--                                            </div>-->
-<!--                                            <div>-->
-<!--                                                Date:-->
-<!--                                                <span t-field="o.date_order"/>-->
-<!--                                                <br/>-->
-<!--                                                Our Reference:-->
-<!--                                                <span t-esc="o.name"/>-->
-<!--                                                <br/>-->
-<!--                                                Your Reference:-->
-<!--                                                <span t-esc="o.client_order_ref or '-'"/>-->
-<!--                                            </div>-->
-<!--                                        </td>-->
-<!--                                    </tr>-->
-<!--                                </table>-->
+
+                                <!-- ===== Customer & Quote Info ===== -->
+                                <table width="100%"
+                                       style="border: 1px solid #000; border-collapse: collapse; font-size: 13px; margin-bottom:5px; margin-top: 5px; height:30px;">
+                                    <tr>
+                                        <td width="50%"
+                                            style="border-right: 1px solid #000; vertical-align: top; padding: 10px;">
+                                            <div style="font-weight: bold; padding: 5px; margin-bottom: 5px; background-color: #9e9d9d; color:#080808;">
+                                                Customer Name &amp; Address /
+                                                <span>اسم العميل وعنوانه</span>
+                                            </div>
+                                            <div>
+                                                Attn:
+                                                <span t-esc="o.partner_id.name"/>
+                                                <br/>
+                                                <span t-esc="o.partner_id.city"/>
+                                                <br/>
+                                                MOB:
+                                               <span t-esc="o.partner_id.phone or ''"/>
+                                            </div>
+                                        </td>
+                                        <td width="50%" style="vertical-align: top; padding: 10px;">
+                                            <div style="font-weight: bold; padding: 5px; margin-bottom: 5px; background-color: #9e9d9d; color:#080808;">
+                                                Quote / Project Description /
+                                                <span>عرض سعر</span>
+                                            </div>
+                                            <div>
+                                                Date:
+                                                <span t-field="o.date_order"/>
+                                                <br/>
+                                                Our Reference:
+                                                <span t-esc="o.name"/>
+                                                <br/>
+                                                Your Reference:
+                                                <span t-esc="o.client_order_ref or '-'"/>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </t>
 
 <!--                                &lt;!&ndash; ===== Order Lines ===== &ndash;&gt;-->
 <!--                                &lt;!&ndash; ===== Order Lines Table ===== &ndash;&gt;-->

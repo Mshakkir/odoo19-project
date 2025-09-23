@@ -22,7 +22,7 @@
                     <div class="page">
 
                         <div class="header"
-                             style="display: flex; padding: 15px 20px; border:2px solid #800000; border-radius: 6px; background: white; margin-bottom: 15px; ">
+                             style="display: flex; padding: 13px 18px; border:2px solid #800000; border-radius: 6px; background: white; margin-bottom: 15px; ">
                             <table style="width: 100%; border:2px solid white;">
                                 <tr>
 
@@ -84,7 +84,7 @@
                         <t t-call="web.external_layout">
 
                             <!-- ===== Title Section ===== -->
-                            <div style="padding-top:50px;">
+                            <div style="padding-top:70px;">
                                 <div style=" background-color:#581d35; color:white; padding:8px ; text-align:center; margin-bottom:10px ; font-weight:bold; font-size:16px;">
                                     Delivery Note /
                                     <span>مذكرة التسليم</span>

@@ -177,7 +177,7 @@
                                                 <span t-field="line.product_uom_qty"/>
                                             </td>
                                             <td>
-                                                <span t-field="line.product_uom.name"/>
+                                                <span t-esc="line.product_uom_id.name or ''"/>
                                             </td>
                                             <td class="text-right">
                                                 <span t-field="line.price_unit"/>

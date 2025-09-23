@@ -158,30 +158,30 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr t-foreach="enumerate(doc.move_ids_without_package)" t-as="line">
-                                        <!-- SN -->
-                                        <td style="text-align:center;">
-                                            <t t-esc="line[0] + 1"/>
-                                        </td>
+                                   <tr t-foreach="enumerate(doc.move_ids)" t-as="line">
+    <!-- SN -->
+    <td style="text-align:center;">
+        <t t-esc="line[0] + 1"/>
+    </td>
 
-                                        <!-- Product -->
-                                        <td style="text-align:center">
-                                            <span t-field="line[1].product_id.default_code"/>
-                                            -
-                                            <span t-field="line[1].product_id.name"/>
-                                        </td>
+    <!-- Product -->
+    <td style="text-align:center">
+        <span t-field="line[1].product_id.default_code"/>
+        -
+        <span t-field="line[1].product_id.name"/>
+    </td>
 
+    <!-- Quantity -->
+    <td style="text-align:center;">
+        <span t-field="line[1].product_uom_qty"/>
+    </td>
 
-                                        <!-- Quantity -->
-                                        <td style="text-align:center;">
-                                            <span t-field="line[1].product_uom_qty"/>
-                                        </td>
+    <!-- Unit -->
+    <td style="text-align:center;">
+        <span t-field="line[1].product_uom.name"/>
+    </td>
+</tr>
 
-                                        <!-- Unit -->
-                                        <td style="text-align:center;">
-                                            <span t-field="line[1].product_uom.name"/>
-                                        </td>
-                                    </tr>
                                 </tbody>
 
                             </table>
@@ -207,7 +207,7 @@
                                         <strong style="padding-left:3px;">
                                             إجمالي الكمية / Total Qty :
                                         </strong>
-                                        <span t-esc="sum(line.product_uom_qty for line in doc.move_ids_without_package)"/>
+                                        <span t-esc="sum(line.product_uom_qty for line in doc.move_ids)"/>
                                     </td>
 
                                 </tr>

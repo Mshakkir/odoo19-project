@@ -40,6 +40,7 @@
         'report/report_journal_audit.xml',
         'report/report_journal_entries.xml',
     ],
+    'installable': True,
     'pre_init_hook': '_pre_init_clean_m2m_models',
     'images': ['static/description/banner.gif'],
 }

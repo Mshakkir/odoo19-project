@@ -1,0 +1,15 @@
+/* Embed Amiri font */
+@font-face {
+  font-family: 'Amiri';
+  src: url('/custom_modules/custom_delivery_note/static/src/fonts/Amiri-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Arabic text styling */
+.arabic-text {
+  font-family: 'Amiri', 'Noto Naskh Arabic', 'Noto Kufi Arabic', sans-serif;
+  direction: rtl;
+  unicode-bidi: embed;
+  line-height: 1.6;
+}

@@ -1,0 +1,6 @@
+<odoo>
+  <record id="stock.action_report_deliveryslip" model="ir.actions.report">
+    <field name="report_name">custom_delivery_note.report_delivery_document_custom</field>
+    <field name="report_file">custom_delivery_note.report_delivery_document_custom</field>
+  </record>
+</odoo>

@@ -1,5 +1,5 @@
 <odoo>
-    <template id="custom_invoice_report" inherit_id="l10n_gcc_invoice.arabic_english_invoice">
+  <template id="custom_invoice_report" inherit_id="l10n_gcc_invoice.l10n_gcc_report_invoice_document">
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
             <t t-call="web.html_container">
                 <style>
@@ -10,7 +10,7 @@
                 </style>
 
                 <!-- Loop through delivery orders -->
-                <t t-foreach="docs" t-as="doc">
+                <t t-foreach="docs" t-as="o">
 
                     <!-- Layout wrapper -->
                     <div class="page">

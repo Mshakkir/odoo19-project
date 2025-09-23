@@ -108,7 +108,7 @@
                                                 <span t-esc="o.partner_id.city"/>
                                                 <br/>
                                                 MOB:
-                                                <span t-esc="o.partner_id.phone or o.partner_id.mobile"/>
+                                                <span t-esc="o.partner_id.phone or getattr(o.partner_id, 'mobile', False)"/>
                                             </div>
                                         </td>
                                         <td width="50%" style="vertical-align: top; padding: 10px;">

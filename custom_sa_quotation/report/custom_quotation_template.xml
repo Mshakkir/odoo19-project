@@ -1,6 +1,6 @@
 <odoo>
     <template id="custom_saleorder_report" inherit_id="sale.report_saleorder_document">
-    <xpath expr="//t[@t-call='web.external_layout']/div[@class='page']" position="inside">
+    <xpath expr="//t[@t-call='web.external_layout']/div[@class='page']" position="replace">
         <!-- Your custom content -->
         <div style="padding-top:50px;">
             <div style="background-color:#581d35; color:white; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">

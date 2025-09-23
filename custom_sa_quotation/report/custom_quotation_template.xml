@@ -130,66 +130,67 @@
                                         </td>
                                     </tr>
                                 </table>
-                            </t>
 
-<!--                                &lt;!&ndash; ===== Order Lines ===== &ndash;&gt;-->
-<!--                                &lt;!&ndash; ===== Order Lines Table ===== &ndash;&gt;-->
-<!--                                <table width="100%" border="1"-->
-<!--                                       style="border-collapse: collapse; font-size: 13px;margin-top:10px;"-->
-<!--                                       cellpadding="5">-->
-<!--                                    <thead style="background-color: #9e9d9d;">-->
-<!--                                        <tr>-->
-<!--                                            <th style="width:2%;text-align:center; color:#080808;">SN</th>-->
-<!--                                            <th style="width:15%;text-align:center; color:#080808;">Item Description-->
-<!--                                                <br/>-->
-<!--                                                <span>المنتج الوصف</span>-->
-<!--                                            </th>-->
-<!--                                            <th style="width:3%;text-align:center; color:#080808;">Duration-->
-<!--                                                <br/>-->
-<!--                                                <span>مدة</span>-->
-<!--                                            </th>-->
-<!--                                            <th style="width:3%;text-align:center; color:#080808;">QTY-->
-<!--                                                <br/>-->
-<!--                                                <span>الكمية</span>-->
-<!--                                            </th>-->
-<!--                                            <th style="width:3%;text-align:center; color:#080808;">U/M-->
-<!--                                                <br/>-->
-<!--                                                <span>وحدة</span>-->
-<!--                                            </th>-->
-<!--                                            <th style="width:3%;text-align:center; color:#080808;">Unit Price-->
-<!--                                                <br/>-->
-<!--                                                <span>سعر الوحدة</span>-->
-<!--                                            </th>-->
-<!--                                            <th style="width:3%;text-align:center; color:#080808;">Line Total-->
-<!--                                                <br/>-->
-<!--                                                <span>مجموع الخط</span>-->
-<!--                                            </th>-->
-<!--                                        </tr>-->
-<!--                                    </thead>-->
-<!--                                    <tbody style="text-align:center;">-->
-<!--                                        <tr t-foreach="doc.order_line" t-as="line">-->
-<!--                                            <td>-->
-<!--                                                <t t-esc="line.sequence or loop.index"/>-->
-<!--                                            </td>-->
-<!--                                            <td>-->
-<!--                                                <span t-field="line.name"/>-->
-<!--                                            </td>-->
-<!--                                            <td>2-3 Weeks</td>-->
-<!--                                            <td class="text-right">-->
-<!--                                                <span t-field="line.product_uom_qty"/>-->
-<!--                                            </td>-->
-<!--                                            <td>-->
-<!--                                                <span t-esc="line.product_uom_id.name or ''"/>-->
-<!--                                            </td>-->
-<!--                                            <td class="text-right">-->
-<!--                                                <span t-field="line.price_unit"/>-->
-<!--                                            </td>-->
-<!--                                            <td class="text-right">-->
-<!--                                                <span t-field="line.price_subtotal"/>-->
-<!--                                            </td>-->
-<!--                                        </tr>-->
-<!--                                    </tbody>-->
-<!--                                </table>-->
+
+                                <!-- ===== Order Lines ===== -->
+                                <!-- ===== Order Lines Table ===== -->
+                                <table width="100%" border="1"
+                                       style="border-collapse: collapse; font-size: 13px;margin-top:10px;"
+                                       cellpadding="5">
+                                    <thead style="background-color: #9e9d9d;">
+                                        <tr>
+                                            <th style="width:2%;text-align:center; color:#080808;">SN</th>
+                                            <th style="width:15%;text-align:center; color:#080808;">Item Description
+                                                <br/>
+                                                <span>المنتج الوصف</span>
+                                            </th>
+                                            <th style="width:3%;text-align:center; color:#080808;">Duration
+                                                <br/>
+                                                <span>مدة</span>
+                                            </th>
+                                            <th style="width:3%;text-align:center; color:#080808;">QTY
+                                                <br/>
+                                                <span>الكمية</span>
+                                            </th>
+                                            <th style="width:3%;text-align:center; color:#080808;">U/M
+                                                <br/>
+                                                <span>وحدة</span>
+                                            </th>
+                                            <th style="width:3%;text-align:center; color:#080808;">Unit Price
+                                                <br/>
+                                                <span>سعر الوحدة</span>
+                                            </th>
+                                            <th style="width:3%;text-align:center; color:#080808;">Line Total
+                                                <br/>
+                                                <span>مجموع الخط</span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody style="text-align:center;">
+                                        <tr t-foreach="doc.order_line" t-as="line">
+                                            <td>
+                                                <t t-esc="line.sequence or loop.index"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="line.name"/>
+                                            </td>
+                                            <td>2-3 Weeks</td>
+                                            <td class="text-right">
+                                                <span t-field="line.product_uom_qty"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line.product_uom_id.name or ''"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-field="line.price_unit"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-field="line.price_subtotal"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
 
 <!--                                &lt;!&ndash; ===== Totals and Notes Section ===== &ndash;&gt;-->
 <!--                                <table width="100%" style="font-size: 13px; margin-top: 10px;">-->

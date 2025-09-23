@@ -273,7 +273,7 @@
                                         </td>
                                     </tr>
                                 </table>
-                            </t>
+
 
                                 <footer>
                                     <td style="width: 20%; text-align: center;">
@@ -285,6 +285,7 @@
                                              style="height: 300px;text-align:center; width:100%; padding-top:80px;"/>
                                     </td>
                                 </footer>
+                            </t>
 
 
 

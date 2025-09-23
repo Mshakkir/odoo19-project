@@ -275,19 +275,19 @@
                                 </table>
                             </t>
 
-<!--                                <footer>-->
-<!--                                    <td style="width: 20%; text-align: center;">-->
-<!--                                        <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/footer_companies_names.png'"-->
-<!--                                             style="height: 200px;text-align:center; width:100%; padding-top:30px;"/>-->
-<!--                                    </td>-->
-<!--                                    <td style="width: 20%; text-align: center;">-->
-<!--                                        <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/company_bank_details_last_footer.jpg'"-->
-<!--                                             style="height: 300px;text-align:center; width:100%; padding-top:80px;"/>-->
-<!--                                    </td>-->
-<!--                                </footer>-->
+                                <footer>
+                                    <td style="width: 20%; text-align: center;">
+                                        <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/footer_companies_names.png'"
+                                             style="height: 200px;text-align:center; width:100%; padding-top:30px;"/>
+                                    </td>
+                                    <td style="width: 20%; text-align: center;">
+                                        <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/company_bank_details_last_footer.jpg'"
+                                             style="height: 300px;text-align:center; width:100%; padding-top:80px;"/>
+                                    </td>
+                                </footer>
 
 
-<!--                            </t>-->
+
 
 
                         </body>

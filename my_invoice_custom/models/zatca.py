@@ -1,8 +1,8 @@
-from odoo import models, fields
+from odoo import models, fields, api
 import base64
 import qrcode
 from io import BytesIO
-import struct  # Required for TLV
+import struct
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
@@ -13,6 +13,7 @@ class AccountMove(models.Model):
         store=False
     )
 
+    @api.depends('company_id.name', 'company_id.vat', 'invoice_date', 'amount_total', 'amount_tax')
     def _compute_qr_code_image(self):
         for rec in self:
             def _encode_tlv(tag, value):

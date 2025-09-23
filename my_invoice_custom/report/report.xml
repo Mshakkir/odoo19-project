@@ -1,9 +1,11 @@
-<report
-    id="custom_invoice_pdf"
-    model="account.move"
-    string="Custom Invoice"
-    report_type="qweb-pdf"
-    name="my_invoice_custom.custom_invoice_report"
-    file="my_invoice_custom.custom_invoice_report"
-    print_report_name="'Custom Invoice - %s' % (object.name)"
-/>
+<odoo>
+    <report
+        id="custom_invoice_pdf"
+        model="account.move"
+        string="Custom Invoice"
+        report_type="qweb-pdf"
+        name="my_invoice_custom.report_invoice_document"
+        file="my_invoice_custom.report_invoice_document"
+        print_report_name="'Custom Invoice - %s' % (object.name)"
+    />
+</odoo>

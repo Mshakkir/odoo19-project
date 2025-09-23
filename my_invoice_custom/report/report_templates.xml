@@ -1,5 +1,5 @@
 <odoo>
-  <template id="custom_invoice_report" inherit_id="l10n_gcc_invoice.l10n_gcc_report_invoice_document">
+    <template id="custom_invoice_report" inherit_id="l10n_sa.l10n_sa_report_invoice_document">
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
             <t t-call="web.html_container">
                 <style>
@@ -362,7 +362,8 @@
                                     style="border:1px solid #ccc; padding:10px; font-size:12px; font-weight:bold; background:#fafafa;">
 
                                     <t t-if="o.partner_id.lang == 'ar_001'">
-                                        <span t-esc="o.currency_id.amount_to_text(o.amount_total, lang='ar')"/> فقط
+                                        <span t-esc="o.currency_id.amount_to_text(o.amount_total, lang='ar')"/>
+                                        فقط
                                     </t>
                                     <t t-else="">
                                         <span t-esc="o.currency_id.amount_to_text(o.amount_total)"/>

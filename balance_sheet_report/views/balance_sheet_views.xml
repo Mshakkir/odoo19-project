@@ -1,42 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <template id="template_balance_sheet">
-        <t t-call="web.external_layout">
-            <t t-foreach="docs" t-as="doc">
-                <div class="page">
-                    <h2 style="text-align:center;">Balance Sheet Report</h2>
-                    <p>Date From: <t t-esc="doc.date_from"/></p>
-                    <p>Date To: <t t-esc="doc.date_to"/></p>
-
-                    <table class="table table-sm" style="width:100%; border-collapse: collapse;">
-                        <thead>
-                            <tr>
-                                <th style="border: 1px solid #000;">Assets</th>
-                                <th style="border: 1px solid #000;">Liabilities &amp; Equity</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td style="border: 1px solid #000; vertical-align: top;">
-                                    <t t-foreach="env['account.account'].search([('user_type_id.type','=','asset')])" t-as="acc">
-                                        <p>
-                                            <t t-esc="acc.code"/> - <t t-esc="acc.name"/>:
-                                            <t t-esc="sum(line.debit - line.credit for line in acc.line_ids)"/>
-                                        </p>
-                                    </t>
-                                </td>
-                                <td style="border: 1px solid #000; vertical-align: top;">
-                                    <t t-foreach="env['account.account'].search([('user_type_id.type','in',['liability','equity'])])" t-as="acc">
-                                        <p>
-                                            <t t-esc="acc.code"/> - <t t-esc="acc.name"/>:
-                                            <t t-esc="sum(line.credit - line.debit for line in acc.line_ids)"/>
-                                        </p>
-                                    </t>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </t>
-        </t>
-    </template>
+    <record id="balance_sheet_form_view" model="ir.ui.view">
+        <field name="name">balance.sheet.form</field>
+        <field name="model">account.balance.sheet</field>
+        <field name="arch" type="xml">
+            <form string="Balance Sheet">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                    <footer>
+                        <button string="Generate Report" type="object" name="action_generate_report" class="btn-primary"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
 </odoo>

@@ -92,8 +92,8 @@
         'views/account_move_line_views.xml',
         'views/account_bank_statement_views.xml',
         'views/account_bank_statement_line_views.xml',
+        'views/account_payment_view.xml',
         'wizard/account_lock_date_views.xml',
-        'wizard/import_bank_statement_views.xml',
     ],
     'external_dependencies': {
             'python': ['openpyxl', 'ofxparse']

@@ -1,0 +1,12 @@
+<odoo>
+    <menuitem id="menu_balance_sheet"
+              name="Balance Sheet"
+              parent="account.menu_finance_reports"
+              sequence="10"/>
+
+    <act_window id="action_balance_sheet"
+                name="Balance Sheet"
+                res_model="account.balance.sheet"
+                view_mode="tree"
+                menu_id="menu_balance_sheet"/>
+</odoo>

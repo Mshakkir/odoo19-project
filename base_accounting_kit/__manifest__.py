@@ -97,7 +97,7 @@
         'wizard/import_bank_statement_views.xml',
     ],
     'external_dependencies': {
-            'python': ['openpyxl', 'ofxparse',]
+            'python': ['openpyxl', 'ofxparse']
         },
     'assets': {
         'web.assets_backend': [

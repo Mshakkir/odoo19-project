@@ -6,7 +6,7 @@
     'depends': ['account'],
     'data': [
         'report/balance_sheet_report.xml',
-        'report/balance_sheet_template.xml',
+        'report/balance_sheet_views.xml',
         'report/balance_sheet_action.xml',
         'report/balance_sheet_menu.xml',
     ],

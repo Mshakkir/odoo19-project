@@ -33,5 +33,5 @@ from . import asset_depreciation_confirmation
 from . import asset_modify
 from . import cash_flow_report
 from . import financial_report
-# from . import import_bank_statement
+from . import import_bank_statement
 from . import kit_account_tax_report

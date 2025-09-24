@@ -1,0 +1,30 @@
+<odoo>
+    <template id="template_balance_sheet">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <div class="page">
+                    <h2 style="text-align:center;">Balance Sheet</h2>
+                    <h4>Date: <t t-esc="context.get('date')"/></h4>
+                    <table class="table table-sm">
+                        <tr>
+                            <th>Assets</th>
+                            <th>Liabilities &amp; Equity</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <t t-foreach="o.env['account.account'].search([('user_type_id.type','=','asset')])" t-as="acc">
+                                    <p><t t-esc="acc.code"/> - <t t-esc="acc.name"/>: <t t-esc="sum(line.debit - line.credit for line in acc.line_ids)"/></p>
+                                </t>
+                            </td>
+                            <td>
+                                <t t-foreach="o.env['account.account'].search([('user_type_id.type','in',['liability','equity'])])" t-as="acc">
+                                    <p><t t-esc="acc.code"/> - <t t-esc="acc.name"/>: <t t-esc="sum(line.credit - line.debit for line in acc.line_ids)"/></p>
+                                </t>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

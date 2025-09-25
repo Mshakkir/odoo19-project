@@ -3,11 +3,25 @@ from odoo import models, fields, api
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    discount_amount = fields.Monetary(string="Discount", default=0.0, currency_field='currency_id')
-    freight_amount = fields.Monetary(string="Freight", default=0.0, currency_field='currency_id')
+    discount_amount = fields.Monetary(string="Discount", default=0.0)
+    freight_amount = fields.Monetary(string="Freight", default=0.0)
 
-    @api.depends('order_line.price_total', 'discount_amount', 'freight_amount', 'order_line.tax_id')
+    @api.depends('order_line.price_total', 'order_line.tax_id', 'discount_amount', 'freight_amount')
     def _amount_all(self):
-        super(SaleOrder, self)._amount_all()
+        """
+        Compute the amounts of the SO: amount_untaxed, amount_tax, amount_total.
+        """
         for order in self:
-            order.amount_total = order.amount_untaxed - order.discount_amount + order.freight_amount + order.amount_tax
+            amount_untaxed = amount_tax = 0.0
+            for line in order.order_line:
+                amount_untaxed += line.price_subtotal
+                amount_tax += line.price_tax
+
+            # apply discount and freight
+            amount_total = amount_untaxed + amount_tax - order.discount_amount + order.freight_amount
+
+            order.update({
+                'amount_untaxed': amount_untaxed,
+                'amount_tax': amount_tax,
+                'amount_total': amount_total,
+            })

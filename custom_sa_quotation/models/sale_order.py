@@ -21,12 +21,17 @@ class SaleOrder(models.Model):
         for order in self:
             amount_untaxed = sum(line.price_subtotal for line in order.order_line)
             amount_tax = sum(line.price_tax for line in order.order_line)
-
-            # Include discount and freight in the calculation
             amount_total = amount_untaxed - order.discount_amount + order.freight_amount + amount_tax
-
             order.update({
                 'amount_untaxed': amount_untaxed,
                 'amount_tax': amount_tax,
                 'amount_total': amount_total,
             })
+
+    @api.onchange('discount_amount', 'freight_amount')
+    def _onchange_discount_freight(self):
+        """
+        Trigger recalculation of amounts when discount or freight is updated
+        """
+        for order in self:
+            order._amount_all()

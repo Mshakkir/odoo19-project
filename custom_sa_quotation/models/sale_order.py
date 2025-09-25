@@ -8,15 +8,8 @@ class SaleOrder(models.Model):
 
     @api.depends('order_line.price_total', 'discount_amount', 'freight_amount', 'order_line.tax_id')
     def _amount_all(self):
+        # Call super to preserve original computation
+        super(SaleOrder, self)._amount_all()
         for order in self:
-            untaxed_amount = sum(line.price_subtotal for line in order.order_line)
-            tax_amount = sum(line.price_tax for line in order.order_line)
-            order.update({
-                'amount_untaxed': untaxed_amount,
-                'amount_tax': tax_amount,
-                'amount_total': untaxed_amount - order.discount_amount + order.freight_amount + tax_amount,
-            })
-
-    @api.onchange('discount_amount', 'freight_amount')
-    def _onchange_discount_freight(self):
-        self._amount_all()
+            # Override amount_total to include discount and freight
+            order.amount_total = order.amount_untaxed - order.discount_amount + order.freight_amount + order.amount_tax

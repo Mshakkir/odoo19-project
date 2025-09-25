@@ -4,16 +4,19 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <!-- Place fields below the order date field -->
+
+            <!-- Optional: Add editable fields above order lines -->
             <xpath expr="//field[@name='order_line']" position="before">
-                <group>
-                    <field name="discount_amount"/>
-                    <field name="freight_amount"/>
+                <group string="Extra Charges">
+                    <field name="discount_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    <field name="freight_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 </group>
             </xpath>
-                <xpath expr="//group[@name='sale_total']" position="inside">
-                <field name="discount_amount" string="Discount"/>
-                <field name="freight_amount" string="Freight"/>
+
+            <!-- Add fields inside the totals section -->
+            <xpath expr="//group[@name='sale_total']" position="inside">
+                <field name="discount_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="freight_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
             </xpath>
 
         </field>

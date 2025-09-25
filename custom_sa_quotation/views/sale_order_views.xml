@@ -16,11 +16,11 @@
             <!-- Add fields in the totals section -->
             <xpath expr="//group[@name='sale_total']" position="inside">
                 <div class="d-flex justify-content-between">
-                    <label string="Discount"/>
+
                     <field name="discount_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 </div>
                 <div class="d-flex justify-content-between">
-                    <label string="Freight"/>
+
                     <field name="freight_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 </div>
             </xpath>

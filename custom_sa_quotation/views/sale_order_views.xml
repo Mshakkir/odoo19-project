@@ -7,8 +7,9 @@
             <!-- Place fields below the order date field -->
             <xpath expr="//field[@name='order_line']" position="before">
                 <group>
-                    <field name="discount_amount"/>
-                    <field name="freight_amount"/>
+<field name="discount_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+<field name="freight_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+
                 </group>
             </xpath>
 

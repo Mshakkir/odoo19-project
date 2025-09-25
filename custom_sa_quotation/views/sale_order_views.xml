@@ -6,7 +6,7 @@
         <field name="arch" type="xml">
 
             <!-- Insert discount and freight fields below the Order Date field -->
-            <xpath expr="//group[@name='order_details']/field[@name='date_order']" position="after">
+            <xpath expr="//group[@name='sale_total']/field[@name='date_order']" position="after">
                 <field name="discount_amount" string="Discount"/>
                 <field name="freight_amount" string="Freight"/>
             </xpath>

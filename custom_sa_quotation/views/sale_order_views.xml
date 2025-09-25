@@ -4,13 +4,11 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <!-- Place fields below the order date field -->
-            <xpath expr="//field[@name='order_line']" position="before">
-                <group>
-<field name="discount_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-<field name="freight_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
 
-                </group>
+            <!-- Add discount & freight inside totals box -->
+            <xpath expr="//field[@name='amount_total']" position="before">
+                <field name="discount_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="freight_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
             </xpath>
 
         </field>

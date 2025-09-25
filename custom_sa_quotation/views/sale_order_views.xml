@@ -4,23 +4,11 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <!-- Place fields below the order date field -->
-            <xpath expr="//field[@name='order_line']" position="before">
-                <group>
-                    <field name="discount_amount"/>
-                    <field name="freight_amount"/>
-                </group>
-            </xpath>
 
-            <xpath expr="//div[@name='total']" position="inside">
-                <div class="o_row">
-                    <label for="discount_amount"/>
-                    <field name="discount_amount" readonly="1"/>
-                </div>
-                <div class="o_row">
-                    <label for="freight_amount"/>
-                    <field name="freight_amount" readonly="1"/>
-                </div>
+            <!-- Insert discount and freight fields below the Order Date field -->
+            <xpath expr="//group[@name='order_details']/field[@name='date_order']" position="after">
+                <field name="x_discount" string="Discount"/>
+                <field name="x_freight" string="Freight"/>
             </xpath>
 
         </field>

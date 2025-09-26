@@ -17,7 +17,7 @@ class SaleOrder(models.Model):
         help="Total freight amount applied to this order"
     )
 
-    purchase_order_number = fields.Char(
+    po_number = fields.Char(
         string="PO Number",
         help="Customer's Purchase Order Number for reference"
     )

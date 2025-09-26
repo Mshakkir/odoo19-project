@@ -14,7 +14,7 @@
 
                 <!-- Add Purchase Order Number field -->
                 <group string="Reference Information" col="2">
-                    <field name="purchase_order_number" placeholder="Enter customer's PO number..."/>
+                    <field name="po_number" placeholder="Enter customer's PO number..."/>
                 </group>
             </xpath>
 

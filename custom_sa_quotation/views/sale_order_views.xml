@@ -14,24 +14,16 @@
             </xpath>
 
             <!-- Add discount and freight in the totals section -->
-            <xpath expr="//div[@name='invoice_address']/following-sibling::group[@name='sale_total']" position="inside">
-                <!-- Untaxed Amount (this should already exist, but we're showing it for completeness) -->
-                <div class="oe_subtotal_footer_separator oe_inline o_td_label">
-                    <label for="amount_untaxed" string="Untaxed Amount"/>
-                </div>
-                <field name="amount_untaxed" nolabel="1" class="oe_subtotal_footer_separator"/>
-
+            <xpath expr="//field[@name='amount_untaxed']" position="after">
                 <!-- Discount Amount -->
-                <div class="oe_subtotal_footer_separator oe_inline o_td_label">
-                    <label for="discount_amount" string="Discount"/>
-                </div>
-                <field name="discount_amount" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}" class="oe_subtotal_footer_separator"/>
+                <field name="discount_amount" string="Discount" widget="monetary"
+                       options="{'currency_field': 'currency_id'}"
+                       class="oe_subtotal_footer_separator"/>
 
                 <!-- Freight Amount -->
-                <div class="oe_subtotal_footer_separator oe_inline o_td_label">
-                    <label for="freight_amount" string="Freight"/>
-                </div>
-                <field name="freight_amount" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}" class="oe_subtotal_footer_separator"/>
+                <field name="freight_amount" string="Freight" widget="monetary"
+                       options="{'currency_field': 'currency_id'}"
+                       class="oe_subtotal_footer_separator"/>
             </xpath>
 
         </field>

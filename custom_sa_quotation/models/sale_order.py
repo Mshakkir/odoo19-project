@@ -18,7 +18,7 @@ class SaleOrder(models.Model):
     )
 
     purchase_order_number = fields.Char(
-        string="Purchase Order Number",
+        string="PO Number",
         help="Customer's Purchase Order Number for reference"
     )
 

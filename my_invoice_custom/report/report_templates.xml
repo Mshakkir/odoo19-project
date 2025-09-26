@@ -227,11 +227,11 @@
                                     </td>
 
                                     <!-- Discount -->
-                                    <td style="padding:3px;">
-                                        <t t-if="l[1].discount">
-                                            <span t-field="l[1].discount"/>%
-                                        </t>
-                                        <t t-else="">0%</t>
+
+                                    <td>Discount</td>
+                                    <td style="text-align:right;">
+                                        <t t-esc="doc.discount_amount or 0.0"/>
+                                        SAR
                                     </td>
 
                                     <!-- Subtotal -->

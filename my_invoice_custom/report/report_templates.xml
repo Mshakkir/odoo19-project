@@ -230,9 +230,7 @@
 
                                     <td>Discount</td>
                                     <td style="text-align:right;">
-                                        <t t-esc="0.0"/>
-
-                                        SAR
+                                           0.00
                                     </td>
 
                                     <!-- Subtotal -->
@@ -318,15 +316,14 @@
                                                       t-options='{"widget": "float", "precision": 2}'/>
                                             </td>
                                         </tr>
-                                        <tr>
-                                            <td style="padding:6px;">Discount :<br/>الخصم
-                                            </td>
-                                            <td style="text-align:right; padding:6px;">
-                                                <t t-set="discount"
-                                                   t-value="sum((l.price_unit * l.quantity * (l.discount or 0.0) / 100.0) for l in o.invoice_line_ids)"/>
-                                                <span t-esc="discount" t-options='{"widget": "float", "precision": 2}'/>
-                                            </td>
-                                        </tr>
+                                        <t t-if="o.discount">
+                                            <tr>
+                                                <td>Discount:</td>
+                                                <td><span t-esc="o.discount"/>%
+                                                </td>
+                                            </tr>
+                                        </t>
+
 
                                         <tr>
                                             <td style="padding:6px;">Net Amount :<br/>صافي المجموع
@@ -336,6 +333,7 @@
                                                       t-options='{"widget": "float", "precision": 2}'/>
                                             </td>
                                         </tr>
+
                                         <tr>
                                             <td style="padding:6px;">VAT (15%) :<br/>ضريبة القيمة المضافة
                                             </td>

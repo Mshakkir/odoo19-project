@@ -7,7 +7,7 @@ import struct
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    discount = fields.Float(string="Discount")
+    discount = fields.Char(string="Discount")
 
 
 

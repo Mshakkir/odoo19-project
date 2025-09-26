@@ -7,7 +7,7 @@ import struct
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    discount = fields.Char(string="Discount")
+    # discount = fields.Char(string="Discount")
 
 
 
@@ -46,10 +46,10 @@ class AccountMove(models.Model):
             buffer = BytesIO()
             img.save(buffer, format='PNG')
             rec.qr_code_image = base64.b64encode(buffer.getvalue())
-class SaleOrder(models.Model):
-    _inherit = "sale.order"
-
-    def _prepare_invoice(self):
-        invoice_vals = super()._prepare_invoice()
-        invoice_vals['discount'] = self.discount
-        return invoice_vals
+# class SaleOrder(models.Model):
+#     _inherit = "sale.order"
+#
+#     def _prepare_invoice(self):
+#         invoice_vals = super()._prepare_invoice()
+#         invoice_vals['discount'] = self.discount
+#         return invoice_vals

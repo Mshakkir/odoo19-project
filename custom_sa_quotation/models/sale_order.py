@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 
+
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
@@ -18,20 +19,29 @@ class SaleOrder(models.Model):
 
     @api.depends('order_line.price_subtotal', 'order_line.price_tax', 'discount_amount', 'freight_amount')
     def _amount_all(self):
+        """
+        Compute the total amounts of the SO.
+        """
         for order in self:
-            amount_untaxed = sum(line.price_subtotal for line in order.order_line)
-            amount_tax = sum(line.price_tax for line in order.order_line)
-            amount_total = amount_untaxed - order.discount_amount + order.freight_amount + amount_tax
+            # Calculate base amounts from order lines
+            amount_untaxed = amount_tax = 0.0
+            for line in order.order_line:
+                amount_untaxed += line.price_subtotal
+                amount_tax += line.price_tax
+
+            # Apply discount and freight to the total
+            amount_total = amount_untaxed + amount_tax - order.discount_amount + order.freight_amount
+
+            # Update the order fields
             order.update({
                 'amount_untaxed': amount_untaxed,
                 'amount_tax': amount_tax,
                 'amount_total': amount_total,
             })
 
-    @api.onchange('discount_amount', 'freight_amount')
+    @api.onchange('discount_amount', 'freight_amount', 'order_line')
     def _onchange_discount_freight(self):
         """
-        Trigger recalculation of amounts when discount or freight is updated
+        Trigger recalculation when discount, freight, or order lines change
         """
-        for order in self:
-            order._amount_all()
+        self._amount_all()

@@ -131,7 +131,7 @@
                                 <tr style="background-color: #FFFFFF;">
                                     <td style="border: 1px solid #000; padding: 4px; width: 33%;">
                                         <strong>P.O No :</strong>
-                                        <span t-esc="o.payment_reference or ''"/>
+                                        <span t-esc="client_order_ref or ''"/>
                                     </td>
 
                                     <td style="border: 1px solid #000; padding: 4px; width: 33%;">

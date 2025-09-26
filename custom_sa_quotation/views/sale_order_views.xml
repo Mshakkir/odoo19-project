@@ -13,16 +13,61 @@
                 </group>
             </xpath>
 
-            <!-- Add discount and freight fields in the totals section -->
-            <xpath expr="//field[@name='tax_totals']" position="before">
-                <div class="oe_subtotal_footer_separator oe_inline d-flex justify-content-between">
-                    <span>Discount:</span>
-                    <field name="discount_amount" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}" class="oe_subtotal_footer_separator"/>
-                </div>
-                <div class="oe_subtotal_footer_separator oe_inline d-flex justify-content-between">
-                    <span>Freight:</span>
-                    <field name="freight_amount" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}" class="oe_subtotal_footer_separator"/>
-                </div>
+            <!-- Add custom totals section after the original totals -->
+            <xpath expr="//group[@name='sale_total']" position="after">
+                <group string="Detailed Totals" class="oe_subtotal_footer d-flex flex-column gap-0 gap-sm-2" colspan="2" name="custom_totals">
+
+                    <!-- Untaxed Amount -->
+                    <div class="oe_subtotal_footer_separator oe_inline d-flex justify-content-between">
+                        <span class="fw-bold">Untaxed Amount:</span>
+                        <field name="custom_untaxed_amount" nolabel="1" widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               class="oe_subtotal_footer_separator fw-bold"/>
+                    </div>
+
+                    <!-- Discount Amount -->
+                    <div class="oe_subtotal_footer_separator oe_inline d-flex justify-content-between"
+                         invisible="discount_amount == 0">
+                        <span class="text-danger">Less: Discount Amount:</span>
+                        <field name="discount_amount" nolabel="1" widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               class="oe_subtotal_footer_separator text-danger"/>
+                    </div>
+
+                    <!-- Freight Amount -->
+                    <div class="oe_subtotal_footer_separator oe_inline d-flex justify-content-between"
+                         invisible="freight_amount == 0">
+                        <span class="text-success">Add: Freight Amount:</span>
+                        <field name="freight_amount" nolabel="1" widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               class="oe_subtotal_footer_separator text-success"/>
+                    </div>
+
+                    <!-- Gross Total -->
+                    <div class="oe_subtotal_footer_separator oe_inline d-flex justify-content-between">
+                        <span class="fw-bold">Gross Total:</span>
+                        <field name="custom_gross_total" nolabel="1" widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               class="oe_subtotal_footer_separator fw-bold"/>
+                    </div>
+
+                    <!-- VAT Taxes -->
+                    <div class="oe_subtotal_footer_separator oe_inline d-flex justify-content-between">
+                        <span>VAT Taxes:</span>
+                        <field name="custom_tax_amount" nolabel="1" widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               class="oe_subtotal_footer_separator"/>
+                    </div>
+
+                    <!-- Net Total -->
+                    <div class="oe_subtotal_footer_separator oe_inline d-flex justify-content-between border-top pt-2">
+                        <span class="fw-bold fs-5 text-primary">Net Total:</span>
+                        <field name="custom_net_total" nolabel="1" widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               class="oe_subtotal_footer_separator fw-bold fs-5 text-primary"/>
+                    </div>
+
+                </group>
             </xpath>
 
         </field>

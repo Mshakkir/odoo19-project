@@ -230,7 +230,8 @@
 
                                     <td>Discount</td>
                                     <td style="text-align:right;">
-                                        <t t-esc="doc.discount_amount or 0.0"/>
+                                        <t t-esc="o.discount_amount or 0.0"/>
+
                                         SAR
                                     </td>
 

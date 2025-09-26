@@ -12,10 +12,7 @@
                     <field name="freight_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 </group>
 
-                <!-- Add Purchase Order Number field -->
-                <group string="Reference Information" col="2">
-                    <field name="po_number" placeholder="Enter customer's PO number..."/>
-                </group>
+
             </xpath>
 
             <!-- Add custom totals section after the original totals -->

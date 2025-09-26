@@ -17,10 +17,6 @@ class SaleOrder(models.Model):
         help="Total freight amount applied to this order"
     )
 
-    po_number = fields.Char(
-        string="PO Number",
-        help="Customer's Purchase Order Number for reference"
-    )
 
     # Custom computed fields for the new totals section
     custom_untaxed_amount = fields.Monetary(

@@ -13,17 +13,16 @@
                 </group>
             </xpath>
 
-            <!-- Add discount and freight in the totals section -->
-            <xpath expr="//field[@name='amount_untaxed']" position="after">
-                <!-- Discount Amount -->
-                <field name="discount_amount" string="Discount" widget="monetary"
-                       options="{'currency_field': 'currency_id'}"
-                       class="oe_subtotal_footer_separator"/>
-
-                <!-- Freight Amount -->
-                <field name="freight_amount" string="Freight" widget="monetary"
-                       options="{'currency_field': 'currency_id'}"
-                       class="oe_subtotal_footer_separator"/>
+            <!-- Add discount and freight fields in the totals section -->
+            <xpath expr="//field[@name='tax_totals']" position="before">
+                <div class="oe_subtotal_footer_separator oe_inline d-flex justify-content-between">
+                    <span>Discount:</span>
+                    <field name="discount_amount" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}" class="oe_subtotal_footer_separator"/>
+                </div>
+                <div class="oe_subtotal_footer_separator oe_inline d-flex justify-content-between">
+                    <span>Freight:</span>
+                    <field name="freight_amount" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}" class="oe_subtotal_footer_separator"/>
+                </div>
             </xpath>
 
         </field>

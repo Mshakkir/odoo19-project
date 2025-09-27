@@ -176,9 +176,9 @@
                                         <br/>
                                         <span class="arabic-font">سعر الوحدة</span>
                                     </th>
-                                    <th style="padding:4px;color:#080808;">Disc%
+                                    <th style="padding:4px;color:#080808;">Disc Amt
                                         <br/>
-                                        <span class="arabic-font">خصم%</span>
+                                        <span class="arabic-font">مبلغ الخصم</span>
                                     </th>
                                     <th style="padding:4px;color:#080808;">Amount
                                         <br/>
@@ -226,19 +226,20 @@
                                     </td>
 
                                     <!-- Unit Price -->
-                                    <td style="padding:3px;">
-                                        <span t-field="l[1].price_unit"/>
+                                    <td style="padding:3px; text-align:right;">
+                                        <span t-field="l[1].price_unit" t-options='{"widget": "float", "precision": 2}'/>
                                     </td>
 
-                                    <!-- Discount % -->
-                                    <td style="padding:3px;">
-                                        <span t-esc="l[1].discount or 0.0"/>%
+                                    <!-- Discount Amount (calculated from percentage) -->
+                                    <td style="padding:3px; text-align:right;">
+                                        <t t-set="line_discount_amount" t-value="l[1].quantity * l[1].price_unit * (l[1].discount or 0.0) / 100.0"/>
+                                        <span t-esc="line_discount_amount" t-options='{"widget": "float", "precision": 2}'/>
                                     </td>
 
                                     <!-- Subtotal (after discount) -->
                                     <td style="padding:3px; text-align:right;">
-                                        <span t-esc="l[1].quantity * l[1].price_unit * (1 - (l[1].discount or 0.0)/100.0)"
-                                              t-options='{"widget": "float", "precision": 2}'/>
+                                        <t t-set="line_subtotal" t-value="l[1].quantity * l[1].price_unit * (1 - (l[1].discount or 0.0)/100.0)"/>
+                                        <span t-esc="line_subtotal" t-options='{"widget": "float", "precision": 2}'/>
                                     </td>
 
                                     <!-- VAT % -->
@@ -251,14 +252,13 @@
 
                                     <!-- VAT Amount -->
                                     <td style="padding:3px; text-align:right;">
-                                        <span t-esc="(l[1].quantity * l[1].price_unit * (1 - (l[1].discount or 0.0)/100.0)) * (sum(t.amount for t in l[1].tax_ids) / 100.0)"
-                                              t-options='{"widget": "float", "precision": 2}'/>
+                                        <t t-set="line_vat_amount" t-value="line_subtotal * (sum(t.amount for t in l[1].tax_ids) / 100.0)"/>
+                                        <span t-esc="line_vat_amount" t-options='{"widget": "float", "precision": 2}'/>
                                     </td>
 
                                     <!-- Total incl VAT -->
                                     <td style="padding:3px; text-align:right;">
-                                        <span t-esc="l[1].price_total"
-                                              t-options='{"widget": "float", "precision": 2}'/>
+                                        <span t-esc="line_subtotal + line_vat_amount" t-options='{"widget": "float", "precision": 2}'/>
                                     </td>
                                 </tr>
                             </tbody>

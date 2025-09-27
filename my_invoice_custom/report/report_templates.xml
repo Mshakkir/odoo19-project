@@ -11,7 +11,7 @@
 
                 <t t-foreach="docs" t-as="o">
                     <!-- Set safe discount value -->
-                    <t t-set="discount" t-value="o.discount or 0.0"/>
+                    <t t-set="discount" t-value="0.0"/>
 
                     <div class="page">
                         <div class="header"

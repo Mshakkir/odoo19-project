@@ -80,7 +80,7 @@
                                 <tr>
                                     <td style="padding:4px 8px;"><strong>Inv #.</strong> <t t-esc="o.name"/> رقم الفاتورة</td>
                                     <td style="padding:4px 8px;"><strong>Date :</strong> <t t-esc="o.invoice_date.strftime('%d/%b/%Y') if o.invoice_date else ''"/> التاريخ</td>
-                                    <td t-if="o.delivery_date"><strong>Delivery Date :</strong> <t t-field="o.delivery_date"/></td>
+                                    <td t-if="o.delivery_date"><strong>Delivery Date :</strong> <span  t-field="o.delivery_date"/></td>
                                 </tr>
                                 <tr>
                                     <td style="border:1px solid #000; padding:4px;">P.O No : <t t-esc="o.invoice_origin or ''"/></td>

@@ -154,7 +154,7 @@
                                     <td style="padding:3px;"><span t-field="l[1].price_unit"/></td>
                                     <td style="padding:3px;">0.00</td>
                                     <td style="padding:3px; text-align:right;">
-                                        <span t-esc="l[1].quantity * l[1].price_unit * (1 - (l[1].discount or 0.0)/100.0)"
+                                        <span t-esc="l[1].quantity * l[1].price_unit"
                                               t-options='{"widget": "float", "precision": 2}'/>
                                     </td>
                                     <td style="padding:3px;">
@@ -163,11 +163,11 @@
                                         </t>
                                     </td>
                                     <td style="padding:3px; text-align:right;">
-                                        <span t-esc="(l[1].quantity * l[1].price_unit * (1 - (l[1].discount or 0.0)/100.0)) * (sum(t.amount for t in l[1].tax_ids) / 100.0)"
+                                        <span t-esc="(l[1].quantity * l[1].price_unit  * (sum(t.amount for t in l[1].tax_ids) / 100.0)"
                                               t-options='{"widget": "float", "precision": 2}'/>
                                     </td>
                                     <td style="padding:3px; text-align:right;">
-                                        <span t-esc="l[1].quantity * l[1].price_unit * (1 - (l[1].discount or 0.0)/100.0) * (1 + (sum(t.amount for t in l[1].tax_ids) / 100.0))"
+                                        <span t-esc="l[1].quantity * l[1].price_unit  * (1 + (sum(t.amount for t in l[1].tax_ids) / 100.0))"
                                               t-options='{"widget": "float", "precision": 2}'/>
                                     </td>
                                 </tr>
@@ -203,7 +203,7 @@
                                         <tr>
                                             <td style="padding:6px;">Total Amount :<br/>المبلغ الإجمالي</td>
                                             <td style="text-align:right; padding:6px;">
-                                                <t t-set="total_amount" t-value="sum(line.quantity * line.price_unit * (1 - (line.discount or 0.0)/100.0) for line in o.invoice_line_ids)"/>
+                                                <t t-set="total_amount" t-value="sum(line.quantity * line.price_unit )"/>
                                                 <span t-esc="total_amount" t-options='{"widget": "float", "precision": 2}'/>
                                             </td>
                                         </tr>
@@ -216,7 +216,7 @@
                                         <tr>
                                             <td style="padding:6px;">Net Amount :<br/>صافي المجموع</td>
                                             <td style="text-align:right; padding:6px;">
-                                                <span t-esc="total_amount - (total_amount * discount / 100.0)" t-options='{"widget": "float", "precision": 2}'/>
+                                                <span t-esc="total_amount" t-options='{"widget": "float", "precision": 2}'/>
                                             </td>
                                         </tr>
                                         <tr>
@@ -229,7 +229,7 @@
                                         <tr style="background:#f5f5f5; font-weight:bold; font-size:13px;">
                                             <td style="padding:8px;">Grand Total :<br/>المبلغ الإجمالي</td>
                                             <td style="text-align:right; padding:8px;">
-                                                <span t-esc="(total_amount - (total_amount * discount / 100.0)) + vat_total" t-options='{"widget": "float", "precision": 2}'/>
+                                                <span t-esc="(total_amount  + vat_total" t-options='{"widget": "float", "precision": 2}'/>
                                             </td>
                                         </tr>
                                     </table>

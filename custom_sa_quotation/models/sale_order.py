@@ -2,7 +2,7 @@ from odoo import models, fields, api
 
 
 class SaleOrder(models.Model):
-    _inherit = 'sale.order'
+    _inherit = 'sale.order.line'
 
     discount_amount = fields.Monetary(
         string="Discount",

@@ -1,23 +1,19 @@
-# -*- coding: utf-8 -*-
 {
     'name': 'Odoo 19 Accounting Financial Reports',
     'version': '1.0.2',
-    'category': 'Accounting',
-    'summary': 'Accounting Financial Reports such as Balance Sheet, P&L, Trial Balance, Ledgers',
-    'description': """
-This module provides advanced accounting and financial reports for Odoo 19.
-Includes Balance Sheet, Profit and Loss, Trial Balance, General Ledger,
-Partner Ledger, Aged Partner, Journal Audit, and Tax Reports.
-    """,
-    'sequence': 1,
+    'category': 'Invoicing Management',
+    'description': 'Accounting Reports For Odoo 19, Accounting Financial Reports, '
+                   'Odoo 19 Financial Reports',
+    'summary': 'Accounting Reports For Odoo 19',
+    'sequence': '1',
     'author': 'Odoo Mates, Odoo SA',
-    'maintainer': 'Odoo Mates',
-    'website': 'https://www.odoomates.tech',
     'license': 'LGPL-3',
+    'company': 'Odoo Mates',
+    'maintainer': 'Odoo Mates',
     'support': 'odoomates@gmail.com',
-    'depends': [
-        'account',
-    ],
+    'website': 'https://www.youtube.com/watch?v=yA4NLwOLZms',
+    'depends': ['account'],
+    'live_test_url': 'https://www.youtube.com/watch?v=yA4NLwOLZms',
     'data': [
         'security/ir.model.access.csv',
         'data/account_account_type.xml',
@@ -44,65 +40,6 @@ Partner Ledger, Aged Partner, Journal Audit, and Tax Reports.
         'report/report_journal_audit.xml',
         'report/report_journal_entries.xml',
     ],
-    'assets': {
-        'web.assets_backend': [
-            'accounting_pdf_reports/static/src/css/*.css',
-            'accounting_pdf_reports/static/src/js/*.js',
-        ],
-        'web.assets_qweb': [
-            'accounting_pdf_reports/static/src/xml/*.xml',
-        ],
-    },
+    'pre_init_hook': '_pre_init_clean_m2m_models',
     'images': ['static/description/banner.gif'],
-    'installable': True,
-    'application': False,
-    'auto_install': False,
 }
-
-
-
-# {
-#     'name': 'Odoo 19 Accounting Financial Reports',
-#     'version': '1.0.2',
-#     'category': 'Invoicing Management',
-#     'description': 'Accounting Reports For Odoo 19, Accounting Financial Reports, '
-#                    'Odoo 19 Financial Reports',
-#     'summary': 'Accounting Reports For Odoo 19',
-#     'sequence': '1',
-#     'author': 'Odoo Mates, Odoo SA',
-#     'license': 'LGPL-3',
-#     'company': 'Odoo Mates',
-#     'maintainer': 'Odoo Mates',
-#     'support': 'odoomates@gmail.com',
-#     'website': 'https://www.youtube.com/watch?v=yA4NLwOLZms',
-#     'depends': ['account'],
-#     'live_test_url': 'https://www.youtube.com/watch?v=yA4NLwOLZms',
-#     'data': [
-#         'security/ir.model.access.csv',
-#         'data/account_account_type.xml',
-#         'views/menu.xml',
-#         'views/ledger_menu.xml',
-#         'views/financial_report.xml',
-#         'views/settings.xml',
-#         'wizard/account_report_common_view.xml',
-#         'wizard/partner_ledger.xml',
-#         'wizard/general_ledger.xml',
-#         'wizard/trial_balance.xml',
-#         'wizard/balance_sheet.xml',
-#         'wizard/profit_and_loss.xml',
-#         'wizard/tax_report.xml',
-#         'wizard/aged_partner.xml',
-#         'wizard/journal_audit.xml',
-#         'report/report.xml',
-#         'report/report_partner_ledger.xml',
-#         'report/report_general_ledger.xml',
-#         'report/report_trial_balance.xml',
-#         'report/report_financial.xml',
-#         'report/report_tax.xml',
-#         'report/report_aged_partner.xml',
-#         'report/report_journal_audit.xml',
-#         'report/report_journal_entries.xml',
-#     ],
-#     'pre_init_hook': '_pre_init_clean_m2m_models',
-#     'images': ['static/description/banner.gif'],
-# }

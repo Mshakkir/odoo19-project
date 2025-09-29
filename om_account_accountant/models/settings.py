@@ -5,7 +5,10 @@ class ResConfigSettings(models.TransientModel):
     _inherit = "res.config.settings"
 
 
-customer_credit_limit = fields.Float(string="Customer Credit Limit")
+customer_credit_limit = fields.Float(
+    string="Customer Credit Limit",
+    help="Set a default credit limit for customers",
+)
 
 anglo_saxon_accounting = fields.Boolean(
     related="company_id.anglo_saxon_accounting",

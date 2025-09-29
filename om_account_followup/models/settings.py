@@ -3,7 +3,10 @@ from odoo import api, fields, models, _
 
 class AccountConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
-    customer_credit_limit = fields.Float(string="Customer Credit Limit")
+    customer_credit_limit = fields.Float(
+        string="Customer Credit Limit",
+        help="Set a default credit limit for customers",
+    )
 
     def open_followup_level_form(self):
         res_ids = self.env['followup.followup'].search([], limit=1)

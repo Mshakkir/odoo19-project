@@ -3,8 +3,10 @@ from odoo import api, fields, models
 
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
-    customer_credit_limit = fields.Float(string="Customer Credit Limit")
-
+    customer_credit_limit = fields.Float(
+        string="Customer Credit Limit",
+        help="Set a default credit limit for customers",
+    )
     fiscalyear_last_day = fields.Integer(
         related='company_id.fiscalyear_last_day', readonly=False
     )

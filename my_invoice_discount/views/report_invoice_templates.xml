@@ -315,15 +315,23 @@
                                             </td>
                                         </tr>
 
-                                        <t t-if="total_discount_amount > 0">
-                                                   <tr>
-                                                    <td>Discount</td>
-                                                    <td style="text-align:right;">
-                                                        <t t-esc="doc.discount_amount or 0.0"/>
-                                                        SAR
-                                                    </td>
-                                                </tr>
-                                        </t>
+<t t-if="o.total_discount > 0">
+    <tr>
+        <td>Discount (<t t-esc="o.discount_type"/>):</td>
+        <td style="text-align:right;">
+            <t t-esc="o.total_discount or 0.0"/> SAR
+        </td>
+    </tr>
+</t>
+<t t-if="o.freight_amount > 0">
+    <tr>
+        <td>Freight :</td>
+        <td style="text-align:right;">
+            <t t-esc="o.freight_amount or 0.0"/> SAR
+        </td>
+    </tr>
+</t>
+
 
                                         <tr>
                                             <td style="padding:6px;">Net Amount :<br/>صافي المجموع

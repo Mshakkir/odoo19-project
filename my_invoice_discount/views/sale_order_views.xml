@@ -4,14 +4,76 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
+
+            <!-- Add Extra Charges section above order lines -->
             <xpath expr="//field[@name='order_line']" position="before">
                 <group string="Extra Charges" col="4">
+                    <!-- If you want both -->
                     <field name="discount_type"/>
                     <field name="discount_value"/>
                     <field name="total_discount" readonly="1"/>
+                    <field name="discount_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                     <field name="freight_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 </group>
             </xpath>
+
+            <!-- Add custom totals section after the original totals -->
+            <xpath expr="//group[@name='sale_total']" position="after">
+                <group string="Detailed Totals" class="oe_subtotal_footer d-flex flex-column"
+                       colspan="2" name="custom_totals"
+                       style="padding: 8px; font-size: 13px;">
+
+                    <!-- Untaxed Amount -->
+                    <div class="d-flex justify-content-between py-1">
+                        <span class="fw-bold">Untaxed Amount:</span>
+                        <field name="custom_untaxed_amount" nolabel="1" widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               class="fw-bold" style="font-size: 13px;"/>
+                    </div>
+
+                    <!-- Discount Amount -->
+                    <div class="d-flex justify-content-between py-1" invisible="discount_amount == 0">
+                        <span class="text-danger">Less: Discount Amount:</span>
+                        <field name="discount_amount" nolabel="1" widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               class="text-danger" style="font-size: 13px;"/>
+                    </div>
+
+                    <!-- Freight Amount -->
+                    <div class="d-flex justify-content-between py-1" invisible="freight_amount == 0">
+                        <span class="text-success">Add: Freight Amount:</span>
+                        <field name="freight_amount" nolabel="1" widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               class="text-success" style="font-size: 13px;"/>
+                    </div>
+
+                    <!-- Gross Total -->
+                    <div class="d-flex justify-content-between py-1">
+                        <span class="fw-bold">Gross Total:</span>
+                        <field name="custom_gross_total" nolabel="1" widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               class="fw-bold" style="font-size: 13px;"/>
+                    </div>
+
+                    <!-- VAT Taxes -->
+                    <div class="d-flex justify-content-between py-1">
+                        <span>VAT Taxes:</span>
+                        <field name="custom_tax_amount" nolabel="1" widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               style="font-size: 13px;"/>
+                    </div>
+
+                    <!-- Net Total -->
+                    <div class="d-flex justify-content-between py-1 border-top" style="padding-top: 6px;">
+                        <span class="fw-bold text-primary">Net Total:</span>
+                        <field name="custom_net_total" nolabel="1" widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               class="fw-bold text-primary" style="font-size: 14px;"/>
+                    </div>
+
+                </group>
+            </xpath>
+
         </field>
     </record>
 </odoo>

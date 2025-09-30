@@ -9,9 +9,9 @@
             <xpath expr="//field[@name='order_line']" position="before">
                 <group string="Extra Charges" col="4">
                     <!-- If you want both -->
-<!--                    <field name="discount_type"/>-->
-<!--                    <field name="discount_value"/>-->
-<!--                    <field name="total_discount" readonly="1"/>-->
+                    <field name="discount_type"/>
+                    <field name="discount_value"/>
+                    <field name="total_discount" readonly="1"/>
                     <field name="discount_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                     <field name="freight_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 </group>

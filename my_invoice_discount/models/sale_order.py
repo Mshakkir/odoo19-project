@@ -83,17 +83,10 @@ class SaleOrder(models.Model):
     )
 
     @api.depends('amount_untaxed', 'amount_tax', 'freight_amount', 'total_discount')
-    def _compute_custom_totals(self):
+    def _compute_custom_totals(self, tax_ratio):
         for order in self:
             order.custom_untaxed_amount = order.amount_untaxed
             gross = order.amount_untaxed - order.total_discount + order.freight_amount
             order.custom_gross_total = gross
-
-            if order.amount_untaxed:
-                # Adjust tax proportionally
-                tax_ratio = gross / order.amount_untaxed
-                order.custom_tax_amount = order.amount_tax * tax_ratio
-            else:
-                order.custom_tax_amount = 0.0
-
-            order.custom_net_total = gross + order.custom_tax_amount
+            order.custom_tax_amount = order.amount_tax * tax_ratio
+            order.custom_net_total = gross + order.amount_tax

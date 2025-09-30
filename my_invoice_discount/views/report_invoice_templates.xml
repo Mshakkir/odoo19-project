@@ -139,20 +139,29 @@
     </tr>
 
     <!-- Discount -->
-    <t t-if="o.discount_amount">
-        <tr>
-            <td style="padding:6px;">Discount :<br/>الخصم</td>
-            <td style="text-align:right; padding:6px;">
-                <span t-esc="o.discount_amount" t-options='{"widget":"float","precision":2}'/>
-            </td>
-        </tr>
-    </t>
+<!-- Discount -->
+<t t-if="o.discount_value">
+    <tr>
+        <td style="padding:6px;">Discount :<br/>الخصم</td>
+        <td style="text-align:right; padding:6px;">
+            <t t-if="o.discount_type == 'percent'">
+                <span><t t-esc="o.discount_value"/> %</span>
+            </t>
+            <t t-if="o.discount_type == 'amount'">
+                <span t-esc="o.discount_value" t-options='{"widget":"float","precision":2}'/>
+            </t>
+        </td>
+    </tr>
+</t>
+
 
     <!-- Net Amount -->
     <tr>
         <td style="padding:6px;">Net Amount :<br/>الصافي</td>
         <td style="text-align:right; padding:6px;">
-            <span t-set="net_amount" t-value="subtotal - (o.discount_amount or 0.0)"/>
+            <span t-set="net_amount" t-value="
+    subtotal - (o.discount_value if o.discount_type == 'amount' else (subtotal * o.discount_value / 100.0))
+"/>
             <span t-esc="net_amount" t-options='{"widget":"float","precision":2}'/>
         </td>
     </tr>

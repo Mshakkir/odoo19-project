@@ -90,3 +90,21 @@ class SaleOrder(models.Model):
             order.custom_gross_total = gross
             order.custom_tax_amount = order.amount_tax
             order.custom_net_total = gross + order.amount_tax
+@api.depends('amount_tax', 'custom_gross_total')
+def _compute_custom_totals(self):
+    for order in self:
+        order.custom_untaxed_amount = order.amount_untaxed
+        gross = order.amount_untaxed - order.total_discount + order.freight_amount
+        order.custom_gross_total = gross
+        order.custom_tax_amount = gross * self._get_tax_rate(order)  # ← recalc
+        order.custom_net_total = gross + order.custom_tax_amount
+
+def _get_tax_rate(self, order):
+    """Returns the tax rate for the order, assuming one tax."""
+    tax_rate = 0.0
+    if order.order_line:
+        taxes = order.order_line.filtered(lambda l: l.tax_id).mapped('tax_id')
+        if taxes:
+            # Assume single tax for simplicity
+            tax_rate = taxes[0].amount / 100.0
+    return tax_rate

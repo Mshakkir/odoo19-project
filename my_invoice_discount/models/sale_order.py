@@ -1,26 +1,3 @@
-# from odoo import models, fields, api
-#
-# class SaleOrder(models.Model):
-#     _inherit = 'sale.order'
-#
-#     discount_amount = fields.Monetary(
-#         string="Discount",
-#         default=0.0,
-#         currency_field='currency_id',
-#     )
-#     freight_amount = fields.Monetary(
-#         string="Freight",
-#         default=0.0,
-#         currency_field='currency_id',
-#     )
-#
-#     def _prepare_invoice(self):
-#         invoice_vals = super()._prepare_invoice()
-#         invoice_vals.update({
-#             'discount_amount': self.discount_amount,
-#             'freight_amount': self.freight_amount,
-#         })
-#         return invoice_vals
 from odoo import models, fields, api
 
 class SaleOrder(models.Model):
@@ -61,6 +38,7 @@ class SaleOrder(models.Model):
             'freight_amount': self.freight_amount,
         })
         return invoice_vals
+
     custom_untaxed_amount = fields.Monetary(
         compute="_compute_custom_totals",
         store=True,
@@ -82,29 +60,21 @@ class SaleOrder(models.Model):
         currency_field='currency_id'
     )
 
-    @api.depends('amount_untaxed', 'amount_tax', 'freight_amount', 'total_discount')
-    def _compute_custom_totals(self,):
+    @api.depends('amount_untaxed', 'freight_amount', 'total_discount', 'order_line')
+    def _compute_custom_totals(self):
         for order in self:
             order.custom_untaxed_amount = order.amount_untaxed
             gross = order.amount_untaxed - order.total_discount + order.freight_amount
             order.custom_gross_total = gross
-            order.custom_tax_amount = order.amount_tax
-            order.custom_net_total = gross + order.amount_tax
-@api.depends('amount_tax', 'custom_gross_total')
-def _compute_custom_totals(self):
-    for order in self:
-        order.custom_untaxed_amount = order.amount_untaxed
-        gross = order.amount_untaxed - order.total_discount + order.freight_amount
-        order.custom_gross_total = gross
-        order.custom_tax_amount = gross * self._get_tax_rate(order)  # ← recalc
-        order.custom_net_total = gross + order.custom_tax_amount
+            order.custom_tax_amount = gross * self._get_tax_rate(order)
+            order.custom_net_total = gross + order.custom_tax_amount
 
-def _get_tax_rate(self, order):
-    """Returns the tax rate for the order, assuming one tax."""
-    tax_rate = 0.0
-    if order.order_line:
-        taxes = order.order_line.filtered(lambda l: l.tax_id).mapped('tax_id')
-        if taxes:
-            # Assume single tax for simplicity
-            tax_rate = taxes[0].amount / 100.0
-    return tax_rate
+    def _get_tax_rate(self, order):
+        """Returns the tax rate for the order, assuming one tax."""
+        tax_rate = 0.0
+        if order.order_line:
+            taxes = order.order_line.filtered(lambda l: l.tax_id).mapped('tax_id')
+            if taxes:
+                # Assume single tax for simplicity
+                tax_rate = taxes[0].amount / 100.0
+        return tax_rate

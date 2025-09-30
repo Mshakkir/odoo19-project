@@ -4,6 +4,7 @@ from odoo import api, fields, models, _
 class AccountConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
+
     def open_followup_level_form(self):
         res_ids = self.env['followup.followup'].search([], limit=1)
         return {

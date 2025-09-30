@@ -30,8 +30,18 @@ class AccountMove(models.Model):
 
     @api.depends('invoice_line_ids.price_subtotal', 'invoice_line_ids.tax_ids', 'freight_amount', 'total_discount')
     def _compute_amount(self):
-        super(AccountMove, self)._compute_amount()  # Call Odoo's default calculation first
+        super(AccountMove, self)._compute_amount()
         for move in self:
-            # Recalculate amounts with discount and freight
-            move.amount_untaxed -= move.total_discount or 0.0
-            move.amount_total = move.amount_untaxed + move.amount_tax + (move.freight_amount or 0.0)
+            # Apply discount to untaxed amount
+            untaxed_amount = move.amount_untaxed - (move.total_discount or 0.0)
+
+            # Recalculate VAT based on discounted amount
+            tax_amount = 0.0
+            for line in move.invoice_line_ids:
+                line_subtotal = line.price_subtotal - (move.total_discount or 0.0) * (
+                            line.price_subtotal / move.amount_untaxed) if move.amount_untaxed else line.price_subtotal
+                tax_amount += line_subtotal * sum(t.amount for t in line.tax_ids) / 100.0
+
+            move.amount_untaxed = untaxed_amount
+            move.amount_tax = tax_amount
+            move.amount_total = untaxed_amount + tax_amount + (move.freight_amount or 0.0)

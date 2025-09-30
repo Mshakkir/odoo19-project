@@ -333,14 +333,15 @@
 </t>
 
 
-                                        <tr>
-                                            <td style="padding:6px;">Net Amount :<br/>صافي المجموع
-                                            </td>
-                                            <td style="text-align:right; padding:6px;">
-                                                <span t-esc="o.amount_untaxed"
-                                                      t-options='{"widget": "float", "precision": 2}'/>
-                                            </td>
-                                        </tr>
+              <tr>
+    <td style="padding:6px;">Net Amount :<br/>صافي المجموع
+    </td>
+    <td style="text-align:right; padding:6px;">
+        <span t-esc="o.amount_untaxed - (o.total_discount or 0.0)"
+              t-options='{"widget": "float", "precision": 2}'/>
+    </td>
+</tr>
+
 
                                         <tr>
                                             <td style="padding:6px;">VAT Amount :<br/>ضريبة القيمة المضافة

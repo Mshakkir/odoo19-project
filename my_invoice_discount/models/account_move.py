@@ -1,22 +1,3 @@
-# from odoo import models, fields, api
-#
-# class AccountMove(models.Model):
-#     _inherit = 'account.move'
-#
-#     discount_amount = fields.Monetary(
-#         string="Discount Amount",
-#         currency_field='currency_id',
-#     )
-#     freight_amount = fields.Monetary(
-#         string="Freight Amount",
-#         currency_field='currency_id',
-#     )
-#
-#     @api.depends('line_ids.price_total', 'discount_amount', 'freight_amount')
-#     def _compute_amount(self):
-#         super(AccountMove, self)._compute_amount()
-#         for record in self:
-#             record.amount_total = record.amount_total - (record.discount_amount or 0.0) + (record.freight_amount or 0.0)
 from odoo import models, fields, api
 
 class AccountMove(models.Model):
@@ -47,10 +28,10 @@ class AccountMove(models.Model):
             else:
                 move.total_discount = move.discount_value
 
-    @api.depends('line_ids.price_total', 'total_discount', 'freight_amount')
+    @api.depends('invoice_line_ids.price_subtotal', 'invoice_line_ids.tax_ids', 'freight_amount', 'total_discount')
     def _compute_amount(self):
-        super(AccountMove, self)._compute_amount()
-        for record in self:
-            record.amount_total = (
-                record.amount_total - (record.total_discount or 0.0) + (record.freight_amount or 0.0)
-            )
+        super(AccountMove, self)._compute_amount()  # Call Odoo's default calculation first
+        for move in self:
+            # Recalculate amounts with discount and freight
+            move.amount_untaxed -= move.total_discount or 0.0
+            move.amount_total = move.amount_untaxed + move.amount_tax + (move.freight_amount or 0.0)

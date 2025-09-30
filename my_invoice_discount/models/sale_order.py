@@ -82,11 +82,30 @@ class SaleOrder(models.Model):
         currency_field='currency_id'
     )
 
-    @api.depends('amount_untaxed', 'amount_tax', 'freight_amount', 'total_discount')
+    @api.depends('amount_untaxed', 'amount_tax', 'freight_amount', 'total_discount', 'order_line.tax_id')
     def _compute_custom_totals(self):
         for order in self:
             order.custom_untaxed_amount = order.amount_untaxed
+
+            # Gross = Untaxed - Discount + Freight
             gross = order.amount_untaxed - order.total_discount + order.freight_amount
             order.custom_gross_total = gross
-            order.custom_tax_amount = order.amount_tax
-            order.custom_net_total = gross + order.amount_tax
+
+            # Recalculate tax based on Gross
+            tax_amount = 0.0
+            if order.order_line:
+                for line in order.order_line:
+                    price_after_discount = line.price_subtotal - (order.total_discount * (
+                        line.price_subtotal / order.amount_untaxed if order.amount_untaxed else 0))
+                    tax_amount += sum(
+                        line.tax_id.compute_all(price_after_discount, order.currency_id, line.product_uom_qty,
+                                                product=line.product_id, partner=order.partner_id)['taxes'][i]['amount']
+                        for i in range(len(
+                            line.tax_id.compute_all(price_after_discount, order.currency_id, line.product_uom_qty,
+                                                    product=line.product_id, partner=order.partner_id)['taxes'])))
+
+            order.custom_tax_amount = tax_amount
+
+            # Net = Gross + VAT
+            order.custom_net_total = gross + tax_amount
+

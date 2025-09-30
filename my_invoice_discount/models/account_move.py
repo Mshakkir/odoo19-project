@@ -27,7 +27,7 @@ class AccountMove(models.Model):
         string="Discount Type",
         default='amount'
     )
-    discount_value = fields.Float(string="Discount Value", default=0.0)
+    discount_amount = fields.Float(string="Discount Value", default=0.0)
     freight_amount = fields.Monetary(string="Freight", default=0.0, currency_field='currency_id')
 
     @api.depends('line_ids.price_total', 'discount_type', 'discount_value', 'freight_amount')
@@ -38,6 +38,6 @@ class AccountMove(models.Model):
             if record.discount_type == 'percent':
                 discount = total * (record.discount_value / 100.0)
             else:
-                discount = record.discount_value
+                discount = record.discount_amount
 
             record.amount_total = total - discount + record.amount_tax + (record.freight_amount or 0.0)

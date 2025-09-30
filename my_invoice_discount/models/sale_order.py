@@ -61,3 +61,32 @@ class SaleOrder(models.Model):
             'freight_amount': self.freight_amount,
         })
         return invoice_vals
+    custom_untaxed_amount = fields.Monetary(
+        compute="_compute_custom_totals",
+        store=True,
+        currency_field='currency_id'
+    )
+    custom_gross_total = fields.Monetary(
+        compute="_compute_custom_totals",
+        store=True,
+        currency_field='currency_id'
+    )
+    custom_tax_amount = fields.Monetary(
+        compute="_compute_custom_totals",
+        store=True,
+        currency_field='currency_id'
+    )
+    custom_net_total = fields.Monetary(
+        compute="_compute_custom_totals",
+        store=True,
+        currency_field='currency_id'
+    )
+
+    @api.depends('amount_untaxed', 'amount_tax', 'freight_amount', 'total_discount')
+    def _compute_custom_totals(self):
+        for order in self:
+            order.custom_untaxed_amount = order.amount_untaxed
+            gross = order.amount_untaxed - order.total_discount + order.freight_amount
+            order.custom_gross_total = gross
+            order.custom_tax_amount = order.amount_tax
+            order.custom_net_total = gross + order.amount_tax

@@ -32,12 +32,14 @@
                     </div>
 
                     <!-- Discount Amount -->
-                    <div class="d-flex justify-content-between py-1" invisible="discount_amount == 0">
-                        <span class="text-danger">Less: Discount Amount:</span>
-                        <field name="discount_amount" nolabel="1" widget="monetary"
-                               options="{'currency_field': 'currency_id'}"
-                               class="text-danger" style="font-size: 13px;"/>
-                    </div>
+<!-- Discount -->
+<div class="d-flex justify-content-between py-1" invisible="total_discount == 0">
+    <span class="text-danger">Less: Discount:</span>
+    <field name="total_discount" nolabel="1" widget="monetary"
+           options="{'currency_field': 'currency_id'}"
+           class="text-danger" style="font-size: 13px;"/>
+</div>
+
 
                     <!-- Freight Amount -->
                     <div class="d-flex justify-content-between py-1" invisible="freight_amount == 0">

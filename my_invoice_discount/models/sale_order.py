@@ -70,11 +70,9 @@ class SaleOrder(models.Model):
             order.custom_net_total = gross + order.custom_tax_amount
 
     def _get_tax_rate(self, order):
-        """Returns the tax rate for the order, assuming one tax."""
-        tax_rate = 0.0
-        if order.order_line:
-            taxes = order.order_line.filtered(lambda l: l.tax_id).mapped('tax_id')
-            if taxes:
-                # Assume single tax for simplicity
-                tax_rate = taxes[0].amount / 100.0
-        return tax_rate
+        taxes = order.order_line.mapped('tax_ids').filtered(lambda t: t)
+        if taxes:
+            # Example: take the first tax rate
+            return taxes[0].amount / 100.0
+        return 0.0
+

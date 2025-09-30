@@ -307,19 +307,19 @@
                                     <tr>
                                         <!-- Left: Notes -->
                                         <td style="width: 60%;padding-left:3px; ">
-                                            <t t-if="doc.payment_term_id">
+                                            <t t-if="o.payment_term_id">
                                                 <p>
                                                     <strong>Payment Terms:</strong>
-                                                    <span t-esc="doc.payment_term_id.name"/>
+                                                    <span t-esc="o.payment_term_id.name"/>
                                                 </p>
                                             </t>
-                                            <t t-if="doc.note">
+                                            <t t-if="o.note">
                                                 <div class="mt-4"
                                                      style="font-size: 13px; margin-top: 10px; padding-left:3px;">
                                                     <p>
                                                         <strong>Offer Terms and Conditions:</strong>
                                                     </p>
-                                                    <p t-field="doc.note"/>
+                                                    <p t-field="o.note"/>
                                                 </div>
                                             </t>
                                         </td>
@@ -329,21 +329,21 @@
                                                 <tr>
                                                     <td>Subtotal</td>
                                                     <td style="text-align:right;">
-                                                        <span t-field="doc.amount_untaxed"/>
+                                                        <span t-field="o.amount_untaxed"/>
                                                         SAR
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>Discount</td>
                                                     <td style="text-align:right;">
-                                                        <t t-esc="doc.discount_amount or 0.0"/>
+                                                        <t t-esc="o.discount_amount or 0.0"/>
                                                         SAR
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>Freight</td>
                                                     <td style="text-align:right;">
-                                                        <t t-esc="doc.freight_amount or 0.0"/>
+                                                        <t t-esc="o.freight_amount or 0.0"/>
                                                         SAR
                                                     </td>
                                                 </tr>
@@ -353,7 +353,7 @@
                                                     </td>
                                                     <td style="text-align:right;">
                                                         <t t-set="gross_total"
-                                                           t-value="doc.amount_untaxed - (doc.discount_amount or 0.0) + (doc.freight_amount or 0.0)"/>
+                                                           t-value="o.amount_untaxed - (o.discount_amount or 0.0) + (o.freight_amount or 0.0)"/>
                                                         <t t-esc="gross_total"/>
                                                         SAR
                                                     </td>
@@ -398,7 +398,7 @@
 <!--                                                   <tr>-->
 <!--                                                    <td>Discount</td>-->
 <!--                                                    <td style="text-align:right;">-->
-<!--                                                        <t t-esc="doc.discount_amount or 0.0"/>-->
+<!--                                                        <t t-esc="o.discount_amount or 0.0"/>-->
 <!--                                                        SAR-->
 <!--                                                    </td>-->
 <!--                                                </tr>-->

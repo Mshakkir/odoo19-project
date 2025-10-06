@@ -1,17 +1,11 @@
-from odoo import models, fields, api
+from odoo import models, fields
 
 class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
 
-    # Optional: Add related field to show stock qty in RFQ line
-    stock_qty = fields.Float(
-        string='Available Stock',
-        related='product_id.qty_available',
-        readonly=True
-    )
-
     def action_stock_history(self):
-        """ Open stock moves of this product """
+        """ Open stock moves related to this product """
+        self.ensure_one()
         return {
             'name': 'Stock History',
             'type': 'ir.actions.act_window',
@@ -21,7 +15,8 @@ class PurchaseOrderLine(models.Model):
         }
 
     def action_sale_history(self):
-        """ Open sale orders lines of this product """
+        """ Open sale order lines related to this product """
+        self.ensure_one()
         return {
             'name': 'Sale History',
             'type': 'ir.actions.act_window',
@@ -31,7 +26,8 @@ class PurchaseOrderLine(models.Model):
         }
 
     def action_purchase_history(self):
-        """ Open purchase order lines of this product """
+        """ Open purchase order lines related to this product """
+        self.ensure_one()
         return {
             'name': 'Purchase History',
             'type': 'ir.actions.act_window',

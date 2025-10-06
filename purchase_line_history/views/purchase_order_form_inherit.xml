@@ -5,15 +5,23 @@
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
             <!-- Add buttons inside order_line form -->
-            <xpath expr="//field[@name='order_line']/form" position="inside">
+            <!--            <xpath expr="//field[@name='order_line']/form" position="inside">-->
+            <!--                <group string="Product Histories">-->
+            <!--                    <button name="action_stock_history" type="object" string="Stock History" class="btn-primary"/>-->
+            <!--                    <button name="action_sale_history" type="object" string="Sale History" class="btn-info"/>-->
+            <!--                    <button name="action_purchase_history" type="object" string="Purchase History" class="btn-success"/>-->
+            <!--                </group>-->
+            <!--                &lt;!&ndash; Optional: show stock qty in line &ndash;&gt;-->
+            <!--                <field name="stock_qty" readonly="1"/>-->
+            <!--            </xpath>-->
+            <xpath expr="//sheet/group" position="inside">
                 <group string="Product Histories">
                     <button name="action_stock_history" type="object" string="Stock History" class="btn-primary"/>
                     <button name="action_sale_history" type="object" string="Sale History" class="btn-info"/>
                     <button name="action_purchase_history" type="object" string="Purchase History" class="btn-success"/>
                 </group>
-                <!-- Optional: show stock qty in line -->
-                <field name="stock_qty" readonly="1"/>
             </xpath>
+
         </field>
     </record>
 </odoo>

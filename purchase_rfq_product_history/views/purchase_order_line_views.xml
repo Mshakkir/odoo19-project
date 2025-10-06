@@ -1,15 +1,15 @@
 <record id="purchase_order_line_history_button" model="ir.ui.view">
     <field name="name">purchase.order.line.history.button</field>
-    <field name="model">purchase.order</field>
-    <field name="inherit_id" ref="purchase.view_purchase_order_form"/>
+    <field name="model">purchase.order.line</field>
+    <field name="inherit_id" ref="purchase_stock.purchase_order_view_form_inherit"/>
     <field name="arch" type="xml">
         <xpath expr="//field[@name='order_line']/form/field[@name='product_id']" position="after">
             <button name="action_view_product_history"
                     type="object"
                     string="History"
                     class="btn btn-primary"
-                    attrs="{'invisible':[('display_type','!=',False)]}"
-                    icon="fa-history"/>
+                    icon="fa-history"
+                    attrs="{'invisible':[('display_type','!=',False)]}"/>
         </xpath>
     </field>
 </record>

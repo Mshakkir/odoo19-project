@@ -1,19 +1,20 @@
 <odoo>
-  <record id="view_purchase_order_line_form_inherit_history" model="ir.ui.view">
-    <field name="name">purchase.order.line.form.inherit.history</field>
-    <field name="model">purchase.order.line</field>
-    <field name="inherit_id" ref="purchase.purchase_order_line_form2"/>
-    <field name="arch" type="xml">
-      <xpath expr="//sheet" position="inside">
-        <group string="History Actions">
-<button name="%(stock.product_open_quants)d"
-        string="Stock History"
-        type="action"
-        context="{'default_product_id': product_id}"
-        class="oe_stat_button"/>          <button name="action_sale_history" type="object" string="Sale History" class="btn-info"/>
-          <button name="action_purchase_history" type="object" string="Purchase History" class="btn-success"/>
-        </group>
-      </xpath>
-    </field>
-  </record>
+    <record id="view_purchase_order_line_form_inherit_history" model="ir.ui.view">
+        <field name="name">purchase.order.line.form.inherit.history</field>
+        <field name="model">purchase.order.line</field>
+        <field name="inherit_id" ref="purchase.purchase_order_line_form2"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="History Actions">
+                    <button name="%(stock.move.line.list)d"
+                            string="Stock History"
+                            type="action"
+                            context="{'search_default_product_id': product_id}"/>
+
+                    <button name="action_sale_history" type="object" string="Sale History" class="btn-info"/>
+                    <button name="action_purchase_history" type="object" string="Purchase History" class="btn-success"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
 </odoo>

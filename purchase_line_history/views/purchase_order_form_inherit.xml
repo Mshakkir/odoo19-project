@@ -1,27 +1,16 @@
 <odoo>
-    <record id="view_purchase_order_form_inherit_history" model="ir.ui.view">
-        <field name="name">purchase.order.form.inherit.history</field>
-        <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="purchase.purchase_order_form"/>
-        <field name="arch" type="xml">
-            <!-- Add buttons inside order_line form -->
-            <!--            <xpath expr="//field[@name='order_line']/form" position="inside">-->
-            <!--                <group string="Product Histories">-->
-            <!--                    <button name="action_stock_history" type="object" string="Stock History" class="btn-primary"/>-->
-            <!--                    <button name="action_sale_history" type="object" string="Sale History" class="btn-info"/>-->
-            <!--                    <button name="action_purchase_history" type="object" string="Purchase History" class="btn-success"/>-->
-            <!--                </group>-->
-            <!--                &lt;!&ndash; Optional: show stock qty in line &ndash;&gt;-->
-            <!--                <field name="stock_qty" readonly="1"/>-->
-            <!--            </xpath>-->
-            <xpath expr="//sheet/group" position="inside">
-                <group string="Product Histories">
-                    <button name="action_stock_history" type="object" string="Stock History" class="btn-primary"/>
-                    <button name="action_sale_history" type="object" string="Sale History" class="btn-info"/>
-                    <button name="action_purchase_history" type="object" string="Purchase History" class="btn-success"/>
-                </group>
-            </xpath>
-
-        </field>
-    </record>
+  <record id="view_purchase_order_line_form_inherit_history" model="ir.ui.view">
+    <field name="name">purchase.order.line.form.inherit.history</field>
+    <field name="model">purchase.order.line</field>
+    <field name="inherit_id" ref="purchase.purchase_order_line_form2"/>
+    <field name="arch" type="xml">
+      <xpath expr="//sheet" position="inside">
+        <group string="Product History">
+          <button name="action_stock_history" type="object" string="Stock History" class="btn-primary"/>
+          <button name="action_sale_history" type="object" string="Sale History" class="btn-info"/>
+          <button name="action_purchase_history" type="object" string="Purchase History" class="btn-success"/>
+        </group>
+      </xpath>
+    </field>
+  </record>
 </odoo>

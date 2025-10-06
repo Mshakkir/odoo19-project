@@ -8,6 +8,7 @@
                     type="object"
                     string="History"
                     class="btn btn-primary"
+                    attrs="{'invisible':[('display_type','!=',False)]}"
                     icon="fa-history"/>
         </xpath>
     </field>

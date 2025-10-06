@@ -6,8 +6,11 @@
     <field name="arch" type="xml">
       <xpath expr="//sheet" position="inside">
         <group string="History Actions">
-          <button name="action_stock_history" type="object" string="Stock History" class="oe_stat_button"/>
-          <button name="action_sale_history" type="object" string="Sale History" class="btn-info"/>
+<button name="%(stock.product_open_quants)d"
+        string="Stock History"
+        type="action"
+        context="{'default_product_id': product_id}"
+        class="oe_stat_button"/>          <button name="action_sale_history" type="object" string="Sale History" class="btn-info"/>
           <button name="action_purchase_history" type="object" string="Purchase History" class="btn-success"/>
         </group>
       </xpath>

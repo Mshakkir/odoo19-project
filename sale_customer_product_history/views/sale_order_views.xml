@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-   <record id="view_order_line_list_add_history_button" model="ir.ui.view">
-    <field name="name">sale.order.line.list.add.history.button</field>
-    <field name="model">sale.order</field>
-    <field name="inherit_id" ref="sale.view_order_form"/>
-    <field name="arch" type="xml">
-        <xpath expr="//field[@name='order_line']/list/control" position="inside">
-            <button name="action_view_product_history"
-                    type="object"
-                    string="Sales History"
-                    class="btn-secondary"
-                    context="{'default_product_id': product_id}"/>
-        </xpath>
-    </field>
-</record>
+    <record id="view_order_line_list_add_history_button" model="ir.ui.view">
+        <field name="name">sale.order.line.list.add.history.button</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']/list/control" position="inside">
+                <button name="action_view_product_history"
+                        type="object"
+                        string="Sales History"
+                        class="btn-secondary"/>
+            </xpath>
+        </field>
+    </record>
 
 
 </odoo>

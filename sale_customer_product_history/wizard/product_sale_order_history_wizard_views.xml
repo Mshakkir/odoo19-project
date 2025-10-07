@@ -9,12 +9,12 @@
                 <form string="Product Sale History" create="false" edit="false">
                     <sheet>
                         <group>
-                            <field name="product_id" readonly="1"/>
+                            <field name="product_id"/>
                         </group>
                         <notebook>
                             <page string="Price History">
-                                <field name="product_sale_history_ids" nolabel="1">
-                                    <tree>
+                                <field name="product_sale_history_ids">
+                                    <tree editable="false">
                                         <field name="sale_order_id"/>
                                         <field name="history_price"/>
                                         <field name="history_qty"/>
@@ -25,8 +25,7 @@
                             </page>
                         </notebook>
                         <footer>
-                            <button string="Close" class="btn btn-secondary"
-                                    special="cancel"/>
+                            <button string="Close" special="cancel" class="btn btn-secondary"/>
                         </footer>
                     </sheet>
                 </form>

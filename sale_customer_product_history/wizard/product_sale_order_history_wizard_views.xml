@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <!-- Form view for the transient product.sale.order.history -->
         <record id="sale_customer_product_history_product_sale_order_history_view_form"
                 model="ir.ui.view">
             <field name="name">product.sale.order.history.form.view</field>
@@ -11,15 +10,20 @@
                     <sheet>
                         <group>
                             <field name="product_id" readonly="1"/>
-                            <field name="product_sale_history_ids" nolabel="1" readonly="1">
-                                <tree string="Price History">
-                                    <field name="sale_order_id"/>
-                                    <field name="history_price"/>
-                                    <field name="history_qty"/>
-                                    <field name="history_total"/>
-                                </tree>
-                            </field>
                         </group>
+                        <notebook>
+                            <page string="Price History">
+                                <field name="product_sale_history_ids" nolabel="1">
+                                    <tree>
+                                        <field name="sale_order_id"/>
+                                        <field name="history_price"/>
+                                        <field name="history_qty"/>
+                                        <field name="history_total"/>
+                                        <field name="currency_id"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
                         <footer>
                             <button string="Close" class="btn btn-secondary"
                                     special="cancel"/>
@@ -29,8 +33,6 @@
             </field>
         </record>
 
-        <!-- Action (not strictly required because we return action from code,
-             but kept for completeness) -->
         <record id="sale_customer_product_history_product_sale_order_history_action"
                 model="ir.actions.act_window">
             <field name="name">Product sale history</field>

@@ -24,7 +24,6 @@
 
         <record id="sale_customer_product_history_product_sale_order_history_action"
                 model="ir.actions.act_window">
-        <record id="action_view_sale_history" model="ir.actions.act_window">
             <field name="name">Product sale history</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">product.sale.order.history</field>

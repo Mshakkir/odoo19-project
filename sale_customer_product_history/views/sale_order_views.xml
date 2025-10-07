@@ -3,7 +3,7 @@
     <record id="view_order_line_tree_inherit_history_button" model="ir.ui.view">
         <field name="name">sale.order.line.tree.inherit.history.button</field>
         <field name="model">sale.order.line</field>
-        <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
 
             <!-- Locate the order_line tree inside sale order form -->
@@ -14,7 +14,7 @@
                         icon="fa-history"
                         context="{'default_product_id': product_id}"
                         class="btn-secondary"
-                        />
+                />
             </xpath>
 
         </field>

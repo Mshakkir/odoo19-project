@@ -26,15 +26,14 @@ class SaleOrderLine(models.Model):
 
     def action_view_product_history(self):
         self.ensure_one()
-        tree_view = self.env.ref('sale.view_order_line_tree')  # Default sale.order.line tree view
-        form_view = self.env.ref('sale.view_order_line_form')  # Default sale.order.line form view
+        tree_view = self.env.ref('sale.view_order_line_tree')  # Default tree view
 
         return {
-            'name': 'Sales History',
+            'name': 'Product History',
             'type': 'ir.actions.act_window',
             'res_model': 'sale.order.line',
-            'view_mode': 'tree,form',
-            'views': [(tree_view.id, 'tree'), (form_view.id, 'form')],
+            'view_mode': 'tree',
+            'views': [(tree_view.id, 'tree')],
             'domain': [('product_id', '=', self.product_id.id)],
             'target': 'current',
             'context': self.env.context,

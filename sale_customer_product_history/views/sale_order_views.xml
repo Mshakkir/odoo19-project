@@ -8,7 +8,7 @@
 
             <!-- Locate the order_line tree inside sale order form -->
             <xpath expr="//field[@name='order_line']/tree" position="inside">
-                <button name="%(action_view_sale_history)d"
+                <button name="%(sale_customer_product_history_product_sale_order_history_action)d"
                         type="action"
                         string="View Sales History"
                         icon="fa-history"

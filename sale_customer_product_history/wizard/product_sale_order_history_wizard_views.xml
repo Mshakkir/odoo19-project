@@ -22,7 +22,7 @@
             </field>
         </record>
 
-        <record id="sale_customer_product_history_product_sale_order_history_action"
+        <record id="sale_customer_product_history.sale_customer_product_history_product_sale_order_history_action"
                 model="ir.actions.act_window">
             <field name="name">Product sale history</field>
             <field name="type">ir.actions.act_window</field>

@@ -35,7 +35,7 @@ class ProductSaleOrderHistory(models.TransientModel):
     )
     product_sale_history_ids = fields.One2many(
         'product.sale.history.line',
-        'order_line_id',
+        'history_id',  # ✅ was 'order_line_id', now correct
         string='Product Sale Price History',
         help="Shows the product sale history lines for the selected product",
         readonly=True

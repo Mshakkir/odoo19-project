@@ -23,31 +23,12 @@ from odoo import fields, models
 
 
 class ProductSaleHistoryLine(models.TransientModel):
-    """Line in the product sale history wizard popup."""
     _name = 'product.sale.history.line'
     _description = 'Product Sale History Line'
-    _rec_name = 'sale_order_id'
 
-    # inverse field to the wizard; using ondelete='cascade' keeps things tidy
-    order_line_id = fields.Many2one(
-        'product.sale.order.history',
-        string='Wizard',
-        ondelete='cascade',
-    )
-    sale_order_id = fields.Many2one(
-        'sale.order',
-        string='Sale Order',
-        help='Sale order reference'
-    )
-    history_price = fields.Float(
-        string='Unit Price',
-        help='Unit price at time of sale'
-    )
-    history_qty = fields.Float(
-        string='Quantity',
-        help='Quantity sold'
-    )
-    history_total = fields.Float(
-        string='Total',
-        help='Order total at time of sale'
-    )
+    history_id = fields.Many2one('product.sale.order.history', string='History Reference')
+    sale_order_id = fields.Many2one('sale.order', string='Sales Order', readonly=True)
+    history_price = fields.Float(string='Unit Price', readonly=True)
+    history_qty = fields.Float(string='Quantity', readonly=True)
+    history_total = fields.Monetary(string='Total', readonly=True, currency_field='currency_id')
+    currency_id = fields.Many2one('res.currency', string='Currency')

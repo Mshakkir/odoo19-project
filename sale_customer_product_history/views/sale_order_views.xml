@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <!-- inherit sale order form and add a small history button inside the order_line tree -->
-    <record id="sale_customer_product_history_view_order_form_inherit"
-            model="ir.ui.view">
-        <field name="name">sale.order.view.form.inherit.sale.customer.product.history</field>
-        <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_form"/>
+    <!-- inherit sale order line tree view -->
+    <record id="sale_customer_product_history_order_line_tree_inherit" model="ir.ui.view">
+        <field name="name">sale.order.line.tree.inherit.product.history</field>
+        <field name="model">sale.order.line</field>
+        <field name="inherit_id" ref="sale.view_order_line_tree"/>
         <field name="arch" type="xml">
-            <!-- FIXED XPATH for Odoo 19 -->
-            <xpath expr="//field[@name='order_line']/tree/field[@name='product_id']" position="before">
+            <xpath expr="//field[@name='product_id']" position="before">
                 <button name="get_product_history_data"
                         type="object"
                         string="History"
                         icon="fa-history"
-                        title="Product Sale History"
+                        title="View Product History"
                         attrs="{'invisible':[('product_id','=',False)]}"/>
             </xpath>
         </field>

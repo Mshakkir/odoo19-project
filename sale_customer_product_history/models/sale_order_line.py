@@ -29,7 +29,7 @@ class SaleOrderLine(models.Model):
         self.ensure_one()
         domain = [
             ('product_id', '=', self.product_id.id),
-            ('order_partner_id', '=', self.order_partner_id.id),
+            ('order_id.partner_id', '=', self.order_id.partner_id.id),
             ('id', '!=', self.id),
         ]
         return {
@@ -40,7 +40,6 @@ class SaleOrderLine(models.Model):
             'domain': domain,
             'target': 'current',
         }
-
 
 #
 #

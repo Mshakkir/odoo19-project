@@ -22,33 +22,32 @@
 from odoo import models
 
 class SaleOrderLine(models.Model):
-    """ Inherit sale.order.line to add a button / action that opens
-        a transient wizard showing previous sales of this product for
-        the current customer.
+    """Inherit sale.order.line to add a button/action that opens
+       a transient wizard showing previous sales of this product
+       for the current customer.
     """
     _inherit = 'sale.order.line'
 
     def get_product_history_data(self):
         """Return an ir.actions.act_window for a transient record that contains
         the list of previous sale orders (state in sale/done) for the
-        current order.partner_id and this product."""
-        # Works for single-line click in the order_line tree; support multiple just in case:
+        current order.partner_id and this product.
+        """
         self.ensure_one()
         if not self.product_id:
             return {}
 
         partner = self.order_id.partner_id
-        # search sale orders of this partner in confirmed/done states
+        # Find all sale orders for the same customer that are confirmed or done
         orders = self.env['sale.order'].search([
             ('partner_id', '=', partner.id),
-            ('state', 'in', ('sale', 'done'))
+            ('state', 'in', ('sale', 'done')),
         ], order='date_order desc')
 
         values = []
-        # Build lines for transient model (product.sale.history.line)
         for order in orders:
             for line in order.order_line:
-                if line.product_id.id == self.product_id.id:
+                if line.product_id == self.product_id:
                     values.append((0, 0, {
                         'sale_order_id': order.id,
                         'history_price': line.price_unit,
@@ -56,7 +55,7 @@ class SaleOrderLine(models.Model):
                         'history_total': order.amount_total,
                     }))
 
-        # create transient wizard record
+        # Create a new transient record in the wizard model
         history = self.env['product.sale.order.history'].create({
             'product_id': self.product_id.id,
             'product_sale_history_ids': values,
@@ -67,7 +66,8 @@ class SaleOrderLine(models.Model):
             'type': 'ir.actions.act_window',
             'res_model': 'product.sale.order.history',
             'view_mode': 'form',
-            'view_id': self.env.ref('sale_customer_product_history_product_sale_order_history_view_form').id,
+            # FIX: Correct XML reference
+            'view_id': self.env.ref('sale_customer_product_history.product_sale_order_history_view_form').id,
             'res_id': history.id,
             'target': 'new',
         }

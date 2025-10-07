@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <!-- inherit sale order line tree view -->
-    <record id="view_order_line_tree_inherit_sale_history" model="ir.ui.view">
-    <field name="name">sale.order.line.tree.inherit.sale.history</field>
+  <record id="view_order_line_tree_inherit_history_button" model="ir.ui.view">
+    <field name="name">sale.order.line.tree.inherit.history.button</field>
     <field name="model">sale.order.line</field>
     <field name="inherit_id" ref="sale.view_order_line_tree"/>
     <field name="arch" type="xml">
-        <xpath expr="//field[@name='product_uom_qty']" position="after">
-            <button name="action_open_sales_history"
-                    string="History"
+        <xpath expr="//tree" position="inside">
+            <button name="get_product_history_data"
                     type="object"
-                    icon="fa-history"
-                    attrs="{'invisible': [('product_id', '=', False)]}"/>
+                    string="History"
+                    icon="fa-history"/>
         </xpath>
     </field>
 </record>
+
 
 </odoo>

@@ -11,24 +11,38 @@
                         <group>
                             <field name="product_id" readonly="1"/>
                         </group>
-                        <notebook>
-                            <page string="Price History">
-                                <field name="product_sale_history_ids">
-                                    <tree>
-                                        <field name="sale_order_id"/>
-                                        <field name="history_price"/>
-                                        <field name="history_qty"/>
-                                        <field name="history_total"/>
-                                        <field name="currency_id"/>
-                                    </tree>
-                                </field>
-                            </page>
-                        </notebook>
+                        <group>
+                            <field name="sale_orders_summary" readonly="1" nolabel="1" widget="text"/>
+                        </group>
                         <footer>
                             <button string="Close" special="cancel" class="btn btn-secondary"/>
                         </footer>
                     </sheet>
                 </form>
+
+                <!--                <form string="Product Sale History" create="false" edit="false">-->
+                <!--                    <sheet>-->
+                <!--                        <group>-->
+                <!--                            <field name="product_id" readonly="1"/>-->
+                <!--                        </group>-->
+                <!--                        <notebook>-->
+                <!--                            <page string="Price History">-->
+                <!--                                <field name="product_sale_history_ids">-->
+                <!--                                    <tree>-->
+                <!--                                        <field name="sale_order_id"/>-->
+                <!--                                        <field name="history_price"/>-->
+                <!--                                        <field name="history_qty"/>-->
+                <!--                                        <field name="history_total"/>-->
+                <!--                                        <field name="currency_id"/>-->
+                <!--                                    </tree>-->
+                <!--                                </field>-->
+                <!--                            </page>-->
+                <!--                        </notebook>-->
+                <!--                        <footer>-->
+                <!--                            <button string="Close" special="cancel" class="btn btn-secondary"/>-->
+                <!--                        </footer>-->
+                <!--                    </sheet>-->
+                <!--                </form>-->
             </field>
         </record>
 

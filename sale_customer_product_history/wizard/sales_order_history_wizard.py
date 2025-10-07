@@ -27,16 +27,17 @@ class ProductSaleOrderHistory(models.TransientModel):
     _description = 'Product Sale Order History'
     _rec_name = 'product_id'
 
-    product_id = fields.Many2one(
-        'product.product',
-        string="Product",
-        help="Product for which history is shown",
-        readonly=True
+    product_id = fields.Many2one('product.product', readonly=True)
+    # Compute a text list of sales instead of raw One2many
+    sale_orders_summary = fields.Text(
+        string="Sales Orders",
+        compute="_compute_sales_summary",
     )
-    product_sale_history_ids = fields.One2many(
-        'product.sale.history.line',
-        'history_id',  # ✅ was 'order_line_id', now correct
-        string='Product Sale Price History',
-        help="Shows the product sale history lines for the selected product",
-        readonly=True
-    )
+
+    def _compute_sales_summary(self):
+        for record in self:
+            lines = []
+            for line in record.product_sale_history_ids:
+                # Combine info into text
+                lines.append(f"{line.sale_order_id.name} - {line.history_qty} x {line.history_price}")
+            record.sale_orders_summary = "\n".join(lines)

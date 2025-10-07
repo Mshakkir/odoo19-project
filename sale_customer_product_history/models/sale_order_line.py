@@ -29,7 +29,6 @@ class SaleOrderLine(models.Model):
     """
     _inherit = 'sale.order.line'
 
-    @api.multi
     def get_product_history_data(self):
         """Return an ir.actions.act_window for a transient record that contains
         the list of previous sale orders (state in sale/done) for the

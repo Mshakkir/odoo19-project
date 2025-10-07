@@ -43,7 +43,7 @@ class SaleOrderLine(models.Model):
         orders = self.env['sale.order'].search([
             ('partner_id', '=', partner.id),
             ('state', 'in', ('sale', 'done'))
-        ])
+        ], order='date_order desc')
 
         values = []
         # Build lines for transient model (product.sale.history.line)
@@ -68,6 +68,7 @@ class SaleOrderLine(models.Model):
             'type': 'ir.actions.act_window',
             'res_model': 'product.sale.order.history',
             'view_mode': 'form',
+            'view_id': self.env.ref('sale_customer_product_history_product_sale_order_history_view_form').id,
             'res_id': history.id,
             'target': 'new',
         }

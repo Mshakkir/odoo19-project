@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <!-- inherit sale order line tree view -->
-  <record id="view_order_line_tree_inherit_history_button" model="ir.ui.view">
-    <field name="name">sale.order.line.tree.inherit.history.button</field>
-    <field name="model">sale.order.line</field>
-    <field name="inherit_id" ref="sale.view_order_line_tree"/>
-    <field name="arch" type="xml">
-        <xpath expr="//tree" position="inside">
-            <button name="get_product_history_data"
-                    type="object"
-                    string="History"
-                    icon="fa-history"/>
-        </xpath>
-    </field>
-</record>
-
-
+    <record id="view_order_line_tree_inherit_history_button" model="ir.ui.view">
+        <field name="name">sale.order.line.tree.inherit.history.button</field>
+        <field name="model">sale.order.line</field>
+        <field name="inherit_id" ref="sale_stock.view_order_line_tree_inherit_sale_stock"/>
+        <field name="arch" type="xml">
+            <!-- Insert after route_ids (or before price_subtotal) -->
+            <xpath expr="//field[@name='route_ids']" position="after">
+                <button name="get_product_history_data"
+                        type="object"
+                        string="History"
+                        icon="fa-history"/>
+            </xpath>
+        </field>
+    </record>
 </odoo>

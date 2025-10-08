@@ -1,69 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <!-- Inherit Purchase Order Line Tree View (Standalone list view) -->
-    <record id="view_purchase_order_line_tree_history" model="ir.ui.view">
-        <field name="name">purchase.order.line.tree.history</field>
-        <field name="model">purchase.order.line</field>
-        <field name="inherit_id" ref="purchase.purchase_order_line_tree"/>
-        <field name="arch" type="xml">
-            <!-- Add history columns after price_unit -->
-            <xpath expr="//field[@name='price_unit']" position="after">
-                <field name="last_purchase_price" optional="show"
-                       decoration-success="last_purchase_price > 0"
-                       widget="monetary"/>
-                <field name="avg_purchase_price" optional="show"
-                       widget="monetary"/>
-                <field name="current_stock_qty" optional="show"
-                       decoration-info="current_stock_qty > 0"
-                       decoration-danger="current_stock_qty &lt;= 0"/>
-                <field name="total_purchased_qty" optional="hide"/>
-                <field name="total_sold_qty" optional="hide"/>
-                <field name="last_purchase_date" optional="hide"/>
-            </xpath>
-
-            <!-- Add action buttons at the end -->
-            <xpath expr="//field[@name='date_planned']" position="after">
-                <button name="action_view_purchase_history"
-                        type="object"
-                        icon="fa-shopping-cart"
-                        title="View Purchase History"
-                        invisible="purchase_history_count == 0"
-                        class="btn-link"/>
-                <button name="action_view_stock_history"
-                        type="object"
-                        icon="fa-cubes"
-                        title="View Stock History"
-                        invisible="stock_history_count == 0"
-                        class="btn-link"/>
-                <button name="action_view_sale_history"
-                        type="object"
-                        icon="fa-line-chart"
-                        title="View Sale History"
-                        invisible="sale_history_count == 0"
-                        class="btn-link"/>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- Inherit Purchase Order Form View - Add history in order_line -->
-    <record id="view_purchase_order_form_history" model="ir.ui.view">
-        <field name="name">purchase.order.form.history</field>
+    <record id="view_purchase_order_form_inherit_history" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit.history</field>
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
-            <!-- Add columns in the embedded order_line list -->
-            <xpath expr="//field[@name='order_line']//field[@name='price_unit']" position="after">
-                <field name="last_purchase_price" optional="show" widget="monetary"/>
-                <field name="current_stock_qty" optional="show"/>
+            <xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="after">
+                <!-- History button in tree view -->
                 <button name="action_view_purchase_history"
                         type="object"
                         icon="fa-history"
-                        title="Purchase History"
-                        invisible="purchase_history_count == 0"
-                        class="btn-link"/>
+                        title="View Purchase History"
+                        attrs="{'invisible': [('product_id', '=', False)]}"/>
+            </xpath>
+
+            <!-- Optional: Add buttons in form view of order lines too -->
+            <xpath expr="//field[@name='order_line']/form/sheet/group" position="after">
+                <group string="Product History" colspan="2">
+                    <button name="action_view_purchase_history"
+                            type="object"
+                            string="Purchase History"
+                            icon="fa-history"
+                            class="oe_stat_button"/>
+                    <button name="action_view_stock_history"
+                            type="object"
+                            string="Stock History"
+                            icon="fa-cubes"
+                            class="oe_stat_button"/>
+                    <button name="action_view_sale_history"
+                            type="object"
+                            string="Sale History"
+                            icon="fa-shopping-cart"
+                            class="oe_stat_button"/>
+                </group>
             </xpath>
         </field>
     </record>
-
 </odoo>
+
+<!--<odoo>-->
+
+<!--    &lt;!&ndash; Inherit Purchase Order Line Tree View (Standalone list view) &ndash;&gt;-->
+<!--    <record id="view_purchase_order_line_tree_history" model="ir.ui.view">-->
+<!--        <field name="name">purchase.order.line.tree.history</field>-->
+<!--        <field name="model">purchase.order.line</field>-->
+<!--        <field name="inherit_id" ref="purchase.purchase_order_line_tree"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            &lt;!&ndash; Add history columns after price_unit &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='price_unit']" position="after">-->
+<!--                <field name="last_purchase_price" optional="show"-->
+<!--                       decoration-success="last_purchase_price > 0"-->
+<!--                       widget="monetary"/>-->
+<!--                <field name="avg_purchase_price" optional="show"-->
+<!--                       widget="monetary"/>-->
+<!--                <field name="current_stock_qty" optional="show"-->
+<!--                       decoration-info="current_stock_qty > 0"-->
+<!--                       decoration-danger="current_stock_qty &lt;= 0"/>-->
+<!--                <field name="total_purchased_qty" optional="hide"/>-->
+<!--                <field name="total_sold_qty" optional="hide"/>-->
+<!--                <field name="last_purchase_date" optional="hide"/>-->
+<!--            </xpath>-->
+
+<!--            &lt;!&ndash; Add action buttons at the end &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='date_planned']" position="after">-->
+<!--                <button name="action_view_purchase_history"-->
+<!--                        type="object"-->
+<!--                        icon="fa-shopping-cart"-->
+<!--                        title="View Purchase History"-->
+<!--                        invisible="purchase_history_count == 0"-->
+<!--                        class="btn-link"/>-->
+<!--                <button name="action_view_stock_history"-->
+<!--                        type="object"-->
+<!--                        icon="fa-cubes"-->
+<!--                        title="View Stock History"-->
+<!--                        invisible="stock_history_count == 0"-->
+<!--                        class="btn-link"/>-->
+<!--                <button name="action_view_sale_history"-->
+<!--                        type="object"-->
+<!--                        icon="fa-line-chart"-->
+<!--                        title="View Sale History"-->
+<!--                        invisible="sale_history_count == 0"-->
+<!--                        class="btn-link"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Inherit Purchase Order Form View - Add history in order_line &ndash;&gt;-->
+<!--    <record id="view_purchase_order_form_history" model="ir.ui.view">-->
+<!--        <field name="name">purchase.order.form.history</field>-->
+<!--        <field name="model">purchase.order</field>-->
+<!--        <field name="inherit_id" ref="purchase.purchase_order_form"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            &lt;!&ndash; Add columns in the embedded order_line list &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='order_line']//field[@name='price_unit']" position="after">-->
+<!--                <field name="last_purchase_price" optional="show" widget="monetary"/>-->
+<!--                <field name="current_stock_qty" optional="show"/>-->
+<!--                <button name="action_view_purchase_history"-->
+<!--                        type="object"-->
+<!--                        icon="fa-history"-->
+<!--                        title="Purchase History"-->
+<!--                        invisible="purchase_history_count == 0"-->
+<!--                        class="btn-link"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--</odoo>-->

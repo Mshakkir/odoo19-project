@@ -1,0 +1,24 @@
+<odoo>
+    <record id="view_purchase_history_popup_wizard" model="ir.ui.view">
+        <field name="name">Purchase History Popup Wizard</field>
+        <field name="model">purchase.history.popup.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="product_id" readonly="1"/>
+                </group>
+                <field name="history_lines">
+                    <tree>
+                        <field name="order_id"/>
+                        <field name="date_order"/>
+                        <field name="partner_id"/>
+                        <field name="price_unit"/>
+                    </tree>
+                </field>
+                <footer>
+                    <button string="Close" type="object" class="btn-primary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

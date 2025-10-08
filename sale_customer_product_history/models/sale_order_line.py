@@ -19,7 +19,7 @@
 #    If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################from odoo import models, fields, api
-from odoo import models, fields, api
+from odoo import models, api
 
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
@@ -32,6 +32,7 @@ class SaleOrderLine(models.Model):
             'type': 'ir.actions.act_window',
             'res_model': 'sale.order.line',
             'view_mode': 'tree,form',
+            'views': [(False, 'tree'), (False, 'form')],  # ✅ ensures view types exist
             'domain': [('product_id', 'in', product_ids)],
             'target': 'current',
         }

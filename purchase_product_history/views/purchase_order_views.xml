@@ -1,44 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Inherit the purchase order form to add button in order_line list -->
-    <record id="view_purchase_order_form_inherit_history" model="ir.ui.view">
-        <field name="name">purchase.order.form.inherit.history</field>
-        <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="purchase.purchase_order_form"/>
-        <field name="arch" type="xml">
+    <data>
+        <record id="view_purchase_order_form_inherit_history" model="ir.ui.view">
+            <field name="name">purchase.order.form.inherit.history</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
 
-            <!-- Add button inside the list view (replaces old <tree>) -->
-            <xpath expr="//field[@name='order_line']/list/field[@name='price_unit']" position="after">
-                <button name="action_view_purchase_history"
-                        type="object"
-                        icon="fa-history"
-                        title="Purchase History"
-                        attrs="{'invisible': [('product_id', '=', False)]}"/>
-            </xpath>
+                <!-- Add button above order_line list -->
+                <xpath expr="//field[@name='order_line']" position="before">
+                    <button name="action_open_purchase_history"
+                            string="Product History"
+                            type="object"
+                            class="oe_highlight"/>
+                </xpath>
 
-            <!-- Add history buttons in the form view of order lines -->
-            <xpath expr="//field[@name='order_line']/form/sheet/group" position="after">
-                <group string="Product History" colspan="2">
-                    <button name="action_view_purchase_history"
-                            type="object"
-                            string="Purchase History"
-                            icon="fa-history"
-                            class="oe_stat_button"/>
-                    <button name="action_view_stock_history"
-                            type="object"
-                            string="Stock History"
-                            icon="fa-cubes"
-                            class="oe_stat_button"/>
-                    <button name="action_view_sale_history"
-                            type="object"
-                            string="Sale History"
-                            icon="fa-shopping-cart"
-                            class="oe_stat_button"/>
-                </group>
-            </xpath>
-
-        </field>
-    </record>
+            </field>
+        </record>
+    </data>
 </odoo>
 
 

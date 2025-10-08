@@ -1,0 +1,6 @@
+<odoo>
+    <record id="purchase.action_report_purchase_order" model="ir.actions.report">
+        <field name="report_name">purchase_custom_report.report_purchaseorder_document_custom</field>
+        <field name="report_file">purchase_custom_report.report_purchaseorder_document_custom</field>
+    </record>
+</odoo>

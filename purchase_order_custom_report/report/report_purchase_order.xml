@@ -1,0 +1,28 @@
+<odoo>
+    <template id="custom_purchaseorder_report" inherit_id="purchase.report_purchaseorder_document">
+        <xpath expr="//t[@t-call='web.external_layout']" position="replace">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <head>
+                        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+                        <style type="text/css">
+                            @font-face {
+                                font-family: 'NotoNaskhArabic';
+                                src: url('/your_module_name/static/src/fonts/NotoNaskhArabic-VariableFont_wght.ttf') format('truetype');
+                            }
+                            body, * {
+                                font-family: 'NotoNaskhArabic', sans-serif !important;
+                            }
+                        </style>
+                    </head>
+
+                    <div style="border: 3px solid black; padding: 15px; border-radius: 5px;">
+                        <body>
+                            <!-- Your custom purchase order content here -->
+                        </body>
+                    </div>
+                </t>
+            </t>
+        </xpath>
+    </template>
+</odoo>

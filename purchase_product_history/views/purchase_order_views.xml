@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <record id="view_purchase_order_form_inherit_history" model="ir.ui.view">
         <field name="name">purchase.order.form.inherit.history</field>
@@ -6,39 +6,19 @@
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add button inside purchase order line list view -->
-            <xpath expr="//field[@name='order_line']/list/field[@name='price_unit']" position="after">
-                <button name="action_view_purchase_history"
+            <!-- Add Product History button above order lines -->
+            <xpath expr="//field[@name='order_line']" position="before">
+                <button name="action_open_purchase_history"
+                        string="Product History"
                         type="object"
-                        icon="fa-history"
-                        title="View Purchase History"
-                        attrs="{'invisible': [('product_id', '=', False)]}"/>
-            </xpath>
-
-            <!-- Optional: Add history buttons below line form -->
-            <xpath expr="//field[@name='order_line']/form/sheet/group" position="after">
-                <group string="Product History" colspan="2">
-                    <button name="action_view_purchase_history"
-                            type="object"
-                            string="Purchase History"
-                            icon="fa-history"
-                            class="oe_stat_button"/>
-                    <button name="action_view_stock_history"
-                            type="object"
-                            string="Stock History"
-                            icon="fa-cubes"
-                            class="oe_stat_button"/>
-                    <button name="action_view_sale_history"
-                            type="object"
-                            string="Sale History"
-                            icon="fa-shopping-cart"
-                            class="oe_stat_button"/>
-                </group>
+                        class="oe_highlight"
+                        icon="fa-history"/>
             </xpath>
 
         </field>
     </record>
 </odoo>
+
 
 
 

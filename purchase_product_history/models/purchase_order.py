@@ -105,7 +105,6 @@ class PurchaseOrderLine(models.Model):
             purchase_lines = self.env['purchase.order.line'].search([
                 ('product_id', '=', line.product_id.id),
                 ('order_id.state', 'in', ['purchase', 'done']),
-                ('order_id.date_approve', '>=', date_limit),
                 ('id', '!=', line.id),
             ], order='order_id.date_approve desc', limit=100)
 

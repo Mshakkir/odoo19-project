@@ -1,23 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
-        <record id="view_purchase_order_form_inherit_history" model="ir.ui.view">
-            <field name="name">purchase.order.form.inherit.history</field>
-            <field name="model">purchase.order</field>
-            <field name="inherit_id" ref="purchase.purchase_order_form"/>
-            <field name="arch" type="xml">
+    <record id="view_purchase_order_form_inherit_history" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit.history</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
 
-                <!-- Add button above order_line list -->
-                <xpath expr="//field[@name='order_line']" position="before">
-                    <button name="action_open_purchase_history"
-                            string="Product History"
-                            type="object"
-                            class="oe_highlight"/>
-                </xpath>
+            <!-- Add history buttons inside order_line tree -->
+            <xpath expr="//field[@name='order_line']/tree" position="inside">
+                <button name="action_view_purchase_history"
+                        type="object"
+                        icon="fa-history"
+                        title="View Purchase History"
+                        attrs="{'invisible': [('product_id', '=', False)]}"/>
+                <button name="action_view_stock_history"
+                        type="object"
+                        icon="fa-cubes"
+                        title="View Stock History"
+                        attrs="{'invisible': [('product_id', '=', False)]}"/>
+                <button name="action_view_sale_history"
+                        type="object"
+                        icon="fa-shopping-cart"
+                        title="View Sale History"
+                        attrs="{'invisible': [('product_id', '=', False)]}"/>
+            </xpath>
 
-            </field>
-        </record>
-    </data>
+        </field>
+    </record>
 </odoo>
 
 

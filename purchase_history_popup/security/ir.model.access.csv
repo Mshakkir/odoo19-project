@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_purchase_history_popup_wizard,purchase.history.popup.wizard,model_purchase_history_popup_wizard,,1,0,0,0
-access_purchase_history_popup_line,purchase.history.popup.line,model_purchase_history_popup_line,,1,0,0,0

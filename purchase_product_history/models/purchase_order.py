@@ -3,6 +3,7 @@ from odoo import models, api
 class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
+    @api.multi  # optional in Odoo 19, but harmless
     def action_open_purchase_history(self):
         self.ensure_one()
         return {

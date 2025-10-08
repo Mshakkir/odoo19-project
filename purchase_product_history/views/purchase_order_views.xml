@@ -7,17 +7,17 @@
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add a history button after 'price_unit' in order line tree view -->
-            <xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="after">
+            <!-- Add button column in order_line tree -->
+            <xpath expr="//field[@name='order_line']/tree" position="inside">
                 <button name="action_view_purchase_history"
                         type="object"
                         icon="fa-history"
+                        string=""
                         title="View Purchase History"
-                        attrs="{'invisible': [('product_id', '=', False)]}"
-                        string="History"/>
+                        attrs="{'invisible': [('product_id', '=', False)]}"/>
             </xpath>
 
-            <!-- Add buttons in the order line form view -->
+            <!-- Add buttons in order_line form view -->
             <xpath expr="//field[@name='order_line']/form/sheet/group" position="after">
                 <group string="Product History" colspan="2">
                     <button name="action_view_purchase_history"
@@ -41,6 +41,7 @@
         </field>
     </record>
 </odoo>
+
 
 <!--<odoo>-->
 

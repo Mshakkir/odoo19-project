@@ -42,7 +42,7 @@ class PurchaseOrderLine(models.Model):
         store=False
     )
 
-    # Summary fields to display in tree view
+    # Summary fields
     last_purchase_price = fields.Float(
         compute='_compute_product_history',
         string='Last Price',
@@ -81,7 +81,7 @@ class PurchaseOrderLine(models.Model):
 
     @api.depends('product_id')
     def _compute_product_history(self):
-        """Compute product history information"""
+        """Compute product, stock, and sale history"""
         for line in self:
             if not line.product_id:
                 line.purchase_history_ids = False
@@ -101,32 +101,33 @@ class PurchaseOrderLine(models.Model):
             # Get date limit (last 12 months)
             date_limit = datetime.now() - timedelta(days=365)
 
-            # === PURCHASE HISTORY (fixed) ===
-            purchase_lines = self.env['purchase.order.line']
-            purchase_orders = self.env['purchase.order'].search(
-                [
-                    ('order_line.product_id', '=', line.product_id.id),
-                    ('state', 'in', ['purchase', 'done']),
-                    ('date_approve', '>=', date_limit),
-                ],
-                order='date_approve desc',
-                limit=100
+            # === PURCHASE HISTORY ===
+            purchase_lines = self.env['purchase.order.line'].search([
+                ('product_id', '=', line.product_id.id),
+                ('id', '!=', line.id),
+                ('state', 'in', ['purchase', 'done']),
+            ], limit=200)
+
+            # Filter manually by order's approval date
+            purchase_lines = purchase_lines.filtered(
+                lambda pl: pl.order_id.date_approve and pl.order_id.date_approve >= date_limit
             )
 
-            for po in purchase_orders:
-                for pl in po.order_line.filtered(lambda l: l.product_id.id == line.product_id.id and l.id != line.id):
-                    purchase_lines |= pl
-                    if len(purchase_lines) >= 100:
-                        break
-                if len(purchase_lines) >= 100:
-                    break
+            # Sort manually by order date (descending)
+            purchase_lines = purchase_lines.sorted(
+                key=lambda pl: pl.order_id.date_approve or datetime.min,
+                reverse=True
+            )
 
             line.purchase_history_ids = purchase_lines
             line.purchase_history_count = len(purchase_lines)
 
             if purchase_lines:
-                line.last_purchase_price = purchase_lines[0].price_unit
-                line.last_purchase_date = purchase_lines[0].order_id.date_approve
+                last_line = purchase_lines[0]
+                line.last_purchase_price = last_line.price_unit
+                line.last_purchase_date = last_line.order_id.date_approve
+
+                # Average price & total purchased qty
                 total_price = sum(purchase_lines.mapped('price_unit'))
                 line.avg_purchase_price = total_price / len(purchase_lines)
                 line.total_purchased_qty = sum(purchase_lines.mapped('product_qty'))
@@ -137,48 +138,39 @@ class PurchaseOrderLine(models.Model):
                 line.last_purchase_date = False
 
             # === STOCK HISTORY ===
-            stock_domain = [
+            stock_moves = self.env['stock.move'].search([
                 ('product_id', '=', line.product_id.id),
                 ('state', '=', 'done'),
                 ('date', '>=', date_limit)
-            ]
-
-            stock_moves = self.env['stock.move'].search(
-                stock_domain,
-                order='date desc',
-                limit=100
-            )
+            ], limit=100, order='date desc')
 
             line.stock_move_ids = stock_moves
             line.stock_history_count = len(stock_moves)
             line.current_stock_qty = line.product_id.qty_available
 
-            # === SALE HISTORY (fixed) ===
-            sale_lines = self.env['sale.order.line']
-            sale_orders = self.env['sale.order'].search(
-                [
-                    ('order_line.product_id', '=', line.product_id.id),
-                    ('state', 'in', ['sale', 'done']),
-                    ('date_order', '>=', date_limit),
-                ],
-                order='date_order desc',
-                limit=100
+            # === SALE HISTORY ===
+            sale_lines = self.env['sale.order.line'].search([
+                ('product_id', '=', line.product_id.id),
+                ('state', 'in', ['sale', 'done']),
+            ], limit=200)
+
+            # Filter manually by order date
+            sale_lines = sale_lines.filtered(
+                lambda sl: sl.order_id.date_order and sl.order_id.date_order >= date_limit
             )
 
-            for so in sale_orders:
-                for sl in so.order_line.filtered(lambda l: l.product_id.id == line.product_id.id):
-                    sale_lines |= sl
-                    if len(sale_lines) >= 100:
-                        break
-                if len(sale_lines) >= 100:
-                    break
+            # Sort manually
+            sale_lines = sale_lines.sorted(
+                key=lambda sl: sl.order_id.date_order or datetime.min,
+                reverse=True
+            )
 
             line.sale_order_line_ids = sale_lines
             line.sale_history_count = len(sale_lines)
             line.total_sold_qty = sum(sale_lines.mapped('product_uom_qty'))
 
+    # === ACTION BUTTONS ===
     def action_view_purchase_history(self):
-        """Open purchase history in a new window"""
         self.ensure_one()
         return {
             'name': f'Purchase History - {self.product_id.name}',
@@ -190,7 +182,6 @@ class PurchaseOrderLine(models.Model):
         }
 
     def action_view_stock_history(self):
-        """Open stock movement history in a new window"""
         self.ensure_one()
         return {
             'name': f'Stock History - {self.product_id.name}',
@@ -202,7 +193,6 @@ class PurchaseOrderLine(models.Model):
         }
 
     def action_view_sale_history(self):
-        """Open sale order history in a new window"""
         self.ensure_one()
         return {
             'name': f'Sale History - {self.product_id.name}',

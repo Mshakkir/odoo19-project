@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Inherit Purchase Order Line Tree View -->
+    <!-- Inherit Purchase Order Line Tree View (Standalone list view) -->
     <record id="view_purchase_order_line_tree_history" model="ir.ui.view">
         <field name="name">purchase.order.line.tree.history</field>
         <field name="model">purchase.order.line</field>
@@ -46,68 +46,67 @@
         </field>
     </record>
 
-    <!-- Inherit Purchase Order Form View - Add history in order_line tree -->
+    <!-- Inherit Purchase Order Form View - Add history in order_line -->
     <record id="view_purchase_order_form_history" model="ir.ui.view">
         <field name="name">purchase.order.form.history</field>
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
-            <!-- Add columns in the embedded order_line tree -->
-            <xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="after">
+            <!-- Add columns in the embedded order_line list -->
+            <xpath expr="//field[@name='order_line']//field[@name='price_unit']" position="after">
                 <field name="last_purchase_price" optional="show" widget="monetary"/>
                 <field name="current_stock_qty" optional="show"/>
-            </xpath>
-
-            <!-- Add history buttons in the embedded tree -->
-            <xpath expr="//field[@name='order_line']/tree/field[@name='price_subtotal']" position="after">
                 <button name="action_view_purchase_history"
                         type="object"
                         icon="fa-history"
                         title="Purchase History"
                         invisible="purchase_history_count == 0"
                         class="btn-link"/>
-                <button name="action_view_stock_history"
-                        type="object"
-                        icon="fa-cubes"
-                        title="Stock History"
-                        invisible="stock_history_count == 0"
-                        class="btn-link"/>
             </xpath>
+        </field>
+    </record>
 
-            <!-- Add history section in order_line form (popup) -->
-            <xpath expr="//field[@name='order_line']/form//group[@name='price_unit']" position="after">
-                <group string="Product History Summary" colspan="2" col="4">
-                    <group string="Purchase Info">
+    <!-- Inherit Purchase Order Line Form View (popup when editing line) -->
+    <record id="view_purchase_order_line_form_history" model="ir.ui.view">
+        <field name="name">purchase.order.line.form.history</field>
+        <field name="model">purchase.order.line</field>
+        <field name="inherit_id" ref="purchase.purchase_order_line_form"/>
+        <field name="arch" type="xml">
+            <!-- Add history section after price information -->
+            <xpath expr="//group[@name='price_unit']" position="after">
+                <separator string="Product History" colspan="2"/>
+                <group string="Purchase History" colspan="2" col="4">
+                    <group>
                         <field name="last_purchase_price" widget="monetary"/>
                         <field name="avg_purchase_price" widget="monetary"/>
                         <field name="total_purchased_qty"/>
                         <field name="last_purchase_date"/>
                     </group>
-                    <group string="Stock &amp; Sales">
+                    <group>
                         <field name="current_stock_qty"/>
                         <field name="total_sold_qty"/>
                         <field name="purchase_history_count"/>
                         <field name="sale_history_count"/>
                     </group>
                 </group>
-                <group colspan="2">
+                <group colspan="2" col="3">
                     <button name="action_view_purchase_history"
-                            string="View Purchase History"
+                            string="Purchase History"
                             type="object"
                             icon="fa-shopping-cart"
-                            class="oe_highlight"
+                            class="btn-primary"
                             invisible="purchase_history_count == 0"/>
                     <button name="action_view_stock_history"
-                            string="View Stock Movements"
+                            string="Stock Movements"
                             type="object"
                             icon="fa-cubes"
-                            class="oe_highlight"
+                            class="btn-primary"
                             invisible="stock_history_count == 0"/>
                     <button name="action_view_sale_history"
-                            string="View Sale History"
+                            string="Sale History"
                             type="object"
                             icon="fa-line-chart"
-                            class="oe_highlight"
+                            class="btn-primary"
                             invisible="sale_history_count == 0"/>
                 </group>
             </xpath>

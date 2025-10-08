@@ -101,19 +101,25 @@ class PurchaseOrderLine(models.Model):
             # Get date limit (last 12 months)
             date_limit = datetime.now() - timedelta(days=365)
 
-            # === PURCHASE HISTORY ===
-            purchase_domain = [
-                ('product_id', '=', line.product_id.id),
-                ('id', '!=', line.id),
-                ('state', 'in', ['purchase', 'done']),
-                ('order_id.date_approve', '>=', date_limit)
-            ]
-
-            purchase_lines = self.env['purchase.order.line'].search(
-                purchase_domain,
-                order='order_id.date_approve desc',
+            # === PURCHASE HISTORY (fixed) ===
+            purchase_lines = self.env['purchase.order.line']
+            purchase_orders = self.env['purchase.order'].search(
+                [
+                    ('order_line.product_id', '=', line.product_id.id),
+                    ('state', 'in', ['purchase', 'done']),
+                    ('date_approve', '>=', date_limit),
+                ],
+                order='date_approve desc',
                 limit=100
             )
+
+            for po in purchase_orders:
+                for pl in po.order_line.filtered(lambda l: l.product_id.id == line.product_id.id and l.id != line.id):
+                    purchase_lines |= pl
+                    if len(purchase_lines) >= 100:
+                        break
+                if len(purchase_lines) >= 100:
+                    break
 
             line.purchase_history_ids = purchase_lines
             line.purchase_history_count = len(purchase_lines)
@@ -121,12 +127,8 @@ class PurchaseOrderLine(models.Model):
             if purchase_lines:
                 line.last_purchase_price = purchase_lines[0].price_unit
                 line.last_purchase_date = purchase_lines[0].order_id.date_approve
-
-                # Calculate average price
                 total_price = sum(purchase_lines.mapped('price_unit'))
                 line.avg_purchase_price = total_price / len(purchase_lines)
-
-                # Calculate total purchased quantity
                 line.total_purchased_qty = sum(purchase_lines.mapped('product_qty'))
             else:
                 line.last_purchase_price = 0.0
@@ -149,76 +151,64 @@ class PurchaseOrderLine(models.Model):
 
             line.stock_move_ids = stock_moves
             line.stock_history_count = len(stock_moves)
-
-            # Get current stock quantity (on hand)
             line.current_stock_qty = line.product_id.qty_available
 
-            # === SALE HISTORY ===
-            sale_domain = [
-                ('product_id', '=', line.product_id.id),
-                ('state', 'in', ['sale', 'done']),
-                ('order_id.date_order', '>=', date_limit)
-            ]
-
-            sale_lines = self.env['sale.order.line'].search(
-                sale_domain,
-                order='order_id.date_order desc',
+            # === SALE HISTORY (fixed) ===
+            sale_lines = self.env['sale.order.line']
+            sale_orders = self.env['sale.order'].search(
+                [
+                    ('order_line.product_id', '=', line.product_id.id),
+                    ('state', 'in', ['sale', 'done']),
+                    ('date_order', '>=', date_limit),
+                ],
+                order='date_order desc',
                 limit=100
             )
 
+            for so in sale_orders:
+                for sl in so.order_line.filtered(lambda l: l.product_id.id == line.product_id.id):
+                    sale_lines |= sl
+                    if len(sale_lines) >= 100:
+                        break
+                if len(sale_lines) >= 100:
+                    break
+
             line.sale_order_line_ids = sale_lines
             line.sale_history_count = len(sale_lines)
-
-            # Calculate total sold quantity
             line.total_sold_qty = sum(sale_lines.mapped('product_uom_qty'))
 
     def action_view_purchase_history(self):
         """Open purchase history in a new window"""
         self.ensure_one()
-        action = {
+        return {
             'name': f'Purchase History - {self.product_id.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'purchase.order.line',
             'view_mode': 'tree,form',
             'domain': [('id', 'in', self.purchase_history_ids.ids)],
-            'context': {
-                'create': False,
-                'edit': False,
-                'delete': False,
-            }
+            'context': {'create': False, 'edit': False, 'delete': False},
         }
-        return action
 
     def action_view_stock_history(self):
         """Open stock movement history in a new window"""
         self.ensure_one()
-        action = {
+        return {
             'name': f'Stock History - {self.product_id.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'stock.move',
             'view_mode': 'tree,form',
             'domain': [('id', 'in', self.stock_move_ids.ids)],
-            'context': {
-                'create': False,
-                'edit': False,
-                'delete': False,
-            }
+            'context': {'create': False, 'edit': False, 'delete': False},
         }
-        return action
 
     def action_view_sale_history(self):
         """Open sale order history in a new window"""
         self.ensure_one()
-        action = {
+        return {
             'name': f'Sale History - {self.product_id.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'sale.order.line',
             'view_mode': 'tree,form',
             'domain': [('id', 'in', self.sale_order_line_ids.ids)],
-            'context': {
-                'create': False,
-                'edit': False,
-                'delete': False,
-            }
+            'context': {'create': False, 'edit': False, 'delete': False},
         }
-        return action

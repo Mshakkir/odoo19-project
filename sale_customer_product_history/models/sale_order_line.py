@@ -27,12 +27,21 @@ class SaleOrderLine(models.Model):
     def action_view_product_history(self):
         product_ids = self.mapped('product_id.id')
 
+        # Find an existing tree view dynamically
+        tree_view = self.env['ir.ui.view'].search([
+            ('model', '=', 'sale.order.line'),
+            ('type', '=', 'tree')
+        ], limit=1)
+
+        # If not found, fallback to default system view
+        tree_view_id = tree_view.id if tree_view else False
+
         return {
             'name': 'Product History',
             'type': 'ir.actions.act_window',
             'res_model': 'sale.order.line',
             'view_mode': 'tree,form',
-            'views': [(False, 'tree'), (False, 'form')],  # ✅ ensures view types exist
+            'views': [(tree_view_id, 'tree'), (False, 'form')],
             'domain': [('product_id', 'in', product_ids)],
             'target': 'current',
         }

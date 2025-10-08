@@ -26,17 +26,14 @@ class SaleOrderLine(models.Model):
 
     def action_view_product_history(self):
         product_ids = self.mapped('product_id.id')
-        tree_view = self.env.ref('sale.view_order_line_tree')  # Default tree view
 
         return {
             'name': 'Product History',
             'type': 'ir.actions.act_window',
             'res_model': 'sale.order.line',
-            'view_mode': 'tree',
-            'views': [(tree_view.id, 'tree')],
+            'view_mode': 'tree,form',
             'domain': [('product_id', 'in', product_ids)],
             'target': 'current',
-            'context': self.env.context,
         }
 
 # from odoo import models

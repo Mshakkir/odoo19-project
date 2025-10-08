@@ -18,14 +18,14 @@
 #    (AGPL v3) along with this program.
 #    If not, see <http://www.gnu.org/licenses/>.
 #
-##############################################################################
+##############################################################################from odoo import models, fields, api
 from odoo import models, fields, api
 
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
     def action_view_product_history(self):
-        self.ensure_one()
+        product_ids = self.mapped('product_id.id')
         tree_view = self.env.ref('sale.view_order_line_tree')  # Default tree view
 
         return {
@@ -34,7 +34,7 @@ class SaleOrderLine(models.Model):
             'res_model': 'sale.order.line',
             'view_mode': 'tree',
             'views': [(tree_view.id, 'tree')],
-            'domain': [('product_id', '=', self.product_id.id)],
+            'domain': [('product_id', 'in', product_ids)],
             'target': 'current',
             'context': self.env.context,
         }

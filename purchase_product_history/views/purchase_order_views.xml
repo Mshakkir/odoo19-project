@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Inherit Purchase Order Form View -->
+    <!-- Inherit the purchase order form to add button in order_line list -->
     <record id="view_purchase_order_form_inherit_history" model="ir.ui.view">
         <field name="name">purchase.order.form.inherit.history</field>
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add button column in order_line tree -->
-            <xpath expr="//field[@name='order_line']/tree" position="inside">
+            <!-- Add button inside the list view (replaces old <tree>) -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='price_unit']" position="after">
                 <button name="action_view_purchase_history"
                         type="object"
                         icon="fa-history"
-                        string=""
-                        title="View Purchase History"
+                        title="Purchase History"
                         attrs="{'invisible': [('product_id', '=', False)]}"/>
             </xpath>
 
-            <!-- Add buttons in order_line form view -->
+            <!-- Add history buttons in the form view of order lines -->
             <xpath expr="//field[@name='order_line']/form/sheet/group" position="after">
                 <group string="Product History" colspan="2">
                     <button name="action_view_purchase_history"

@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_Product_History,access_Product_History,model_product_purchase_history,,1,1,1,1
+access_Product_History_line,access_Product_History_line,model_product_purchase_history_line,,1,1,1,1

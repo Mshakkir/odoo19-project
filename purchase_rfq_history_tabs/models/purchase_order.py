@@ -4,13 +4,23 @@ class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
     stock_move_ids = fields.One2many(
-        'stock.move', 'purchase_id', string='Stock Moves', readonly=True)
+        'stock.move', compute='_compute_stock_moves',
+        string='Stock Moves', readonly=True)
 
     sale_line_ids = fields.One2many(
-        'sale.order.line', compute='_compute_sale_lines', string='Sale Lines', readonly=True)
+        'sale.order.line', compute='_compute_sale_lines',
+        string='Sale Lines', readonly=True)
 
     purchase_line_ids = fields.One2many(
-        'purchase.order.line', 'order_id', string='Purchase Lines', readonly=True)
+        'purchase.order.line', 'order_id',
+        string='Purchase Lines', readonly=True)
+
+    def _compute_stock_moves(self):
+        for order in self:
+            moves = self.env['stock.move'].search([
+                ('purchase_line_id.order_id', '=', order.id)
+            ])
+            order.stock_move_ids = moves
 
     def _compute_sale_lines(self):
         for order in self:

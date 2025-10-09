@@ -5,15 +5,15 @@
                 <t t-foreach="docs" t-as="o">
                     <head>
                         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-                        <style type="text/css">
-                            @font-face {
-                                font-family: 'NotoNaskhArabic';
-                                src: url('/your_module_name/static/src/fonts/NotoNaskhArabic-VariableFont_wght.ttf') format('truetype');
-                            }
-                            body, * {
-                                font-family: 'NotoNaskhArabic', sans-serif !important;
-                            }
-                        </style>
+<!--                        <style type="text/css">-->
+<!--                            @font-face {-->
+<!--                                font-family: 'NotoNaskhArabic';-->
+<!--                                src: url('/your_module_name/static/src/fonts/NotoNaskhArabic-VariableFont_wght.ttf') format('truetype');-->
+<!--                            }-->
+<!--                            body, * {-->
+<!--                                font-family: 'NotoNaskhArabic', sans-serif !important;-->
+<!--                            }-->
+<!--                        </style>-->
                     </head>
 
                     <div style="border: 3px solid black; padding: 15px; border-radius: 5px;">

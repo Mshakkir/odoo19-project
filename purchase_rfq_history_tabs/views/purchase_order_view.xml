@@ -9,6 +9,7 @@
             <!-- Place tabs after the last notebook page -->
             <xpath expr="//notebook/page[last()]" position="after">
 
+                <!-- Stock History Tab -->
                 <page string="Stock History">
                     <field name="stock_move_ids" readonly="1" nolabel="1">
                         <tree>
@@ -22,6 +23,7 @@
                     </field>
                 </page>
 
+                <!-- Sales History Tab -->
                 <page string="Sales History">
                     <field name="sale_line_ids" readonly="1" nolabel="1">
                         <tree>
@@ -35,6 +37,7 @@
                     </field>
                 </page>
 
+                <!-- Purchase History Tab -->
                 <page string="Purchase History">
                     <field name="purchase_line_ids" readonly="1" nolabel="1">
                         <tree>

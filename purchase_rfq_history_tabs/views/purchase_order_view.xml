@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Place tabs after last existing tab in the purchase order form -->
+            <!-- Place tabs after the last notebook page -->
             <xpath expr="//notebook/page[last()]" position="after">
 
                 <page string="Stock History">

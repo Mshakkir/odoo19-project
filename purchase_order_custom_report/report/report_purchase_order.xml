@@ -3,35 +3,96 @@
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="o">
-                    <t t-call="web.external_layout">
-                        <div class="page">
-                            <!-- HEADER -->
-                            <table style="width:100%; border-bottom:3px solid #800000; padding-bottom:5px;">
-                                <tr>
-                                    <td style="width:60%;">
-                                        <h2 style="color:#800000; font-size:18px; margin:0;">
-                                            SAMEER SHARAF AL OTAIBI TRADING COMPANY
-                                        </h2>
-                                        <div style="font-size:10px;">
-                                            C.R. 403041376<br/>
-                                            VAT Regd: 311299944700003<br/>
-                                            Al Fayha 7655 - Jeddah 22244-3108<br/>
-                                            Saudi Arabia - Mobile: 0540831118<br/>
-                                            Email: ssaoe.jeddah@gmail.com
-                                        </div>
-                                    </td>
-                                    <td style="width:40%; text-align:right;">
-                                        <img t-att-src="'data:image/png;base64,%s' % (o.company_id.logo and o.company_id.logo.decode('utf-8') or '')" style="max-height:80px;"/>
-                                    </td>
-                                </tr>
-                            </table>
+                    <head>
+                        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+                        <style type="text/css">
+                            @font-face {
+                            font-family: 'NotoNaskhArabic';
+                            src: url('/custom_sa_quotation/static/src/fonts/NotoNaskhArabic-VariableFont_wght.ttf')
+                            format('truetype');
+                            }
+                            body, * {
+                            font-family: 'NotoNaskhArabic', sans-serif !important;
+                            }
+                        </style>
+                    </head>
 
-                            <!-- TITLE -->
-                            <h2 style="text-align:center; margin-top:10px; border-top:2px solid #800000; padding-top:5px;">
-                                Purchase Order / أمر شراء
-                            </h2>
+                    <div style="border: 3px solid black; padding: 15px; border-radius: 5px;">
 
-                            <!-- VENDOR AND PO DETAILS -->
+
+
+                            <!-- Keep the default structure -->
+                            <div class="page">
+                                <div class="header"
+                                     style="display: flex; padding: 15px 20px; border:2px solid #800000; border-radius: 6px; background: white; margin-bottom: 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                                    <table style="width: 100%;  border:2px solid white;">
+                                        <tr>
+
+                                            <!-- Left Column: English Info -->
+                                            <td style="width: 33%; text-align: left; font-size: 13px; color: #4a4a4a; vertical-align: top; padding-right: 10px; border:none; border-collapse: collapse; ">
+                                                <div style="font-weight: 700; font-size: 16px; color: #800000; margin-bottom: 8px; letter-spacing: 0.05em; border:none;">
+                                                    SAMEER SHARAF AL OTAIBI TRADING COMPANY
+                                                </div>
+                                                <div style="line-height: 1.5;border:none;">
+                                                    C.R. 4030216154
+                                                    <br/>
+                                                    VAT Regd: 311299944700003
+                                                    <br/>
+                                                    Al Anwar Centre, Showroom No. 12,
+                                                    <br/>
+                                                    Baladiya Street, Jeddah 23334 - Saudi Arabia
+                                                    <br/>
+                                                    Tel: 0536122833
+                                                    <br/>
+                                                    Email: ssaoe.jeddah@gmail.com
+                                                </div>
+                                            </td>
+
+                                            <!-- Center Column: Company Logo -->
+                                            <td style="width: 33%; text-align: center; vertical-align: middle; padding: 0 15px; border:none;">
+                                                <t t-if="o.company_id.logo">
+                                                    <img t-att-src="image_data_uri(o.company_id.logo)"
+                                                         style="max-height: 130px; max-width: 100%; object-fit: contain; margin-bottom: 8px; border:none;"/>
+                                                </t>
+                                            </td>
+
+                                            <!-- Right Column: Arabic Info -->
+                                            <td style="width: 33%; text-align: right; font-size: 13px; color: #4a4a4a; vertical-align: top; padding-left: 10px; direction: rtl; border:none; border-collapse: collapse; ">
+                                                <div style=" border:none; font-weight: 900; font-size: 18px; color: #800000; margin-bottom: 8px; letter-spacing: 0.05em; font-family: 'NotoNaskhArabic';">
+                                                    شركة سمير شرف العتيبي التجارية
+                                                </div>
+                                                <div style="line-height: 1.5; border:none; font-family: 'NotoNaskhArabic';">
+                                                    ٤٠٣٠٢١٦١٥٤ :س.ت
+                                                    <br/>
+                                                    ٣١١٢٩٩٩٤٤٧٠٠٠٠٣ :الرقم الضريبي
+                                                    <br/>
+                                                    مركز الأنوار، رقم محل ١٢
+                                                    <br/>
+                                                    شارع البلدية، جدة ٢٣٣٣٤ - المملكة العربية السعودية
+                                                    <br/>
+                                                    ٠٥٣٦١٢٢٨٣٣ :هاتف
+                                                    <br/>
+                                                    ssaoe.jeddah@gmail.com :البريد الإلكتروني
+                                                </div>
+                                            </td>
+
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+
+                            <t t-call="web.external_layout">
+                                <!-- ===== Title Section ===== -->
+                                <div style="padding-top:50px;">
+                                    <div style=" background-color:#581d35; color:white; padding:8px ; text-align:center; margin-bottom:10px ; font-weight:bold; font-size:16px;">
+                                        Quotation /
+                                        <span>عرض سعر</span>
+                                    </div>
+                                </div>
+
+
+             VENDOR AND PO DETAILS
                             <table style="width:100%; border-collapse:collapse; margin-top:10px;">
                                 <tr>
                                     <td style="border:1px solid #000; padding:5px; font-weight:bold;">Vendor</td>
@@ -120,7 +181,9 @@
                         </div>
                     </t>
                 </t>
-            </t>
+
+
+
         </xpath>
     </template>
 </odoo>

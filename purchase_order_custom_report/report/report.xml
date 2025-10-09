@@ -1,8 +1,8 @@
 <odoo>
     <report
-        id="custom_purchaseorder_report"
+        id="purchase.report_purchaseorder"
         model="purchase.order"
-        string="Purchase Order Custom"
+        string="Purchase Order"
         report_type="qweb-pdf"
         name="purchase_order_custom_report.custom_purchaseorder_report"
         file="purchase_order_custom_report.custom_purchaseorder_report"

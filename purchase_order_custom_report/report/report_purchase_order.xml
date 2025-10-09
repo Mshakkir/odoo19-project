@@ -166,20 +166,27 @@
                             </table>
 
                             <!-- TOTALS -->
-                            <table style="width:30%; float:right; border-collapse:collapse; margin-top:10px;">
-                                <tr>
-                                    <td style="border:1px solid #000; padding:5px;">Subtotal</td>
-                                    <td style="border:1px solid #000; padding:5px;" t-field="o.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                </tr>
-                                <tr>
-                                    <td style="border:1px solid #000; padding:5px;">VAT</td>
-                                    <td style="border:1px solid #000; padding:5px;" t-field="o.amount_tax" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                </tr>
-                                <tr>
-                                    <td style="border:1px solid #000; padding:5px; font-weight:bold;">Total</td>
-                                    <td style="border:1px solid #000; padding:5px; font-weight:bold;" t-field="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                </tr>
-                            </table>
+<tr>
+    <td style="border:1px solid #000; padding:5px;">Subtotal</td>
+    <td style="border:1px solid #000; padding:5px;">
+        <span t-field="o.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+    </td>
+</tr>
+
+<tr>
+    <td style="border:1px solid #000; padding:5px;">VAT</td>
+    <td style="border:1px solid #000; padding:5px;">
+        <span t-field="o.amount_tax" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+    </td>
+</tr>
+
+<tr>
+    <td style="border:1px solid #000; padding:5px; font-weight:bold;">Total</td>
+    <td style="border:1px solid #000; padding:5px; font-weight:bold;">
+        <span t-field="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+    </td>
+</tr>
+
 
                             <!-- FOOTER -->
                             <div style="margin-top:80px; clear:both;">

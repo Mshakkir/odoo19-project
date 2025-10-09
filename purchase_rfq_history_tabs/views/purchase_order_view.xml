@@ -6,32 +6,32 @@
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add 3 tabs after Other Information -->
-            <xpath expr="//page[@name='purchase_delivery_invoice']" position="after">
+            <!-- Insert our custom tabs after the last existing page -->
+            <xpath expr="//page[last()]" position="after">
 
                 <!-- Stock History Tab -->
                 <page string="Stock History">
-                    <field name="stock_move_ids" readonly="1">
+                    <field name="stock_move_ids" readonly="1" nolabel="1">
                         <tree>
-                            <field name="date"/>
                             <field name="product_id"/>
-                            <field name="product_uom_qty"/>
+                            <field name="product_uom_qty" string="Quantity"/>
                             <field name="location_id"/>
                             <field name="location_dest_id"/>
                             <field name="state"/>
+                            <field name="date_expected"/>
                         </tree>
                     </field>
                 </page>
 
                 <!-- Sales History Tab -->
                 <page string="Sales History">
-                    <field name="sale_line_ids" readonly="1">
+                    <field name="sale_line_ids" readonly="1" nolabel="1">
                         <tree>
                             <field name="order_id"/>
                             <field name="product_id"/>
-                            <field name="product_uom_qty"/>
-                            <field name="price_unit"/>
-                            <field name="price_total"/>
+                            <field name="product_uom_qty" string="Qty"/>
+                            <field name="price_unit" string="Unit Price"/>
+                            <field name="price_total" string="Total"/>
                             <field name="state"/>
                         </tree>
                     </field>
@@ -39,14 +39,14 @@
 
                 <!-- Purchase History Tab -->
                 <page string="Purchase History">
-                    <field name="purchase_line_ids" readonly="1">
+                    <field name="purchase_line_ids" readonly="1" nolabel="1">
                         <tree>
                             <field name="order_id"/>
                             <field name="product_id"/>
-                            <field name="product_qty"/>
-                            <field name="price_unit"/>
-                            <field name="price_total"/>
-                            <field name="date_planned"/>
+                            <field name="product_qty" string="Qty"/>
+                            <field name="price_unit" string="Unit Price"/>
+                            <field name="price_total" string="Total"/>
+                            <field name="date_planned" string="Planned Date"/>
                         </tree>
                     </field>
                 </page>

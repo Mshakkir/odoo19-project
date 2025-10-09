@@ -8,7 +8,7 @@
     "category": "Purchases",
     "depends": ["purchase", "sale", "stock", "product"],
     "data": [
-        "views/purchase_order_view_inherit.xml",
+        "views/purchase_order_view.xml",
     ],
     "installable": True,
     "application": False,

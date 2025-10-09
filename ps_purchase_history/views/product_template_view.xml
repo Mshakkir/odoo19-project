@@ -5,18 +5,32 @@
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_only_form_view"/>
         <field name="arch" type="xml">
-             <xpath expr="//div[@name='button_box']" position="inside">
-                    <div class="oe_button_box" name="button_box">
-                        <button name="open_purchase_product_history_wizard"
-                                type="object"
-                                class="oe_stat_button"
-                                icon="fa-history">
-                            <div class="o_stat_info">
-                                <span class="o_stat_text">Purchase History</span>
-                            </div>
-                        </button>
-                    </div>
-                </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <div class="oe_button_box" name="button_box">
+                    <button name="open_purchase_product_history_wizard"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-history">
+                        <div class="o_stat_info">
+                            <span class="o_stat_text">Purchase History</span>
+                        </div>
+                    </button>
+                </div>
+            </xpath>
+        </field>
+    </record>
+    <record id="inherit_purchase_order_form_view" model="ir.ui.view">
+        <field name="name">inherit.purchase.order.form.view</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']/tree/field[@name='product_id']" position="after">
+                <button name="action_open_purchase_history"
+                        type="object"
+                        icon="fa-history"
+                        title="Purchase History"
+                        class="btn-link"/>
+            </xpath>
         </field>
     </record>
 </odoo>

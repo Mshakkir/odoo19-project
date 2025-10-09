@@ -1,47 +1,34 @@
-<!-- purchase_rfq_history_buttons/views/purchase_order_view_inherit.xml -->
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-  <!-- Add header buttons to purchase order (acts on first line) -->
-  <record id="view_purchase_order_form_inherit_history_header" model="ir.ui.view">
-    <field name="name">purchase.order.form.inherit.history.header</field>
-    <field name="model">purchase.order</field>
-    <field name="inherit_id" ref="purchase.purchase_order_form"/>
-    <field name="arch" type="xml">
-      <xpath expr="//header" position="inside">
-        <!-- these will act on the first order_line if you haven't selected a line -->
-        <button name="action_view_sales_history_header" type="object" string="Sales History" class="oe_stat_button"/>
-        <button name="action_view_purchase_history_header" type="object" string="Purchase History" class="oe_stat_button"/>
-        <button name="action_view_stock_history_header" type="object" string="Stock History" class="oe_stat_button"/>
-      </xpath>
-    </field>
-  </record>
-
-  <!-- Add buttons into each order line row (inside tree) so you can click per-line -->
-  <record id="view_purchase_order_form_inherit_history_lines" model="ir.ui.view">
-    <field name="name">purchase.order.form.inherit.history.lines</field>
-    <field name="model">purchase.order</field>
-    <field name="inherit_id" ref="purchase.purchase_order_form"/>
-    <field name="arch" type="xml">
-      <!-- find the order_line tree (one2many) and add three button columns -->
-      <xpath expr="//field[@name='order_line']/tree" position="inside">
-        <!-- Insert after product_id column (if present) -->
-        <!-- Buttons are type="object" so they call methods on purchase.order.line -->
-        <button name="action_view_sales_history"
-                type="object"
-                string="Sales"
-                attrs="{'invisible':[('product_id','=',False)]}"
-                class="oe_inline"/>
-        <button name="action_view_purchase_history"
-                type="object"
-                string="Purchases"
-                attrs="{'invisible':[('product_id','=',False)]}"
-                class="oe_inline"/>
-        <button name="action_view_stock_history"
-                type="object"
-                string="Stock"
-                attrs="{'invisible':[('product_id','=',False)]}"
-                class="oe_inline"/>
-      </xpath>
-    </field>
-  </record>
-
+    <record id="view_purchase_order_form_inherit_history_buttons" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit.history.buttons</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Insert after the Other Information tab -->
+            <xpath expr="//page[@name='purchase_delivery_invoice']" position="after">
+                <page string="Product History">
+                    <group>
+                        <group>
+                            <button name="action_view_stock_history"
+                                    type="object"
+                                    string="Stock History"
+                                    class="btn-primary"
+                                    icon="fa-cubes"/>
+                            <button name="action_view_sales_history"
+                                    type="object"
+                                    string="Sales History"
+                                    class="btn-info"
+                                    icon="fa-line-chart"/>
+                            <button name="action_view_purchase_history"
+                                    type="object"
+                                    string="Purchase History"
+                                    class="btn-success"
+                                    icon="fa-shopping-cart"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
 </odoo>

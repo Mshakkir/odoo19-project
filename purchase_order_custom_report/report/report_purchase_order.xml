@@ -24,6 +24,7 @@
                     </head>
 
                     <div style="border: 3px solid black; padding: 15px; border-radius: 5px;">
+
                         <!-- HEADER SECTION -->
                         <div class="page">
                             <div class="header"
@@ -124,69 +125,61 @@
                                 <tr style="background:#ddd;">
                                     <th style="border:1px solid #000; padding:5px;">SN</th>
                                     <th style="border:1px solid #000; padding:5px;">
-                                        Item Description / <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">المنتج الوصف</span>
+                                        Item Description /
+                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">المنتج الوصف</span>
                                     </th>
                                     <th style="border:1px solid #000; padding:5px;">
-                                        Delivery / <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">مدة</span>
+                                        Delivery /
+                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">مدة</span>
                                     </th>
                                     <th style="border:1px solid #000; padding:5px;">
-                                        QTY / <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">الكمية</span>
+                                        QTY /
+                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">الكمية</span>
                                     </th>
                                     <th style="border:1px solid #000; padding:5px;">
-                                        U/M / <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">وحدة</span>
+                                        U/M /
+                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">وحدة</span>
                                     </th>
                                     <th style="border:1px solid #000; padding:5px;">
-                                        Unit Price / <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">سعر الوحدة</span>
+                                        Unit Price /
+                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">سعر الوحدة</span>
                                     </th>
                                     <th style="border:1px solid #000; padding:5px;">
-                                        Line Total / <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">مجموع الخط</span>
+                                        Line Total /
+                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">مجموع الخط</span>
                                     </th>
                                 </tr>
 
                                 <t t-set="counter" t-value="0"/>
                                 <t t-foreach="o.order_line" t-as="line">
                                     <t t-set="counter" t-value="counter + 1"/>
-<tr>
-    <td style="border:1px solid #000; padding:5px;" t-esc="counter"/>
-    <td style="border:1px solid #000; padding:5px;" t-esc="line.name"/>
-    <td style="border:1px solid #000; padding:5px;" t-esc="line.date_planned and line.date_planned.strftime('%d-%b-%Y')"/>
-    <td style="border:1px solid #000; padding:5px;">
-        <span t-field="line.product_qty" t-options='{"widget": "float", "digits": [0,2]}'/>
-    </td>
-    <td style="border:1px solid #000; padding:5px;" t-esc="line.product_uom_id.name"/>
-    <td style="border:1px solid #000; padding:5px;">
-        <span t-field="line.price_unit" t-options='{"widget": "float", "digits": [0,2]}'/>
-    </td>
-    <td style="border:1px solid #000; padding:5px;">
-        <span t-field="line.price_subtotal" t-options='{"widget": "float", "digits": [0,2]}'/>
-    </td>
-</tr>
-
+                                    <tr>
+                                        <td style="border:1px solid #000; padding:5px;" t-esc="counter"/>
+                                        <td style="border:1px solid #000; padding:5px;" t-esc="line.name"/>
+                                        <td style="border:1px solid #000; padding:5px;" t-esc="line.date_planned and line.date_planned.strftime('%d-%b-%Y')"/>
+                                        <td style="border:1px solid #000; padding:5px;" t-esc="formatLang(line.product_qty, digits=2)"/>
+                                        <td style="border:1px solid #000; padding:5px;" t-esc="line.product_uom_id.name"/>
+                                        <td style="border:1px solid #000; padding:5px;" t-esc="formatLang(line.price_unit, digits=2)"/>
+                                        <td style="border:1px solid #000; padding:5px;" t-esc="formatLang(line.price_subtotal, digits=2)"/>
+                                    </tr>
                                 </t>
                             </table>
 
                             <!-- TOTALS -->
-<tr>
-    <td style="border:1px solid #000; padding:5px;">Subtotal</td>
-    <td style="border:1px solid #000; padding:5px;">
-        <span t-field="o.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-    </td>
-</tr>
-
-<tr>
-    <td style="border:1px solid #000; padding:5px;">VAT</td>
-    <td style="border:1px solid #000; padding:5px;">
-        <span t-field="o.amount_tax" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-    </td>
-</tr>
-
-<tr>
-    <td style="border:1px solid #000; padding:5px; font-weight:bold;">Total</td>
-    <td style="border:1px solid #000; padding:5px; font-weight:bold;">
-        <span t-field="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-    </td>
-</tr>
-
+                            <table style="width:30%; float:right; border-collapse:collapse; margin-top:10px;">
+                                <tr>
+                                    <td style="border:1px solid #000; padding:5px;">Subtotal</td>
+                                    <td style="border:1px solid #000; padding:5px;" t-esc="formatLang(o.amount_untaxed, digits=2)"/>
+                                </tr>
+                                <tr>
+                                    <td style="border:1px solid #000; padding:5px;">VAT</td>
+                                    <td style="border:1px solid #000; padding:5px;" t-esc="formatLang(o.amount_tax, digits=2)"/>
+                                </tr>
+                                <tr>
+                                    <td style="border:1px solid #000; padding:5px; font-weight:bold;">Total</td>
+                                    <td style="border:1px solid #000; padding:5px; font-weight:bold;" t-esc="formatLang(o.amount_total, digits=2)"/>
+                                </tr>
+                            </table>
 
                             <!-- FOOTER -->
                             <div style="margin-top:80px; clear:both;">

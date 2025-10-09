@@ -157,10 +157,10 @@
                                         <td style="border:1px solid #000; padding:5px;" t-esc="counter"/>
                                         <td style="border:1px solid #000; padding:5px;" t-esc="line.name"/>
                                         <td style="border:1px solid #000; padding:5px;" t-esc="line.date_planned and line.date_planned.strftime('%d-%b-%Y')"/>
-                                        <td style="border:1px solid #000; padding:5px;" t-esc="formatLang(line.product_qty, digits=2)"/>
+                                        <td style="border:1px solid #000; padding:5px;" t-esc="o.formatLang(line.product_qty, digits=2)"/>
                                         <td style="border:1px solid #000; padding:5px;" t-esc="line.product_uom_id.name"/>
-                                        <td style="border:1px solid #000; padding:5px;" t-esc="formatLang(line.price_unit, digits=2)"/>
-                                        <td style="border:1px solid #000; padding:5px;" t-esc="formatLang(line.price_subtotal, digits=2)"/>
+                                        <td style="border:1px solid #000; padding:5px;" t-esc="o.formatLang(line.price_unit, digits=2)"/>
+                                        <td style="border:1px solid #000; padding:5px;" t-esc="o.formatLang(line.price_subtotal, digits=2)"/>
                                     </tr>
                                 </t>
                             </table>
@@ -169,15 +169,15 @@
                             <table style="width:30%; float:right; border-collapse:collapse; margin-top:10px;">
                                 <tr>
                                     <td style="border:1px solid #000; padding:5px;">Subtotal</td>
-                                    <td style="border:1px solid #000; padding:5px;" t-esc="formatLang(o.amount_untaxed, digits=2)"/>
+                                    <td style="border:1px solid #000; padding:5px;" t-esc="o.formatLang(o.amount_untaxed, digits=2)"/>
                                 </tr>
                                 <tr>
                                     <td style="border:1px solid #000; padding:5px;">VAT</td>
-                                    <td style="border:1px solid #000; padding:5px;" t-esc="formatLang(o.amount_tax, digits=2)"/>
+                                    <td style="border:1px solid #000; padding:5px;" t-esc="o.formatLang(o.amount_tax, digits=2)"/>
                                 </tr>
                                 <tr>
                                     <td style="border:1px solid #000; padding:5px; font-weight:bold;">Total</td>
-                                    <td style="border:1px solid #000; padding:5px; font-weight:bold;" t-esc="formatLang(o.amount_total, digits=2)"/>
+                                    <td style="border:1px solid #000; padding:5px; font-weight:bold;" t-esc="o.formatLang(o.amount_total, digits=2)"/>
                                 </tr>
                             </table>
 

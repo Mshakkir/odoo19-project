@@ -3,25 +3,126 @@
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="o">
-                    <head>
-                        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<!--                        <style type="text/css">-->
-<!--                            @font-face {-->
-<!--                                font-family: 'NotoNaskhArabic';-->
-<!--                                src: url('/your_module_name/static/src/fonts/NotoNaskhArabic-VariableFont_wght.ttf') format('truetype');-->
-<!--                            }-->
-<!--                            body, * {-->
-<!--                                font-family: 'NotoNaskhArabic', sans-serif !important;-->
-<!--                            }-->
-<!--                        </style>-->
-                    </head>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <!-- HEADER -->
+                            <table style="width:100%; border-bottom:3px solid #800000; padding-bottom:5px;">
+                                <tr>
+                                    <td style="width:60%;">
+                                        <h2 style="color:#800000; font-size:18px; margin:0;">
+                                            SAMEER SHARAF AL OTAIBI TRADING COMPANY
+                                        </h2>
+                                        <div style="font-size:10px;">
+                                            C.R. 403041376<br/>
+                                            VAT Regd: 311299944700003<br/>
+                                            Al Fayha 7655 - Jeddah 22244-3108<br/>
+                                            Saudi Arabia - Mobile: 0540831118<br/>
+                                            Email: ssaoe.jeddah@gmail.com
+                                        </div>
+                                    </td>
+                                    <td style="width:40%; text-align:right;">
+                                        <img t-att-src="'data:image/png;base64,%s' % (o.company_id.logo and o.company_id.logo.decode('utf-8') or '')" style="max-height:80px;"/>
+                                    </td>
+                                </tr>
+                            </table>
 
-                    <div style="border: 3px solid black; padding: 15px; border-radius: 5px;">
-                        <body>
-                            <!-- Your custom purchase order content here -->
-                            <h1>purchase order</h1>
-                        </body>
-                    </div>
+                            <!-- TITLE -->
+                            <h2 style="text-align:center; margin-top:10px; border-top:2px solid #800000; padding-top:5px;">
+                                Purchase Order / أمر شراء
+                            </h2>
+
+                            <!-- VENDOR AND PO DETAILS -->
+                            <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+                                <tr>
+                                    <td style="border:1px solid #000; padding:5px; font-weight:bold;">Vendor</td>
+                                    <td style="border:1px solid #000; padding:5px;"> <span t-esc="o.partner_id.name"/> </td>
+                                    <td style="border:1px solid #000; padding:5px; font-weight:bold;">DATE</td>
+                                    <td style="border:1px solid #000; padding:5px;"> <span t-esc="o.date_order"/> </td>
+                                </tr>
+                                <tr>
+                                    <td style="border:1px solid #000; padding:5px; font-weight:bold;">Invoice and Shipping Address</td>
+                                    <td style="border:1px solid #000; padding:5px;" colspan="3">
+                                        <span t-esc="o.partner_id.contact_address"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="border:1px solid #000; padding:5px; font-weight:bold;">PO #</td>
+                                    <td style="border:1px solid #000; padding:5px;"> <span t-esc="o.name"/> </td>
+                                    <td style="border:1px solid #000; padding:5px; font-weight:bold;">Vendor Ref</td>
+                                    <td style="border:1px solid #000; padding:5px;"> <span t-esc="o.partner_ref"/> </td>
+                                </tr>
+                            </table>
+
+                            <!-- ITEMS TABLE -->
+                            <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+                                <tr style="background:#ddd;">
+                                    <th style="border:1px solid #000; padding:5px;">SN</th>
+                                    <th style="border:1px solid #000; padding:5px;">Item Description / المنتج الوصف</th>
+                                    <th style="border:1px solid #000; padding:5px;">Delivery / مدة</th>
+                                    <th style="border:1px solid #000; padding:5px;">QTY / الكمية</th>
+                                    <th style="border:1px solid #000; padding:5px;">U/M / وحدة</th>
+                                    <th style="border:1px solid #000; padding:5px;">Unit Price / سعر الوحدة</th>
+                                    <th style="border:1px solid #000; padding:5px;">Line Total / مجموعه الخط</th>
+                                </tr>
+                                <t t-foreach="o.order_line" t-as="line" t-index="idx">
+                                    <tr>
+                                        <td style="border:1px solid #000; padding:5px;" t-esc="idx+1"/>
+                                        <td style="border:1px solid #000; padding:5px;" t-esc="line.name"/>
+                                        <td style="border:1px solid #000; padding:5px;" t-esc="line.date_planned"/>
+                                        <td style="border:1px solid #000; padding:5px;" t-esc="line.product_qty"/>
+                                        <td style="border:1px solid #000; padding:5px;" t-esc="line.product_uom.name"/>
+                                        <td style="border:1px solid #000; padding:5px;" t-esc="line.price_unit"/>
+                                        <td style="border:1px solid #000; padding:5px;" t-esc="line.price_subtotal"/>
+                                    </tr>
+                                </t>
+                            </table>
+
+                            <!-- TERMS & CONDITIONS -->
+                            <div style="margin-top:10px; font-size:10px;">
+                                <b>Terms and Conditions:</b><br/>
+                                Payment Terms : <span t-esc="o.payment_term_id.name"/><br/>
+                                INCOTERMS : <span t-esc="o.incoterm_id.name"/><br/>
+                                FORWARDER : <span t-esc="o.forwarder"/><br/>
+                                PACKING : <span t-esc="o.packing"/><br/>
+                                SIGN AND RETURN
+                            </div>
+
+                            <!-- TOTALS -->
+                            <table style="width:30%; float:right; border-collapse:collapse; margin-top:10px;">
+                                <tr>
+                                    <td style="border:1px solid #000; padding:5px;">Subtotal</td>
+                                    <td style="border:1px solid #000; padding:5px;" t-esc="o.amount_untaxed"/>
+                                </tr>
+                                <tr>
+                                    <td style="border:1px solid #000; padding:5px;">Discount</td>
+                                    <td style="border:1px solid #000; padding:5px;">-</td>
+                                </tr>
+                                <tr>
+                                    <td style="border:1px solid #000; padding:5px;">Freight</td>
+                                    <td style="border:1px solid #000; padding:5px;">-</td>
+                                </tr>
+                                <tr>
+                                    <td style="border:1px solid #000; padding:5px;">GrossTo</td>
+                                    <td style="border:1px solid #000; padding:5px;" t-esc="o.amount_untaxed"/>
+                                </tr>
+                                <tr>
+                                    <td style="border:1px solid #000; padding:5px;">VAT</td>
+                                    <td style="border:1px solid #000; padding:5px;" t-esc="o.amount_tax"/>
+                                </tr>
+                                <tr>
+                                    <td style="border:1px solid #000; padding:5px;">Net Tot</td>
+                                    <td style="border:1px solid #000; padding:5px;" t-esc="o.amount_total"/>
+                                </tr>
+                            </table>
+
+                            <!-- FOOTER -->
+                            <div style="margin-top:50px;">
+                                Signed on Behalf of SSAOCO: ___________________<br/>
+                                Signed on Behalf of SUPPLIER: ___________________
+                            </div>
+
+                        </div>
+                    </t>
                 </t>
             </t>
         </xpath>

@@ -86,7 +86,7 @@
                                 <b>Terms and Conditions:</b><br/>
                                 Payment Terms : <span t-esc="o.payment_term_id.name"/><br/>
                                 INCOTERMS : <span t-esc="o.incoterm_id.name"/><br/>
-                                FORWARDER : <span t-esc="o.forwarder"/><br/>
+<!--                                FORWARDER : <span t-esc="o.forwarder"/><br/>-->
                                 PACKING : <span t-esc="o.packing"/><br/>
                                 SIGN AND RETURN
                             </div>

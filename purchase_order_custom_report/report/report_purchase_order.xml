@@ -182,20 +182,6 @@
                                                     </td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Discount</td>
-                                                    <td style="text-align:right;">
-                                                        <t t-esc="doc.discount_amount or 0.0"/>
-                                                        SAR
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Freight</td>
-                                                    <td style="text-align:right;">
-                                                        <t t-esc="doc.freight_amount or 0.0"/>
-                                                        SAR
-                                                    </td>
-                                                </tr>
-                                                <tr>
                                                     <td>VAT (15%)</td>
                                                     <td style="text-align:right;">
                                                        <span t-field="o.amount_tax" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>

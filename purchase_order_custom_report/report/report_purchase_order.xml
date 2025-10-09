@@ -81,15 +81,7 @@
 </table>
 
 
-                            <!-- TERMS & CONDITIONS -->
-                            <div style="margin-top:10px; font-size:10px;">
-                                <b>Terms and Conditions:</b><br/>
-                                Payment Terms : <span t-esc="o.payment_term_id.name"/><br/>
-                                INCOTERMS : <span t-esc="o.incoterm_id.name"/><br/>
-<!--                                FORWARDER : <span t-esc="o.forwarder"/><br/>-->
-                                PACKING : <span t-esc="o.packing"/><br/>
-                                SIGN AND RETURN
-                            </div>
+
 
                             <!-- TOTALS -->
                             <table style="width:30%; float:right; border-collapse:collapse; margin-top:10px;">

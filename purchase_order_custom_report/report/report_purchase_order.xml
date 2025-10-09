@@ -15,6 +15,12 @@
     body, * {
         font-family: 'Tajawal', sans-serif !important;
     }
+    .arabic-word {
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 900;
+    direction: rtl;
+}
+
 </style>
 
                     </head>
@@ -53,10 +59,10 @@
 
                                         <!-- Right Column: Arabic Info -->
                                         <td style="width: 33%; text-align: right; font-size: 13px; color: #4a4a4a; vertical-align: top; direction: rtl;">
-                                            <div style="font-weight: 900; font-size: 18px; color: #800000; margin-bottom: 8px;">
+                                            <div style="font-weight: 900; font-size: 18px; color: #800000; margin-bottom: 8px;" class="arabic-word">
                                                 شركة سمير شرف العتيبي التجارية
                                             </div>
-                                            <div style="line-height: 1.5;">
+                                            <div style="line-height: 1.5;" class="arabic-word">
                                                 ٤٠٣٠٢١٦١٥٤ :س.ت<br/>
                                                 ٣١١٢٩٩٩٤٤٧٠٠٠٠٣ :الرقم الضريبي<br/>
                                                 مركز الأنوار، رقم محل ١٢<br/>

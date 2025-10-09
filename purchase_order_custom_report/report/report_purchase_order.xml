@@ -75,7 +75,7 @@
 
                         <!-- TITLE -->
                         <t t-call="web.external_layout">
-                            <div style="padding-top:50px;">
+                            <div style="padding-top:70px;">
                                 <div style="background-color:#581d35; color:white; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
                                     Purchase Order / <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">أمر شراء</span>
                                 </div>
@@ -161,7 +161,7 @@
                             </table>
 
 
-                             <table width="100%" style="font-size: 13px; margin-top: 10px; boarder:white;">
+                             <table width="100%" style="font-size: 13px; margin-top: 10px; border:2px solid white;">
                                     <tr>
                                         <!-- Left: Notes -->
                                         <td style="width: 60%;padding-left:3px; ">
@@ -173,7 +173,7 @@
                                             </t>
                                         </td>
                                         <!-- Right: Totals -->
-                                        <td style="width: 40%; border:white;">
+                                        <td style="width: 60%; border:white;">
                                             <table style="width:100%; border:1px solid #000; border-collapse:collapse;">
                                                 <tr style="width:30%;">
                                                     <td>Subtotal</td>

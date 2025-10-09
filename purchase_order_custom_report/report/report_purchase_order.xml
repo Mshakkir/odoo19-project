@@ -53,30 +53,33 @@
                                 </tr>
                             </table>
 
-                            <!-- ITEMS TABLE -->
-                            <table style="width:100%; border-collapse:collapse; margin-top:10px;">
-                                <tr style="background:#ddd;">
-                                    <th style="border:1px solid #000; padding:5px;">SN</th>
-                                    <th style="border:1px solid #000; padding:5px;">Item Description / المنتج الوصف</th>
-                                    <th style="border:1px solid #000; padding:5px;">Delivery / مدة</th>
-                                    <th style="border:1px solid #000; padding:5px;">QTY / الكمية</th>
-                                    <th style="border:1px solid #000; padding:5px;">U/M / وحدة</th>
-                                    <th style="border:1px solid #000; padding:5px;">Unit Price / سعر الوحدة</th>
-                                    <th style="border:1px solid #000; padding:5px;">Line Total / مجموعه الخط</th>
-                                </tr>
-<t t-foreach="o.order_line" t-as="line">
-    <tr>
-        <td style="border:1px solid #000; padding:5px;" t-esc="loop.index"/>
-        <td style="border:1px solid #000; padding:5px;" t-esc="line.name"/>
-        <td style="border:1px solid #000; padding:5px;" t-esc="line.date_planned"/>
-        <td style="border:1px solid #000; padding:5px;" t-esc="line.product_qty"/>
-        <td style="border:1px solid #000; padding:5px;" t-esc="line.product_uom.name"/>
-        <td style="border:1px solid #000; padding:5px;" t-esc="line.price_unit"/>
-        <td style="border:1px solid #000; padding:5px;" t-esc="line.price_subtotal"/>
+<!-- ITEMS TABLE -->
+<table style="width:100%; border-collapse:collapse; margin-top:10px;">
+    <tr style="background:#ddd;">
+        <th style="border:1px solid #000; padding:5px;">SN</th>
+        <th style="border:1px solid #000; padding:5px;">Item Description / المنتج الوصف</th>
+        <th style="border:1px solid #000; padding:5px;">Delivery / مدة</th>
+        <th style="border:1px solid #000; padding:5px;">QTY / الكمية</th>
+        <th style="border:1px solid #000; padding:5px;">U/M / وحدة</th>
+        <th style="border:1px solid #000; padding:5px;">Unit Price / سعر الوحدة</th>
+        <th style="border:1px solid #000; padding:5px;">Line Total / مجموعه الخط</th>
     </tr>
-</t>
 
-                            </table>
+    <t t-set="counter" t-value="0"/>
+    <t t-foreach="o.order_line" t-as="line">
+        <t t-set="counter" t-value="counter + 1"/>
+        <tr>
+            <td style="border:1px solid #000; padding:5px;" t-esc="counter"/>
+            <td style="border:1px solid #000; padding:5px;" t-esc="line.name"/>
+            <td style="border:1px solid #000; padding:5px;" t-esc="line.date_planned"/>
+            <td style="border:1px solid #000; padding:5px;" t-esc="line.product_qty"/>
+            <td style="border:1px solid #000; padding:5px;" t-esc="line.product_uom.name"/>
+            <td style="border:1px solid #000; padding:5px;" t-esc="line.price_unit"/>
+            <td style="border:1px solid #000; padding:5px;" t-esc="line.price_subtotal"/>
+        </tr>
+    </t>
+</table>
+
 
                             <!-- TERMS & CONDITIONS -->
                             <div style="margin-top:10px; font-size:10px;">

@@ -8,10 +8,10 @@
 #    For Module Support : contact@pysquad.com
 #
 ##############################################################################
-
+# -*- coding: utf-8 -*-
 {
     'name': 'Purchase Product History',
-    'version': '18.0',
+    'version': '19.0.18.0',
     'category': 'Purchase',
     'summary': 'Product Purchase History',
     'description': """
@@ -23,8 +23,8 @@
     'depends': ['base', 'purchase'],
     'data': [
         'security/ir.model.access.csv',
-        'views/product_template_view.xml',
         'wizard/purchase_product_history_wizard_view.xml',
+        'views/product_template_view.xml',  # Views should be loaded AFTER wizard
     ],
     'images': [
             'static/description/banner_icon.png'

@@ -76,13 +76,6 @@
 
                     <t t-call="web.external_layout">
 
-                        <!-- ===== Title Section ===== -->
-                        <!--                        <div style="padding-top:10px;">-->
-                        <!--                            <div style=" background-color:#581d35; color:white; padding:8px ; text-align:center; margin-bottom:10px ; font-weight:bold; font-size:16px;">-->
-                        <!--                                Tax Invoice /-->
-                        <!--                                <span>فاتورة ضريبية</span>-->
-                        <!--                            </div>-->
-                        <!--                        </div>-->
                         <div style="padding-top:10px;">
                             <div style="background-color:#581d35; color:white; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
                                 <t t-if="o.move_type in ('out_invoice','out_refund')">
@@ -103,11 +96,6 @@
                         <!-- Customer Info -->
                         <div style="border:1px solid #999; margin-bottom:10px; font-size:12px;">
                             <table style="width:100%; border-collapse:collapse;">
-                                <!--                                <tr style="background-color:#d3d3d3;">-->
-                                <!--                                    <td colspan="2" style="padding:4px 8px; font-weight:bold;">-->
-                                <!--                                        Sold To &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; اسم العميل-->
-                                <!--                                    </td>-->
-                                <!--                                </tr>-->
                                 <tr style="background-color:#d3d3d3;">
                                     <td colspan="2" style="padding:4px 8px; font-weight:bold;">
                                         <t t-if="o.move_type in ('out_invoice','out_refund')">

@@ -1,6 +1,6 @@
 {
     'name': 'Invoice Amount in Words - Arabic',
-    'version': '17.0.1.0.0',
+    'version': '19.0.1.0.0',  # ✅ Updated for Odoo 19
     'category': 'Accounting/Accounting',
     'summary': 'Add Arabic amount in words for invoices',
     'description': """
@@ -26,6 +26,6 @@
     },
     'installable': True,
     'application': False,
-    # 'auto_install': False,
+    'auto_install': False,
     'license': 'LGPL-3',
 }

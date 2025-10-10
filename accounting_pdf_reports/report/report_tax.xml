@@ -99,30 +99,24 @@
                   t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
         </td>
     </tr>
-                    </table>
-<t t-set="safe_total_sales_vat" t-value="total_sales_vat if total_sales_vat else 0.0"/>
-<t t-set="safe_total_purchase_vat" t-value="total_purchase_vat if total_purchase_vat else 0.0"/>
-<t t-set="net_vat_due" t-value="safe_total_sales_vat - safe_total_purchase_vat"/>
+                        <!-- 🔹 Net VAT Due -->
+<tr align="left" style="font-weight:bold; border-top:2px solid #000; background:#c7c7c7;">
+    <td>Net VAT Due</td>
+    <td></td>
+    <td>
+        <!-- Ensure safe sums (treat None as 0) -->
+        <t t-set="total_sale_tax" t-value="sum([(l.get('tax') or 0) for l in lines.get('sale', [])])"/>
+        <t t-set="total_purchase_tax" t-value="sum([(l.get('tax') or 0) for l in lines.get('purchase', [])])"/>
 
-<table class="table table-sm" style="width:35%; margin-top:15px; border:2px solid #000; text-align:center;">
-    <thead>
-        <tr style="background:#f2f2f2; font-weight:bold;">
-            <th colspan="2">
-                <t t-if="net_vat_due &gt;= 0">Net VAT Payable</t>
-                <t t-else="">Net VAT Refundable</t>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr style="font-size:14px; font-weight:bold;">
-            <td style="padding:5px;">Amount</td>
-            <td style="padding:5px;">
-                <span t-esc="net_vat_due"
-                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-            </td>
-        </tr>
-    </tbody>
-</table>
+        <!-- Calculate Net VAT Due safely -->
+        <t t-set="net_vat_due" t-value="(total_sale_tax or 0) - (total_purchase_tax or 0)"/>
+
+        <span t-esc="net_vat_due"
+              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+    </td>
+</tr>
+
+                    </table>
 
                 </div>
             </t>

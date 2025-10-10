@@ -55,6 +55,18 @@
                                       t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                             </td>
                         </tr>
+                            <!-- SALE TOTAL -->
+    <tr align="left" style="font-weight:bold; border-top:2px solid #000;">
+        <td>Total Sales</td>
+        <td>
+            <span t-esc="sum([l['net'] for l in lines['sale']])"
+                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+        </td>
+        <td>
+            <span t-esc="sum([l['tax'] for l in lines['sale']])"
+                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+        </td>
+    </tr>
                         <br/>
                         <tr align="left">
                             <td>
@@ -76,6 +88,17 @@
                                       t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                             </td>
                         </tr>
+                            <tr align="left" style="font-weight:bold; border-top:2px solid #000;">
+        <td>Total Purchases</td>
+        <td>
+            <span t-esc="sum([l['net'] for l in lines['purchase']])"
+                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+        </td>
+        <td>
+            <span t-esc="sum([l['tax'] for l in lines['purchase']])"
+                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+        </td>
+    </tr>
                     </table>
                 </div>
             </t>

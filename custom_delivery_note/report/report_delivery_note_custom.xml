@@ -6,12 +6,12 @@
                 <!-- ===== Custom Arabic Font ===== -->
                 <head>
                     <style>
-                            @font-face {
-                                font-family: 'Tajawal';
-                                src: url('/custom_sa_quotation/static/src/fonts/Tajawal-Black.ttf') format('truetype');
-                                font-weight: 900;
-                                font-style: normal;
-                            }
+                        @font-face {
+                        font-family: 'Tajawal';
+                        src: url('/custom_sa_quotation/static/src/fonts/Tajawal-Black.ttf') format('truetype');
+                        font-weight: 900;
+                        font-style: normal;
+                        }
                     </style>
                 </head>
                 <!-- ============================== -->
@@ -59,7 +59,10 @@
                                     <td style="width: 33%; text-align: right; vertical-align: top; padding-left: 10px; direction: rtl; border:none;"
                                         class="arabic-text">
                                         <div style="font-weight: 900; font-size: 18px; color: #800000; margin-bottom: 8px; letter-spacing: 0.05em;"
-                                             class="arabic-text"><span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;"> شركة سمير شرف العتيبي التجارية</span>
+                                             class="arabic-text">
+                                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                                شركة سمير شرف العتيبي التجارية
+                                            </span>
 
                                         </div>
                                         <div style="font-size:16;font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
@@ -88,7 +91,9 @@
                             <div style="padding-top:70px;">
                                 <div style=" background-color:#581d35; color:white; padding:8px ; text-align:center; margin-bottom:10px ; font-weight:bold; font-size:16px;">
                                     Delivery Note /
-                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">مذكرة التسليم</span>
+                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                        مذكرة التسليم
+                                    </span>
                                 </div>
                             </div>
 
@@ -97,10 +102,14 @@
                                    style="border-collapse: collapse; font-size: 13px;margin-top:10px;" cellpadding="5">
                                 <tr style="background-color: #d3d3d3;">
                                     <td colspan="2" style="padding: 4px; font-weight: bold;">Sold To /
-                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">اسم العميل</span>
+                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                            اسم العميل
+                                        </span>
                                     </td>
                                     <td style="padding: 4px; font-weight: bold;">VAT NO /
-                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">الرقم الضريبي</span>
+                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                            الرقم الضريبي
+                                        </span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -113,13 +122,19 @@
                                 </tr>
                                 <tr style="background-color: #d3d3d3;">
                                     <td style="padding: 4px; font-weight: bold;">Delivery Note No. /
-                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">رقم الفاتورة</span>
+                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                            رقم الفاتورة
+                                        </span>
                                     </td>
                                     <td style="padding: 4px; font-weight: bold;">Date /
-                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">تاريخ الفاتورة</span>
+                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                            تاريخ الفاتورة
+                                        </span>
                                     </td>
                                     <td style="padding: 4px; font-weight: bold;">P.O No /
-                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">رقم الطلب</span>
+                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                            رقم الطلب
+                                        </span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -142,46 +157,54 @@
                                     <tr>
                                         <th style="text-align:center; padding:10px; color:#080808;">SN
                                             <br/>
-                                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">الرقم</span>
+                                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                                الرقم
+                                            </span>
                                         </th>
                                         <th style="text-align:center; padding:10px; color:#080808;">Product
                                             <br/>
-                                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">المنتج</span>
+                                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                                المنتج
+                                            </span>
                                         </th>
                                         <th style="text-align:center; padding:10px; color:#080808;">Quantity
                                             <br/>
-                                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">الكمية</span>
+                                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                                الكمية
+                                            </span>
                                         </th>
                                         <th style="text-align:center; padding:10px; color:#080808;">Unit
                                             <br/>
-                                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">الوحدة</span>
+                                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                                الوحدة
+                                            </span>
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                   <tr t-foreach="enumerate(doc.move_ids)" t-as="line">
-    <!-- SN -->
-    <td style="text-align:center;">
-        <t t-esc="line[0] + 1"/>
-    </td>
+                                    <tr t-foreach="enumerate(doc.move_ids)" t-as="line">
+                                        <!-- SN -->
+                                        <td style="text-align:center;">
+                                            <t t-esc="line[0] + 1"/>
+                                        </td>
 
-    <!-- Product -->
-    <td style="text-align:center">
-        <span t-field="line[1].product_id.default_code"/>
-        -
-        <span t-field="line[1].product_id.name"/>
-    </td>
+                                        <!-- Product -->
+                                        <td style="text-align:center">
+                                            <span t-field="line[1].product_id.default_code"/>
+                                            -
+                                            <span t-field="line[1].product_id.name"/>
+                                        </td>
 
-    <!-- Quantity -->
-    <td style="text-align:center;">
-        <span t-field="line[1].product_uom_qty"/>
-    </td>
+                                        <!-- Quantity -->
+                                        <td style="text-align:center;">
+                                            <span t-field="line[1].product_uom_qty"/>
+                                        </td>
 
-    <!-- Unit -->
-    <td style="text-align:center;">
-        <span t-field="line[1].product_uom.name"/>
-    </td>
-</tr>
+                                        <!-- Unit -->
+                                        <td style="text-align:center;">
+                                            <span t-field="line[1].product_uom.name"/>
+                                        </td>
+                                    </tr>
 
                                 </tbody>
 
@@ -197,16 +220,23 @@
                                         <strong>Delivered by :</strong>
                                         Administrator
                                         <br/>
-                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">سلمت بواسطة</span>
+                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                            سلمت بواسطة
+                                        </span>
                                     </td>
                                     <td width="33%" style="padding-left:3px;">
                                         <strong>Received By :</strong>
                                         <br/>
-                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">المستلم</span>
+                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                            المستلم
+                                        </span>
                                     </td>
                                     <td width="34%" rowspan="3">
                                         <strong style="padding-left:3px;">
-                                             / Total Qty : <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">إجمالي الكمية</span>
+                                            / Total Qty :
+                                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                                إجمالي الكمية
+                                            </span>
                                         </strong>
                                         <span t-esc="sum(line.product_uom_qty for line in doc.move_ids)"/>
                                     </td>

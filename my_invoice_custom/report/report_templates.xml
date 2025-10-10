@@ -348,19 +348,29 @@
 
                             <!-- Amount in Words -->
                             <tr>
-                                <td colspan="4"
-                                    style="border: 1px solid #ccc; padding: 10px; background: #fafafa; font-weight: bold;">
-                                    <t t-if="o.partner_id and o.partner_id.lang and o.partner_id.lang.startswith('ar')">
-                                        <span t-esc="o.amount_to_text_ar"/>
-                                        فقط
-                                    </t>
-                                    <t t-else="">
-                                        <span t-esc="o.currency_id.amount_to_text(o.amount_total)"/>
-                                        Only
-                                    </t>
+                                <td colspan="4" style="border: 1px solid #ccc; padding: 10px; background: #fafafa;">
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <tr>
+                                            <!-- Arabic Amount in Words -->
+                                            <td style="width: 50%; text-align: right; padding: 5px; font-weight: bold; font-family: 'Tajawal', sans-serif; font-size: 13px; direction: rtl;">
+                                                <t t-if="o.amount_to_text_ar">
+                                                    <span t-esc="o.amount_to_text_ar"/>
+                                                    فقط لا غير
+                                                </t>
+                                                <t t-else="">
+                                                    المبلغ بالكلمات غير متاح
+                                                </t>
+                                            </td>
+
+                                            <!-- English Amount in Words -->
+                                            <td style="width: 50%; text-align: left; padding: 5px; font-weight: bold; font-size: 13px;">
+                                                <span t-esc="o.currency_id.amount_to_text(o.amount_total)"/>
+                                                Only
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </td>
                             </tr>
-
                         </table>
 
                         <!-- ===== FOOTER (BANK DETAILS) ===== -->

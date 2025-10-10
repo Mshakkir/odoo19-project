@@ -100,29 +100,6 @@
         </td>
     </tr>
                     </table>
-<t t-set="safe_total_sales_vat" t-value="total_sales_vat if total_sales_vat else 0.0"/>
-<t t-set="safe_total_purchase_vat" t-value="total_purchase_vat if total_purchase_vat else 0.0"/>
-<t t-set="net_vat_due" t-value="safe_total_sales_vat - safe_total_purchase_vat"/>
-
-<table class="table table-sm" style="width:35%; margin-top:15px; border:2px solid #000; text-align:center;">
-    <thead>
-        <tr style="background:#f2f2f2; font-weight:bold;">
-            <th colspan="2">
-                <t t-if="net_vat_due &gt;= 0">Net VAT Payable</t>
-                <t t-else="">Net VAT Refundable</t>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr style="font-size:14px; font-weight:bold;">
-            <td style="padding:5px;">Amount</td>
-            <td style="padding:5px;">
-                <span t-esc="net_vat_due"
-                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-            </td>
-        </tr>
-    </tbody>
-</table>
 
                 </div>
             </t>

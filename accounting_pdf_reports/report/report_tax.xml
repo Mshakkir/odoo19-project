@@ -101,7 +101,12 @@
                                       t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                             </td>
                         </tr>
-                       <!-- 🔹 Net VAT Due as Separate Table -->
+
+
+                    </table>
+                    <br/>
+
+<!-- 🔹 Net VAT Due as Separate Table -->
 <t t-set="total_sale_tax" t-value="sum([(l.get('tax') or 0) for l in lines.get('sale', [])])"/>
 <t t-set="total_purchase_tax" t-value="sum([(l.get('tax') or 0) for l in lines.get('purchase', [])])"/>
 <t t-set="net_vat_due" t-value="(total_sale_tax or 0) - (total_purchase_tax or 0)"/>

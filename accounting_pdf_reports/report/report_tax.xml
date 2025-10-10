@@ -99,13 +99,6 @@
                   t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
         </td>
     </tr>
-                                <tr style="font-weight:bold; border-top:2px solid #000;background:#9e9d9d;">
-            <td>Net VAT Due</td>
-            <td>
-                <span t-esc="total_sales_vat - total_purchase_vat"
-                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-            </td>
-        </tr>
                     </table>
 
                 </div>

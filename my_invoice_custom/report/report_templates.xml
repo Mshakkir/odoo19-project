@@ -351,15 +351,16 @@
                                 <td colspan="4"
                                     style="border: 1px solid #ccc; padding: 10px; background: #fafafa; font-weight: bold;">
                                     <t t-if="o.partner_id and o.partner_id.lang == 'ar_001'">
-                                        <span t-esc="o.currency_id.amount_to_text(o.amount_total, lang='ar')"/>
+                                        <span t-esc="o.amount_to_text_ar"/>
                                         فقط
                                     </t>
                                     <t t-else="">
-                                        <span t-esc="o.currency_id.amount_to_text(o.amount_total)"/>
+                                        <span t-esc="o.amount_to_text_en"/>
                                         Only
                                     </t>
                                 </td>
                             </tr>
+
                         </table>
 
                         <!-- ===== FOOTER (BANK DETAILS) ===== -->

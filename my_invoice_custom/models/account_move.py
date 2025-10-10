@@ -8,20 +8,27 @@ class AccountMove(models.Model):
 
     discount = fields.Float(string="Discount")
 
-    # New fields for amount in words
+    # Computed fields for amount in words (both English and Arabic)
     amount_to_text_en = fields.Char(string="Amount in Words (English)", compute="_compute_amount_words", store=True)
     amount_to_text_ar = fields.Char(string="Amount in Words (Arabic)", compute="_compute_amount_words", store=True)
 
-    @api.depends("amount_total")
+    @api.depends("amount_total", "currency_id")
     def _compute_amount_words(self):
         for rec in self:
-            # English words
-            rec.amount_to_text_en = amount_to_text(rec.amount_total, "en", rec.currency_id.name).replace(" and Zero", "")
-            # Arabic words using num2words
-            try:
-                arabic_words = num2words(rec.amount_total, lang="ar")
-                rec.amount_to_text_ar = f"{arabic_words} {rec.currency_id.name}"
-            except NotImplementedError:
+            if rec.amount_total:
+                # English amount in words
+                rec.amount_to_text_en = amount_to_text(
+                    rec.amount_total, "en", rec.currency_id.name
+                ).replace(" and Zero", "")
+
+                # Arabic amount in words using num2words
+                try:
+                    arabic_words = num2words(rec.amount_total, lang="ar")
+                    rec.amount_to_text_ar = f"{arabic_words} {rec.currency_id.symbol or rec.currency_id.name}"
+                except Exception:
+                    rec.amount_to_text_ar = ""
+            else:
+                rec.amount_to_text_en = ""
                 rec.amount_to_text_ar = ""
 
 
@@ -32,10 +39,8 @@ class SaleOrder(models.Model):
 
     def _prepare_invoice(self):
         invoice_vals = super()._prepare_invoice()
-        # Pass the discount from sale order to invoice
         invoice_vals["discount"] = self.discount
         return invoice_vals
-
 
 # from odoo import models, fields
 #

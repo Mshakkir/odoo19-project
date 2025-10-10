@@ -113,10 +113,9 @@
 
 <table class="table table-sm table-reports" style="margin-top:6px;">
     <thead>
-        <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#9e9d9d;">
+        <tr align="left" style="font-weight:bold; border-top:2px solid #000;">
             <th>Net VAT Due</th>
-            <th></th>
-            <th></th>
+            <th>TAX</th>
         </tr>
         <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#9e9d9d;">
             <td>Net VAT Due (OR Claim) </td>

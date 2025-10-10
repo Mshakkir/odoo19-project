@@ -99,25 +99,14 @@
                   t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
         </td>
     </tr>
-                    </table>
-                    <br/>
-<table class="table table-sm" style="width:30%; margin-top:15px; border:2px solid #000; text-align:center;">
-    <thead>
-        <tr style="background:#f2f2f2; font-weight:bold;">
-            <th colspan="2">Net VAT Due</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr style="font-size:14px; font-weight:bold;">
-            <td style="padding:5px;">Amount</td>
-            <td style="padding:5px;">
-                <span t-set="net_vat_due" t-value="total_sales_vat - total_purchase_vat"/>
-                <span t-esc="net_vat_due"
+                                <tr style="font-weight:bold; border-top:2px solid #000;background:#9e9d9d;">
+            <td>Net VAT Due</td>
+            <td>
+                <span t-esc="total_sales_vat - total_purchase_vat"
                       t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
             </td>
         </tr>
-    </tbody>
-</table>
+                    </table>
 
                 </div>
             </t>

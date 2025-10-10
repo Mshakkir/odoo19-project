@@ -58,7 +58,7 @@
                             </td>
                         </tr>
                         <!-- SALE TOTAL -->
-                        <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#9e9d9d;">
+                        <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#928E85;">
                             <td>Total Sales</td>
                             <td>
                                 <span t-esc="sum([l['net'] for l in lines['sale']])"
@@ -90,7 +90,7 @@
                                       t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                             </td>
                         </tr>
-                        <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#9e9d9d;">
+                        <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#928E85;">
                             <td>Total Purchases</td>
                             <td>
                                 <span t-esc="sum([l['net'] for l in lines['purchase']])"
@@ -115,9 +115,10 @@
     <thead>
         <tr align="left" style="font-weight:bold; border-top:2px solid #000;">
             <th>Net VAT Due</th>
+            <th></th>
             <th>TAX</th>
         </tr>
-        <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#9e9d9d;">
+        <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#708090;">
             <td>Net VAT Due (OR Claim) </td>
             <td></td>
             <td>

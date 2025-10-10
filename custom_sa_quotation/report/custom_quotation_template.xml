@@ -6,14 +6,7 @@
                     <head>
                         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
                         <style type="text/css">
-                            @font-face {
-                            font-family: 'NotoNaskhArabic';
-                            src: url('/custom_sa_quotation/static/src/fonts/NotoNaskhArabic-VariableFont_wght.ttf')
-                            format('truetype');
-                            }
-                            body, * {
-                            font-family: 'NotoNaskhArabic', sans-serif !important;
-                            }
+
                         </style>
                     </head>
 
@@ -59,9 +52,9 @@
                                             <!-- Right Column: Arabic Info -->
                                             <td style="width: 33%; text-align: right; font-size: 13px; color: #4a4a4a; vertical-align: top; padding-left: 10px; direction: rtl; border:none; border-collapse: collapse; ">
                                                 <div style=" border:none; font-weight: 900; font-size: 18px; color: #800000; margin-bottom: 8px; letter-spacing: 0.05em; font-family: 'NotoNaskhArabic';">
-                                                    شركة سمير شرف العتيبي التجارية
+                                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">شركة سمير شرف العتيبي التجارية</span>
                                                 </div>
-                                                <div style="line-height: 1.5; border:none; font-family: 'NotoNaskhArabic';">
+                                                <div style="line-height: 1.5; border:none; font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
                                                     ٤٠٣٠٢١٦١٥٤ :س.ت
                                                     <br/>
                                                     ٣١١٢٩٩٩٤٤٧٠٠٠٠٣ :الرقم الضريبي
@@ -87,7 +80,7 @@
                                 <div style="padding-top:50px;">
                                     <div style=" background-color:#581d35; color:white; padding:8px ; text-align:center; margin-bottom:10px ; font-weight:bold; font-size:16px;">
                                         Quotation /
-                                        <span>عرض سعر</span>
+                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">عرض سعر</span>
                                     </div>
                                 </div>
 
@@ -100,7 +93,7 @@
                                             style="border-right: 1px solid #000; vertical-align: top; padding: 10px;">
                                             <div style="font-weight: bold; padding: 5px; margin-bottom: 5px; background-color: #9e9d9d; color:#080808;">
                                                 Customer Name &amp; Address /
-                                                <span>اسم العميل وعنوانه</span>
+                                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">اسم العميل وعنوانه</span>
                                             </div>
                                             <div>
                                                 Attn:
@@ -115,7 +108,7 @@
                                         <td width="50%" style="vertical-align: top; padding: 10px;">
                                             <div style="font-weight: bold; padding: 5px; margin-bottom: 5px; background-color: #9e9d9d; color:#080808;">
                                                 Quote / Project Description /
-                                                <span>عرض سعر</span>
+                                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">عرض سعر</span>
                                             </div>
                                             <div>
                                                 Date:
@@ -142,27 +135,27 @@
                                             <th style="width:2%;text-align:center; color:#080808;">SN</th>
                                             <th style="width:15%;text-align:center; color:#080808;">Item Description
                                                 <br/>
-                                                <span>المنتج الوصف</span>
+                                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">المنتج الوصف</span>
                                             </th>
                                             <th style="width:3%;text-align:center; color:#080808;">Duration
                                                 <br/>
-                                                <span>مدة</span>
+                                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">مدة</span>
                                             </th>
                                             <th style="width:3%;text-align:center; color:#080808;">QTY
                                                 <br/>
-                                                <span>الكمية</span>
+                                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">الكمية</span>
                                             </th>
                                             <th style="width:3%;text-align:center; color:#080808;">U/M
                                                 <br/>
-                                                <span>وحدة</span>
+                                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">وحدة</span>
                                             </th>
                                             <th style="width:3%;text-align:center; color:#080808;">Unit Price
                                                 <br/>
-                                                <span>سعر الوحدة</span>
+                                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">سعر الوحدة</span>
                                             </th>
                                             <th style="width:3%;text-align:center; color:#080808;">Line Total
                                                 <br/>
-                                                <span>مجموع الخط</span>
+                                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">مجموع الخط</span>
                                             </th>
                                         </tr>
                                     </thead>

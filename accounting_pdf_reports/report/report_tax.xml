@@ -111,15 +111,15 @@
 <t t-set="total_purchase_tax" t-value="sum([(l.get('tax') or 0) for l in lines.get('purchase', [])])"/>
 <t t-set="net_vat_due" t-value="(total_sale_tax or 0) - (total_purchase_tax or 0)"/>
 
-<table class="table table-sm table-reports" style="margin-top:10px;">
+<table class="table table-sm table-reports" style="margin-top:6px;">
     <thead>
         <tr style="font-weight:bold; background:#c7c7c7;">
-            <th>Net VAT Due</th>
-            <th></th>
-            <th>
+            <td>Net VAT Due</td>
+            <td></td>
+            <td>
                 <span t-esc="net_vat_due"
                       t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-            </th>
+            </td>
         </tr>
     </thead>
 </table>

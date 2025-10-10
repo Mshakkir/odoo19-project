@@ -80,10 +80,10 @@
                                 <tr style="background-color:#d3d3d3;">
                                     <td colspan="2" style="padding:4px 8px; font-weight:bold;">
                                         <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                            Sold To / اسم العميل
+                                            Sold To &#160;&#160;&#160;&#160;&#160;&#160;&#160;#160 اسم العميل
                                         </t>
                                         <t t-elif="o.move_type in ('in_invoice','in_refund')">
-                                            Supplier / المورد
+                                            Supplier &#160;&#160;&#160;&#160;&#160;&#160;&#160;#160المورد
                                         </t>
                                     </td>
                                 </tr>

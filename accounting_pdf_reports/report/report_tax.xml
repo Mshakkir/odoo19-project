@@ -7,7 +7,7 @@
             <t t-set="data_report_header_spacing" t-value="9"/>
             <t t-set="data_report_dpi" t-value="110"/>
             <t t-call="web.internal_layout">
-                <div class="page">
+                <div class="page" style="margin-top:15px;">
                     <h3>Tax Report</h3>
                     <div class="row">
                         <div class="col-4">
@@ -58,7 +58,7 @@
                             </td>
                         </tr>
                         <!-- SALE TOTAL -->
-                        <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#A9A9A9;">
+                        <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#BBBCB6;">
                             <td>Total Sales</td>
                             <td>
                                 <span t-esc="sum([l['net'] for l in lines['sale']])"
@@ -90,7 +90,7 @@
                                       t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                             </td>
                         </tr>
-                        <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#A9A9A9;">
+                        <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#BBBCB6;">
                             <td>Total Purchases</td>
                             <td>
                                 <span t-esc="sum([l['net'] for l in lines['purchase']])"
@@ -118,7 +118,7 @@
             <th></th>
             <th>TAX</th>
         </tr>
-        <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#A9A9A9;">
+        <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#BBBCB6;">
             <td>Net VAT Due (OR Claim) </td>
             <td></td>
             <td>

@@ -15,6 +15,7 @@ class ReportTax(models.AbstractModel):
             'lines': self.get_lines(data.get('form')),
         }
 
+
     def _sql_from_amls_one(self):
         sql = """SELECT "account_move_line".tax_line_id, COALESCE(SUM("account_move_line".debit-"account_move_line".credit), 0)
                     FROM %s
@@ -65,6 +66,7 @@ class ReportTax(models.AbstractModel):
                           strict_range=True)._compute_from_amls(options, taxes)
         groups = dict((tp, []) for tp in ['sale', 'purchase'])
         for tax in taxes.values():
-            if tax['tax']:
+            # Include taxes that have either tax amount OR base (net) amount
+            if tax['tax'] or tax['net']:
                 groups[tax['type']].append(tax)
         return groups

@@ -348,26 +348,23 @@
 
                             <!-- Amount in Words -->
                             <tr>
-                                <td colspan="4" style="border: 1px solid #ccc; padding: 10px; background: #fafafa;">
-                                    <table style="width: 100%; border-collapse: collapse;">
-                                        <tr>
-                                            <!-- Arabic Amount in Words -->
-                                            <td style="width: 50%; text-align: right; padding: 5px; font-weight: bold;
-                           font-family: 'Tajawal', sans-serif; font-size: 13px; direction: rtl;">
-                                                <span t-esc="o.currency_id.amount_to_text(o.amount_total)"/>
-                                                فقط لا غير
-                                            </td>
-
-                                            <!-- English Amount in Words -->
-                                            <td style="width: 50%; text-align: left; padding: 5px; font-weight: bold; font-size: 13px;">
-                                                <span t-esc="o.currency_id.amount_to_text(o.amount_total)"/>
-                                                Only
-                                            </td>
-                                        </tr>
-                                    </table>
+                                <td colspan="4"
+                                    style="border: 1px solid #ccc; padding: 10px; background: #fafafa; font-weight: bold; text-align: center;">
+                                    <t t-if="o.partner_id.lang == 'ar_001'">
+                                        <span style="direction: rtl; font-family: 'Amiri', sans-serif;">
+                                            فقط
+                                            <span t-esc="o.currency_id.amount_to_text(o.amount_total, lang='ar')"/>
+                                            لا غير
+                                        </span>
+                                    </t>
+                                    <t t-else="">
+                                        <span style="direction: ltr;">
+                                            <span t-esc="o.currency_id.amount_to_text(o.amount_total)"/>
+                                            Only
+                                        </span>
+                                    </t>
                                 </td>
                             </tr>
-
                         </table>
 
                         <!-- ===== FOOTER (BANK DETAILS) ===== -->

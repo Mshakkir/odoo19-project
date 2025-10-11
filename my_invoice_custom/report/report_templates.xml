@@ -254,120 +254,121 @@
                         <!-- ===== FOOTER SECTION ===== -->
                         <table width="100%"
                                style="margin-top:20px; font-size:13px; border:1px solid #ccc; border-collapse:collapse;">
-                        <tr>
-                            <!-- Delivered & Received (only for sales invoice) -->
-                            <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                <td width="30%" style="border:1px solid #ccc; padding:8px; vertical-align:top;">
-                                    <strong>Delivered By</strong>
-                                    <br/>
-                                    <span style="font-family:'Tajawal';font-weight:900;">سلمت بواسطة</span>
-                                    <div style="height:40px;"></div>
-                                    <hr style="border:none; border-top:1px dashed #aaa; margin:5px 0;"/>
-                                    <strong>Received By</strong>
-                                    <br/>
-                                    <span style="font-family:'Tajawal';font-weight:900;">المستلم</span>
-                                    <div style="height:40px;"></div>
-                                </td>
-                            </t>
-                            <t t-else="">
-                                <td width="30%" style="border:1px solid #ccc; padding:8px; vertical-align:top;">
-                                    &#160;
-                                </td>
-                            </t>
+                            <tr>
+                                <!-- Delivered & Received (only for sales invoice) -->
+                                <t t-if="o.move_type in ('out_invoice','out_refund')">
+                                    <td width="30%" style="border:1px solid #ccc; padding:8px; vertical-align:top;">
+                                        <strong>Delivered By</strong>
+                                        <br/>
+                                        <span style="font-family:'Tajawal';font-weight:900;">سلمت بواسطة</span>
+                                        <div style="height:40px;"></div>
+                                        <hr style="border:none; border-top:1px dashed #aaa; margin:5px 0;"/>
+                                        <strong>Received By</strong>
+                                        <br/>
+                                        <span style="font-family:'Tajawal';font-weight:900;">المستلم</span>
+                                        <div style="height:40px;"></div>
+                                    </td>
+                                </t>
+                                <t t-else="">
+                                    <td width="30%" style="border:1px solid #ccc; padding:8px; vertical-align:top;">
+                                        &#160;
+                                    </td>
+                                </t>
 
-                            <!-- Company Seal (only for sales invoice) -->
-                            <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                <td width="15%" style="border:1px solid #ccc; text-align:center;">
-                                    <strong>Company Seal</strong>
-                                    <br/>
-                                    <img t-att-src="'/my_invoice_custom/static/src/img/stamp.png'"
-                                         style="max-height:100px; max-width:100px; margin:8px auto;"/>
-                                </td>
-                            </t>
-                            <t t-else="">
-                                <td width="15%" style="border:1px solid #ccc;">&#160;</td>
-                            </t>
+                                <!-- Company Seal (only for sales invoice) -->
+                                <t t-if="o.move_type in ('out_invoice','out_refund')">
+                                    <td width="15%" style="border:1px solid #ccc; text-align:center;">
+                                        <strong>Company Seal</strong>
+                                        <br/>
+                                        <img t-att-src="'/my_invoice_custom/static/src/img/stamp.png'"
+                                             style="max-height:100px; max-width:100px; margin:8px auto;"/>
+                                    </td>
+                                </t>
+                                <t t-else="">
+                                    <td width="15%" style="border:1px solid #ccc;">&#160;</td>
+                                </t>
 
-                            <!-- QR Code (only for sales invoice) -->
-                            <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                <td width="15%" style="border:1px solid #ccc; text-align:center;">
-                                    <t t-if="o.qr_code_image">
-                                        <img t-att-src="'data:image/png;base64,%s' % o.qr_code_image.decode('utf-8')"
-                                             style="max-height:90px; max-width:90px; margin:5px;"/>
-                                    </t>
-                                    <div style="font-size:11px; color:#555;">Scan for Invoice</div>
-                                </td>
-                            </t>
-                            <t t-else="">
-                                <td width="15%" style="border:1px solid #ccc;">&#160;</td>
-                            </t>
+                                <!-- QR Code (only for sales invoice) -->
+                                <t t-if="o.move_type in ('out_invoice','out_refund')">
+                                    <td width="15%" style="border:1px solid #ccc; text-align:center;">
+                                        <t t-if="o.qr_code_image">
+                                            <img t-att-src="'data:image/png;base64,%s' % o.qr_code_image.decode('utf-8')"
+                                                 style="max-height:90px; max-width:90px; margin:5px;"/>
+                                        </t>
+                                        <div style="font-size:11px; color:#555;">Scan for Invoice</div>
+                                    </td>
+                                </t>
+                                <t t-else="">
+                                    <td width="15%" style="border:1px solid #ccc;">&#160;</td>
+                                </t>
 
-                            <!-- Totals -->
-                            <td width="40%" style="border:1px solid #ccc; padding:5px;">
-                                <table width="100%" style="font-size:12px; border-collapse:collapse;">
-                                    <tr>
-                                        <td>Subtotal:</td>
-                                        <td style="text-align:right;">
-                                            <span t-esc="subtotal_before_discount"
-                                                  t-options='{"widget":"float","precision":2}'/>
-                                        </td>
-                                    </tr>
-                                    <t t-if="total_discount_amount > 0">
+                                <!-- Totals -->
+                                <td width="40%" style="border:1px solid #ccc; padding:5px;">
+                                    <table width="100%" style="font-size:12px; border-collapse:collapse;">
                                         <tr>
-                                            <td>Total Discount:</td>
+                                            <td>Subtotal:</td>
                                             <td style="text-align:right;">
-                                                <span t-esc="total_discount_amount"
+                                                <span t-esc="subtotal_before_discount"
                                                       t-options='{"widget":"float","precision":2}'/>
                                             </td>
                                         </tr>
-                                    </t>
-                                    <tr>
-                                        <td>Net Amount:</td>
-                                        <td style="text-align:right;">
-                                            <span t-esc="o.amount_untaxed"
-                                                  t-options='{"widget":"float","precision":2}'/>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>VAT Amount:</td>
-                                        <td style="text-align:right;">
-                                            <span t-esc="o.amount_tax"
-                                                  t-options='{"widget":"float","precision":2}'/>
-                                        </td>
-                                    </tr>
-                                    <tr style="background:#f5f5f5; font-weight:bold;">
-                                        <td>Grand Total:</td>
-                                        <td style="text-align:right;">
-                                            <span t-esc="o.amount_total"
-                                                  t-options='{"widget":"float","precision":2}'/>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
+                                        <t t-if="total_discount_amount > 0">
+                                            <tr>
+                                                <td>Total Discount:</td>
+                                                <td style="text-align:right;">
+                                                    <span t-esc="total_discount_amount"
+                                                          t-options='{"widget":"float","precision":2}'/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                        <tr>
+                                            <td>Net Amount:</td>
+                                            <td style="text-align:right;">
+                                                <span t-esc="o.amount_untaxed"
+                                                      t-options='{"widget":"float","precision":2}'/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>VAT Amount:</td>
+                                            <td style="text-align:right;">
+                                                <span t-esc="o.amount_tax"
+                                                      t-options='{"widget":"float","precision":2}'/>
+                                            </td>
+                                        </tr>
+                                        <tr style="background:#f5f5f5; font-weight:bold;">
+                                            <td>Grand Total:</td>
+                                            <td style="text-align:right;">
+                                                <span t-esc="o.amount_total"
+                                                      t-options='{"widget":"float","precision":2}'/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
 
-                        <!-- Amount in Words -->
-                        <tr>
-                            <td colspan="4" style="border: 1px solid #ccc; padding: 10px; background: #fafafa;">
-                                <table style="width: 100%; border-collapse: collapse;">
-                                    <tr>
-                                        <!-- Arabic Amount in Words -->
-                                        <td style="width: 50%; text-align: right; padding: 5px; font-weight: bold;
+                            <!-- Amount in Words -->
+                            <tr>
+                                <td colspan="4" style="border: 1px solid #ccc; padding: 10px; background: #fafafa;">
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <tr>
+                                            <!-- Arabic Amount in Words -->
+                                            <td style="width: 50%; text-align: right; padding: 5px; font-weight: bold;
                            font-family: 'Tajawal', sans-serif; font-size: 13px; direction: rtl;">
-                                            <span t-esc="o.currency_id.amount_to_text(o.amount_total, lang='ar')"/>
-                                            فقط لا غير
-                                        </td>
+                                                <span t-esc="o.currency_id.amount_to_text(o.amount_total, lang='ar')"/>
+                                                فقط لا غير
+                                            </td>
 
-                                        <!-- English Amount in Words -->
-                                        <td style="width: 50%; text-align: left; padding: 5px; font-weight: bold; font-size: 13px;">
-                                            <span t-esc="o.currency_id.amount_to_text(o.amount_total)"/>
-                                            Only
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
-                        table>
+                                            <!-- English Amount in Words -->
+                                            <td style="width: 50%; text-align: left; padding: 5px; font-weight: bold; font-size: 13px;">
+                                                <span t-esc="o.currency_id.amount_to_text(o.amount_total)"/>
+                                                Only
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+
+                        </table>
 
                         <!-- ===== FOOTER (BANK DETAILS) ===== -->
                         <template id="custom_invoice_footer" inherit_id="web.external_layout_footer">

@@ -354,7 +354,7 @@
                                             <!-- Arabic Amount in Words -->
                                             <td style="width: 50%; text-align: right; padding: 5px; font-weight: bold;
                            font-family: 'Tajawal', sans-serif; font-size: 13px; direction: rtl;">
-                                                <span t-esc="o.currency_id.amount_to_text(o.amount_total, lang='ar')"/>
+                                                <span t-esc="o.currency_id.amount_to_text(o.amount_total)"/>
                                                 فقط لا غير
                                             </td>
 

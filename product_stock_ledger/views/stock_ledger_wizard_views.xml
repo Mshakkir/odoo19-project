@@ -28,6 +28,8 @@
     <field name="target">new</field>
   </record>
 
-  <menuitem id="menu_inventory_reporting_root" name="Inventory Reports" parent="stock.stock_menu"/>
+  <menuitem id="menu_inventory_reporting_root"
+          name="Inventory Reports"
+          parent="stock.menu_stock_root"/>
   <menuitem id="menu_product_stock_ledger" name="Product Stock Ledger" parent="menu_inventory_reporting_root" action="action_open_stock_ledger_wizard"/>
 </odoo>

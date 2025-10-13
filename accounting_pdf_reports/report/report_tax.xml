@@ -44,41 +44,19 @@
                                 <th>Tax</th>
                             </tr>
                         </thead>
-<!--                        <tr align="left" t-foreach="lines['sale']" t-as="line">-->
-<!--                            <td>-->
-<!--                                <span t-esc="line.get('name')"/>-->
-<!--                            </td>-->
-<!--                            <td>-->
-<!--                                <span t-att-style="style" t-esc="line.get('net')"-->
-<!--                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
-<!--                            </td>-->
-<!--                            <td>-->
-<!--                                <span t-att-style="style" t-esc="line.get('tax')"-->
-<!--                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
-<!--                            </td>-->
-<!--                        </tr>-->
-                      <tr align="left" t-foreach="lines['sale']" t-as="line">
-    <td>
-        <a t-if="line.get('id')"
-           t-att-href="'/report/pdf/accounting_pdf_reports.report_tax_detail?tax_id=%s&amp;date_from=%s&amp;date_to=%s&amp;target_move=%s' %
-                       (line.get('id'), data['date_from'], data['date_to'], data['target_move'])"
-           target="_blank"
-           style="color:#0056b3; text-decoration:underline;">
-            <span t-esc="line.get('name')"/>
-        </a>
-        <span t-if="not line.get('id')"><span t-esc="line.get('name')"/></span>
-    </td>
-    <td>
-        <span t-esc="line.get('net')"
-              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-    </td>
-    <td>
-        <span t-esc="line.get('tax')"
-              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-    </td>
-</tr>
-
-
+                        <tr align="left" t-foreach="lines['sale']" t-as="line">
+                            <td>
+                                <span t-esc="line.get('name')"/>
+                            </td>
+                            <td>
+                                <span t-att-style="style" t-esc="line.get('net')"
+                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                            </td>
+                            <td>
+                                <span t-att-style="style" t-esc="line.get('tax')"
+                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                            </td>
+                        </tr>
                         <!-- SALE TOTAL -->
                         <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#BBBCB6;">
                             <td>Total Sales</td>
@@ -99,40 +77,19 @@
                             <td></td>
                             <td></td>
                         </tr>
-<!--                        <tr align="left" t-foreach="lines['purchase']" t-as="line">-->
-<!--                            <td>-->
-<!--                                <span t-esc="line.get('name')"/>-->
-<!--                            </td>-->
-<!--                            <td>-->
-<!--                                <span t-att-style="style" t-esc="line.get('net')"-->
-<!--                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
-<!--                            </td>-->
-<!--                            <td>-->
-<!--                                <span t-att-style="style" t-esc="line.get('tax')"-->
-<!--                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
-<!--                            </td>-->
-<!--                        </tr>-->
-
                         <tr align="left" t-foreach="lines['purchase']" t-as="line">
-    <td>
-        <a t-att-href="'/report/pdf/accounting_pdf_reports.report_tax_detail?tax_id=%s&amp;date_from=%s&amp;date_to=%s&amp;target_move=%s' % (line.get('id'), data['date_from'], data['date_to'], data['target_move'])"
-           target="_blank"
-           style="color:#0056b3; text-decoration:underline;">
-            <span t-esc="line.get('name')"/>
-        </a>
-    </td>
-    <td>
-        <span t-esc="line.get('net')"
-              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-    </td>
-    <td>
-        <span t-esc="line.get('tax')"
-              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-    </td>
-</tr>
-
-
-
+                            <td>
+                                <span t-esc="line.get('name')"/>
+                            </td>
+                            <td>
+                                <span t-att-style="style" t-esc="line.get('net')"
+                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                            </td>
+                            <td>
+                                <span t-att-style="style" t-esc="line.get('tax')"
+                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                            </td>
+                        </tr>
                         <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#BBBCB6;">
                             <td>Total Purchases</td>
                             <td>

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
   <data name="product_stock_ledger assets" inherit_id="web.assets_backend_main">
     <xpath expr="." position="inside">

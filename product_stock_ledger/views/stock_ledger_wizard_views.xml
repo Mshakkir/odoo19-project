@@ -1,0 +1,33 @@
+<!-- product_stock_ledger/views/stock_ledger_wizard_views.xml -->
+<odoo>
+  <record id="view_stock_ledger_wizard_form" model="ir.ui.view">
+    <field name="name">product.stock.ledger.wizard.form</field>
+    <field name="model">product.stock.ledger.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Product Stock Ledger">
+        <sheet>
+          <group>
+            <field name="product_id"/>
+            <field name="warehouse_id"/>
+            <field name="date_from"/>
+            <field name="date_to"/>
+          </group>
+          <footer>
+            <button string="Print PDF" type="object" name="action_print_report" class="btn-primary"/>
+            <button string="Cancel" class="btn-secondary" special="cancel"/>
+          </footer>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_open_stock_ledger_wizard" model="ir.actions.act_window">
+    <field name="name">Product Stock Ledger</field>
+    <field name="res_model">product.stock.ledger.wizard</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+  </record>
+
+  <menuitem id="menu_inventory_reporting_root" name="Inventory Reports" parent="stock.stock_menu"/>
+  <menuitem id="menu_product_stock_ledger" name="Product Stock Ledger" parent="menu_inventory_reporting_root" action="action_open_stock_ledger_wizard"/>
+</odoo>

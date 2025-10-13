@@ -12,10 +12,13 @@
         "report/product_stock_ledger_templates.xml",
     ],
     'assets': {
-        'web.assets_backend_main': [
-            '/product_stock_ledger/static/src/css/report_styles.css',
+        'web.assets_backend': [
+            'product_stock_ledger/static/src/scss/report_styles.scss',
         ],
     },
+
     "installable": True,
     "application": False,
 }
+
+

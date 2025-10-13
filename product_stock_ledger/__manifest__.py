@@ -12,7 +12,7 @@
         "report/product_stock_ledger_templates.xml",
     ],
     'assets': {
-        'web.assets_backend': [
+        'web.assets_backend_main': [
             '/product_stock_ledger/static/src/css/report_styles.css',
         ],
     },

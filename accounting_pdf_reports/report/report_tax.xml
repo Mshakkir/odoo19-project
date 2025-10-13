@@ -111,7 +111,7 @@
 
                         <tr align="left" t-foreach="lines['purchase']" t-as="line">
     <td>
-        <a t-att-href="'/report/pdf/accounting_pdf_reports.report_tax_detail?tax_id=%s&date_from=%s&date_to=%s&target_move=%s' % (line.get('id'), data['date_from'], data['date_to'], data['target_move'])"
+        <a t-att-href="'/report/pdf/accounting_pdf_reports.report_tax_detail?tax_id=%s&amp;date_from=%s&amp;date_to=%s&amp;target_move=%s' % (line.get('id'), data['date_from'], data['date_to'], data['target_move'])"
            target="_blank"
            style="color:#0056b3; text-decoration:underline;">
             <span t-esc="line.get('name')"/>

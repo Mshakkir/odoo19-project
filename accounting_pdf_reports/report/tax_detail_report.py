@@ -11,10 +11,10 @@ class ReportTaxDetail(models.AbstractModel):
             raise UserError(_("No data provided for the report."))
 
         tax_id = data.get('tax_id')
-        if not tax_id:
-            raise UserError(_("No tax selected."))
+        if not tax_id or tax_id in ('None', None):
+            raise UserError(_("No tax selected for the report."))
 
-        tax_id = int(tax_id)  # convert to int
+        tax_id = int(tax_id)
         tax = self.env['account.tax'].browse(tax_id)
         if not tax.exists():
             raise UserError(_("Selected tax does not exist."))

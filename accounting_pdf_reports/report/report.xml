@@ -68,4 +68,15 @@
         <field name="binding_type">report</field>
     </record>
 
+    <report
+    id="action_report_tax_detail"
+    model="account.move.line"
+    string="Tax Detail Report"
+    report_type="qweb-pdf"
+    name="accounting_pdf_reports.report_tax_detail"
+    file="accounting_pdf_reports.report_tax_detail"
+    print_report_name="'Tax Detail - %s' % (object.move_id.name)"
+/>
+
+
 </odoo>

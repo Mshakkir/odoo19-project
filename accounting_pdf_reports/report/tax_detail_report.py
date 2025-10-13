@@ -14,14 +14,17 @@ class ReportTaxDetail(models.AbstractModel):
         if not tax_id:
             raise UserError(_("No tax selected."))
 
-        tax_id = int(tax_id)  # ensure integer
+        tax_id = int(tax_id)  # convert to int
+        tax = self.env['account.tax'].browse(tax_id)
+        if not tax.exists():
+            raise UserError(_("Selected tax does not exist."))
 
         date_from = data.get('date_from')
         date_to = data.get('date_to')
         target_move = data.get('target_move')
 
         domain = [
-            ('tax_line_id', '=', tax_id),
+            ('tax_line_id', '=', tax.id),
             ('date', '>=', date_from),
             ('date', '<=', date_to),
         ]
@@ -31,7 +34,7 @@ class ReportTaxDetail(models.AbstractModel):
         lines = self.env['account.move.line'].search(domain)
 
         return {
-            'tax': self.env['account.tax'].browse(tax_id),
+            'tax': tax,
             'lines': lines,
             'data': data,
         }

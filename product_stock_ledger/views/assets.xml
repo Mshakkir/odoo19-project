@@ -1,8 +1,7 @@
-<!-- product_stock_ledger/views/assets.xml -->
 <odoo>
-  <template id="assets_backend" name="product_stock_ledger assets" inherit_id="web.assets_backend">
+  <data name="product_stock_ledger assets" inherit_id="web.assets_backend_main">
     <xpath expr="." position="inside">
       <link rel="stylesheet" type="text/css" href="/product_stock_ledger/static/src/css/report_styles.css"/>
     </xpath>
-  </template>
+  </data>
 </odoo>

@@ -33,6 +33,6 @@
 
     <menuitem id="menu_account_summary_wizard"
               name="Account Summary Wizard"
-              parent="menu_finance_audit_reports"
+              parent="account.menu_finance_audit_reports"
               action="action_account_summary_wizard"/>
 </odoo>

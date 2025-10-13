@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
     <template id="report_tax">
         <t t-call="web.html_container">
             <t t-set="data_report_margin_top" t-value="12"/>
@@ -30,155 +31,108 @@
                                 <span t-if="data['target_move'] == 'all'">All Entries</span>
                                 <span t-if="data['target_move'] == 'posted'">All Posted Entries</span>
                             </p>
-                            <p><strong>Report:</strong> <span t-esc="data.get('report_option', 'normal')"/></p>
                         </div>
+
                     </div>
-
-                    <!-- If normal: show summary table -->
-                    <t t-if="report_option == 'normal'">
-                        <table class="table table-sm table-reports">
-                            <thead>
-                                <tr align="left">
-                                    <td><strong>Sale</strong></td>
-                                    <th>Net</th>
-                                    <th>Tax</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr t-foreach="lines['sale']" t-as="line" align="left">
-                                    <td><span t-esc="line.get('name')"/></td>
-                                    <td>
-                                        <span t-att-style="style" t-esc="line.get('net')"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </td>
-                                    <td>
-                                        <span t-att-style="style" t-esc="line.get('tax')"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </td>
-                                </tr>
-                                <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#BBBCB6;">
-                                    <td>Total Sales</td>
-                                    <td>
-                                        <span t-esc="sum([l['net'] for l in lines['sale']])"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </td>
-                                    <td>
-                                        <span t-esc="sum([l['tax'] for l in lines['sale']])"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                        <br/>
-
-                        <table class="table table-sm table-reports">
-                            <thead>
-                                <tr align="left"><td><strong>Purchase</strong></td><th>Net</th><th>Tax</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr t-foreach="lines['purchase']" t-as="line" align="left">
-                                    <td><span t-esc="line.get('name')"/></td>
-                                    <td>
-                                        <span t-att-style="style" t-esc="line.get('net')"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </td>
-                                    <td>
-                                        <span t-att-style="style" t-esc="line.get('tax')"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </td>
-                                </tr>
-                                <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#BBBCB6;">
-                                    <td>Total Purchases</td>
-                                    <td>
-                                        <span t-esc="sum([l['net'] for l in lines['purchase']])"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </td>
-                                    <td>
-                                        <span t-esc="sum([l['tax'] for l in lines['purchase']])"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </t>
-
-                    <!-- If details: show per-tax expanded detail -->
-                    <t t-if="report_option == 'details'">
-                        <t t-set="group_types" t-value="['sale','purchase']"/>
-                        <t t-foreach="group_types" t-as="gtype">
-                            <h4 t-if="lines.get(gtype) and lines.get(gtype)|length"> <t t-esc="gtype.capitalize()"/> Taxes</h4>
-                            <t t-if="not lines.get(gtype) or not lines.get(gtype)|length">
-                                <p>No records for <t t-esc="gtype"/></p>
-                            </t>
-                            <t t-foreach="lines.get(gtype, [])" t-as="tax_block">
-                                <div style="border:1px solid #ddd; padding:6px; margin-bottom:8px;">
-                                    <strong t-esc="tax_block.get('tax_name')"/>
-                                    <div>
-                                        <small>Total Net:
-                                            <span t-esc="tax_block.get('total_net')"
-                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                        </small>
-                                        &nbsp;&nbsp;
-                                        <small>Total Tax:
-                                            <span t-esc="tax_block.get('total_tax')"
-                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                        </small>
-                                    </div>
-                                    <br/>
-                                    <table class="table table-sm table-reports">
-                                        <thead>
-                                            <tr><th>Account</th><th>Account Code</th><th>Debit</th><th>Credit</th><th>Balance</th></tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr t-foreach="tax_block.get('details', [])" t-as="d" align="left">
-                                                <td><span t-esc="d.get('account_name')"/></td>
-                                                <td><span t-esc="d.get('account_code')"/></td>
-                                                <td>
-                                                    <span t-esc="d.get('debit')"
-                                                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                                </td>
-                                                <td>
-                                                    <span t-esc="d.get('credit')"
-                                                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                                </td>
-                                                <td>
-                                                    <span t-esc="d.get('balance')"
-                                                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </t>
-                        </t>
-                    </t>
-
-                    <!-- Net VAT Due table (same as before) -->
-                    <br/>
-                    <t t-set="total_sale_tax" t-value="sum([(l.get('tax') or 0) for l in (lines.get('sale') or [])])"/>
-                    <t t-set="total_purchase_tax" t-value="sum([(l.get('tax') or 0) for l in (lines.get('purchase') or [])])"/>
-                    <t t-set="net_vat_due" t-value="(total_sale_tax or 0) - (total_purchase_tax or 0)"/>
-                    <table class="table table-sm table-reports" style="margin-top:6px;">
+                    <table class="table table-sm table-reports">
                         <thead>
-                            <tr align="left" style="font-weight:bold; border-top:2px solid #000;">
-                                <th>Net VAT Due</th>
-                                <th></th>
-                                <th>TAX</th>
-                            </tr>
-                            <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#BBBCB6;">
-                                <td>Net VAT Due (OR Claim) </td>
-                                <td></td>
+                            <tr align="left">
                                 <td>
-                                <span t-esc="net_vat_due"
-                                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                <strong>Sale</strong>
                                 </td>
+                                <th>Net</th>
+                                <th>Tax</th>
                             </tr>
                         </thead>
+                        <tr align="left" t-foreach="lines['sale']" t-as="line">
+                            <td>
+                                <span t-esc="line.get('name')"/>
+                            </td>
+                            <td>
+                                <span t-att-style="style" t-esc="line.get('net')"
+                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                            </td>
+                            <td>
+                                <span t-att-style="style" t-esc="line.get('tax')"
+                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                            </td>
+                        </tr>
+                        <!-- SALE TOTAL -->
+                        <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#BBBCB6;">
+                            <td>Total Sales</td>
+                            <td>
+                                <span t-esc="sum([l['net'] for l in lines['sale']])"
+                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                            </td>
+                            <td>
+                                <span t-esc="sum([l['tax'] for l in lines['sale']])"
+                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                            </td>
+                        </tr>
+                        <br/>
+                        <tr align="left">
+                            <td>
+                                <strong>Purchase</strong>
+                            </td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr align="left" t-foreach="lines['purchase']" t-as="line">
+                            <td>
+                                <span t-esc="line.get('name')"/>
+                            </td>
+                            <td>
+                                <span t-att-style="style" t-esc="line.get('net')"
+                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                            </td>
+                            <td>
+                                <span t-att-style="style" t-esc="line.get('tax')"
+                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                            </td>
+                        </tr>
+                        <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#BBBCB6;">
+                            <td>Total Purchases</td>
+                            <td>
+                                <span t-esc="sum([l['net'] for l in lines['purchase']])"
+                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                            </td>
+                            <td>
+                                <span t-esc="sum([l['tax'] for l in lines['purchase']])"
+                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                            </td>
+                        </tr>
+
+
                     </table>
+                    <br/>
+
+<!-- 🔹 Net VAT Due as Separate Table -->
+<t t-set="total_sale_tax" t-value="sum([(l.get('tax') or 0) for l in lines.get('sale', [])])"/>
+<t t-set="total_purchase_tax" t-value="sum([(l.get('tax') or 0) for l in lines.get('purchase', [])])"/>
+<t t-set="net_vat_due" t-value="(total_sale_tax or 0) - (total_purchase_tax or 0)"/>
+
+<table class="table table-sm table-reports" style="margin-top:6px;">
+    <thead>
+        <tr align="left" style="font-weight:bold; border-top:2px solid #000;">
+            <th>Net VAT Due</th>
+            <th></th>
+            <th>TAX</th>
+        </tr>
+        <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#BBBCB6;">
+            <td>Net VAT Due (OR Claim) </td>
+            <td></td>
+            <td>
+            <span t-esc="net_vat_due"
+                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+            </td>
+        </tr>
+
+    </thead>
+</table>
 
                 </div>
             </t>
         </t>
     </template>
+
 </odoo>

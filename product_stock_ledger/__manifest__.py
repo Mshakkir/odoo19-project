@@ -10,8 +10,12 @@
         "views/stock_ledger_wizard_views.xml",
         "views/report_action.xml",
         "report/product_stock_ledger_templates.xml",
-        "views/assets.xml",
     ],
+    'assets': {
+        'web.assets_backend': [
+            '/product_stock_ledger/static/src/css/report_styles.css',
+        ],
+    },
     "installable": True,
     "application": False,
 }

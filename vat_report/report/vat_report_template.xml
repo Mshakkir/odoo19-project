@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_vat_report_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center">
+                            <h2>VAT Report</h2>
+                            <h4><t t-out="company_name"/></h4>
+                            <h5>Currency: <t t-out="currency_name"/></h5>
+                        </div>
+
+                        <!-- Display filters -->
+                        <div class="row mt-3 mb-3">
+                            <div class="col-12">
+                                <table class="table table-sm table-bordered">
+                                    <tr>
+                                        <th style="width: 33%;">Date From</th>
+                                        <th style="width: 33%;">Date To</th>
+                                        <th style="width: 34%;">Based On</th>
+                                    </tr>
+                                    <tr>
+                                        <td><t t-out="date_from"/></td>
+                                        <td><t t-out="date_to"/></td>
+                                        <td><t t-out="based_on"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- VAT Report Table -->
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr style="background-color: #f0f0f0;">
+                                    <th style="width: 10%;">Code</th>
+                                    <th style="width: 50%;">Name</th>
+                                    <th style="width: 20%;" class="text-end">Net</th>
+                                    <th style="width: 20%;" class="text-end">Tax</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="vat_report" t-as="tag_or_group">
+                                    <tr style="font-weight: bold; background-color: #f9f9f9;">
+                                        <td><t t-out="tag_or_group.get('code', '')"/></td>
+                                        <td><t t-out="tag_or_group['name']"/></td>
+                                        <td class="text-end">
+                                            <t t-out="tag_or_group['net']" t-options="{'widget': 'monetary', 'display_currency': company.currency_id}"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-out="tag_or_group['tax']" t-options="{'widget': 'monetary', 'display_currency': company.currency_id}"/>
+                                        </td>
+                                    </tr>
+
+                                    <t t-if="tax_detail and tag_or_group.get('taxes')">
+                                        <t t-foreach="tag_or_group['taxes']" t-as="tax">
+                                            <tr>
+                                                <td></td>
+                                                <td style="padding-left: 30px;">
+                                                    <t t-out="tax['name']"/>
+                                                </td>
+                                                <td class="text-end">
+                                                    <t t-out="tax['net']" t-options="{'widget': 'monetary', 'display_currency': company.currency_id}"/>
+                                                </td>
+                                                <td class="text-end">
+                                                    <t t-out="tax['tax']" t-options="{'widget': 'monetary', 'display_currency': company.currency_id}"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

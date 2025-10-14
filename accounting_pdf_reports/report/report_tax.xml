@@ -44,17 +44,20 @@
                 <th>Tax</th>
             </tr>
         </thead>
-        <tr align="left" t-foreach="lines['sale']" t-as="line">
-            <td><span t-esc="line.get('name')"/></td>
-            <td>
-                <span t-att-style="style" t-esc="line.get('net')"
-                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-            </td>
-            <td>
-                <span t-att-style="style" t-esc="line.get('tax')"
-                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-            </td>
-        </tr>
+<tr align="left" t-foreach="lines['sale']" t-as="line">
+    <td>
+        <a t-attf-href="/web#action=accounting_pdf_reports.action_tax_detail_report&amp;tax_id={{line.get('id')}}&amp;date_from={{data['date_from']}}&amp;date_to={{data['date_to']}}">
+            <span t-esc="line.get('name')"/>
+        </a>
+    </td>
+    <td>
+        <span t-att-style="style" t-esc="line.get('net')" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+    </td>
+    <td>
+        <span t-att-style="style" t-esc="line.get('tax')" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+    </td>
+</tr>
+
 
         <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#BBBCB6;">
             <td>Total Sales</td>

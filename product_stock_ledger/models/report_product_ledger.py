@@ -99,6 +99,12 @@ class ReportProductStockLedger(models.AbstractModel):
         date_from = data.get('date_from')
         date_to = data.get('date_to')
 
+        # 🔧 Fix: Convert string dates to datetime if needed
+        if isinstance(date_from, str):
+            date_from = fields.Datetime.from_string(date_from)
+        if isinstance(date_to, str):
+            date_to = fields.Datetime.from_string(date_to)
+
         product = self.env['product.product'].browse(product_id)
 
         # Calculate opening balance
@@ -170,7 +176,8 @@ class ReportProductStockLedger(models.AbstractModel):
             else:
                 running_balance -= l['issue_qty']
             l['balance'] = running_balance
-            l['date'] = fields.Datetime.to_string(l['date']) if l['date'] else ''
+            # ✅ Convert move.date safely
+            l['date'] = fields.Datetime.to_string(l['date']) if isinstance(l['date'], datetime) else l['date']
             lines.append(l)
 
         # Calculate totals

@@ -18,10 +18,12 @@
             <field name="detailed_summary"/>
         </group>
     </group>
-    <footer>
-        <button name="check_report" string="Print" type="object" default_focus="1" class="oe_highlight" data-hotkey="q"/>
-        <button string="Cancel" class="btn btn-secondary" special="cancel" data-hotkey="z"/>
-    </footer>
+<footer>
+    <button name="check_report" string="Print" type="object" default_focus="1" class="oe_highlight" data-hotkey="q"/>
+    <button name="action_summary" string="Summary" type="object" class="btn btn-secondary"/>
+    <button string="Cancel" class="btn btn-secondary" special="cancel" data-hotkey="z"/>
+</footer>
+
 </form>
 
 <!--            <form string="Report Options">-->

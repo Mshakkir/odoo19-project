@@ -1,6 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<template id="custom_tax_report" inherit_id="accounting_pdf_reports.report_tax_detailed">
-    <xpath expr="//div[@class='o_tax_report']" position="inside">
+    <template id="report_tax_detailed" name="Tax Report Detailed">
+        <div class="o_tax_report">
+            <h4>Detailed Tax Report</h4>
             <table class="table table-sm table-reports">
                 <thead>
                     <tr>
@@ -10,18 +12,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr t-foreach="lines['sale']" t-as="line">
+                    <tr t-foreach="lines.get('sale', [])" t-as="line">
+                        <td><span t-esc="line.get('name')"/></td>
                         <td>
-                            <!-- clickable link to detail view -->
-                            <a t-attf-href="/web#action=accounting_pdf_reports.action_tax_detail_report&amp;tax_id={{line.get('id')}}&amp;date_from={{data['date_from']}}&amp;date_to={{data['date_to']}}">
-                                <span t-esc="line.get('name')"/>
-                            </a>
+                            <span t-esc="line.get('net')"
+                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                         </td>
-                        <td><span t-esc="line.get('net')"/></td>
-                        <td><span t-esc="line.get('tax')"/></td>
+                        <td>
+                            <span t-esc="line.get('tax')"
+                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                        </td>
                     </tr>
                 </tbody>
             </table>
-        </xpath>
+        </div>
     </template>
 </odoo>

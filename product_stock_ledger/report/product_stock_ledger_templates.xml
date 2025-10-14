@@ -3,15 +3,17 @@
   <!-- Report Layout Template -->
   <template id="product_stock_ledger_report_layout">
     <t t-call="web.html_container">
-      <!-- Link external stylesheet -->
+      <!-- Setup Context -->
       <t t-set="company" t-value="company or env.company"/>
       <t t-set="data" t-value="data or {}"/>
       <t t-set="product" t-value="product or None"/>
       <t t-set="lines" t-value="lines or []"/>
 
-      <t t-call-assets="web.report_assets_pdf" t-js="false">
-        <link rel="stylesheet" type="text/css" href="/product_stock_ledger/static/src/css/report_styles.css"/>
-      </t>
+      <!-- Load PDF Assets -->
+      <t t-call-assets="web.report_assets_pdf" t-js="false"/>
+
+      <!-- Custom CSS -->
+      <link rel="stylesheet" type="text/css" href="/product_stock_ledger/static/src/css/report_styles.css"/>
 
       <div class="page">
         <!-- Header Section -->

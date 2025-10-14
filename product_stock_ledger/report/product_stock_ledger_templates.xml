@@ -70,24 +70,13 @@
                             <th>Voucher</th>
                             <th>Particulars</th>
                             <th>Type</th>
-                            <th>
-                                Rec. Qty
-                                <t t-if="product.uom_id">
-                                    (<t t-esc="product.uom_id.name"/>)
-                                </t>
-                            </th>
+                            <th>Rec. Qty</th>
                             <th>Rate</th>
-                            <th>
-                                Issue Qty
-                                <t t-if="product.uom_id">
-                                    (<t t-esc="product.uom_id.name"/>)
-                                </t>
-                            </th>
+                            <th>Issue Qty</th>
                             <th>Rate</th>
                             <th>Balance</th>
                         </tr>
                     </thead>
-
                     <tbody>
                         <t t-foreach="lines" t-as="l">
                             <tr>
@@ -103,24 +92,50 @@
                                 <td>
                                     <t t-esc="l['type']"/>
                                 </td>
+
+                                <!-- Received Quantity -->
                                 <td class="num">
-                                    <t t-esc="('%.2f' % l['rec_qty']) if l['rec_qty'] else ''"/>
+                                    <t t-if="l['rec_qty']">
+                                        <t t-esc="'%.2f' % l['rec_qty']"/>
+                                        <t t-if="product.uom_id">
+                                            <t t-esc="product.uom_id.name"/>
+                                        </t>
+                                    </t>
                                 </td>
+
+                                <!-- Received Rate -->
                                 <td class="num">
                                     <t t-esc="('%.2f' % l['rec_rate']) if l['rec_rate'] else ''"/>
                                 </td>
+
+                                <!-- Issued Quantity -->
                                 <td class="num">
-                                    <t t-esc="('%.2f' % l['issue_qty']) if l['issue_qty'] else ''"/>
+                                    <t t-if="l['issue_qty']">
+                                        <t t-esc="'%.2f' % l['issue_qty']"/>
+                                        <t t-if="product.uom_id">
+                                            <t t-esc="product.uom_id.name"/>
+                                        </t>
+                                    </t>
                                 </td>
+
+                                <!-- Issued Rate -->
                                 <td class="num">
                                     <t t-esc="('%.2f' % l['issue_rate']) if l['issue_rate'] else ''"/>
                                 </td>
+
+                                <!-- Balance -->
                                 <td class="num">
-                                    <t t-esc="('%.2f' % l['balance'])"/>
+                                    <t t-if="l['balance'] is not None">
+                                        <t t-esc="'%.2f' % l['balance']"/>
+                                        <t t-if="product.uom_id">
+                                            <t t-esc="product.uom_id.name"/>
+                                        </t>
+                                    </t>
                                 </td>
                             </tr>
                         </t>
                     </tbody>
+
                     <tfoot>
                         <tr>
                             <td colspan="4" style="text-align:right;">

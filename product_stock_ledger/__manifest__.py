@@ -6,13 +6,14 @@
     "summary": "Product-wise stock ledger report (QWeb/PDF)",
     "depends": ["stock", "product", "account"],
     "data": [
+        "security/ir.model.access.csv",  # <--- added here
         "views/stock_ledger_wizard_views.xml",  # must load before report_action
         "views/report_action.xml",
         "report/product_stock_ledger_templates.xml",
     ],
     "assets": {
-        "web.assets_backend": [
-            "product_stock_ledger/static/src/scss/report_styles.scss",
+        "web.report_assets_common": [
+            "product_stock_ledger/static/src/css/report_styles.css",
         ],
     },
     "installable": True,

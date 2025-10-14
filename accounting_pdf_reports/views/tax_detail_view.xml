@@ -1,0 +1,9 @@
+<odoo>
+    <record id="action_tax_detail_report" model="ir.actions.act_window">
+        <field name="name">Tax Details</field>
+        <field name="res_model">account.move.line</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('tax_line_id', '=', active_id)]</field>
+        <field name="context">{}</field>
+    </record>
+</odoo>

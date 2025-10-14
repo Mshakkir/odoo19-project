@@ -1,0 +1,27 @@
+<odoo>
+    <template id="report_tax_detailed" inherit_id="accounting_pdf_reports.report_tax">
+        <xpath expr="//table[@class='table table-sm table-reports']" position="replace">
+            <table class="table table-sm table-reports">
+                <thead>
+                    <tr>
+                        <th>Tax Name</th>
+                        <th>Net</th>
+                        <th>Tax</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="lines['sale']" t-as="line">
+                        <td>
+                            <!-- clickable link to detail view -->
+                            <a t-attf-href="/web#action=accounting_pdf_reports.action_tax_detail_report&amp;tax_id={{line.get('id')}}&amp;date_from={{data['date_from']}}&amp;date_to={{data['date_to']}}">
+                                <span t-esc="line.get('name')"/>
+                            </a>
+                        </td>
+                        <td><span t-esc="line.get('net')"/></td>
+                        <td><span t-esc="line.get('tax')"/></td>
+                    </tr>
+                </tbody>
+            </table>
+        </xpath>
+    </template>
+</odoo>

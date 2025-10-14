@@ -2,6 +2,18 @@ from odoo import api, models, _
 from odoo.exceptions import UserError
 
 
+# class ReportTax(models.AbstractModel):
+#     _name = 'report.accounting_pdf_reports.report_tax'
+#     _description = 'Tax Report'
+#
+#     @api.model
+#     def _get_report_values(self, docids, data=None):
+#         if not data.get('form'):
+#             raise UserError(_("Form content is missing, this report cannot be printed."))
+#         return {
+#             'data': data['form'],
+#             'lines': self.get_lines(data.get('form')),
+#         }
 class ReportTax(models.AbstractModel):
     _name = 'report.accounting_pdf_reports.report_tax'
     _description = 'Tax Report'
@@ -10,9 +22,15 @@ class ReportTax(models.AbstractModel):
     def _get_report_values(self, docids, data=None):
         if not data.get('form'):
             raise UserError(_("Form content is missing, this report cannot be printed."))
+
+        options = data['form']
+        lines = self.get_lines(options)
+        report_type = 'detailed' if options.get('detailed_summary') else 'normal'
+
         return {
-            'data': data['form'],
-            'lines': self.get_lines(data.get('form')),
+            'data': options,
+            'lines': lines,
+            'report_type': report_type,
         }
 
 

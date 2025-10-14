@@ -21,6 +21,7 @@
         'views/ledger_menu.xml',
         'views/financial_report.xml',
         'views/settings.xml',
+        'views/tax_detail_view.xml',
         'wizard/account_report_common_view.xml',
         'wizard/partner_ledger.xml',
         'wizard/general_ledger.xml',
@@ -39,7 +40,8 @@
         'report/report_aged_partner.xml',
         'report/report_journal_audit.xml',
         'report/report_journal_entries.xml',
-        'report/account_summary_wizard_views.xml',
+        'report/report_tax_detailed.xml'
+
 
     ],
     'pre_init_hook': '_pre_init_clean_m2m_models',

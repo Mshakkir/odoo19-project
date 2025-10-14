@@ -34,5 +34,5 @@
               parent="stock.menu_warehouse_report"
               action="action_open_stock_ledger_wizard"
               sequence="15"
-              groups="stock.group_stock_user,stock.group_stock_manager"/>
+              />
 </odoo>

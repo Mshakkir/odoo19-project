@@ -40,7 +40,7 @@
         'report/report_aged_partner.xml',
         'report/report_journal_audit.xml',
         'report/report_journal_entries.xml',
-        'report/report_tax_detailed.xml'
+        # 'report/report_tax_detailed.xml'
 
 
     ],

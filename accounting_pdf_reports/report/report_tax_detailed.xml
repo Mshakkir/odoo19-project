@@ -3,16 +3,18 @@
     <template id="report_tax_detailed" name="Tax Report Detailed">
         <div class="o_tax_report">
             <h4>Detailed Tax Report</h4>
+
+            <!-- SALE TAXES -->
             <t t-foreach="lines.get('sale', [])" t-as="line">
                 <h5 style="margin-top: 10px;">
-                    <strong t-esc="line.get('name')"/>
+                    <strong t-esc="line.get('name')"/> (Sale)
                 </h5>
                 <table class="table table-sm table-reports" style="margin-bottom: 10px;">
                     <thead>
                         <tr>
                             <th>Invoice</th>
                             <th>Date</th>
-                            <th>Customer / Vendor</th>
+                            <th>Customer</th>
                             <th>Base Amount</th>
                             <th>Tax Amount</th>
                         </tr>
@@ -34,6 +36,40 @@
                     </tbody>
                 </table>
             </t>
+
+            <!-- PURCHASE TAXES -->
+            <t t-foreach="lines.get('purchase', [])" t-as="line">
+                <h5 style="margin-top: 10px;">
+                    <strong t-esc="line.get('name')"/> (Purchase)
+                </h5>
+                <table class="table table-sm table-reports" style="margin-bottom: 10px;">
+                    <thead>
+                        <tr>
+                            <th>Invoice</th>
+                            <th>Date</th>
+                            <th>Vendor</th>
+                            <th>Base Amount</th>
+                            <th>Tax Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="line.get('transactions', [])" t-as="tx">
+                            <td><span t-esc="tx.get('invoice')"/></td>
+                            <td><span t-esc="tx.get('date')"/></td>
+                            <td><span t-esc="tx.get('partner')"/></td>
+                            <td>
+                                <span t-esc="tx.get('base')"
+                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                            </td>
+                            <td>
+                                <span t-esc="tx.get('tax')"
+                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </t>
+
         </div>
     </template>
 </odoo>

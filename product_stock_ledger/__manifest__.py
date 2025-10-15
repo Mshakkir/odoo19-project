@@ -21,7 +21,7 @@
     ],
     "assets": {
         "web.assets_backend": [
-            "product_stock_ledger/static/src/js/ledger_list_footer.js",
+            "product_stock_ledger/static/src/js/",
         ],
         "web.report_assets_common": [
             "product_stock_ledger/static/src/css/report_styles.css",

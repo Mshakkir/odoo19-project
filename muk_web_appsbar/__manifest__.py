@@ -40,8 +40,8 @@
         'web.assets_backend': [
             (
                 'after',
-                'web/static/src/webclient/webclient.js',
-                'muk_web_appsbar/static/src/webclient/webclient.js',
+                'web/static/src/webclient/webclient.',
+                'muk_web_appsbar/static/src/webclient/webclient.',
             ),
             (
                 'after',

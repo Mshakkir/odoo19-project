@@ -22,7 +22,6 @@ class StockLedgerWizard(models.TransientModel):
     def action_view_moves(self):
         """Open stock.move records matching the wizard criteria in a new window/modal."""
         self.ensure_one()
-        # Build domain similar to your _get_moves/opening domain logic
         domain = [
             ('product_id', '=', self.product_id.id),
             ('date', '>=', self.date_from),
@@ -31,16 +30,10 @@ class StockLedgerWizard(models.TransientModel):
         ]
 
         if self.warehouse_id and self.warehouse_id.view_location_id:
-            loc_ids = self.env['stock.location'].search([('id', 'child_of', self.warehouse_id.view_location_id.id)]).ids
+            loc_ids = self.env['stock.location'].search([
+                ('id', 'child_of', self.warehouse_id.view_location_id.id)
+            ]).ids
             if loc_ids:
-                # show moves where either source or dest in warehouse locs
-                domain = expression.OR([
-                    domain,
-                    [('location_id', 'in', loc_ids)],
-                    [('location_dest_id', 'in', loc_ids)]
-                ]) if False else domain  # keep domain simple below
-
-                # more explicit: replace domain with OR between two location fields
                 domain = [
                     ('product_id', '=', self.product_id.id),
                     ('date', '>=', self.date_from),
@@ -51,16 +44,15 @@ class StockLedgerWizard(models.TransientModel):
                     ('location_dest_id', 'in', loc_ids),
                 ]
 
-        # Return an action to open stock.move with tree + form views
+        # ✅ FIXED view_mode (use 'list' instead of 'tree')
         action = {
             'name': _('Stock Moves for %s') % (self.product_id.display_name,),
             'type': 'ir.actions.act_window',
             'res_model': 'stock.move',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
+            'views': [(False, 'list'), (False, 'form')],  # ✅ explicitly define
             'domain': domain,
-            # optional: pass default filters / context
             'context': dict(self.env.context, search_default_groupby_date=False),
-            # 'target': 'new' opens the view as a modal (popup overlay). Use 'current' for normal navigation.
-            'target': 'new',
+            'target': 'current',  # better UX; 'new' may cause overlay rendering issues
         }
         return action

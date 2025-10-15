@@ -1,11 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Summary list view -->
     <record id="view_tax_report_detail_line_list" model="ir.ui.view">
         <field name="name">tax.report.detail.line.list</field>
         <field name="model">tax.report.detail.line</field>
         <field name="arch" type="xml">
             <list string="Tax Report Summary">
                 <field name="type"/>
-                <field name="tax_name"/>
+                <field name="tax_id" options="{'no_create': True}" />
                 <field name="base_amount"/>
                 <field name="tax_amount"/>
                 <button name="open_moves" type="object" string="Show Invoices" class="btn-primary"/>
@@ -13,6 +15,7 @@
         </field>
     </record>
 
+    <!-- Window action -->
     <record id="action_tax_report_detail_line" model="ir.actions.act_window">
         <field name="name">Tax Report Summary</field>
         <field name="res_model">tax.report.detail.line</field>

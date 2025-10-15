@@ -6,25 +6,11 @@
         <field name="arch" type="xml">
             <list string="Tax Report Summary">
                 <field name="type"/>
-
-                <!-- Show tax name for regular lines -->
-                <field name="tax_id"
-                       options="{'no_create': True}"
-                       attrs="{'invisible':[('tax_name','in',['Total Sales','Total Purchases','Net VAT Due'])]}"/>
-
-                <!-- This displays Total Sales / Purchases / Net VAT rows -->
+                <field name="tax_id" options="{'no_create': True}" invisible="is_summary_row"/>
                 <field name="tax_name"/>
-
-                <field name="base_amount"
-                       attrs="{'invisible':[('tax_name','in',['Total Sales','Total Purchases','Net VAT Due'])]}"/>
-
+                <field name="base_amount" invisible="is_summary_row"/>
                 <field name="tax_amount"/>
-
-                <!-- Hide button for total rows -->
-                <button name="open_moves"
-                        type="object"
-                        string="Show Invoices"
-                        attrs="{'invisible':[('tax_name','in',['Total Sales','Total Purchases','Net VAT Due'])]}"/>
+                <button name="open_moves" type="object" string="Show Invoices" invisible="is_summary_row"/>
             </list>
         </field>
     </record>

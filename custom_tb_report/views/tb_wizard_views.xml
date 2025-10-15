@@ -1,0 +1,10 @@
+<form string="Trial Balance Options">
+  <group>
+    <field name="date_from"/>
+    <field name="date_to"/>
+  </group>
+  <footer>
+    <button name="action_show_tb" string="Show Trial Balance" type="object" class="oe_highlight"/>
+    <button string="Cancel" special="cancel"/>
+  </footer>
+</form>

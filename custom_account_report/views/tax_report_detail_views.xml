@@ -45,11 +45,11 @@
         <field name="model">tax.report.detail.line</field>
         <field name="arch" type="xml">
             <list string="Tax Report Summary">
-<field name="type"/>
-<field name="tax_id" options="{'no_create': True}"/>
-<field name="base_amount"/>
-<field name="tax_amount"/>
-<button name="open_moves" type="object" string="Show Invoices"/>
+                <field name="type"/>
+                <field name="tax_id" options="{'no_create': True}"/>
+                <field name="base_amount"/>
+                <field name="tax_amount"/>
+                <button name="open_moves" type="object" string="Show Invoices"/>
 
             </list>
         </field>

@@ -24,14 +24,9 @@ class TaxReportDetailLine(models.TransientModel):
 
     @api.depends('tax_name')
     def _compute_is_summary_row(self):
+        """Mark rows that represent total summaries."""
         for line in self:
             line.is_summary_row = line.tax_name in ['Total Sales', 'Total Purchases', 'Net VAT Due']
-
-    # @api.depends('tax_name')
-    # def _compute_is_summary_row(self):
-    #     """Mark rows that represent total summaries."""
-    #     for line in self:
-    #         line.is_summary_row = line.tax_name in ['Total Sales', 'Total Purchases', 'Net VAT Due']
 
     def open_moves(self):
         """Open invoices related to this tax line"""

@@ -40,3 +40,4 @@ class TaxReportDetailLine(models.TransientModel):
             'target': 'current',
         }
 
+

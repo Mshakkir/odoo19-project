@@ -20,9 +20,6 @@
         "report/product_stock_ledger_templates.xml",
     ],
     "assets": {
-        # "web.assets_backend": [
-        #     "product_stock_ledger/static/src/js/",
-        # ],
         "web.report_assets_common": [
             "product_stock_ledger/static/src/css/report_styles.css",
         ],

@@ -9,6 +9,7 @@
         "security/ir.model.access.csv",  # <--- added here
         "views/stock_ledger_wizard_views.xml",  # must load before report_action
         "views/report_action.xml",
+        "views/ledger_template.xml",
         "report/product_stock_ledger_templates.xml",
     ],
     "assets": {

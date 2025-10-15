@@ -1,6 +1,7 @@
-#
+# product_stock_ledger/wizard/stock_ledger_wizard.py
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError
+import urllib.parse
 
 class StockLedgerWizard(models.TransientModel):
     _name = "product.stock.ledger.wizard"
@@ -12,10 +13,20 @@ class StockLedgerWizard(models.TransientModel):
     date_to = fields.Datetime(string='Date To', required=True, default=fields.Datetime.now)
 
     def action_print_report(self):
-        data = {
+        # Build URL params safely
+        params = {
             'product_id': self.product_id.id,
-            'warehouse_id': self.warehouse_id.id if self.warehouse_id else False,
-            'date_from': self.date_from,
-            'date_to': self.date_to,
+            'date_from': fields.Datetime.to_string(self.date_from) if self.date_from else '',
+            'date_to': fields.Datetime.to_string(self.date_to) if self.date_to else '',
         }
-        return self.env.ref('product_stock_ledger.action_report_product_stock_ledger').report_action(self, data=data)
+        if self.warehouse_id:
+            params['warehouse_id'] = self.warehouse_id.id
+
+        base = '/product_stock_ledger/ledger'
+        url = base + '?' + urllib.parse.urlencode(params)
+
+        return {
+            'type': 'ir.actions.act_url',
+            'url': url,
+            'target': 'new',
+        }

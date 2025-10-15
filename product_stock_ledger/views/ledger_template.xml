@@ -1,0 +1,83 @@
+<!-- product_stock_ledger/views/ledger_template.xml -->
+<odoo>
+  <template id="ledger_html_template" t-name="product_stock_ledger.ledger_html_template">
+    <t t-set="product" t-value="product"/>
+    <t t-set="lines" t-value="lines"/>
+    <t t-set="data" t-value="data"/>
+    <t t-set="company" t-value="company"/>
+
+    <!-- Link to module CSS -->
+    <link rel="stylesheet" href="/product_stock_ledger/static/src/css/report_styles.css"/>
+
+    <div class="page">
+      <div class="header">
+        <div class="company_logo">
+          <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % (company.logo.decode('utf-8'))" alt="Logo"/>
+        </div>
+        <div class="company_info">
+          <h2 t-esc="company.name"/>
+          <div t-esc="company.partner_id.contact_address"/>
+        </div>
+        <div class="report_title">
+          <h3>Product Stock Ledger (HTML)</h3>
+          <div>
+            <strong>Between:</strong>
+            <span t-esc="data.get('date_from')"/>
+             –
+            <span t-esc="data.get('date_to')"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="product_info">
+        <table class="product_table">
+          <tr>
+            <td><strong>Product:</strong></td>
+            <td><span t-esc="product.display_name"/></td>
+          </tr>
+        </table>
+      </div>
+
+      <table class="ledger_table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Voucher</th>
+            <th>Particulars</th>
+            <th>Type</th>
+            <th>Rec. Qty</th>
+            <th>Rate</th>
+            <th>Issue Qty</th>
+            <th>Rate</th>
+            <th>Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <t t-foreach="lines" t-as="l">
+            <tr>
+              <td><t t-esc="l['date']"/></td>
+              <td><t t-esc="l['voucher']"/></td>
+              <td><t t-esc="l['particulars']"/></td>
+              <td><t t-esc="l['type']"/></td>
+              <td class="num"><t t-if="l['rec_qty']"><t t-esc="'%.2f' % l['rec_qty']"/><t t-if="product.uom_id"> <t t-esc="product.uom_id.name"/></t></t></td>
+              <td class="num"><t t-esc="('%.2f' % l['rec_rate']) if l['rec_rate'] else ''"/></td>
+              <td class="num"><t t-if="l['issue_qty']"><t t-esc="'%.2f' % l['issue_qty']"/><t t-if="product.uom_id"> <t t-esc="product.uom_id.name"/></t></t></td>
+              <td class="num"><t t-esc="('%.2f' % l['issue_rate']) if l['issue_rate'] else ''"/></td>
+              <td class="num"><t t-if="l['balance'] is not None"><t t-esc="'%.2f' % l['balance']"/><t t-if="product.uom_id"> <t t-esc="product.uom_id.name"/></t></t></td>
+            </tr>
+          </t>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4" style="text-align:right;"><strong>Sub Total</strong></td>
+            <td class="num"><t t-esc="('%.2f' % total_rec)"/></td>
+            <td></td>
+            <td class="num"><t t-esc="('%.2f' % total_issue)"/></td>
+            <td></td>
+            <td class="num"><t t-esc="('%.2f' % (lines and lines[-1].get('balance', 0.0) or 0.0))"/></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </template>
+</odoo>

@@ -79,6 +79,29 @@ class AccountTaxReportWizard(models.TransientModel):
 
     detail_line_ids = fields.One2many('tax.report.detail.line', 'wizard_id', string='Tax Summary Lines')
 
+    def get_tax_data(self):
+        """Fetch tax data from posted invoices in the selected date range"""
+        domain = [
+            ('move_id.state', '=', 'posted'),
+            ('tax_ids', '!=', False),
+            ('move_id.date', '>=', self.date_from),
+            ('move_id.date', '<=', self.date_to),
+        ]
+        move_lines = self.env['account.move.line'].search(domain)
+
+        tax_data_list = []
+        for line in move_lines:
+            for tax in line.tax_ids:
+                tax_data_list.append({
+                    'tax_name': tax.name,
+                    'tax_id': tax.id,
+                    'type': 'sale' if line.move_id.move_type in ('out_invoice','out_refund') else 'purchase',
+                    'base_amount': line.balance,  # or line.price_subtotal if you prefer
+                    'tax_amount': line.tax_line_id.amount if line.tax_line_id else 0.0,
+                    'move_ids': [line.move_id.id],
+                })
+        return tax_data_list
+
     def compute_tax_summary(self):
         TaxLine = self.env['tax.report.detail.line']
 
@@ -90,8 +113,8 @@ class AccountTaxReportWizard(models.TransientModel):
         purchase_total_base = 0
         purchase_total_tax = 0
 
-        # Loop over your tax lines (existing logic)
-        for tax_data in self.get_tax_data():  # Replace with your current tax fetching logic
+        # Loop over tax lines
+        for tax_data in self.get_tax_data():
             line = TaxLine.create({
                 'wizard_id': self.id,
                 'tax_name': tax_data['tax_name'],
@@ -99,10 +122,9 @@ class AccountTaxReportWizard(models.TransientModel):
                 'type': tax_data['type'],
                 'base_amount': tax_data['base_amount'],
                 'tax_amount': tax_data['tax_amount'],
-                'move_ids': [(6, 0, tax_data['move_ids'])],  # list of invoice IDs
+                'move_ids': [(6, 0, tax_data['move_ids'])],
             })
 
-            # Sum for sales/purchases
             if tax_data['type'] == 'sale':
                 sale_total_base += tax_data['base_amount']
                 sale_total_tax += tax_data['tax_amount']
@@ -135,11 +157,12 @@ class AccountTaxReportWizard(models.TransientModel):
         TaxLine.create({
             'wizard_id': self.id,
             'tax_name': 'Net VAT Due',
-            'type': 'sale',  # you can keep it sale type or blank
+            'type': 'sale',
             'base_amount': 0.0,
             'tax_amount': net_vat_due,
             'is_summary_row': True,
         })
+
 
     # def compute_tax_summary(self):
     #     self.ensure_one()

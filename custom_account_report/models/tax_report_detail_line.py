@@ -25,20 +25,17 @@ class TaxReportDetailLine(models.TransientModel):
         """Mark rows that represent total summaries."""
         for line in self:
             line.is_summary_row = line.tax_name in ['Total Sales', 'Total Purchases', 'Net VAT Due']
-def open_moves(self):
-    self.ensure_one()
-    moves = self.env['account.move'].search([
-        ('line_ids.tax_ids', 'in', self.tax_id.ids),
-        ('move_type', 'in', ['out_invoice', 'in_invoice']),
-    ])
-    return {
-        'type': 'ir.actions.act_window',
-        'name': 'Invoices',
-        'res_model': 'account.move',
-        'view_mode': 'tree,form',
-        'domain': [('id', 'in', moves.ids)],
-    }
-
+    def open_moves(self):
+            """Open invoices related to this tax line"""
+            self.ensure_one()
+            return {
+                'name': 'Invoices for Tax',
+                'type': 'ir.actions.act_window',
+                'res_model': 'account.move',
+                'view_mode': 'list,form',
+                'domain': [('id', 'in', self.move_ids.ids)],
+                'target': 'current',
+            }
 
 
 

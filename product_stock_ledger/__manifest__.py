@@ -7,12 +7,15 @@
     "depends": ["stock", "product", "account"],
     "data": [
         "security/ir.model.access.csv",  # <--- added here
+        "views/ledger_line_views.xml",
         "views/stock_ledger_wizard_views.xml",  # must load before report_action
-        "views/stock_move_tree.xml",
         "views/report_action.xml",
         "report/product_stock_ledger_templates.xml",
     ],
     "assets": {
+        "web.assets_backend": [
+            "product_stock_ledger/static/src/js/ledger_list_footer.js",
+        ],
         "web.report_assets_common": [
             "product_stock_ledger/static/src/css/report_styles.css",
         ],

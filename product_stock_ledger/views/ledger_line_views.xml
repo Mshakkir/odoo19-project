@@ -1,0 +1,20 @@
+<odoo>
+  <record id="view_ledger_line_list" model="ir.ui.view">
+    <field name="name">product.stock.ledger.line.list</field>
+    <field name="model">product.stock.ledger.line</field>
+    <field name="arch" type="xml">
+      <list string="Product Stock Ledger" create="false" edit="false" delete="false">
+        <field name="date" string="Date"/>
+        <field name="voucher" string="Voucher"/>
+        <field name="particulars" string="Particulars"/>
+        <field name="type" string="Type"/>
+        <field name="rec_qty" string="Rec. Qty" widget="sum"/>
+        <field name="rec_rate" string="Rate" widget="sum"/>
+        <field name="issue_qty" string="Issue Qty" widget="sum"/>
+        <field name="issue_rate" string="Rate" widget="sum"/>
+        <field name="balance" string="Balance" widget="sum"/>
+        <field name="uom" string="Unit" invisible="1"/>
+      </list>
+    </field>
+  </record>
+</odoo>

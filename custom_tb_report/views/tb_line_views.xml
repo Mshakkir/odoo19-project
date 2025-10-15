@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<record id="view_trial_balance_line_list" model="ir.ui.view">
-  <field name="name">trial.balance.line.list</field>
-  <field name="model">trial.balance.line</field>
-  <field name="arch" type="xml">
-    <list string="Trial Balance">
-      <field name="account_id"/>
-      <field name="opening_balance"/>
-      <field name="debit"/>
-      <field name="credit"/>
-      <field name="ending_balance"/>
-      <button name="open_entries" type="object" string="Show Entries"/>
-    </list>
-  </field>
-</record>
+  <record id="view_trial_balance_line_list" model="ir.ui.view">
+    <field name="name">trial.balance.line.list</field>
+    <field name="model">trial.balance.line</field>
+    <field name="arch" type="xml">
+      <list string="Trial Balance">
+        <field name="account_id"/>
+        <field name="opening_balance"/>
+        <field name="debit"/>
+        <field name="credit"/>
+        <field name="ending_balance"/>
+      </list>
+    </field>
+  </record>
 </odoo>

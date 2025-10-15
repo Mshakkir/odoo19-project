@@ -1,7 +1,5 @@
-# product_stock_ledger/wizard/stock_ledger_wizard.py
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError
-import urllib.parse
 
 class StockLedgerWizard(models.TransientModel):
     _name = "product.stock.ledger.wizard"
@@ -13,20 +11,56 @@ class StockLedgerWizard(models.TransientModel):
     date_to = fields.Datetime(string='Date To', required=True, default=fields.Datetime.now)
 
     def action_print_report(self):
-        # Build URL params safely
-        params = {
+        data = {
             'product_id': self.product_id.id,
-            'date_from': fields.Datetime.to_string(self.date_from) if self.date_from else '',
-            'date_to': fields.Datetime.to_string(self.date_to) if self.date_to else '',
+            'warehouse_id': self.warehouse_id.id if self.warehouse_id else False,
+            'date_from': self.date_from,
+            'date_to': self.date_to,
         }
-        if self.warehouse_id:
-            params['warehouse_id'] = self.warehouse_id.id
+        return self.env.ref('product_stock_ledger.action_report_product_stock_ledger').report_action(self, data=data)
 
-        base = '/product_stock_ledger/ledger'
-        url = base + '?' + urllib.parse.urlencode(params)
+    def action_view_moves(self):
+        """Open stock.move records matching the wizard criteria in a new window/modal."""
+        self.ensure_one()
+        # Build domain similar to your _get_moves/opening domain logic
+        domain = [
+            ('product_id', '=', self.product_id.id),
+            ('date', '>=', self.date_from),
+            ('date', '<=', self.date_to),
+            ('state', '=', 'done'),
+        ]
 
-        return {
-            'type': 'ir.actions.act_url',
-            'url': url,
+        if self.warehouse_id and self.warehouse_id.view_location_id:
+            loc_ids = self.env['stock.location'].search([('id', 'child_of', self.warehouse_id.view_location_id.id)]).ids
+            if loc_ids:
+                # show moves where either source or dest in warehouse locs
+                domain = expression.OR([
+                    domain,
+                    [('location_id', 'in', loc_ids)],
+                    [('location_dest_id', 'in', loc_ids)]
+                ]) if False else domain  # keep domain simple below
+
+                # more explicit: replace domain with OR between two location fields
+                domain = [
+                    ('product_id', '=', self.product_id.id),
+                    ('date', '>=', self.date_from),
+                    ('date', '<=', self.date_to),
+                    ('state', '=', 'done'),
+                    '|',
+                    ('location_id', 'in', loc_ids),
+                    ('location_dest_id', 'in', loc_ids),
+                ]
+
+        # Return an action to open stock.move with tree + form views
+        action = {
+            'name': _('Stock Moves for %s') % (self.product_id.display_name,),
+            'type': 'ir.actions.act_window',
+            'res_model': 'stock.move',
+            'view_mode': 'tree,form',
+            'domain': domain,
+            # optional: pass default filters / context
+            'context': dict(self.env.context, search_default_groupby_date=False),
+            # 'target': 'new' opens the view as a modal (popup overlay). Use 'current' for normal navigation.
             'target': 'new',
         }
+        return action

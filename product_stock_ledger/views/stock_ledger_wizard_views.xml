@@ -13,6 +13,7 @@
                         <field name="date_to"/>
                     </group>
                     <footer>
+                            <button string="View" type="object" name="action_view_moves" class="btn-secondary"/>
                         <button string="Print PDF" type="object" name="action_print_report" class="btn-primary"/>
                         <button string="Cancel" class="btn-secondary" special="cancel"/>
                     </footer>

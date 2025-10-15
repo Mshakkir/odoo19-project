@@ -5,15 +5,6 @@ class AccountTaxReportWizard(models.TransientModel):
 
 
     detail_line_ids = fields.One2many('tax.report.detail.line', 'wizard_id', string='Tax Summary Lines')
-    total_sale = fields.Monetary(compute='_compute_totals')
-    total_purchase = fields.Monetary(compute='_compute_totals')
-    net_vat_due = fields.Monetary(compute='_compute_totals')
-
-    def _compute_totals(self):
-        lines = self.detail_line_ids
-        self.total_sale = sum(lines.filtered(lambda l: l.type == 'sale').mapped('base_amount'))
-        self.total_purchase = sum(lines.filtered(lambda l: l.type == 'purchase').mapped('base_amount'))
-        self.net_vat_due = self.total_sale - self.total_purchase
 
     def compute_tax_summary(self):
         self.ensure_one()

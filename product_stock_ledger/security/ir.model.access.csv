@@ -1,8 +1,5 @@
 id,name,model_id:id,group_id,perm_read,perm_write,perm_create,perm_unlink
-# --- Wizard Access ---
 access_product_stock_ledger_wizard_user,product.stock.ledger.wizard.user,model_product_stock_ledger_wizard,stock.group_stock_user,1,1,1,1
 access_product_stock_ledger_wizard_manager,product.stock.ledger.wizard.manager,model_product_stock_ledger_wizard,stock.group_stock_manager,1,1,1,1
-
-# --- Ledger Line Access ---
 access_product_stock_ledger_line_user,product.stock.ledger.line.user,model_product_stock_ledger_line,stock.group_stock_user,1,0,0,0
 access_product_stock_ledger_line_manager,product.stock.ledger.line.manager,model_product_stock_ledger_line,stock.group_stock_manager,1,1,1,1

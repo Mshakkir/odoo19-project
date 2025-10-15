@@ -1,15 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="inherit_tb_wizard_form" model="ir.ui.view">
-        <field name="name">inherit.tb.wizard.form</field>
-        <field name="model">account.balance.report</field>
-        <field name="inherit_id" ref="accounting_pdf_reports.account_balance_report_wizard_form"/>
+    <record id="view_trial_balance_wizard_form" model="ir.ui.view">
+        <field name="name">trial.balance.wizard.form</field>
+        <field name="model">trial.balance.wizard</field>
         <field name="arch" type="xml">
-            <xpath expr="//footer/button[@name='print_report']" position="before">
-                <button name="action_show_tb"
-                        string="Show Trial Balance"
-                        type="object"
-                        class="btn-secondary"/>
-            </xpath>
+            <form string="Trial Balance Options">
+                <group>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                </group>
+                <footer>
+                    <button name="action_show_tb" string="Show Trial Balance" type="object" class="oe_highlight"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
         </field>
     </record>
 </odoo>

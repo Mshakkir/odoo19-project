@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Summary list view -->
-
     <record id="view_tax_report_detail_list" model="ir.ui.view">
         <field name="name">tax.report.detail.list</field>
         <field name="model">tax.report.detail.line</field>
@@ -16,9 +14,6 @@
         </field>
     </record>
 
-
-
-    <!-- Window action -->
     <record id="action_tax_report_detail_line" model="ir.actions.act_window">
         <field name="name">Tax Report Summary</field>
         <field name="res_model">tax.report.detail.line</field>

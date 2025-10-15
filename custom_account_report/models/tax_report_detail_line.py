@@ -5,12 +5,21 @@ class TaxReportDetailLine(models.TransientModel):
     _description = "Tax Report Detail Line"
 
     wizard_id = fields.Many2one('account.tax.report.wizard')
-    type = fields.Selection([('sale', 'Sale'), ('purchase', 'Purchase')], string='Type')
+    type = fields.Selection([
+        ('sale', 'Sale'),
+        ('purchase', 'Purchase')
+    ], string='Type')
+
     tax_id = fields.Many2one('account.tax', string='Tax')
-    tax_name = fields.Char(related='tax_id.name', string='Tax Name')
+    # Remove this line — Odoo automatically shows the tax name in the list
+    # tax_name = fields.Char(related='tax_id.name', string='Tax Name')
+
     base_amount = fields.Monetary(string='Net Amount')
     tax_amount = fields.Monetary(string='Tax Amount')
-    currency_id = fields.Many2one('res.currency', default=lambda self: self.env.company.currency_id)
+    currency_id = fields.Many2one(
+        'res.currency',
+        default=lambda self: self.env.company.currency_id
+    )
     move_ids = fields.Many2many('account.move', string='Invoices')
 
     def open_moves(self):

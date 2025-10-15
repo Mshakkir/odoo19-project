@@ -51,14 +51,7 @@
                                 <span t-esc="product.display_name"/>
                             </td>
                         </tr>
-<!--                        <tr>-->
-<!--                            <td>-->
-<!--                                <strong>UoM:</strong>-->
-<!--                            </td>-->
-<!--                            <td>-->
-<!--                                <span t-esc="product.uom_id.name"/>-->
-<!--                            </td>-->
-<!--                        </tr>-->
+
                     </table>
                 </div>
 

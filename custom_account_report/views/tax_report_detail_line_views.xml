@@ -6,10 +6,25 @@
         <field name="arch" type="xml">
             <list string="Tax Report Summary">
                 <field name="type"/>
-                <field name="tax_id" options="{'no_create': True}" />
-                <field name="base_amount"/>
+
+                <!-- Show tax name for regular lines -->
+                <field name="tax_id"
+                       options="{'no_create': True}"
+                       attrs="{'invisible':[('tax_name','in',['Total Sales','Total Purchases','Net VAT Due'])]}"/>
+
+                <!-- This displays Total Sales / Purchases / Net VAT rows -->
+                <field name="tax_name"/>
+
+                <field name="base_amount"
+                       attrs="{'invisible':[('tax_name','in',['Total Sales','Total Purchases','Net VAT Due'])]}"/>
+
                 <field name="tax_amount"/>
-                <button name="open_moves" type="object" string="Show Invoices"/>
+
+                <!-- Hide button for total rows -->
+                <button name="open_moves"
+                        type="object"
+                        string="Show Invoices"
+                        attrs="{'invisible':[('tax_name','in',['Total Sales','Total Purchases','Net VAT Due'])]}"/>
             </list>
         </field>
     </record>
@@ -19,27 +34,31 @@
         <field name="res_model">tax.report.detail.line</field>
         <field name="view_mode">list,form</field>
     </record>
-    <!-- 🔹 Net VAT Due as Separate Table -->
-<t t-set="total_sale_tax" t-value="sum([(l.get('tax') or 0) for l in lines.get('sale', [])])"/>
-<t t-set="total_purchase_tax" t-value="sum([(l.get('tax') or 0) for l in lines.get('purchase', [])])"/>
-<t t-set="net_vat_due" t-value="(total_sale_tax or 0) - (total_purchase_tax or 0)"/>
-
-<table class="table table-sm table-reports" style="margin-top:6px;">
-    <thead>
-        <tr align="left" style="font-weight:bold; border-top:2px solid #000;">
-            <th>Net VAT Due</th>
-            <th></th>
-            <th>TAX</th>
-        </tr>
-        <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#BBBCB6;">
-            <td>Net VAT Due (OR Claim) </td>
-            <td></td>
-            <td>
-            <span t-esc="net_vat_due"
-                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-            </td>
-        </tr>
-
-    </thead>
-</table>
 </odoo>
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <record id="view_tax_report_detail_list" model="ir.ui.view">-->
+<!--        <field name="name">tax.report.detail.list</field>-->
+<!--        <field name="model">tax.report.detail.line</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <list string="Tax Report Summary">-->
+<!--                <field name="type"/>-->
+<!--                <field name="tax_id" options="{'no_create': True}" />-->
+<!--                <field name="base_amount"/>-->
+<!--                <field name="tax_amount"/>-->
+<!--                <button name="open_moves" type="object" string="Show Invoices"/>-->
+<!--            </list>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    <record id="action_tax_report_detail_line" model="ir.actions.act_window">-->
+<!--        <field name="name">Tax Report Summary</field>-->
+<!--        <field name="res_model">tax.report.detail.line</field>-->
+<!--        <field name="view_mode">list,form</field>-->
+<!--    </record>-->
+
+<!--</odoo>-->

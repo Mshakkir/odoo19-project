@@ -9,42 +9,47 @@ class AccountTaxReportWizard(models.TransientModel):
     def compute_tax_summary(self):
         self.ensure_one()
         TaxLine = self.env['tax.report.detail.line']
-
-        # Clear previous lines
         self.detail_line_ids.unlink()
 
-        # Sales
-        moves = self.env['account.move'].search([
-            ('invoice_date', '>=', self.date_from),
-            ('invoice_date', '<=', self.date_to),
-            ('move_type', 'in', ['out_invoice', 'out_refund'])
-        ])
         tax_summary = {}
-        for move in moves:
-            for line in move.line_ids.tax_ids:
-                key = (line.id, 'sale')
-                if key not in tax_summary:
-                    tax_summary[key] = {'base': 0.0, 'tax': 0.0, 'moves': []}
-                tax_summary[key]['base'] += line.base
-                tax_summary[key]['tax'] += line.amount
-                tax_summary[key]['moves'].append(move.id)
 
-        # Purchases
-        moves = self.env['account.move'].search([
+        # Define date domain
+        domain = [
             ('invoice_date', '>=', self.date_from),
             ('invoice_date', '<=', self.date_to),
-            ('move_type', 'in', ['in_invoice', 'in_refund'])
-        ])
-        for move in moves:
-            for line in move.line_ids.tax_ids:
-                key = (line.id, 'purchase')
-                if key not in tax_summary:
-                    tax_summary[key] = {'base': 0.0, 'tax': 0.0, 'moves': []}
-                tax_summary[key]['base'] += line.base
-                tax_summary[key]['tax'] += line.amount
-                tax_summary[key]['moves'].append(move.id)
+            ('state', '=', 'posted')
+        ]
 
-        # Create summary lines
+        # 1️⃣ Sales
+        sale_moves = self.env['account.move'].search(domain + [('move_type', 'in', ['out_invoice', 'out_refund'])])
+        for move in sale_moves:
+            for line in move.invoice_line_ids:
+                for tax in line.tax_ids:
+                    key = (tax.id, 'sale')
+                    if key not in tax_summary:
+                        tax_summary[key] = {'base': 0.0, 'tax': 0.0, 'moves': []}
+                    # Compute base and tax from line
+                    base_amount = line.price_subtotal
+                    tax_amount = tax.amount / 100 * base_amount if tax.amount_type == 'percent' else tax.amount
+                    tax_summary[key]['base'] += base_amount
+                    tax_summary[key]['tax'] += tax_amount
+                    tax_summary[key]['moves'].append(move.id)
+
+        # 2️⃣ Purchases
+        purchase_moves = self.env['account.move'].search(domain + [('move_type', 'in', ['in_invoice', 'in_refund'])])
+        for move in purchase_moves:
+            for line in move.invoice_line_ids:
+                for tax in line.tax_ids:
+                    key = (tax.id, 'purchase')
+                    if key not in tax_summary:
+                        tax_summary[key] = {'base': 0.0, 'tax': 0.0, 'moves': []}
+                    base_amount = line.price_subtotal
+                    tax_amount = tax.amount / 100 * base_amount if tax.amount_type == 'percent' else tax.amount
+                    tax_summary[key]['base'] += base_amount
+                    tax_summary[key]['tax'] += tax_amount
+                    tax_summary[key]['moves'].append(move.id)
+
+        # 3️⃣ Create summary lines
         for (tax_id, type_), vals in tax_summary.items():
             TaxLine.create({
                 'wizard_id': self.id,

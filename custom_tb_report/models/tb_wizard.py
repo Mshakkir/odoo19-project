@@ -1,7 +1,7 @@
 from odoo import models, fields, api
 
 class TrialBalanceWizard(models.TransientModel):
-    _inherit = 'account.balance.report'
+    _name = 'trial.balance.wizard'
     _description = 'Trial Balance Wizard'
 
     date_from = fields.Date(required=True)

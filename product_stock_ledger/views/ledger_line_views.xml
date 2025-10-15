@@ -13,7 +13,7 @@
         <field name="issue_qty" string="Issue Qty" widget="sum"/>
         <field name="issue_rate" string="Rate" widget="sum"/>
         <field name="balance" string="Balance" widget="sum"/>
-        <field name="uom" string="Unit"/>
+        <field name="uom" string="Unit" invisible="0"/>
       </list>
     </field>
   </record>

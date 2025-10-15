@@ -1,57 +1,52 @@
 from odoo import models, fields, api
 
 class TrialBalanceWizard(models.TransientModel):
-    _inherit = 'account.trial.balance.report.wizard'  # inherits Odoo Mates’ wizard
+    _name = 'trial.balance.wizard'
+    _description = 'Trial Balance Wizard'
 
-    line_ids = fields.One2many('trial.balance.line', 'wizard_id', string='Trial Balance Lines')
+    date_from = fields.Date(required=True)
+    date_to = fields.Date(required=True)
+    # optional filters: journal_ids, account_type, etc.
 
-    def compute_trial_balance(self):
+    line_ids = fields.One2many('trial.balance.line', 'wizard_id', string='Lines')
+
+    def compute_tb(self):
         self.ensure_one()
-        TrialLine = self.env['trial.balance.line']
         self.line_ids.unlink()
-
-        # Search all accounts
-        accounts = self.env['account.account'].search([])
+        # For each account in chart of accounts:
+        accounts = self.env['account.account'].search([])  # you may filter
         for account in accounts:
-            # Compute balances
-            domain = [
-                ('account_id', '=', account.id),
-                ('date', '>=', self.date_from),
-                ('date', '<=', self.date_to),
-                ('move_id.state', '=', 'posted')
-            ]
-            move_lines = self.env['account.move.line'].search(domain)
-            debit = sum(move_lines.mapped('debit'))
-            credit = sum(move_lines.mapped('credit'))
-            opening_balance = self._get_opening_balance(account)
-            ending_balance = opening_balance + debit - credit
-
-            TrialLine.create({
+            # Get opening balance (before date_from)
+            opening = self._get_opening(account, self.date_from)
+            # Get debit/credit between date_from and date_to
+            move_lines = account.line_ids.filtered(
+                lambda l: l.date >= self.date_from and l.date <= self.date_to and l.move_id.state == 'posted'
+            )
+            total_debit = sum(move_lines.mapped('debit'))
+            total_credit = sum(move_lines.mapped('credit'))
+            ending = opening + total_debit - total_credit
+            self.env['trial.balance.line'].create({
                 'wizard_id': self.id,
                 'account_id': account.id,
-                'opening_balance': opening_balance,
-                'debit': debit,
-                'credit': credit,
-                'ending_balance': ending_balance,
+                'opening_balance': opening,
+                'debit': total_debit,
+                'credit': total_credit,
+                'ending_balance': ending,
             })
 
-    def _get_opening_balance(self, account):
-        domain = [
-            ('account_id', '=', account.id),
-            ('date', '<', self.date_from),
-            ('move_id.state', '=', 'posted')
-        ]
-        lines = self.env['account.move.line'].search(domain)
-        return sum(lines.mapped(lambda l: l.debit - l.credit))
-
-    def open_trial_balance_details(self):
-        self.compute_trial_balance()
+    def action_show_tb(self):
+        # compute then return window
+        self.compute_tb()
         return {
-            'name': 'Trial Balance Summary',
+            'name': 'Trial Balance',
             'type': 'ir.actions.act_window',
             'res_model': 'trial.balance.line',
             'view_mode': 'list,form',
             'target': 'current',
-            'context': {'default_wizard_id': self.id},
             'domain': [('wizard_id', '=', self.id)],
         }
+
+    def _get_opening(self, account, date_from):
+        # Sum all posted move lines before date_from
+        lines = account.line_ids.filtered(lambda l: l.date < date_from and l.move_id.state == 'posted')
+        return sum(lines.mapped(lambda l: l.debit - l.credit))

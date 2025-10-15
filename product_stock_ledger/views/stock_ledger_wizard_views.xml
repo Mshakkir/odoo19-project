@@ -23,7 +23,6 @@
                     <group string="Ledger Preview" attrs="{'invisible': [('line_ids','=',False)]}">
                         <field name="line_ids" nolabel="1">
                             <tree editable="false">
-                                <field name="date"/>
                                 <field name="voucher"/>
                                 <field name="particulars"/>
                                 <field name="move_type"/>

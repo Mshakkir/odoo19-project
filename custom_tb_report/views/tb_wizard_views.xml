@@ -1,16 +1,14 @@
 <!-- views/trial_balance_wizard_inherit.xml -->
 <odoo>
-    <record id="view_account_balance_report_inherit" model="ir.ui.view">
-        <field name="name">account.balance.report.inherit</field>
-        <field name="model">account.balance.report</field>
-        <field name="inherit_id" ref="accounting_pdf_reports.account_report_balance_view"/>
-        <field name="arch" type="xml">
-            <xpath expr="//footer/button[@name='print_report']" position="before">
-                <button name="action_show_tb"
-                        string="Show Trial Balance"
-                        type="object"
-                        class="btn-secondary"/>
-            </xpath>
-        </field>
-    </record>
+<record id="view_account_balance_report_inherit" model="ir.ui.view">
+    <field name="name">account.balance.report.inherit</field>
+    <field name="model">account.balance.report</field>
+    <field name="inherit_id" ref="accounting_pdf_reports.account_common_report_view"/>
+    <field name="arch" type="xml">
+        <xpath expr="//footer" position="inside">
+            <button name="action_show_tb" string="Show Trial Balance" type="object" class="oe_highlight"/>
+        </xpath>
+    </field>
+</record>
+
 </odoo>

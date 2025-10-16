@@ -26,36 +26,20 @@ class AccountTaxReportWizard(models.TransientModel):
 
         sequence = 10
 
-        # 1️⃣ Sales
+        # 1️⃣ Sales - Read directly from account.move.line (tax lines)
         sale_moves = self.env['account.move'].search(domain + [('move_type', 'in', ['out_invoice', 'out_refund'])])
         for move in sale_moves:
-            # Get tax from invoice lines
-            for line in move.invoice_line_ids:
-                for tax in line.tax_ids:
-                    key = (tax.id, 'sale')
-                    if key not in tax_summary:
-                        tax_summary[key] = {'base': 0.0, 'tax': 0.0, 'moves': [], 'sequence': sequence}
-                        sequence += 10
-                    base_amount = line.price_subtotal
-                    tax_amount = tax.amount / 100 * base_amount if tax.amount_type == 'percent' else tax.amount
-                    tax_summary[key]['base'] += base_amount
-                    tax_summary[key]['tax'] += tax_amount
-                    tax_summary[key]['moves'].append(move.id)
-
-            # IMPORTANT: Also get tax from move tax lines (for reverse charge and other special taxes)
-            for tax_line in move.line_ids.filtered(lambda l: l.tax_line_id):
+            for tax_line in move.line_ids.filtered(lambda l: l.tax_line_id and l.tax_line_id.type_tax_use == 'sale'):
                 tax = tax_line.tax_line_id
-                if tax.type_tax_use == 'sale':
-                    key = (tax.id, 'sale')
-                    if key not in tax_summary:
-                        tax_summary[key] = {'base': 0.0, 'tax': 0.0, 'moves': [], 'sequence': sequence}
-                        sequence += 10
-                    # Add the actual tax amount from the move line
-                    if move.id not in tax_summary[key]['moves']:
-                        tax_summary[key]['moves'].append(move.id)
-                    # Get base amount from tax_base_amount
-                    tax_summary[key]['base'] += abs(tax_line.tax_base_amount)
-                    tax_summary[key]['tax'] += abs(tax_line.balance)
+                key = (tax.id, 'sale')
+                if key not in tax_summary:
+                    tax_summary[key] = {'base': 0.0, 'tax': 0.0, 'moves': set(), 'sequence': sequence}
+                    sequence += 10
+
+                # Get base amount and tax amount from the actual posted amounts
+                tax_summary[key]['base'] += abs(tax_line.tax_base_amount)
+                tax_summary[key]['tax'] += abs(tax_line.balance)
+                tax_summary[key]['moves'].add(move.id)
 
         # Create sales tax lines
         for (tax_id, type_), vals in tax_summary.items():
@@ -67,7 +51,7 @@ class AccountTaxReportWizard(models.TransientModel):
                     'tax_name': self.env['account.tax'].browse(tax_id).name,
                     'base_amount': vals['base'],
                     'tax_amount': vals['tax'],
-                    'move_ids': [(6, 0, list(set(vals['moves'])))],  # Remove duplicates
+                    'move_ids': [(6, 0, list(vals['moves']))],
                     'is_summary_row': False,
                     'sequence': vals['sequence'],
                 })
@@ -86,36 +70,21 @@ class AccountTaxReportWizard(models.TransientModel):
         })
         sequence += 10
 
-        # 2️⃣ Purchases
+        # 2️⃣ Purchases - Read directly from account.move.line (tax lines)
         purchase_moves = self.env['account.move'].search(domain + [('move_type', 'in', ['in_invoice', 'in_refund'])])
         for move in purchase_moves:
-            # Get tax from invoice lines
-            for line in move.invoice_line_ids:
-                for tax in line.tax_ids:
-                    key = (tax.id, 'purchase')
-                    if key not in tax_summary:
-                        tax_summary[key] = {'base': 0.0, 'tax': 0.0, 'moves': [], 'sequence': sequence}
-                        sequence += 10
-                    base_amount = line.price_subtotal
-                    tax_amount = tax.amount / 100 * base_amount if tax.amount_type == 'percent' else tax.amount
-                    tax_summary[key]['base'] += base_amount
-                    tax_summary[key]['tax'] += tax_amount
-                    tax_summary[key]['moves'].append(move.id)
-
-            # IMPORTANT: Also get tax from move tax lines (for reverse charge and other special taxes)
-            for tax_line in move.line_ids.filtered(lambda l: l.tax_line_id):
+            for tax_line in move.line_ids.filtered(
+                    lambda l: l.tax_line_id and l.tax_line_id.type_tax_use == 'purchase'):
                 tax = tax_line.tax_line_id
-                if tax.type_tax_use == 'purchase':
-                    key = (tax.id, 'purchase')
-                    if key not in tax_summary:
-                        tax_summary[key] = {'base': 0.0, 'tax': 0.0, 'moves': [], 'sequence': sequence}
-                        sequence += 10
-                    # Add the actual tax amount from the move line
-                    if move.id not in tax_summary[key]['moves']:
-                        tax_summary[key]['moves'].append(move.id)
-                    # Get base amount from tax_base_amount
-                    tax_summary[key]['base'] += abs(tax_line.tax_base_amount)
-                    tax_summary[key]['tax'] += abs(tax_line.balance)
+                key = (tax.id, 'purchase')
+                if key not in tax_summary:
+                    tax_summary[key] = {'base': 0.0, 'tax': 0.0, 'moves': set(), 'sequence': sequence}
+                    sequence += 10
+
+                # Get base amount and tax amount from the actual posted amounts
+                tax_summary[key]['base'] += abs(tax_line.tax_base_amount)
+                tax_summary[key]['tax'] += abs(tax_line.balance)
+                tax_summary[key]['moves'].add(move.id)
 
         # Create purchase tax lines
         for (tax_id, type_), vals in tax_summary.items():
@@ -127,7 +96,7 @@ class AccountTaxReportWizard(models.TransientModel):
                     'tax_name': self.env['account.tax'].browse(tax_id).name,
                     'base_amount': vals['base'],
                     'tax_amount': vals['tax'],
-                    'move_ids': [(6, 0, list(set(vals['moves'])))],  # Remove duplicates
+                    'move_ids': [(6, 0, list(vals['moves']))],
                     'is_summary_row': False,
                     'sequence': vals['sequence'],
                 })

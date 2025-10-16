@@ -14,8 +14,8 @@
                 <field name="base_amount"/>
                 <field name="tax_amount"/>
                 <!-- Show Invoices button visible only when NOT summary AND there are moves -->
-<!--                <button name="open_moves" type="object" string="Show Invoices"-->
-<!--                        attrs="{'invisible': ['|', ('is_summary_row','=',True), ('move_ids','=',False)]}"/>-->
+                <button name="open_moves" type="object" string="Show Invoices"
+                        attrs="{'invisible': ['|', ('is_summary_row','=',True), ('move_ids','=',False)]}"/>
             </list>
         </field>
     </record>

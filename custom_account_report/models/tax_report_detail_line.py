@@ -71,3 +71,13 @@ class TaxReportDetailLine(models.TransientModel):
         """Mark rows that represent total summaries."""
         for line in self:
             line.is_summary_row = bool(line.tax_name in ['Total Sales', 'Total Purchases', 'Net VAT Due'])
+    @api.multi
+    def open_moves(self):
+        """Open the related journal entries (invoices)"""
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Invoices',
+            'view_mode': 'tree,form',
+            'res_model': 'account.move',
+            'domain': [('id', 'in', self.mapped('move_id').ids)],
+        }

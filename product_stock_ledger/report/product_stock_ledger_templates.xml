@@ -10,10 +10,10 @@
             <t t-set="lines" t-value="lines or []"/>
 
             <!-- Load PDF Assets -->
-            <t t-call-assets="web.report_assets_pdf" t-js="false"/>
+<!--            <t t-call-assets="web.report_assets_pdf" t-js="false"/>-->
 
             <!-- Custom CSS -->
-            <link rel="stylesheet" type="text/css" href="/product_stock_ledger/static/src/css/report_styles.css"/>
+<!--            <link rel="stylesheet" type="text/css" href="/product_stock_ledger/static/src/css/report_styles.css"/>-->
 
             <div class="page">
                 <!-- Header Section -->

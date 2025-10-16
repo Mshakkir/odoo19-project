@@ -4,7 +4,7 @@
         <field name="name">balance.sheet.line.tree</field>
         <field name="model">balance.sheet.line</field>
         <field name="arch" type="xml">
-            <list string="Balance Sheet Details" create="false" delete="false" editable="false">
+            <list string="Balance Sheet Details" create="false" delete="false">
                 <field name="account_id"/>
                 <field name="debit"/>
                 <field name="credit"/>

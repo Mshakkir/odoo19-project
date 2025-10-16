@@ -11,7 +11,6 @@
     "data": [
         "views/accounting_report_inherit_views.xml",
         "views/balance_sheet_line_views.xml",
-        "security/ir.model.access.csv",
     ],
     "installable": True,
     "application": False,

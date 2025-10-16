@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Tree View -->
     <record id="view_balance_sheet_line_tree" model="ir.ui.view">
         <field name="name">balance.sheet.line.tree</field>
         <field name="model">balance.sheet.line</field>
         <field name="arch" type="xml">
-            <list string="Balance Sheet Details" create="false" delete="false">
+            <tree string="Balance Sheet Details" create="false" delete="false">
                 <field name="account_id"/>
                 <field name="debit"/>
                 <field name="credit"/>
                 <field name="balance"/>
-                <button name="action_view_ledger" string="View Ledger" type="object" icon="fa-book"/>
-            </list>
+                <button name="action_view_ledger"
+                        string="View Ledger"
+                        type="object"
+                        icon="fa-book"
+                        class="btn-secondary"/>
+            </tree>
         </field>
     </record>
 
+    <!-- Form View -->
     <record id="view_balance_sheet_line_form" model="ir.ui.view">
         <field name="name">balance.sheet.line.form</field>
         <field name="model">balance.sheet.line</field>
@@ -27,11 +33,25 @@
                         <field name="balance" readonly="1"/>
                     </group>
                     <footer>
-                        <button string="View Ledger" name="action_view_ledger" type="object" class="btn-primary"/>
-                        <button string="Close" special="cancel" class="btn-secondary"/>
+                        <button name="action_view_ledger"
+                                string="View Ledger"
+                                type="object"
+                                class="btn-primary"/>
+                        <button string="Close"
+                                special="cancel"
+                                class="btn-secondary"/>
                     </footer>
                 </sheet>
             </form>
         </field>
+    </record>
+
+    <!-- Window Action (important for stability) -->
+    <record id="action_balance_sheet_line" model="ir.actions.act_window">
+        <field name="name">Balance Sheet Details</field>
+        <field name="res_model">balance.sheet.line</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_balance_sheet_line_tree"/>
+        <field name="target">current</field>
     </record>
 </odoo>

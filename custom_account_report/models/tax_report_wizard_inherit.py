@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 
+
 class AccountTaxReportWizard(models.TransientModel):
     _inherit = 'account.tax.report.wizard'
 
@@ -35,7 +36,13 @@ class AccountTaxReportWizard(models.TransientModel):
                         tax_summary[key] = {'base': 0.0, 'tax': 0.0, 'moves': [], 'sequence': sequence}
                         sequence += 10
                     base_amount = line.price_subtotal
-                    tax_amount = tax.amount / 100 * base_amount if tax.amount_type == 'percent' else tax.amount
+
+                    # Calculate actual tax from account.move.line (tax lines)
+                    tax_lines = move.line_ids.filtered(
+                        lambda l: l.tax_line_id.id == tax.id and not l.exclude_from_invoice_tab
+                    )
+                    tax_amount = sum(tax_lines.mapped('balance')) * (-1 if move.move_type == 'out_invoice' else 1)
+
                     tax_summary[key]['base'] += base_amount
                     tax_summary[key]['tax'] += tax_amount
                     tax_summary[key]['moves'].append(move.id)
@@ -79,7 +86,13 @@ class AccountTaxReportWizard(models.TransientModel):
                         tax_summary[key] = {'base': 0.0, 'tax': 0.0, 'moves': [], 'sequence': sequence}
                         sequence += 10
                     base_amount = line.price_subtotal
-                    tax_amount = tax.amount / 100 * base_amount if tax.amount_type == 'percent' else tax.amount
+
+                    # Calculate actual tax from account.move.line (tax lines)
+                    tax_lines = move.line_ids.filtered(
+                        lambda l: l.tax_line_id.id == tax.id and not l.exclude_from_invoice_tab
+                    )
+                    tax_amount = sum(tax_lines.mapped('balance')) * (1 if move.move_type == 'in_invoice' else -1)
+
                     tax_summary[key]['base'] += base_amount
                     tax_summary[key]['tax'] += tax_amount
                     tax_summary[key]['moves'].append(move.id)

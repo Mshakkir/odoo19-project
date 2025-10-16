@@ -7,7 +7,7 @@ class StockLedgerWizard(models.TransientModel):
     _description = "Product Stock Ledger Wizard"
 
     product_id = fields.Many2one('product.product', string='Product', required=True)
-    warehouse_id = fields.Many2one('stock.warehouse', string='Warehouse', required=False)
+    warehouse_id = fields.Many2one('stock.warehouse', string='Warehouse')
     date_from = fields.Datetime(string='Date From', required=True, default=fields.Datetime.now)
     date_to = fields.Datetime(string='Date To', required=True, default=fields.Datetime.now)
 
@@ -48,9 +48,9 @@ class StockLedgerWizard(models.TransientModel):
             ('date', '<=', date_to),
             ('state', '=', 'done'),
         ]
-        loc_ids = []
-        wh = False
 
+        wh = False
+        loc_ids = []
         if warehouse_id:
             wh = self.env['stock.warehouse'].browse(warehouse_id)
             if wh.view_location_id:
@@ -67,43 +67,68 @@ class StockLedgerWizard(models.TransientModel):
 
         moves = self.env['stock.move'].search(domain, order='date asc')
 
-        running = 0.0  # start balance from 0 (opening removed)
+        running = 0.0  # start balance from 0
 
         for mv in moves:
             qty = mv.product_uom_qty or 0.0
 
-            # Determine incoming/outgoing
-            incoming = False
+            # -------------------------
+            # Determine Move Type
+            # -------------------------
             if warehouse_id and wh.view_location_id:
                 dest_in_wh = mv.location_dest_id.id in loc_ids
                 src_in_wh = mv.location_id.id in loc_ids
-                incoming = dest_in_wh and not src_in_wh
+
+                if dest_in_wh and not src_in_wh:
+                    move_type = 'incoming'
+                elif src_in_wh and not dest_in_wh:
+                    move_type = 'outgoing'
+                else:
+                    move_type = 'internal'
             else:
-                incoming = (mv.location_dest_id.usage == 'internal' and mv.location_id.usage != 'internal')
+                if mv.location_dest_id.usage == 'internal' and mv.location_id.usage != 'internal':
+                    move_type = 'incoming'
+                elif mv.location_id.usage == 'internal' and mv.location_dest_id.usage != 'internal':
+                    move_type = 'outgoing'
+                else:
+                    move_type = 'internal'
 
-            rec_qty = qty if incoming else 0.0
-            issue_qty = qty if not incoming else 0.0
+            # -------------------------
+            # Quantities & Rates
+            # -------------------------
+            rec_qty = qty if move_type == 'incoming' else 0.0
+            issue_qty = qty if move_type == 'outgoing' else 0.0
 
-            # Rate
             rate = getattr(mv, 'price_unit', 0.0) or mv.product_id.standard_price or 0.0
 
-            if rec_qty:
+            if move_type == 'incoming':
                 running += rec_qty
-            else:
+            elif move_type == 'outgoing':
                 running -= issue_qty
 
-            # Build particulars
-            partner_name = mv.partner_id.name or (mv.picking_id.partner_id.name if mv.picking_id and mv.picking_id.partner_id else '')
+            # -------------------------
+            # Particulars / Partner Info
+            # -------------------------
+            partner_name = (
+                mv.partner_id.name
+                or (mv.picking_id.partner_id.name if mv.picking_id and mv.picking_id.partner_id else '')
+            )
             particulars = f"{partner_name} - {mv.location_id.complete_name} → {mv.location_dest_id.complete_name}"
 
-            # Create line
+            # -------------------------
+            # Create Ledger Line
+            # -------------------------
             self.env['product.stock.ledger.line'].create({
                 'wizard_id': self.id,
                 'product_id': product.id,
                 'date': mv.date,
                 'voucher': mv.reference or mv.name or '',
                 'particulars': particulars,
-                'type': mv.picking_type_id.name if mv.picking_type_id else 'Stock Move',
+                'type': (
+                    'Receipts' if move_type == 'incoming'
+                    else 'Delivery' if move_type == 'outgoing'
+                    else 'Internal Transfer'
+                ),
                 'rec_qty': rec_qty,
                 'rec_rate': rate if rec_qty else 0.0,
                 'issue_qty': issue_qty,
@@ -112,7 +137,9 @@ class StockLedgerWizard(models.TransientModel):
                 'uom': mv.product_uom.name if mv.product_uom else product.uom_id.name,
             })
 
-        # Open list view
+        # -------------------------
+        # Open Ledger Lines View
+        # -------------------------
         view = self.env.ref('product_stock_ledger.view_ledger_line_list')
         return {
             'name': _('Product Stock Ledger: %s') % (product.display_name,),
@@ -124,6 +151,7 @@ class StockLedgerWizard(models.TransientModel):
             'target': 'current',
             'context': {'create': False, 'edit': False, 'delete': False},
         }
+
 
 
 # from odoo import fields, models, api, _

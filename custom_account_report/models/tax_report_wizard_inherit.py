@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 
+
 class AccountTaxReportWizard(models.TransientModel):
     _inherit = 'account.tax.report.wizard'
 
@@ -28,6 +29,7 @@ class AccountTaxReportWizard(models.TransientModel):
         # 1️⃣ Sales
         sale_moves = self.env['account.move'].search(domain + [('move_type', 'in', ['out_invoice', 'out_refund'])])
         for move in sale_moves:
+            # Get tax from invoice lines
             for line in move.invoice_line_ids:
                 for tax in line.tax_ids:
                     key = (tax.id, 'sale')
@@ -40,6 +42,21 @@ class AccountTaxReportWizard(models.TransientModel):
                     tax_summary[key]['tax'] += tax_amount
                     tax_summary[key]['moves'].append(move.id)
 
+            # IMPORTANT: Also get tax from move tax lines (for reverse charge and other special taxes)
+            for tax_line in move.line_ids.filtered(lambda l: l.tax_line_id):
+                tax = tax_line.tax_line_id
+                if tax.type_tax_use == 'sale':
+                    key = (tax.id, 'sale')
+                    if key not in tax_summary:
+                        tax_summary[key] = {'base': 0.0, 'tax': 0.0, 'moves': [], 'sequence': sequence}
+                        sequence += 10
+                    # Add the actual tax amount from the move line
+                    if move.id not in tax_summary[key]['moves']:
+                        tax_summary[key]['moves'].append(move.id)
+                    # Get base amount from tax_base_amount
+                    tax_summary[key]['base'] += abs(tax_line.tax_base_amount)
+                    tax_summary[key]['tax'] += abs(tax_line.balance)
+
         # Create sales tax lines
         for (tax_id, type_), vals in tax_summary.items():
             if type_ == 'sale':
@@ -50,7 +67,7 @@ class AccountTaxReportWizard(models.TransientModel):
                     'tax_name': self.env['account.tax'].browse(tax_id).name,
                     'base_amount': vals['base'],
                     'tax_amount': vals['tax'],
-                    'move_ids': [(6, 0, vals['moves'])],
+                    'move_ids': [(6, 0, list(set(vals['moves'])))],  # Remove duplicates
                     'is_summary_row': False,
                     'sequence': vals['sequence'],
                 })
@@ -72,6 +89,7 @@ class AccountTaxReportWizard(models.TransientModel):
         # 2️⃣ Purchases
         purchase_moves = self.env['account.move'].search(domain + [('move_type', 'in', ['in_invoice', 'in_refund'])])
         for move in purchase_moves:
+            # Get tax from invoice lines
             for line in move.invoice_line_ids:
                 for tax in line.tax_ids:
                     key = (tax.id, 'purchase')
@@ -84,6 +102,21 @@ class AccountTaxReportWizard(models.TransientModel):
                     tax_summary[key]['tax'] += tax_amount
                     tax_summary[key]['moves'].append(move.id)
 
+            # IMPORTANT: Also get tax from move tax lines (for reverse charge and other special taxes)
+            for tax_line in move.line_ids.filtered(lambda l: l.tax_line_id):
+                tax = tax_line.tax_line_id
+                if tax.type_tax_use == 'purchase':
+                    key = (tax.id, 'purchase')
+                    if key not in tax_summary:
+                        tax_summary[key] = {'base': 0.0, 'tax': 0.0, 'moves': [], 'sequence': sequence}
+                        sequence += 10
+                    # Add the actual tax amount from the move line
+                    if move.id not in tax_summary[key]['moves']:
+                        tax_summary[key]['moves'].append(move.id)
+                    # Get base amount from tax_base_amount
+                    tax_summary[key]['base'] += abs(tax_line.tax_base_amount)
+                    tax_summary[key]['tax'] += abs(tax_line.balance)
+
         # Create purchase tax lines
         for (tax_id, type_), vals in tax_summary.items():
             if type_ == 'purchase':
@@ -94,7 +127,7 @@ class AccountTaxReportWizard(models.TransientModel):
                     'tax_name': self.env['account.tax'].browse(tax_id).name,
                     'base_amount': vals['base'],
                     'tax_amount': vals['tax'],
-                    'move_ids': [(6, 0, vals['moves'])],
+                    'move_ids': [(6, 0, list(set(vals['moves'])))],  # Remove duplicates
                     'is_summary_row': False,
                     'sequence': vals['sequence'],
                 })
@@ -118,7 +151,7 @@ class AccountTaxReportWizard(models.TransientModel):
         TaxLine.create({
             'wizard_id': self.id,
             'tax_name': 'Net VAT Due',
-            'base_amount': 0.0,  # No base amount for Net VAT Due
+            'base_amount': 0.0,
             'tax_amount': net_vat_due,
             'is_summary_row': True,
             'sequence': sequence,

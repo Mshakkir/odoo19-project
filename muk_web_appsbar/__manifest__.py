@@ -1,5 +1,5 @@
 {
-    'name': 'MuK AppsBar', 
+    'name': 'MuK AppsBar',
     'summary': 'Adds a sidebar to the main screen',
     'description': '''
         This module adds a sidebar to the main screen. The sidebar has a list
@@ -7,7 +7,7 @@
     ''',
     'version': '19.0.1.1.0',
     'category': 'Tools/UI',
-    'license': 'LGPL-3', 
+    'license': 'LGPL-3',
     'author': 'MuK IT',
     'website': 'http://www.mukit.at',
     'live_test_url': 'https://my.mukit.at/r/f6m',
@@ -40,8 +40,8 @@
         'web.assets_backend': [
             (
                 'after',
-                'web/static/src/webclient/webclient.',
-                'muk_web_appsbar/static/src/webclient/webclient.',
+                'web/static/src/webclient/webclient.js',
+                'muk_web_appsbar/static/src/webclient/webclient.js',
             ),
             (
                 'after',

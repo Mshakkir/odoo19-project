@@ -5,7 +5,14 @@ from odoo.exceptions import UserError
 class BalanceSheetLine(models.TransientModel):
     _name = 'balance.sheet.line'
     _description = 'Balance Sheet Line'
+    name = fields.Char(string="Name")
+    balance = fields.Monetary(string="Balance", currency_field='currency_id')
 
+    currency_id = fields.Many2one(
+        'res.currency',
+        string='Currency',
+        default=lambda self: self.env.company.currency_id,
+    )
     wizard_id = fields.Many2one('accounting.report', string='Wizard', ondelete='cascade')
     account_id = fields.Many2one('account.account', string='Account', required=True)
     debit = fields.Monetary(string='Debit', currency_field='company_currency_id', digits=(16,2))

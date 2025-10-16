@@ -85,36 +85,21 @@ class AccountTaxReportWizard(models.TransientModel):
                     tax_summary[key]['moves'].append(move.id)
 
         # Create purchase tax lines
-        # for (tax_id, type_), vals in tax_summary.items():
-        #     if type_ == 'purchase':
-        #         TaxLine.create({
-        #             'wizard_id': self.id,
-        #             'type': type_,
-        #             'tax_id': tax_id,
-        #             'tax_name': self.env['account.tax'].browse(tax_id).name,
-        #             'base_amount': vals['base'],
-        #             'tax_amount': vals['tax'],
-        #             'move_ids': [(6, 0, vals['moves'])],
-        #             'is_summary_row': False,
-        #             'sequence': vals['sequence'],
-        #         })
-        #         total_purchase_base += vals['base']
-        #         total_purchase_tax += vals['tax']
-        for (tax_id, tax_type), vals in sorted(tax_summary.items(), key=lambda x: x[1]['sequence']):
-            if tax_type == 'purchase':
+        for (tax_id, type_), vals in tax_summary.items():
+            if type_ == 'purchase':
                 TaxLine.create({
                     'wizard_id': self.id,
-                    'type': tax_type,
+                    'type': type_,
                     'tax_id': tax_id,
-                    'tax_name': vals['tax_name'],
-                    'base_amount': vals['base_amount'],
-                    'tax_amount': vals['tax_amount'],
-                    'move_ids': [(6, 0, list(vals['moves']))],
+                    'tax_name': self.env['account.tax'].browse(tax_id).name,
+                    'base_amount': vals['base'],
+                    'tax_amount': vals['tax'],
+                    'move_ids': [(6, 0, vals['moves'])],
                     'is_summary_row': False,
                     'sequence': vals['sequence'],
                 })
-                total_purchase_base += vals['base_amount']
-                total_purchase_tax += vals['tax_amount']
+                total_purchase_base += vals['base']
+                total_purchase_tax += vals['tax']
 
         # Add Total Purchases Summary Row
         TaxLine.create({

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_balance_sheet_line_tree" model="ir.ui.view">
+        <field name="name">balance.sheet.line.tree</field>
+        <field name="model">balance.sheet.line</field>
+        <field name="arch" type="xml">
+            <tree string="Balance Sheet Details" create="false" delete="false" editable="false">
+                <field name="account_id"/>
+                <field name="debit"/>
+                <field name="credit"/>
+                <field name="balance"/>
+                <button name="action_view_ledger" string="View Ledger" type="object" icon="fa-book"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_balance_sheet_line_form" model="ir.ui.view">
+        <field name="name">balance.sheet.line.form</field>
+        <field name="model">balance.sheet.line</field>
+        <field name="arch" type="xml">
+            <form string="Balance Sheet Line" create="false" delete="false">
+                <sheet>
+                    <group>
+                        <field name="account_id" readonly="1"/>
+                        <field name="debit" readonly="1"/>
+                        <field name="credit" readonly="1"/>
+                        <field name="balance" readonly="1"/>
+                    </group>
+                    <footer>
+                        <button string="View Ledger" name="action_view_ledger" type="object" class="btn-primary"/>
+                        <button string="Close" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

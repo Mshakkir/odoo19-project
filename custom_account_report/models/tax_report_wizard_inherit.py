@@ -39,7 +39,7 @@ class AccountTaxReportWizard(models.TransientModel):
 
                     # Calculate actual tax from account.move.line (tax lines)
                     tax_lines = move.line_ids.filtered(
-                        lambda l: l.tax_line_id.id == tax.id and not l.exclude_from_invoice_tab
+                        lambda l: l.tax_line_id.id == tax.id and l.display_type == 'tax'
                     )
                     tax_amount = sum(tax_lines.mapped('balance')) * (-1 if move.move_type == 'out_invoice' else 1)
 

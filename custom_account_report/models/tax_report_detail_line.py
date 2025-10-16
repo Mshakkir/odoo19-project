@@ -29,7 +29,6 @@ class TaxReportDetailLine(models.TransientModel):
             line.is_summary_row = line.tax_name in ['Total Sales', 'Total Purchases', 'Net VAT Due']
 
     def open_moves(self):
-        """Open invoices related to this tax line"""
         self.ensure_one()
         return {
             'name': 'Invoices for Tax',
@@ -40,3 +39,14 @@ class TaxReportDetailLine(models.TransientModel):
             'target': 'current',
         }
 
+    # def open_moves(self):
+    #     """Open invoices related to this tax line"""
+    #     self.ensure_one()
+    #     return {
+    #         'name': 'Invoices for Tax',
+    #         'type': 'ir.actions.act_window',
+    #         'res_model': 'account.move',
+    #         'view_mode': 'list,form',
+    #         'domain': [('id', 'in', self.move_ids.ids)],
+    #         'target': 'current',
+    #     }

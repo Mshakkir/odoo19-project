@@ -4,13 +4,13 @@
         <field name="name">balance.sheet.line.tree</field>
         <field name="model">balance.sheet.line</field>
         <field name="arch" type="xml">
-            <tree string="Balance Sheet Details" create="false" delete="false" editable="false">
+            <list string="Balance Sheet Details" create="false" delete="false" editable="false">
                 <field name="account_id"/>
                 <field name="debit"/>
                 <field name="credit"/>
                 <field name="balance"/>
                 <button name="action_view_ledger" string="View Ledger" type="object" icon="fa-book"/>
-            </tree>
+            </list>
         </field>
     </record>
 

@@ -70,19 +70,34 @@ class AccountTaxReportWizard(models.TransientModel):
         sequence += 10
 
         # 2️⃣ Purchases
-        purchase_moves = self.env['account.move'].search(domain + [('move_type', 'in', ['in_invoice', 'in_refund'])])
-        for move in purchase_moves:
-            for line in move.invoice_line_ids:
-                for tax in line.tax_ids:
-                    key = (tax.id, 'purchase')
-                    if key not in tax_summary:
-                        tax_summary[key] = {'base': 0.0, 'tax': 0.0, 'moves': [], 'sequence': sequence}
-                        sequence += 10
-                    base_amount = line.price_subtotal
-                    tax_amount = tax.amount / 100 * base_amount if tax.amount_type == 'percent' else tax.amount
-                    tax_summary[key]['base'] += base_amount
-                    tax_summary[key]['tax'] += tax_amount
-                    tax_summary[key]['moves'].append(move.id)
+        # purchase_moves = self.env['account.move'].search(domain + [('move_type', 'in', ['in_invoice', 'in_refund'])])
+        # for move in purchase_moves:
+        #     for line in move.invoice_line_ids:
+        #         for tax in line.tax_ids:
+        #             key = (tax.id, 'purchase')
+        #             if key not in tax_summary:
+        #                 tax_summary[key] = {'base': 0.0, 'tax': 0.0, 'moves': [], 'sequence': sequence}
+        #                 sequence += 10
+        #             base_amount = line.price_subtotal
+        #             tax_amount = tax.amount / 100 * base_amount if tax.amount_type == 'percent' else tax.amount
+        #             tax_summary[key]['base'] += base_amount
+        #             tax_summary[key]['tax'] += tax_amount
+        #             tax_summary[key]['moves'].append(move.id)
+        for (tax_id, tax_type), vals in sorted(tax_summary.items(), key=lambda x: x[1]['sequence']):
+            if tax_type == 'purchase':
+                TaxLine.create({
+                    'wizard_id': self.id,
+                    'type': tax_type,
+                    'tax_id': tax_id,
+                    'tax_name': vals['tax_name'],
+                    'base_amount': vals['base_amount'],
+                    'tax_amount': vals['tax_amount'],
+                    'move_ids': [(6, 0, list(vals['moves']))],
+                    'is_summary_row': False,
+                    'sequence': vals['sequence'],
+                })
+                total_purchase_base += vals['base_amount']
+                total_purchase_tax += vals['tax_amount']
 
         # Create purchase tax lines
         for (tax_id, type_), vals in tax_summary.items():

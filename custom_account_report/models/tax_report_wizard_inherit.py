@@ -89,7 +89,7 @@ class AccountTaxReportWizard(models.TransientModel):
 
                     # Calculate actual tax from account.move.line (tax lines)
                     tax_lines = move.line_ids.filtered(
-                        lambda l: l.tax_line_id.id == tax.id and not l.exclude_from_invoice_tab
+                        lambda l: l.tax_line_id.id == tax.id and l.display_type == 'tax'
                     )
                     tax_amount = sum(tax_lines.mapped('balance')) * (1 if move.move_type == 'in_invoice' else -1)
 
@@ -131,7 +131,7 @@ class AccountTaxReportWizard(models.TransientModel):
         TaxLine.create({
             'wizard_id': self.id,
             'tax_name': 'Net VAT Due',
-            'base_amount': 0.0,  # No base amount for Net VAT Due
+            'base_amount': 0.0,
             'tax_amount': net_vat_due,
             'is_summary_row': True,
             'sequence': sequence,

@@ -6,63 +6,131 @@ class AccountTaxReportWizard(models.TransientModel):
 
     detail_line_ids = fields.One2many('tax.report.detail.line', 'wizard_id', string='Tax Summary Lines')
 
-    def compute_tax_summary(self):
-        self.ensure_one()
-        TaxLine = self.env['tax.report.detail.line']
-        self.detail_line_ids.unlink()
+    def _sql_from_amls_one(self):
+        """Get tax amounts from tax lines"""
+        sql = """SELECT "account_move_line".tax_line_id, COALESCE(SUM("account_move_line".debit-"account_move_line".credit), 0)
+                    FROM %s
+                    WHERE %s AND "account_move_line".tax_line_id IS NOT NULL
+                    GROUP BY "account_move_line".tax_line_id"""
+        return sql
 
-        tax_summary = {}
-        total_sales_base = 0.0
-        total_sales_tax = 0.0
-        total_purchase_base = 0.0
-        total_purchase_tax = 0.0
+    def _sql_from_amls_two(self):
+        """Get base amounts from invoice lines with taxes"""
+        sql = """SELECT r.account_tax_id, COALESCE(SUM("account_move_line".debit-"account_move_line".credit), 0)
+                 FROM %s
+                 INNER JOIN account_move_line_account_tax_rel r ON ("account_move_line".id = r.account_move_line_id)
+                 INNER JOIN account_tax t ON (r.account_tax_id = t.id)
+                 WHERE %s GROUP BY r.account_tax_id"""
+        return sql
 
-        # Define date domain
+    def _get_move_ids_for_tax(self, tax_id, tax_type):
+        """Get move IDs for a specific tax"""
         domain = [
             ('invoice_date', '>=', self.date_from),
             ('invoice_date', '<=', self.date_to),
             ('state', '=', 'posted')
         ]
 
+        if tax_type == 'sale':
+            domain.append(('move_type', 'in', ['out_invoice', 'out_refund']))
+        else:
+            domain.append(('move_type', 'in', ['in_invoice', 'in_refund']))
+
+        moves = self.env['account.move'].search(domain)
+
+        # Filter moves that have this tax
+        tax_moves = moves.filtered(
+            lambda m: tax_id in m.invoice_line_ids.mapped('tax_ids').ids
+        )
+
+        return tax_moves.ids
+
+    def compute_tax_summary(self):
+        self.ensure_one()
+        TaxLine = self.env['tax.report.detail.line']
+        self.detail_line_ids.unlink()
+
+        # Prepare taxes dictionary
+        taxes = {}
+        for tax in self.env['account.tax'].search([('type_tax_use', '!=', 'none')]):
+            if tax.children_tax_ids:
+                for child in tax.children_tax_ids:
+                    if child.type_tax_use != 'none':
+                        continue
+                    taxes[child.id] = {
+                        'tax': 0,
+                        'net': 0,
+                        'name': child.name,
+                        'type': tax.type_tax_use,
+                        'tax_id': child.id
+                    }
+            else:
+                taxes[tax.id] = {
+                    'tax': 0,
+                    'net': 0,
+                    'name': tax.name,
+                    'type': tax.type_tax_use,
+                    'tax_id': tax.id
+                }
+
+        # Use the same SQL logic as PDF report
+        context = self.env.context.copy()
+        context.update({
+            'date_from': self.date_from,
+            'date_to': self.date_to,
+            'state': 'posted',
+            'strict_range': True
+        })
+
+        # Compute tax amounts (from tax lines)
+        sql = self._sql_from_amls_one()
+        tables, where_clause, where_params = self.env['account.move.line'].with_context(context)._query_get()
+        query = sql % (tables, where_clause)
+        self.env.cr.execute(query, where_params)
+        results = self.env.cr.fetchall()
+        for result in results:
+            if result[0] in taxes:
+                taxes[result[0]]['tax'] = abs(result[1])
+
+        # Compute net/base amounts (from invoice lines)
+        sql2 = self._sql_from_amls_two()
+        query = sql2 % (tables, where_clause)
+        self.env.cr.execute(query, where_params)
+        results = self.env.cr.fetchall()
+        for result in results:
+            if result[0] in taxes:
+                taxes[result[0]]['net'] = abs(result[1])
+
+        # Group by type
+        groups = {'sale': [], 'purchase': []}
+        for tax in taxes.values():
+            if tax['tax'] or tax['net']:
+                groups[tax['type']].append(tax)
+
+        # Create detail lines
         sequence = 10
+        total_sales_base = 0.0
+        total_sales_tax = 0.0
+        total_purchase_base = 0.0
+        total_purchase_tax = 0.0
 
-        # 1️⃣ Sales
-        sale_moves = self.env['account.move'].search(domain + [('move_type', 'in', ['out_invoice', 'out_refund'])])
-        for move in sale_moves:
-            for line in move.invoice_line_ids:
-                for tax in line.tax_ids:
-                    key = (tax.id, 'sale')
-                    if key not in tax_summary:
-                        tax_summary[key] = {'base': 0.0, 'tax': 0.0, 'moves': [], 'sequence': sequence}
-                        sequence += 10
-                    base_amount = line.price_subtotal
-
-                    # Calculate actual tax from account.move.line (tax lines)
-                    tax_lines = move.line_ids.filtered(
-                        lambda l: l.tax_line_id.id == tax.id and l.display_type == 'tax'
-                    )
-                    tax_amount = sum(tax_lines.mapped('balance')) * (-1 if move.move_type == 'out_invoice' else 1)
-
-                    tax_summary[key]['base'] += base_amount
-                    tax_summary[key]['tax'] += tax_amount
-                    tax_summary[key]['moves'].append(move.id)
-
-        # Create sales tax lines
-        for (tax_id, type_), vals in tax_summary.items():
-            if type_ == 'sale':
-                TaxLine.create({
-                    'wizard_id': self.id,
-                    'type': type_,
-                    'tax_id': tax_id,
-                    'tax_name': self.env['account.tax'].browse(tax_id).name,
-                    'base_amount': vals['base'],
-                    'tax_amount': vals['tax'],
-                    'move_ids': [(6, 0, vals['moves'])],
-                    'is_summary_row': False,
-                    'sequence': vals['sequence'],
-                })
-                total_sales_base += vals['base']
-                total_sales_tax += vals['tax']
+        # Create Sales lines
+        for tax in groups['sale']:
+            move_ids = self._get_move_ids_for_tax(tax['tax_id'], 'sale')
+            TaxLine.create({
+                'wizard_id': self.id,
+                'type': 'sale',
+                'tax_id': tax['tax_id'],
+                'tax_name': tax['name'],
+                'base_amount': tax['net'],
+                'tax_amount': tax['tax'],
+                'move_ids': [(6, 0, move_ids)],
+                'is_summary_row': False,
+                'sequence': sequence,
+            })
+            total_sales_base += tax['net']
+            total_sales_tax += tax['tax']
+            sequence += 10
 
         # Add Total Sales Summary Row
         TaxLine.create({
@@ -76,43 +144,23 @@ class AccountTaxReportWizard(models.TransientModel):
         })
         sequence += 10
 
-        # 2️⃣ Purchases
-        purchase_moves = self.env['account.move'].search(domain + [('move_type', 'in', ['in_invoice', 'in_refund'])])
-        for move in purchase_moves:
-            for line in move.invoice_line_ids:
-                for tax in line.tax_ids:
-                    key = (tax.id, 'purchase')
-                    if key not in tax_summary:
-                        tax_summary[key] = {'base': 0.0, 'tax': 0.0, 'moves': [], 'sequence': sequence}
-                        sequence += 10
-                    base_amount = line.price_subtotal
-
-                    # Calculate actual tax from account.move.line (tax lines)
-                    tax_lines = move.line_ids.filtered(
-                        lambda l: l.tax_line_id.id == tax.id and l.display_type == 'tax'
-                    )
-                    tax_amount = sum(tax_lines.mapped('balance')) * (1 if move.move_type == 'in_invoice' else -1)
-
-                    tax_summary[key]['base'] += base_amount
-                    tax_summary[key]['tax'] += tax_amount
-                    tax_summary[key]['moves'].append(move.id)
-
-        # Create purchase tax lines
-        for (tax_id, type_), vals in tax_summary.items():
-            if type_ == 'purchase':
-                TaxLine.create({
-                    'wizard_id': self.id,
-                    'type': type_,
-                    'tax_id': tax_id,
-                    'tax_name': self.env['account.tax'].browse(tax_id).name,
-                    'base_amount': vals['base'],
-                    'tax_amount': vals['tax'],
-                    'move_ids': [(6, 0, vals['moves'])],
-                    'is_summary_row': False,
-                    'sequence': vals['sequence'],
-                })
-                total_purchase_base += vals['base']
-                total_purchase_tax += vals['tax']
+        # Create Purchase lines
+        for tax in groups['purchase']:
+            move_ids = self._get_move_ids_for_tax(tax['tax_id'], 'purchase')
+            TaxLine.create({
+                'wizard_id': self.id,
+                'type': 'purchase',
+                'tax_id': tax['tax_id'],
+                'tax_name': tax['name'],
+                'base_amount': tax['net'],
+                'tax_amount': tax['tax'],
+                'move_ids': [(6, 0, move_ids)],
+                'is_summary_row': False,
+                'sequence': sequence,
+            })
+            total_purchase_base += tax['net']
+            total_purchase_tax += tax['tax']
+            sequence += 10
 
         # Add Total Purchases Summary Row
         TaxLine.create({

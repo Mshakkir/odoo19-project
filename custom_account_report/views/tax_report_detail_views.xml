@@ -49,7 +49,7 @@
                 <field name="tax_id" options="{'no_create': True}"/>
                 <field name="base_amount"/>
                 <field name="tax_amount"/>
-                <button name="open_moves" type="object" string="Show Invoices"/>
+<!--                <button name="open_moves" type="object" string="Show Invoices"/>-->
 
             </list>
         </field>

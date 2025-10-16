@@ -11,35 +11,78 @@ class AccountTaxReportWizard(models.TransientModel):
         TaxLine = self.env['tax.report.detail.line']
         self.detail_line_ids.unlink()
 
-        # Get the same data that the PDF report uses
-        report_data = self._get_tax_report_data()
-
         sequence = 10
         total_sales_base = 0.0
         total_sales_tax = 0.0
         total_purchase_base = 0.0
         total_purchase_tax = 0.0
 
-        # Process Sales
-        if 'sale_taxes' in report_data:
-            for tax_data in report_data['sale_taxes']:
-                # Get the move IDs for this tax
-                move_ids = self._get_moves_for_tax(tax_data['tax_id'], 'sale')
+        # Domain for account.move.line
+        domain = [
+            ('company_id', '=', self.company_id.id),
+            ('date', '>=', self.date_from),
+            ('date', '<=', self.date_to),
+            ('parent_state', '=', 'posted'),
+            ('tax_line_id', '!=', False),
+        ]
 
+        # Get all tax lines
+        tax_lines = self.env['account.move.line'].search(domain)
+
+        # Group by tax
+        tax_summary = {}
+        for line in tax_lines:
+            tax = line.tax_line_id
+            if not tax:
+                continue
+
+            tax_type = tax.type_tax_use
+            if tax_type not in ['sale', 'purchase']:
+                continue
+
+            key = (tax.id, tax_type)
+            if key not in tax_summary:
+                tax_summary[key] = {
+                    'tax_id': tax.id,
+                    'tax_name': tax.name,
+                    'type': tax_type,
+                    'base_amount': 0.0,
+                    'tax_amount': 0.0,
+                    'moves': set(),
+                    'sequence': sequence,
+                }
+                sequence += 10
+
+            # Add base and tax amounts (use absolute values and check credit/debit)
+            tax_summary[key]['base_amount'] += abs(line.tax_base_amount)
+
+            # For tax amount: credit means incoming (sales), debit means outgoing (purchases)
+            if tax_type == 'sale':
+                # Sales tax is typically in credit
+                tax_summary[key]['tax_amount'] += line.credit - line.debit
+            else:  # purchase
+                # Purchase tax is typically in debit
+                tax_summary[key]['tax_amount'] += line.debit - line.credit
+
+            # Track moves
+            tax_summary[key]['moves'].add(line.move_id.id)
+
+        # Create Sales tax lines
+        for (tax_id, tax_type), vals in sorted(tax_summary.items(), key=lambda x: x[1]['sequence']):
+            if tax_type == 'sale':
                 TaxLine.create({
                     'wizard_id': self.id,
-                    'type': 'sale',
-                    'tax_id': tax_data['tax_id'],
-                    'tax_name': tax_data['tax_name'],
-                    'base_amount': tax_data.get('base_amount', 0.0),
-                    'tax_amount': tax_data.get('tax_amount', 0.0),
-                    'move_ids': [(6, 0, move_ids)],
+                    'type': tax_type,
+                    'tax_id': tax_id,
+                    'tax_name': vals['tax_name'],
+                    'base_amount': vals['base_amount'],
+                    'tax_amount': vals['tax_amount'],
+                    'move_ids': [(6, 0, list(vals['moves']))],
                     'is_summary_row': False,
-                    'sequence': sequence,
+                    'sequence': vals['sequence'],
                 })
-                total_sales_base += tax_data.get('base_amount', 0.0)
-                total_sales_tax += tax_data.get('tax_amount', 0.0)
-                sequence += 10
+                total_sales_base += vals['base_amount']
+                total_sales_tax += vals['tax_amount']
 
         # Add Total Sales Summary Row
         TaxLine.create({
@@ -53,26 +96,22 @@ class AccountTaxReportWizard(models.TransientModel):
         })
         sequence += 10
 
-        # Process Purchases
-        if 'purchase_taxes' in report_data:
-            for tax_data in report_data['purchase_taxes']:
-                # Get the move IDs for this tax
-                move_ids = self._get_moves_for_tax(tax_data['tax_id'], 'purchase')
-
+        # Create Purchase tax lines
+        for (tax_id, tax_type), vals in sorted(tax_summary.items(), key=lambda x: x[1]['sequence']):
+            if tax_type == 'purchase':
                 TaxLine.create({
                     'wizard_id': self.id,
-                    'type': 'purchase',
-                    'tax_id': tax_data['tax_id'],
-                    'tax_name': tax_data['tax_name'],
-                    'base_amount': tax_data.get('base_amount', 0.0),
-                    'tax_amount': tax_data.get('tax_amount', 0.0),
-                    'move_ids': [(6, 0, move_ids)],
+                    'type': tax_type,
+                    'tax_id': tax_id,
+                    'tax_name': vals['tax_name'],
+                    'base_amount': vals['base_amount'],
+                    'tax_amount': vals['tax_amount'],
+                    'move_ids': [(6, 0, list(vals['moves']))],
                     'is_summary_row': False,
-                    'sequence': sequence,
+                    'sequence': vals['sequence'],
                 })
-                total_purchase_base += tax_data.get('base_amount', 0.0)
-                total_purchase_tax += tax_data.get('tax_amount', 0.0)
-                sequence += 10
+                total_purchase_base += vals['base_amount']
+                total_purchase_tax += vals['tax_amount']
 
         # Add Total Purchases Summary Row
         TaxLine.create({
@@ -87,6 +126,7 @@ class AccountTaxReportWizard(models.TransientModel):
         sequence += 10
 
         # Add Net VAT Due Summary Row
+        # Net VAT Due = Total Sales Tax - Total Purchase Tax
         net_vat_due = total_sales_tax - total_purchase_tax
         TaxLine.create({
             'wizard_id': self.id,
@@ -96,98 +136,6 @@ class AccountTaxReportWizard(models.TransientModel):
             'is_summary_row': True,
             'sequence': sequence,
         })
-
-    def _get_tax_report_data(self):
-        """Get the same tax data that the PDF report uses"""
-        self.ensure_one()
-
-        # Use the existing check_report method's logic
-        # This is the same method that generates the PDF
-        data = {
-            'date_from': self.date_from,
-            'date_to': self.date_to,
-            'company_id': self.company_id.id,
-        }
-
-        # Get tax data using Odoo's tax report engine
-        taxes_data = self._compute_taxes_data()
-
-        return taxes_data
-
-    def _compute_taxes_data(self):
-        """Compute tax data the same way as the PDF report"""
-        self.ensure_one()
-
-        sale_taxes = []
-        purchase_taxes = []
-
-        domain = [
-            ('company_id', '=', self.company_id.id),
-            ('date', '>=', self.date_from),
-            ('date', '<=', self.date_to),
-            ('parent_state', '=', 'posted'),
-        ]
-
-        # Get all tax lines from account.move.line
-        tax_lines = self.env['account.move.line'].search(domain + [('tax_line_id', '!=', False)])
-
-        # Group by tax
-        tax_summary = {}
-        for line in tax_lines:
-            tax = line.tax_line_id
-            if not tax:
-                continue
-
-            key = tax.id
-            if key not in tax_summary:
-                tax_summary[key] = {
-                    'tax_id': tax.id,
-                    'tax_name': tax.name,
-                    'type': tax.type_tax_use,
-                    'base_amount': 0.0,
-                    'tax_amount': 0.0,
-                }
-
-            # Sum up base and tax amounts
-            tax_summary[key]['base_amount'] += abs(line.tax_base_amount)
-            tax_summary[key]['tax_amount'] += abs(line.balance) if line.debit > 0 else -abs(line.balance)
-
-        # Separate into sale and purchase
-        for tax_id, data in tax_summary.items():
-            if data['type'] == 'sale':
-                sale_taxes.append(data)
-            elif data['type'] == 'purchase':
-                purchase_taxes.append(data)
-
-        return {
-            'sale_taxes': sale_taxes,
-            'purchase_taxes': purchase_taxes,
-        }
-
-    def _get_moves_for_tax(self, tax_id, tax_type):
-        """Get all move IDs for a specific tax"""
-        domain = [
-            ('company_id', '=', self.company_id.id),
-            ('invoice_date', '>=', self.date_from),
-            ('invoice_date', '<=', self.date_to),
-            ('state', '=', 'posted'),
-        ]
-
-        if tax_type == 'sale':
-            domain.append(('move_type', 'in', ['out_invoice', 'out_refund']))
-        else:
-            domain.append(('move_type', 'in', ['in_invoice', 'in_refund']))
-
-        # Find moves that have this tax
-        moves = self.env['account.move'].search(domain)
-        move_ids = []
-
-        for move in moves:
-            # Check if any line has this tax
-            if move.line_ids.filtered(lambda l: l.tax_line_id.id == tax_id):
-                move_ids.append(move.id)
-
-        return move_ids
 
     def open_tax_report_details(self):
         self.compute_tax_summary()

@@ -4,21 +4,20 @@
         <field name="name">tax.report.detail.list</field>
         <field name="model">tax.report.detail.line</field>
         <field name="arch" type="xml">
-            <list string="Tax Report Summary">
-                <field name="type"/>
-                <field name="tax_id" options="{'no_create': True}" invisible="is_summary_row"/>
+            <list string="Tax Report Summary" create="false" delete="false">
+                <field name="type" />
+                <!-- hide tax_id for summary rows -->
+                <field name="tax_id" options="{'no_create': True}" attrs="{'invisible': [('is_summary_row','=',True)]}"/>
+                <!-- tax_name always visible (will show "Total Sales", etc.) -->
                 <field name="tax_name"/>
-                <field name="base_amount" invisible="is_summary_row"/>
+                <!-- show base_amount for both detail and summary -->
+                <field name="base_amount"/>
                 <field name="tax_amount"/>
-                <button name="open_moves" type="object" string="Show Invoices" invisible="is_summary_row"/>
+                <!-- Show Invoices button visible only when NOT summary AND there are moves -->
+                <button name="open_moves" type="object" string="Show Invoices"
+                        attrs="{'invisible': ['|', ('is_summary_row','=',True), ('move_ids','=',False)]}"/>
             </list>
         </field>
-    </record>
-
-    <record id="action_tax_report_detail_line" model="ir.actions.act_window">
-        <field name="name">Tax Report Summary</field>
-        <field name="res_model">tax.report.detail.line</field>
-        <field name="view_mode">list,form</field>
     </record>
 </odoo>
 
@@ -33,10 +32,11 @@
 <!--        <field name="arch" type="xml">-->
 <!--            <list string="Tax Report Summary">-->
 <!--                <field name="type"/>-->
-<!--                <field name="tax_id" options="{'no_create': True}" />-->
-<!--                <field name="base_amount"/>-->
+<!--                <field name="tax_id" options="{'no_create': True}" invisible="is_summary_row"/>-->
+<!--                <field name="tax_name"/>-->
+<!--                <field name="base_amount" invisible="is_summary_row"/>-->
 <!--                <field name="tax_amount"/>-->
-<!--                <button name="open_moves" type="object" string="Show Invoices"/>-->
+<!--                <button name="open_moves" type="object" string="Show Invoices" invisible="is_summary_row"/>-->
 <!--            </list>-->
 <!--        </field>-->
 <!--    </record>-->
@@ -46,5 +46,7 @@
 <!--        <field name="res_model">tax.report.detail.line</field>-->
 <!--        <field name="view_mode">list,form</field>-->
 <!--    </record>-->
-
 <!--</odoo>-->
+
+
+

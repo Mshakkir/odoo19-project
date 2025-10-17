@@ -1,17 +1,16 @@
-<!-- views/trial_balance_line_views.xml -->
 <odoo>
-    <!-- List View -->
-    <record id="view_trial_balance_line_list" model="ir.ui.view">
-        <field name="name">trial.balance.line.list</field>
+    <!-- Tree View -->
+    <record id="view_trial_balance_line_tree" model="ir.ui.view">
+        <field name="name">trial.balance.line.tree</field>
         <field name="model">trial.balance.line</field>
         <field name="arch" type="xml">
-            <list string="Trial Balance Lines">
+            <tree string="Trial Balance Lines">
                 <field name="account_id"/>
                 <field name="opening_balance"/>
                 <field name="debit"/>
                 <field name="credit"/>
                 <field name="ending_balance"/>
-            </list>
+            </tree>
         </field>
     </record>
 

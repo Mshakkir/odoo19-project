@@ -1,4 +1,3 @@
-# wizard/account_common_report_inherit.py
 from odoo import models
 
 class AccountCommonReportInherit(models.TransientModel):
@@ -39,11 +38,15 @@ class AccountCommonReportInherit(models.TransientModel):
                 'ending_balance': ending,
             })
 
+        # ✅ Return action with explicit views
         return {
             'name': 'Trial Balance',
             'type': 'ir.actions.act_window',
             'res_model': 'trial.balance.line',
-            'view_mode': 'tree,form',
+            'views': [
+                (self.env.ref('custom_tb_report.view_trial_balance_line_tree').id, 'tree'),
+                (self.env.ref('custom_tb_report.view_trial_balance_line_form').id, 'form'),
+            ],
             'target': 'current',
             'domain': [('wizard_id', '=', self.id)],
         }

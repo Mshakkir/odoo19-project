@@ -1,8 +1,8 @@
 <!-- views/trial_balance_line_views.xml -->
 <odoo>
     <record id="view_trial_balance_line_tree" model="ir.ui.view">
-        <field name="name">trial.balance.line.tree</field>
-        <field name="model">trial.balance.line</field>
+        <field name="name">tb.line.list</field>
+        <field name="model">tb.line</field>
         <field name="arch" type="xml">
             <tree string="Trial Balance Lines">
                 <field name="account_id"/>

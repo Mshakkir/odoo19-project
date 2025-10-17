@@ -1,8 +1,8 @@
-# models/account_balance_report_inherit.py
+# wizard/trial_balance_wizard_inherit.py
 from odoo import models, api
 
-class AccountBalanceReportInherit(models.TransientModel):
-    _inherit = 'account.balance.report'
+class AccountCommonReportInherit(models.TransientModel):
+    _inherit = 'account.common.report'
 
     def action_show_tb(self):
         self.ensure_one()

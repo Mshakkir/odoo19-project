@@ -1,20 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- List View -->
-    <record id="view_balance_sheet_line_tree" model="ir.ui.view">
-        <field name="name">balance.sheet.line.tree</field>
+    <!-- Tree/List View with Grouping -->
+    <record id="view_balance_sheet_line_list" model="ir.ui.view">
+        <field name="name">balance.sheet.line.list</field>
         <field name="model">balance.sheet.line</field>
         <field name="arch" type="xml">
+            <!-- Grouped list by section_type -->
             <list string="Balance Sheet Details" create="false" delete="false">
-                <field name="account_id"/>
-                <field name="debit"/>
-                <field name="credit"/>
-                <field name="balance"/>
+                <group expand="1" string="Section" name="section_group" >
+                    <field name="section_type" invisible="1"/>
+                </group>
+
+                <field name="account_id" string="Account"/>
+                <field name="debit" sum="Total Debit" options="{'no_open': True}"/>
+                <field name="credit" sum="Total Credit" options="{'no_open': True}"/>
+                <field name="balance" sum="Total Balance" options="{'no_open': True}"/>
                 <button name="action_view_ledger"
                         string="View Ledger"
                         type="object"
                         icon="fa-book"
-                        class="btn-secondary"/>
+                        class="btn-secondary"
+                        context="{'default_wizard_id': wizard_id}"/>
             </list>
         </field>
     </record>
@@ -31,6 +37,7 @@
                         <field name="debit" readonly="1"/>
                         <field name="credit" readonly="1"/>
                         <field name="balance" readonly="1"/>
+                        <field name="section_type" readonly="1"/>
                     </group>
                     <footer>
                         <button name="action_view_ledger"
@@ -51,7 +58,71 @@
         <field name="name">Balance Sheet Details</field>
         <field name="res_model">balance.sheet.line</field>
         <field name="view_mode">list,form</field>
-        <field name="view_id" ref="view_balance_sheet_line_tree"/>
-        <field name="target">current</field>
+        <field name="view_id" ref="view_balance_sheet_line_list"/>
+        <field name="target">new</field>
+        <field name="context">{}</field>
     </record>
 </odoo>
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    &lt;!&ndash; List View &ndash;&gt;-->
+<!--    <record id="view_balance_sheet_line_tree" model="ir.ui.view">-->
+<!--        <field name="name">balance.sheet.line.tree</field>-->
+<!--        <field name="model">balance.sheet.line</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <list string="Balance Sheet Details" create="false" delete="false">-->
+<!--                <field name="account_id"/>-->
+<!--                <field name="debit"/>-->
+<!--                <field name="credit"/>-->
+<!--                <field name="balance"/>-->
+<!--                <button name="action_view_ledger"-->
+<!--                        string="View Ledger"-->
+<!--                        type="object"-->
+<!--                        icon="fa-book"-->
+<!--                        class="btn-secondary"/>-->
+<!--            </list>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Form View &ndash;&gt;-->
+<!--    <record id="view_balance_sheet_line_form" model="ir.ui.view">-->
+<!--        <field name="name">balance.sheet.line.form</field>-->
+<!--        <field name="model">balance.sheet.line</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <form string="Balance Sheet Line" create="false" delete="false">-->
+<!--                <sheet>-->
+<!--                    <group>-->
+<!--                        <field name="account_id" readonly="1"/>-->
+<!--                        <field name="debit" readonly="1"/>-->
+<!--                        <field name="credit" readonly="1"/>-->
+<!--                        <field name="balance" readonly="1"/>-->
+<!--                    </group>-->
+<!--                    <footer>-->
+<!--                        <button name="action_view_ledger"-->
+<!--                                string="View Ledger"-->
+<!--                                type="object"-->
+<!--                                class="btn-primary"/>-->
+<!--                        <button string="Close"-->
+<!--                                special="cancel"-->
+<!--                                class="btn-secondary"/>-->
+<!--                    </footer>-->
+<!--                </sheet>-->
+<!--            </form>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Window Action &ndash;&gt;-->
+<!--    <record id="action_balance_sheet_line" model="ir.actions.act_window">-->
+<!--        <field name="name">Balance Sheet Details</field>-->
+<!--        <field name="res_model">balance.sheet.line</field>-->
+<!--        <field name="view_mode">list,form</field>-->
+<!--        <field name="view_id" ref="view_balance_sheet_line_tree"/>-->
+<!--        <field name="target">current</field>-->
+<!--    </record>-->
+<!--</odoo>-->

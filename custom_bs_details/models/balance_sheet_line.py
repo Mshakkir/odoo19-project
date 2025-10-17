@@ -24,6 +24,12 @@ class BalanceSheetLine(models.TransientModel):
     wizard_id = fields.Many2one('accounting.report', string='Wizard', ondelete='cascade')
     account_id = fields.Many2one('account.account', string='Account', required=True)
 
+    # Account category field (Assets / Liabilities)
+    section_type = fields.Selection([
+        ('asset', 'Asset'),
+        ('liability', 'Liability'),
+    ], string="Section", compute="_compute_section_type", store=False)
+
     debit = fields.Monetary(string='Debit', currency_field='company_currency_id')
     credit = fields.Monetary(string='Credit', currency_field='company_currency_id')
     balance = fields.Monetary(
@@ -35,11 +41,33 @@ class BalanceSheetLine(models.TransientModel):
 
     @api.depends('debit', 'credit')
     def _compute_balance(self):
+        """Compute account balance."""
         for rec in self:
             rec.balance = (rec.debit or 0.0) - (rec.credit or 0.0)
 
+    @api.depends('account_id')
+    def _compute_section_type(self):
+        """Determine if account belongs to Assets or Liabilities."""
+        for rec in self:
+            if not rec.account_id:
+                rec.section_type = False
+                continue
+
+            # Hide VAT and Profit/Loss accounts
+            name = rec.account_id.name or ''
+            if any(x in name for x in ['VAT Input', 'VAT Output', 'Profit', 'Loss']):
+                rec.section_type = False
+                continue
+
+            if rec.account_id.account_type in ['asset_current', 'asset_non_current', 'asset_fixed']:
+                rec.section_type = 'asset'
+            elif rec.account_id.account_type in ['liability_current', 'liability_non_current', 'equity']:
+                rec.section_type = 'liability'
+            else:
+                rec.section_type = False
+
     def action_view_ledger(self):
-        """Open journal items (account.move.line) for this account using wizard filters"""
+        """Open journal items (account.move.line) for this account using wizard filters."""
         self.ensure_one()
         wizard = self.wizard_id
         if not wizard:
@@ -83,10 +111,8 @@ class BalanceSheetLine(models.TransientModel):
 #     _name = 'balance.sheet.line'
 #     _description = 'Balance Sheet Line'
 #
-#     # Basic Info
 #     name = fields.Char(string="Name")
 #
-#     # Currency
 #     currency_id = fields.Many2one(
 #         'res.currency',
 #         string='Currency',
@@ -99,11 +125,9 @@ class BalanceSheetLine(models.TransientModel):
 #         default=lambda self: self.env.company.currency_id,
 #     )
 #
-#     # Relations
 #     wizard_id = fields.Many2one('accounting.report', string='Wizard', ondelete='cascade')
 #     account_id = fields.Many2one('account.account', string='Account', required=True)
 #
-#     # Financial Fields
 #     debit = fields.Monetary(string='Debit', currency_field='company_currency_id')
 #     credit = fields.Monetary(string='Credit', currency_field='company_currency_id')
 #     balance = fields.Monetary(
@@ -113,14 +137,11 @@ class BalanceSheetLine(models.TransientModel):
 #         currency_field='company_currency_id',
 #     )
 #
-#     # Compute Method
 #     @api.depends('debit', 'credit')
 #     def _compute_balance(self):
-#         """Compute balance as debit - credit"""
 #         for rec in self:
 #             rec.balance = (rec.debit or 0.0) - (rec.credit or 0.0)
 #
-#     # Action Method
 #     def action_view_ledger(self):
 #         """Open journal items (account.move.line) for this account using wizard filters"""
 #         self.ensure_one()
@@ -128,9 +149,12 @@ class BalanceSheetLine(models.TransientModel):
 #         if not wizard:
 #             raise UserError(_('Wizard context lost.'))
 #
-#         domain = [('account_id', '=', self.account_id.id)]
+#         domain = [
+#             ('account_id', '=', self.account_id.id),
+#             ('company_id', '=', self.env.company.id),
+#         ]
 #
-#         # Apply wizard filters if available
+#         # Apply wizard filters
 #         if getattr(wizard, 'date_from', False):
 #             domain.append(('date', '>=', wizard.date_from))
 #         if getattr(wizard, 'date_to', False):
@@ -140,7 +164,6 @@ class BalanceSheetLine(models.TransientModel):
 #         if getattr(wizard, 'target_move', False) and wizard.target_move == 'posted':
 #             domain.append(('move_id.state', '=', 'posted'))
 #
-#         # Return Ledger View Action
 #         return {
 #             'name': _('Ledger Entries: %s') % (self.account_id.display_name),
 #             'type': 'ir.actions.act_window',
@@ -149,3 +172,6 @@ class BalanceSheetLine(models.TransientModel):
 #             'domain': domain,
 #             'target': 'current',
 #         }
+#
+#
+#

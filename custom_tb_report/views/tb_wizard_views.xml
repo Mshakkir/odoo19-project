@@ -4,6 +4,12 @@
         <field name="model">account.balance.report</field>
         <field name="inherit_id" ref="accounting_pdf_reports.account_report_balance_view"/>
         <field name="arch" type="xml">
+            <!-- Add the "All Companies" checkbox field in the form -->
+            <xpath expr="//group" position="inside">
+                <field name="include_all_companies"/>
+            </xpath>
+
+            <!-- Add the button in footer -->
             <xpath expr="//footer" position="inside">
                 <button name="open_trial_balance"
                         string="Open Trial Balance Lines"

@@ -1,0 +1,25 @@
+<odoo>
+    <record id="view_balance_sheet_wizard" model="ir.ui.view">
+        <field name="name">balance.sheet.wizard.form</field>
+        <field name="model">balance.sheet.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Balance Sheet">
+                <group>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                </group>
+                <footer>
+                    <button string="Print Balance Sheet" type="object" name="print_balance_sheet" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_balance_sheet_wizard" model="ir.actions.act_window">
+        <field name="name">Balance Sheet</field>
+        <field name="res_model">balance.sheet.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

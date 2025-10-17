@@ -3,7 +3,7 @@
     <!-- Inherit the new Balance Sheet wizard -->
     <record id="view_accounting_report_balance_sheet_form" model="ir.ui.view">
         <field name="name">accounting.report.balance.sheet.form</field>
-        <field name="model">accounting.report.balance.sheet</field>
+        <field name="model">accounting.report</field>
         <field name="inherit_id" ref="accounting_pdf_reports.accounting_report_view"/>
         <field name="arch" type="xml">
             <!-- Add "Show Details" button to the footer -->

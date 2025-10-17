@@ -1,13 +1,13 @@
-# wizard/trial_balance_wizard_inherit.py
-from odoo import models, api
+# wizard/account_common_report_inherit.py
+from odoo import models
 
 class AccountCommonReportInherit(models.TransientModel):
     _inherit = 'account.common.report'
 
-    def action_show_tb(self):
+    def open_trial_balance(self):
         self.ensure_one()
 
-        # Remove old lines
+        # Clear previous TB lines
         self.env['trial.balance.line'].search([('wizard_id', '=', self.id)]).unlink()
 
         accounts = self.env['account.account'].search([])
@@ -19,7 +19,6 @@ class AccountCommonReportInherit(models.TransientModel):
             move_lines = account.line_ids.filtered(
                 lambda l: self.date_from <= l.date <= self.date_to and l.move_id.state == 'posted'
             )
-
             debit = sum(move_lines.mapped('debit'))
             credit = sum(move_lines.mapped('credit'))
             ending = opening + debit - credit

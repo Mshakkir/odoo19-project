@@ -21,7 +21,13 @@ class BalanceSheetLine(models.TransientModel):
         default=lambda self: self.env.company.currency_id,
     )
 
-    wizard_id = fields.Many2one('accounting.report', string='Wizard', ondelete='cascade')
+    # ✅ Link only to the Balance Sheet wizard (new model name)
+    wizard_id = fields.Many2one(
+        'accounting.report.balance.sheet',
+        string='Balance Sheet Wizard',
+        ondelete='cascade'
+    )
+
     account_id = fields.Many2one('account.account', string='Account', required=True)
 
     debit = fields.Monetary(string='Debit', currency_field='company_currency_id')
@@ -33,7 +39,6 @@ class BalanceSheetLine(models.TransientModel):
         currency_field='company_currency_id',
     )
 
-    # ✅ Add category field
     category = fields.Selection([
         ('asset', 'Asset'),
         ('liability', 'Liability'),
@@ -44,27 +49,6 @@ class BalanceSheetLine(models.TransientModel):
         """Compute account balance."""
         for rec in self:
             rec.balance = (rec.debit or 0.0) - (rec.credit or 0.0)
-
-    @api.depends('account_id')
-    def _compute_section_type(self):
-        """Determine if account belongs to Assets or Liabilities."""
-        for rec in self:
-            if not rec.account_id:
-                rec.section_type = False
-                continue
-
-            # Hide VAT and Profit/Loss accounts
-            name = rec.account_id.name or ''
-            if any(x in name for x in ['VAT Input', 'VAT Output', 'Profit', 'Loss']):
-                rec.section_type = False
-                continue
-
-            if rec.account_id.account_type in ['asset_current', 'asset_non_current', 'asset_fixed']:
-                rec.section_type = 'asset'
-            elif rec.account_id.account_type in ['liability_current', 'liability_non_current', 'equity']:
-                rec.section_type = 'liability'
-            else:
-                rec.section_type = False
 
     def action_view_ledger(self):
         """Open journal items (account.move.line) for this account using wizard filters."""
@@ -78,7 +62,7 @@ class BalanceSheetLine(models.TransientModel):
             ('company_id', '=', self.env.company.id),
         ]
 
-        # Apply wizard filters
+        # Apply wizard filters from the Balance Sheet report
         if getattr(wizard, 'date_from', False):
             domain.append(('date', '>=', wizard.date_from))
         if getattr(wizard, 'date_to', False):
@@ -96,9 +80,6 @@ class BalanceSheetLine(models.TransientModel):
             'domain': domain,
             'target': 'current',
         }
-
-
-
 
 
 

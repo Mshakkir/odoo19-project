@@ -24,12 +24,6 @@ class BalanceSheetLine(models.TransientModel):
     wizard_id = fields.Many2one('accounting.report', string='Wizard', ondelete='cascade')
     account_id = fields.Many2one('account.account', string='Account', required=True)
 
-    # Account category field (Assets / Liabilities)
-    section_type = fields.Selection([
-        ('asset', 'Asset'),
-        ('liability', 'Liability'),
-    ], string="Section", compute="_compute_section_type", store=False)
-
     debit = fields.Monetary(string='Debit', currency_field='company_currency_id')
     credit = fields.Monetary(string='Credit', currency_field='company_currency_id')
     balance = fields.Monetary(
@@ -38,6 +32,12 @@ class BalanceSheetLine(models.TransientModel):
         store=False,
         currency_field='company_currency_id',
     )
+
+    # ✅ Add category field
+    category = fields.Selection([
+        ('asset', 'Asset'),
+        ('liability', 'Liability'),
+    ], string="Category", readonly=True)
 
     @api.depends('debit', 'credit')
     def _compute_balance(self):

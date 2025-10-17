@@ -189,4 +189,6 @@ class ReportTrialBalance(models.AbstractModel):
             'target_move': target_move,
             'journals': self.env['account.journal'].browse(journal_ids),
             'company': self.env.company,
+            # 🔹 Fix for QWeb
+            'print_journal': [j.name for j in self.env['account.journal'].browse(journal_ids)] if journal_ids else [],
         }

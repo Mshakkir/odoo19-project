@@ -26,38 +26,50 @@ class AccountBalanceReportInherit(models.TransientModel):
             # Use only the selected company from wizard
             company_ids = [self.company_id.id] if self.company_id else [self.env.company.id]
 
-        # Get all accounts
+        # Get all accounts (don't filter by company - accounts might be shared)
         accounts = self.env['account.account'].search([])
 
         for account in accounts:
-            # Get all posted move lines for this account across selected companies
+            # Build domain for move lines
             domain = [
                 ('account_id', '=', account.id),
                 ('move_id.state', '=', 'posted'),
-                ('company_id', 'in', company_ids)
             ]
 
+            # Add company filter
+            if company_ids:
+                domain.append(('company_id', 'in', company_ids))
+
+            # Get all posted move lines for this account
             move_lines = self.env['account.move.line'].search(domain)
+
+            # Skip if no move lines found
+            if not move_lines:
+                continue
 
             # Opening balance: sum of (debit - credit) before date_from
             if self.date_from:
                 opening_lines = move_lines.filtered(lambda l: l.date < self.date_from)
+                opening = sum(opening_lines.mapped('debit')) - sum(opening_lines.mapped('credit'))
             else:
-                opening_lines = move_lines.browse([])
-            opening = sum(opening_lines.mapped(lambda l: l.debit - l.credit))
+                opening = 0.0
 
             # Lines within the period
             if self.date_from and self.date_to:
                 period_lines = move_lines.filtered(lambda l: self.date_from <= l.date <= self.date_to)
+            elif self.date_to:
+                period_lines = move_lines.filtered(lambda l: l.date <= self.date_to)
+            elif self.date_from:
+                period_lines = move_lines.filtered(lambda l: l.date >= self.date_from)
             else:
                 period_lines = move_lines
+
             debit = sum(period_lines.mapped('debit'))
             credit = sum(period_lines.mapped('credit'))
-
             ending = opening + debit - credit
 
             # Only create TB line if there's activity
-            if opening != 0 or debit != 0 or credit != 0 or ending != 0:
+            if opening != 0 or debit != 0 or credit != 0:
                 self.env['trial.balance.line'].create({
                     'wizard_id': self.id,
                     'account_id': account.id,
@@ -67,8 +79,15 @@ class AccountBalanceReportInherit(models.TransientModel):
                     'ending_balance': ending,
                 })
 
+        # Build report title
+        if self.include_all_companies:
+            report_title = 'Trial Balance - All Companies'
+        else:
+            company_name = self.company_id.name if self.company_id else self.env.company.name
+            report_title = f'Trial Balance - {company_name}'
+
         return {
-            'name': 'Trial Balance' + (' - All Companies' if self.include_all_companies else ''),
+            'name': report_title,
             'type': 'ir.actions.act_window',
             'res_model': 'trial.balance.line',
             'views': [
@@ -77,11 +96,7 @@ class AccountBalanceReportInherit(models.TransientModel):
             ],
             'target': 'current',
             'domain': [('wizard_id', '=', self.id)],
-            'context': {
-                'group_by': ['account_id'],
-            }
         }
-
 
 
 # from odoo import models

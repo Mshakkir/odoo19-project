@@ -10,8 +10,9 @@
         "account"
     ],
     "data": [
-        "views/balance_sheet_menu.xml",
+
         "wizard/balance_sheet_wizard_view.xml",
+        "views/balance_sheet_menu.xml",
         "report/balance_sheet_template.xml",
         "report/report_action.xml",
     ],

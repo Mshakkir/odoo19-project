@@ -1,7 +1,10 @@
 <odoo>
-    <menuitem id="menu_custom_balance_sheet_root"
-              name="Balance Sheet"
-              parent="account.menu_finance_reports"
-              action="action_balance_sheet_wizard"
-              sequence="10"/>
+    <!-- Custom Balance Sheet menu under Financial Reports -->
+    <menuitem
+        id="menu_custom_balance_sheet_root"
+        name="Balance Sheet main"
+        parent="account.menu_finance_reports"
+        action="action_balance_sheet_wizard"
+        sequence="7"
+    />
 </odoo>

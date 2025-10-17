@@ -39,8 +39,8 @@ class AccountingReportInherit(models.TransientModel):
             JOIN account_account AS aa ON aml.account_id = aa.id
             WHERE aml.company_id = %s
               AND aa.name::text NOT ILIKE '%%VAT Input%%'
-              AND aa.name NOT ILIKE '%%VAT Output%%'
-              AND aa.name NOT ILIKE '%%Profit%%Loss%%'
+              AND aa.name::text NOT ILIKE '%%VAT Output%%'
+              AND aa.name::text NOT ILIKE '%%Profit%%Loss%%'
         """
         params = [self.env.company.id]
         where_clauses = []
@@ -101,11 +101,6 @@ class AccountingReportInherit(models.TransientModel):
             'domain': [('wizard_id', '=', self.id)],
             'context': {'default_wizard_id': self.id},
         }
-
-
-
-
-
 
 # # -*- coding: utf-8 -*-
 # from odoo import api, fields, models, _

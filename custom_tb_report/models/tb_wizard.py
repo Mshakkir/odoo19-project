@@ -50,7 +50,7 @@ class AccountBalanceReportInherit(models.TransientModel):
             'type': 'ir.actions.act_window',
             'res_model': 'trial.balance.line',
             'views': [
-                (self.env.ref('custom_tb_report.view_trial_balance_line_list').id, 'tree'),
+                (self.env.ref('custom_tb_report.view_trial_balance_line_list').id, 'list'),
                 (self.env.ref('custom_tb_report.view_trial_balance_line_form').id, 'form'),
             ],
             'target': 'current',

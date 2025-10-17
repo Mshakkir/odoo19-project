@@ -1,38 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<record id="view_accounting_report_balance_sheet_form" model="ir.ui.view">
-    <field name="name">accounting.report.balance.sheet.form</field>
-    <field name="model">accounting.report.balance.sheet</field>
-    <field name="inherit_id" ref="accounting_pdf_reports.accounting_report_view"/>
-    <field name="arch" type="xml">
-        <xpath expr="//footer" position="inside">
-            <button name="action_show_details"
-                    string="Show Details"
-                    type="object"
-                    class="btn-primary"
-                    icon="fa-list"/>
-        </xpath>
-    </field>
-</record>
+    <!-- inherit the existing wizard form view -->
+    <record id="view_accounting_report_inherit_form" model="ir.ui.view">
+        <field name="name">accounting.report.inherit.form</field>
+        <field name="model">accounting.report</field>
+        <field name="inherit_id" ref="accounting_pdf_reports.accounting_report_view"/>
+        <field name="arch" type="xml">
+            <!-- insert button in the footer after Print (or before Cancel) -->
+            <xpath expr="//footer" position="inside">
+                <button string="Show Details"
+                        type="object"
+                        name="action_show_details"
+                        class="btn-secondary"
+                        />
+            </xpath>
+        </field>
+    </record>
 </odoo>
-
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-<!--    &lt;!&ndash; inherit the existing wizard form view &ndash;&gt;-->
-<!--    <record id="view_accounting_report_inherit_form" model="ir.ui.view">-->
-<!--        <field name="name">accounting.report.inherit.form</field>-->
-<!--        <field name="model">accounting.report</field>-->
-<!--        <field name="inherit_id" ref="accounting_pdf_reports.accounting_report_view"/>-->
-<!--        <field name="arch" type="xml">-->
-<!--            &lt;!&ndash; insert button in the footer after Print (or before Cancel) &ndash;&gt;-->
-<!--            <xpath expr="//footer" position="inside">-->
-<!--                <button string="Show Details"-->
-<!--                        type="object"-->
-<!--                        name="action_show_details"-->
-<!--                        class="btn-secondary"-->
-<!--                        />-->
-<!--            </xpath>-->
-<!--        </field>-->
-<!--    </record>-->
-<!--</odoo>-->

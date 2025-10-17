@@ -6,19 +6,10 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-class AccountingReportBalanceSheet(models.TransientModel):
-    _name = 'accounting.report.balance.sheet'
+class AccountingReportInherit(models.TransientModel):
     _inherit = 'accounting.report'
+    _name = 'accounting.report.balance.sheet'
     _description = 'Balance Sheet Report Wizard'
-
-    # 👇 Add a technical field to distinguish this wizard
-    report_type = fields.Selection(
-        [('balance_sheet', 'Balance Sheet')],
-        string='Report Type',
-        default='balance_sheet',
-        readonly=True
-    )
-
     def action_show_details(self):
         """
         Build domain from wizard options, aggregate account_move_line by account,
@@ -98,8 +89,7 @@ class AccountingReportBalanceSheet(models.TransientModel):
                 'account_id': acc.id,
                 'debit': row.get('total_debit') or 0.0,
                 'credit': row.get('total_credit') or 0.0,
-                'category': 'asset' if acc.internal_group == 'asset' else 'liability',
-                'report_type': 'balance_sheet',  # 👈 important for isolation
+                'category': 'asset' if acc.internal_group == 'asset' else 'liability'
             })
 
         # ✅ Return the tree view popup
@@ -108,13 +98,7 @@ class AccountingReportBalanceSheet(models.TransientModel):
             'type': 'ir.actions.act_window',
             'res_model': 'balance.sheet.line',
             'view_mode': 'list,form',
-            'target': 'new',  # open as popup
-            'domain': [
-                ('wizard_id', '=', self.id),
-                ('report_type', '=', 'balance_sheet')
-            ],
-            'context': {
-                'default_wizard_id': self.id,
-                'default_report_type': 'balance_sheet'
-            },
+            # 'target': 'new',  # open as popup
+            'domain': [('wizard_id', '=', self.id)],
+            'context': {'default_wizard_id': self.id},
         }

@@ -1,13 +1,17 @@
 <odoo>
     <record id="view_trial_balance_wizard_inherit" model="ir.ui.view">
         <field name="name">trial.balance.wizard.inherit</field>
-        <field name="model">account.common.report</field>
-        <field name="inherit_id" ref="accounting_pdf_reports.account_common_report_view"/>
+        <field name="model">account.balance.report</field> <!-- ✅ Use the correct model -->
+        <field name="inherit_id" ref="accounting_pdf_reports.account_report_balance_view"/>
         <field name="arch" type="xml">
-            <xpath expr="//footer" position="inside">
-                <button name="open_trial_balance" string="Open Trial Balance Lines" type="object" class="btn-primary"/>
+            <xpath expr="//field[@name='target_move']" position="after">
+                <button name="open_trial_balance"
+                        string="Open Trial Balance Lines"
+                        type="object"
+                        class="btn-primary"/>
             </xpath>
         </field>
     </record>
+
 
 </odoo>

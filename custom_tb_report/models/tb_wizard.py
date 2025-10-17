@@ -1,4 +1,7 @@
 from odoo import models, fields, api
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class AccountBalanceReportInherit(models.TransientModel):
@@ -22,9 +25,12 @@ class AccountBalanceReportInherit(models.TransientModel):
             # Get all companies
             companies = self.env['res.company'].search([])
             company_ids = companies.ids
+            _logger.info(f"Processing ALL companies: {[c.name for c in companies]}")
         else:
             # Use only the selected company from wizard
             company_ids = [self.company_id.id] if self.company_id else [self.env.company.id]
+            company_name = self.env['res.company'].browse(company_ids[0]).name
+            _logger.info(f"Processing single company: {company_name}")
 
         # Get all accounts (don't filter by company - accounts might be shared)
         accounts = self.env['account.account'].search([])
@@ -34,11 +40,8 @@ class AccountBalanceReportInherit(models.TransientModel):
             domain = [
                 ('account_id', '=', account.id),
                 ('move_id.state', '=', 'posted'),
+                ('company_id', 'in', company_ids),
             ]
-
-            # Add company filter
-            if company_ids:
-                domain.append(('company_id', 'in', company_ids))
 
             # Get all posted move lines for this account
             move_lines = self.env['account.move.line'].search(domain)
@@ -46,6 +49,27 @@ class AccountBalanceReportInherit(models.TransientModel):
             # Skip if no move lines found
             if not move_lines:
                 continue
+
+            # DEBUG: Log move lines details for specific accounts
+            if account.code in ['102011', '104041', '201002']:
+                _logger.info(f"\n=== Account {account.code} - {account.name} ===")
+                _logger.info(f"Total move lines found: {len(move_lines)}")
+
+                # Group by company to see breakdown
+                for company_id in company_ids:
+                    comp_lines = move_lines.filtered(lambda l: l.company_id.id == company_id)
+                    if comp_lines:
+                        company_name = self.env['res.company'].browse(company_id).name
+                        comp_debit = sum(comp_lines.mapped('debit'))
+                        comp_credit = sum(comp_lines.mapped('credit'))
+                        _logger.info(f"  Company: {company_name}")
+                        _logger.info(f"    Lines: {len(comp_lines)}")
+                        _logger.info(f"    Debit: {comp_debit}, Credit: {comp_credit}")
+
+                        # Show individual lines
+                        for line in comp_lines[:5]:  # Show first 5 lines
+                            _logger.info(
+                                f"      Move: {line.move_id.name}, Date: {line.date}, Dr: {line.debit}, Cr: {line.credit}")
 
             # Opening balance: sum of (debit - credit) before date_from
             if self.date_from:

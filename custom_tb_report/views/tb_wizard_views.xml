@@ -1,10 +1,10 @@
 <odoo>
-    <record id="view_trial_balance_wizard_inherit" model="ir.ui.view">
-        <field name="name">trial.balance.wizard.inherit</field>
-        <field name="model">account.balance.report</field> <!-- ✅ Use the correct model -->
+    <record id="view_trial_balance_wizard_form_inherit" model="ir.ui.view">
+        <field name="name">trial.balance.wizard.form.inherit</field>
+        <field name="model">account.balance.report</field>
         <field name="inherit_id" ref="accounting_pdf_reports.account_report_balance_view"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='target_move']" position="after">
+            <xpath expr="//footer" position="inside">
                 <button name="open_trial_balance"
                         string="Open Trial Balance Lines"
                         type="object"
@@ -12,6 +12,4 @@
             </xpath>
         </field>
     </record>
-
-
 </odoo>

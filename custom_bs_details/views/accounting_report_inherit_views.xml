@@ -1,22 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Inherit the new Balance Sheet wizard -->
+    <!-- Inherit the accounting report view to add Show Details (for balance sheet wizard) -->
     <record id="view_accounting_report_balance_sheet_form" model="ir.ui.view">
         <field name="name">accounting.report.balance.sheet.form</field>
-        <field name="model">accounting.report</field>
+        <field name="model">accounting.report.balance.sheet</field>
+        <!-- ✅ Do not directly inherit from accounting.report -->
         <field name="inherit_id" ref="accounting_pdf_reports.accounting_report_view"/>
         <field name="arch" type="xml">
-            <!-- Add "Show Details" button to the footer -->
+            <!-- Inject into the footer -->
             <xpath expr="//footer" position="inside">
                 <button name="action_show_details"
                         string="Show Details"
                         type="object"
                         class="btn-primary"
-                        icon="fa-list"
-                        />
+                        icon="fa-list"/>
             </xpath>
         </field>
     </record>
+
+    <!-- ✅ Define the Balance Sheet action -->
+    <record id="action_account_report_bs_custom" model="ir.actions.act_window">
+        <field name="name">Balance Sheet (Custom)</field>
+        <field name="res_model">accounting.report.balance.sheet</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_accounting_report_balance_sheet_form"/>
+        <field name="target">new</field>
+        <field name="context" eval="{'default_account_report_id': ref('accounting_pdf_reports.account_financial_report_balancesheet0')}"/>
+    </record>
+
+    <!-- ✅ Add your custom menu -->
+    <menuitem id="menu_account_report_bs_custom"
+              name="Balance Sheet (Custom)"
+              parent="accounting_pdf_reports.menu_finance_legal_statement"
+              action="action_account_report_bs_custom"
+              sequence="5"/>
 </odoo>
 
 

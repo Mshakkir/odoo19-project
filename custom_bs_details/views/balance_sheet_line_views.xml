@@ -1,26 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Tree/List View with Grouping -->
-    <record id="view_balance_sheet_line_list" model="ir.ui.view">
-        <field name="name">balance.sheet.line.list</field>
+    <!-- List (Tree) View -->
+    <record id="view_balance_sheet_line_tree" model="ir.ui.view">
+        <field name="name">balance.sheet.line.tree</field>
         <field name="model">balance.sheet.line</field>
         <field name="arch" type="xml">
-            <!-- Grouped list by section_type -->
             <list string="Balance Sheet Details" create="false" delete="false">
-                <group expand="1" string="Section" name="section_group" >
-                    <field name="section_type" invisible="1"/>
-                </group>
-
-                <field name="account_id" string="Account"/>
-                <field name="debit" sum="Total Debit" options="{'no_open': True}"/>
-                <field name="credit" sum="Total Credit" options="{'no_open': True}"/>
-                <field name="balance" sum="Total Balance" options="{'no_open': True}"/>
+                <field name="account_id"/>
+                <field name="debit"/>
+                <field name="credit"/>
+                <field name="balance"/>
                 <button name="action_view_ledger"
                         string="View Ledger"
                         type="object"
                         icon="fa-book"
-                        class="btn-secondary"
-                        context="{'default_wizard_id': wizard_id}"/>
+                        class="btn-secondary"/>
             </list>
         </field>
     </record>
@@ -37,7 +31,6 @@
                         <field name="debit" readonly="1"/>
                         <field name="credit" readonly="1"/>
                         <field name="balance" readonly="1"/>
-                        <field name="section_type" readonly="1"/>
                     </group>
                     <footer>
                         <button name="action_view_ledger"
@@ -53,14 +46,12 @@
         </field>
     </record>
 
-    <!-- Window Action -->
+    <!-- Action -->
     <record id="action_balance_sheet_line" model="ir.actions.act_window">
         <field name="name">Balance Sheet Details</field>
         <field name="res_model">balance.sheet.line</field>
         <field name="view_mode">list,form</field>
-        <field name="view_id" ref="view_balance_sheet_line_list"/>
-        <field name="target">new</field>
-        <field name="context">{}</field>
+        <field name="target">current</field>
     </record>
 </odoo>
 

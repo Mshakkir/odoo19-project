@@ -99,40 +99,33 @@ class ReportTrialBalance(models.AbstractModel):
 
     def _get_accounts(self, accounts, display_account):
         account_result = {}
-        tables, where_clause, where_params = self.env['account.move.line']._query_get()
 
-        # Clean table reference
+        tables, where_clause, where_params = self.env['account.move.line']._query_get()
         tables = tables.replace('"', '') or 'account_move_line'
 
-        # Allowed companies
+        # Remove any existing company filter to avoid duplicates
+        where_clause = where_clause.replace('AND "account_move_line"."company_id" in %s', '')
+        where_clause = where_clause.replace('"account_move_line"."company_id" in %s', '')
+
         company_ids = self.env.context.get('allowed_company_ids') or [self.env.company.id]
 
-        # ✅ Build SQL properly
-        # Note: _query_get() may already contain WHERE, so we don’t prepend another WHERE ourselves.
-        # Instead, we conditionally add 'AND' or 'WHERE' as needed.
-
-        where_sql = ''
+        filters = "WHERE account_id IN %s"
         if where_clause.strip():
-            where_sql = f"AND {where_clause.strip()}"
+            filters += f" AND {where_clause.strip()}"
 
-        # ✅ Final SQL query
         request = f"""
             SELECT account_id AS id,
                    SUM(debit) AS debit,
                    SUM(credit) AS credit,
                    (SUM(debit) - SUM(credit)) AS balance
             FROM {tables}
-            WHERE account_id IN %s
-              AND company_id IN %s
-              {where_sql}
+            {filters}
             GROUP BY account_id
         """
 
-        # ✅ Params — keep order consistent with SQL placeholders
-        params = (tuple(accounts.ids), tuple(company_ids)) + tuple(where_params)
+        params = (tuple(accounts.ids),) + tuple(where_params)
         self.env.cr.execute(request, params)
 
-        # Fetch results
         for row in self.env.cr.dictfetchall():
             account_result[row.pop('id')] = row
 
@@ -150,11 +143,12 @@ class ReportTrialBalance(models.AbstractModel):
             elif display_account == 'not_zero' and not currency.is_zero(res['balance']):
                 account_res.append(res)
             elif display_account == 'movement' and (
-                not currency.is_zero(res['debit']) or not currency.is_zero(res['credit'])
+                    not currency.is_zero(res['debit']) or not currency.is_zero(res['credit'])
             ):
                 account_res.append(res)
 
         return account_res
+
     @api.model
     def _get_report_values(self, docids, data=None):
         """

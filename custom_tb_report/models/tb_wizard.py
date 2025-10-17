@@ -12,17 +12,30 @@ class AccountBalanceReportInherit(models.TransientModel):
         accounts = self.env['account.account'].search([])
 
         for account in accounts:
+            # Get all posted move lines for this account
             move_lines = self.env['account.move.line'].search([
                 ('account_id', '=', account.id),
                 ('move_id.state', '=', 'posted'),
             ])
 
-            opening = sum(move_lines.filtered(lambda l: l.date < self.date_from).mapped(lambda l: l.debit - l.credit))
-            period_lines = move_lines.filtered(lambda l: self.date_from <= l.date <= self.date_to)
+            # Opening balance: sum of (debit - credit) before date_from
+            if self.date_from:
+                opening_lines = move_lines.filtered(lambda l: l.date < self.date_from)
+            else:
+                opening_lines = move_lines.browse([])  # no opening lines if no date_from
+            opening = sum(opening_lines.mapped(lambda l: l.debit - l.credit))
+
+            # Lines within the period
+            if self.date_from and self.date_to:
+                period_lines = move_lines.filtered(lambda l: self.date_from <= l.date <= self.date_to)
+            else:
+                period_lines = move_lines
             debit = sum(period_lines.mapped('debit'))
             credit = sum(period_lines.mapped('credit'))
+
             ending = opening + debit - credit
 
+            # Create TB line
             self.env['trial.balance.line'].create({
                 'wizard_id': self.id,
                 'account_id': account.id,

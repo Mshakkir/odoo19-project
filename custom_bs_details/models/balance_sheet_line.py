@@ -21,7 +21,7 @@ class BalanceSheetLine(models.TransientModel):
         default=lambda self: self.env.company.currency_id,
     )
 
-    # ✅ Link only to the Balance Sheet wizard (new model name)
+    # ✅ Link to the specific Balance Sheet wizard model
     wizard_id = fields.Many2one(
         'accounting.report.balance.sheet',
         string='Balance Sheet Wizard',
@@ -43,6 +43,12 @@ class BalanceSheetLine(models.TransientModel):
         ('asset', 'Asset'),
         ('liability', 'Liability'),
     ], string="Category", readonly=True)
+
+    # 👇 Optional but useful if you later reuse the same model for Profit & Loss
+    report_type = fields.Selection([
+        ('balance_sheet', 'Balance Sheet'),
+        ('profit_loss', 'Profit & Loss'),
+    ], string="Report Type", default='balance_sheet')
 
     @api.depends('debit', 'credit')
     def _compute_balance(self):
@@ -80,8 +86,6 @@ class BalanceSheetLine(models.TransientModel):
             'domain': domain,
             'target': 'current',
         }
-
-
 
 # # -*- coding: utf-8 -*-
 # from odoo import api, fields, models, _

@@ -9,13 +9,14 @@
                     <field name="date_to"/>
                 </group>
                 <footer>
-                    <button string="Print Balance Sheet" type="object" name="print_balance_sheet" class="btn-primary"/>
+                    <button string="Print" type="object" name="print_report" class="btn-primary"/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
         </field>
     </record>
 
+    <!-- Wizard action -->
     <record id="action_balance_sheet_wizard" model="ir.actions.act_window">
         <field name="name">Balance Sheet</field>
         <field name="res_model">balance.sheet.wizard</field>

@@ -1,15 +1,13 @@
-<!-- views/trial_balance_wizard_inherit.xml -->
 <odoo>
     <record id="view_trial_balance_wizard_inherit" model="ir.ui.view">
         <field name="name">trial.balance.wizard.inherit</field>
         <field name="model">account.common.report</field>
-        <field name="inherit_id" ref="account.account_common_report_view"/>
+        <field name="inherit_id" ref="accounting_pdf_reports.account_common_report_view"/>
         <field name="arch" type="xml">
 
-            <!-- Target where you want your button to appear -->
+            <!-- Insert the button inside the footer -->
             <xpath expr="//footer" position="inside">
-                <button name="open_trial_balance" string="Open Trial Balance Lines"
-                        type="object" class="btn-primary"/>
+                <button name="open_trial_balance" string="Open Trial Balance Lines" type="object" class="btn-primary"/>
             </xpath>
 
         </field>

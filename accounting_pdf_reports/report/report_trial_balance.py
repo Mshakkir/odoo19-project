@@ -155,3 +155,38 @@ class ReportTrialBalance(models.AbstractModel):
                 account_res.append(res)
 
         return account_res
+    @api.model
+    def _get_report_values(self, docids, data=None):
+        """
+        Main data provider for the Trial Balance PDF report.
+        Called automatically by the QWeb rendering engine.
+        """
+        if not data:
+            data = {}
+
+        # Extract parameters from the wizard (if any)
+        date_from = data.get('form', {}).get('date_from')
+        date_to = data.get('form', {}).get('date_to')
+        display_account = data.get('form', {}).get('display_account', 'all')
+        target_move = data.get('form', {}).get('target_move', 'posted')
+        journal_ids = data.get('form', {}).get('journal_ids', [])
+
+        # Get account records to display
+        accounts = self.env['account.account'].search([])
+
+        # Fetch computed balances
+        account_res = self._get_accounts(accounts, display_account)
+
+        # Return context for QWeb template
+        return {
+            'doc_ids': docids,
+            'doc_model': 'account.account',
+            'data': data,
+            'accounts': account_res,
+            'display_account': display_account,
+            'date_from': date_from,
+            'date_to': date_to,
+            'target_move': target_move,
+            'journals': self.env['account.journal'].browse(journal_ids),
+            'company': self.env.company,
+        }

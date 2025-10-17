@@ -97,7 +97,7 @@ class AccountingReportInherit(models.TransientModel):
             'type': 'ir.actions.act_window',
             'res_model': 'balance.sheet.line',
             'view_mode': 'list,form',
-            'target': 'new',  # open as popup
+            # 'target': 'new',  # open as popup
             'domain': [('wizard_id', '=', self.id)],
             'context': {'default_wizard_id': self.id},
         }

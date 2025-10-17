@@ -38,7 +38,7 @@ class AccountingReportInherit(models.TransientModel):
             JOIN account_move AS am ON aml.move_id = am.id
             JOIN account_account AS aa ON aml.account_id = aa.id
             WHERE aml.company_id = %s
-              AND aa.name NOT ILIKE '%%VAT Input%%'
+              AND aa.name::text NOT ILIKE '%%VAT Input%%'
               AND aa.name NOT ILIKE '%%VAT Output%%'
               AND aa.name NOT ILIKE '%%Profit%%Loss%%'
         """

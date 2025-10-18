@@ -98,6 +98,10 @@ class ReportTrialBalance(models.AbstractModel):
     _description = 'Trial Balance Report'
 
     def _get_accounts(self, accounts, display_account):
+        """
+        Compute debit, credit, and balance for the provided accounts.
+        Optional filtering by analytic accounts if present in context.
+        """
         account_result = {}
         tables, where_clause, where_params = self.env['account.move.line']._query_get()
         tables = tables.replace('"', '')
@@ -109,16 +113,19 @@ class ReportTrialBalance(models.AbstractModel):
             wheres.append(where_clause.strip())
         filters = " AND ".join(wheres)
 
-        # Analytic account filter (optional)
+        # --- Analytic account filter (optional) ---
         analytic_account_ids = self.env.context.get('analytic_account_ids', [])
         analytic_clause = ""
         analytic_params = ()
         if analytic_account_ids:
+            # Ensure we have a list of IDs
+            if not isinstance(analytic_account_ids, list):
+                analytic_account_ids = [aa.id for aa in analytic_account_ids]
             analytic_json_list = [f'[{{"account_id": {aa_id}}}]' for aa_id in analytic_account_ids]
             analytic_clause = " AND (" + " OR ".join(["analytic_distribution::jsonb @> %s"] * len(analytic_json_list)) + ")"
             analytic_params = tuple(analytic_json_list)
 
-        # Build SQL query
+        # --- SQL query ---
         request = (
             "SELECT account_id AS id, SUM(debit) AS debit, SUM(credit) AS credit, "
             "(SUM(debit) - SUM(credit)) AS balance "
@@ -131,7 +138,7 @@ class ReportTrialBalance(models.AbstractModel):
         for row in self.env.cr.dictfetchall():
             account_result[row.pop('id')] = row
 
-        # Build result for QWeb
+        # --- Build account result for QWeb ---
         account_res = []
         for account in accounts:
             res = dict((fn, 0.0) for fn in ['credit', 'debit', 'balance'])
@@ -144,14 +151,18 @@ class ReportTrialBalance(models.AbstractModel):
                 res['balance'] = account_result[account.id].get('balance')
             if display_account == 'all':
                 account_res.append(res)
-            if display_account == 'not_zero' and not currency.is_zero(res['balance']):
+            elif display_account == 'not_zero' and not currency.is_zero(res['balance']):
                 account_res.append(res)
-            if display_account == 'movement' and (not currency.is_zero(res['debit']) or not currency.is_zero(res['credit'])):
+            elif display_account == 'movement' and (not currency.is_zero(res['debit']) or not currency.is_zero(res['credit'])):
                 account_res.append(res)
         return account_res
 
     @api.model
     def _get_report_values(self, docids, data=None):
+        """
+        Prepare report values for Trial Balance QWeb.
+        Supports optional analytic account filtering.
+        """
         if not data.get('form') or not self.env.context.get('active_model'):
             raise UserError(_("Form content is missing, this report cannot be printed."))
 
@@ -160,19 +171,20 @@ class ReportTrialBalance(models.AbstractModel):
         display_account = data['form'].get('display_account')
         accounts = docs if model == 'account.account' else self.env['account.account'].search([])
 
-        # Optional analytic account context
+        # --- Optional analytic account context ---
         context = data['form'].get('used_context') or {}
         analytic_accounts = []
         if data['form'].get('analytic_account_ids'):
             analytic_account_ids = self.env['account.analytic.account'].browse(
-                data['form'].get('analytic_account_ids', []))
+                data['form'].get('analytic_account_ids', [])
+            )
             context['analytic_account_ids'] = analytic_account_ids
             analytic_accounts = [aa.name for aa in analytic_account_ids]
 
-        # Compute account balances
+        # --- Compute account balances ---
         account_res = self.with_context(context)._get_accounts(accounts, display_account)
 
-        # Journal codes
+        # --- Journal codes ---
         codes = []
         if data['form'].get('journal_ids'):
             codes = [journal.code for journal in self.env['account.journal'].browse(data['form']['journal_ids'])]

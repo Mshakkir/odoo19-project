@@ -1,10 +1,11 @@
 <odoo>
-    <!-- Custom Balance Sheet menu under Financial Reports -->
+    <!-- Add Custom Balance Sheet menu under Financial Reports -->
     <menuitem
-            id="menu_custom_balance_sheet_root"
-            name="Balance Sheet"
-            parent="account_reports.menu_financial_reports"
-            action="action_balance_sheet_wizard"
-            sequence="7"
+        id="menu_custom_balance_sheet"
+        name="Custom Balance Sheet"
+        parent="accounting_pdf_reports.menu_financial_reports"
+        action="action_balance_sheet_wizard"
+        sequence="10"
     />
 </odoo>
+

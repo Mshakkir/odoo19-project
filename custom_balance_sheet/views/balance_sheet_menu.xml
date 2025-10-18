@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <record id="action_balance_sheet_wizard" model="ir.actions.act_window">
-        <field name="name">Balance Sheet</field>
-        <field name="res_model">balance.sheet.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-    </record>
     <menuitem
             id="menu_custom_balance_sheet"
             name="Balance Sheet main"

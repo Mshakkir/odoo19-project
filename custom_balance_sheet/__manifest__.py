@@ -7,6 +7,7 @@
     'author': 'Shakkir',
     'depends': ['account'],  # depends on Odoo's account module
     'data': [
+        'security/ir.model.access.csv',
         'views/custom_balance_sheet_menu.xml',
     ],
     'installable': True,

@@ -13,7 +13,7 @@
               name="Custom Reporting"
               parent="account.menu_finance"
               sequence="40"
-              groups="account.group_account_invoice,account.group_account_auditor"/>
+    />
 
     <!-- Balance Sheet menu under Reporting -->
     <menuitem id="custom_balance_sheet_menu"
@@ -21,5 +21,5 @@
               parent="custom_accounting_reporting_menu"
               sequence="1"
               action="custom_balance_sheet_action"
-              groups="account.group_account_invoice,account.group_account_auditor"/>
+    />
 </odoo>

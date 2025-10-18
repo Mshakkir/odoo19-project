@@ -1,3 +1,2 @@
-<!-- security/ir.model.access.csv -->
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_custom_balance_sheet,access_custom_balance_sheet,model_custom_balance_sheet,base.group_user,1,1,1,1
+access_custom_balance_sheet,access_custom_balance_sheet,model_custom_balance_sheet,account.group_account_manager,1,1,1,1

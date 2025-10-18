@@ -11,6 +11,7 @@
             parent="accounting_pdf_reports.menu_finance_legal_statement"
             action="action_balance_sheet_wizard"
             sequence="7"
+            groups="base.group_user"
     />
 </odoo>
 

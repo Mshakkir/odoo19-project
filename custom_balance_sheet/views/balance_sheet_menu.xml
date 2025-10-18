@@ -1,8 +1,8 @@
 <odoo>
-       <menuitem
+          <menuitem
         id="menu_custom_balance_sheet"
         name="Custom Balance Sheet"
-        parent="accounting_pdf_reports.accounting_report_view"
+        parent="accounting_pdf_reports.menu_finance_legal_statement"
         action="action_balance_sheet_wizard"
         sequence="7"
     />

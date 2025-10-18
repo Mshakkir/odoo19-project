@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Placeholder action (define first) -->
+    <!-- Placeholder action -->
     <record id="custom_balance_sheet_action" model="ir.actions.act_window">
         <field name="name">Balance Sheet</field>
         <field name="res_model">custom.balance.sheet</field>
@@ -10,14 +10,16 @@
 
     <!-- Reporting submenu under Accounting -->
     <menuitem id="custom_accounting_reporting_menu"
-              name="custom Reporting"
+              name="Custom Reporting"
               parent="account.menu_finance"
-              sequence="40"/>
+              sequence="40"
+              groups="account.group_account_invoice,account.group_account_auditor"/>
 
     <!-- Balance Sheet menu under Reporting -->
     <menuitem id="custom_balance_sheet_menu"
               name="Balance Sheet"
               parent="custom_accounting_reporting_menu"
               sequence="1"
-              action="custom_balance_sheet_action"/>
+              action="custom_balance_sheet_action"
+              groups="account.group_account_invoice,account.group_account_auditor"/>
 </odoo>

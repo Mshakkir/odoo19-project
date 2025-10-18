@@ -37,7 +37,11 @@ class AccountBalanceReport(models.TransientModel):
         string='Journals', required=True, default=[]
     )
 
-    analytic_account_id = fields.Many2one('account.analytic.account', string="Analytic Account")
+    analytic_account_ids = fields.Many2many(
+        'account.analytic.account',
+        'account_trial_balance_analytic_rel', string='Analytic Accounts',
+        help="Optional: filter report by warehouse/analytic account"
+    )
 
     def _get_report_data(self, data):
         data = self.pre_print_report(data)

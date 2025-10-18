@@ -6,6 +6,5 @@
             parent="account_reports.menu_financial_reports"
             action="action_balance_sheet_wizard"
             sequence="7"
-            groups="account.group_account_user"
     />
 </odoo>

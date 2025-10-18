@@ -57,34 +57,48 @@ class ReportTrialBalance(models.AbstractModel):
                 account_res.append(res)
         return account_res
 
-    @api.model
-    def _get_report_values(self, docids, data=None):
-        if not data.get('form') or not self.env.context.get('active_model'):
-            raise UserError(_("Form content is missing, this report cannot be printed."))
 
-        model = self.env.context.get('active_model')
-        docs = self.env[model].browse(self.env.context.get('active_ids', []))
-        display_account = data['form'].get('display_account')
-        accounts = docs if model == 'account.account' else self.env['account.account'].search([])
-        context = data['form'].get('used_context')
-        analytic_accounts = []
-        if data['form'].get('analytic_account_ids'):
-            analytic_account_ids = self.env['account.analytic.account'].browse(data['form'].get('analytic_account_ids'))
-            context['analytic_account_ids'] = analytic_account_ids
-            analytic_accounts = [account.name for account in analytic_account_ids]
-        account_res = self.with_context(context)._get_accounts(accounts, display_account)
-        codes = []
-        if data['form'].get('journal_ids', False):
-            codes = [journal.code for journal in
-                     self.env['account.journal'].search(
-                         [('id', 'in', data['form']['journal_ids'])])]
-        return {
-            'doc_ids': self.ids,
-            'doc_model': model,
-            'data': data['form'],
-            'docs': docs,
-            'print_journal': codes,
-            'analytic_accounts': analytic_accounts,
-            'time': time,
-            'Accounts': account_res,
-        }
+@api.model
+def _get_report_values(self, docids, data=None):
+    if not data.get('form') or not self.env.context.get('active_model'):
+        raise UserError(_("Form content is missing, this report cannot be printed."))
+
+    model = self.env.context.get('active_model')
+    docs = self.env[model].browse(self.env.context.get('active_ids', []))
+    display_account = data['form'].get('display_account')
+    accounts = docs if model == 'account.account' else self.env['account.account'].search([])
+
+    # 🔹 Multi-company support
+    selected_companies = self.env.companies
+    context = dict(data['form'].get('used_context', {}))
+    context.update({
+        'allowed_company_ids': selected_companies.ids,
+        'force_company': False,
+        'active_test': False,
+    })
+
+    analytic_accounts = []
+    if data['form'].get('analytic_account_ids'):
+        analytic_account_ids = self.env['account.analytic.account'].browse(data['form'].get('analytic_account_ids'))
+        context['analytic_account_ids'] = analytic_account_ids
+        analytic_accounts = [account.name for account in analytic_account_ids]
+
+    # 🔹 Fetch account balances across all selected companies
+    account_res = self.with_context(context)._get_accounts(accounts, display_account)
+
+    codes = []
+    if data['form'].get('journal_ids', False):
+        codes = [journal.code for journal in self.env['account.journal'].with_context(context).search(
+            [('id', 'in', data['form']['journal_ids'])])]
+
+    return {
+        'doc_ids': self.ids,
+        'doc_model': model,
+        'data': data['form'],
+        'docs': docs,
+        'print_journal': codes,
+        'analytic_accounts': analytic_accounts,
+        'time': time,
+        'Accounts': account_res,
+        'companies': selected_companies,  # 🔹 pass to template
+    }

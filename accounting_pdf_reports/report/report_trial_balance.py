@@ -209,62 +209,65 @@ class ReportTrialBalance(models.AbstractModel):
     _name = 'report.accounting_pdf_reports.report_trialbalance'
     _description = 'Trial Balance Report'
 
-    def _get_accounts(self, accounts, display_account):
-        account_result = {}
-        tables, where_clause, where_params = self.env['account.move.line']._query_get()
-        tables = tables.replace('"', '')
-        if not tables:
-            tables = 'account_move_line'
+    @api.model
+    def _get_report_values(self, docids, data=None):
+        """
+        Prepare values for QWeb template. If analytic_account_ids is supplied
+        in the wizard, put a recordset into the context (so .ids works in _query_get).
+        """
+        if not data or not data.get('form') or not self.env.context.get('active_model'):
+            raise UserError(_("Form content is missing, this report cannot be printed."))
 
-        wheres = [""]  # base condition
-        if where_clause.strip():
-            wheres.append(where_clause.strip())
-        filters = " AND ".join(wheres)
+        model = self.env.context.get('active_model')
+        docs = self.env[model].browse(self.env.context.get('active_ids', []))
+        display_account = data['form'].get('display_account')
+        accounts = docs if model == 'account.account' else self.env['account.account'].search([])
 
-        # Build analytic filter (JSONB contains key)
-        analytic_account_ids = self.env.context.get('analytic_account_ids', [])
-        analytic_clause = ""
-        analytic_params = ()
-        if analytic_account_ids:
-            analytic_ids_str = [str(aid) for aid in analytic_account_ids]
-            analytic_clause = " AND (" + " OR ".join(
-                ["analytic_distribution::jsonb ? %s"] * len(analytic_ids_str)
-            ) + ")"
-            analytic_params = tuple(analytic_ids_str)
+        # --- Prepare used_context and analytic list (for header) ---
+        used_context = data['form'].get('used_context') or {}
+        analytic_accounts = []
 
-        # SQL query to aggregate account balances
-        request = (
-            "SELECT account_id AS id, SUM(debit) AS debit, SUM(credit) AS credit, "
-            "(SUM(debit) - SUM(credit)) AS balance "
-            "FROM " + tables +
-            " WHERE account_id IN %s " + filters + analytic_clause +
-            " GROUP BY account_id"
-        )
-        params = (tuple(accounts.ids),) + tuple(where_params) + analytic_params
-        self.env.cr.execute(request, params)
-        for row in self.env.cr.dictfetchall():
-            account_result[row.pop('id')] = row
+        analytic_ids_from_form = data['form'].get('analytic_account_ids', [])
+        if analytic_ids_from_form:
+            # Important: create a recordset, not a plain list
+            analytic_rs = self.env['account.analytic.account'].browse(analytic_ids_from_form)
+            # Put the recordset in the context so other code can call .ids
+            used_context['analytic_account_ids'] = analytic_rs
+            # Prepare readable names (handle JSON-stored name)
+            import json
+            for acc in analytic_rs:
+                name_val = acc.name
+                try:
+                    if isinstance(name_val, str) and name_val.startswith('{'):
+                        parsed = json.loads(name_val)
+                        # prefer en_US then any available
+                        analytic_accounts.append(parsed.get('en_US') or list(parsed.values())[0])
+                    elif isinstance(name_val, dict):
+                        analytic_accounts.append(name_val.get('en_US') or list(name_val.values())[0])
+                    else:
+                        analytic_accounts.append(str(name_val))
+                except Exception:
+                    analytic_accounts.append(str(name_val))
 
-        # Prepare output
-        account_res = []
-        for account in accounts:
-            res = dict((fn, 0.0) for fn in ['credit', 'debit', 'balance'])
-            currency = account.currency_id or self.env.company.currency_id
-            res['code'] = account.code
-            res['name'] = account.name
-            if account.id in account_result:
-                res['debit'] = account_result[account.id].get('debit')
-                res['credit'] = account_result[account.id].get('credit')
-                res['balance'] = account_result[account.id].get('balance')
-            if display_account == 'all':
-                account_res.append(res)
-            elif display_account == 'not_zero' and not currency.is_zero(res['balance']):
-                account_res.append(res)
-            elif display_account == 'movement' and (
-                not currency.is_zero(res['debit']) or not currency.is_zero(res['credit'])
-            ):
-                account_res.append(res)
-        return account_res
+        # --- Compute account balances with context containing recordset ---
+        account_res = self.with_context(used_context)._get_accounts(accounts, display_account)
+
+        # Journals for header
+        codes = []
+        if data['form'].get('journal_ids'):
+            codes = [j.code for j in self.env['account.journal'].browse(data['form']['journal_ids'])]
+
+        return {
+            'doc_ids': self.ids,
+            'doc_model': model,
+            'data': data['form'],
+            'docs': docs,
+            'print_journal': codes,
+            'analytic_accounts': analytic_accounts,
+            'time': time,
+            'Accounts': account_res,
+        }
+
 
     @api.model
     def _get_report_values(self, docids, data=None):

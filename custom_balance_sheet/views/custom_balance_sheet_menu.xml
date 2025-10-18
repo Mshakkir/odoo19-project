@@ -2,7 +2,7 @@
 <odoo>
     <!-- Reporting submenu under Accounting -->
     <menuitem id="custom_accounting_reporting_menu"
-              name="Reporting"
+              name="custom Reporting"
               parent="account.menu_finance"
               sequence="10"/>
 

@@ -7,7 +7,7 @@
     </record>
     <menuitem
             id="menu_custom_balance_sheet"
-            name="Custom Balance Sheet"
+            name="Balance Sheet main"
             parent="accounting_pdf_reports.menu_finance_legal_statement"
             action="action_balance_sheet_wizard"
             sequence="7"

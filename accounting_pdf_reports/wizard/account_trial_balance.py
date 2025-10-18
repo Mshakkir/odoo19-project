@@ -37,11 +37,19 @@ class AccountBalanceReport(models.TransientModel):
     journal_ids = fields.Many2many(
         'account.journal', 'account_balance_report_journal_rel',
         'account_id', 'journal_id',
-        string='Journals'
+        string='Journals', required=True, default=[]
     )
 
     analytic_account_id = fields.Many2one(
-        'account.analytic.account', string="Analytic Account"
+        'account.analytic.account', string="Analytic Account",
+        help="Optional: filter report by analytic account"
+    )
+
+    display_account = fields.Selection(
+        [('all', 'All Accounts'),
+         ('not_zero', 'With Balance Not Zero'),
+         ('movement', 'With Movement')],
+        string="Display Accounts", default='all'
     )
 
     def _get_report_data(self, data):

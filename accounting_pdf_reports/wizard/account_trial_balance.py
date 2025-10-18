@@ -75,5 +75,19 @@ class AccountBalanceReport(models.TransientModel):
         return records, data
 
     def _print_report(self, data):
-        records, data = self._get_report_data(data)
-        return self.env.ref('accounting_pdf_reports.action_report_trial_balance').report_action(records, data=data)
+        # Get selected companies from UI (multi-company top bar)
+        selected_company_ids = self.env.companies.ids
+
+        # Add them to the report context
+        data = self.pre_print_report(data)
+        records = self.env[data['model']].browse(data.get('ids', []))
+
+        # Add all selected companies to the report context
+        ctx = dict(self.env.context)
+        ctx.update({'allowed_company_ids': selected_company_ids, 'force_company': False})
+
+        # Use with_context so report action reads all companies
+        return self.env.ref(
+            'accounting_pdf_reports.action_report_trial_balance'
+        ).with_context(ctx).report_action(records, data=data)
+

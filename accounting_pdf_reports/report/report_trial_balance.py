@@ -200,6 +200,7 @@
 #             'Accounts': account_res,
 #         }
 import time
+import json
 from odoo import api, models, _
 from odoo.exceptions import UserError
 
@@ -209,45 +210,29 @@ class ReportTrialBalance(models.AbstractModel):
     _description = 'Trial Balance Report'
 
     def _get_accounts(self, accounts, display_account):
-        """
-        Compute debit/credit/balance for each account.
-        If 'analytic_account_ids' present in context (recordset), the SQL will filter
-        account.move.line rows where analytic_distribution JSON contains those analytic ids.
-        """
         account_result = {}
-
-        # Get tables and where clause built by _query_get (respects date, journal, target_move, etc.)
         tables, where_clause, where_params = self.env['account.move.line']._query_get()
-        # remove quotes that sometimes come from join expressions
         tables = tables.replace('"', '')
         if not tables:
             tables = 'account_move_line'
 
-        wheres = [""]
-        if where_clause and where_clause.strip():
+        wheres = [""]  # base condition
+        if where_clause.strip():
             wheres.append(where_clause.strip())
         filters = " AND ".join(wheres)
 
-        # --- Analytic account filter (optional) ---
-        analytic_account_ctx = self.env.context.get('analytic_account_ids', False)
+        # Build analytic filter (JSONB contains key)
+        analytic_account_ids = self.env.context.get('analytic_account_ids', [])
         analytic_clause = ""
         analytic_params = ()
-        if analytic_account_ctx:
-            # Accept either recordset or list of ids
-            if isinstance(analytic_account_ctx, list):
-                analytic_ids = [int(x) for x in analytic_account_ctx]
-            else:
-                # recordset case
-                analytic_ids = list(analytic_account_ctx.ids)
+        if analytic_account_ids:
+            analytic_ids_str = [str(aid) for aid in analytic_account_ids]
+            analytic_clause = " AND (" + " OR ".join(
+                ["analytic_distribution::jsonb ? %s"] * len(analytic_ids_str)
+            ) + ")"
+            analytic_params = tuple(analytic_ids_str)
 
-            if analytic_ids:
-                # Build JSONB containment checks for each analytic id
-                # e.g. analytic_distribution::jsonb @> '[{"account_id": 3}]'
-                analytic_json_list = [f'[{{"account_id": {aa_id}}}]' for aa_id in analytic_ids]
-                analytic_clause = " AND (" + " OR ".join(["analytic_distribution::jsonb @> %s"] * len(analytic_json_list)) + ")"
-                analytic_params = tuple(analytic_json_list)
-
-        # --- SQL query ---
+        # SQL query to aggregate account balances
         request = (
             "SELECT account_id AS id, SUM(debit) AS debit, SUM(credit) AS credit, "
             "(SUM(debit) - SUM(credit)) AS balance "
@@ -255,15 +240,12 @@ class ReportTrialBalance(models.AbstractModel):
             " WHERE account_id IN %s " + filters + analytic_clause +
             " GROUP BY account_id"
         )
-
         params = (tuple(accounts.ids),) + tuple(where_params) + analytic_params
-
-        # Execute and fetch
         self.env.cr.execute(request, params)
         for row in self.env.cr.dictfetchall():
             account_result[row.pop('id')] = row
 
-        # Build python result for QWeb
+        # Prepare output
         account_res = []
         for account in accounts:
             res = dict((fn, 0.0) for fn in ['credit', 'debit', 'balance'])
@@ -271,25 +253,22 @@ class ReportTrialBalance(models.AbstractModel):
             res['code'] = account.code
             res['name'] = account.name
             if account.id in account_result:
-                res['debit'] = account_result[account.id].get('debit') or 0.0
-                res['credit'] = account_result[account.id].get('credit') or 0.0
-                res['balance'] = account_result[account.id].get('balance') or 0.0
+                res['debit'] = account_result[account.id].get('debit')
+                res['credit'] = account_result[account.id].get('credit')
+                res['balance'] = account_result[account.id].get('balance')
             if display_account == 'all':
                 account_res.append(res)
             elif display_account == 'not_zero' and not currency.is_zero(res['balance']):
                 account_res.append(res)
-            elif display_account == 'movement' and (not currency.is_zero(res['debit']) or not currency.is_zero(res['credit'])):
+            elif display_account == 'movement' and (
+                not currency.is_zero(res['debit']) or not currency.is_zero(res['credit'])
+            ):
                 account_res.append(res)
         return account_res
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        """
-        Prepare values for QWeb template. If analytic_account_ids is supplied
-        in the wizard, pass it into the context as a recordset so that any
-        overridden _query_get or other code expecting a recordset works.
-        """
-        if not data or not data.get('form') or not self.env.context.get('active_model'):
+        if not data.get('form') or not self.env.context.get('active_model'):
             raise UserError(_("Form content is missing, this report cannot be printed."))
 
         model = self.env.context.get('active_model')
@@ -297,21 +276,30 @@ class ReportTrialBalance(models.AbstractModel):
         display_account = data['form'].get('display_account')
         accounts = docs if model == 'account.account' else self.env['account.account'].search([])
 
-        # prepare used_context (existing filters) and extend it
-        used_context = data['form'].get('used_context') or {}
-        analytic_accounts_names = []
-
+        # Prepare context for analytic filtering
+        context = data['form'].get('used_context') or {}
+        analytic_accounts = []
+        analytic_ids = []
         if data['form'].get('analytic_account_ids'):
-            # Make a proper recordset from the ids list
-            analytic_rs = self.env['account.analytic.account'].browse(data['form'].get('analytic_account_ids', []))
-            # Put the recordset into the context (so other code expecting .ids will work)
-            used_context['analytic_account_ids'] = analytic_rs
-            analytic_accounts_names = [aa.name for aa in analytic_rs]
+            analytic_recs = self.env['account.analytic.account'].browse(
+                data['form'].get('analytic_account_ids', [])
+            )
+            analytic_ids = analytic_recs.ids
+            context['analytic_account_ids'] = analytic_ids
+            # Handle multilingual JSON names
+            for acc in analytic_recs:
+                try:
+                    name_data = json.loads(acc.name) if acc.name.startswith('{') else acc.name
+                    analytic_accounts.append(
+                        name_data.get('en_US') if isinstance(name_data, dict) else name_data
+                    )
+                except Exception:
+                    analytic_accounts.append(acc.name)
 
-        # compute balances with the extended context
-        account_res = self.with_context(used_context)._get_accounts(accounts, display_account)
+        # Compute results
+        account_res = self.with_context(context)._get_accounts(accounts, display_account)
 
-        # Journal codes for header
+        # Journal codes
         codes = []
         if data['form'].get('journal_ids'):
             codes = [journal.code for journal in self.env['account.journal'].browse(data['form']['journal_ids'])]
@@ -322,7 +310,8 @@ class ReportTrialBalance(models.AbstractModel):
             'data': data['form'],
             'docs': docs,
             'print_journal': codes,
-            'analytic_accounts': analytic_accounts_names,
+            'analytic_accounts': analytic_accounts,
             'time': time,
             'Accounts': account_res,
         }
+

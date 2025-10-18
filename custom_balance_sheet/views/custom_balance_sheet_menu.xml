@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Placeholder action -->
+
+    <!-- Wizard Action -->
     <record id="custom_balance_sheet_action" model="ir.actions.act_window">
         <field name="name">Balance Sheet</field>
         <field name="res_model">custom.balance.sheet</field>
@@ -8,21 +9,20 @@
         <field name="target">new</field>
     </record>
 
-    <!-- Reporting submenu under Accounting -->
+    <!-- Main menu -->
     <menuitem id="custom_accounting_reporting_menu"
               name="Custom Reporting"
               parent="account.menu_finance"
-              sequence="40"
-    />
+              sequence="40"/>
 
-    <!-- Balance Sheet menu under Reporting -->
     <menuitem id="custom_balance_sheet_menu"
               name="Balance Sheet"
               parent="custom_accounting_reporting_menu"
               sequence="1"
-              action="custom_balance_sheet_action"
-    />
-     <record id="view_custom_balance_sheet_form" model="ir.ui.view">
+              action="custom_balance_sheet_action"/>
+
+    <!-- Wizard Form -->
+    <record id="view_custom_balance_sheet_form" model="ir.ui.view">
         <field name="name">custom.balance.sheet.form</field>
         <field name="model">custom.balance.sheet</field>
         <field name="arch" type="xml">
@@ -40,4 +40,55 @@
             </form>
         </field>
     </record>
+
 </odoo>
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    &lt;!&ndash; Placeholder action &ndash;&gt;-->
+<!--    <record id="custom_balance_sheet_action" model="ir.actions.act_window">-->
+<!--        <field name="name">Balance Sheet</field>-->
+<!--        <field name="res_model">custom.balance.sheet</field>-->
+<!--        <field name="view_mode">form</field>-->
+<!--        <field name="target">new</field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Reporting submenu under Accounting &ndash;&gt;-->
+<!--    <menuitem id="custom_accounting_reporting_menu"-->
+<!--              name="Custom Reporting"-->
+<!--              parent="account.menu_finance"-->
+<!--              sequence="40"-->
+<!--    />-->
+
+<!--    &lt;!&ndash; Balance Sheet menu under Reporting &ndash;&gt;-->
+<!--    <menuitem id="custom_balance_sheet_menu"-->
+<!--              name="Balance Sheet"-->
+<!--              parent="custom_accounting_reporting_menu"-->
+<!--              sequence="1"-->
+<!--              action="custom_balance_sheet_action"-->
+<!--    />-->
+<!--     <record id="view_custom_balance_sheet_form" model="ir.ui.view">-->
+<!--        <field name="name">custom.balance.sheet.form</field>-->
+<!--        <field name="model">custom.balance.sheet</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <form string="Balance Sheet">-->
+<!--                <group>-->
+<!--                    <field name="target_moves"/>-->
+<!--                    <field name="date_from"/>-->
+<!--                    <field name="date_to"/>-->
+<!--                </group>-->
+<!--                <footer>-->
+<!--                    <button string="Generate Report" type="object"-->
+<!--                            name="action_generate_report" class="btn-primary"/>-->
+<!--                    <button string="Cancel" special="cancel" class="btn-secondary"/>-->
+<!--                </footer>-->
+<!--            </form>-->
+<!--        </field>-->
+<!--    </record>-->
+<!--</odoo>-->

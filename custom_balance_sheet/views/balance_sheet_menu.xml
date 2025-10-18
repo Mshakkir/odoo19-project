@@ -1,10 +1,16 @@
 <odoo>
-          <menuitem
-        id="menu_custom_balance_sheet"
-        name="Custom Balance Sheet"
-        parent="accounting_pdf_reports.menu_finance_legal_statement"
-        action="action_balance_sheet_wizard"
-        sequence="7"
+    <record id="action_balance_sheet_wizard" model="ir.actions.act_window">
+        <field name="name">Balance Sheet</field>
+        <field name="res_model">balance.sheet.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+    <menuitem
+            id="menu_custom_balance_sheet"
+            name="Custom Balance Sheet"
+            parent="accounting_pdf_reports.menu_finance_legal_statement"
+            action="action_balance_sheet_wizard"
+            sequence="7"
     />
 </odoo>
 

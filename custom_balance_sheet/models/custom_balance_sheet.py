@@ -1,9 +1,8 @@
-from odoo import api, fields, models
+from odoo import models, fields, api
 
-
-class BalanceSheetWizard(models.TransientModel):
-    _name = "custom.balance.sheet.wizard"
-    _description = "Balance Sheet Wizard"
+class CustomBalanceSheet(models.TransientModel):
+    _name = "custom.balance.sheet"
+    _description = "Custom Balance Sheet Wizard"
 
     target_moves = fields.Selection([
         ('posted', 'All Posted Entries'),

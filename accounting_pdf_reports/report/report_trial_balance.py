@@ -199,89 +199,97 @@
 #             'time': time,
 #             'Accounts': account_res,
 #         }
-# -*- coding: utf-8 -*-
-from odoo import api, models
+import time
+from odoo import api, models, _
+from odoo.exceptions import UserError
 
 class ReportTrialBalance(models.AbstractModel):
     _name = 'report.accounting_pdf_reports.report_trialbalance'
     _description = 'Trial Balance Report'
 
-    @api.model
-    def _get_accounts(self, accounts, display_account):
-        """
-        Filter account lines based on display_account selection.
-        """
+    def _get_accounts(self, accounts, display_account, context=None):
+        account_result = {}
+        tables, where_clause, where_params = self.env['account.move.line']._query_get()
+        tables = tables.replace('"', '')
+        if not tables:
+            tables = 'account_move_line'
+
+        wheres = ["1=1"]
+        if where_clause.strip():
+            wheres.append(where_clause.strip())
+        filters = " AND ".join(wheres)
+
+        # --- Analytic account filter ---
+        analytic_clause = ""
+        analytic_params = ()
+        if context and context.get('analytic_account_id'):
+            aa_id = context['analytic_account_id']
+            analytic_clause = " AND analytic_distribution::text LIKE %s"
+            analytic_params = (f'%"{aa_id}"%',)
+
+        # --- SQL query ---
+        request = (
+            f"SELECT account_id AS id, SUM(debit) AS debit, SUM(credit) AS credit, "
+            f"(SUM(debit) - SUM(credit)) AS balance "
+            f"FROM {tables} "
+            f"WHERE account_id IN %s AND {filters} {analytic_clause} "
+            f"GROUP BY account_id"
+        )
+
+        params = (tuple(accounts.ids),) + tuple(where_params) + analytic_params
+        self.env.cr.execute(request, params)
+        for row in self.env.cr.dictfetchall():
+            account_result[row.pop('id')] = row
+
+        # --- Prepare QWeb result ---
         account_res = []
         for account in accounts:
-            if display_account == 'movement' and account['debit'] == 0 and account['credit'] == 0:
-                continue
-            if display_account == 'not_zero' and account['balance'] == 0:
-                continue
-            account_res.append(account)
+            res = dict((fn, 0.0) for fn in ['debit', 'credit', 'balance'])
+            currency = account.currency_id or self.env.company.currency_id
+            res.update({'code': account.code, 'name': account.name})
+            if account.id in account_result:
+                res.update(account_result[account.id])
+
+            if display_account == 'all':
+                account_res.append(res)
+            elif display_account == 'not_zero' and not currency.is_zero(res['balance']):
+                account_res.append(res)
+            elif display_account == 'movement' and (not currency.is_zero(res['debit']) or not currency.is_zero(res['credit'])):
+                account_res.append(res)
+
         return account_res
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        """
-        Compute the Trial Balance Report values.
-        """
-        data = data or {}
-        context = self.env.context.copy()
+        if not data or not data.get('form') or not self.env.context.get('active_model'):
+            raise UserError(_("Form content is missing, this report cannot be printed."))
 
-        # Get filters from wizard
-        wizard = self.env['trial.balance.report.wizard'].browse(docids)
-        date_from = wizard.date_from
-        date_to = wizard.date_to
-        display_account = wizard.display_account
-        analytic_account_id = wizard.analytic_account_id  # New field in wizard
+        model = self.env.context.get('active_model')
+        docs = self.env[model].browse(self.env.context.get('active_ids', []))
+        display_account = data['form'].get('display_account', 'all')
+        accounts = docs if model == 'account.account' else self.env['account.account'].search([])
 
-        # Build the domain for move lines
-        domain = [
-            ('parent_state', '=', 'posted'),
-            ('date', '>=', date_from),
-            ('date', '<=', date_to),
-        ]
-
-        # ✅ Apply analytic filter only if selected
+        # --- Analytic context ---
+        context = {}
+        analytic_account_id = data['form'].get('analytic_account_id')
         if analytic_account_id:
-            # account_move_line.analytic_distribution stores a JSON like {"2": 100.0}
-            domain.append(('analytic_distribution', 'ilike', f'"{analytic_account_id.id}"'))
+            context['analytic_account_id'] = analytic_account_id
 
-        # Fetch all move lines
-        move_lines = self.env['account.move.line'].search(domain)
+        # --- Compute accounts ---
+        account_res = self.with_context(context)._get_accounts(accounts, display_account, context=context)
 
-        # Group data by account
-        accounts_data = {}
-        for line in move_lines:
-            acc = line.account_id
-            if acc not in accounts_data:
-                accounts_data[acc] = {
-                    'code': acc.code,
-                    'name': acc.name,
-                    'debit': 0.0,
-                    'credit': 0.0,
-                    'balance': 0.0,
-                }
-            accounts_data[acc]['debit'] += line.debit
-            accounts_data[acc]['credit'] += line.credit
-            accounts_data[acc]['balance'] += line.debit - line.credit
-
-        # Sort accounts by code
-        sorted_accounts = sorted(accounts_data.values(), key=lambda x: x['code'])
-
-        # Filter according to display_account
-        account_res = self._get_accounts(sorted_accounts, display_account)
+        # --- Journal codes ---
+        journals = []
+        if data['form'].get('journal_ids'):
+            journals = [j.code for j in self.env['account.journal'].browse(data['form']['journal_ids'])]
 
         return {
-            'doc_ids': docids,
-            'doc_model': 'trial.balance.report.wizard',
-            'data': data,
-            'docs': wizard,
+            'doc_ids': self.ids,
+            'doc_model': model,
+            'data': data['form'],
+            'docs': docs,
+            'print_journal': journals,
+            'time': time,
             'Accounts': account_res,
-            'date_from': date_from,
-            'date_to': date_to,
-            'display_account': display_account,
-            'analytic_account': analytic_account_id.name if analytic_account_id else False,
         }
-
 

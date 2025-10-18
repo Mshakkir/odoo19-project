@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Parent menu: Accounting -->
+    <!-- Reporting submenu under Accounting -->
     <menuitem id="custom_accounting_reporting_menu"
               name="Reporting"
-              parent="account.account_menu_finance"
+              parent="account.menu_finance"
               sequence="10"/>
 
-    <!-- Custom Balance Sheet menu -->
+    <!-- Balance Sheet menu under Reporting -->
     <menuitem id="custom_balance_sheet_menu"
               name="Balance Sheet"
               parent="custom_accounting_reporting_menu"
               sequence="1"
               action="custom_balance_sheet_action"/>
 
-    <!-- Placeholder action (window action) -->
+    <!-- Placeholder action (to be replaced by wizard or report later) -->
     <record id="custom_balance_sheet_action" model="ir.actions.act_window">
         <field name="name">Balance Sheet</field>
         <field name="res_model">custom.balance.sheet</field>

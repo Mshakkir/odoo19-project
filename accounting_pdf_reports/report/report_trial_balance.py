@@ -164,9 +164,10 @@ class ReportTrialBalance(models.AbstractModel):
         context = data['form'].get('used_context') or {}
         analytic_accounts = []
         if data['form'].get('analytic_account_ids'):
-            analytic_account_ids = data['form'].get('analytic_account_ids')
+            analytic_account_ids = self.env['account.analytic.account'].browse(
+                data['form'].get('analytic_account_ids', []))
             context['analytic_account_ids'] = analytic_account_ids
-            analytic_accounts = [self.env['account.analytic.account'].browse([aa_id]).name for aa_id in analytic_account_ids]
+            analytic_accounts = [aa.name for aa in analytic_account_ids]
 
         # Compute account balances
         account_res = self.with_context(context)._get_accounts(accounts, display_account)

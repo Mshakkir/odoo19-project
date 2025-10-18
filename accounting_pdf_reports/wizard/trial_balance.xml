@@ -11,9 +11,8 @@
                     <newline/>
                 </xpath>
                 <xpath expr="//field[@name='journal_ids']" position="after">
-                    <field name="analytic_account_ids" widget="many2many_tags"
-                           string="Warehouse / Analytic Accounts"
-                           options="{'no_open': True, 'no_create': True}"/>
+                    <field name="analytic_account_id" placeholder="Select Analytic Account"/>
+
                 </xpath>
             </data>
         </field>

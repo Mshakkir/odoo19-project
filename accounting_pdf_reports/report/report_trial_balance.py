@@ -199,122 +199,89 @@
 #             'time': time,
 #             'Accounts': account_res,
 #         }
-import time
-import json
-from odoo import api, models, _
-from odoo.exceptions import UserError
-
+# -*- coding: utf-8 -*-
+from odoo import api, models
 
 class ReportTrialBalance(models.AbstractModel):
     _name = 'report.accounting_pdf_reports.report_trialbalance'
     _description = 'Trial Balance Report'
 
     @api.model
-    def _get_report_values(self, docids, data=None):
+    def _get_accounts(self, accounts, display_account):
         """
-        Prepare values for QWeb template. If analytic_account_ids is supplied
-        in the wizard, put a recordset into the context (so .ids works in _query_get).
+        Filter account lines based on display_account selection.
         """
-        if not data or not data.get('form') or not self.env.context.get('active_model'):
-            raise UserError(_("Form content is missing, this report cannot be printed."))
-
-        model = self.env.context.get('active_model')
-        docs = self.env[model].browse(self.env.context.get('active_ids', []))
-        display_account = data['form'].get('display_account')
-        accounts = docs if model == 'account.account' else self.env['account.account'].search([])
-
-        # --- Prepare used_context and analytic list (for header) ---
-        used_context = data['form'].get('used_context') or {}
-        analytic_accounts = []
-
-        analytic_ids_from_form = data['form'].get('analytic_account_ids', [])
-        if analytic_ids_from_form:
-            # Important: create a recordset, not a plain list
-            analytic_rs = self.env['account.analytic.account'].browse(analytic_ids_from_form)
-            # Put the recordset in the context so other code can call .ids
-            used_context['analytic_account_ids'] = analytic_rs
-            # Prepare readable names (handle JSON-stored name)
-            import json
-            for acc in analytic_rs:
-                name_val = acc.name
-                try:
-                    if isinstance(name_val, str) and name_val.startswith('{'):
-                        parsed = json.loads(name_val)
-                        # prefer en_US then any available
-                        analytic_accounts.append(parsed.get('en_US') or list(parsed.values())[0])
-                    elif isinstance(name_val, dict):
-                        analytic_accounts.append(name_val.get('en_US') or list(name_val.values())[0])
-                    else:
-                        analytic_accounts.append(str(name_val))
-                except Exception:
-                    analytic_accounts.append(str(name_val))
-
-        # --- Compute account balances with context containing recordset ---
-        account_res = self.with_context(used_context)._get_accounts(accounts, display_account)
-
-        # Journals for header
-        codes = []
-        if data['form'].get('journal_ids'):
-            codes = [j.code for j in self.env['account.journal'].browse(data['form']['journal_ids'])]
-
-        return {
-            'doc_ids': self.ids,
-            'doc_model': model,
-            'data': data['form'],
-            'docs': docs,
-            'print_journal': codes,
-            'analytic_accounts': analytic_accounts,
-            'time': time,
-            'Accounts': account_res,
-        }
-
+        account_res = []
+        for account in accounts:
+            if display_account == 'movement' and account['debit'] == 0 and account['credit'] == 0:
+                continue
+            if display_account == 'not_zero' and account['balance'] == 0:
+                continue
+            account_res.append(account)
+        return account_res
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        if not data.get('form') or not self.env.context.get('active_model'):
-            raise UserError(_("Form content is missing, this report cannot be printed."))
+        """
+        Compute the Trial Balance Report values.
+        """
+        data = data or {}
+        context = self.env.context.copy()
 
-        model = self.env.context.get('active_model')
-        docs = self.env[model].browse(self.env.context.get('active_ids', []))
-        display_account = data['form'].get('display_account')
-        accounts = docs if model == 'account.account' else self.env['account.account'].search([])
+        # Get filters from wizard
+        wizard = self.env['trial.balance.report.wizard'].browse(docids)
+        date_from = wizard.date_from
+        date_to = wizard.date_to
+        display_account = wizard.display_account
+        analytic_account_id = wizard.analytic_account_id  # New field in wizard
 
-        # Prepare context for analytic filtering
-        context = data['form'].get('used_context') or {}
-        analytic_accounts = []
-        analytic_ids = []
-        if data['form'].get('analytic_account_ids'):
-            analytic_recs = self.env['account.analytic.account'].browse(
-                data['form'].get('analytic_account_ids', [])
-            )
-            analytic_ids = analytic_recs.ids
-            context['analytic_account_ids'] = analytic_ids
-            # Handle multilingual JSON names
-            for acc in analytic_recs:
-                try:
-                    name_data = json.loads(acc.name) if acc.name.startswith('{') else acc.name
-                    analytic_accounts.append(
-                        name_data.get('en_US') if isinstance(name_data, dict) else name_data
-                    )
-                except Exception:
-                    analytic_accounts.append(acc.name)
+        # Build the domain for move lines
+        domain = [
+            ('parent_state', '=', 'posted'),
+            ('date', '>=', date_from),
+            ('date', '<=', date_to),
+        ]
 
-        # Compute results
-        account_res = self.with_context(context)._get_accounts(accounts, display_account)
+        # ✅ Apply analytic filter only if selected
+        if analytic_account_id:
+            # account_move_line.analytic_distribution stores a JSON like {"2": 100.0}
+            domain.append(('analytic_distribution', 'ilike', f'"{analytic_account_id.id}"'))
 
-        # Journal codes
-        codes = []
-        if data['form'].get('journal_ids'):
-            codes = [journal.code for journal in self.env['account.journal'].browse(data['form']['journal_ids'])]
+        # Fetch all move lines
+        move_lines = self.env['account.move.line'].search(domain)
+
+        # Group data by account
+        accounts_data = {}
+        for line in move_lines:
+            acc = line.account_id
+            if acc not in accounts_data:
+                accounts_data[acc] = {
+                    'code': acc.code,
+                    'name': acc.name,
+                    'debit': 0.0,
+                    'credit': 0.0,
+                    'balance': 0.0,
+                }
+            accounts_data[acc]['debit'] += line.debit
+            accounts_data[acc]['credit'] += line.credit
+            accounts_data[acc]['balance'] += line.debit - line.credit
+
+        # Sort accounts by code
+        sorted_accounts = sorted(accounts_data.values(), key=lambda x: x['code'])
+
+        # Filter according to display_account
+        account_res = self._get_accounts(sorted_accounts, display_account)
 
         return {
-            'doc_ids': self.ids,
-            'doc_model': model,
-            'data': data['form'],
-            'docs': docs,
-            'print_journal': codes,
-            'analytic_accounts': analytic_accounts,
-            'time': time,
+            'doc_ids': docids,
+            'doc_model': 'trial.balance.report.wizard',
+            'data': data,
+            'docs': wizard,
             'Accounts': account_res,
+            'date_from': date_from,
+            'date_to': date_to,
+            'display_account': display_account,
+            'analytic_account': analytic_account_id.name if analytic_account_id else False,
         }
+
 

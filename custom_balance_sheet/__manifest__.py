@@ -9,6 +9,8 @@
     'data': [
         'security/ir.model.access.csv',
         'views/custom_balance_sheet_menu.xml',
+        'views/balance_sheet_wizard_view.xml',
+        'views/balance_sheet_line_view.xml',
     ],
     'installable': True,
     'application': False,

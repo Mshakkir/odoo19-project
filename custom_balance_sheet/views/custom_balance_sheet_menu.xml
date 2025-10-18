@@ -4,8 +4,8 @@
     <record id="custom_balance_sheet_action" model="ir.actions.act_window">
         <field name="name">Balance Sheet</field>
         <field name="res_model">custom.balance.sheet</field>
-        <field name="view_mode">tree,form</field>
-        <field name="target">current</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
     </record>
 
     <!-- Reporting submenu under Accounting -->

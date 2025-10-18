@@ -5,7 +5,7 @@
         <field name="name">custom.balance.sheet.line.tree</field>
         <field name="model">custom.balance.sheet.line</field>
         <field name="arch" type="xml">
-            <tree string="Balance Sheet Details">
+            <list string="Balance Sheet Details">
                 <field name="name" string="Account"/>
                 <field name="debit"/>
                 <field name="credit"/>
@@ -15,7 +15,7 @@
                         type="object"
                         icon="fa-book"
                         class="btn-secondary"/>
-            </tree>
+            </list>
         </field>
     </record>
 

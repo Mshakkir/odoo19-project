@@ -19,7 +19,7 @@ class BalanceSheetWizard(models.TransientModel):
             'name': 'Balance Sheet Details',
             'type': 'ir.actions.act_window',
             'res_model': 'custom.balance.sheet.line',
-            'view_mode': 'tree',
+            'view_mode': 'list,tree',
             'target': 'new',  # popup window
             'context': {
                 'date_from': self.date_from,

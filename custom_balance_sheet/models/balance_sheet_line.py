@@ -19,7 +19,7 @@ class BalanceSheetLine(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Ledger Entries',
             'res_model': 'account.move.line',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('account_id', '=', self.account_id.id)],
             'target': 'current',
         }

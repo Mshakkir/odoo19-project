@@ -1,11 +1,18 @@
 <odoo>
+    <!-- Action to open Balance Sheet Wizard -->
+    <record id="action_balance_sheet_wizard" model="ir.actions.act_window">
+        <field name="name">Balance Sheet</field>
+        <field name="res_model">balance.sheet.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
     <!-- Add Custom Balance Sheet menu under Financial Reports -->
     <menuitem
         id="menu_custom_balance_sheet"
         name="Custom Balance Sheet"
         parent="accounting_pdf_reports.menu_financial_reports"
         action="action_balance_sheet_wizard"
-        sequence="10"
+        sequence="7"
     />
 </odoo>
 

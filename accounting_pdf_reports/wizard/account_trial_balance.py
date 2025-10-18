@@ -36,32 +36,38 @@ class AccountBalanceReport(models.TransientModel):
     journal_ids = fields.Many2many(
         'account.journal', 'account_balance_report_journal_rel',
         'account_id', 'journal_id',
-        string='Journals', required=True, default=[]
+        string='Journals', required=True, default=[],
+        domain=[]  # <– ensure no default restriction
     )
     analytic_account_ids = fields.Many2many(
         'account.analytic.account',
         'account_trial_balance_analytic_rel', string='Analytic Accounts'
     )
 
-    # ---------- NEW PART ----------
+    # ---------- FIXED PART ----------
     @api.model
     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
-        """Dynamically modify the wizard view so the Journals field
-        shows journals from *all* companies the user is allowed to access."""
+        """Make the Journals field show journals from all companies the user can access."""
         res = super().fields_view_get(view_id=view_id, view_type=view_type,
                                       toolbar=toolbar, submenu=submenu)
         if view_type == 'form' and res.get('arch'):
             doc = etree.XML(res['arch'])
-            # Collect allowed company IDs for the current user
-            allowed_company_ids = self.env.companies.ids or \
-                self.env['res.company'].search([]).ids
-            # Build a safe domain string
+
+            # ✅ Use user.company_ids (all allowed companies)
+            allowed_company_ids = self.env.user.company_ids.ids
+            if not allowed_company_ids:
+                allowed_company_ids = self.env['res.company'].search([]).ids
+
+            # ✅ Build domain for journals from all allowed companies
             domain = "[('company_id', 'in', %s)]" % (allowed_company_ids,)
+
+            # ✅ Inject new domain into the field node
             for node in doc.xpath("//field[@name='journal_ids']"):
                 node.set('domain', domain)
+
             res['arch'] = etree.tostring(doc, encoding='unicode')
         return res
-    # ---------- END NEW PART ----------
+    # ---------- END FIXED PART ----------
 
     def _get_report_data(self, data):
         data = self.pre_print_report(data)

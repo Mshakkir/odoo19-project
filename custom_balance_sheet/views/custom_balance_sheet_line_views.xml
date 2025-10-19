@@ -2,8 +2,9 @@
 <odoo>
 
     <record id="view_custom_balance_sheet_line_list" model="ir.ui.view">
-        <field name="name">custom.balance.sheet.line.tree</field>
+        <field name="name">custom.balance.sheet.line.list</field>
         <field name="model">custom.balance.sheet.line</field>
+        <field name="view_mode">list</field>
         <field name="arch" type="xml">
             <list string="Balance Sheet Details" decoration-muted="is_total">
                 <field name="name" string="Account"/>
@@ -17,7 +18,7 @@
                         type="object"
                         icon="fa-book"
                         class="btn-secondary"
-                        modifiers='{"invisible": [["is_total", "=", true]]}'/>
+                        invisible="is_total"/>
             </list>
         </field>
     </record>

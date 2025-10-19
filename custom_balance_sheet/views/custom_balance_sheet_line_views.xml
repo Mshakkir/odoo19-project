@@ -5,7 +5,7 @@
         <field name="name">custom.balance.sheet.line.tree</field>
         <field name="model">custom.balance.sheet.line</field>
         <field name="arch" type="xml">
-            <tree string="Balance Sheet Details" decoration-muted="is_total">
+            <list string="Balance Sheet Details" decoration-muted="is_total">
                 <field name="name" string="Account"/>
                 <field name="account_type" string="Type"/>
                 <field name="debit" sum="Total Debit"/>
@@ -18,7 +18,7 @@
                         icon="fa-book"
                         class="btn-secondary"
                         modifiers='{"invisible": [["is_total", "=", true]]}'/>
-            </tree>
+            </list>
         </field>
     </record>
 

@@ -5,20 +5,20 @@
         <field name="name">custom.balance.sheet.line.tree</field>
         <field name="model">custom.balance.sheet.line</field>
         <field name="arch" type="xml">
-            <list string="Balance Sheet Details" decoration-muted="is_total">
-                <field name="name" string="Account" />
-                <field name="account_type" string="Type" />
-                <field name="debit" sum="Total Debit" />
-                <field name="credit" sum="Total Credit" />
-                <field name="balance" sum="Total Balance" />
+            <tree string="Balance Sheet Details" decoration-muted="is_total">
+                <field name="name" string="Account"/>
+                <field name="account_type" string="Type"/>
+                <field name="debit" sum="Total Debit"/>
+                <field name="credit" sum="Total Credit"/>
+                <field name="balance" sum="Total Balance"/>
 
                 <button name="action_view_ledger"
                         string="View Ledger"
                         type="object"
                         icon="fa-book"
                         class="btn-secondary"
-                        attrs="{'invisible': [('is_total', '=', True)]}" />
-            </list>
+                        modifiers='{"invisible": [["is_total", "=", true]]}'/>
+            </tree>
         </field>
     </record>
 

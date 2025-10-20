@@ -23,10 +23,9 @@ class CustomBalanceSheet(models.TransientModel):
             'name': 'Balance Sheet Details',
             'type': 'ir.actions.act_window',
             'res_model': 'custom.balance.sheet.line',
-            'view_mode': 'list,form',
+            'view_mode': 'tree,form',
             'target': 'new',  # open in popup
         }
-
 
 
 

@@ -1,41 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- List View for Balance Sheet Lines -->
+
+    <!-- List (tree) View for Balance Sheet Lines -->
     <record id="view_custom_balance_sheet_line_list" model="ir.ui.view">
-        <field name="name">custom.balance.sheet.line.list</field>
+        <field name="name">custom.balance.sheet.line.tree</field>
         <field name="model">custom.balance.sheet.line</field>
         <field name="arch" type="xml">
-            <list string="Balance Sheet Details" decoration-muted="is_total">
-                <field name="name" string="Account"/>
-                <field name="account_type" string="Type"/>
+            <tree string="Balance Sheet Details" decoration-muted="is_total">
+                <field name="name"/>
+                <field name="account_type"/>
                 <field name="debit" sum="Total Debit"/>
                 <field name="credit" sum="Total Credit"/>
                 <field name="balance" sum="Total Balance"/>
-                <button
-                        name="action_view_ledger"
+                <!-- Button is allowed in tree as leaf element -->
+                <button name="action_view_ledger"
                         string="View Ledger"
                         type="object"
                         icon="fa-book"
-                        class="btn-secondary"
-                        modifiers='{"invisible": [["is_total", "=", true]]}'
-                />
-            </list>
+                        attrs="{'invisible': [('is_total','=', True)]}"/>
+            </tree>
         </field>
     </record>
+
     <record id="view_custom_balance_sheet_line_form" model="ir.ui.view">
         <field name="name">custom.balance.sheet.line.form</field>
         <field name="model">custom.balance.sheet.line</field>
         <field name="arch" type="xml">
             <form string="Balance Sheet Line">
-                <group>
-                    <field name="name"/>
-                    <field name="account_id"/>
-                    <field name="account_type"/>
-                    <field name="debit"/>
-                    <field name="credit"/>
-                    <field name="balance"/>
-                    <field name="is_total"/>
-                </group>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="account_id"/>
+                        <field name="account_type"/>
+                        <field name="debit"/>
+                        <field name="credit"/>
+                        <field name="balance"/>
+                        <field name="is_total"/>
+                    </group>
+                </sheet>
             </form>
         </field>
     </record>

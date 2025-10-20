@@ -5,7 +5,7 @@
         <field name="name">custom.balance.sheet.line.list</field>
         <field name="model">custom.balance.sheet.line</field>
         <field name="arch" type="xml">
-            <list string="Balance Sheet Details" decoration-muted="is_total">
+            <tree string="Balance Sheet Details" decoration-muted="is_total">
                 <field name="name" string="Account"/>
                 <field name="account_type" string="Type"/>
                 <field name="debit" sum="Total Debit"/>
@@ -19,7 +19,7 @@
                         class="btn-secondary"
                         modifiers='{"invisible": [["is_total", "=", true]]}'
                 />
-            </list>
+            </tree>
         </field>
     </record>
     <record id="view_custom_balance_sheet_line_form" model="ir.ui.view">

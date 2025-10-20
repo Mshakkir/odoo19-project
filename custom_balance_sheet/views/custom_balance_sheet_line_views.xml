@@ -5,7 +5,7 @@
         <field name="name">custom.balance.sheet.line.tree</field>
         <field name="model">custom.balance.sheet.line</field>
         <field name="arch" type="xml">
-            <tree string="Balance Sheet Details" decoration-muted="is_total">
+            <list string="Balance Sheet Details" decoration-muted="is_total">
                 <field name="name" string="Account"/>
                 <field name="account_type" string="Type"/>
                 <field name="debit" sum="Total Debit"/>
@@ -13,13 +13,14 @@
                 <field name="balance" sum="Total Balance"/>
 
                 <button
-                    name="action_view_ledger"
-                    string="View Ledger"
-                    type="object"
-                    icon="fa-book"
-                  invisible="is_total"
+                        name="action_view_ledger"
+                        string="View Ledger"
+                        type="object"
+                        icon="fa-book"
+                        class="btn-secondary"
+                        modifiers='{"invisible": [["is_total", "=", true]]}' invisible="is_total"
                 />
-            </tree>
+            </list>
         </field>
     </record>
     <record id="view_custom_balance_sheet_line_form" model="ir.ui.view">

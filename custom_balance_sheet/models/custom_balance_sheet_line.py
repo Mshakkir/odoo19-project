@@ -11,14 +11,17 @@ class CustomBalanceSheetLine(models.TransientModel):
     debit = fields.Monetary(string="Debit", currency_field='currency_id')
     credit = fields.Monetary(string="Credit", currency_field='currency_id')
     balance = fields.Monetary(string="Balance", currency_field='currency_id')
-    currency_id = fields.Many2one('res.currency', default=lambda self: self.env.company.currency_id)
+    currency_id = fields.Many2one(
+        'res.currency',
+        default=lambda self: self.env.company.currency_id
+    )
     account_type = fields.Selection([
         ('asset', 'Asset'),
         ('liability', 'Liability'),
         ('equity', 'Equity')
     ], string="Type", required=True)
 
-    # Section totals (optional display lines)
+    # Boolean field to identify total rows
     is_total = fields.Boolean(string="Is Total Line", default=False)
 
     @api.model
@@ -27,12 +30,13 @@ class CustomBalanceSheetLine(models.TransientModel):
         Generate balance sheet lines between date_from and date_to.
         Includes only Asset, Liability, and Equity accounts.
         """
-        self.search([]).unlink()  # Clear old records
+        # Clean old lines (for wizard)
+        self.search([]).unlink()
 
         move_state = ['posted'] if target_moves == 'posted' else ['draft', 'posted']
         company_currency = self.env.company.currency_id
 
-        # Map Odoo account types to Balance Sheet categories
+        # Mapping Odoo internal account types to Balance Sheet categories
         type_map = {
             'asset_current': 'asset',
             'asset_non_current': 'asset',
@@ -41,7 +45,6 @@ class CustomBalanceSheetLine(models.TransientModel):
             'equity': 'equity',
         }
 
-        # Fetch relevant accounts
         accounts = self.env['account.account'].search([
             ('account_type', 'in', list(type_map.keys()))
         ])
@@ -50,6 +53,9 @@ class CustomBalanceSheetLine(models.TransientModel):
 
         for acc in accounts:
             account_type = type_map.get(acc.account_type)
+            if not account_type:
+                continue
+
             domain = [
                 ('account_id', '=', acc.id),
                 ('date', '>=', date_from),
@@ -60,12 +66,15 @@ class CustomBalanceSheetLine(models.TransientModel):
             move_lines = self.env['account.move.line'].search(domain)
             debit = sum(move_lines.mapped('debit'))
             credit = sum(move_lines.mapped('credit'))
-            balance = debit - credit  # Assets = Debit - Credit (debit nature)
 
-            # For liabilities/equity, flip the sign to show positive balances on credit side
-            if account_type in ['liability', 'equity']:
+            # For Asset accounts → normal debit nature
+            # For Liability/Equity → reverse sign (credit nature)
+            if account_type == 'asset':
+                balance = debit - credit
+            else:
                 balance = credit - debit
 
+            # Only create record if there is activity
             if debit or credit:
                 self.create({
                     'name': acc.display_name,
@@ -78,7 +87,7 @@ class CustomBalanceSheetLine(models.TransientModel):
                 })
                 totals[account_type] += balance
 
-        # Add section total lines
+        # Add total rows
         for ttype, total in totals.items():
             self.create({
                 'name': f"Total {ttype.capitalize()}",
@@ -90,7 +99,7 @@ class CustomBalanceSheetLine(models.TransientModel):
                 'currency_id': company_currency.id,
             })
 
-        # Compute check difference (Assets - (Liabilities + Equity))
+        # Add difference line if imbalance exists
         diff = totals['asset'] - (totals['liability'] + totals['equity'])
         if abs(diff) > 0.0001:
             self.create({
@@ -102,7 +111,7 @@ class CustomBalanceSheetLine(models.TransientModel):
             })
 
     def action_view_ledger(self):
-        """Open account move lines (ledger) for this account"""
+        """Open ledger (account.move.line) for selected account"""
         self.ensure_one()
         return {
             'name': _('Ledger Entries'),

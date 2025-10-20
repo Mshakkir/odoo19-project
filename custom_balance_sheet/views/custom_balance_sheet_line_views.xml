@@ -11,14 +11,13 @@
                 <field name="debit" sum="Total Debit"/>
                 <field name="credit" sum="Total Credit"/>
                 <field name="balance" sum="Total Balance"/>
-
                 <button
                         name="action_view_ledger"
                         string="View Ledger"
                         type="object"
                         icon="fa-book"
                         class="btn-secondary"
-                        modifiers='{"invisible": [["is_total", "=", true]]}' invisible="is_total"
+                        modifiers='{"invisible": [["is_total", "=", true]]}'
                 />
             </list>
         </field>

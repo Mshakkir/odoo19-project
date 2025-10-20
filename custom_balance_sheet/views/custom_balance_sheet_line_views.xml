@@ -3,10 +3,10 @@
 
     <!-- List (tree) View for Balance Sheet Lines -->
     <record id="view_custom_balance_sheet_line_list" model="ir.ui.view">
-        <field name="name">custom.balance.sheet.line.tree</field>
+        <field name="name">custom.balance.sheet.line.list</field>
         <field name="model">custom.balance.sheet.line</field>
         <field name="arch" type="xml">
-            <tree string="Balance Sheet Details" decoration-muted="is_total">
+            <list string="Balance Sheet Details" decoration-muted="is_total">
                 <field name="name"/>
                 <field name="account_type"/>
                 <field name="debit" sum="Total Debit"/>
@@ -18,7 +18,7 @@
                         type="object"
                         icon="fa-book"
                         attrs="{'invisible': [('is_total','=', True)]}"/>
-            </tree>
+            </list>
         </field>
     </record>
 

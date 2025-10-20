@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- List View for Balance Sheet Lines -->
-    <record id="view_custom_balance_sheet_line_list" model="ir.ui.view">
-        <field name="name">custom.balance.sheet.line.list</field>
+    <record id="view_custom_balance_sheet_line_tree" model="ir.ui.view">
+        <field name="name">custom.balance.sheet.line.tree</field>
         <field name="model">custom.balance.sheet.line</field>
         <field name="arch" type="xml">
             <tree string="Balance Sheet Details" decoration-muted="is_total">

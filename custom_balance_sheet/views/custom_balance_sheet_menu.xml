@@ -1,7 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Wizard Form View -->
+    <!-- Wizard Action -->
+    <record id="custom_balance_sheet_action" model="ir.actions.act_window">
+        <field name="name">Balance Sheet</field>
+        <field name="res_model">custom.balance.sheet</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Main menu -->
+    <menuitem id="custom_accounting_reporting_menu"
+              name="Custom Reporting"
+              parent="account.menu_finance"
+              sequence="40"/>
+
+    <menuitem id="custom_balance_sheet_menu"
+              name="Balance Sheet"
+              parent="custom_accounting_reporting_menu"
+              sequence="1"
+              action="custom_balance_sheet_action"/>
+
+    <!-- Wizard Form -->
     <record id="view_custom_balance_sheet_form" model="ir.ui.view">
         <field name="name">custom.balance.sheet.form</field>
         <field name="model">custom.balance.sheet</field>
@@ -13,36 +33,13 @@
                     <field name="date_to"/>
                 </group>
                 <footer>
-                    <button string="Generate Report"
-                            type="object"
-                            name="action_generate_report"
-                            class="btn-primary"/>
+                    <button string="Generate Report" type="object"
+                            name="action_generate_report" class="btn-primary"/>
                     <button string="Cancel" special="cancel" class="btn-secondary"/>
                 </footer>
             </form>
         </field>
     </record>
-
-    <!-- Action to Open Wizard -->
-    <record id="action_custom_balance_sheet_wizard" model="ir.actions.act_window">
-        <field name="name">Balance Sheet</field>
-        <field name="res_model">custom.balance.sheet</field>
-        <field name="view_mode">form</field>
-        <field name="view_id" ref="view_custom_balance_sheet_form"/>
-        <field name="target">new</field>
-    </record>
-
-    <!-- Custom Menu Items -->
-    <menuitem id="menu_custom_reporting_root"
-              name="Custom Reporting"
-              parent="account.menu_finance"
-              sequence="40"/>
-
-    <menuitem id="custom_balance_sheet_menu"
-              name="Balance Sheet"
-              parent="custom_accounting_reporting_menu"
-              sequence="1"
-              action="custom_balance_sheet_action"/>
 
 </odoo>
 
@@ -57,27 +54,7 @@
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 
-<!--    &lt;!&ndash; Wizard Action &ndash;&gt;-->
-<!--    <record id="custom_balance_sheet_action" model="ir.actions.act_window">-->
-<!--        <field name="name">Balance Sheet</field>-->
-<!--        <field name="res_model">custom.balance.sheet</field>-->
-<!--        <field name="view_mode">form</field>-->
-<!--        <field name="target">new</field>-->
-<!--    </record>-->
-
-<!--    &lt;!&ndash; Main menu &ndash;&gt;-->
-<!--    <menuitem id="custom_accounting_reporting_menu"-->
-<!--              name="Custom Reporting"-->
-<!--              parent="account.menu_finance"-->
-<!--              sequence="40"/>-->
-
-<!--    <menuitem id="custom_balance_sheet_menu"-->
-<!--              name="Balance Sheet"-->
-<!--              parent="custom_accounting_reporting_menu"-->
-<!--              sequence="1"-->
-<!--              action="custom_balance_sheet_action"/>-->
-
-<!--    &lt;!&ndash; Wizard Form &ndash;&gt;-->
+<!--    &lt;!&ndash; Wizard Form View &ndash;&gt;-->
 <!--    <record id="view_custom_balance_sheet_form" model="ir.ui.view">-->
 <!--        <field name="name">custom.balance.sheet.form</field>-->
 <!--        <field name="model">custom.balance.sheet</field>-->
@@ -89,12 +66,44 @@
 <!--                    <field name="date_to"/>-->
 <!--                </group>-->
 <!--                <footer>-->
-<!--                    <button string="Generate Report" type="object"-->
-<!--                            name="action_generate_report" class="btn-primary"/>-->
+<!--                    <button string="Generate Report"-->
+<!--                            type="object"-->
+<!--                            name="action_generate_report"-->
+<!--                            class="btn-primary"/>-->
 <!--                    <button string="Cancel" special="cancel" class="btn-secondary"/>-->
 <!--                </footer>-->
 <!--            </form>-->
 <!--        </field>-->
 <!--    </record>-->
 
+<!--    &lt;!&ndash; Action to Open Wizard &ndash;&gt;-->
+<!--    <record id="action_custom_balance_sheet_wizard" model="ir.actions.act_window">-->
+<!--        <field name="name">Balance Sheet</field>-->
+<!--        <field name="res_model">custom.balance.sheet</field>-->
+<!--        <field name="view_mode">form</field>-->
+<!--        <field name="view_id" ref="view_custom_balance_sheet_form"/>-->
+<!--        <field name="target">new</field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Custom Menu Items &ndash;&gt;-->
+<!--    <menuitem id="menu_custom_reporting_root"-->
+<!--              name="Custom Reporting"-->
+<!--              parent="account.menu_finance"-->
+<!--              sequence="40"/>-->
+
+<!--    <menuitem id="custom_balance_sheet_menu"-->
+<!--              name="Balance Sheet"-->
+<!--              parent="custom_accounting_reporting_menu"-->
+<!--              sequence="1"-->
+<!--              action="custom_balance_sheet_action"/>-->
+
 <!--</odoo>-->
+
+
+
+
+
+
+
+
+

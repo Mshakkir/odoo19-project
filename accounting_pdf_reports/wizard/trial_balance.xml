@@ -10,8 +10,8 @@
                 <xpath expr="//field[@name='target_move']" position="after">
                     <field name="display_account" widget="radio"/>
                     <newline/>
-                    <xpath expr="//field[@name='display_account']" position="before">
-                        <newline/>
+                    <xpath expr="//field[@name='display_account']" position="after">
+                        <newline/>Analytic account
                         <field name="analytic_account_ids" widget="many2many_tags" options="{'no_create': True}"/>
                     </xpath>
 

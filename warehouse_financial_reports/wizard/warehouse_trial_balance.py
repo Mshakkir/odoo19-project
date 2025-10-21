@@ -1,7 +1,6 @@
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError
 
-
 class WarehouseTrialBalance(models.TransientModel):
     _name = 'warehouse.trial.balance'
     _description = 'Warehouse Trial Balance Wizard'
@@ -30,7 +29,6 @@ class WarehouseTrialBalance(models.TransientModel):
         default=lambda self: self.env['account.journal'].search([])
     )
 
-    # Key field: Select which warehouse to report on
     report_mode = fields.Selection([
         ('single', 'Single Warehouse Report'),
         ('consolidated', 'Consolidated (All Warehouses Combined)')
@@ -44,54 +42,37 @@ class WarehouseTrialBalance(models.TransientModel):
 
     @api.onchange('report_mode')
     def _onchange_report_mode(self):
-        """Show/hide fields based on report mode"""
         if self.report_mode == 'consolidated':
             self.analytic_account_id = False
 
     def print_report(self):
-        """Generate trial balance report based on selected mode"""
         self.ensure_one()
-
         if self.report_mode == 'single' and not self.analytic_account_id:
             raise UserError(_('Please select a warehouse for single warehouse report.'))
-
-        if self.report_mode == 'single':
-            return self._print_single_warehouse_report()
-        else:
-            return self._print_consolidated_report()
+        return self._print_single_warehouse_report() if self.report_mode == 'single' else self._print_consolidated_report()
 
     def _print_single_warehouse_report(self):
-        """Generate report for single warehouse"""
         data = self._prepare_report_data()
         data['form']['analytic_account_ids'] = [self.analytic_account_id.id]
         data['form']['warehouse_name'] = self.analytic_account_id.name
         data['form']['report_mode'] = 'single'
-
-        return self.env.ref('warehouse_financial_reports.action_warehouse_trial_balance').report_action(
-            self, data={'form': data['form']}
-        )
+        return self.env.ref('warehouse_financial_reports.action_warehouse_trial_balance').report_action(self, data={'form': data['form']})
 
     def _print_consolidated_report(self):
-        """Generate consolidated report for all warehouses"""
         data = self._prepare_report_data()
         data['form']['analytic_account_ids'] = []
         data['form']['warehouse_name'] = 'All Warehouses (Consolidated)'
         data['form']['report_mode'] = 'consolidated'
-
-        return self.env.ref('warehouse_financial_reports.action_warehouse_trial_balance').report_action(
-            self, data={'form': data['form']}
-        )
+        return self.env.ref('warehouse_financial_reports.action_warehouse_trial_balance').report_action(self, data={'form': data['form']})
 
     def _prepare_report_data(self):
-        """Prepare common data for all report types"""
         used_context = {
             'journal_ids': self.journal_ids.ids,
-            'state': self.target_move,
+            'state': 'posted' if self.target_move == 'posted' else False,
             'date_from': self.date_from,
             'date_to': self.date_to,
             'strict_range': True,
         }
-
         return {
             'ids': self.ids,
             'model': self._name,

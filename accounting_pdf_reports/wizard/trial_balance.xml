@@ -1,56 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-<!--    <record id="account_report_balance_view" model="ir.ui.view">-->
-<!--        <field name="name">Trial Balance</field>-->
-<!--        <field name="model">account.balance.report</field>-->
-<!--        <field name="inherit_id" ref="accounting_pdf_reports.account_common_report_view"/>-->
-<!--        <field name="arch" type="xml">-->
-<!--            <data>-->
-<!--                <xpath expr="//field[@name='target_move']" position="after">-->
-<!--                    <field name="display_account" widget="radio"/>-->
-<!--                    <newline/>-->
-<!--                    <xpath expr="//field[@name='display_account']" position="after">-->
-<!--                        <newline/>-->
-<!--                        <field name="analytic_account_ids" widget="many2many_tags" options="{'no_create': True}"/>-->
-<!--                    </xpath>-->
+    <record id="account_report_balance_view" model="ir.ui.view">
+        <field name="name">Trial Balance</field>
+        <field name="model">account.balance.report</field>
+        <field name="inherit_id" ref="accounting_pdf_reports.account_common_report_view"/>
+        <field name="arch" type="xml">
+            <data>
+                <xpath expr="//field[@name='target_move']" position="after">
+                    <field name="display_account" widget="radio"/>
+                    <newline/>
+                    <xpath expr="//field[@name='display_account']" position="before">
+                        <newline/>
+                        <field name="analytic_account_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                    </xpath>
 
-<!--                </xpath>-->
-<!--            </data>-->
-<!--        </field>-->
-<!--    </record>-->
-    <record id="view_account_balance_report_wizard_form_inherit" model="ir.ui.view">
-    <field name="name">account.balance.report.wizard.form.inherit</field>
-    <field name="model">account.balance.report</field>
-    <field name="inherit_id" ref="accounting_pdf_reports.view_account_balance_report_wizard_form"/>
-    <field name="arch" type="xml">
-        <xpath expr="//form" position="replace">
-            <form string="Trial Balance" create="false" edit="false">
-                <group>
-                    <group>
-                        <field name="target_move"/>
-                        <field name="display_account"/>
-                        <field name="date_from"/>
-                        <field name="date_to"/>
-                    </group>
-                    <group>
-                        <field name="analytic_account_ids" widget="many2many_tags"
-                            options="{'no_create': True}" colspan="2"/>
-                        <field name="journal_ids" widget="many2many_tags"
-                            options="{'no_create': True}" colspan="2"/>
-                    </group>
-                </group>
-                <footer>
-                    <button string="Print" name="print_report" type="object" class="btn-primary"/>
-                    <button string="Cancel" special="cancel" class="btn-secondary"/>
-                    <button string="Open Trial Balance Lines" name="open_trial_balance_lines"
-                        type="object" class="btn-secondary"/>
-                </footer>
-            </form>
-        </xpath>
-    </field>
-</record>
-
+                </xpath>
+            </data>
+        </field>
+    </record>
 
     <record id="action_account_balance_menu" model="ir.actions.act_window">
         <field name="name">Trial Balance</field>

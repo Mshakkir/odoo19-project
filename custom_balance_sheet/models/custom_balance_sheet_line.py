@@ -20,23 +20,16 @@ class CustomBalanceSheetLine(models.TransientModel):
         ('liability', 'Liability'),
         ('equity', 'Equity')
     ], string="Type", required=True)
-
-    # Boolean field to identify total rows
     is_total = fields.Boolean(string="Is Total Line", default=False)
 
     @api.model
     def generate_lines(self, date_from, date_to, target_moves):
-        """
-        Generate balance sheet lines between date_from and date_to.
-        Includes only Asset, Liability, and Equity accounts.
-        """
-        # Clean old lines (for wizard)
+        """Generate balance sheet lines between date_from and date_to."""
         self.search([]).unlink()
 
         move_state = ['posted'] if target_moves == 'posted' else ['draft', 'posted']
         company_currency = self.env.company.currency_id
 
-        # Mapping Odoo internal account types to Balance Sheet categories
         type_map = {
             'asset_current': 'asset',
             'asset_non_current': 'asset',
@@ -67,14 +60,11 @@ class CustomBalanceSheetLine(models.TransientModel):
             debit = sum(move_lines.mapped('debit'))
             credit = sum(move_lines.mapped('credit'))
 
-            # For Asset accounts → normal debit nature
-            # For Liability/Equity → reverse sign (credit nature)
             if account_type == 'asset':
                 balance = debit - credit
             else:
                 balance = credit - debit
 
-            # Only create record if there is activity
             if debit or credit:
                 self.create({
                     'name': acc.display_name,
@@ -87,7 +77,7 @@ class CustomBalanceSheetLine(models.TransientModel):
                 })
                 totals[account_type] += balance
 
-        # Add total rows
+        # Total rows
         for ttype, total in totals.items():
             self.create({
                 'name': f"Total {ttype.capitalize()}",
@@ -99,7 +89,7 @@ class CustomBalanceSheetLine(models.TransientModel):
                 'currency_id': company_currency.id,
             })
 
-        # Add difference line if imbalance exists
+        # Difference check
         diff = totals['asset'] - (totals['liability'] + totals['equity'])
         if abs(diff) > 0.0001:
             self.create({

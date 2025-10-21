@@ -1,11 +1,6 @@
 from odoo import models, fields, api, _
 from datetime import date
 
-
-class UserError:
-    pass
-
-
 class CustomBalanceSheetLine(models.TransientModel):
     _name = "custom.balance.sheet.line"
     _description = "Custom Balance Sheet Line"
@@ -108,9 +103,6 @@ class CustomBalanceSheetLine(models.TransientModel):
     def action_view_ledger(self):
         """Open ledger (account.move.line) for selected account"""
         self.ensure_one()
-        if not hasattr(self, 'account_id') or not self.account_id:
-            # Prevent crashing if no related account
-            raise UserError("No account linked to this line.")
         return {
             'name': _('Ledger Entries'),
             'type': 'ir.actions.act_window',

@@ -1,6 +1,7 @@
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError
 
+
 class WarehouseTrialBalance(models.TransientModel):
     _name = 'warehouse.trial.balance'
     _description = 'Warehouse Trial Balance Wizard'
@@ -49,26 +50,25 @@ class WarehouseTrialBalance(models.TransientModel):
         self.ensure_one()
         if self.report_mode == 'single' and not self.analytic_account_id:
             raise UserError(_('Please select a warehouse for single warehouse report.'))
-        return self._print_single_warehouse_report() if self.report_mode == 'single' else self._print_consolidated_report()
 
-    def _print_single_warehouse_report(self):
         data = self._prepare_report_data()
-        data['form']['analytic_account_ids'] = [self.analytic_account_id.id]
-        data['form']['warehouse_name'] = self.analytic_account_id.name
-        data['form']['report_mode'] = 'single'
-        return self.env.ref('warehouse_financial_reports.action_warehouse_trial_balance').report_action(self, data={'form': data['form']})
+        if self.report_mode == 'single':
+            data['form']['analytic_account_ids'] = [self.analytic_account_id.id]
+            data['form']['warehouse_name'] = self.analytic_account_id.name
+        else:
+            data['form']['analytic_account_ids'] = []
+            data['form']['warehouse_name'] = 'All Warehouses (Consolidated)'
 
-    def _print_consolidated_report(self):
-        data = self._prepare_report_data()
-        data['form']['analytic_account_ids'] = []
-        data['form']['warehouse_name'] = 'All Warehouses (Consolidated)'
-        data['form']['report_mode'] = 'consolidated'
-        return self.env.ref('warehouse_financial_reports.action_warehouse_trial_balance').report_action(self, data={'form': data['form']})
+        data['form']['report_mode'] = self.report_mode
+
+        return self.env.ref('warehouse_financial_reports.action_warehouse_trial_balance').report_action(
+            self, data={'form': data['form']}
+        )
 
     def _prepare_report_data(self):
         used_context = {
             'journal_ids': self.journal_ids.ids,
-            'state': 'posted' if self.target_move == 'posted' else False,
+            'state': self.target_move,
             'date_from': self.date_from,
             'date_to': self.date_to,
             'strict_range': True,

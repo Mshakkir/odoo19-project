@@ -1,20 +1,27 @@
 import time
 from odoo import api, models, _
-from odoo.exceptions import UserError
+
 
 class ReportWarehouseTrialBalance(models.AbstractModel):
     _name = 'report.warehouse_financial_reports.warehouse_trial_balance_report'
     _description = 'Warehouse Trial Balance Report'
 
     def _get_accounts(self, accounts, display_account, analytic_account_ids=None):
-        """
-        Compute balance, debit and credit for accounts filtered by warehouse
-        """
+        """Compute debit, credit, balance for accounts filtered by warehouse and journal/date"""
         account_result = {}
 
-        # Prepare SQL query
-        tables, where_clause, where_params = self.env['account.move.line']._query_get()
-        tables = tables.replace('"', '')  # remove quotes
+        # Get context filters
+        journal_ids = self.env.context.get('journal_ids', [])
+        date_from = self.env.context.get('date_from')
+        date_to = self.env.context.get('date_to')
+        target_move = self.env.context.get('state', 'posted')
+
+        # Prepare query using Odoo helper
+        tables, where_clause, where_params = self.env['account.move.line']._query_get(
+            domain=[],
+            context=self.env.context,
+        )
+        tables = tables.replace('"', '')
         if not tables:
             tables = 'account_move_line'
 
@@ -22,25 +29,34 @@ class ReportWarehouseTrialBalance(models.AbstractModel):
         if where_clause.strip():
             wheres.append(where_clause.strip())
 
-        # Analytic (warehouse) filter
+        # Journal filter
+        if journal_ids:
+            wheres.append("journal_id IN %s")
+            where_params += (tuple(journal_ids),)
+
+        # Analytic account (warehouse) filter
         if analytic_account_ids:
-            tables += """ LEFT JOIN account_analytic_line aal ON account_move_line.id = aal.move_line_id """
-            wheres.append("(aal.account_id IN %s OR aal.account_id IS NULL)")
+            tables += """
+                INNER JOIN account_analytic_line aal ON account_move_line.id = aal.move_line_id
+            """
+            wheres.append("aal.account_id IN %s")
             where_params += (tuple(analytic_account_ids),)
 
         filters = " AND ".join(wheres)
 
-        # Compute the balance, debit, credit
-        request = (
-            "SELECT account_id AS id, SUM(debit) AS debit, SUM(credit) AS credit, "
-            "(SUM(debit) - SUM(credit)) AS balance "
-            "FROM " + tables + " "
-            "WHERE account_id IN %s " + filters + " "
-            "GROUP BY account_id"
-        )
+        # Compute debit/credit/balance
+        request = f"""
+            SELECT account_id AS id,
+                   SUM(debit) AS debit,
+                   SUM(credit) AS credit,
+                   SUM(debit) - SUM(credit) AS balance
+            FROM {tables}
+            WHERE account_id IN %s
+            {f'AND {filters}' if filters else ''}
+            GROUP BY account_id
+        """
         params = (tuple(accounts.ids),) + tuple(where_params)
         self.env.cr.execute(request, params)
-
         for row in self.env.cr.dictfetchall():
             account_result[row.pop('id')] = row
 
@@ -52,58 +68,58 @@ class ReportWarehouseTrialBalance(models.AbstractModel):
             res['name'] = account.name
 
             if account.id in account_result:
-                res['debit'] = float(account_result[account.id].get('debit', 0.0) or 0.0)
-                res['credit'] = float(account_result[account.id].get('credit', 0.0) or 0.0)
-                res['balance'] = float(account_result[account.id].get('balance', 0.0) or 0.0)
+                res['debit'] = float(account_result[account.id].get('debit') or 0.0)
+                res['credit'] = float(account_result[account.id].get('credit') or 0.0)
+                res['balance'] = float(account_result[account.id].get('balance') or 0.0)
 
-            # Filter accounts
+            # Apply display_account filter
             if display_account == 'all':
                 account_res.append(res)
             elif display_account == 'not_zero' and not currency.is_zero(res['balance']):
                 account_res.append(res)
-            elif display_account == 'movement' and (
-                not currency.is_zero(res['debit']) or not currency.is_zero(res['credit'])
-            ):
+            elif display_account == 'movement' and (not currency.is_zero(res['debit']) or not currency.is_zero(res['credit'])):
                 account_res.append(res)
 
         return account_res
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        """Generate report values with warehouse filtering"""
+        """Generate report values"""
         if not data:
             data = {}
+
         form_data = data.get('form', data)
-        if not form_data:
-            raise UserError(_("Form content is missing, this report cannot be printed."))
-
-        display_account = form_data.get('display_account')
+        display_account = form_data.get('display_account', 'not_zero')
         accounts = self.env['account.account'].search([])
-        context = form_data.get('used_context', {})
 
-        # Analytic (warehouse) filter
+        # Determine warehouse filter
         analytic_account_ids = form_data.get('analytic_account_ids', [])
         warehouse_name = form_data.get('warehouse_name', 'All Warehouses')
         report_mode = form_data.get('report_mode', 'consolidated')
 
-        account_res = self.with_context(context)._get_accounts(
+        # Get accounts with proper context
+        account_res = self.with_context(
+            journal_ids=form_data.get('journal_ids', []),
+            date_from=form_data.get('date_from'),
+            date_to=form_data.get('date_to'),
+            state=form_data.get('target_move', 'posted'),
+            strict_range=True,
+        )._get_accounts(
             accounts,
             display_account,
             analytic_account_ids if report_mode == 'single' else None
         )
 
-        account_res = account_res or []
+        # Prepare totals
+        total_debit = sum(float(acc.get('debit', 0.0)) for acc in account_res)
+        total_credit = sum(float(acc.get('credit', 0.0)) for acc in account_res)
+        total_balance = sum(float(acc.get('balance', 0.0)) for acc in account_res)
 
-        # Get journal codes
+        # Prepare journal codes
         codes = []
         if form_data.get('journal_ids'):
             journals = self.env['account.journal'].browse(form_data['journal_ids'])
-            codes = [journal.code for journal in journals if journal.code]
-
-        # Calculate totals
-        total_debit = sum(float(acc.get('debit', 0.0) or 0.0) for acc in account_res)
-        total_credit = sum(float(acc.get('credit', 0.0) or 0.0) for acc in account_res)
-        total_balance = sum(float(acc.get('balance', 0.0) or 0.0) for acc in account_res)
+            codes = [j.code for j in journals if j.code]
 
         return {
             'doc_ids': docids,
@@ -117,7 +133,7 @@ class ReportWarehouseTrialBalance(models.AbstractModel):
             'total_debit': total_debit,
             'total_credit': total_credit,
             'total_balance': total_balance,
-            'display_account': form_data.get('display_account', 'not_zero'),
+            'display_account': display_account,
             'date_from': form_data.get('date_from', False),
             'date_to': form_data.get('date_to', False),
             'target_move': form_data.get('target_move', 'posted'),

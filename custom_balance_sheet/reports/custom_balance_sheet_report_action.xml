@@ -1,3 +1,4 @@
+<odoo>
 <report
     id="action_custom_balance_sheet_pdf"
     model="custom.balance.sheet"
@@ -7,6 +8,7 @@
     file="custom_balance_sheet.report_custom_balance_sheet_pdf"
     print_report_name="'Custom Balance Sheet - %s' % (object.date_to)"
 />
+    </odoo>
 
 
 

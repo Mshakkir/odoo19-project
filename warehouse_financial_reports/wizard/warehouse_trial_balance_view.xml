@@ -11,18 +11,14 @@
                         <field name="date_to"/>
                         <field name="target_move"/>
                         <field name="display_account"/>
+                        <field name="journal_ids" widget="many2many_tags"/>
                     </group>
                     <group string="Warehouse Selection">
                         <field name="report_mode" widget="radio"/>
                         <field name="analytic_account_id"
-                               attrs="{'invisible': [('report_mode', '!=', 'single')],
-                                       'required': [('report_mode', '=', 'single')]}"/>
-                        <field name="analytic_account_ids" widget="many2many_tags"
-                               attrs="{'invisible': [('report_mode', '=', 'single')]}"/>
+                               invisible="report_mode != 'single'"
+                               required="report_mode == 'single'"/>
                     </group>
-                </group>
-                <group string="Filters">
-                    <field name="journal_ids" widget="many2many_tags"/>
                 </group>
                 <footer>
                     <button name="print_report" string="Print Report"

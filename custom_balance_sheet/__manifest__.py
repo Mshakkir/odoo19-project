@@ -11,6 +11,7 @@
         'views/custom_balance_sheet_menu.xml',
         'views/custom_balance_sheet_line_views.xml',
         'reports/custom_balance_sheet_report.xml',
+        'reports/custom_balance_sheet_report_action.xml',
     ],
     'installable': True,
     'application': False,

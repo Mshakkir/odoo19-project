@@ -27,3 +27,9 @@ class CustomBalanceSheet(models.TransientModel):
             # 'target': 'new',  # open in popup
         }
 
+    def action_print_pdf(self):
+        """Generate PDF for all lines or just this one"""
+        all_lines = self.search([])  # all lines
+        data = {'line_ids': all_lines.ids}
+        return self.env.ref('custom_balance_sheet.action_custom_balance_sheet_pdf').report_action(self, data=data)
+

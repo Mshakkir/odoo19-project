@@ -112,9 +112,3 @@ class CustomBalanceSheetLine(models.TransientModel):
             'context': {'create': False, 'default_account_id': self.account_id.id},
             'target': 'current',
         }
-    @api.model
-    def action_print_pdf(self):
-        """Generate PDF for all lines or just this one"""
-        all_lines = self.search([])  # all lines
-        data = {'line_ids': all_lines.ids}
-        return self.env.ref('custom_balance_sheet.action_custom_balance_sheet_pdf').report_action(self, data=data)

@@ -37,13 +37,6 @@
                         <field name="credit"/>
                         <field name="balance"/>
                         <field name="is_total"/>
-                        <footer>
-                             <button name="action_print_pdf"
-                            type="object"
-                            string="Print PDF"
-                            class="btn-primary"
-                            icon="fa-print"/>
-                        </footer>
                     </group>
                 </sheet>
             </form>

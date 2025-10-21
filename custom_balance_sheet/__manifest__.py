@@ -8,8 +8,12 @@
     'depends': ['account'],
     'data': [
         'security/ir.model.access.csv',
-        'views/custom_balance_sheet_menu.xml',
+
+        # Make sure models are loaded first through views that depend on them
         'views/custom_balance_sheet_line_views.xml',
+        'views/custom_balance_sheet_menu.xml',
+
+        # Load reports last
         'reports/custom_balance_sheet_report.xml',
         'reports/custom_balance_sheet_report_action.xml',
     ],

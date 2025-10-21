@@ -100,17 +100,25 @@ class ReportWarehouseTrialBalance(models.AbstractModel):
             analytic_account_ids if report_mode == 'single' else None
         )
 
+        # Ensure account_res is a list
+        if not account_res:
+            account_res = []
+
         # Get journal codes
         codes = []
         if form_data.get('journal_ids'):
             journals = self.env['account.journal'].browse(form_data['journal_ids'])
             codes = [journal.code for journal in journals if journal.code]
 
-        # Calculate totals
-        # Calculate totals (ensure they are float, not None)
-        total_debit = sum(acc.get('debit', 0.0) for acc in account_res) or 0.0
-        total_credit = sum(acc.get('credit', 0.0) for acc in account_res) or 0.0
-        total_balance = sum(acc.get('balance', 0.0) for acc in account_res) or 0.0
+        # Calculate totals with explicit float conversion
+        total_debit = 0.0
+        total_credit = 0.0
+        total_balance = 0.0
+
+        for acc in account_res:
+            total_debit += float(acc.get('debit', 0.0) or 0.0)
+            total_credit += float(acc.get('credit', 0.0) or 0.0)
+            total_balance += float(acc.get('balance', 0.0) or 0.0)
 
         return {
             'doc_ids': docids,
@@ -118,15 +126,15 @@ class ReportWarehouseTrialBalance(models.AbstractModel):
             'docs': self.env['warehouse.trial.balance'].browse(docids),
             'time': time,
             'Accounts': account_res,
-            'print_journal': codes,
-            'warehouse_name': warehouse_name,
-            'report_mode': report_mode,
+            'print_journal': codes or [],
+            'warehouse_name': warehouse_name or 'All Warehouses',
+            'report_mode': report_mode or 'consolidated',
             'total_debit': total_debit,
             'total_credit': total_credit,
             'total_balance': total_balance,
             # Pass individual values from form_data
-            'display_account': form_data.get('display_account'),
-            'date_from': form_data.get('date_from'),
-            'date_to': form_data.get('date_to'),
-            'target_move': form_data.get('target_move'),
+            'display_account': form_data.get('display_account', 'not_zero'),
+            'date_from': form_data.get('date_from', False),
+            'date_to': form_data.get('date_to', False),
+            'target_move': form_data.get('target_move', 'posted'),
         }

@@ -12,7 +12,7 @@
                     <newline/>
                     <xpath expr="//field[@name='display_account']" position="after">
                         <newline/>Analytic account/Warehouses
-                        <field name="analytic_account_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                        <field style="padding-left:230px;" name="analytic_account_ids" widget="many2many_tags" options="{'no_create': True}"/>
                     </xpath>
 
                 </xpath>

@@ -28,13 +28,6 @@
         <field name="model">custom.balance.sheet.line</field>
         <field name="arch" type="xml">
             <form string="Balance Sheet Line">
-                <header>
-                    <button name="action_print_pdf"
-                            type="object"
-                            string="Print PDF"
-                            class="btn-primary"
-                            icon="fa-print"/>
-                </header>
                 <sheet>
                     <group>
                         <field name="name"/>

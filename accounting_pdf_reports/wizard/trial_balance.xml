@@ -10,12 +10,12 @@
                 <xpath expr="//field[@name='target_move']" position="after">
                     <field name="display_account" widget="radio"/>
                     <newline/>
-                    <xpath expr="//field[@name='display_account']" position="after">
-                        <newline/>Analytic account/Warehouses
-                        <field style="padding-left:230px;" name="analytic_account_ids" widget="many2many_tags" options="{'no_create': True}"/>
-                    </xpath>
-
                 </xpath>
+                <xpath expr="//field[@name='display_account']" position="after">
+                    Choose Warehouse
+                    <field name="analytic_account_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                </xpath>
+
             </data>
         </field>
     </record>

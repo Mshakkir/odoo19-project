@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- ======================== REPORT TEMPLATE ======================== -->
     <template id="warehouse_trial_balance_report">
         <t t-call="web.html_container">
             <t t-set="data_report_margin_top" t-value="12"/>
             <t t-set="data_report_header_spacing" t-value="9"/>
             <t t-set="data_report_dpi" t-value="110"/>
             <t t-call="web.internal_layout">
+
                 <div class="page">
                     <h2>
                         <span t-esc="res_company.name"/>: Trial Balance
                     </h2>
+
                     <h4 style="color: #666;">
                         <strong>Warehouse/Branch:</strong>
                         <span t-esc="warehouse_name"/>
@@ -46,10 +49,11 @@
                     <div class="row mt16">
                         <div class="col-12">
                             <strong>Journals:</strong>
-                            <p t-esc="', '.join([ lt or '' for lt in (print_journal or []) ])"/>
+                            <p t-esc="', '.join([lt or '' for lt in (print_journal or [])])"/>
                         </div>
                     </div>
 
+                    <!-- =================== TABLE =================== -->
                     <table class="table table-sm table-reports mt16">
                         <thead>
                             <tr style="background-color: #f0f0f0;">
@@ -62,37 +66,38 @@
                         </thead>
                         <tbody>
                             <tr t-foreach="Accounts" t-as="account">
-                                <td>
-                                    <span t-esc="account['code']"/>
-                                </td>
-                                <td>
-                                    <span t-esc="account['name']"/>
-                                </td>
+                                <td><span t-esc="account.get('code', '')"/></td>
+                                <td><span t-esc="account.get('name', '')"/></td>
                                 <td class="text-end">
-                                    <span t-esc="account['debit']"
+                                    <span t-esc="account.get('debit', 0.0)"
                                           t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                 </td>
                                 <td class="text-end">
-                                    <span t-esc="account['credit']"
+                                    <span t-esc="account.get('credit', 0.0)"
                                           t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                 </td>
                                 <td class="text-end">
-                                    <span t-esc="account['balance']"
+                                    <span t-esc="account.get('balance', 0.0)"
                                           t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                 </td>
                             </tr>
-<tr style="border-top: 2px solid #000; font-weight: bold;">
-    <td colspan="2" class="text-end">Total:</td>
-    <td class="text-end">
-        <span t-esc="'%.2f' % total_debit"/>
-    </td>
-    <td class="text-end">
-        <span t-esc="'%.2f' % total_credit"/>
-    </td>
-    <td class="text-end">
-        <span t-esc="'%.2f' % total_balance"/>
-    </td>
-</tr>
+
+                            <!-- ====== TOTALS ROW ====== -->
+                            <tr style="border-top: 2px solid #000; font-weight: bold;">
+                                <td colspan="2" class="text-end">Total:</td>
+                                <td class="text-end">
+                                    <span t-esc="total_debit or 0.0"
+                                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                </td>
+                                <td class="text-end">
+                                    <span t-esc="total_credit or 0.0"
+                                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                </td>
+                                <td class="text-end">
+                                    <span t-esc="total_balance or 0.0"
+                                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -100,6 +105,7 @@
         </t>
     </template>
 
+    <!-- ======================== REPORT ACTION ======================== -->
     <record id="action_warehouse_trial_balance" model="ir.actions.report">
         <field name="name">Warehouse Trial Balance</field>
         <field name="model">warehouse.trial.balance</field>

@@ -81,21 +81,18 @@
                                           t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                 </td>
                             </tr>
-                            <tr style="border-top: 2px solid #000; font-weight: bold;">
-                                <td colspan="2" class="text-end">Total:</td>
-                                <td class="text-end">
-                                    <span t-esc="total_debit"
-                                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                </td>
-                                <td class="text-end">
-                                    <span t-esc="total_credit"
-                                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                </td>
-                                <td class="text-end">
-                                    <span t-esc="total_balance"
-                                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                </td>
-                            </tr>
+<tr style="border-top: 2px solid #000; font-weight: bold;">
+    <td colspan="2" class="text-end">Total:</td>
+    <td class="text-end">
+        <span t-esc="'%.2f' % total_debit"/>
+    </td>
+    <td class="text-end">
+        <span t-esc="'%.2f' % total_credit"/>
+    </td>
+    <td class="text-end">
+        <span t-esc="'%.2f' % total_balance"/>
+    </td>
+</tr>
                         </tbody>
                     </table>
                 </div>

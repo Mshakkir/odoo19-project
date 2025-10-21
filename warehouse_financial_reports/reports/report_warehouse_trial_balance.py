@@ -75,54 +75,57 @@ class ReportWarehouseTrialBalance(models.AbstractModel):
 
         return account_res
 
-    @api.model
-    def _get_report_values(self, docids, data=None):
-        """Generate report values with warehouse filtering"""
-        if not data.get('form'):
-            raise UserError(_("Form content is missing, this report cannot be printed."))
 
-        display_account = data['form'].get('display_account')
-        accounts = self.env['account.account'].search([])
-        context = data['form'].get('used_context', {})
+@api.model
+def _get_report_values(self, docids, data=None):
+    """Generate report values with warehouse filtering"""
+    if not data:
+        data = {}
 
-        # Get analytic account (warehouse) information
-        analytic_account_ids = data['form'].get('analytic_account_ids', [])
-        warehouse_name = data['form'].get('warehouse_name', 'All Warehouses')
-        report_mode = data['form'].get('report_mode', 'consolidated')
+    # Handle both old and new data structure
+    form_data = data.get('form', data)
 
-        # Set context with analytic filtering
-        if analytic_account_ids:
-            context['analytic_account_ids'] = analytic_account_ids
+    if not form_data:
+        raise UserError(_("Form content is missing, this report cannot be printed."))
 
-        # Get accounts with warehouse filtering
-        account_res = self.with_context(context)._get_accounts(
-            accounts,
-            display_account,
-            analytic_account_ids if report_mode == 'single' else None
-        )
+    display_account = form_data.get('display_account')
+    accounts = self.env['account.account'].search([])
+    context = form_data.get('used_context', {})
 
-        # Get journal codes
-        codes = []
-        if data['form'].get('journal_ids'):
-            codes = [journal.code for journal in
-                     self.env['account.journal'].browse(data['form']['journal_ids'])]
+    # Get analytic account (warehouse) information
+    analytic_account_ids = form_data.get('analytic_account_ids', [])
+    warehouse_name = form_data.get('warehouse_name', 'All Warehouses')
+    report_mode = form_data.get('report_mode', 'consolidated')
 
-        # Calculate totals
-        total_debit = sum(acc['debit'] for acc in account_res)
-        total_credit = sum(acc['credit'] for acc in account_res)
-        total_balance = sum(acc['balance'] for acc in account_res)
+    # Get accounts with warehouse filtering
+    account_res = self.with_context(context)._get_accounts(
+        accounts,
+        display_account,
+        analytic_account_ids if report_mode == 'single' else None
+    )
 
-        return {
-            'doc_ids': docids,
-            'doc_model': 'warehouse.trial.balance',
-            'data': data['form'],
-            'docs': self.env['warehouse.trial.balance'].browse(docids),
-            'time': time,
-            'Accounts': account_res,
-            'print_journal': codes,
-            'warehouse_name': warehouse_name,
-            'report_mode': report_mode,
-            'total_debit': total_debit,
-            'total_credit': total_credit,
-            'total_balance': total_balance,
-        }
+    # Get journal codes
+    codes = []
+    if form_data.get('journal_ids'):
+        codes = [journal.code for journal in
+                 self.env['account.journal'].browse(form_data['journal_ids'])]
+
+    # Calculate totals
+    total_debit = sum(acc['debit'] for acc in account_res)
+    total_credit = sum(acc['credit'] for acc in account_res)
+    total_balance = sum(acc['balance'] for acc in account_res)
+
+    return {
+        'doc_ids': docids,
+        'doc_model': 'warehouse.trial.balance',
+        'data': form_data,
+        'docs': self.env['warehouse.trial.balance'].browse(docids),
+        'time': time,
+        'Accounts': account_res,
+        'print_journal': codes,
+        'warehouse_name': warehouse_name,
+        'report_mode': report_mode,
+        'total_debit': total_debit,
+        'total_credit': total_credit,
+        'total_balance': total_balance,
+    }

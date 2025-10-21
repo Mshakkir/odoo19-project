@@ -82,7 +82,7 @@ class WarehouseTrialBalance(models.TransientModel):
         data['form']['report_mode'] = 'single'
 
         return self.env.ref('warehouse_financial_reports.action_warehouse_trial_balance').report_action(
-            self, data=data
+            self, data={'form': data['form']}
         )
 
     def _print_all_separate_reports(self):
@@ -105,18 +105,14 @@ class WarehouseTrialBalance(models.TransientModel):
         return reports[0] if reports else {}
 
     def _print_consolidated_report(self):
-        """Generate consolidated report for all selected warehouses"""
+        """Generate consolidated report for all warehouses"""
         data = self._prepare_report_data()
-        if self.analytic_account_ids:
-            data['form']['analytic_account_ids'] = self.analytic_account_ids.ids
-            data['form']['warehouse_name'] = 'All Warehouses (Consolidated)'
-        else:
-            data['form']['analytic_account_ids'] = []
-            data['form']['warehouse_name'] = 'All Warehouses'
+        data['form']['analytic_account_ids'] = []
+        data['form']['warehouse_name'] = 'All Warehouses (Consolidated)'
         data['form']['report_mode'] = 'consolidated'
 
         return self.env.ref('warehouse_financial_reports.action_warehouse_trial_balance').report_action(
-            self, data=data
+            self, data={'form': data['form']}
         )
 
     def _prepare_report_data(self):

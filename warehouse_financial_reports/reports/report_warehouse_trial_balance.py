@@ -107,9 +107,10 @@ class ReportWarehouseTrialBalance(models.AbstractModel):
             codes = [journal.code for journal in journals if journal.code]
 
         # Calculate totals
-        total_debit = sum(acc['debit'] for acc in account_res)
-        total_credit = sum(acc['credit'] for acc in account_res)
-        total_balance = sum(acc['balance'] for acc in account_res)
+        # Calculate totals (ensure they are float, not None)
+        total_debit = sum(acc.get('debit', 0.0) for acc in account_res) or 0.0
+        total_credit = sum(acc.get('credit', 0.0) for acc in account_res) or 0.0
+        total_balance = sum(acc.get('balance', 0.0) for acc in account_res) or 0.0
 
         return {
             'doc_ids': docids,

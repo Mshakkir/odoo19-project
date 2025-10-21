@@ -1,22 +1,19 @@
-# reports/report_warehouse_trial_balance.py
-# ==========================================
 import time
 from odoo import api, models, _
 from odoo.exceptions import UserError
 
 
 class ReportWarehouseTrialBalance(models.AbstractModel):
-    _name = 'report.warehouse_financial_reports.warehouse_trial_balance'
+    _name = 'report.warehouse_financial_reports.warehouse_trial_balance_report'
     _description = 'Warehouse Trial Balance Report'
 
     def _get_accounts(self, accounts, display_account, analytic_account_ids=None):
         """
         Compute balance, debit and credit for accounts filtered by warehouse
-        Extended from Odoo Mates to handle single warehouse filtering
         """
         account_result = {}
 
-        # Prepare sql query base on selected parameters
+        # Prepare sql query
         tables, where_clause, where_params = self.env['account.move.line']._query_get()
         tables = tables.replace('"', '')
         if not tables:
@@ -28,9 +25,9 @@ class ReportWarehouseTrialBalance(models.AbstractModel):
 
         # Add analytic account filter for specific warehouse
         if analytic_account_ids:
-            # Join with analytic distribution table
+            # Join with analytic distribution
             tables += """ 
-                LEFT JOIN account_analytic_line aal ON account_move_line.id = aal.move_line_id
+                INNER JOIN account_analytic_line aal ON account_move_line.id = aal.move_line_id
             """
             wheres.append("aal.account_id IN %s")
             where_params += (tuple(analytic_account_ids),)
@@ -75,57 +72,60 @@ class ReportWarehouseTrialBalance(models.AbstractModel):
 
         return account_res
 
+    @api.model
+    def _get_report_values(self, docids, data=None):
+        """Generate report values with warehouse filtering"""
+        if not data:
+            data = {}
 
-@api.model
-def _get_report_values(self, docids, data=None):
-    """Generate report values with warehouse filtering"""
-    if not data:
-        data = {}
+        # Handle both old and new data structure
+        form_data = data.get('form', data)
 
-    # Handle both old and new data structure
-    form_data = data.get('form', data)
+        if not form_data:
+            raise UserError(_("Form content is missing, this report cannot be printed."))
 
-    if not form_data:
-        raise UserError(_("Form content is missing, this report cannot be printed."))
+        display_account = form_data.get('display_account')
+        accounts = self.env['account.account'].search([])
+        context = form_data.get('used_context', {})
 
-    display_account = form_data.get('display_account')
-    accounts = self.env['account.account'].search([])
-    context = form_data.get('used_context', {})
+        # Get analytic account (warehouse) information
+        analytic_account_ids = form_data.get('analytic_account_ids', [])
+        warehouse_name = form_data.get('warehouse_name', 'All Warehouses')
+        report_mode = form_data.get('report_mode', 'consolidated')
 
-    # Get analytic account (warehouse) information
-    analytic_account_ids = form_data.get('analytic_account_ids', [])
-    warehouse_name = form_data.get('warehouse_name', 'All Warehouses')
-    report_mode = form_data.get('report_mode', 'consolidated')
+        # Get accounts with warehouse filtering
+        account_res = self.with_context(context)._get_accounts(
+            accounts,
+            display_account,
+            analytic_account_ids if report_mode == 'single' else None
+        )
 
-    # Get accounts with warehouse filtering
-    account_res = self.with_context(context)._get_accounts(
-        accounts,
-        display_account,
-        analytic_account_ids if report_mode == 'single' else None
-    )
+        # Get journal codes
+        codes = []
+        if form_data.get('journal_ids'):
+            codes = [journal.code for journal in
+                     self.env['account.journal'].browse(form_data['journal_ids'])]
 
-    # Get journal codes
-    codes = []
-    if form_data.get('journal_ids'):
-        codes = [journal.code for journal in
-                 self.env['account.journal'].browse(form_data['journal_ids'])]
+        # Calculate totals
+        total_debit = sum(acc['debit'] for acc in account_res)
+        total_credit = sum(acc['credit'] for acc in account_res)
+        total_balance = sum(acc['balance'] for acc in account_res)
 
-    # Calculate totals
-    total_debit = sum(acc['debit'] for acc in account_res)
-    total_credit = sum(acc['credit'] for acc in account_res)
-    total_balance = sum(acc['balance'] for acc in account_res)
-
-    return {
-        'doc_ids': docids,
-        'doc_model': 'warehouse.trial.balance',
-        'data': form_data,
-        'docs': self.env['warehouse.trial.balance'].browse(docids),
-        'time': time,
-        'Accounts': account_res,
-        'print_journal': codes,
-        'warehouse_name': warehouse_name,
-        'report_mode': report_mode,
-        'total_debit': total_debit,
-        'total_credit': total_credit,
-        'total_balance': total_balance,
-    }
+        return {
+            'doc_ids': docids,
+            'doc_model': 'warehouse.trial.balance',
+            'docs': self.env['warehouse.trial.balance'].browse(docids),
+            'time': time,
+            'Accounts': account_res,
+            'print_journal': codes,
+            'warehouse_name': warehouse_name,
+            'report_mode': report_mode,
+            'total_debit': total_debit,
+            'total_credit': total_credit,
+            'total_balance': total_balance,
+            # Pass individual values from form_data
+            'display_account': form_data.get('display_account'),
+            'date_from': form_data.get('date_from'),
+            'date_to': form_data.get('date_to'),
+            'target_move': form_data.get('target_move'),
+        }

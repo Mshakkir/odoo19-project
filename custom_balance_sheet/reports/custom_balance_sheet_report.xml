@@ -3,7 +3,7 @@
     <t t-call="web.html_container">
       <t t-call="web.external_layout">
         <div class="page">
-          <h2 class="text-center">Custom Balance Sheet</h2>
+          <h2 class="text-center">Balance Sheet</h2>
           <p><strong>Company:</strong> <t t-esc="res_company.name"/></p>
 
           <t t-set="lines" t-value="docs"/>

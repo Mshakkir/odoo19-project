@@ -14,3 +14,4 @@ class CustomBalanceSheetReport(models.AbstractModel):
             'data': data or {},
             'res_company': self.env.company,
         }
+

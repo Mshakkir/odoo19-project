@@ -25,7 +25,6 @@
     'website': 'https://www.yourcompany.com',
     'depends': ['accounting_pdf_reports', 'analytic', 'stock'],
     'data': [
-
         'wizard/warehouse_trial_balance_view.xml',
         'reports/warehouse_trial_balance_report.xml',
     ],

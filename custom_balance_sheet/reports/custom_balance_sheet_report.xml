@@ -6,10 +6,7 @@
           <h2 class="text-center">Custom Balance Sheet</h2>
           <p><strong>Company:</strong> <t t-esc="res_company.name"/></p>
 
-          <!-- ✅ Safe access even if data is missing -->
-          <t t-set="data_dict" t-value="data or {}"/>
-          <t t-set="line_ids" t-value="data_dict.get('line_ids', [])"/>
-          <t t-set="lines" t-value="env['custom.balance.sheet.line'].browse(line_ids)"/>
+          <t t-set="lines" t-value="docs"/>
 
           <t t-foreach="['asset', 'liability', 'equity']" t-as="type">
             <t t-set="type_lines" t-value="lines.filtered(lambda l: l.account_type == type)"/>

@@ -45,4 +45,6 @@ class CustomBalanceSheet(models.TransientModel):
         }
 
         # Return report action with data passed correctly
-        return self.env.ref('custom_balance_sheet.action_custom_balance_sheet_pdf').report_action(self, data=data)
+        return self.env.ref('custom_balance_sheet.action_custom_balance_sheet_pdf').report_action(
+            lines, data=data
+        )

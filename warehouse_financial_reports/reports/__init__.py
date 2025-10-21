@@ -1,1 +1,1 @@
-from . import report_warehouse_trial_balance
+from . import report_warehouse_tb

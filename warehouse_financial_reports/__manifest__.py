@@ -26,8 +26,8 @@
     'depends': ['accounting_pdf_reports', 'analytic', 'stock'],
     'data': [
         'security/ir.model.access.csv',
-        'wizard/warehouse_trial_balance_view.xml',
-        'reports/warehouse_trial_balance_report.xml',
+        'wizard/wizard_warehouse_tb.xml',
+        'reports/report_warehouse_tb.xml',
     ],
     'installable': True,
     'application': False,

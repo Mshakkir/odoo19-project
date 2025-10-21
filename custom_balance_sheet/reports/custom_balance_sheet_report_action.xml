@@ -1,11 +1,24 @@
-<!-- Report Action -->
-<odoo>
-<record id="action_custom_balance_sheet_pdf" model="ir.actions.report">
-    <field name="name">Custom Balance Sheet PDF</field>
-    <field name="model">custom.balance.sheet.line</field>
-    <field name="report_type">qweb-pdf</field>
-    <field name="report_name">custom_balance_sheet.report_custom_balance_sheet_pdf</field>
-    <field name="report_file">custom_balance_sheet.report_custom_balance_sheet_pdf</field>
-    <field name="print_report_name">'Custom Balance Sheet - %s' % (object.env.company.name)</field>
-  </record>
-</odoo>
+<report
+    id="action_custom_balance_sheet_pdf"
+    model="custom.balance.sheet"
+    string="Custom Balance Sheet PDF"
+    report_type="qweb-pdf"
+    name="custom_balance_sheet.report_custom_balance_sheet_pdf"
+    file="custom_balance_sheet.report_custom_balance_sheet_pdf"
+    print_report_name="'Custom Balance Sheet - %s' % (object.date_to)"
+/>
+
+
+
+
+<!--&lt;!&ndash; Report Action &ndash;&gt;-->
+<!--<odoo>-->
+<!--<record id="action_custom_balance_sheet_pdf" model="ir.actions.report">-->
+<!--    <field name="name">Custom Balance Sheet PDF</field>-->
+<!--    <field name="model">custom.balance.sheet.line</field>-->
+<!--    <field name="report_type">qweb-pdf</field>-->
+<!--    <field name="report_name">custom_balance_sheet.report_custom_balance_sheet_pdf</field>-->
+<!--    <field name="report_file">custom_balance_sheet.report_custom_balance_sheet_pdf</field>-->
+<!--    <field name="print_report_name">'Custom Balance Sheet - %s' % (object.env.company.name)</field>-->
+<!--  </record>-->
+<!--</odoo>-->

@@ -28,8 +28,21 @@ class CustomBalanceSheet(models.TransientModel):
         }
 
     def action_print_pdf(self):
-        """Generate PDF for all lines or just this one"""
-        all_lines = self.search([])  # all lines
-        data = {'line_ids': all_lines.ids}
-        return self.env.ref('custom_balance_sheet.action_custom_balance_sheet_pdf').report_action(self, data=data)
+        """Generate PDF for balance sheet lines"""
+        self.ensure_one()
 
+        # Fetch all balance sheet lines (or only those within date range)
+        lines = self.env['custom.balance.sheet.line'].search([])
+
+        # Prepare data dictionary that will be available to QWeb as `data`
+        data = {
+            'form': {
+                'date_from': self.date_from,
+                'date_to': self.date_to,
+                'target_moves': self.target_moves,
+            },
+            'line_ids': lines.ids,
+        }
+
+        # Return report action with data passed correctly
+        return self.env.ref('custom_balance_sheet.action_custom_balance_sheet_pdf').report_action(self, data=data)

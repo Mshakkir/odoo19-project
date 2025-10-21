@@ -107,7 +107,7 @@ class CustomBalanceSheetLine(models.TransientModel):
             'name': _('Ledger Entries'),
             'type': 'ir.actions.act_window',
             'res_model': 'account.move.line',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('account_id', '=', self.account_id.id)],
             'context': {'create': False, 'default_account_id': self.account_id.id},
             'target': 'current',

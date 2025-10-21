@@ -1,14 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<report
-    id="action_custom_balance_sheet_pdf"
-    model="custom.balance.sheet"
-    string="Custom Balance Sheet PDF"
-    report_type="qweb-pdf"
-    name="custom_balance_sheet.report_custom_balance_sheet_pdf"
-    file="custom_balance_sheet.report_custom_balance_sheet_pdf"
-    print_report_name="'Custom Balance Sheet - %s' % (object.date_to)"
-/>
-    </odoo>
+    <report
+        id="action_custom_balance_sheet_pdf"
+        model="custom.balance.sheet"
+        string="Custom Balance Sheet PDF"
+        report_type="qweb-pdf"
+        name="custom_balance_sheet.report_custom_balance_sheet_pdf"
+        file="custom_balance_sheet.report_custom_balance_sheet_pdf"
+        print_report_name="'Custom Balance Sheet - %s' % (object.date_to or '')"
+    />
+</odoo>
 
 
 

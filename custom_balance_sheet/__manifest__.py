@@ -14,8 +14,8 @@
         'views/custom_balance_sheet_menu.xml',
 
         # Load reports last
-        'reports/custom_balance_sheet_report.xml',
-        'reports/custom_balance_sheet_report_action.xml',
+        'report/custom_balance_sheet_report.xml',
+        'report/custom_balance_sheet_report_action.xml',
     ],
     'installable': True,
     'application': False,

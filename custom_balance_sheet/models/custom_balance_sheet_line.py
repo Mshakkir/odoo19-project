@@ -122,3 +122,9 @@ class CustomBalanceSheetLine(models.TransientModel):
             'context': {'create': False, 'default_account_id': self.account_id.id},
             'target': 'current',
         }
+
+    def action_print_pdf(self):
+        """Generate PDF of all balance sheet lines"""
+        all_lines = self.search([])  # print all current lines
+        data = {'line_ids': all_lines.ids}
+        return self.env.ref('custom_balance_sheet.action_custom_balance_sheet_pdf').report_action(self, data=data)

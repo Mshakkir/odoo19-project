@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_warehouse_trial_balance_wizard" model="ir.ui.view">
+        <field name="name">warehouse.trial.balance.form</field>
+        <field name="model">warehouse.trial.balance</field>
+        <field name="arch" type="xml">
+            <form string="Warehouse Trial Balance">
+                <group>
+                    <group string="Report Settings">
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                        <field name="target_move"/>
+                        <field name="display_account"/>
+                    </group>
+                    <group string="Warehouse Selection">
+                        <field name="report_mode" widget="radio"/>
+                        <field name="analytic_account_id"
+                               attrs="{'invisible': [('report_mode', '!=', 'single')],
+                                       'required': [('report_mode', '=', 'single')]}"/>
+                        <field name="analytic_account_ids" widget="many2many_tags"
+                               attrs="{'invisible': [('report_mode', '=', 'single')]}"/>
+                    </group>
+                </group>
+                <group string="Filters">
+                    <field name="journal_ids" widget="many2many_tags"/>
+                </group>
+                <footer>
+                    <button name="print_report" string="Print Report"
+                            type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_warehouse_trial_balance_menu" model="ir.actions.act_window">
+        <field name="name">Warehouse Trial Balance</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">warehouse.trial.balance</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_warehouse_trial_balance_wizard"/>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_warehouse_trial_balance"
+              name="Warehouse Trial Balance"
+              sequence="21"
+              parent="accounting_pdf_reports.menu_finance_audit_reports"
+              action="action_warehouse_trial_balance_menu"
+              groups="account.group_account_user,account.group_account_manager"/>
+</odoo>

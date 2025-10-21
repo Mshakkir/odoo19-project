@@ -1,60 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- ======================== REPORT TEMPLATE ======================== -->
-    <template id="warehouse_trial_balance_report">
+    <template id="report_warehouse_tb_template">
         <t t-call="web.html_container">
-            <t t-set="data_report_margin_top" t-value="12"/>
-            <t t-set="data_report_header_spacing" t-value="9"/>
-            <t t-set="data_report_dpi" t-value="110"/>
             <t t-call="web.internal_layout">
-
                 <div class="page">
-                    <h2>
-                        <span t-esc="res_company.name"/>: Trial Balance
-                    </h2>
+                    <h2><span t-esc="res_company.name"/>: Warehouse Trial Balance</h2>
 
-                    <h4 style="color: #666;">
-                        <strong>Warehouse/Branch:</strong>
-                        <span t-esc="warehouse_name"/>
+                    <h4>
+                        <strong>Warehouse/Branch:</strong> <span t-esc="warehouse_name"/>
                     </h4>
 
-                    <div class="row mt32">
-                        <div class="col-4">
-                            <strong>Display Account:</strong>
-                            <p>
-                                <span t-if="display_account == 'all'">All accounts</span>
-                                <span t-if="display_account == 'movement'">With movements</span>
-                                <span t-if="display_account == 'not_zero'">With balance not equal to zero</span>
-                            </p>
-                        </div>
-                        <div class="col-4">
-                            <p>
-                                <t t-if="date_from">
-                                    <strong>Date from:</strong> <span t-esc="date_from"/><br/>
-                                </t>
-                                <t t-if="date_to">
-                                    <strong>Date to:</strong> <span t-esc="date_to"/>
-                                </t>
-                            </p>
-                        </div>
-                        <div class="col-4">
-                            <strong>Target Moves:</strong>
-                            <p>
-                                <span t-if="target_move == 'all'">All Entries</span>
-                                <span t-if="target_move == 'posted'">All Posted Entries</span>
-                            </p>
-                        </div>
+                    <div>
+                        <strong>Display Account:</strong>
+                        <span t-if="display_account == 'all'">All accounts</span>
+                        <span t-if="display_account == 'movement'">With movements</span>
+                        <span t-if="display_account == 'not_zero'">With balance not equal to zero</span>
                     </div>
 
-                    <div class="row mt16">
-                        <div class="col-12">
-                            <strong>Journals:</strong>
-                            <p t-esc="', '.join([lt or '' for lt in (print_journal or [])])"/>
-                        </div>
+                    <div>
+                        <strong>Journals:</strong> <span t-esc="', '.join(print_journal or [])"/>
                     </div>
 
-                    <!-- =================== TABLE =================== -->
-                    <table class="table table-sm table-reports mt16">
+                    <table class="table table-sm mt16">
                         <thead>
                             <tr style="background-color: #f0f0f0;">
                                 <th>Code</th>
@@ -65,38 +32,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr t-foreach="Accounts" t-as="account">
-                                <td><span t-esc="account.get('code', '')"/></td>
-                                <td><span t-esc="account.get('name', '')"/></td>
-                                <td class="text-end">
-                                    <span t-esc="account.get('debit', 0.0)"
-                                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                </td>
-                                <td class="text-end">
-                                    <span t-esc="account.get('credit', 0.0)"
-                                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                </td>
-                                <td class="text-end">
-                                    <span t-esc="account.get('balance', 0.0)"
-                                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                </td>
+                            <tr t-foreach="Accounts" t-as="acc">
+                                <td t-esc="acc['code']"/>
+                                <td t-esc="acc['name']"/>
+                                <td class="text-end" t-esc="acc['debit']"/>
+                                <td class="text-end" t-esc="acc['credit']"/>
+                                <td class="text-end" t-esc="acc['balance']"/>
                             </tr>
-
-                            <!-- ====== TOTALS ROW ====== -->
                             <tr style="border-top: 2px solid #000; font-weight: bold;">
                                 <td colspan="2" class="text-end">Total:</td>
-                                <td class="text-end">
-                                    <span t-esc="total_debit or 0.0"
-                                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                </td>
-                                <td class="text-end">
-                                    <span t-esc="total_credit or 0.0"
-                                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                </td>
-                                <td class="text-end">
-                                    <span t-esc="total_balance or 0.0"
-                                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                </td>
+                                <td class="text-end" t-esc="total_debit"/>
+                                <td class="text-end" t-esc="total_credit"/>
+                                <td class="text-end" t-esc="total_balance"/>
                             </tr>
                         </tbody>
                     </table>
@@ -105,13 +52,13 @@
         </t>
     </template>
 
-    <!-- ======================== REPORT ACTION ======================== -->
-    <record id="action_warehouse_trial_balance" model="ir.actions.report">
+    <!-- Report Action -->
+    <record id="action_warehouse_tb_report" model="ir.actions.report">
         <field name="name">Warehouse Trial Balance</field>
         <field name="model">warehouse.trial.balance</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">warehouse_financial_reports.warehouse_trial_balance_report</field>
-        <field name="report_file">warehouse_financial_reports.warehouse_trial_balance_report</field>
+        <field name="report_name">warehouse_financial_reports.report_warehouse_tb_template</field>
+        <field name="report_file">warehouse_financial_reports.report_warehouse_tb_template</field>
         <field name="binding_model_id" ref="model_warehouse_trial_balance"/>
         <field name="binding_type">report</field>
     </record>

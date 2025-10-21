@@ -22,25 +22,25 @@
         </field>
     </record>
 
-    <!-- Form View -->
-    <record id="view_custom_balance_sheet_line_form" model="ir.ui.view">
-        <field name="name">custom.balance.sheet.line.form</field>
-        <field name="model">custom.balance.sheet.line</field>
-        <field name="arch" type="xml">
-            <form string="Balance Sheet Line">
-                <sheet>
-                    <group>
-                        <field name="name"/>
-                        <field name="account_id"/>
-                        <field name="account_type"/>
-                        <field name="debit"/>
-                        <field name="credit"/>
-                        <field name="balance"/>
-                        <field name="is_total"/>
-                    </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
+<!--    &lt;!&ndash; Form View &ndash;&gt;-->
+<!--    <record id="view_custom_balance_sheet_line_form" model="ir.ui.view">-->
+<!--        <field name="name">custom.balance.sheet.line.form</field>-->
+<!--        <field name="model">custom.balance.sheet.line</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <form string="Balance Sheet Line">-->
+<!--                <sheet>-->
+<!--                    <group>-->
+<!--                        <field name="name"/>-->
+<!--                        <field name="account_id"/>-->
+<!--                        <field name="account_type"/>-->
+<!--                        <field name="debit"/>-->
+<!--                        <field name="credit"/>-->
+<!--                        <field name="balance"/>-->
+<!--                        <field name="is_total"/>-->
+<!--                    </group>-->
+<!--                </sheet>-->
+<!--            </form>-->
+<!--        </field>-->
+<!--    </record>-->
 
 </odoo>

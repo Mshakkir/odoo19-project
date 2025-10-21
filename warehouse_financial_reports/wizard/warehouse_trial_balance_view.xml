@@ -1,33 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_warehouse_trial_balance_wizard" model="ir.ui.view">
-        <field name="name">warehouse.trial.balance.form</field>
-        <field name="model">warehouse.trial.balance</field>
-        <field name="arch" type="xml">
-            <form string="Warehouse Trial Balance">
-                <group>
-                    <group string="Report Settings">
-                        <field name="date_from"/>
-                        <field name="date_to"/>
-                        <field name="target_move"/>
-                        <field name="display_account"/>
-                        <field name="journal_ids" widget="many2many_tags"/>
-                    </group>
-                    <group string="Warehouse Selection">
-                        <field name="report_mode" widget="radio"/>
-                        <field name="analytic_account_id"
-                               invisible="report_mode != 'single'"
-                               required="report_mode == 'single'"/>
-                    </group>
+<record id="view_warehouse_trial_balance_wizard" model="ir.ui.view">
+    <field name="name">warehouse.trial.balance.form</field>
+    <field name="model">warehouse.trial.balance</field>
+    <field name="arch" type="xml">
+        <form string="Warehouse Trial Balance">
+            <group>
+                <group string="Report Settings">
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                    <field name="target_move"/>
+                    <field name="display_account"/>
+                    <field name="journal_ids" widget="many2many_tags"/>
                 </group>
-                <footer>
-                    <button name="print_report" string="Print Report"
-                            type="object" class="btn-primary"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
-                </footer>
-            </form>
-        </field>
-    </record>
+                <group string="Warehouse Selection">
+                    <field name="report_mode" widget="radio"/>
+                    <field name="analytic_account_id" attrs="{'invisible': [('report_mode', '!=', 'single')]}"/>
+                </group>
+            </group>
+            <footer>
+                <button name="print_report" string="Print Report"
+                        type="object" class="btn-primary"/>
+                <button string="Cancel" class="btn-secondary" special="cancel"/>
+            </footer>
+        </form>
+    </field>
+</record>
+
 
     <record id="action_warehouse_trial_balance_menu" model="ir.actions.act_window">
         <field name="name">Warehouse Trial Balance</field>

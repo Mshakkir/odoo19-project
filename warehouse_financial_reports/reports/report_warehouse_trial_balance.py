@@ -103,8 +103,8 @@ class ReportWarehouseTrialBalance(models.AbstractModel):
         # Get journal codes
         codes = []
         if form_data.get('journal_ids'):
-            codes = [journal.code for journal in
-                     self.env['account.journal'].browse(form_data['journal_ids'])]
+            journals = self.env['account.journal'].browse(form_data['journal_ids'])
+            codes = [journal.code for journal in journals if journal.code]
 
         # Calculate totals
         total_debit = sum(acc['debit'] for acc in account_res)

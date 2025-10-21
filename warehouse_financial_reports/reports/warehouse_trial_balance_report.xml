@@ -46,7 +46,7 @@
                     <div class="row mt16">
                         <div class="col-12">
                             <strong>Journals:</strong>
-                            <p t-esc="', '.join([ lt or '' for lt in print_journal ])"/>
+                            <p t-esc="', '.join([ lt or '' for lt in (print_journal or []) ])"/>
                         </div>
                     </div>
 

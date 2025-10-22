@@ -14,9 +14,9 @@
                     <h3>Balance Sheet</h3>
                     <div>
                         <strong>Target Moves:</strong> <t t-esc="move_scope == 'posted' and 'All Posted Entries' or 'All Entries'"/>
-                        &nbsp;&nbsp;&nbsp;
+                        &#160;&#160;&#160;&#160;
                         <strong>Date from :</strong> <t t-esc="date_from"/>
-                        &nbsp;&nbsp;&nbsp;
+                        &#160;&#160;&#160;&#160;
                         <strong>Date to :</strong> <t t-esc="date_to"/>
                     </div>
                     <br/>

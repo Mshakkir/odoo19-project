@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
 
@@ -17,52 +17,53 @@ class CustomBalanceSheet(models.TransientModel):
     date_to = fields.Date(string="Date To", required=True)
 
     # ----------------------------
-    # Action to open report in a tree/form view
+    # Generate and open balance sheet
     # ----------------------------
     def action_generate_report(self):
         """Generate and open the balance sheet details in a view."""
 
-        # Ensure date validity
+        # Validate dates
         if self.date_from > self.date_to:
-            raise UserError("The start date cannot be after the end date.")
+            raise UserError(_("The start date cannot be after the end date."))
 
-        # Generate report lines
+        # Generate report lines and return them
         lines = self.env['custom.balance.sheet.line'].generate_lines(
             self.date_from, self.date_to, self.target_moves
         )
 
+        # If generate_lines() returns None, we fetch them manually
         if not lines:
-            raise UserError("No records found for the selected period.")
+            lines = self.env['custom.balance.sheet.line'].search([])
 
-        # Open generated records in a list/form view
         return {
-            'name': 'Balance Sheet Details',
+            'name': _('Balance Sheet Details'),
             'type': 'ir.actions.act_window',
             'res_model': 'custom.balance.sheet.line',
             'view_mode': 'list,form',
             'domain': [('id', 'in', lines.ids)],
-            # Uncomment next line if you want it in popup
-            # 'target': 'new',
+            'target': 'current',
         }
 
     # ----------------------------
-    # Action to print PDF report
+    # Print Balance Sheet PDF
     # ----------------------------
     def action_print_pdf(self):
-        """Generate PDF for the balance sheet report."""
+        """Generate and print the Balance Sheet as PDF."""
         self.ensure_one()
 
         if self.date_from > self.date_to:
-            raise UserError("The start date cannot be after the end date.")
+            raise UserError(_("The start date cannot be after the end date."))
 
-        # Fetch only lines generated for this date range
-        lines = self.env['custom.balance.sheet.line'].search([
-            ('date', '>=', self.date_from),
-            ('date', '<=', self.date_to),
-        ])
+        # ✅ FIX 1: Ensure lines are generated right before printing
+        lines = self.env['custom.balance.sheet.line'].generate_lines(
+            self.date_from, self.date_to, self.target_moves
+        )
+
+        # ✅ FIX 2: Get lines from the same transient model in memory
+        lines = self.env['custom.balance.sheet.line'].search([])
 
         if not lines:
-            raise UserError("No records available to print for the selected period.")
+            raise UserError(_("No records available to print for the selected period."))
 
         data = {
             'form': {
@@ -73,11 +74,10 @@ class CustomBalanceSheet(models.TransientModel):
             'line_ids': lines.ids,
         }
 
-        # Return report action (QWeb PDF)
+        # ✅ FIX 3: Pass `lines` (not empty wizard) to report
         return self.env.ref('custom_balance_sheet.action_custom_balance_sheet_pdf').report_action(
             lines, data=data
         )
-
 
 
 

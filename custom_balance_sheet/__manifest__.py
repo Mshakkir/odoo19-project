@@ -12,7 +12,7 @@
         "views/wizard_views.xml",
         "views/balance_sheet_line_views.xml",
         "reports/balance_sheet_template.xml",
-        "reports/balance_sheet_report_action.xml",
+        "reports/balance_sheet_report.xml",
     ],
     "installable": True,
     "auto_install": False,

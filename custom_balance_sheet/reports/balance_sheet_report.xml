@@ -1,4 +1,4 @@
-<!-- custom_balance_sheet/reports/balance_sheet_report_action.xml -->
+<!-- custom_balance_sheet/reports/balance_sheet_report.xml -->
 <odoo>
     <report
         id="action_report_balance_sheet"

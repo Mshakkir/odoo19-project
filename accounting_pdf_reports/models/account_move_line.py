@@ -124,11 +124,9 @@ class AccountMoveLine(models.Model):
 
     @api.model
     def _where_calc(self, domain, active_test=True):
-        """Computes the WHERE clause needed to implement an OpenERP domain."""
         if self._active_name and active_test and self.env.context.get('active_test', True):
             if not any(item[0] == self._active_name for item in domain):
                 domain = [(self._active_name, '=', 1)] + domain
-
         if domain:
             return expression.expression(domain, self).query
         else:
@@ -137,10 +135,8 @@ class AccountMoveLine(models.Model):
 
     @api.model
     def _apply_ir_rules(self, query, mode='read'):
-        """Add what's missing in ``query`` to implement all appropriate ir.rules"""
         if self.env.su:
             return
-
         Rule = self.env['ir.rule']
         domain = Rule._compute_domain(self._name, mode)
         if domain:
@@ -153,7 +149,6 @@ class AccountMoveLine(models.Model):
         domain = domain or []
         if not isinstance(domain, (list, tuple)):
             domain = ast.literal_eval(domain)
-
         date_field = 'date'
         if context.get('aged_balance'):
             date_field = 'date_maturity'
@@ -166,7 +161,6 @@ class AccountMoveLine(models.Model):
                 domain += [(date_field, '<', context['date_from'])]
             else:
                 domain += [(date_field, '>=', context['date_from'])]
-
         if context.get('journal_ids'):
             domain += [('journal_id', 'in', context['journal_ids'])]
         state = context.get('state')
@@ -178,7 +172,6 @@ class AccountMoveLine(models.Model):
             domain += [('company_id', 'in', self.env.companies.ids)]
         else:
             domain += [('company_id', '=', self.env.company.id)]
-
         if context.get('reconcile_date'):
             domain += ['|', ('reconciled', '=', False), '|', ('matched_debit_ids.max_date', '>', context['reconcile_date']), ('matched_credit_ids.max_date', '>', context['reconcile_date'])]
         if context.get('account_tag_ids'):
@@ -193,14 +186,12 @@ class AccountMoveLine(models.Model):
             domain += [('partner_id', 'in', context['partner_ids'].ids)]
         if context.get('partner_categories'):
             domain += [('partner_id.category_id', 'in', context['partner_categories'].ids)]
-
         where_clause = ""
         where_clause_params = []
         tables = ''
         if domain:
             domain.append(('display_type', 'not in', ('line_section', 'line_note')))
             domain.append(('parent_state', '!=', 'cancel'))
-
             query = self._where_calc(domain)
             self._apply_ir_rules(query)
             from_string, from_params = query.from_clause
@@ -210,7 +201,7 @@ class AccountMoveLine(models.Model):
 
 
 class AccountMove(models.Model):
-    _inherit = 'account.move'
+    _inherit = 'account.move'  # ✅ Correct model
 
     @api.model
     def create(self, vals):
@@ -219,12 +210,11 @@ class AccountMove(models.Model):
         return move
 
     def _assign_analytic_to_ar_ap(self):
-        """Assign warehouse analytic to AR/AP lines for branch reporting."""
+        """Assign warehouse/branch analytic to AR/AP lines for branch TB."""
         for move in self:
-            # Use the analytic assigned on the invoice/bill
-            analytic_id = move.analytic_account_id or getattr(move, 'warehouse_analytic_id', False)
+            # Demo: assign "Baladiya" analytic to all AR/AP lines
+            analytic_id = self.env['account.analytic.account'].search([('name', '=', 'Baladiya')], limit=1)
             if analytic_id:
-                # Filter only AR/AP lines
-                for line in move.line_ids.filtered(lambda l: l.account_id.user_type_id.type in ('receivable','payable')):
-                    # For Odoo Mates module, use `analytic_distribution`
+                for line in move.line_ids.filtered(
+                        lambda l: l.account_id.user_type_id.type in ('receivable', 'payable')):
                     line.analytic_distribution = analytic_id

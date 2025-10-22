@@ -32,5 +32,6 @@
     <menuitem id="menu_trial_balance_wizard"
               name="Trial Balance by Warehouse"
               parent="account.menu_finance_reports"
-              action="action_trial_balance_wizard"/>
+              action="action_trial_balance_wizard"
+              sequence="30"/>
 </odoo>

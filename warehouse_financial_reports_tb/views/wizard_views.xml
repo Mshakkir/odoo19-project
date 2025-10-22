@@ -1,5 +1,5 @@
 <odoo>
-    <!-- Wizard Form View -->
+    <!-- Trial Balance Wizard View -->
     <record id="view_trial_balance_wizard" model="ir.ui.view">
         <field name="name">trial.balance.wizard.form</field>
         <field name="model">trial.balance.wizard</field>
@@ -20,7 +20,7 @@
         </field>
     </record>
 
-    <!-- Action for Wizard -->
+    <!-- Action for the wizard -->
     <record id="action_trial_balance_wizard" model="ir.actions.act_window">
         <field name="name">Trial Balance by Warehouse</field>
         <field name="res_model">trial.balance.wizard</field>
@@ -28,7 +28,7 @@
         <field name="target">new</field>
     </record>
 
-    <!-- Menu Item -->
+    <!-- Menu item -->
     <menuitem id="menu_trial_balance_wizard"
               name="Trial Balance by Warehouse"
               parent="account.menu_finance_reports"

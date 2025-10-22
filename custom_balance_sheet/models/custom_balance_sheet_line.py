@@ -103,6 +103,20 @@ class CustomBalanceSheetLine(models.TransientModel):
     def action_view_ledger(self):
         """Open ledger (account.move.line) for selected account"""
         self.ensure_one()
+
+        # Prevent action for total lines
+        if self.is_total or not self.account_id:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Ledger Available'),
+                    'message': _('This is a total line — no ledger entries to display.'),
+                    'type': 'warning',
+                    'sticky': False,
+                },
+            }
+
         return {
             'name': _('Ledger Entries'),
             'type': 'ir.actions.act_window',

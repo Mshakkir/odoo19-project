@@ -8,11 +8,11 @@
                         <strong>Company:</strong>
                         <t t-esc="res_company.name"/>
                     </p>
-                    <p>
-                        <strong>Period:</strong>
-                        <t t-esc="data.get('form', {}).get('date_from')"/>
-                        to
-                        <t t-esc="data.get('form', {}).get('date_to')"/>
+                    <p>Date From:
+                        <t t-esc="data.get('form', {}).get('date_from') or ''"/>
+                    </p>
+                    <p>Date To:
+                        <t t-esc="data.get('form', {}).get('date_to') or ''"/>
                     </p>
 
 

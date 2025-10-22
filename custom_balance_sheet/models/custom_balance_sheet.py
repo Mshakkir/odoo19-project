@@ -78,8 +78,23 @@ class CustomBalanceSheet(models.TransientModel):
 
         # Return report action using correct recordset
         return self.env.ref('custom_balance_sheet.action_custom_balance_sheet_pdf').report_action(
-            lines, data=data
+            self, data=data
         )
+class ReportCustomBalanceSheet(models.AbstractModel):
+    _name = 'report.custom_balance_sheet.report_custom_balance_sheet_pdf'
+    _description = 'Custom Balance Sheet PDF Report'
+
+    @api.model
+    def _get_report_values(self, docids, data=None):
+        docs = self.env['custom.balance.sheet.line'].search([])
+
+        return {
+            'doc_ids': docids,
+            'doc_model': 'custom.balance.sheet.line',
+            'docs': docs,
+            'data': data or {},  # 👈 ADD THIS LINE
+        }
+
 
 # from odoo import models, fields, api
 #

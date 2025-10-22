@@ -25,8 +25,10 @@ class ReportTrialBalance(models.AbstractModel):
 
         if analytic_account_ids:
             analytic_filter = (
-                " AND id IN (SELECT move_id FROM account_analytic_line WHERE account_id IN %s)"
+                " AND (id IN (SELECT move_id FROM account_analytic_line WHERE account_id IN %s)"
+                " OR id NOT IN (SELECT move_id FROM account_analytic_line))"
             )
+
             analytic_params = (tuple(a.id for a in analytic_account_ids),)
 
         filters = " AND ".join(wheres)

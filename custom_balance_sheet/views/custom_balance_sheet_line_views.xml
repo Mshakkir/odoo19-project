@@ -13,17 +13,17 @@
                 <field name="credit" sum="Total Credit"/>
                 <field name="balance" sum="Total Balance"/>
 
-                <!-- ✅ Fixed: use t-if instead of invisible/attrs -->
+                <!-- ✅ Correct visibility handling -->
                 <button name="action_view_ledger"
                         string="View Ledger"
                         type="object"
                         icon="fa-book"
-                        t-if="not record.is_total"/>
+                        attrs="{'invisible': [('is_total', '=', True)]}"/>
             </list>
         </field>
     </record>
 
-    <!-- ✅ Form View -->
+    <!-- Form View -->
     <record id="view_custom_balance_sheet_line_form" model="ir.ui.view">
         <field name="name">custom.balance.sheet.line.form</field>
         <field name="model">custom.balance.sheet.line</field>
@@ -39,21 +39,13 @@
                         <field name="balance"/>
                         <field name="is_total"/>
                     </group>
-
-                    <!-- Optional: Keep ledger button on form too -->
-                    <footer>
-                        <button name="action_view_ledger"
-                                string="View Ledger"
-                                type="object"
-                                icon="fa-book"
-                                t-if="not record.is_total"/>
-                    </footer>
                 </sheet>
             </form>
         </field>
     </record>
 
 </odoo>
+
 
 
 

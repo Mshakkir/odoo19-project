@@ -1,0 +1,26 @@
+<odoo>
+    <record id="view_trial_balance_wizard" model="ir.ui.view">
+        <field name="name">trial.balance.wizard.form</field>
+        <field name="model">trial.balance.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Trial Balance Wizard">
+                <sheet>
+                    <group>
+                        <field name="warehouse_id"/>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                    <footer>
+                        <button string="Generate" type="object" name="generate_trial_balance" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <menuitem id="menu_trial_balance_wizard"
+              name="Trial Balance by Warehouse"
+              parent="account.menu_finance_reports"
+              action="action_trial_balance_wizard"/>
+</odoo>

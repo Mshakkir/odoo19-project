@@ -212,9 +212,10 @@ class AccountMove(models.Model):
     def _assign_analytic_to_ar_ap(self):
         """Assign warehouse/branch analytic to AR/AP lines for branch TB."""
         for move in self:
-            # Demo: assign "Baladiya" analytic to all AR/AP lines
+            # For demo, just pick "Baladiya" analytic
             analytic_id = self.env['account.analytic.account'].search([('name', '=', 'Baladiya')], limit=1)
-            if analytic_id:
-                for line in move.line_ids.filtered(
-                        lambda l: l.account_id.user_type_id.type in ('receivable', 'payable')):
-                    line.analytic_distribution = analytic_id
+            if not analytic_id:
+                continue  # skip if not found
+            for line in move.line_ids.filtered(lambda l: l.account_id.user_type_id.type in ('receivable', 'payable')):
+                line.analytic_distribution = analytic_id
+

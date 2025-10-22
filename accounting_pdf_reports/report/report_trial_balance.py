@@ -9,6 +9,8 @@ class ReportTrialBalance(models.AbstractModel):
 
     def _get_accounts(self, accounts, display_account):
         account_result = {}
+
+        # Get the standard query parts from Odoo's ORM (date filters, journals, etc.)
         tables, where_clause, where_params = self.env['account.move.line']._query_get()
         tables = tables.replace('"', '')
         if not tables:
@@ -17,28 +19,43 @@ class ReportTrialBalance(models.AbstractModel):
         if where_clause.strip():
             wheres.append(where_clause.strip())
 
-        # 🔹 Analytic filter support
+        # 🔹 Analytic filter (Warehouse-based)
         analytic_account_ids = self.env.context.get('analytic_account_ids')
         analytic_filter = ""
         if analytic_account_ids:
-            analytic_filter = " AND analytic_account_id IN %s"
+            # Instead of using non-existent 'analytic_account_id',
+            # we link to analytic accounts through the 'account_analytic_line' table
+            analytic_filter = '''
+                AND account_move_line.id IN (
+                    SELECT move_line_id FROM account_analytic_line
+                    WHERE account_id IN %s
+                )
+            '''
+            # Extend where_params tuple with the selected analytic account IDs
             where_params = tuple(where_params) + (tuple(a.id for a in analytic_account_ids),)
 
         filters = " AND ".join(wheres)
 
+        # 🔹 Build SQL query with dynamic analytic filter support
         request = (
-                "SELECT account_id AS id, SUM(debit) AS debit, SUM(credit) AS credit, "
-                "(SUM(debit) - SUM(credit)) AS balance "
-                f"FROM {tables} "
-                "WHERE account_id IN %s " + filters + analytic_filter +
-                " GROUP BY account_id"
+            "SELECT account_id AS id, "
+            "SUM(debit) AS debit, "
+            "SUM(credit) AS credit, "
+            "(SUM(debit) - SUM(credit)) AS balance "
+            f"FROM {tables} "
+            "WHERE account_id IN %s " + filters + analytic_filter +
+            " GROUP BY account_id"
         )
 
+        # Final query parameters
         params = (tuple(accounts.ids),) + tuple(where_params)
+
+        # Execute SQL query
         self.env.cr.execute(request, params)
         for row in self.env.cr.dictfetchall():
             account_result[row.pop('id')] = row
 
+        # 🔹 Process results into report-friendly format
         account_res = []
         for account in accounts:
             res = dict((fn, 0.0) for fn in ['credit', 'debit', 'balance'])
@@ -52,7 +69,7 @@ class ReportTrialBalance(models.AbstractModel):
             elif display_account == 'not_zero' and not currency.is_zero(res['balance']):
                 account_res.append(res)
             elif display_account == 'movement' and (
-                    not currency.is_zero(res['debit']) or not currency.is_zero(res['credit'])
+                not currency.is_zero(res['debit']) or not currency.is_zero(res['credit'])
             ):
                 account_res.append(res)
         return account_res
@@ -67,17 +84,29 @@ class ReportTrialBalance(models.AbstractModel):
         display_account = data['form'].get('display_account')
         accounts = docs if model == 'account.account' else self.env['account.account'].search([])
         context = data['form'].get('used_context')
+
+        # 🔹 Add analytic context
         analytic_accounts = []
         if data['form'].get('analytic_account_ids'):
-            analytic_account_ids = self.env['account.analytic.account'].browse(data['form'].get('analytic_account_ids'))
+            analytic_account_ids = self.env['account.analytic.account'].browse(
+                data['form'].get('analytic_account_ids')
+            )
             context['analytic_account_ids'] = analytic_account_ids
             analytic_accounts = [account.name for account in analytic_account_ids]
+
+        # 🔹 Generate account balances with analytic filtering
         account_res = self.with_context(context)._get_accounts(accounts, display_account)
+
+        # 🔹 Collect journal codes
         codes = []
         if data['form'].get('journal_ids', False):
-            codes = [journal.code for journal in
-                     self.env['account.journal'].search(
-                         [('id', 'in', data['form']['journal_ids'])])]
+            codes = [
+                journal.code
+                for journal in self.env['account.journal'].search(
+                    [('id', 'in', data['form']['journal_ids'])]
+                )
+            ]
+
         return {
             'doc_ids': self.ids,
             'doc_model': model,

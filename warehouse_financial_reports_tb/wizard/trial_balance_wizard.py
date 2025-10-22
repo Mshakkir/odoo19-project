@@ -28,4 +28,4 @@ class TrialBalanceWizard(models.TransientModel):
                 'balance': line.debit - line.credit,
             })
 
-        return self.env.ref('warehouse_financial_reports.trial_balance_report').report_action(self, data=data)
+        return self.env.ref('warehouse_financial_reports_tb.trial_balance_report').report_action(self, data=data)

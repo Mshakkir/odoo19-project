@@ -12,10 +12,6 @@
         # Views first
         'views/custom_balance_sheet_line_views.xml',
         'views/custom_balance_sheet_menu.xml',
-
-        # Reports last (your folder is named "reports")
-        'reports/custom_balance_sheet_report.xml',
-        'reports/custom_balance_sheet_report_action.xml',
     ],
     'installable': True,
     'application': False,

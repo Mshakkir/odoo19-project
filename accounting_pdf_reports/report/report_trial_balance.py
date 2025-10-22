@@ -38,21 +38,13 @@ class ReportTrialBalance(models.AbstractModel):
         #     where_params = tuple(where_params) + (tuple(a.id for a in analytic_account_ids),)
         analytic_account_ids = self.env.context.get('analytic_account_ids')
         analytic_filter = ""
-
         if analytic_account_ids:
-            # Normalize to IDs list even if a recordset was passed
-            if hasattr(analytic_account_ids, 'ids'):
-                analytic_ids = tuple(analytic_account_ids.ids)
-            else:
-                analytic_ids = tuple(analytic_account_ids)
-
-            if analytic_ids:
-                analytic_filter = (
-                    " AND account_move_line.id IN ("
-                    "SELECT move_line_id FROM account_analytic_line "
-                    "WHERE account_id IN %s)"
-                )
-                where_params = tuple(where_params) + (analytic_ids,)
+            analytic_filter = (
+                " AND account_move_line.id IN ("
+                "SELECT move_line_id FROM account_analytic_line "
+                "WHERE account_id IN %s)"
+            )
+            where_params = tuple(where_params) + (tuple(a.id for a in analytic_account_ids),)
 
         # 🔹 Build final SQL query
         request = (

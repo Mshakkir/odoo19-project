@@ -18,13 +18,12 @@ class ReportTrialBalance(models.AbstractModel):
         if where_clause.strip():
             wheres.append(where_clause.strip())
 
-        # 🔹 Analytic filter (Odoo 18/19 compatible)
+        # ✅ FIX: Analytic filter using subquery (Odoo 19+ compatible)
         analytic_account_ids = self.env.context.get('analytic_account_ids')
         analytic_filter = ""
         analytic_params = ()
 
         if analytic_account_ids:
-            # Use subquery to fetch move_line IDs linked to analytic accounts
             analytic_filter = (
                 " AND id IN (SELECT move_id FROM account_analytic_line WHERE account_id IN %s)"
             )
@@ -32,7 +31,7 @@ class ReportTrialBalance(models.AbstractModel):
 
         filters = " AND ".join(wheres)
 
-        # 🔹 Build SQL query safely
+        # ✅ Safe SQL query
         request = (
             "SELECT account_id AS id, SUM(debit) AS debit, SUM(credit) AS credit, "
             "(SUM(debit) - SUM(credit)) AS balance "
@@ -47,7 +46,7 @@ class ReportTrialBalance(models.AbstractModel):
         for row in self.env.cr.dictfetchall():
             account_result[row.pop('id')] = row
 
-        # 🔹 Build final account result list
+        # Build result
         account_res = []
         for account in accounts:
             res = dict((fn, 0.0) for fn in ['credit', 'debit', 'balance'])
@@ -80,14 +79,15 @@ class ReportTrialBalance(models.AbstractModel):
         accounts = docs if model == 'account.account' else self.env['account.account'].search([])
         context = data['form'].get('used_context') or {}
 
-        # 🔹 Handle analytic accounts from form
+        # Handle analytic accounts
         analytic_accounts = []
         if data['form'].get('analytic_account_ids'):
-            analytic_account_ids = self.env['account.analytic.account'].browse(data['form'].get('analytic_account_ids'))
+            analytic_account_ids = self.env['account.analytic.account'].browse(
+                data['form'].get('analytic_account_ids')
+            )
             context['analytic_account_ids'] = analytic_account_ids
             analytic_accounts = [account.name for account in analytic_account_ids]
 
-        # 🔹 Generate account results
         account_res = self.with_context(context)._get_accounts(accounts, display_account)
 
         return {

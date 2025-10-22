@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <report
-        id="action_report_balance_sheet"
+        id="action_custom_balance_sheet_pdf"
         model="balance.sheet.wizard"
         string="Custom Balance Sheet PDF"
         report_type="qweb-pdf"

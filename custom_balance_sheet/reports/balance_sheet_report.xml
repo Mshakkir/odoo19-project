@@ -1,11 +1,28 @@
-<!-- custom_balance_sheet/reports/balance_sheet_report.xml -->
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <report
         id="action_report_balance_sheet"
         model="balance.sheet.wizard"
-        string="Balance Sheet"
+        string="Balance Sheet Report"
         report_type="qweb-pdf"
         name="custom_balance_sheet.balance_sheet_template"
         file="custom_balance_sheet.balance_sheet_template"
-        attachment_use="False"/>
+        print_report_name="'Balance Sheet - %s' % (object.date_to or '')"
+    />
 </odoo>
+
+
+
+
+
+<!--&lt;!&ndash; custom_balance_sheet/reports/balance_sheet_report.xml &ndash;&gt;-->
+<!--<odoo>-->
+<!--    <report-->
+<!--        id="action_report_balance_sheet"-->
+<!--        model="balance.sheet.wizard"-->
+<!--        string="Balance Sheet"-->
+<!--        report_type="qweb-pdf"-->
+<!--        name="custom_balance_sheet.balance_sheet_template"-->
+<!--        file="custom_balance_sheet.balance_sheet_template"-->
+<!--        attachment_use="False"/>-->
+<!--</odoo>-->

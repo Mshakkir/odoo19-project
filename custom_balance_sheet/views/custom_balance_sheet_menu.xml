@@ -36,11 +36,6 @@
                     <button string="Generate Report" type="object"
                             name="action_generate_report" class="btn-primary"/>
                     <button string="Cancel" special="cancel" class="btn-secondary"/>
-                     <button name="action_print_pdf"
-                            type="object"
-                            string="Print PDF"
-                            class="btn-primary"
-                            icon="fa-print"/>
                 </footer>
             </form>
         </field>

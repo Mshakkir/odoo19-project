@@ -48,41 +48,38 @@ class CustomBalanceSheet(models.TransientModel):
     # Print Balance Sheet PDF
     # ----------------------------
     def action_print_pdf(self):
-        """Generate and print the Balance Sheet as PDF."""
+        """Generate PDF for the balance sheet report."""
         self.ensure_one()
 
         if self.date_from > self.date_to:
             raise UserError(_("The start date cannot be after the end date."))
 
-        # ✅ FIX 1: Ensure lines are generated right before printing
-        lines = self.env['custom.balance.sheet.line'].generate_lines(
+        # Always (re)generate lines before printing
+        self.env['custom.balance.sheet.line'].search([]).unlink()
+        self.env['custom.balance.sheet.line'].generate_lines(
             self.date_from, self.date_to, self.target_moves
         )
 
-        # ✅ FIX 2: Get lines from the same transient model in memory
+        # Fetch all lines after generation
         lines = self.env['custom.balance.sheet.line'].search([])
 
         if not lines:
             raise UserError(_("No records available to print for the selected period."))
 
+        # Pass context data (optional, useful for header info)
         data = {
             'form': {
                 'date_from': self.date_from,
                 'date_to': self.date_to,
                 'target_moves': self.target_moves,
+                'company_name': self.env.company.name,
             },
-            'line_ids': lines.ids,
         }
 
-        # ✅ FIX 3: Pass `lines` (not empty wizard) to report
+        # Return report action using correct recordset
         return self.env.ref('custom_balance_sheet.action_custom_balance_sheet_pdf').report_action(
             lines, data=data
         )
-
-
-
-
-
 
 # from odoo import models, fields, api
 #

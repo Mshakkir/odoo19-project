@@ -58,7 +58,7 @@ class BalanceSheetWizard(models.TransientModel):
             'name': _('Balance Sheet Details'),
             'res_model': 'balance.sheet.line',
             'type': 'ir.actions.act_window',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('wizard_uuid', '=', self.wizard_uuid)],
             'context': {
                 'default_wizard_uuid': self.wizard_uuid,

@@ -6,7 +6,6 @@
         <field name="arch" type="xml">
             <list string="Balance Sheet Lines">
                 <field name="account_id"/>
-                <field name="account_name"/>
                 <field name="debit"/>
                 <field name="credit"/>
                 <field name="balance"/>
@@ -22,7 +21,6 @@
                 <sheet>
                     <group>
                         <field name="account_id"/>
-                        <field name="account_name"/>
                         <field name="debit"/>
                         <field name="credit"/>
                         <field name="balance"/>
@@ -32,7 +30,6 @@
         </field>
     </record>
 
-    <!-- Optional Action to view Lines directly -->
     <record id="action_balance_sheet_line" model="ir.actions.act_window">
         <field name="name">Balance Sheet Lines</field>
         <field name="res_model">balance.sheet.line</field>

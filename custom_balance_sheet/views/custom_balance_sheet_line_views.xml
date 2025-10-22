@@ -12,17 +12,77 @@
                 <field name="debit" sum="Total Debit"/>
                 <field name="credit" sum="Total Credit"/>
                 <field name="balance" sum="Total Balance"/>
-                <!-- Odoo 19: use 'invisible' instead of 'attrs' -->
+
+                <!-- ✅ Fixed: use t-if instead of invisible/attrs -->
                 <button name="action_view_ledger"
                         string="View Ledger"
                         type="object"
                         icon="fa-book"
-                        invisible="is_total == True"/>
+                        t-if="not record.is_total"/>
             </list>
         </field>
     </record>
 
-    <!-- Form View -->
+    <!-- ✅ Form View -->
+    <record id="view_custom_balance_sheet_line_form" model="ir.ui.view">
+        <field name="name">custom.balance.sheet.line.form</field>
+        <field name="model">custom.balance.sheet.line</field>
+        <field name="arch" type="xml">
+            <form string="Balance Sheet Line">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="account_id"/>
+                        <field name="account_type"/>
+                        <field name="debit"/>
+                        <field name="credit"/>
+                        <field name="balance"/>
+                        <field name="is_total"/>
+                    </group>
+
+                    <!-- Optional: Keep ledger button on form too -->
+                    <footer>
+                        <button name="action_view_ledger"
+                                string="View Ledger"
+                                type="object"
+                                icon="fa-book"
+                                t-if="not record.is_total"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+
+<!--    &lt;!&ndash; List (tree) View for Balance Sheet Lines &ndash;&gt;-->
+<!--    <record id="view_custom_balance_sheet_line_list" model="ir.ui.view">-->
+<!--        <field name="name">custom.balance.sheet.line.list</field>-->
+<!--        <field name="model">custom.balance.sheet.line</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <list string="Balance Sheet Details" decoration-muted="is_total">-->
+<!--                <field name="name"/>-->
+<!--                <field name="account_type"/>-->
+<!--                <field name="debit" sum="Total Debit"/>-->
+<!--                <field name="credit" sum="Total Credit"/>-->
+<!--                <field name="balance" sum="Total Balance"/>-->
+<!--                &lt;!&ndash; Odoo 19: use 'invisible' instead of 'attrs' &ndash;&gt;-->
+<!--                <button name="action_view_ledger"-->
+<!--                        string="View Ledger"-->
+<!--                        type="object"-->
+<!--                        icon="fa-book"-->
+<!--                        invisible="is_total == True"/>-->
+<!--            </list>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--     Form View-->
 <!--    <record id="view_custom_balance_sheet_line_form" model="ir.ui.view">-->
 <!--        <field name="name">custom.balance.sheet.line.form</field>-->
 <!--        <field name="model">custom.balance.sheet.line</field>-->
@@ -43,4 +103,4 @@
 <!--        </field>-->
 <!--    </record>-->
 
-</odoo>
+<!--</odoo>-->

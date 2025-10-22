@@ -1,0 +1,22 @@
+<!-- custom_balance_sheet/views/menus_actions.xml -->
+<odoo>
+    <record id="action_balance_sheet_wizard" model="ir.actions.act_window">
+        <field name="name">Balance Sheet</field>
+        <field name="res_model">balance.sheet.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Place menu under Accounting -> Reporting (adjust parent if needed) -->
+    <menuitem id="custom_accounting_reporting_menu"
+              name="Custom Reporting"
+              parent="account.menu_finance"
+              sequence="40"/>
+
+    <menuitem id="custom_balance_sheet_menu"
+              name="Balance Sheet"
+              parent="custom_accounting_reporting_menu"
+              sequence="1"
+              action="custom_balance_sheet_action"/>
+
+</odoo>

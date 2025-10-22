@@ -1,0 +1,55 @@
+<!-- custom_balance_sheet/reports/balance_sheet_template.xml -->
+<odoo>
+    <template id="balance_sheet_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="page">
+                    <header>
+                        <div style="text-align:center;">
+                            <h2><t t-esc="company.name"/></h2>
+                            <div><t t-esc="time.strftime('%Y-%m-%d %H:%M')"/></div>
+                        </div>
+                        <hr/>
+                    </header>
+                    <h3>Balance Sheet</h3>
+                    <div>
+                        <strong>Target Moves:</strong> <t t-esc="move_scope == 'posted' and 'All Posted Entries' or 'All Entries'"/>
+                        &nbsp;&nbsp;&nbsp;
+                        <strong>Date from :</strong> <t t-esc="date_from"/>
+                        &nbsp;&nbsp;&nbsp;
+                        <strong>Date to :</strong> <t t-esc="date_to"/>
+                    </div>
+                    <br/>
+                    <table class="table table-sm" style="width:100%; border-collapse: collapse;" border="1">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left;">Name</th>
+                                <th style="text-align:right;">Debit</th>
+                                <th style="text-align:right;">Credit</th>
+                                <th style="text-align:right;">Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="rows" t-as="row">
+                                <tr>
+                                    <td><t t-esc="row['account'].code"/> - <t t-esc="row['account'].name"/></td>
+                                    <td style="text-align:right;"><t t-esc="formatLang(row['debit'], currency_obj=company.currency_id)"/></td>
+                                    <td style="text-align:right;"><t t-esc="formatLang(row['credit'], currency_obj=company.currency_id)"/></td>
+                                    <td style="text-align:right;"><t t-esc="formatLang(row['balance'], currency_obj=company.currency_id)"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th style="text-align:left;">Total</th>
+                                <th style="text-align:right;"><t t-esc="formatLang(total_debit, currency_obj=company.currency_id)"/></th>
+                                <th style="text-align:right;"><t t-esc="formatLang(total_credit, currency_obj=company.currency_id)"/></th>
+                                <th style="text-align:right;"><t t-esc="formatLang(total_balance, currency_obj=company.currency_id)"/></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

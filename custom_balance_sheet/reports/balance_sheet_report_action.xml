@@ -1,0 +1,11 @@
+<!-- custom_balance_sheet/reports/balance_sheet_report_action.xml -->
+<odoo>
+    <report
+        id="action_report_balance_sheet"
+        model="balance.sheet.wizard"
+        string="Balance Sheet"
+        report_type="qweb-pdf"
+        name="custom_balance_sheet.balance_sheet_template"
+        file="custom_balance_sheet.balance_sheet_template"
+        attachment_use="False"/>
+</odoo>

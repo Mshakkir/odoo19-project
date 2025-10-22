@@ -1,0 +1,44 @@
+<!-- custom_balance_sheet/views/balance_sheet_line_views.xml -->
+<odoo>
+    <record id="view_balance_sheet_line_tree" model="ir.ui.view">
+        <field name="name">balance.sheet.line.tree</field>
+        <field name="model">balance.sheet.line</field>
+        <field name="arch" type="xml">
+            <tree string="Balance Sheet Details">
+                <field name="account_id"/>
+                <field name="debit"/>
+                <field name="credit"/>
+                <field name="balance"/>
+                <field name="company_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_balance_sheet_line_form" model="ir.ui.view">
+        <field name="name">balance.sheet.line.form</field>
+        <field name="model">balance.sheet.line</field>
+        <field name="arch" type="xml">
+            <form string="Balance Sheet Line">
+                <sheet>
+                    <group>
+                        <field name="wizard_uuid" readonly="1"/>
+                        <field name="account_id" />
+                        <field name="debit" />
+                        <field name="credit" />
+                        <field name="balance" />
+                    </group>
+                    <footer>
+                        <button string="Open Ledger" type="object" name="action_open_ledger" class="btn-primary"/>
+                        <button string="Close" class="btn-link" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_balance_sheet_lines" model="ir.actions.act_window">
+        <field name="name">Balance Sheet Lines</field>
+        <field name="res_model">balance.sheet.line</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

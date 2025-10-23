@@ -16,7 +16,7 @@
         'accounting_pdf_reports',  # Your third-party module
     ],
     'data': [
-        'data/financial_report_data.xml',
+        # 'data/financial_report_data.xml',
         'views/account_detail_view.xml',
         'wizard/balance_sheet.xml',
         'wizard/profit_loss.xml',

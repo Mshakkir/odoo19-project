@@ -69,13 +69,20 @@ class BalanceSheetWizard(models.TransientModel):
 
     def action_print_pdf(self):
         """
-        Return report action for our QWeb template. We pass the wizard_uuid and filters in data for report model.
+        Generate and return the OdooMates Financial Report PDF
+        using our wizard filters.
         """
         self._ensure_uuid()
+
         data = {
             'wizard_uuid': self.wizard_uuid,
             'move_scope': self.move_scope,
             'date_from': str(self.date_from),
             'date_to': str(self.date_to),
         }
-        return self.env.ref('accounting_pdf_reports.action_report_financial').report_action(self, data=data)
+
+        # Get any existing accounting report record (needed for report_action)
+        report_record = self.env['accounting.report'].search([], limit=1)
+
+        # Trigger the OdooMates financial report with our filter data
+        return self.env.ref('accounting_pdf_reports.action_report_financial').report_action(report_record, data=data)

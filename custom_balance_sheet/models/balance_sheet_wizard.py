@@ -78,4 +78,4 @@ class BalanceSheetWizard(models.TransientModel):
             'date_from': str(self.date_from),
             'date_to': str(self.date_to),
         }
-        return self.env.ref('accounting_pdf_reports.action_report_financial').report_action(self, data=data)
+        return self.env.ref('custom_balance_sheet.action_report_balance_sheet').report_action(self, data=data)

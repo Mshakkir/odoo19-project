@@ -3,21 +3,22 @@
     <!-- Inherit the OdooMates financial report template -->
     <template id="report_financial_inherit" inherit_id="accounting_pdf_reports.report_financial">
 
-        <!-- Insert your custom header before the internal layout -->
+        <!-- Insert custom header before the internal layout -->
         <xpath expr="//t[@t-call='web.internal_layout']" position="before">
             <div class="text-center" style="margin-bottom:20px;">
                 <h2>Custom Balance Sheet</h2>
-                <p><t t-esc="o.env.company.name"/></p>
+                <p><t t-esc="company.name"/></p>
                 <p>Generated on <t t-esc="time.strftime('%Y-%m-%d %H:%M')"/></p>
             </div>
         </xpath>
 
-        <!-- Optionally, you can also modify the title -->
+        <!-- Optionally replace the title inside the layout -->
         <xpath expr="//h2" position="replace">
             <h2>Custom Balance Sheet Report</h2>
         </xpath>
     </template>
 </odoo>
+
 
 
 

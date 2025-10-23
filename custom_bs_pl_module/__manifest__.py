@@ -13,7 +13,7 @@
     'website': 'https://www.yourcompany.com',
     'depends': [
         'account',
-        'accounting_pdf_reports',  # Your third-party module
+        # 'accounting_pdf_reports',  # Your third-party module
     ],
     'data': [
         # 'data/financial_report_data.xml',

@@ -21,6 +21,7 @@
         'wizard/balance_sheet.xml',
         'wizard/profit_loss.xml',
         'views/menu.xml',
+        'views/custom_balance_sheet_views.xml',
     ],
     'installable': True,
     'application': False,

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Balance Sheet Action -->
+    <record id="action_account_report_bs_custom" model="ir.actions.act_window">
+        <field name="name">Balance Sheet</field>
+        <field name="res_model">accounting.report</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context" eval="{
+            'default_account_report_id': ref('accounting_pdf_reports.account_financial_report_balancesheet0'),
+            'report_type': 'balance_sheet'
+        }"/>
+    </record>
+
+    <!-- Profit & Loss Action -->
+    <record id="action_account_report_pl_custom" model="ir.actions.act_window">
+        <field name="name">Profit & Loss</field>
+        <field name="res_model">accounting.report</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context" eval="{
+            'default_account_report_id': ref('accounting_pdf_reports.account_financial_report_profitandloss0'),
+            'report_type': 'profit_loss'
+        }"/>
+    </record>
+
+    <!-- Menus -->
+    <menuitem id="menu_account_report_bs_custom"
+              name="Balance Sheet"
+              parent="accounting_pdf_reports.menu_finance_legal_statement"
+              action="action_account_report_bs_custom"
+              groups="account.group_account_user,account.group_account_manager"/>
+
+    <menuitem id="menu_account_report_pl_custom"
+              name="Profit & Loss"
+              parent="accounting_pdf_reports.menu_finance_legal_statement"
+              action="action_account_report_pl_custom"
+              groups="account.group_account_user,account.group_account_manager"/>
+</odoo>

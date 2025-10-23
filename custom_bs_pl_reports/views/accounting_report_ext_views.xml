@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extend accounting.report view to keep existing fields -->
+    <record id="accounting_report_ext_view" model="ir.ui.view">
+        <field name="name">accounting.report.ext.form</field>
+        <field name="model">accounting.report</field>
+        <field name="inherit_id" ref="accounting_pdf_reports.account_common_report_view"/>
+        <field name="arch" type="xml">
+            <!-- Add info note -->
+            <xpath expr="//form" position="inside">
+                <label string="Ledger details will open separately for Balance Sheet and P&L"
+                       colspan="4"
+                       style="font-weight:bold;color:blue;"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

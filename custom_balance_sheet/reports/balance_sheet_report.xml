@@ -5,8 +5,8 @@
         model="balance.sheet.wizard"
         string="Custom Balance Sheet PDF"
         report_type="qweb-pdf"
-        name="custom_balance_sheet.balance_sheet_template"
-        file="custom_balance_sheet.balance_sheet_template"
+        name="custom_balance_sheet.report_balance_sheet_template"
+        file="custom_balance_sheet.report_balance_sheet_template"
         print_report_name="'Custom Balance Sheet - %s' % (object.env.company.name)"
     />
 </odoo>

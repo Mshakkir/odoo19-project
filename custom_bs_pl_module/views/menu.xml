@@ -8,7 +8,7 @@
 
     <!-- Balance Sheet Menu -->
     <menuitem id="menu_account_report_bs"
-              name="Balance Sheet"
+              name="New Balance Sheet"
               sequence="5"
               action="action_account_report_bs"
               parent="menu_finance_legal_statement"
@@ -16,7 +16,7 @@
 
     <!-- Profit & Loss Menu -->
     <menuitem id="menu_account_report_pl"
-              name="Profit and Loss"
+              name="New Profit and Loss"
               sequence="6"
               action="action_account_report_pl"
               parent="menu_finance_legal_statement"

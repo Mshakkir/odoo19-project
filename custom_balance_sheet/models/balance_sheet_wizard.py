@@ -1,6 +1,7 @@
 # custom_balance_sheet/models/balance_sheet_wizard.py
 from odoo import api, fields, models, _
 import uuid
+from odoo.exceptions import UserError
 from datetime import datetime
 
 class BalanceSheetWizard(models.TransientModel):
@@ -81,8 +82,15 @@ class BalanceSheetWizard(models.TransientModel):
             'date_to': str(self.date_to),
         }
 
-        # Get any existing accounting report record (needed for report_action)
-        report_record = self.env['accounting.report'].search([], limit=1)
+        # Try to find the actual 'Balance Sheet' accounting.report record
+        report_record = self.env['accounting.report'].search([('name', 'ilike', 'Balance Sheet')], limit=1)
+        if not report_record:
+            raise UserError(
+                "Balance Sheet report not found. Please ensure the OdooMates Financial Report module is installed.")
 
-        # Trigger the OdooMates financial report with our filter data
-        return self.env.ref('accounting_pdf_reports.action_report_financial').report_action(report_record, data=data)
+        # Use the same report action as OdooMates
+        action = self.env.ref('accounting_pdf_reports.action_report_financial', raise_if_not_found=False)
+        if not action:
+            raise UserError("Report action 'accounting_pdf_reports.action_report_financial' not found.")
+
+        return action.report_action(report_record, data=data)

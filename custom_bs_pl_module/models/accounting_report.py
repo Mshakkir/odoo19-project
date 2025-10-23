@@ -9,7 +9,6 @@ class AccountingReport(models.TransientModel):
         """Open detailed view of Balance Sheet accounts"""
         self.ensure_one()
 
-        # Get all balance sheet account types
         balance_sheet_types = [
             'asset_receivable',
             'asset_cash',
@@ -25,10 +24,11 @@ class AccountingReport(models.TransientModel):
             'equity_unaffected',
         ]
 
-        # Get accounts with these types
+        # Include VAT accounts explicitly
         accounts = self.env['account.account'].search([
-            ('account_type', 'in', balance_sheet_types),
-            ('company_id', '=', self.company_id.id),
+            '|', '|',
+            ('code', 'in', ['101060', '104041', '201017']),
+            ('account_type', 'in', balance_sheet_types)
         ])
 
         return {

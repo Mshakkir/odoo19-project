@@ -36,7 +36,7 @@ class AccountingReport(models.TransientModel):
             'res_model': 'account.account',
             'view_mode': 'list,form',
             'views': [
-                (self.env.ref('custom_bs_pl_module.view_account_list_balance_sheet').id, 'tree'),
+                (self.env.ref('custom_bs_pl_module.view_account_list_balance_sheet').id, 'list'),
                 (False, 'form')
             ],
             'domain': [('id', 'in', accounts.ids)],
@@ -74,7 +74,7 @@ class AccountingReport(models.TransientModel):
             'res_model': 'account.account',
             'view_mode': 'list,form',
             'views': [
-                (self.env.ref('custom_bs_pl_module.view_account_list_profit_loss').id, 'tree'),
+                (self.env.ref('custom_bs_pl_module.view_account_list_profit_loss').id, 'list'),
                 (False, 'form')
             ],
             'domain': [('id', 'in', accounts.ids)],

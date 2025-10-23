@@ -65,7 +65,6 @@ class AccountingReport(models.TransientModel):
         # Get accounts with these types
         accounts = self.env['account.account'].search([
             ('account_type', 'in', pl_types),
-            ('company_id', '=', self.company_id.id),
         ])
 
         return {

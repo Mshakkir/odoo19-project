@@ -41,6 +41,6 @@
         <field name="view_mode">form</field>
         <field name="view_id" ref="accounting_report_view_profit_loss"/>
         <field name="target">new</field>
-        <field name="context" eval="{'default_account_report_id': ref('your_custom_module.account_financial_report_profitandloss0')}"/>
+        <field name="context" eval="{'default_account_report_id': ref('accounting_pdf_reports.account_financial_report_profitandloss0')}"/>
     </record>
 </odoo>

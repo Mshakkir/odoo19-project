@@ -65,7 +65,7 @@ class AccountAccount(models.Model):
             'name': f'Ledger Entries - {self.code} {self.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move.line',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': domain,
             'context': {
                 'search_default_posted': 1,

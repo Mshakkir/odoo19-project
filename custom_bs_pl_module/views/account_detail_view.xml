@@ -2,10 +2,10 @@
 <odoo>
     <!-- Balance Sheet Account List View -->
     <record id="view_account_list_balance_sheet" model="ir.ui.view">
-        <field name="name">account.account.tree.balance.sheet</field>
+        <field name="name">account.account.list.balance.sheet</field>
         <field name="model">account.account</field>
         <field name="arch" type="xml">
-            <tree string="Balance Sheet Accounts" create="false" delete="false">
+            <list string="Balance Sheet Accounts" create="false" delete="false">
                 <field name="code"/>
                 <field name="name"/>
                 <field name="account_type"/>
@@ -18,16 +18,16 @@
                         string="View Ledger"
                         class="btn-link"
                         icon="fa-book"/>
-            </tree>
+            </list>
         </field>
     </record>
 
     <!-- Profit & Loss Account List View -->
     <record id="view_account_list_profit_loss" model="ir.ui.view">
-        <field name="name">account.account.tree.profit.loss</field>
+        <field name="name">account.account.list.profit.loss</field>
         <field name="model">account.account</field>
         <field name="arch" type="xml">
-            <tree string="Profit and Loss Accounts" create="false" delete="false">
+            <list string="Profit and Loss Accounts" create="false" delete="false">
                 <field name="code"/>
                 <field name="name"/>
                 <field name="account_type"/>
@@ -40,7 +40,7 @@
                         string="View Ledger"
                         class="btn-link"
                         icon="fa-book"/>
-            </tree>
+            </list>
         </field>
     </record>
 </odoo>

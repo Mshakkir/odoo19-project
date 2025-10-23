@@ -26,7 +26,7 @@ class AccountingReport(models.TransientModel):
             'type': 'ir.actions.act_window',
             'res_model': 'account.account',
             'view_mode': 'list',
-            'views': [(self.env.ref('your_custom_module.view_account_list_balance_sheet').id, 'list')],
+            'views': [(self.env.ref('custom_bs_pl_module.view_account_list_balance_sheet').id, 'list')],
             'domain': [('id', 'in', accounts.ids)],
             'context': {
                 'date_from': self.date_from,
@@ -48,7 +48,7 @@ class AccountingReport(models.TransientModel):
             'type': 'ir.actions.act_window',
             'res_model': 'account.account',
             'view_mode': 'list',
-            'views': [(self.env.ref('your_custom_module.view_account_list_profit_loss').id, 'list')],
+            'views': [(self.env.ref('custom_bs_pl_module.view_account_list_profit_loss').id, 'list')],
             'domain': [('id', 'in', accounts.ids)],
             'context': {
                 'date_from': self.date_from,

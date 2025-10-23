@@ -1,1 +1,1 @@
-from . import accounting_report_ext
+from . import balance_sheet_wizard

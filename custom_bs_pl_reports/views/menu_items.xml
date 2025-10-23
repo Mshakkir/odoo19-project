@@ -1,39 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Balance Sheet Action -->
-    <record id="action_account_report_bs_custom" model="ir.actions.act_window">
+    <!-- Balance Sheet Menu -->
+    <record id="action_bs_wizard" model="ir.actions.act_window">
         <field name="name">Balance Sheet</field>
-        <field name="res_model">accounting.report</field>
+        <field name="res_model">balance.sheet.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-        <field name="context" eval="{
-            'default_account_report_id': ref('accounting_pdf_reports.account_financial_report_balancesheet0'),
-            'report_type': 'balance_sheet'
-        }"/>
+        <field name="context">{'report_type':'balance_sheet'}</field>
     </record>
 
-    <!-- Profit & Loss Action -->
-    <record id="action_account_report_pl_custom" model="ir.actions.act_window">
-        <field name="name">Profit & Loss</field>
-        <field name="res_model">accounting.report</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-        <field name="context" eval="{
-            'default_account_report_id': ref('accounting_pdf_reports.account_financial_report_profitandloss0'),
-            'report_type': 'profit_loss'
-        }"/>
-    </record>
-
-    <!-- Menus -->
-    <menuitem id="menu_account_report_bs_custom"
+    <menuitem id="menu_bs_wizard"
               name="Balance Sheet"
-              parent="accounting_pdf_reports.menu_finance_legal_statement"
-              action="action_account_report_bs_custom"
+              parent="account.menu_finance_reports"
+              action="action_bs_wizard"
               groups="account.group_account_user,account.group_account_manager"/>
 
-    <menuitem id="menu_account_report_pl_custom"
-              name="Profit & Loss"
-              parent="accounting_pdf_reports.menu_finance_legal_statement"
-              action="action_account_report_pl_custom"
+    <!-- Profit & Loss Menu -->
+    <record id="action_pl_wizard" model="ir.actions.act_window">
+        <field name="name">Profit and Loss</field>
+        <field name="res_model">balance.sheet.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'report_type':'profit_loss'}</field>
+    </record>
+
+    <menuitem id="menu_pl_wizard"
+              name="Profit and Loss"
+              parent="account.menu_finance_reports"
+              action="action_pl_wizard"
               groups="account.group_account_user,account.group_account_manager"/>
 </odoo>

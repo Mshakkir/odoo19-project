@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_balance_sheet_wizard_form" model="ir.ui.view">
+        <field name="name">balance.sheet.wizard.form</field>
+        <field name="model">balance.sheet.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Custom Report">
+                <group>
+                    <field name="report_type"/>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                    <field name="target_move"/>
+                </group>
+                <footer>
+                    <button name="action_generate_report" string="Generate" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+                <field name="line_ids" nolabel="1">
+                    <tree>
+                        <field name="code"/>
+                        <field name="name"/>
+                        <field name="balance"/>
+                    </tree>
+                </field>
+                <footer>
+                    <button name="action_view_ledger" string="View Details" type="object" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

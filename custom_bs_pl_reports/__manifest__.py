@@ -1,11 +1,11 @@
 {
-    'name': 'Custom BS & PL Reports',
+    'name': 'Custom BS & P&L Reports',
     'version': '1.0',
     'category': 'Accounting',
-    'summary': 'Separate ledger details for Balance Sheet and P&L using same wizard',
-    'depends': ['om_account_accounting', 'account'],
+    'summary': 'Separate ledger details for Balance Sheet and P&L in Odoo CE',
+    'depends': ['account'],
     'data': [
-        'views/accounting_report_ext_views.xml',
+        'views/balance_sheet_wizard_views.xml',
         'views/menu_items.xml',
     ],
     'installable': True,

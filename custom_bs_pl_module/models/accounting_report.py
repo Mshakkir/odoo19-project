@@ -35,7 +35,7 @@ class AccountingReport(models.TransientModel):
             'name': 'Balance Sheet Account Details',
             'type': 'ir.actions.act_window',
             'res_model': 'account.account',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'views': [
                 (self.env.ref('your_custom_module.view_account_list_balance_sheet').id, 'tree'),
                 (False, 'form')

@@ -6,7 +6,7 @@ class AccountingReport(models.TransientModel):
     _inherit = 'accounting.report'
 
     def action_view_balance_sheet_details(self):
-        """Open detailed view of Balance Sheet accounts"""
+        """Open detailed view of Balance Sheet accounts, excluding VAT accounts from list"""
         self.ensure_one()
 
         balance_sheet_types = [
@@ -24,11 +24,10 @@ class AccountingReport(models.TransientModel):
             'equity_unaffected',
         ]
 
-        # Include VAT accounts explicitly
+        # Get accounts for list view, exclude VAT accounts
         accounts = self.env['account.account'].search([
-            '|', '|',
-            ('code', 'in', ['101060', '104041', '201017']),
-            ('account_type', 'in', balance_sheet_types)
+            ('account_type', 'in', balance_sheet_types),
+            ('code', 'not in', ['101060', '104041', '201017'])
         ])
 
         return {

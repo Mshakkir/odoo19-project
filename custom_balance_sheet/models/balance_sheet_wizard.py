@@ -68,10 +68,12 @@ class BalanceSheetWizard(models.TransientModel):
         }
         return action
 
+    from odoo.exceptions import UserError
+
     def action_print_pdf(self):
         """
-        Generate and return the OdooMates Financial Report PDF
-        using our wizard filters.
+        Generate the Financial Report PDF using OdooMates template
+        with our wizard filters.
         """
         self._ensure_uuid()
 
@@ -82,15 +84,10 @@ class BalanceSheetWizard(models.TransientModel):
             'date_to': str(self.date_to),
         }
 
-        # Try to find the actual 'Balance Sheet' accounting.report record
-        report_record = self.env['accounting.report'].search([('name', 'ilike', 'Balance Sheet')], limit=1)
-        if not report_record:
-            raise UserError(
-                "Balance Sheet report not found. Please ensure the OdooMates Financial Report module is installed.")
-
-        # Use the same report action as OdooMates
+        # Get the OdooMates Financial Report action safely
         action = self.env.ref('accounting_pdf_reports.action_report_financial', raise_if_not_found=False)
         if not action:
             raise UserError("Report action 'accounting_pdf_reports.action_report_financial' not found.")
 
-        return action.report_action(report_record, data=data)
+        # Use 'self' to trigger the report (OdooMates report reads data from 'data' anyway)
+        return action.report_action(self, data=data)

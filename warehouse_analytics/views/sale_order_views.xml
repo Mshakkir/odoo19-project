@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Add Warehouse/Branch field to Sales Order Form -->
+    <record id="view_order_form_warehouse_analytic" model="ir.ui.view">
+        <field name="name">sale.order.form.warehouse.analytic</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Add field in Other Information tab, after warehouse field -->
+            <xpath expr="//field[@name='warehouse_id']" position="after">
+                <field name="warehouse_analytic_id"
+                       options="{'no_create': True, 'no_open': True}"
+                       readonly="1"
+                       string="Warehouse Analytics (Auto-set)"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

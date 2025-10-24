@@ -35,12 +35,9 @@ class AccountTaxReport(models.TransientModel):
         string='Date To', required=True,
         default=lambda self: fields.Date.to_string(date.today())
     )
-    # ✅ ADD THIS FIELD - This is what was missing!
+    # ✅ FIXED: Removed the column specifications - let Odoo auto-generate them
     analytic_account_ids = fields.Many2many(
         'account.analytic.account',
-        'account_tax_report_analytic_rel',
-        'tax_report_id',
-        'analytic_account_id',
         string='Warehouse (Analytic Accounts)'
     )
 

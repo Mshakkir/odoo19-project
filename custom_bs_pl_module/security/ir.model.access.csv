@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_custom_balance_sheet_line_user,access.custom.balance.sheet.line.user,model_custom_balance_sheet_line,base.group_user,1,0,0,0
+access_custom_balance_sheet_line_manager,access.custom.balance.sheet.line.manager,model_custom_balance_sheet_line,base.group_system,1,1,1,1

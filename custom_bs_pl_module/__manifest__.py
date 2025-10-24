@@ -16,6 +16,7 @@
         'accounting_pdf_reports',  # Your third-party module
     ],
     'data': [
+        'security/ir.model.access.csv',
         'data/financial_report_data.xml',
         'views/account_detail_view.xml',
         'wizard/balance_sheet.xml',

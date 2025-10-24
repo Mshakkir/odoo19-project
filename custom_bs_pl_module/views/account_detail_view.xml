@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Balance Sheet Detail Tree -->
+
+    <!-- ✅ Balance Sheet Detail Tree -->
     <record id="view_account_list_balance_sheet" model="ir.ui.view">
         <field name="name">custom.balance.sheet.line.list</field>
         <field name="model">custom.balance.sheet.line</field>
@@ -11,11 +12,18 @@
                 <field name="debit" sum="Total Debit"/>
                 <field name="credit" sum="Total Credit"/>
                 <field name="balance" sum="Total Balance"/>
+
+                <!-- ✅ Add View Ledger Button Here -->
+                <button name="action_view_ledger"
+                        type="object"
+                        string="View Ledger"
+                        class="btn-link"
+                        icon="fa-book"/>
             </list>
         </field>
     </record>
 
-    <!-- Profit & Loss Accounts -->
+    <!-- Profit & Loss Accounts (you can keep as is) -->
     <record id="view_account_list_profit_loss" model="ir.ui.view">
         <field name="name">account.account.list.profit.loss</field>
         <field name="model">account.account</field>
@@ -35,4 +43,5 @@
             </list>
         </field>
     </record>
+
 </odoo>

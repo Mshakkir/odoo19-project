@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from odoo import models
 
 class AccountingReport(models.TransientModel):
@@ -6,19 +7,22 @@ class AccountingReport(models.TransientModel):
     def action_view_balance_sheet_details(self):
         self.ensure_one()
 
-        lines = self._get_balance_sheet_lines()
         self.env['custom.balance.sheet.line'].search([]).unlink()
+        lines = self._get_balance_sheet_lines()
 
         for line in lines:
-            account = self.env['account.account'].browse(line['account_id'])
+            account_type = line['account_type']
+            section_type = self._map_section_type(account_type)
+
             self.env['custom.balance.sheet.line'].create({
-                'name': account.name,
-                'account_type': account.account_type,
+                'name': line['account_name'],
+                'account_type': account_type,
+                'section_type': section_type,
                 'debit': line['debit'] or 0.0,
                 'credit': line['credit'] or 0.0,
                 'balance': line['balance'] or 0.0,
-                'account_id': account.id,   # ✅ key fix here
                 'currency_id': self.env.company.currency_id.id,
+                'account_id': line.get('account_id'),
             })
 
         return {
@@ -28,12 +32,13 @@ class AccountingReport(models.TransientModel):
             'view_mode': 'list',
             'views': [(self.env.ref('custom_bs_pl_module.view_account_list_balance_sheet').id, 'list')],
             'target': 'current',
+            'context': {'group_by': ['section_type']},  # ✅ Group by section
         }
 
     def _get_balance_sheet_lines(self):
         query = """
             SELECT 
-                aa.id AS account_id,
+                aa.id as account_id,
                 aa.name AS account_name,
                 aa.account_type AS account_type,
                 SUM(aml.debit) AS debit,
@@ -47,6 +52,18 @@ class AccountingReport(models.TransientModel):
         """
         self.env.cr.execute(query, [self.env.company.id])
         return self.env.cr.dictfetchall()
+
+    def _map_section_type(self, account_type):
+        """Map account_type → section group"""
+        if account_type.startswith('asset'):
+            return 'asset'
+        elif account_type.startswith('liability'):
+            return 'liability'
+        elif account_type.startswith('equity'):
+            return 'equity'
+        else:
+            return 'profit_loss'
+
 
     def action_view_profit_loss_details(self):
         self.ensure_one()

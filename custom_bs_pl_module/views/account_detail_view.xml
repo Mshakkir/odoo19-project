@@ -7,13 +7,13 @@
         <field name="model">custom.balance.sheet.line</field>
         <field name="arch" type="xml">
             <list string="Balance Sheet Details">
+                <field name="section_type" invisible="1"/>
                 <field name="account_type"/>
                 <field name="name"/>
                 <field name="debit" sum="Total Debit"/>
                 <field name="credit" sum="Total Credit"/>
                 <field name="balance" sum="Total Balance"/>
 
-                <!-- ✅ Add View Ledger Button Here -->
                 <button name="action_view_ledger"
                         type="object"
                         string="View Ledger"

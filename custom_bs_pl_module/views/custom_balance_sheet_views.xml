@@ -1,6 +1,6 @@
 <odoo>
-    <record id="view_custom_balance_sheet_line_tree" model="ir.ui.view">
-        <field name="name">custom.balance.sheet.line.tree</field>
+    <record id="view_custom_balance_sheet_line_list" model="ir.ui.view">
+        <field name="name">custom.balance.sheet.line.list</field>
         <field name="model">custom.balance.sheet.line</field>
         <field name="arch" type="xml">
             <list string="Balance Sheet Details">
@@ -12,7 +12,8 @@
                 <button name="action_view_ledger"
                         string="View Ledger"
                         type="object"
-                        class="btn-primary"/>
+                        class="btn-primary"
+                        icon="fa-book"/>
             </list>
         </field>
     </record>

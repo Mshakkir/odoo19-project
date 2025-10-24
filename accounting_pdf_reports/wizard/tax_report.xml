@@ -16,12 +16,6 @@
                         <field name="date_to"/>
                     </group>
                 </group>
-                <group>
-                    <field name="analytic_account_ids"
-                           widget="many2many_tags"
-                           options="{'no_create': True}"
-                           placeholder="Select warehouses (Leave empty for all warehouses)"/>
-                </group>
                 <footer>
                     <button name="check_report"
                             string="Print"

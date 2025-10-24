@@ -13,6 +13,12 @@
                 type="object"
                 class="btn-secondary"/>
       </xpath>
+                      <group>
+                    <field name="analytic_account_ids"
+                           widget="many2many_tags"
+                           options="{'no_create': True}"
+                           placeholder="Select warehouses (Leave empty for all warehouses)"/>
+                </group>
     </field>
   </record>
 </odoo>

@@ -25,7 +25,6 @@ class CustomBalanceSheetLine(models.TransientModel):
         return res
 
     def action_view_ledger(self):
-        """Open ledger view filtered by this account"""
         self.ensure_one()
         if not self.account_id:
             return False

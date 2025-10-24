@@ -48,11 +48,11 @@ class SaleOrder(models.Model):
     def _prepare_invoice(self):
         """
         When creating invoice from sales order, transfer warehouse analytic to invoice.
-        This ensures invoice automatically gets the correct warehouse.
+        ONLY transfer the warehouse_analytic_id field - do NOT touch analytic_distribution here.
         """
         invoice_vals = super(SaleOrder, self)._prepare_invoice()
 
-        # Add warehouse analytic to invoice
+        # ONLY set warehouse_analytic_id - the _post() method will handle the rest
         if self.warehouse_analytic_id:
             invoice_vals['warehouse_analytic_id'] = self.warehouse_analytic_id.id
             _logger.info(
@@ -66,16 +66,6 @@ class SaleOrder(models.Model):
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
-    def _prepare_invoice_line(self, **optional_values):
-        """
-        When preparing invoice line from sale order line, add warehouse analytic.
-        """
-        res = super(SaleOrderLine, self)._prepare_invoice_line(**optional_values)
-
-        # Add analytic distribution if order has warehouse analytic
-        if self.order_id.warehouse_analytic_id and not res.get('analytic_distribution'):
-            res['analytic_distribution'] = {
-                str(self.order_id.warehouse_analytic_id.id): 100
-            }
-
-        return res
+    # DO NOT override _prepare_invoice_line - let it work normally
+    # The analytic will be applied after invoice posting
+    pass

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
 import logging
+import json
 
 _logger = logging.getLogger(__name__)
 
@@ -22,8 +22,7 @@ class AccountMove(models.Model):
     @api.onchange('warehouse_analytic_id')
     def _onchange_warehouse_analytic_id(self):
         """
-        When user changes warehouse analytic, apply it to all invoice lines immediately.
-        This ensures consistency before posting.
+        When user changes warehouse analytic in UI, apply it to invoice lines.
         """
         if self.warehouse_analytic_id and self.invoice_line_ids:
             analytic_distribution = {str(self.warehouse_analytic_id.id): 100}
@@ -36,81 +35,77 @@ class AccountMove(models.Model):
 
     def write(self, vals):
         """
-        If warehouse analytic is changed, update all related lines.
+        When warehouse_analytic_id is written, apply to all lines in draft state.
         """
         res = super(AccountMove, self).write(vals)
 
         if 'warehouse_analytic_id' in vals:
-            for move in self:
-                if move.warehouse_analytic_id and move.state == 'draft':
-                    analytic_distribution = {str(move.warehouse_analytic_id.id): 100}
+            for move in self.filtered(lambda m: m.state == 'draft' and m.warehouse_analytic_id):
+                analytic_distribution = {str(move.warehouse_analytic_id.id): 100}
 
-                    # Update invoice lines (exclude display lines like section/note)
-                    lines_to_update = move.invoice_line_ids.filtered(lambda l: not l.display_type)
-                    if lines_to_update:
-                        lines_to_update.write({
-                            'analytic_distribution': analytic_distribution
-                        })
+                # Apply to invoice lines using direct SQL to avoid ORM issues
+                invoice_line_ids = move.invoice_line_ids.filtered(
+                    lambda l: not l.display_type
+                ).ids
 
-                    _logger.info(f"Updated warehouse analytic for move {move.name}")
+                if invoice_line_ids:
+                    query = """
+                        UPDATE account_move_line 
+                        SET analytic_distribution = %s
+                        WHERE id IN %s
+                    """
+                    self.env.cr.execute(query, (json.dumps(analytic_distribution), tuple(invoice_line_ids)))
+                    move.invoice_line_ids.invalidate_recordset(['analytic_distribution'])
+
+                    _logger.info(f"Applied warehouse analytic to {len(invoice_line_ids)} lines in {move.name}")
 
         return res
 
     def _post(self, soft=True):
         """
-        CRITICAL METHOD: Apply warehouse analytic to ALL journal entry lines.
+        MAIN METHOD: Apply warehouse analytic to ALL lines after posting.
 
-        This runs AFTER the invoice is posted and all automatic lines are created.
-        We apply the analytic to:
-        - Receivable/Payable lines (automatic)
-        - Tax lines (automatic)
-        - Any other lines without analytics
+        This is the safest approach - we let Odoo create all automatic entries first,
+        then we apply the analytic to everything.
         """
-        # First, post the move using standard Odoo logic
+        # Post the invoice first
         posted_moves = super(AccountMove, self)._post(soft)
 
-        # Now apply warehouse analytic to ALL lines that don't have it
+        # Now apply analytics to all lines
         for move in posted_moves:
             if not move.warehouse_analytic_id:
-                continue  # Skip if no warehouse analytic set
+                continue
 
             analytic_distribution = {str(move.warehouse_analytic_id.id): 100}
 
-            # Find all lines without analytic distribution
-            lines_without_analytic = move.line_ids.filtered(
+            # Get ALL line IDs that need analytic
+            line_ids_to_update = move.line_ids.filtered(
                 lambda l: not l.analytic_distribution
-            )
+            ).ids
 
-            if lines_without_analytic:
+            if line_ids_to_update:
                 try:
-                    # Use SQL to update directly - faster and avoids ORM issues
-                    line_ids = tuple(lines_without_analytic.ids)
-                    if line_ids:
-                        # Update analytic_distribution using SQL
-                        query = """
-                            UPDATE account_move_line 
-                            SET analytic_distribution = %s
-                            WHERE id IN %s
-                        """
-                        import json
-                        self.env.cr.execute(query, (json.dumps(analytic_distribution), line_ids))
+                    # Use direct SQL UPDATE - most reliable method
+                    query = """
+                        UPDATE account_move_line 
+                        SET analytic_distribution = %s
+                        WHERE id IN %s
+                    """
+                    self.env.cr.execute(query, (
+                        json.dumps(analytic_distribution),
+                        tuple(line_ids_to_update)
+                    ))
 
-                        # Invalidate cache to reflect changes
-                        lines_without_analytic.invalidate_recordset(['analytic_distribution'])
+                    # Invalidate cache
+                    move.line_ids.invalidate_recordset(['analytic_distribution'])
 
-                        _logger.info(
-                            f"Move {move.name}: Applied warehouse analytic '{move.warehouse_analytic_id.name}' "
-                            f"to {len(lines_without_analytic)} lines (receivables/payables/taxes)"
-                        )
+                    _logger.info(
+                        f"✓ Move {move.name}: Applied '{move.warehouse_analytic_id.name}' "
+                        f"to {len(line_ids_to_update)} lines"
+                    )
+
                 except Exception as e:
-                    _logger.error(f"Error applying analytic to lines: {str(e)}")
-                    # Fallback to ORM write
-                    try:
-                        lines_without_analytic.write({
-                            'analytic_distribution': analytic_distribution
-                        })
-                    except Exception as e2:
-                        _logger.error(f"Fallback write also failed: {str(e2)}")
+                    _logger.error(f"✗ Failed to apply analytic to {move.name}: {str(e)}")
 
         return posted_moves
 
@@ -121,32 +116,12 @@ class AccountMoveLine(models.Model):
     @api.onchange('product_id')
     def _onchange_product_id(self):
         """
-        When user adds a product to invoice line, auto-set warehouse analytic
-        from the invoice header.
+        When user adds product in UI, apply warehouse analytic if available.
         """
         result = super(AccountMoveLine, self)._onchange_product_id()
 
-        # If invoice has warehouse analytic and this line doesn't, apply it
         if (self.move_id.warehouse_analytic_id and
                 not self.analytic_distribution and
-                not self.display_type):
-            self.analytic_distribution = {
-                str(self.move_id.warehouse_analytic_id.id): 100
-            }
-
-        return result
-
-    @api.onchange('account_id')
-    def _onchange_account_id(self):
-        """
-        When user changes account on a line, maintain warehouse analytic.
-        """
-        result = super(AccountMoveLine, self)._onchange_account_id()
-
-        # Maintain warehouse analytic when account changes
-        if (self.move_id.warehouse_analytic_id and
-                not self.analytic_distribution and
-                self.account_id and
                 not self.display_type):
             self.analytic_distribution = {
                 str(self.move_id.warehouse_analytic_id.id): 100

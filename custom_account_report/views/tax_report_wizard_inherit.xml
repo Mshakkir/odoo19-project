@@ -1,15 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <record id="inherit_tax_report_wizard_view" model="ir.ui.view">
     <field name="name">inherit.tax.report.wizard.view</field>
     <field name="model">account.tax.report.wizard</field>
-    <field name="inherit_id" ref="accounting_pdf_reports.account_report_tax_view"/>
+    <field name="inherit_id" ref="account_reports.account_tax_report_wizard_view"/>
     <field name="arch" type="xml">
 
-      <!-- Remove the invalid field -->
-      <xpath expr="//field[@name='analytic_account_ids']" position="replace"/>
-
-      <!-- Add your custom button -->
       <xpath expr="//footer/button[@name='check_report']" position="before">
         <button name="open_tax_report_details"
                 string="Show Details"

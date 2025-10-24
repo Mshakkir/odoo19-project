@@ -10,12 +10,14 @@ class AccountingReport(models.TransientModel):
         self.env['custom.balance.sheet.line'].search([]).unlink()
 
         for line in lines:
+            account = self.env['account.account'].browse(line['account_id'])
             self.env['custom.balance.sheet.line'].create({
-                'name': line['account_name'],
-                'account_type': line['account_type'],
+                'name': account.name,
+                'account_type': account.account_type,
                 'debit': line['debit'] or 0.0,
                 'credit': line['credit'] or 0.0,
                 'balance': line['balance'] or 0.0,
+                'account_id': account.id,   # ✅ key fix here
                 'currency_id': self.env.company.currency_id.id,
             })
 
@@ -31,6 +33,7 @@ class AccountingReport(models.TransientModel):
     def _get_balance_sheet_lines(self):
         query = """
             SELECT 
+                aa.id AS account_id,
                 aa.name AS account_name,
                 aa.account_type AS account_type,
                 SUM(aml.debit) AS debit,
@@ -39,7 +42,7 @@ class AccountingReport(models.TransientModel):
             FROM account_move_line aml
             JOIN account_account aa ON aml.account_id = aa.id
             WHERE aml.company_id = %s
-            GROUP BY aa.name, aa.account_type
+            GROUP BY aa.id, aa.name, aa.account_type
             ORDER BY aa.account_type, aa.name
         """
         self.env.cr.execute(query, [self.env.company.id])

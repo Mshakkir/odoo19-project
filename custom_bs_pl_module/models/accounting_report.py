@@ -31,6 +31,26 @@ class AccountingReport(models.TransientModel):
             'target': 'current',
         }
 
+    def _get_balance_sheet_lines(self):
+        """Compute account balances for the company"""
+        query = """
+               SELECT 
+                   aa.id AS account_id,
+                   aa.name AS account_name,
+                   aa.account_type AS account_type,
+                   SUM(aml.debit) AS debit,
+                   SUM(aml.credit) AS credit,
+                   SUM(aml.debit - aml.credit) AS balance
+               FROM account_move_line aml
+               JOIN account_account aa ON aml.account_id = aa.id
+               WHERE aml.company_id = %s
+               GROUP BY aa.id, aa.name, aa.account_type
+               ORDER BY aa.account_type, aa.name
+           """
+        self.env.cr.execute(query, [self.env.company.id])
+        result = self.env.cr.dictfetchall()
+        return result
+
     def action_view_profit_loss_details(self):
         """Open the Profit & Loss detail list."""
         self.ensure_one()

@@ -72,15 +72,29 @@ class SaleOrder(models.Model):
         """
         invoices = super(SaleOrder, self)._create_invoices(grouped, final, date)
 
-        # Double-check that warehouse analytic is set on all created invoices
+        # After invoices are created, ensure warehouse analytic is set
         for invoice in invoices:
+            # Get all related sale orders for this invoice
             sale_orders = invoice.invoice_line_ids.mapped('sale_line_ids.order_id')
 
-            # If all sale orders have same warehouse analytic, apply to invoice
-            warehouse_analytics = sale_orders.mapped('warehouse_analytic_id')
-            if len(warehouse_analytics) == 1 and warehouse_analytics:
-                if not invoice.warehouse_analytic_id:
+            if not sale_orders:
+                continue
+
+            # If invoice doesn't have warehouse analytic but sale orders do, apply it
+            if not invoice.warehouse_analytic_id:
+                # Get unique warehouse analytics from all related sale orders
+                warehouse_analytics = sale_orders.mapped('warehouse_analytic_id')
+
+                # If all sale orders have the same warehouse analytic, apply to invoice
+                if len(set(warehouse_analytics.ids)) == 1 and warehouse_analytics:
                     invoice.warehouse_analytic_id = warehouse_analytics[0]
+
+                    # Also update all invoice lines to have this analytic
+                    analytic_distribution = {str(warehouse_analytics[0].id): 100}
+                    for line in invoice.invoice_line_ids.filtered(lambda l: not l.display_type):
+                        if not line.analytic_distribution:
+                            line.analytic_distribution = analytic_distribution
+
                     _logger.info(
                         f"Invoice {invoice.name}: Applied warehouse analytic "
                         f"'{warehouse_analytics[0].name}' from sales orders"

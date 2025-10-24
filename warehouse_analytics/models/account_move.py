@@ -47,9 +47,14 @@ class AccountMove(models.Model):
 
                 # vals['invoice_line_ids'] format: [(0, 0, {...}), (0, 0, {...}), ...]
                 for line_cmd in vals['invoice_line_ids']:
-                    if line_cmd[0] == 0:  # Create command (0, 0, {...})
-                        if 'analytic_distribution' not in line_cmd[2]:
-                            line_cmd[2]['analytic_distribution'] = analytic_distribution
+                    if isinstance(line_cmd, (list, tuple)) and len(line_cmd) >= 3:
+                        if line_cmd[0] == 0:  # Create command (0, 0, {...})
+                            line_vals = line_cmd[2]
+                            if isinstance(line_vals, dict):
+                                # Only set if not already present and not a display line
+                                if ('analytic_distribution' not in line_vals and
+                                        not line_vals.get('display_type')):
+                                    line_vals['analytic_distribution'] = analytic_distribution
 
                 _logger.info(f"Warehouse analytic {analytic_id} applied to invoice lines on creation")
 

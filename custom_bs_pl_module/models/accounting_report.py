@@ -5,15 +5,13 @@ from odoo import models, api
 class AccountingReport(models.TransientModel):
     _inherit = 'accounting.report'
 
-    @api.model
     def action_view_balance_sheet_details(self):
-        # 1. Get computed report lines (with debit, credit, balance)
+        self.ensure_one()
+
         lines = self._get_balance_sheet_lines()
 
-        # 2. Remove previous transient data
         self.env['custom.balance.sheet.line'].search([]).unlink()
 
-        # 3. Insert new data rows for the window view
         for line in lines:
             self.env['custom.balance.sheet.line'].create({
                 'name': line.get('name'),
@@ -24,7 +22,6 @@ class AccountingReport(models.TransientModel):
                 'currency_id': self.env.company.currency_id.id,
             })
 
-        # 4. Return a window action showing the new transient data
         return {
             'name': 'Balance Sheet Details',
             'type': 'ir.actions.act_window',

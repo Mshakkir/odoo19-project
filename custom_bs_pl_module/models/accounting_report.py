@@ -14,7 +14,7 @@ class AccountingReport(models.TransientModel):
 
         for line in lines:
             self.env['custom.balance.sheet.line'].create({
-                'name': line.get('name'),
+                'name': line.get('name') or 'Unnamed Account',
                 'account_type': line.get('account_type'),
                 'debit': line.get('debit', 0.0),
                 'credit': line.get('credit', 0.0),

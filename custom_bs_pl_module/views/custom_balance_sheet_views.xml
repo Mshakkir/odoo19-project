@@ -1,15 +1,19 @@
 <odoo>
-    <record id="view_account_list_balance_sheet" model="ir.ui.view">
-        <field name="name">custom.balance.sheet.line.list</field>
+    <record id="view_custom_balance_sheet_line_tree" model="ir.ui.view">
+        <field name="name">custom.balance.sheet.line.tree</field>
         <field name="model">custom.balance.sheet.line</field>
         <field name="arch" type="xml">
-            <list string="Balance Sheet Details">
+            <tree string="Balance Sheet Details">
                 <field name="account_type"/>
                 <field name="name"/>
                 <field name="debit"/>
                 <field name="credit"/>
                 <field name="balance"/>
-            </list>
+                <button name="action_view_ledger"
+                        string="View Ledger"
+                        type="object"
+                        class="btn-primary"/>
+            </tree>
         </field>
     </record>
 </odoo>

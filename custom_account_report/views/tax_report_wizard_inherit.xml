@@ -4,7 +4,7 @@
   <record id="inherit_tax_report_wizard_view" model="ir.ui.view">
     <field name="name">inherit.tax.report.wizard.view</field>
     <field name="model">account.tax.report.wizard</field>
-    <field name="inherit_id" ref="accounting_pdf_reports.accounting_tax_report_view"/>
+    <field name="inherit_id" ref="accounting_pdf_reports.account_report_tax_view"/> <!-- Correct ID -->
     <field name="arch" type="xml">
       <!-- Insert our button in the footer before the Print button -->
       <xpath expr="//footer/button[@name='check_report']" position="before">

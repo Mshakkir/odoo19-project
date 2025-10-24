@@ -6,10 +6,7 @@ class CustomBalanceSheetLine(models.TransientModel):
     _order = 'account_type, name'
 
     name = fields.Char(string='Account', required=True)
-    account_id = fields.Many2one('account.account', string='Account Ref', readonly=True)
-
     account_type = fields.Char(string='Type', readonly=True)
-
     debit = fields.Monetary(string='Debit', currency_field='currency_id', readonly=True)
     credit = fields.Monetary(string='Credit', currency_field='currency_id', readonly=True)
     balance = fields.Monetary(string='Balance', currency_field='currency_id', readonly=True)
@@ -18,5 +15,5 @@ class CustomBalanceSheetLine(models.TransientModel):
         'res.currency',
         string='Currency',
         default=lambda self: self.env.company.currency_id,
-        readonly=True
+        readonly=True,
     )

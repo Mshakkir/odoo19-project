@@ -1,28 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Balance Sheet Account List View -->
+    <!-- Balance Sheet Detail Tree -->
     <record id="view_account_list_balance_sheet" model="ir.ui.view">
-        <field name="name">account.account.list.balance.sheet</field>
-        <field name="model">account.account</field>
+        <field name="name">custom.balance.sheet.line.list</field>
+        <field name="model">custom.balance.sheet.line</field>
         <field name="arch" type="xml">
-            <list string="Balance Sheet Accounts" create="false" delete="false">
-                <field name="code"/>
-                <field name="name"/>
+            <list string="Balance Sheet Details">
                 <field name="account_type"/>
-                <field name="debit_amount" sum="Total Debit"/>
-                <field name="credit_amount" sum="Total Credit"/>
-                <field name="balance_amount" sum="Total Balance"/>
-                <field name="company_currency_id" invisible="1"/>
-                <button name="action_view_ledger"
-                        type="object"
-                        string="View Ledger"
-                        class="btn-link"
-                        icon="fa-book"/>
+                <field name="name"/>
+                <field name="debit" sum="Total Debit"/>
+                <field name="credit" sum="Total Credit"/>
+                <field name="balance" sum="Total Balance"/>
             </list>
         </field>
     </record>
 
-    <!-- Profit & Loss Account List View -->
+    <!-- Profit & Loss Accounts -->
     <record id="view_account_list_profit_loss" model="ir.ui.view">
         <field name="name">account.account.list.profit.loss</field>
         <field name="model">account.account</field>
@@ -34,7 +27,6 @@
                 <field name="debit_amount" sum="Total Debit"/>
                 <field name="credit_amount" sum="Total Credit"/>
                 <field name="balance_amount" sum="Total Balance"/>
-                <field name="company_currency_id" invisible="1"/>
                 <button name="action_view_ledger"
                         type="object"
                         string="View Ledger"

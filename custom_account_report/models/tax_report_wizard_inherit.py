@@ -3,10 +3,7 @@ from odoo import models, fields, api
 
 class AccountTaxReportWizard(models.TransientModel):
     _inherit = 'account.tax.report.wizard'
-    analytic_account_ids = fields.Many2many(
-        'account.analytic.account',
-        string='Warehouse (Analytic Account)',
-    )
+
 
     detail_line_ids = fields.One2many('tax.report.detail.line', 'wizard_id', string='Tax Summary Lines')
 

@@ -26,7 +26,7 @@ class AccountingReport(models.TransientModel):
             'name': 'Balance Sheet Details',
             'type': 'ir.actions.act_window',
             'res_model': 'custom.balance.sheet.line',
-            'view_mode': 'tree',
+            'view_mode': 'list',
             'views': [(self.env.ref('custom_bs_pl_module.view_account_list_balance_sheet').id, 'tree')],
             'target': 'current',
         }

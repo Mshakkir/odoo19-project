@@ -5,6 +5,10 @@ class AccountTaxReportWizard(models.TransientModel):
     _inherit = 'account.tax.report.wizard'
 
     detail_line_ids = fields.One2many('tax.report.detail.line', 'wizard_id', string='Tax Summary Lines')
+    analytic_account_ids = fields.Many2many(
+        'account.analytic.account',
+        string='Analytic Accounts'
+    )
 
     def _sql_from_amls_one(self):
         """Get tax amounts from tax lines"""

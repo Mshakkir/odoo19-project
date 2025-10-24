@@ -7,6 +7,10 @@ class AccountTaxReport(models.TransientModel):
     _inherit = "account.common.report"
     _description = 'Tax Report'
 
+    analytic_account_ids = fields.Many2many(
+        'account.analytic.account',
+        'account_trial_balance_analytic_rel', string='Warehouse(Analytic Accounts) '
+    )
     date_from = fields.Date(
         string='Date From', required=True,
         default=lambda self: fields.Date.to_string(date.today().replace(day=1))

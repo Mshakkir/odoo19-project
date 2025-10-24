@@ -42,10 +42,6 @@ class SaleOrder(models.Model):
                     )
                 else:
                     order.warehouse_analytic_id = False
-                    _logger.warning(
-                        f"SO {order.name}: No analytic account found for warehouse "
-                        f"'{order.warehouse_id.name}'. Please create one or set manually."
-                    )
             else:
                 order.warehouse_analytic_id = False
 
@@ -66,55 +62,20 @@ class SaleOrder(models.Model):
 
         return invoice_vals
 
-    def _create_invoices(self, grouped=False, final=False, date=None):
-        """
-        Override invoice creation to ensure analytic is properly set.
-        """
-        invoices = super(SaleOrder, self)._create_invoices(grouped, final, date)
-
-        # After invoices are created, ensure warehouse analytic is set
-        for invoice in invoices:
-            # Get all related sale orders for this invoice
-            sale_orders = invoice.invoice_line_ids.mapped('sale_line_ids.order_id')
-
-            if not sale_orders:
-                continue
-
-            # If invoice doesn't have warehouse analytic but sale orders do, apply it
-            if not invoice.warehouse_analytic_id:
-                # Get unique warehouse analytics from all related sale orders
-                warehouse_analytics = sale_orders.mapped('warehouse_analytic_id')
-
-                # If all sale orders have the same warehouse analytic, apply to invoice
-                if len(set(warehouse_analytics.ids)) == 1 and warehouse_analytics:
-                    invoice.warehouse_analytic_id = warehouse_analytics[0]
-
-                    # Also update all invoice lines to have this analytic
-                    analytic_distribution = {str(warehouse_analytics[0].id): 100}
-                    for line in invoice.invoice_line_ids.filtered(lambda l: not l.display_type):
-                        if not line.analytic_distribution:
-                            line.analytic_distribution = analytic_distribution
-
-                    _logger.info(
-                        f"Invoice {invoice.name}: Applied warehouse analytic "
-                        f"'{warehouse_analytics[0].name}' from sales orders"
-                    )
-
-        return invoices
-
 
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
-    @api.depends('order_id.warehouse_analytic_id')
-    def _compute_analytic_distribution(self):
+    def _prepare_invoice_line(self, **optional_values):
         """
-        Ensure sale order lines inherit warehouse analytic from order header.
+        When preparing invoice line from sale order line, add warehouse analytic.
         """
-        super(SaleOrderLine, self)._compute_analytic_distribution()
+        res = super(SaleOrderLine, self)._prepare_invoice_line(**optional_values)
 
-        for line in self:
-            if line.order_id.warehouse_analytic_id and not line.analytic_distribution:
-                line.analytic_distribution = {
-                    str(line.order_id.warehouse_analytic_id.id): 100
-                }
+        # Add analytic distribution if order has warehouse analytic
+        if self.order_id.warehouse_analytic_id and not res.get('analytic_distribution'):
+            res['analytic_distribution'] = {
+                str(self.order_id.warehouse_analytic_id.id): 100
+            }
+
+        return res

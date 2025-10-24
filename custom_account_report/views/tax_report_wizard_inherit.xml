@@ -6,12 +6,10 @@
     <field name="inherit_id" ref="accounting_pdf_reports.account_report_tax_view"/>
     <field name="arch" type="xml">
 
-      <!-- ✅ Add the Analytic (Warehouse) field after 'target_move' -->
-      <xpath expr="//field[@name='target_move']" position="after">
-        <field name="analytic_account_ids" widget="many2many_tags"/>
-      </xpath>
+      <!-- Remove the invalid field -->
+      <xpath expr="//field[@name='analytic_account_ids']" position="replace"/>
 
-      <!-- ✅ Add the custom button before the Print button -->
+      <!-- Add your custom button -->
       <xpath expr="//footer/button[@name='check_report']" position="before">
         <button name="open_tax_report_details"
                 string="Show Details"
@@ -22,31 +20,3 @@
     </field>
   </record>
 </odoo>
-
-
-
-
-
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-<!--  <record id="inherit_tax_report_wizard_view" model="ir.ui.view">-->
-<!--    <field name="name">inherit.tax.report.wizard.view</field>-->
-<!--    <field name="model">account.tax.report.wizard</field>-->
-<!--    <field name="inherit_id" ref="accounting_pdf_reports.account_report_tax_view"/>-->
-<!--    <field name="arch" type="xml">-->
-
-<!--      &lt;!&ndash; Remove the invalid field &ndash;&gt;-->
-<!--      <xpath expr="//field[@name='analytic_account_ids']" position="replace"/>-->
-
-<!--      &lt;!&ndash; Add your custom button &ndash;&gt;-->
-<!--      <xpath expr="//footer/button[@name='check_report']" position="before">-->
-<!--        <button name="open_tax_report_details"-->
-<!--                string="Show Details"-->
-<!--                type="object"-->
-<!--                class="btn-secondary"/>-->
-<!--      </xpath>-->
-
-<!--    </field>-->
-<!--  </record>-->
-<!--</odoo>-->

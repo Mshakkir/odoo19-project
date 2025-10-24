@@ -48,8 +48,6 @@ class CustomBalanceSheetLine(models.TransientModel):
             'target': 'current',
         }
 
-        }
-
         # from odoo import models, fields, api
         #
         # class CustomBalanceSheetLine(models.TransientModel):

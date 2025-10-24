@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Add Warehouse/Branch field to Invoice Form -->
+    <record id="view_move_form_warehouse_analytic" model="ir.ui.view">
+        <field name="name">account.move.form.warehouse.analytic</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Add field after partner_id in invoice header -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="warehouse_analytic_id"
+                       options="{'no_create': True, 'no_open': True}"
+                       placeholder="Select Warehouse/Branch..."
+                       widget="selection"
+                       class="oe_inline"
+                       required="1"
+                       invisible="state != 'draft'"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Add Warehouse/Branch field to Invoice Tree/List View -->
+    <record id="view_invoice_tree_warehouse_analytic" model="ir.ui.view">
+        <field name="name">account.move.tree.warehouse.analytic</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="warehouse_analytic_id" optional="show"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Add filter in search view -->
+    <record id="view_account_invoice_filter_warehouse" model="ir.ui.view">
+        <field name="name">account.move.search.warehouse</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//filter[@name='partner_id']" position="after">
+                <filter string="Warehouse/Branch"
+                        name="warehouse_analytic_id"
+                        context="{'group_by': 'warehouse_analytic_id'}"/>
+            </xpath>
+
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="warehouse_analytic_id"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

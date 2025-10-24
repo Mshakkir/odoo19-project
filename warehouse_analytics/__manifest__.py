@@ -22,6 +22,7 @@
         'sale_management',
         'purchase',
         'analytic',
+        'accounting_pdf_reports',
     ],
     'data': [
         'views/account_move_views.xml',

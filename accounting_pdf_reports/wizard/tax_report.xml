@@ -1,24 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Inherit the base tax report wizard -->
+    <!-- Wizard View -->
     <record id="account_report_tax_view" model="ir.ui.view">
         <field name="name">Tax Report Wizard</field>
         <field name="model">account.tax.report.wizard</field>
         <field name="inherit_id" ref="accounting_pdf_reports.account_common_report_view"/>
         <field name="arch" type="xml">
-            <data>
-                <!-- Insert our analytic (warehouse) filter -->
-                <xpath expr="//field[@name='target_move']" position="after">
-                    <newline/>
-                    <field name="analytic_account_ids"
-                           widget="many2many_tags"
-                           options="{'no_create': True}"/>
-                </xpath>
-            </data>
+            <xpath expr="//field[@name='target_move']" position="after">
+                <newline/>
+                <field name="analytic_account_ids" widget="many2many_tags" options="{'no_create': True}"/>
+            </xpath>
         </field>
     </record>
 
-    <!-- Action to open the wizard -->
+    <!-- Wizard Action -->
     <record id="action_account_tax_menu" model="ir.actions.act_window">
         <field name="name">Tax Report</field>
         <field name="type">ir.actions.act_window</field>
@@ -30,7 +25,7 @@
         <field name="binding_type">report</field>
     </record>
 
-    <!-- Menu item -->
+    <!-- Menu Item -->
     <menuitem id="menu_tax_report_custom"
               name="Tax Report"
               sequence="30"
@@ -38,6 +33,7 @@
               action="action_account_tax_menu"
               groups="account.group_account_user,account.group_account_manager"/>
 </odoo>
+
 
 
 

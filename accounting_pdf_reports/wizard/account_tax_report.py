@@ -21,7 +21,6 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
-
 class AccountTaxReportWizard(models.TransientModel):
     _name = 'account.tax.report.wizard'
     _inherit = 'account.common.report'

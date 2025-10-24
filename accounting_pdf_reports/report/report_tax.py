@@ -75,7 +75,6 @@ import time
 from odoo import api, models, _
 from odoo.exceptions import UserError
 
-
 class ReportTaxReport(models.AbstractModel):
     _name = 'report.accounting_pdf_reports.report_tax'
     _description = 'Tax Report'
@@ -96,7 +95,7 @@ class ReportTaxReport(models.AbstractModel):
         return tax_data
 
     def _get_report_data(self, analytic_account_ids, date_from, date_to, target_move):
-        """Custom SQL filter with analytic accounts (warehouses)"""
+        """Custom filter using analytic accounts (warehouses)"""
         move_line_obj = self.env['account.move.line']
         domain = [('tax_line_id', '!=', False)]
 

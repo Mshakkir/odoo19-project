@@ -19,6 +19,25 @@ class AccountMove(models.Model):
              'This will be applied to ALL journal entries including receivables and payables.'
     )
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        """
+        Override create to clean up any problematic analytic_distribution values.
+        """
+        # CRITICAL: Remove analytic_distribution from invoice lines during creation
+        for vals in vals_list:
+            if 'invoice_line_ids' in vals:
+                for line_cmd in vals['invoice_line_ids']:
+                    if isinstance(line_cmd, (list, tuple)) and len(line_cmd) >= 3:
+                        if line_cmd[0] in (0, 1):  # Create or Update command
+                            line_vals = line_cmd[2] if isinstance(line_cmd[2], dict) else {}
+                            # Remove problematic fields
+                            line_vals.pop('analytic_distribution', None)
+                            line_vals.pop('analytic_account_id', None)
+
+        # Create invoice normally
+        return super(AccountMove, self).create(vals_list)
+
     @api.onchange('warehouse_analytic_id')
     def _onchange_warehouse_analytic_id(self):
         """

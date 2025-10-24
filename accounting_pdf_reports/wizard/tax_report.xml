@@ -4,7 +4,6 @@
     <record id="accounting_tax_report_view" model="ir.ui.view">
         <field name="name">Tax Reports</field>
         <field name="model">account.tax.report.wizard</field>
-        <field name="inherit_id" eval="False"/>
         <field name="arch" type="xml">
             <form string="Report Options">
                 <group>
@@ -53,7 +52,7 @@
               name="Tax Report"
               sequence="30"
               action="action_account_tax_report"
-              parent="menu_finance_audit_reports"
+              parent="accounting_pdf_reports.menu_finance_audit_reports"
               groups="account.group_account_manager,account.group_account_user"/>
 
 </odoo>

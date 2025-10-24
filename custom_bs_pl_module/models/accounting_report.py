@@ -36,21 +36,44 @@ class AccountingReport(models.TransientModel):
         }
 
     def _get_balance_sheet_lines(self):
-        query = """
-            SELECT 
+        """
+        Return list of dicts with keys:
+          account_id, account_name, account_type, debit, credit, balance
+
+        Only consider move lines whose move is in state 'posted' and within date range.
+        Only return accounts that actually have posted amounts (HAVING clause).
+        """
+        date_from = self.date_from or None
+        date_to = self.date_to or None
+        params = [self.env.company.id]
+        date_filter_sql = ""
+
+        if date_from:
+            date_filter_sql += " AND aml.date >= %s"
+            params.append(date_from)
+        if date_to:
+            date_filter_sql += " AND aml.date <= %s"
+            params.append(date_to)
+
+        query = f"""
+            SELECT
                 aa.id as account_id,
-                aa.name AS account_name,
-                aa.account_type AS account_type,
+                aa.name as account_name,
+                aa.account_type as account_type,
                 SUM(aml.debit) AS debit,
                 SUM(aml.credit) AS credit,
                 SUM(aml.debit - aml.credit) AS balance
             FROM account_move_line aml
+            JOIN account_move am ON aml.move_id = am.id
             JOIN account_account aa ON aml.account_id = aa.id
             WHERE aml.company_id = %s
+              AND am.state = 'posted'            -- only posted moves
+              {date_filter_sql}
             GROUP BY aa.id, aa.name, aa.account_type
+            HAVING COALESCE(SUM(aml.debit),0) != 0 OR COALESCE(SUM(aml.credit),0) != 0
             ORDER BY aa.account_type, aa.name
         """
-        self.env.cr.execute(query, [self.env.company.id])
+        self.env.cr.execute(query, params)
         return self.env.cr.dictfetchall()
 
     def _map_section_type(self, account_type):

@@ -12,8 +12,8 @@
             <xpath expr="//field[@name='warehouse_id']" position="after">
                 <field name="warehouse_analytic_id"
                        options="{'no_create': True, 'no_open': True}"
-                       readonly="1"
-                       string="Warehouse Analytics (Auto-set)"/>
+                       string="Warehouse Analytics"
+                       placeholder="Auto-filled or select manually..."/>
             </xpath>
 
         </field>

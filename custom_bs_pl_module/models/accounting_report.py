@@ -110,7 +110,7 @@ class AccountingReport(models.TransientModel):
             'account_id': False,
             'account_name': 'Profit (Loss) to Report',
             'account_type': 'profit_loss',
-            'section_type': 'equity',
+            'section_type': False,
             'debit': profit_loss_balance if profit_loss_balance > 0 else 0.0,
             'credit': abs(profit_loss_balance) if profit_loss_balance < 0 else 0.0,
             'balance': profit_loss_balance,

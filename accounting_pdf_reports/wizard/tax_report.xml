@@ -13,11 +13,10 @@
                     </group>
                     <group>
                         <field name="company_id" invisible="1"/>
-                        <field name="date_to" />
+                        <field name="date_to"/>
                     </group>
                 </group>
-                <group expr="//field[@name='display_account']" position="after">
-                    <newline/>
+                <group>
                     <field name="analytic_account_ids" widget="many2many_tags" options="{'no_create': True}"/>
                 </group>
                 <footer>
@@ -46,7 +45,6 @@
               groups="account.group_account_manager,account.group_account_user"/>
 
 </odoo>
-
 
 
 

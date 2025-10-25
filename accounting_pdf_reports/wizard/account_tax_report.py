@@ -36,10 +36,15 @@ class AccountTaxReport(models.TransientModel):
         default=lambda self: fields.Date.to_string(date.today())
     )
 
+    # analytic_account_id = fields.Many2one(
+    #     'account.analytic.account',
+    #     string='Analytic Account (Warehouse)',
+    #     help="Select a specific analytic account (warehouse) to filter the tax report. Leave blank for combined report."
+    # )
     analytic_account_id = fields.Many2one(
         'account.analytic.account',
         string='Analytic Account (Warehouse)',
-        help="Select a specific analytic account (warehouse) to filter the tax report. Leave blank for combined report."
+        default=lambda self: self.env['account.analytic.account'].search([], limit=1).id
     )
 
     def _print_report(self, data):

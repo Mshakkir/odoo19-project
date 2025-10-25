@@ -5,6 +5,7 @@ from odoo import models, fields, api
 class AccountingReport(models.TransientModel):
     _inherit = 'accounting.report'
 
+    # New Fields
     warehouse_id = fields.Many2one(
         'stock.warehouse',
         string='Warehouse',
@@ -16,13 +17,15 @@ class AccountingReport(models.TransientModel):
         help='If checked, combine all warehouses',
     )
 
+    # -------------------------------------------------------------------------
+    # BALANCE SHEET LOGIC
+    # -------------------------------------------------------------------------
     def action_view_balance_sheet_details(self):
         """Generate balance sheet lines filtered by warehouse (if selected)."""
         self.ensure_one()
         self.env['custom.balance.sheet.line'].search([]).unlink()
 
         lines = self._get_balance_sheet_lines()
-
         for line in lines:
             account_type = line['account_type']
             section_type = self._map_section_type(account_type)
@@ -48,7 +51,6 @@ class AccountingReport(models.TransientModel):
             'context': {'group_by': ['section_type']},
         }
 
-    # 🧮 Main SQL Query
     def _get_balance_sheet_lines(self):
         """
         Return list of dicts: account_id, account_name, account_type, debit, credit, balance.
@@ -66,7 +68,7 @@ class AccountingReport(models.TransientModel):
             date_filter_sql += " AND aml.date <= %s"
             params.append(date_to)
 
-        # 🏭 warehouse filtering logic
+        # Warehouse filter
         warehouse_filter_sql = ""
         if not self.include_all and self.warehouse_id:
             warehouse_filter_sql += " AND am.warehouse_id = %s"
@@ -106,16 +108,26 @@ class AccountingReport(models.TransientModel):
             return 'profit_loss'
 
     def _get_warehouse_label(self):
-        """Return readable name for warehouse selection"""
+        """Readable name for warehouse"""
         if self.include_all:
             return "All Warehouses"
         elif self.warehouse_id:
             return self.warehouse_id.name
         return "No Warehouse"
 
+    # -------------------------------------------------------------------------
+    # PROFIT & LOSS LOGIC
+    # -------------------------------------------------------------------------
     def action_view_profit_loss_details(self):
+        """Open Profit & Loss details view"""
         self.ensure_one()
-        pl_types = ['income', 'income_other', 'expense', 'expense_depreciation', 'expense_direct_cost']
+        pl_types = [
+            'income',
+            'income_other',
+            'expense',
+            'expense_depreciation',
+            'expense_direct_cost',
+        ]
         accounts = self.env['account.account'].search([('account_type', 'in', pl_types)])
         return {
             'name': 'Profit & Loss Details',

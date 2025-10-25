@@ -34,11 +34,22 @@ class ReportTax(models.AbstractModel):
         sql = self._sql_from_amls_one()
         tables, where_clause, where_params = self.env['account.move.line']._query_get()
 
-        # ✅ Add analytic filter if analytic_account_id is selected
-        analytic_account_id = options.get('analytic_account_id')
-        if analytic_account_id:
-            where_clause += ' AND account_move_line.analytic_distribution::text LIKE %s'
-            where_params.append(f'%"{analytic_account_id}"%')
+        # ✅ Handle multiple analytic accounts
+        analytic_account_ids = options.get('analytic_account_ids')
+        if analytic_account_ids:
+            # Convert to list of IDs if it's a recordset
+            if hasattr(analytic_account_ids, 'ids'):
+                analytic_ids = analytic_account_ids.ids
+            else:
+                analytic_ids = analytic_account_ids
+
+            if analytic_ids:
+                where_clause += ' AND ('
+                conditions = []
+                for analytic_id in analytic_ids:
+                    conditions.append('account_move_line.analytic_distribution::text LIKE %s')
+                    where_params.append(f'%"{analytic_id}"%')
+                where_clause += ' OR '.join(conditions) + ')'
 
         query = sql % (tables, where_clause)
         self.env.cr.execute(query, where_params)

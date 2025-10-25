@@ -41,12 +41,12 @@ class AccountTaxReport(models.TransientModel):
     #     string='Analytic Account (Warehouse)',
     #     help="Select a specific analytic account (warehouse) to filter the tax report. Leave blank for combined report."
     # )
-    analytic_account_id = fields.Many2one(
+    analytic_account_ids = fields.Many2many(
         'account.analytic.account',
         string='Analytic Account (Warehouse)',
         default=lambda self: self.env['account.analytic.account'].search([], limit=1).id
     )
 
     def _print_report(self, data):
-        data = self.read(['date_from', 'date_to', 'target_move', 'analytic_account_id'])[0]
+        data = self.read(['date_from', 'date_to', 'target_move', 'analytic_account_ids'])[0]
         return self.env.ref('accounting_pdf_reports.action_report_account_tax').report_action(self, data={'form': data})

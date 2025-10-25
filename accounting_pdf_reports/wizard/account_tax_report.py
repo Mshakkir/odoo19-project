@@ -36,11 +36,11 @@ class AccountTaxReport(models.TransientModel):
         default=lambda self: fields.Date.to_string(date.today())
     )
 
-    analytic_account_ids = fields.Many2many(
+    analytic_account_id = fields.Many2one(
         'account.analytic.account',
         string='Analytic Account (Warehouse)',
     )
 
     def _print_report(self, data):
-        data = self.read(['date_from', 'date_to', 'target_move', 'analytic_account_ids'])[0]
+        data = self.read(['date_from', 'date_to', 'target_move', 'analytic_account_id'])[0]
         return self.env.ref('accounting_pdf_reports.action_report_account_tax').report_action(self, data={'form': data})

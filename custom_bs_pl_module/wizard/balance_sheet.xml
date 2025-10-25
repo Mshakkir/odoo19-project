@@ -29,10 +29,13 @@
                     </page>
                 </notebook>
             </field>
-            <field name="date_to" position="after">
-                <field name="warehouse_id" options="{'no_create': True}"/>
-                <field name="include_all"/>
-            </field>
+            <xpath expr="//group[field[@name='date_to']]" position="after">
+                <group string="Warehouse Filter">
+                    <field name="warehouse_id" options="{'no_create': True}"/>
+                    <field name="include_all"/>
+                </group>
+            </xpath>
+
             <xpath expr="//footer" position="inside">
                 <button name="action_view_balance_sheet_details"
                         string="View Details"

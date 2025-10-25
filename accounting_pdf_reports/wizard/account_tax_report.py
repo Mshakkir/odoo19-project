@@ -44,7 +44,6 @@ class AccountTaxReport(models.TransientModel):
     analytic_account_ids = fields.Many2many(
         'account.analytic.account',
         string='Analytic Account (Warehouse)',
-        default=lambda self: self.env['account.analytic.account'].search([], limit=1).id
     )
 
     def _print_report(self, data):

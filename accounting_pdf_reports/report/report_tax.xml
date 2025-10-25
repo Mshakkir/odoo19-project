@@ -11,15 +11,6 @@
                     <h3>Tax Report</h3>
                     <div class="row">
                         <div class="col-4">
-                            <t t-if="data.get('analytic_account_id')">
-                                <strong>Analytic Account (Warehouse):</strong>
-                                <p t-esc="env['account.analytic.account'].browse(data['analytic_account_id']).name"/>
-                            </t>
-                            <t t-else="">
-                                <strong>Analytic Account:</strong>
-                                <p>All (Combined)</p>
-                            </t>
-
                             <strong>Company:</strong>
                             <p t-esc="res_company.name"/>
                         </div>
@@ -47,7 +38,7 @@
                         <thead>
                             <tr align="left">
                                 <td>
-                                    <strong>Sale</strong>
+                                <strong>Sale</strong>
                                 </td>
                                 <th>Net</th>
                                 <th>Tax</th>
@@ -115,30 +106,29 @@
                     </table>
                     <br/>
 
-                    <!-- 🔹 Net VAT Due as Separate Table -->
-                    <t t-set="total_sale_tax" t-value="sum([(l.get('tax') or 0) for l in lines.get('sale', [])])"/>
-                    <t t-set="total_purchase_tax"
-                       t-value="sum([(l.get('tax') or 0) for l in lines.get('purchase', [])])"/>
-                    <t t-set="net_vat_due" t-value="(total_sale_tax or 0) - (total_purchase_tax or 0)"/>
+<!-- 🔹 Net VAT Due as Separate Table -->
+<t t-set="total_sale_tax" t-value="sum([(l.get('tax') or 0) for l in lines.get('sale', [])])"/>
+<t t-set="total_purchase_tax" t-value="sum([(l.get('tax') or 0) for l in lines.get('purchase', [])])"/>
+<t t-set="net_vat_due" t-value="(total_sale_tax or 0) - (total_purchase_tax or 0)"/>
 
-                    <table class="table table-sm table-reports" style="margin-top:6px;">
-                        <thead>
-                            <tr align="left" style="font-weight:bold; border-top:2px solid #000;">
-                                <th>Net VAT Due</th>
-                                <th></th>
-                                <th>TAX</th>
-                            </tr>
-                            <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#BBBCB6;">
-                                <td>Net VAT Due (OR Claim)</td>
-                                <td></td>
-                                <td>
-                                    <span t-esc="net_vat_due"
-                                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                </td>
-                            </tr>
+<table class="table table-sm table-reports" style="margin-top:6px;">
+    <thead>
+        <tr align="left" style="font-weight:bold; border-top:2px solid #000;">
+            <th>Net VAT Due</th>
+            <th></th>
+            <th>TAX</th>
+        </tr>
+        <tr align="left" style="font-weight:bold; border-top:2px solid #000;background:#BBBCB6;">
+            <td>Net VAT Due (OR Claim) </td>
+            <td></td>
+            <td>
+            <span t-esc="net_vat_due"
+                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+            </td>
+        </tr>
 
-                        </thead>
-                    </table>
+    </thead>
+</table>
 
                 </div>
             </t>

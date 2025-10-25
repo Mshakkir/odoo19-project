@@ -35,13 +35,13 @@
             </field>
 
             <!-- ✅ Insert button safely using XPath -->
-            <xpath expr="//footer" position="inside">
-                <button name="action_view_profit_loss_details"
-                        string="View Details"
-                        type="object"
-                        class="btn-secondary"
-                        icon="fa-list-alt"/>
-            </xpath>
+<!--            <xpath expr="//footer" position="inside">-->
+<!--                <button name="action_view_profit_loss_details"-->
+<!--                        string="View Details"-->
+<!--                        type="object"-->
+<!--                        class="btn-secondary"-->
+<!--                        icon="fa-list-alt"/>-->
+<!--            </xpath>-->
 
         </field>
     </record>

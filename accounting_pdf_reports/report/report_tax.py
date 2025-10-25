@@ -35,18 +35,11 @@ class ReportTax(models.AbstractModel):
         sql = self._sql_from_amls_one()
         tables, where_clause, where_params = self.env['account.move.line']._query_get()
 
-        analytic_account_ids = options.get('analytic_account_ids')
-        if analytic_account_ids:
-            # If it's a recordset (unlikely here), get IDs
-            if hasattr(analytic_account_ids, 'ids'):
-                analytic_ids = analytic_account_ids.ids
-            else:
-                analytic_ids = analytic_account_ids
-
-            if analytic_ids:
-                # 🔹 Filter account_move_line linked to selected analytic accounts
-                where_clause += ' AND account_move_line.id IN (SELECT move_id FROM account_analytic_line WHERE account_id IN %s)'
-                where_params.append(tuple(analytic_ids))
+        analytic_ids = options.get('analytic_account_ids', [])
+        if analytic_ids:
+            # Add a filter using the account_analytic_line table
+            where_clause += ' AND account_move_line.id IN (SELECT move_id FROM account_analytic_line WHERE account_id IN %s)'
+            where_params.append(tuple(analytic_ids))
 
         # Compute tax amounts
         query = sql % (tables, where_clause)
@@ -64,6 +57,26 @@ class ReportTax(models.AbstractModel):
         for result in results:
             if result[0] in taxes:
                 taxes[result[0]]['net'] = abs(result[1])
+
+    # def _compute_from_amls(self, options, taxes):
+    #     #compute the tax amount
+    #     sql = self._sql_from_amls_one()
+    #     tables, where_clause, where_params = self.env['account.move.line']._query_get()
+    #     query = sql % (tables, where_clause)
+    #     self.env.cr.execute(query, where_params)
+    #     results = self.env.cr.fetchall()
+    #     for result in results:
+    #         if result[0] in taxes:
+    #             taxes[result[0]]['tax'] = abs(result[1])
+    #
+    #     #compute the net amount
+    #     sql2 = self._sql_from_amls_two()
+    #     query = sql2 % (tables, where_clause)
+    #     self.env.cr.execute(query, where_params)
+    #     results = self.env.cr.fetchall()
+    #     for result in results:
+    #         if result[0] in taxes:
+    #             taxes[result[0]]['net'] = abs(result[1])
 
     @api.model
     def get_lines(self, options):

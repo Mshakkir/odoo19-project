@@ -20,7 +20,7 @@
 #         return self.env.ref('accounting_pdf_reports.action_report_account_tax').report_action(self, data=data)
 
 
-from odoo import models, api, fields
+from odoo import models, fields
 from datetime import date
 
 
@@ -29,18 +29,12 @@ class AccountTaxReport(models.TransientModel):
     _inherit = "account.common.report"
     _description = 'Tax Report'
 
-    date_from = fields.Date(
-        string='Date From', required=True,
-        default=lambda self: fields.Date.to_string(date.today().replace(day=1))
-    )
-    date_to = fields.Date(
-        string='Date To', required=True,
-        default=lambda self: fields.Date.to_string(date.today())
-    )
-
     analytic_account_ids = fields.Many2many(
         'account.analytic.account',
-        string='Analytic Account (Warehouse)',
+        'account_analytic_account_account_tax_report_wizard_rel',  # ✅ Match exact table name from database
+        'account_tax_report_wizard_id',
+        'account_analytic_account_id',
+        string='Analytic Account (Warehouse)'
     )
 
     def _print_report(self, data):

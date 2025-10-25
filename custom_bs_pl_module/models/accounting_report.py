@@ -113,6 +113,25 @@ class AccountingReport(models.TransientModel):
             return self.warehouse_id.name
         return "No Warehouse"
 
+    def action_view_profit_loss_details(self):
+        self.ensure_one()
+        pl_types = ['income', 'income_other', 'expense', 'expense_depreciation', 'expense_direct_cost']
+        accounts = self.env['account.account'].search([('account_type', 'in', pl_types)])
+        return {
+            'name': 'Profit & Loss Details',
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.account',
+            'view_mode': 'list',
+            'views': [(self.env.ref('custom_bs_pl_module.view_account_list_profit_loss').id, 'list')],
+            'domain': [('id', 'in', accounts.ids)],
+            'context': {
+                'date_from': self.date_from,
+                'date_to': self.date_to,
+                'company_id': self.company_id.id,
+            },
+            'target': 'current',
+        }
+
 
 
 

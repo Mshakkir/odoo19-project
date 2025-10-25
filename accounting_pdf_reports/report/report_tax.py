@@ -31,17 +31,16 @@ class ReportTax(models.AbstractModel):
         return sql
 
     def _compute_from_amls(self, options, taxes):
+        # Base SQL for tax amount
         sql = self._sql_from_amls_one()
         tables, where_clause, where_params = self.env['account.move.line']._query_get()
 
+        # --- Apply analytic account filter ---
         analytic_ids = options.get('analytic_account_ids', [])
         if analytic_ids:
-            # Filter using analytic_distribution JSON
-            conditions = []
-            for aid in analytic_ids:
-                conditions.append('account_move_line.analytic_distribution::text LIKE %s')
-                where_params.append(f'%"{aid}"%')
-            where_clause += ' AND (' + ' OR '.join(conditions) + ')'
+            # Filter account_move_line using account_analytic_line table
+            where_clause += ' AND account_move_line.id IN (SELECT move_id FROM account_analytic_line WHERE account_id = ANY(%s))'
+            where_params.append(analytic_ids)
 
         # Compute tax amounts
         query = sql % (tables, where_clause)

@@ -8,7 +8,6 @@
     'depends': ['account', 'accounting_pdf_reports'],
     'data': [
         'security/ir.model.access.csv',
-        # 'data/financial_report_data.xml',
         'views/account_detail_view.xml',
         'wizard/balance_sheet.xml',
         'wizard/profit_loss.xml',

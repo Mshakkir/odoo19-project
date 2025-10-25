@@ -19,7 +19,6 @@
 #     def _print_report(self, data):
 #         return self.env.ref('accounting_pdf_reports.action_report_account_tax').report_action(self, data=data)
 
-
 from odoo import models, fields
 from datetime import date
 
@@ -31,8 +30,8 @@ class AccountTaxReport(models.TransientModel):
 
     analytic_account_ids = fields.Many2many(
         'account.analytic.account',
-        'account_tax_report_wizard_analytic_rel',  # ✅ Matches database exactly
-        'tax_report_id',
+        'account_tax_report_wizard_analytic_rel',
+        'wizard_id',
         'analytic_id',
         string='Analytic Account (Warehouse)'
     )

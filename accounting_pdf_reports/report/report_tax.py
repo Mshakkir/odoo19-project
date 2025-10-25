@@ -35,16 +35,16 @@ class ReportTax(models.AbstractModel):
         sql = self._sql_from_amls_one()
         tables, where_clause, where_params = self.env['account.move.line']._query_get()
 
-        # 🔹 Apply analytic account filter if selected
         analytic_account_ids = options.get('analytic_account_ids')
         if analytic_account_ids:
+            # If it's a recordset (unlikely here), get IDs
             if hasattr(analytic_account_ids, 'ids'):
                 analytic_ids = analytic_account_ids.ids
             else:
                 analytic_ids = analytic_account_ids
 
             if analytic_ids:
-                # Only include move lines linked to selected analytic accounts
+                # 🔹 Filter account_move_line linked to selected analytic accounts
                 where_clause += ' AND account_move_line.id IN (SELECT move_id FROM account_analytic_line WHERE account_id IN %s)'
                 where_params.append(tuple(analytic_ids))
 

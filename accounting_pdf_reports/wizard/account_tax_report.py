@@ -31,9 +31,9 @@ class AccountTaxReport(models.TransientModel):
 
     analytic_account_ids = fields.Many2many(
         'account.analytic.account',
-        'account_analytic_account_account_tax_report_wizard_rel',  # ✅ Match exact table name from database
-        'account_tax_report_wizard_id',
-        'account_analytic_account_id',
+        'account_tax_report_wizard_analytic_rel',
+        'wizard_id',
+        'analytic_id',
         string='Analytic Account (Warehouse)'
     )
 

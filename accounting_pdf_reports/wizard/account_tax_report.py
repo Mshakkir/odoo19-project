@@ -18,6 +18,8 @@
 #
 #     def _print_report(self, data):
 #         return self.env.ref('accounting_pdf_reports.action_report_account_tax').report_action(self, data=data)
+
+
 from odoo import models, api, fields
 from datetime import date
 

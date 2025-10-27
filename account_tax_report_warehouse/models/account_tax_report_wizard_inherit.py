@@ -30,7 +30,6 @@
 #
 from odoo import api, fields, models
 
-
 class AccountTaxReportWizard(models.TransientModel):
     _inherit = "account.tax.report.wizard"
 
@@ -41,89 +40,55 @@ class AccountTaxReportWizard(models.TransientModel):
     )
 
     def _print_report(self):
-        """Add analytic account filters to tax report print."""
+        """Include analytic filters when printing the tax report."""
         form_data = self.read(['date_from', 'date_to', 'target_move', 'analytic_account_ids'])[0]
+        analytic_ids = form_data.get('analytic_account_ids', [])
 
-        analytic_ids = []
-        if form_data.get('analytic_account_ids'):
-            if isinstance(form_data['analytic_account_ids'][0], (tuple, list)):
-                analytic_ids = form_data['analytic_account_ids'][0][2]
-            else:
-                analytic_ids = form_data['analytic_account_ids']
-        form_data['analytic_account_ids'] = analytic_ids
+        # Handle many2many [(6, 0, [...])] case
+        if analytic_ids and isinstance(analytic_ids[0], (tuple, list)):
+            analytic_ids = analytic_ids[0][2]
 
+        form_data['analytic_account_ids'] = analytic_ids or []
         return self.env.ref(
             'accounting_pdf_reports.action_report_account_tax'
         ).report_action(self, data={'form': form_data})
 
 
-class AccountTaxReportFiltered(models.AbstractModel):
-    _inherit = 'report.accounting_pdf_reports.account_tax_report'
+class AccountTaxReportCustom(models.AbstractModel):
+    _inherit = "report.accounting_pdf_reports.account_tax_report"
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        """Filter the Tax Report based on analytic accounts (warehouses)."""
-        res = super()._get_report_values(docids, data=data)
-
-        form = data.get('form', {})
+        """Filter tax report lines based on analytic accounts."""
+        res = super()._get_report_values(docids, data=data or {})
+        form = (data or {}).get('form', {})
         analytic_ids = form.get('analytic_account_ids', [])
 
-        # ✅ If no analytic accounts selected → return combined report
+        # ✅ No analytic filter → return normal report
         if not analytic_ids:
             return res
 
-        analytic_ids = [int(i) for i in analytic_ids]
+        analytic_ids = [int(x) for x in analytic_ids]
+        new_lines = []
 
-        move_line_obj = self.env['account.move.line']
+        # ✅ Filter existing report lines
+        for line in res.get('Lines', []):
+            aml = self.env['account.move.line'].browse(line.get('id'))
+            include_line = False
 
-        # Rebuild domain for analytic filter
-        domain = [
-            ('tax_line_id', '!=', False),
-            ('parent_state', '=', 'posted'),
-        ]
+            # Case 1: Analytic distribution (JSONB)
+            if aml.analytic_distribution:
+                keys = list(aml.analytic_distribution.keys())
+                if any(str(aid) in keys for aid in analytic_ids):
+                    include_line = True
 
-        if form.get('date_from'):
-            domain.append(('date', '>=', form['date_from']))
-        if form.get('date_to'):
-            domain.append(('date', '<=', form['date_to']))
+            # Case 2: Analytic lines (M2M)
+            elif aml.analytic_line_ids:
+                if any(l.account_id.id in analytic_ids for l in aml.analytic_line_ids):
+                    include_line = True
 
-        # ✅ Filter based on analytic account (support both old and new analytic fields)
-        domain += ['|',
-            ('analytic_line_ids.account_id', 'in', analytic_ids),
-            ('analytic_distribution', '!=', False),
-        ]
+            if include_line:
+                new_lines.append(line)
 
-        # Get all relevant move lines
-        move_lines = move_line_obj.search(domain)
-
-        # ✅ Manually filter JSON-based analytics
-        filtered_lines = []
-        for line in move_lines:
-            if line.analytic_line_ids.filtered(lambda l: l.account_id.id in analytic_ids):
-                filtered_lines.append(line)
-            elif line.analytic_distribution:
-                # Check if analytic key exists in distribution JSON
-                for aid in analytic_ids:
-                    if str(aid) in line.analytic_distribution.keys():
-                        filtered_lines.append(line)
-                        break
-
-        # Build tax totals
-        tax_summary = {}
-        for line in filtered_lines:
-            tax = line.tax_line_id
-            if not tax:
-                continue
-            if tax.id not in tax_summary:
-                tax_summary[tax.id] = {
-                    'tax': tax,
-                    'base': 0.0,
-                    'amount': 0.0,
-                }
-            tax_summary[tax.id]['base'] += abs(line.tax_base_amount or 0.0)
-            tax_summary[tax.id]['amount'] += abs(line.balance or 0.0)
-
-        # ✅ Safely inject filtered data — don’t overwrite required keys
-        res['filtered_taxes'] = list(tax_summary.values())
-        res['analytic_account_ids'] = analytic_ids
+        res['Lines'] = new_lines
         return res

@@ -132,21 +132,23 @@ class AccountTaxReport(models.AbstractModel):
             tax_domain = domain + [('tax_line_id', '=', tax.id)]
             all_tax_lines = self.env['account.move.line'].search(tax_domain)
 
-            # Filter by analytic distribution
+            # Filter by analytic distribution and calculate proportional amounts
             filtered_tax_lines = all_tax_lines.filtered(
                 lambda l: self._line_has_analytic_account(l, analytic_ids)
             )
-            tax_amount = sum(filtered_tax_lines.mapped('balance'))
+            # Calculate tax amount based on analytic distribution percentages
+            tax_amount = sum(self._get_line_analytic_amount(line, analytic_ids) for line in filtered_tax_lines)
 
             # Get base lines (lines where this tax was applied)
             base_domain = domain + [('tax_ids', 'in', [tax.id])]
             all_base_lines = self.env['account.move.line'].search(base_domain)
 
-            # Filter by analytic distribution
+            # Filter by analytic distribution and calculate proportional amounts
             filtered_base_lines = all_base_lines.filtered(
                 lambda l: self._line_has_analytic_account(l, analytic_ids)
             )
-            base_amount = sum(filtered_base_lines.mapped('balance'))
+            # Calculate base amount based on analytic distribution percentages
+            base_amount = sum(self._get_line_analytic_amount(line, analytic_ids) for line in filtered_base_lines)
 
             # Only include if has amounts
             if base_amount or tax_amount:
@@ -161,9 +163,13 @@ class AccountTaxReport(models.AbstractModel):
         return {
             'doc_ids': docids,
             'doc_model': 'account.tax.report.wizard',
-            'data': data,
+            'data': {
+                'form': form,
+                'target_move': target_move,
+            },
             'docs': self.env['account.tax.report.wizard'].browse(docids),
             'taxes': tax_data,
             'date_from': date_from,
             'date_to': date_to,
+            'target_move': target_move,
         }

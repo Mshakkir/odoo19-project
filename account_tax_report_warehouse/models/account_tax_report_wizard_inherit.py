@@ -60,35 +60,57 @@ class AccountTaxReportCustom(models.AbstractModel):
     @api.model
     def _get_report_values(self, docids, data=None):
         """Filter tax report lines based on analytic accounts."""
-        res = super()._get_report_values(docids, data=data or {})
-        form = (data or {}).get('form', {})
-        analytic_ids = form.get('analytic_account_ids', [])
+        try:
+            res = super()._get_report_values(docids, data=data or {})
+            form = (data or {}).get('form', {})
+            analytic_ids = form.get('analytic_account_ids', [])
 
-        # ✅ No analytic filter → return normal report
-        if not analytic_ids:
+            # ✅ No analytic filter → return normal report
+            if not analytic_ids:
+                return res
+
+            analytic_ids = [int(x) for x in analytic_ids]
+            new_lines = []
+
+            # ✅ Avoid crash if Lines not found
+            if not res.get('Lines'):
+                res['Lines'] = []
+
+            for line in res['Lines']:
+                if not line.get('id'):
+                    continue  # skip malformed line
+
+                aml = self.env['account.move.line'].browse(line['id'])
+                include_line = False
+
+                # Case 1: Analytic distribution (JSONB)
+                if aml.analytic_distribution:
+                    keys = list(aml.analytic_distribution.keys())
+                    if any(str(aid) in keys for aid in analytic_ids):
+                        include_line = True
+
+                # Case 2: Analytic lines (M2M)
+                elif aml.analytic_line_ids:
+                    if any(l.account_id.id in analytic_ids for l in aml.analytic_line_ids):
+                        include_line = True
+
+                if include_line:
+                    new_lines.append(line)
+
+            res['Lines'] = new_lines
+            res['debug_info'] = f"Filtered {len(new_lines)} lines out of {len(res.get('Lines', []))}"
+
             return res
 
-        analytic_ids = [int(x) for x in analytic_ids]
-        new_lines = []
-
-        # ✅ Filter existing report lines
-        for line in res.get('Lines', []):
-            aml = self.env['account.move.line'].browse(line.get('id'))
-            include_line = False
-
-            # Case 1: Analytic distribution (JSONB)
-            if aml.analytic_distribution:
-                keys = list(aml.analytic_distribution.keys())
-                if any(str(aid) in keys for aid in analytic_ids):
-                    include_line = True
-
-            # Case 2: Analytic lines (M2M)
-            elif aml.analytic_line_ids:
-                if any(l.account_id.id in analytic_ids for l in aml.analytic_line_ids):
-                    include_line = True
-
-            if include_line:
-                new_lines.append(line)
-
-        res['Lines'] = new_lines
-        return res
+        except Exception as e:
+            # ✅ Prevent internal error crash, show clean error in logs
+            import logging
+            _logger = logging.getLogger(__name__)
+            _logger.error("Tax report analytic filter error: %s", e, exc_info=True)
+            return {
+                'doc_ids': docids,
+                'doc_model': 'account.move.line',
+                'error_message': str(e),
+                'Lines': [],
+                'Taxes': [],
+            }

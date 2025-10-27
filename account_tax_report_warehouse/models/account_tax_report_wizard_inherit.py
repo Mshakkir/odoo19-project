@@ -100,18 +100,15 @@ class AccountTaxReport(models.AbstractModel):
     @api.model
     def _get_report_values(self, docids, data=None):
         """Override the report model's _get_report_values to filter by analytic accounts."""
-        # First get the default report values from parent
-        res = super()._get_report_values(docids, data=data)
-
         if not data or not data.get('form'):
-            return res
+            return super()._get_report_values(docids, data=data)
 
         form = data['form']
         analytic_ids = form.get('analytic_account_ids', [])
 
         # If NO analytic filter is applied, use parent method result as-is
         if not analytic_ids:
-            return res
+            return super()._get_report_values(docids, data=data)
 
         # DEBUG: Log what we're filtering by
         import logging
@@ -119,7 +116,7 @@ class AccountTaxReport(models.AbstractModel):
         _logger.info(f"=== ANALYTIC FILTER ACTIVE ===")
         _logger.info(f"Selected Analytic Account IDs: {analytic_ids}")
 
-        # If analytic filter IS applied, recalculate taxes
+        # If analytic filter IS applied, DO NOT call parent - build everything from scratch
         date_from = form.get('date_from')
         date_to = form.get('date_to')
         target_move = form.get('target_move', 'posted')
@@ -182,7 +179,14 @@ class AccountTaxReport(models.AbstractModel):
         _logger.info(f"Total taxes in filtered report: {len(tax_data)}")
         _logger.info(f"=== END ANALYTIC FILTER ===")
 
-        # Update only the taxes in the result, keep everything else from parent
-        res['taxes'] = tax_data
-
-        return res
+        # Return complete structure WITHOUT calling parent
+        return {
+            'doc_ids': docids,
+            'doc_model': 'account.tax.report.wizard',
+            'data': data,
+            'docs': self.env['account.tax.report.wizard'].browse(docids),
+            'taxes': tax_data,
+            'date_from': date_from,
+            'date_to': date_to,
+            'company_id': self.env.company,
+        }

@@ -100,15 +100,18 @@ class AccountTaxReport(models.AbstractModel):
     @api.model
     def _get_report_values(self, docids, data=None):
         """Override the report model's _get_report_values to filter by analytic accounts."""
+        # Always call parent first to get the correct structure
+        res = super()._get_report_values(docids, data=data)
+
         if not data or not data.get('form'):
-            return super()._get_report_values(docids, data=data)
+            return res
 
         form = data['form']
         analytic_ids = form.get('analytic_account_ids', [])
 
         # If NO analytic filter is applied, use parent method result as-is
         if not analytic_ids:
-            return super()._get_report_values(docids, data=data)
+            return res
 
         # DEBUG: Log what we're filtering by
         import logging
@@ -116,7 +119,7 @@ class AccountTaxReport(models.AbstractModel):
         _logger.info(f"=== ANALYTIC FILTER ACTIVE ===")
         _logger.info(f"Selected Analytic Account IDs: {analytic_ids}")
 
-        # If analytic filter IS applied, DO NOT call parent - build everything from scratch
+        # If analytic filter IS applied, recalculate only the taxes
         date_from = form.get('date_from')
         date_to = form.get('date_to')
         target_move = form.get('target_move', 'posted')
@@ -139,16 +142,10 @@ class AccountTaxReport(models.AbstractModel):
             tax_domain = domain + [('tax_line_id', '=', tax.id)]
             all_tax_lines = self.env['account.move.line'].search(tax_domain)
 
-            # DEBUG: Check analytic distribution
-            _logger.info(f"Tax: {tax.name}, Total lines: {len(all_tax_lines)}")
-            for line in all_tax_lines[:3]:  # Check first 3 lines
-                _logger.info(f"  Line {line.id}: analytic_distribution = {line.analytic_distribution}")
-
             # Filter by analytic distribution and calculate proportional amounts
             filtered_tax_lines = all_tax_lines.filtered(
                 lambda l: self._line_has_analytic_account(l, analytic_ids)
             )
-            _logger.info(f"  Filtered lines: {len(filtered_tax_lines)}")
 
             # Calculate tax amount based on analytic distribution percentages
             tax_amount = sum(self._get_line_analytic_amount(line, analytic_ids) for line in filtered_tax_lines)
@@ -164,8 +161,6 @@ class AccountTaxReport(models.AbstractModel):
             # Calculate base amount based on analytic distribution percentages
             base_amount = sum(self._get_line_analytic_amount(line, analytic_ids) for line in filtered_base_lines)
 
-            _logger.info(f"  Base: {base_amount}, Tax: {tax_amount}")
-
             # Only include if has amounts
             if base_amount or tax_amount:
                 tax_data.append({
@@ -179,20 +174,7 @@ class AccountTaxReport(models.AbstractModel):
         _logger.info(f"Total taxes in filtered report: {len(tax_data)}")
         _logger.info(f"=== END ANALYTIC FILTER ===")
 
-        # Return complete structure WITHOUT calling parent
-        return {
-            'doc_ids': docids,
-            'doc_model': 'account.tax.report.wizard',
-            'data': {
-                'form': form,
-                'target_move': target_move,
-                'date_from': date_from,
-                'date_to': date_to,
-            },
-            'docs': self.env['account.tax.report.wizard'].browse(docids),
-            'taxes': tax_data,
-            'date_from': date_from,
-            'date_to': date_to,
-            'target_move': target_move,
-            'company_id': self.env.company,
-        }
+        # Only override the taxes, keep everything else from parent
+        res['taxes'] = tax_data
+
+        return res

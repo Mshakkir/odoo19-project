@@ -219,12 +219,12 @@ class AccountTaxReportWizard(models.TransientModel):
         string='Tax Summary Lines'
     )
 
-    # 2️⃣ Add Analytic Account (Warehouse) Filter
-    analytic_account_ids = fields.Many2many(
-        'account.analytic.account',
-        string="Analytic Accounts (Warehouses)",
-        help="Filter Tax Report based on selected warehouse analytic accounts."
-    )
+    # # 2️⃣ Add Analytic Account (Warehouse) Filter
+    # analytic_account_ids = fields.Many2many(
+    #     'account.analytic.account',
+    #     string="Analytic Accounts (Warehouses)",
+    #     help="Filter Tax Report based on selected warehouse analytic accounts."
+    # )
 
     # --- SQL Queries ---
 

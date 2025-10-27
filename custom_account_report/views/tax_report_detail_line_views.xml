@@ -1,49 +1,49 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <record id="view_tax_report_detail_list" model="ir.ui.view">
-        <field name="name">tax.report.detail.list</field>
-        <field name="model">tax.report.detail.line</field>
-        <field name="arch" type="xml">
-            <list string="Tax Report Summary" default_order="sequence">
-                <field name="sequence" invisible="1"/>
-                <field name="is_summary_row" invisible="1"/>
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <record id="view_tax_report_detail_list" model="ir.ui.view">-->
+<!--        <field name="name">tax.report.detail.list</field>-->
+<!--        <field name="model">tax.report.detail.line</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <list string="Tax Report Summary" default_order="sequence">-->
+<!--                <field name="sequence" invisible="1"/>-->
+<!--                <field name="is_summary_row" invisible="1"/>-->
 
-                <!-- Type Column -->
-                <field name="type" optional="show"
-                       decoration-bf="is_summary_row == True"
-                       invisible="is_summary_row == True"/>
+<!--                &lt;!&ndash; Type Column &ndash;&gt;-->
+<!--                <field name="type" optional="show"-->
+<!--                       decoration-bf="is_summary_row == True"-->
+<!--                       invisible="is_summary_row == True"/>-->
 
-                <!-- Tax Column (only for regular rows) -->
-                <field name="tax_id" options="{'no_create': True}"
-                       optional="show"
-                       invisible="is_summary_row == True"/>
+<!--                &lt;!&ndash; Tax Column (only for regular rows) &ndash;&gt;-->
+<!--                <field name="tax_id" options="{'no_create': True}"-->
+<!--                       optional="show"-->
+<!--                       invisible="is_summary_row == True"/>-->
 
-                <!-- Tax Name Column (only for summary rows) -->
-                <field name="tax_name" optional="show"
-                       decoration-bf="is_summary_row == True"
-                       invisible="is_summary_row == False"/>
+<!--                &lt;!&ndash; Tax Name Column (only for summary rows) &ndash;&gt;-->
+<!--                <field name="tax_name" optional="show"-->
+<!--                       decoration-bf="is_summary_row == True"-->
+<!--                       invisible="is_summary_row == False"/>-->
 
-                <!-- Base Amount Column (for all rows except Net VAT Due) -->
-                <field name="base_amount" optional="show"
-                       decoration-bf="is_summary_row == True"
-                       invisible="is_summary_row == True and tax_name == 'Net VAT Due'"/>
+<!--                &lt;!&ndash; Base Amount Column (for all rows except Net VAT Due) &ndash;&gt;-->
+<!--                <field name="base_amount" optional="show"-->
+<!--                       decoration-bf="is_summary_row == True"-->
+<!--                       invisible="is_summary_row == True and tax_name == 'Net VAT Due'"/>-->
 
-                <!-- Tax Amount Column (for all rows) -->
-                <field name="tax_amount" optional="show"
-                       decoration-bf="is_summary_row == True"/>
+<!--                &lt;!&ndash; Tax Amount Column (for all rows) &ndash;&gt;-->
+<!--                <field name="tax_amount" optional="show"-->
+<!--                       decoration-bf="is_summary_row == True"/>-->
 
-                <!-- Show Invoices Button (only for regular rows) -->
-                <button name="open_moves" type="object"
-                        string="Show Invoices"
-                        invisible="is_summary_row == True"
-                        class="btn-link"/>
-            </list>
-        </field>
-    </record>
+<!--                &lt;!&ndash; Show Invoices Button (only for regular rows) &ndash;&gt;-->
+<!--                <button name="open_moves" type="object"-->
+<!--                        string="Show Invoices"-->
+<!--                        invisible="is_summary_row == True"-->
+<!--                        class="btn-link"/>-->
+<!--            </list>-->
+<!--        </field>-->
+<!--    </record>-->
 
-    <record id="action_tax_report_detail_line" model="ir.actions.act_window">
-        <field name="name">Tax Report Summary</field>
-        <field name="res_model">tax.report.detail.line</field>
-        <field name="view_mode">list,form</field>
-    </record>
-</odoo>
+<!--    <record id="action_tax_report_detail_line" model="ir.actions.act_window">-->
+<!--        <field name="name">Tax Report Summary</field>-->
+<!--        <field name="res_model">tax.report.detail.line</field>-->
+<!--        <field name="view_mode">list,form</field>-->
+<!--    </record>-->
+<!--</odoo>-->

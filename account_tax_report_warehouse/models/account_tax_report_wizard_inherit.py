@@ -100,11 +100,20 @@ class AccountTaxReport(models.AbstractModel):
     @api.model
     def _get_report_values(self, docids, data=None):
         """Override the report model's _get_report_values to filter by analytic accounts."""
+        # First get the default report values from parent
+        res = super()._get_report_values(docids, data=data)
+
         if not data or not data.get('form'):
-            return super()._get_report_values(docids, data=data)
+            return res
 
         form = data['form']
         analytic_ids = form.get('analytic_account_ids', [])
+
+        # If NO analytic filter is applied, use parent method result as-is
+        if not analytic_ids:
+            return res
+
+        # If analytic filter IS applied, recalculate taxes
         date_from = form.get('date_from')
         date_to = form.get('date_to')
         target_move = form.get('target_move', 'posted')
@@ -118,11 +127,6 @@ class AccountTaxReport(models.AbstractModel):
         if target_move == 'posted':
             domain.append(('move_id.state', '=', 'posted'))
 
-        # If NO analytic filter is applied, use parent method
-        if not analytic_ids:
-            return super()._get_report_values(docids, data=data)
-
-        # If analytic filter IS applied
         # Get all taxes
         taxes = self.env['account.tax'].search([])
         tax_data = []
@@ -160,16 +164,7 @@ class AccountTaxReport(models.AbstractModel):
                     'type_tax_use': tax.type_tax_use,
                 })
 
-        return {
-            'doc_ids': docids,
-            'doc_model': 'account.tax.report.wizard',
-            'data': {
-                'form': form,
-                'target_move': target_move,
-            },
-            'docs': self.env['account.tax.report.wizard'].browse(docids),
-            'taxes': tax_data,
-            'date_from': date_from,
-            'date_to': date_to,
-            'target_move': target_move,
-        }
+        # Update only the taxes in the result, keep everything else from parent
+        res['taxes'] = tax_data
+
+        return res

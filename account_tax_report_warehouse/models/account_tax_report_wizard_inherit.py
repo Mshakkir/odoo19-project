@@ -40,8 +40,11 @@ class AccountTaxReportWizard(models.TransientModel):
         help="Filter Tax Report based on selected warehouse analytic accounts."
     )
 
-    def _print_report(self):
+    def _print_report(self, data=None):
         """Override to pass analytic filter to report."""
+        if data is None:
+            data = {}
+
         form_data = self.read(['date_from', 'date_to', 'target_move', 'analytic_account_ids'])[0]
 
         # Normalize analytic_account_ids
@@ -50,8 +53,11 @@ class AccountTaxReportWizard(models.TransientModel):
             analytic_ids = analytic_ids[0][2]  # get IDs from [(6, 0, [ids])]
         form_data['analytic_account_ids'] = analytic_ids
 
+        # Merge with existing data
+        data.update({'form': form_data})
+
         return self.env.ref('accounting_pdf_reports.action_report_account_tax').report_action(
-            self, data={'form': form_data}
+            self, data=data
         )
 
     @api.model

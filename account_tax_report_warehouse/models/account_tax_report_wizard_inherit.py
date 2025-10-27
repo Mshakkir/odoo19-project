@@ -186,6 +186,8 @@ class AccountTaxReport(models.AbstractModel):
             'data': {
                 'form': form,
                 'target_move': target_move,
+                'date_from': date_from,
+                'date_to': date_to,
             },
             'docs': self.env['account.tax.report.wizard'].browse(docids),
             'taxes': tax_data,

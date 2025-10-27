@@ -4,7 +4,6 @@
         <field name="model">account.tax.report.wizard</field>
         <field name="inherit_id" ref="accounting_pdf_reports.accounting_tax_report_view"/>
         <field name="arch" type="xml">
-            <!-- Insert field after the existing date range -->
             <field name="date_to" position="after">
                 <field name="analytic_account_ids" widget="many2many_tags"/>
             </field>

@@ -1,3 +1,33 @@
+# from odoo import api, fields, models
+#
+# class AccountTaxReportWizard(models.TransientModel):
+#     _inherit = "account.tax.report.wizard"
+#
+#     analytic_account_ids = fields.Many2many(
+#         'account.analytic.account',
+#         string="Analytic Accounts (Warehouses)",
+#         help="Filter Tax Report based on selected warehouse analytic accounts."
+#     )
+#
+#     @api.model
+#     def _get_report_values(self, docids, data=None):
+#         """Inject analytic filter into report context."""
+#         res = super()._get_report_values(docids, data=data)
+#         if data and data.get('form') and data['form'].get('analytic_account_ids'):
+#             analytic_ids = data['form']['analytic_account_ids']
+#             res['data']['form']['analytic_account_ids'] = analytic_ids
+#         return res
+# def _print_report(self):
+#     form_data = self.read(['date_from', 'date_to', 'target_move', 'analytic_account_ids'])[0]
+#
+#     # Normalize analytic_account_ids
+#     analytic_ids = form_data.get('analytic_account_ids', [])
+#     if analytic_ids and isinstance(analytic_ids[0], (tuple, list)):
+#         analytic_ids = analytic_ids[0][2]  # get IDs from [(6, 0, [ids])]
+#     form_data['analytic_account_ids'] = analytic_ids
+#
+#     return self.env.ref('accounting_pdf_reports.action_report_account_tax').report_action(self, data={'form': form_data})
+#
 from odoo import api, fields, models
 
 
@@ -14,17 +44,15 @@ class AccountTaxReportWizard(models.TransientModel):
         """Override the print logic to include analytic filter."""
         form_data = self.read(['date_from', 'date_to', 'target_move', 'analytic_account_ids'])[0]
 
+        # Extract analytic IDs correctly
         analytic_ids = form_data.get('analytic_account_ids', [])
         if analytic_ids and isinstance(analytic_ids[0], (tuple, list)):
             analytic_ids = analytic_ids[0][2]
         form_data['analytic_account_ids'] = analytic_ids
 
-        # Prepare report action
-        action = self.env.ref('accounting_pdf_reports.action_report_account_tax').report_action(
-            self,
-            data={'form': form_data}
-        )
-        return action
+        return self.env.ref(
+            'accounting_pdf_reports.action_report_account_tax'
+        ).report_action(self, data={'form': form_data})
 
 
 class AccountTaxReportCustom(models.AbstractModel):
@@ -32,53 +60,56 @@ class AccountTaxReportCustom(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        """Inject analytic filter into the move line domain."""
+        """Apply analytic filter in tax report."""
         res = super()._get_report_values(docids, data=data)
         form = data.get('form', {})
 
         analytic_ids = form.get('analytic_account_ids', [])
-        if analytic_ids:
-            # Make sure we have IDs as integers
-            analytic_ids = [int(x) for x in analytic_ids]
+        if not analytic_ids:
+            return res  # nothing to filter
 
-            # Recompute lines based on analytic filter
-            move_line_obj = self.env['account.move.line']
+        analytic_ids = [int(a) for a in analytic_ids]
+        move_line_obj = self.env['account.move.line']
 
-            domain = [
-                ('tax_line_id', '!=', False),
-                ('parent_state', '=', 'posted'),
-                ('move_id.move_type', 'in', ['out_invoice', 'in_invoice', 'out_refund', 'in_refund']),
-            ]
+        domain = [
+            ('tax_line_id', '!=', False),
+            ('parent_state', '=', 'posted'),
+            ('move_id.move_type', 'in', ['out_invoice', 'in_invoice', 'out_refund', 'in_refund']),
+        ]
 
-            # Add date range filter
-            if form.get('date_from'):
-                domain.append(('date', '>=', form['date_from']))
-            if form.get('date_to'):
-                domain.append(('date', '<=', form['date_to']))
+        if form.get('date_from'):
+            domain.append(('date', '>=', form['date_from']))
+        if form.get('date_to'):
+            domain.append(('date', '<=', form['date_to']))
 
-            # Add analytic filter (works with both analytic_line_ids and analytic_distribution)
-            domain.append('|')
-            domain.append(('analytic_line_ids.account_id', 'in', analytic_ids))
-            domain.append(('analytic_distribution', '!=', False))
+        # ✅ Analytic filters
+        # Handle both analytic_line_ids and analytic_distribution safely
+        analytic_domain = ['|',
+            ('analytic_line_ids.account_id', 'in', analytic_ids),
+            ('analytic_distribution', 'ilike', str(analytic_ids[0]))  # JSONB text search fallback
+        ]
+        domain += analytic_domain
 
-            move_lines = move_line_obj.search(domain)
+        move_lines = move_line_obj.search(domain)
 
-            # Group by tax
-            tax_summary = {}
-            for line in move_lines:
-                tax = line.tax_line_id
-                if not tax:
-                    continue
-                if tax.id not in tax_summary:
-                    tax_summary[tax.id] = {
-                        'tax': tax,
-                        'base': 0.0,
-                        'amount': 0.0,
-                    }
-                tax_summary[tax.id]['base'] += abs(line.tax_base_amount)
-                tax_summary[tax.id]['amount'] += abs(line.balance)
+        # Build filtered tax summary
+        tax_summary = {}
+        for line in move_lines:
+            tax = line.tax_line_id
+            if not tax:
+                continue
+            if tax.id not in tax_summary:
+                tax_summary[tax.id] = {
+                    'tax': tax,
+                    'base': 0.0,
+                    'amount': 0.0,
+                }
+            tax_summary[tax.id]['base'] += abs(line.tax_base_amount)
+            tax_summary[tax.id]['amount'] += abs(line.balance)
 
-            res['Taxes'] = list(tax_summary.values())
-            res['analytic_account_ids'] = analytic_ids
-
+        # Safely replace tax data in result
+        res.update({
+            'Taxes': list(tax_summary.values()),
+            'analytic_account_ids': analytic_ids,
+        })
         return res

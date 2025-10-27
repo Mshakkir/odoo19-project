@@ -183,10 +183,14 @@ class AccountTaxReport(models.AbstractModel):
         return {
             'doc_ids': docids,
             'doc_model': 'account.tax.report.wizard',
-            'data': data,
+            'data': {
+                'form': form,
+                'target_move': target_move,
+            },
             'docs': self.env['account.tax.report.wizard'].browse(docids),
             'taxes': tax_data,
             'date_from': date_from,
             'date_to': date_to,
+            'target_move': target_move,
             'company_id': self.env.company,
         }

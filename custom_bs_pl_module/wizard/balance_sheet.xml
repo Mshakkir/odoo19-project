@@ -44,11 +44,6 @@
                 type="object"
                 class="btn-secondary"
                 icon="fa-list-alt"/>
-        <button name="%(custom_bs_pl_module.action_custom_balance_sheet_pdf)d"
-                string="Print Balance Sheet PDF"
-                type="action"
-                class="btn-primary"
-                icon="fa-print"/>
     </xpath>
 
         </field>

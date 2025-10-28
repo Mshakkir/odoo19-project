@@ -41,11 +41,6 @@
                         type="object"
                         class="btn-secondary"
                         icon="fa-list-alt"/>
-                <button name="%(custom_bs_pl_module.action_custom_profit_loss_pdf)d"
-                        string="Print P and L PDF"
-                        type="action"
-                        class="btn-primary"
-                        icon="fa-print"/>
 
             </xpath>
 

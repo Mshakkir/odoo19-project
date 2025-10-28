@@ -1,3 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_report_balance_view_inherit" model="ir.ui.view">
+        <field name="name">account.balance.report.inherit.analytic</field>
+        <field name="model">account.balance.report</field>
+        <field name="inherit_id" ref="accounting_pdf_reports.account_report_balance_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='display_account']" position="after">
+                <newline/>
+                <field name="analytic_account_ids"
+                       widget="many2many_tags"
+                       options="{'no_create': True}"
+                       placeholder="Leave empty for all warehouses..."/>
+                <newline/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+
+
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 <!--    <record id="account_report_balance_view_inherit" model="ir.ui.view">-->
@@ -18,22 +38,3 @@
 <!--    </record>-->
 
 <!--</odoo>-->
-
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <record id="account_report_balance_view_inherit" model="ir.ui.view">
-        <field name="name">account.balance.report.inherit.analytic</field>
-        <field name="model">account.balance.report</field>
-        <field name="inherit_id" ref="accounting_pdf_reports.account_report_balance_view"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='display_account']" position="after">
-                <newline/>
-                <field name="analytic_account_ids"
-                       widget="many2many_tags"
-                       options="{'no_create': True}"
-                       placeholder="Leave empty for all warehouses..."/>
-                <newline/>
-            </xpath>
-        </field>
-    </record>
-</odoo>

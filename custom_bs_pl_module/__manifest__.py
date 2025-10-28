@@ -12,6 +12,8 @@
         'wizard/balance_sheet.xml',
         'wizard/profit_loss.xml',
         'views/menu.xml',
+        'reports/balance_sheet_pdf.xml',
+        'reports/profit_loss_pdf.xml',
 
     ],
     'installable': True,

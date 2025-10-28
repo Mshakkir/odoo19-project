@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ✅ Custom Profit & Loss PDF Template -->
+    <template id="report_custom_profit_loss">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2 style="text-align:center;">Custom Profit &amp; Loss Statement</h2>
+                        <p style="text-align:center;">
+                            <strong>Company:</strong> <t t-esc="o.company_id.name"/>
+                        </p>
+                        <p style="text-align:center;">
+                            <strong>Period:</strong>
+                            <t t-esc="o.date_from"/> → <t t-esc="o.date_to"/>
+                        </p>
+
+                        <table class="table table-sm o_main_table" style="width:100%; margin-top:10px;">
+                            <thead>
+                                <tr style="background:#f0f0f0;">
+                                    <th>Account</th>
+                                    <th style="text-align:right;">Debit</th>
+                                    <th style="text-align:right;">Credit</th>
+                                    <th style="text-align:right;">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.env['account.account'].search([('account_type','in',['income','income_other','expense','expense_depreciation','expense_direct_cost'])])" t-as="acc">
+                                    <tr>
+                                        <td><t t-esc="acc.name"/></td>
+                                        <td style="text-align:right;"><t t-esc="acc.debit_amount"/></td>
+                                        <td style="text-align:right;"><t t-esc="acc.credit_amount"/></td>
+                                        <td style="text-align:right;"><t t-esc="acc.balance_amount"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <p style="margin-top:10px;">
+                            <strong>Total Income:</strong>
+                            <t t-esc="sum([a.balance_amount for a in o.env['account.account'].search([('account_type','in',['income','income_other'])])])"/>
+                            &#160;&#160;&#160;
+                            <strong>Total Expenses:</strong>
+                            <t t-esc="sum([a.balance_amount for a in o.env['account.account'].search([('account_type','in',['expense','expense_depreciation','expense_direct_cost'])])])"/>
+                        </p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ✅ Report Action for Profit & Loss -->
+    <report
+        id="action_custom_profit_loss_pdf"
+        model="accounting.report"
+        string="Profit and Loss PDF"
+        report_type="qweb-pdf"
+        name="custom_bs_pl_module.report_custom_profit_loss"
+        file="custom_bs_pl_module.report_custom_profit_loss"
+        print_report_name="'Profit and Loss - %s' % (object.date_to or '')"
+    />
+</odoo>

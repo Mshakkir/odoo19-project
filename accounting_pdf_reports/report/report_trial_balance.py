@@ -18,32 +18,32 @@ class ReportTrialBalance(models.AbstractModel):
         if where_clause.strip():
             wheres.append(where_clause.strip())
 
-        # ✅ FIX: Analytic filter using subquery (Odoo 19+ compatible)
-        analytic_account_ids = self.env.context.get('analytic_account_ids')
-        analytic_filter = ""
-        analytic_params = ()
+        # # ✅ FIX: Analytic filter using subquery (Odoo 19+ compatible)
+        # analytic_account_ids = self.env.context.get('analytic_account_ids')
+        # analytic_filter = ""
+        # analytic_params = ()
+        #
+        # if analytic_account_ids:
+        #     analytic_filter = (
+        #         " AND (id IN (SELECT move_id FROM account_analytic_line WHERE account_id IN %s)"
+        #         " OR id NOT IN (SELECT move_id FROM account_analytic_line))"
+        #     )
+        #
+        #     analytic_params = (tuple(a.id for a in analytic_account_ids),)
+        #
+        # filters = " AND ".join(wheres)
+        #
+        # # ✅ Safe SQL query
+        # request = (
+        #     "SELECT account_id AS id, SUM(debit) AS debit, SUM(credit) AS credit, "
+        #     "(SUM(debit) - SUM(credit)) AS balance "
+        #     f"FROM {tables} "
+        #     "WHERE account_id IN %s " + filters + analytic_filter +
+        #     " GROUP BY account_id"
+        # )
 
-        if analytic_account_ids:
-            analytic_filter = (
-                " AND (id IN (SELECT move_id FROM account_analytic_line WHERE account_id IN %s)"
-                " OR id NOT IN (SELECT move_id FROM account_analytic_line))"
-            )
-
-            analytic_params = (tuple(a.id for a in analytic_account_ids),)
-
-        filters = " AND ".join(wheres)
-
-        # ✅ Safe SQL query
-        request = (
-            "SELECT account_id AS id, SUM(debit) AS debit, SUM(credit) AS credit, "
-            "(SUM(debit) - SUM(credit)) AS balance "
-            f"FROM {tables} "
-            "WHERE account_id IN %s " + filters + analytic_filter +
-            " GROUP BY account_id"
-        )
-
-        params = (tuple(accounts.ids),) + tuple(where_params) + analytic_params
-        self.env.cr.execute(request, params)
+        # params = (tuple(accounts.ids),) + tuple(where_params) + analytic_params
+        # self.env.cr.execute(request, params)
 
         for row in self.env.cr.dictfetchall():
             account_result[row.pop('id')] = row

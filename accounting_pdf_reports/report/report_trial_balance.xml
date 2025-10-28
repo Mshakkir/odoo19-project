@@ -39,10 +39,10 @@
                             <p t-esc="', '.join([ lt or '' for lt in print_journal ])"/>
                         </div>
                         <div class="col-6">
-                            <t t-if="analytic_accounts">
-                                <strong>Analytic Accounts:</strong>
-                                <p t-esc="', '.join([ analytic_account or '' for analytic_account in analytic_accounts ])"/>
-                            </t>
+<!--                            <t t-if="analytic_accounts">-->
+<!--                                <strong>Analytic Accounts:</strong>-->
+<!--                                <p t-esc="', '.join([ analytic_account or '' for analytic_account in analytic_accounts ])"/>-->
+<!--                            </t>-->
                         </div>
                     </div>
 

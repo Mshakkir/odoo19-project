@@ -7,7 +7,6 @@
   'data': [
     'views/tb_wizard_views.xml',
     'views/tb_line_views.xml',
-    # 'views/tb_detail_views.xml',  # optional
   ],
   'installable': True,
   'application': False,

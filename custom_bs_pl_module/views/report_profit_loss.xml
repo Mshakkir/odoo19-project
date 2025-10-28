@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_profit_loss_pdf" inherit_id="accounting_pdf_reports.report_financial" name="Custom Profit and Loss PDF">
+        <xpath expr="//t[@t-call='accounting_pdf_reports.report_financial_body']" position="replace">
+            <t t-call="accounting_pdf_reports.report_financial_body">
+                <div class="text-center mb-3">
+                    <h2><strong>Custom Profit and Loss Report</strong></h2>
+                </div>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Register the report action -->
+    <report
+        id="action_report_profit_loss_pdf"
+        model="accounting.report"
+        string="Profit and Loss PDF"
+        report_type="qweb-pdf"
+        name="custom_bs_pl_module.report_profit_loss_pdf"
+        file="custom_bs_pl_module.report_profit_loss_pdf"
+        print_report_name="'Profit and Loss - %s' % (object.date_to or '')"
+    />
+</odoo>

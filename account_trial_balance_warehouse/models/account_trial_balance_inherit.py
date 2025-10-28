@@ -49,89 +49,101 @@ class ReportTrialBalance(models.AbstractModel):
 
         In Odoo 19, analytic accounts are stored in JSON field 'analytic_distribution'
         Format: {"account_id": percentage} e.g., {"2": 100.0, "3": 50.0}
+
+        SIMPLIFIED VERSION: Uses Python filtering instead of complex SQL
         """
         # Get analytic filter from context
         analytic_account_ids = self.env.context.get('analytic_account_ids')
 
         if not analytic_account_ids:
             # No filter - use parent method (show all)
+            _logger.info("No analytic filter - using parent method")
             return super()._get_accounts(accounts, display_account)
 
         # Extract IDs if it's a recordset
         if hasattr(analytic_account_ids, 'ids'):
             analytic_ids = analytic_account_ids.ids
         else:
-            analytic_ids = analytic_account_ids
+            analytic_ids = list(analytic_account_ids) if isinstance(analytic_account_ids, (list, tuple)) else [
+                analytic_account_ids]
 
         _logger.info(f"=== TRIAL BALANCE ANALYTIC FILTER ACTIVE ===")
         _logger.info(f"Filtering by analytic account IDs: {analytic_ids}")
 
-        account_result = {}
-
-        # Build SQL query with analytic distribution filter
+        # Build SQL query WITHOUT analytic filter first (get all lines)
         tables, where_clause, where_params = self.env['account.move.line']._query_get()
         tables = tables.replace('"', '') or 'account_move_line'
 
         wheres = []
         if where_clause.strip():
             wheres.append(where_clause.strip())
+        filters = " AND ".join(wheres) if wheres else "1=1"
 
-        # Add analytic distribution filter using PostgreSQL JSON operators
-        # Check if any of our analytic_ids exist in the JSON keys
-        analytic_conditions = []
-        for analytic_id in analytic_ids:
-            analytic_conditions.append(f"analytic_distribution ? '{analytic_id}'")
-
-        analytic_filter = "(" + " OR ".join(analytic_conditions) + ")"
-        wheres.append(analytic_filter)
-
-        filters = " AND ".join(wheres)
-
-        # SQL query to get debit, credit, balance per account
-        # We need to calculate proportional amounts based on analytic_distribution percentages
+        # Simple SQL: Get all move lines for the accounts
         request = f"""
             SELECT 
-                account_id AS id,
-                SUM(
-                    CASE 
-                        WHEN analytic_distribution IS NOT NULL THEN
-                            debit * (
-                                SELECT COALESCE(SUM((value::jsonb->>key)::numeric), 0)
-                                FROM jsonb_each_text(analytic_distribution) 
-                                WHERE key IN ({','.join(["'" + str(aid) + "'" for aid in analytic_ids])})
-                            ) / 100.0
-                        ELSE 0
-                    END
-                ) AS debit,
-                SUM(
-                    CASE 
-                        WHEN analytic_distribution IS NOT NULL THEN
-                            credit * (
-                                SELECT COALESCE(SUM((value::jsonb->>key)::numeric), 0)
-                                FROM jsonb_each_text(analytic_distribution) 
-                                WHERE key IN ({','.join(["'" + str(aid) + "'" for aid in analytic_ids])})
-                            ) / 100.0
-                        ELSE 0
-                    END
-                ) AS credit
+                id,
+                account_id,
+                debit,
+                credit,
+                analytic_distribution
             FROM {tables}
             WHERE account_id IN %s AND {filters}
-            GROUP BY account_id
         """
 
         params = (tuple(accounts.ids),) + tuple(where_params)
 
         _logger.info(f"Executing SQL query with {len(accounts)} accounts")
+        _logger.info(f"SQL: {request}")
+
         self.env.cr.execute(request, params)
+        all_lines = self.env.cr.dictfetchall()
 
-        for row in self.env.cr.dictfetchall():
-            account_id = row.pop('id')
-            row['balance'] = row['debit'] - row['credit']
-            account_result[account_id] = row
+        _logger.info(f"Total move lines found: {len(all_lines)}")
+
+        # Filter and calculate in Python
+        account_result = {}
+
+        for line in all_lines:
+            account_id = line['account_id']
+            analytic_dist = line['analytic_distribution']
+
+            # Check if this line has any of our analytic accounts
+            if not analytic_dist:
+                _logger.debug(f"Line {line['id']}: No analytic distribution, skipping")
+                continue
+
+            # Calculate percentage for our analytic accounts
+            percentage = 0.0
+            for analytic_id in analytic_ids:
+                analytic_id_str = str(analytic_id)
+                if analytic_id_str in analytic_dist:
+                    percentage += float(analytic_dist[analytic_id_str])
+                    _logger.debug(
+                        f"Line {line['id']}: Found analytic {analytic_id_str} with {analytic_dist[analytic_id_str]}%")
+
+            if percentage == 0:
+                continue
+
+            # Calculate proportional amounts
+            proportional_debit = line['debit'] * (percentage / 100.0)
+            proportional_credit = line['credit'] * (percentage / 100.0)
+
+            _logger.debug(f"Line {line['id']}: Debit {line['debit']} * {percentage}% = {proportional_debit}")
+
+            # Add to account totals
+            if account_id not in account_result:
+                account_result[account_id] = {'debit': 0.0, 'credit': 0.0, 'balance': 0.0}
+
+            account_result[account_id]['debit'] += proportional_debit
+            account_result[account_id]['credit'] += proportional_credit
+            account_result[account_id]['balance'] = account_result[account_id]['debit'] - account_result[account_id][
+                'credit']
+
+        _logger.info(f"Accounts with filtered transactions: {len(account_result)}")
+        for acc_id, values in account_result.items():
             _logger.info(
-                f"  Account {account_id}: Debit={row['debit']:.2f}, Credit={row['credit']:.2f}, Balance={row['balance']:.2f}")
-
-        _logger.info(f"Total accounts with transactions: {len(account_result)}")
+                f"  Account {acc_id}: Debit={values['debit']:.2f}, Credit={values['credit']:.2f}, Balance={values['balance']:.2f}")
 
         # Build result list
         account_res = []
@@ -145,9 +157,9 @@ class ReportTrialBalance(models.AbstractModel):
             })
 
             if account.id in account_result:
-                res['debit'] = account_result[account.id].get('debit', 0.0)
-                res['credit'] = account_result[account.id].get('credit', 0.0)
-                res['balance'] = account_result[account.id].get('balance', 0.0)
+                res['debit'] = account_result[account.id]['debit']
+                res['credit'] = account_result[account.id]['credit']
+                res['balance'] = account_result[account.id]['balance']
 
             # Apply display filter
             if display_account == 'all':

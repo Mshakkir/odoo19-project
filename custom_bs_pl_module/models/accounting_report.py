@@ -103,19 +103,6 @@ class AccountingReport(models.TransientModel):
                 # Skip income/expense accounts
                 continue
 
-        # --- Compute Profit/Loss ---
-        profit_loss_balance = total_debit - total_credit
-
-        profit_loss_line = {
-            'account_id': False,
-            'account_name': 'Profit (Loss) to Report',
-            'account_type': 'profit_loss',
-            'section_type': False,
-            'debit': profit_loss_balance if profit_loss_balance > 0 else 0.0,
-            'credit': abs(profit_loss_balance) if profit_loss_balance < 0 else 0.0,
-            'balance': profit_loss_balance,
-        }
-        equity_lines.append(profit_loss_line)
 
         # --- Merge all sections ---
         return asset_lines + liability_lines + equity_lines

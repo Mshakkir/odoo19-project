@@ -205,9 +205,9 @@ class AccountBalanceReport(models.TransientModel):
 
     analytic_account_ids = fields.Many2many(
         'account.analytic.account',
-        'account_trial_balance_analytic_rel',
-        'balance_report_id',
-        'analytic_account_id',
+        'account_balance_report_analytic_rel',  # NEW table name
+        'report_id',  # FK to account.balance.report
+        'analytic_id',  # FK to account.analytic.account
         string='Analytic Accounts (Warehouses)',
         help='Filter Trial Balance by warehouse analytic accounts. '
              'Leave empty to show combined report for all warehouses.'

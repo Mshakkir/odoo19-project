@@ -3,7 +3,7 @@
     <!-- Inherit the original financial report template -->
     <template id="report_financial_custom"
               inherit_id="accounting_pdf_reports.report_financial"
-              name="Custom Financial Reports (Balance Sheet & P&L)">
+              name="Custom Financial Reports (Balance Sheet &amp; P&amp;L)">
 
         <!-- Custom titles based on report type -->
         <xpath expr="//div[@class='row text-center']/h2" position="replace">

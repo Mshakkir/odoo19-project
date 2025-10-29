@@ -7,9 +7,11 @@
         <field name="model">sale.order.line</field>
         <field name="inherit_id" ref="sale.view_order_line_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='product_uom_qty']" position="after">
+            <!-- Add after price_unit instead of product_uom_qty -->
+            <xpath expr="//field[@name='price_unit']" position="after">
                 <field
                     name="discount_fixed"
+                    string="Disc.(Fixed)"
                     groups="account_invoice_fixed_discount.group_fixed_discount"
                     optional="show"
                 />

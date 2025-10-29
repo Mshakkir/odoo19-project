@@ -8,10 +8,10 @@ class AccountingReport(models.TransientModel):
     # -------------------------------------------------------------------------
     # NEW FIELD: Warehouse Analytic Filter
     # -------------------------------------------------------------------------
-    warehouse_analytic_id = fields.Many2one(
+    warehouse_analytic_ids = fields.Many2many(
         'account.analytic.account',
-        string='Warehouse (Analytic)',
-        help='Select a warehouse analytic account to filter the balance sheet.'
+        string='Warehouse Analytics',
+        help='Select one or more warehouse analytic accounts to filter the report.'
     )
 
     @api.onchange('warehouse_analytic_id')
@@ -73,10 +73,9 @@ class AccountingReport(models.TransientModel):
 
         # --- ✅ Apply warehouse analytic filter if selected ---
         analytic_filter_sql = ""
-        if getattr(self, 'warehouse_analytic_id', False):
-            analytic_filter_sql += " AND aml.analytic_account_id = %s"
-            params.append(self.warehouse_analytic_id.id)
-
+        if self.warehouse_analytic_ids:
+            analytic_filter_sql += " AND aml.analytic_account_id IN %s"
+            params.append(tuple(self.warehouse_analytic_ids.ids))
         # --- Final query ---
         query = f"""
             SELECT

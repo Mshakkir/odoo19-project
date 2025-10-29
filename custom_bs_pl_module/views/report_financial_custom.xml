@@ -5,22 +5,23 @@
               name="Rename Balance Column to Amount">
 
         <!-- Rename "Balance" column in table with debit/credit -->
-        <xpath expr="//table[@class='table table-sm table-reports'][@t-if='data[&#39;debit_credit&#39;] == 1']//th[contains(text(), 'Balance')]" position="replace">
+        <xpath expr="//table[@class='table table-sm table-reports'][@t-if=&quot;data['debit_credit'] == 1&quot;]//th[contains(text(), 'Balance')]" position="replace">
             <th class="text-end">Amount</th>
         </xpath>
 
         <!-- Rename "Balance" column in table without debit/credit -->
-        <xpath expr="//table[@class='table table-sm table-reports'][@t-if='not data[&#39;enable_filter&#39;] and not data[&#39;debit_credit&#39;]']//th[contains(text(), 'Balance')]" position="replace">
+        <xpath expr="//table[@class='table table-sm table-reports'][@t-if=&quot;not data['enable_filter'] and not data['debit_credit']&quot;]//th[contains(text(), 'Balance')]" position="replace">
             <th class="text-end">Amount</th>
         </xpath>
 
         <!-- Rename "Balance" column in comparison table -->
-        <xpath expr="//table[@class='table table-sm table-reports'][@t-if='data[&#39;enable_filter&#39;] == 1 and not data[&#39;debit_credit&#39;]']//th[contains(text(), 'Balance')]" position="replace">
+        <xpath expr="//table[@class='table table-sm table-reports'][@t-if=&quot;data['enable_filter'] == 1 and not data['debit_credit']&quot;]//th[contains(text(), 'Balance')]" position="replace">
             <th class="text-end">Amount</th>
         </xpath>
 
     </template>
 </odoo>
+
 
 
 

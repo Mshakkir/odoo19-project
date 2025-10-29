@@ -13,33 +13,41 @@ class AccountMoveLine(models.Model):
         default=0.0,
         currency_field="currency_id",
         help=(
-            "Apply a fixed amount discount to this line. The amount is multiplied by "
-            "the quantity of the product."
+            "Apply a fixed total discount to this line. "
+            "This is a total discount amount, not per unit."
         ),
     )
 
-    @api.depends("quantity", "discount", "price_unit", "tax_ids", "currency_id")
+    @api.depends("quantity", "discount", "price_unit", "tax_ids", "currency_id", "discount_fixed")
     def _compute_totals(self):
         """Adjust the computation of the price_subtotal and price_total fields to
         account for the fixed discount amount.
 
-        By using the unrounded calculated discount value, we avoid rounding errors
-        in the resulting calculated totals.
-        We only need to do this for lines with a fixed discount.
-
+        The fixed discount is applied as a TOTAL discount on the line,
+        not multiplied by quantity.
         """
         done_lines = self.env["account.move.line"]
         for line in self:
             if float_is_zero(
-                line.discount_fixed, precision_rounding=line.currency_id.rounding
+                    line.discount_fixed, precision_rounding=line.currency_id.rounding
             ):
                 continue
-            # Pass the actual float value of the discount to the tax computation method.
-            discount = line._get_discount_from_fixed_discount()
-            line_discount_price_unit = line.price_unit * (1 - (discount / 100.0))
+
+            # Calculate subtotal before discount
+            subtotal_before_discount = line.quantity * line.price_unit
+
+            # Apply fixed discount to the total
+            subtotal_after_discount = subtotal_before_discount - line.discount_fixed
+
+            # Calculate effective price per unit after discount
+            if line.quantity and not float_is_zero(line.quantity, precision_rounding=line.currency_id.rounding):
+                effective_price_unit = subtotal_after_discount / line.quantity
+            else:
+                effective_price_unit = line.price_unit
+
             if line.tax_ids:
                 taxes_res = line.tax_ids.compute_all(
-                    line_discount_price_unit,
+                    effective_price_unit,
                     quantity=line.quantity,
                     currency=line.currency_id,
                     product=line.product_id,
@@ -50,35 +58,43 @@ class AccountMoveLine(models.Model):
                 line.price_total = taxes_res["total_included"]
             else:
                 # No taxes applied on the line.
-                subtotal = line.quantity * line_discount_price_unit
-                line.price_total = line.price_subtotal = subtotal
+                line.price_subtotal = subtotal_after_discount
+                line.price_total = subtotal_after_discount
 
             done_lines |= line
 
         # Compute the regular totals for regular lines.
         return super(AccountMoveLine, self - done_lines)._compute_totals()
 
-    @api.onchange("discount_fixed", "price_unit")
+    @api.onchange("discount_fixed", "price_unit", "quantity")
     def _onchange_discount_fixed(self):
-        """Compute the fixed discount based on the discount percentage."""
+        """Compute the percentage discount based on the fixed total discount."""
         if self.env.context.get("ignore_discount_onchange"):
             return
-        self.env.context = self.with_context(ignore_discount_onchange=True).env.context
+        self = self.with_context(ignore_discount_onchange=True)
         self.discount = self._get_discount_from_fixed_discount()
 
-    @api.onchange('discount_fixed')
-    def _onchange_discount_fixed(self):
-        if self.discount_fixed:
-            self = self.with_context(ignore_discount_onchange=True)
-            self.price_unit = self.price_unit - self.discount_fixed
+    @api.onchange("discount")
+    def _onchange_discount(self):
+        """Reset fixed discount when percentage discount is changed."""
+        if self.env.context.get("ignore_discount_onchange"):
+            return
+        self = self.with_context(ignore_discount_onchange=True)
+        self.discount_fixed = 0.0
 
     def _get_discount_from_fixed_discount(self):
-        """Calculate the discount percentage from the fixed discount amount."""
+        """Calculate the discount percentage from the fixed total discount amount."""
         self.ensure_one()
         currency = self.currency_id or self.company_id.currency_id
-        if float_is_zero(
-            self.discount_fixed, precision_rounding=currency.rounding
-        ) or float_is_zero(self.price_unit, precision_rounding=currency.rounding):
+
+        if float_is_zero(self.discount_fixed, precision_rounding=currency.rounding):
             return 0.0
 
-        return (self.discount_fixed / self.price_unit) * 100
+        # Calculate total before discount
+        subtotal = self.quantity * self.price_unit
+
+        if float_is_zero(subtotal, precision_rounding=currency.rounding):
+            return 0.0
+
+        # Calculate percentage: (fixed_discount / subtotal) * 100
+        return (self.discount_fixed / subtotal) * 100

@@ -18,14 +18,23 @@ class SaleOrderLine(models.Model):
         ),
     )
 
+    # Override _get_sale_order_line_multiline_description_sale to ensure field is computed
+    def _get_protected_fields(self):
+        """Add discount_fixed to protected fields."""
+        return super()._get_protected_fields() + ['discount_fixed']
+
     @api.depends("product_uom_qty", "discount", "price_unit", "discount_fixed")
     def _compute_amount(self):
         """Override to calculate amounts with fixed discount."""
+        lines_with_fixed_discount = self.env["sale.order.line"]
+
         for line in self:
             if float_is_zero(
                     line.discount_fixed, precision_rounding=line.currency_id.rounding
             ):
                 continue
+
+            lines_with_fixed_discount |= line
 
             # Calculate price with fixed discount
             subtotal_before_discount = line.product_uom_qty * line.price_unit
@@ -55,9 +64,7 @@ class SaleOrderLine(models.Model):
             })
 
         # Process lines without fixed discount normally
-        super(SaleOrderLine, self.filtered(
-            lambda l: float_is_zero(l.discount_fixed, precision_rounding=l.currency_id.rounding)
-        ))._compute_amount()
+        return super(SaleOrderLine, self - lines_with_fixed_discount)._compute_amount()
 
     @api.onchange("discount_fixed", "price_unit", "product_uom_qty")
     def _onchange_discount_fixed(self):

@@ -4,6 +4,24 @@ from odoo import models, fields, api
 class AccountingReport(models.TransientModel):
     _inherit = 'accounting.report'
 
+
+    # -------------------------------------------------------------------------
+    # NEW FIELD: Warehouse Analytic Filter
+    # -------------------------------------------------------------------------
+    warehouse_analytic_id = fields.Many2one(
+        'account.analytic.account',
+        string='Warehouse (Analytic)',
+        help='Select a warehouse analytic account to filter the balance sheet.'
+    )
+
+    @api.onchange('warehouse_analytic_id')
+    def _onchange_warehouse_analytic_id(self):
+        """Optional: auto-set default report if warehouse selected"""
+        if self.warehouse_analytic_id:
+            self.account_report_id = self.env.ref(
+                'accounting_pdf_reports.account_financial_report_balancesheet0'
+            ).id
+
     # -------------------------------------------------------------------------
     # BALANCE SHEET LOGIC
     # -------------------------------------------------------------------------
@@ -45,6 +63,7 @@ class AccountingReport(models.TransientModel):
         params = [self.env.company.id]
         date_filter_sql = ""
 
+        # --- Date filter ---
         if date_from:
             date_filter_sql += " AND aml.date >= %s"
             params.append(date_from)
@@ -52,7 +71,13 @@ class AccountingReport(models.TransientModel):
             date_filter_sql += " AND aml.date <= %s"
             params.append(date_to)
 
-        # Fetch balances grouped by account
+        # --- ✅ Apply warehouse analytic filter if selected ---
+        analytic_filter_sql = ""
+        if getattr(self, 'warehouse_analytic_id', False):
+            analytic_filter_sql += " AND aml.analytic_account_id = %s"
+            params.append(self.warehouse_analytic_id.id)
+
+        # --- Final query ---
         query = f"""
             SELECT
                 aa.id as account_id,
@@ -67,6 +92,7 @@ class AccountingReport(models.TransientModel):
             WHERE aml.company_id = %s
               AND am.state = 'posted'
               {date_filter_sql}
+              {analytic_filter_sql}
             GROUP BY aa.id, aa.name, aa.account_type
             HAVING COALESCE(SUM(aml.debit),0) != 0 OR COALESCE(SUM(aml.credit),0) != 0
             ORDER BY aa.account_type, aa.name
@@ -74,13 +100,10 @@ class AccountingReport(models.TransientModel):
         self.env.cr.execute(query, params)
         result = self.env.cr.dictfetchall()
 
-        asset_lines = []
-        liability_lines = []
-        equity_lines = []
-
+        asset_lines, liability_lines, equity_lines = [], [], []
         total_debit = total_credit = 0.0
 
-        # Categorize accounts
+        # --- Categorize accounts ---
         for line in result:
             acc_type = line['account_type']
             debit = line['debit'] or 0.0
@@ -100,11 +123,9 @@ class AccountingReport(models.TransientModel):
                 line['section_type'] = 'equity'
                 equity_lines.append(line)
             else:
-                # Skip income/expense accounts
                 continue
 
-
-        # --- Merge all sections ---
+        # --- Return all sections ---
         return asset_lines + liability_lines + equity_lines
 
     # -------------------------------------------------------------------------

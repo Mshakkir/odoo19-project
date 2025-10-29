@@ -9,6 +9,13 @@
         <field name="mode">primary</field>
         <field name="priority">10</field>
         <field name="arch" type="xml">
+             <!-- Add Warehouse field before account_report_id -->
+            <field name="account_report_id" position="before">
+                <field name="warehouse_analytic_id"
+                       options="{'no_create': True}"
+                       domain="[('company_id','=',company_id)]"
+                       placeholder="Select Warehouse Analytic"/>
+            </field>
 
             <!-- Insert Account Report field before target_move -->
             <field name="target_move" position="before">

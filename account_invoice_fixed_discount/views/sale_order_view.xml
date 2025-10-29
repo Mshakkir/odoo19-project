@@ -1,14 +1,14 @@
 <!-- Copyright 2017 ForgeFlow S.L.
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
 <odoo>
-    <!-- Just make the field visible by adding it to form context -->
-    <record id="view_order_form_with_discount" model="ir.ui.view">
-        <field name="name">sale.order.form.with.discount.fixed</field>
+    <!-- Simply insert discount_fixed into existing order_line tree -->
+    <record id="view_order_form_with_discount_fixed" model="ir.ui.view">
+        <field name="name">sale.order.form.discount.fixed</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <!-- Add discount_fixed to the default order line columns -->
-            <xpath expr="//field[@name='order_line']/tree" position="inside">
+            <!-- Find product_id in order_line and add our field after it -->
+            <xpath expr="//field[@name='order_line']//field[@name='product_id']" position="after">
                 <field name="discount_fixed"
                        groups="account_invoice_fixed_discount.group_fixed_discount"
                        optional="show"/>

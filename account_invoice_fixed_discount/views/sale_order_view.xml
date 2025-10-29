@@ -1,35 +1,17 @@
 <!-- Copyright 2017 ForgeFlow S.L.
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
 <odoo>
-    <!-- Create a simple list view for sale order lines with discount_fixed -->
-    <record id="view_order_line_list_discount" model="ir.ui.view">
-        <field name="name">sale.order.line.list.with.discount.fixed</field>
-        <field name="model">sale.order.line</field>
-        <field name="priority">20</field>
-        <field name="arch" type="xml">
-            <list string="Sales Order Lines" editable="bottom">
-                <field name="product_id"/>
-                <field name="name"/>
-                <field name="product_uom_qty"/>
-                <field name="price_unit"/>
-                <field name="discount_fixed"
-                       groups="account_invoice_fixed_discount.group_fixed_discount"
-                       optional="show"/>
-                <field name="discount" optional="hide"/>
-                <field name="tax_id" widget="many2many_tags"/>
-                <field name="price_subtotal"/>
-            </list>
-        </field>
-    </record>
-
-    <!-- Apply this list view to the sale order form -->
+    <!-- Just make the field visible by adding it to form context -->
     <record id="view_order_form_with_discount" model="ir.ui.view">
         <field name="name">sale.order.form.with.discount.fixed</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='order_line']" position="attributes">
-                <attribute name="context">{'tree_view_ref': 'account_invoice_fixed_discount.view_order_line_list_discount'}</attribute>
+            <!-- Add discount_fixed to the default order line columns -->
+            <xpath expr="//field[@name='order_line']/tree" position="inside">
+                <field name="discount_fixed"
+                       groups="account_invoice_fixed_discount.group_fixed_discount"
+                       optional="show"/>
             </xpath>
         </field>
     </record>

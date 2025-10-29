@@ -12,12 +12,18 @@
 
             <!-- Insert Account Report field before target_move -->
             <field name="target_move" position="before">
+                <field name="account_report_id" domain="[('parent_id','=',False)]"/>
+            </field>
+
+
+            <field name="target_move" position="before">
                 <field name="warehouse_analytic_ids"
                        widget="many2many_tags"
                        options="{'no_create': True}"
                        domain="[('company_id','=',company_id)]"
                        placeholder="Select One or More Warehouses"/>
             </field>
+
 
             <!-- Add Target Move, Comparison, and Display Debit/Credit Columns -->
             <field name="target_move" position="after">

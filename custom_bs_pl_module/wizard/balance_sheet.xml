@@ -10,7 +10,10 @@
         <field name="priority">10</field>
         <field name="arch" type="xml">
 
-            <!-- Add Warehouse Analytic field before account_report_id -->
+            <!-- Insert Account Report field before target_move -->
+            <field name="target_move" position="before">
+                <field name="account_report_id" domain="[('parent_id','=',False)]"/>
+            </field>
             <field name="target_move" position="before">
                 <field name="warehouse_analytic_id"
                        options="{'no_create': True}"
@@ -18,7 +21,7 @@
                        placeholder="Select Warehouse Analytic"/>
             </field>
 
-            <!-- Keep Target Move, Comparison, and Display Debit/Credit Columns -->
+            <!-- Add Target Move, Comparison, and Display Debit/Credit Columns -->
             <field name="target_move" position="after">
                 <field name="enable_filter"/>
                 <field name="debit_credit" invisible="enable_filter == True"/>
@@ -79,12 +82,15 @@
         <!--        <field name="priority">10</field>-->
         <!--        <field name="arch" type="xml">-->
 
-        <!--            &lt;!&ndash; Insert Account Report field before target_move &ndash;&gt;-->
+        <!--            &lt;!&ndash; Add Warehouse Analytic field before account_report_id &ndash;&gt;-->
         <!--            <field name="target_move" position="before">-->
-        <!--                <field name="account_report_id" domain="[('parent_id','=',False)]"/>-->
+        <!--                <field name="warehouse_analytic_id"-->
+        <!--                       options="{'no_create': True}"-->
+        <!--                       domain="[('company_id','=',company_id)]"-->
+        <!--                       placeholder="Select Warehouse Analytic"/>-->
         <!--            </field>-->
 
-        <!--            &lt;!&ndash; Add Target Move, Comparison, and Display Debit/Credit Columns &ndash;&gt;-->
+        <!--            &lt;!&ndash; Keep Target Move, Comparison, and Display Debit/Credit Columns &ndash;&gt;-->
         <!--            <field name="target_move" position="after">-->
         <!--                <field name="enable_filter"/>-->
         <!--                <field name="debit_credit" invisible="enable_filter == True"/>-->
@@ -107,13 +113,13 @@
         <!--            </field>-->
 
         <!--            &lt;!&ndash; Add View Details button &ndash;&gt;-->
-        <!--    <xpath expr="//footer" position="inside">-->
-        <!--        <button name="action_view_balance_sheet_details"-->
-        <!--                string="View Details"-->
-        <!--                type="object"-->
-        <!--                class="btn-secondary"-->
-        <!--                icon="fa-list-alt"/>-->
-        <!--    </xpath>-->
+        <!--            <xpath expr="//footer" position="inside">-->
+        <!--                <button name="action_view_balance_sheet_details"-->
+        <!--                        string="View Details"-->
+        <!--                        type="object"-->
+        <!--                        class="btn-secondary"-->
+        <!--                        icon="fa-list-alt"/>-->
+        <!--            </xpath>-->
 
         <!--        </field>-->
         <!--    </record>-->
@@ -131,3 +137,4 @@
         <!--    </record>-->
 
         <!--</odoo>-->
+

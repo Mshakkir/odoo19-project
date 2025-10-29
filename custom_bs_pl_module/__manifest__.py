@@ -15,6 +15,8 @@
         'wizard/profit_loss.xml',
         'views/account_detail_view.xml',
         'views/menu.xml',
+        'views/report_balance_sheet_template.xml',
+        'views/report_profit_loss_template.xml',
         'views/report_balance_sheet.xml',
         'views/report_profit_loss.xml',
     ],

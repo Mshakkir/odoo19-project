@@ -6,7 +6,7 @@
     'depends': [
         'account',
         'accounting_pdf_reports',  # odoo mates module name used in your post
-        'account_analytic_analysis'  # include analytic module (adjust if your instance uses different)
+        'analytic'  # include analytic module (adjust if your instance uses different)
     ],
     'data': [
         'views/accounting_report_analytic_views.xml',

@@ -6,7 +6,7 @@ _logger = logging.getLogger(__name__)
 
 
 class AccountingReportAnalytic(models.TransientModel):
-    _inherit = 'accounting.report'
+    _inherit = 'account.balance.report'
 
     warehouse_analytic_ids = fields.Many2many(
         'account.analytic.account',

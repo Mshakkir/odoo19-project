@@ -6,17 +6,16 @@ class TrialBalanceLine(models.TransientModel):
 
     _name = 'trial.balance.line'
     _description = 'Trial Balance Line'
-    _order = 'account_code'
 
     wizard_id = fields.Many2one('account.balance.report', string='Wizard', required=True, ondelete='cascade')
     account_id = fields.Many2one('account.account', string='Account', required=True)
-    account_code = fields.Char(string='Account Code', store=True)
-    account_name = fields.Char(string='Account Name', store=True)
+    account_code = fields.Char(string='Account Code')
+    account_name = fields.Char(string='Account Name')
 
-    opening_balance = fields.Monetary(string='Opening Balance', currency_field='company_currency_id')
-    debit = fields.Monetary(string='Debit', currency_field='company_currency_id')
-    credit = fields.Monetary(string='Credit', currency_field='company_currency_id')
-    ending_balance = fields.Monetary(string='Ending Balance', currency_field='company_currency_id')
+    opening_balance = fields.Float(string='Opening Balance', digits=(16, 2))
+    debit = fields.Float(string='Debit', digits=(16, 2))
+    credit = fields.Float(string='Credit', digits=(16, 2))
+    ending_balance = fields.Float(string='Ending Balance', digits=(16, 2))
 
     company_currency_id = fields.Many2one(
         'res.currency',
@@ -24,7 +23,7 @@ class TrialBalanceLine(models.TransientModel):
         default=lambda self: self.env.company.currency_id
     )
 
-    # Store related move line IDs as a simple list (avoiding complex relations)
+    # Store related move line IDs
     move_line_ids = fields.Many2many(
         'account.move.line',
         'trial_balance_line_move_line_rel',
@@ -33,22 +32,12 @@ class TrialBalanceLine(models.TransientModel):
         string='Journal Items'
     )
 
-    move_line_count = fields.Integer(string='Journal Items', compute='_compute_move_line_count', store=True)
+    move_line_count = fields.Integer(string='Journal Items', compute='_compute_move_line_count')
 
     @api.depends('move_line_ids')
     def _compute_move_line_count(self):
         for record in self:
             record.move_line_count = len(record.move_line_ids)
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        """Override create to populate account_code and account_name if not provided"""
-        for vals in vals_list:
-            if vals.get('account_id') and not vals.get('account_code'):
-                account = self.env['account.account'].browse(vals['account_id'])
-                vals['account_code'] = account.code
-                vals['account_name'] = account.name
-        return super().create(vals_list)
 
     def action_view_journal_items(self):
         """Open journal items for this account filtered by wizard criteria."""
@@ -57,26 +46,14 @@ class TrialBalanceLine(models.TransientModel):
         # Get analytic filter from wizard
         analytic_ids = self.wizard_id.analytic_account_ids.ids if self.wizard_id.analytic_account_ids else []
 
-        # If we have stored move_line_ids, use them (already filtered)
-        if self.move_line_ids:
-            domain = [('id', 'in', self.move_line_ids.ids)]
-        else:
-            # Build domain based on wizard criteria
-            domain = [
-                ('account_id', '=', self.account_id.id),
-                ('move_id.state', '=', 'posted'),
-            ]
-
-            if self.wizard_id.date_from:
-                domain.append(('date', '>=', self.wizard_id.date_from))
-            if self.wizard_id.date_to:
-                domain.append(('date', '<=', self.wizard_id.date_to))
+        # Use stored move_line_ids
+        domain = [('id', 'in', self.move_line_ids.ids)] if self.move_line_ids else []
 
         # Prepare context
         ctx = dict(self.env.context)
         ctx.update({
-            'search_default_group_by_move': 1,  # Group by journal entry
-            'analytic_filter_ids': analytic_ids,  # Pass for highlighting
+            'search_default_group_by_move': 1,
+            'analytic_filter_ids': analytic_ids,
         })
 
         return {

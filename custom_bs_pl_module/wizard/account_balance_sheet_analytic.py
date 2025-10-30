@@ -15,22 +15,22 @@ class AccountingReportAnalytic(models.TransientModel):
     )
 
     def _get_filter_values(self):
-        """Build a data dictionary similar to other Odoo Mates reports."""
-        res = {
+        """Build a dictionary in the format expected by accounting_pdf_reports."""
+        form_data = {
             'date_from': self.date_from,
             'date_to': self.date_to,
             'target_move': self.target_move,
             'warehouse_analytic_ids': self.warehouse_analytic_ids.ids,
             'company_id': self.company_id.id if self.company_id else False,
         }
-        _logger.info("Filter values prepared: %s", res)
-        return res
+        return {'form': form_data}
 
     def _print_report(self, data):
         """Override report printing to include analytic filters."""
         data = self._get_filter_values()
         _logger.info("Printing report with filters: %s", data)
 
+        # Use the existing Odoo Mates balance sheet action
         return self.env.ref(
             'accounting_pdf_reports.action_report_financial'
         ).with_context(landscape=True).report_action(self, data=data)

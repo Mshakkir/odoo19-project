@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- New wizard form that extends the existing view adding the analytic field -->
+    <record id="accounting_report_analytic_view_form" model="ir.ui.view">
+        <field name="name">accounting.report.analytic.form</field>
+        <field name="model">accounting.report.analytic</field>
+        <field name="inherit_id" ref="accounting_pdf_reports.accounting_report_view"/>
+        <!-- inherit the original wizard form from odoo-mates; change ref if different -->
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='account_report_id']" position="after">
+                <field name="analytic_account_ids" widget="many2many_tags"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -8,7 +8,8 @@ class ReportBalanceSheetPDF(models.AbstractModel):
     @api.model
     def _get_report_values(self, docids, data=None):
         """Include warehouse analytic breakdown + combined totals in PDF"""
-        docs = self.env['accounting.report'].browse(docids)
+        # docs = self.env['accounting.report'].browse(docids)
+        docs = self.env['account.balance.report'].browse(docids)
         data = data or {}
 
         all_warehouse_data = []

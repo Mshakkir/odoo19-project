@@ -6,12 +6,12 @@ class TrialBalanceLine(models.TransientModel):
 
     _name = 'trial.balance.line'
     _description = 'Trial Balance Line'
-    _order = 'account_id'
+    _order = 'account_code'
 
     wizard_id = fields.Many2one('account.balance.report', string='Wizard', required=True, ondelete='cascade')
     account_id = fields.Many2one('account.account', string='Account', required=True)
-    account_code = fields.Char(related='account_id.code', string='Account Code', store=True)
-    account_name = fields.Char(related='account_id.name', string='Account Name', store=True)
+    account_code = fields.Char(string='Account Code', store=True)
+    account_name = fields.Char(string='Account Name', store=True)
 
     opening_balance = fields.Monetary(string='Opening Balance', currency_field='company_currency_id')
     debit = fields.Monetary(string='Debit', currency_field='company_currency_id')
@@ -24,7 +24,7 @@ class TrialBalanceLine(models.TransientModel):
         default=lambda self: self.env.company.currency_id
     )
 
-    # Store related move lines for drill-down
+    # Store related move line IDs as a simple list (avoiding complex relations)
     move_line_ids = fields.Many2many(
         'account.move.line',
         'trial_balance_line_move_line_rel',
@@ -33,12 +33,22 @@ class TrialBalanceLine(models.TransientModel):
         string='Journal Items'
     )
 
-    move_line_count = fields.Integer(string='Journal Items', compute='_compute_move_line_count')
+    move_line_count = fields.Integer(string='Journal Items', compute='_compute_move_line_count', store=True)
 
     @api.depends('move_line_ids')
     def _compute_move_line_count(self):
         for record in self:
             record.move_line_count = len(record.move_line_ids)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Override create to populate account_code and account_name"""
+        for vals in vals_list:
+            if vals.get('account_id'):
+                account = self.env['account.account'].browse(vals['account_id'])
+                vals['account_code'] = account.code
+                vals['account_name'] = account.name
+        return super().create(vals_list)
 
     def action_view_journal_items(self):
         """Open journal items for this account filtered by wizard criteria."""
@@ -70,7 +80,7 @@ class TrialBalanceLine(models.TransientModel):
         })
 
         return {
-            'name': f'Journal Items - {self.account_id.code} {self.account_id.name}',
+            'name': f'Journal Items - {self.account_code} {self.account_name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move.line',
             'view_mode': 'list,form',
@@ -86,7 +96,7 @@ class TrialBalanceLine(models.TransientModel):
         move_ids = self.move_line_ids.mapped('move_id').ids
 
         return {
-            'name': f'Journal Entries - {self.account_id.code} {self.account_id.name}',
+            'name': f'Journal Entries - {self.account_code} {self.account_name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move',
             'view_mode': 'list,form',

@@ -54,6 +54,7 @@ class AccountingReport(models.TransientModel):
         date_to = self.date_to or None
         params = [self.env.company.id]
         date_filter_sql = ""
+        analytic_join_sql = ""
         analytic_filter_sql = ""
 
         # ✅ Add date filters
@@ -64,14 +65,19 @@ class AccountingReport(models.TransientModel):
             date_filter_sql += " AND aml.date <= %s"
             params.append(date_to)
 
-        # ✅ Add analytic account filter if selected
+        # ✅ Analytic account filtering using new analytic relation
         if self.warehouse_analytic_ids:
             analytic_ids = tuple(self.warehouse_analytic_ids.ids)
+            analytic_join_sql = """
+                JOIN account_analytic_distribution aad
+                  ON aad.move_line_id = aml.id
+            """
             if len(analytic_ids) == 1:
-                analytic_filter_sql = f" AND aml.analytic_account_id = {analytic_ids[0]}"
+                analytic_filter_sql = f" AND aad.account_id = {analytic_ids[0]}"
             else:
-                analytic_filter_sql = f" AND aml.analytic_account_id IN {analytic_ids}"
+                analytic_filter_sql = f" AND aad.account_id IN {analytic_ids}"
 
+        # ✅ Main Query
         query = f"""
             SELECT
                 aa.id as account_id,
@@ -83,6 +89,7 @@ class AccountingReport(models.TransientModel):
             FROM account_move_line aml
             JOIN account_move am ON aml.move_id = am.id
             JOIN account_account aa ON aml.account_id = aa.id
+            {analytic_join_sql}
             WHERE aml.company_id = %s
               AND am.state = 'posted'
               {date_filter_sql}

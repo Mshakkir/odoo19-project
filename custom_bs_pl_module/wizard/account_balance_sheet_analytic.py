@@ -29,15 +29,15 @@ class AccountingReportAnalytic(models.TransientModel):
         """
         Properly pass data to Odoo Mates accounting_pdf_reports action.
         """
-        # Get original filter values
-        data = self.pre_print_report(data)
-        data['form'] = self.read()[0]  # Odoo Mates report expects 'form' dict
+        # Create base data dict in the same structure as Odoo Mates
+        data = {
+            'form': self.read()[0]
+        }
+
+        # Include your analytic filter
         data['form'].update(self._get_filter_values())
 
-        # Include analytic filters in context
-        data['form']['warehouse_analytic_ids'] = self.warehouse_analytic_ids.ids
+        _logger.info("✅ Sending data to Odoo Mates financial report: %s", data)
 
-        _logger.info("✅ Sending data to report: %s", data)
-
-        # Use Odoo Mates report action
+        # Trigger Odoo Mates’ Balance Sheet / Profit & Loss report action
         return self.env.ref('accounting_pdf_reports.action_report_financial').report_action(self, data=data)

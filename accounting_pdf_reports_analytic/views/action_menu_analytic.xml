@@ -12,7 +12,7 @@
     </record>
 
     <menuitem id="menu_account_report_pl_analytic"
-              name="Profit & Loss (Analytic)"
+              name="Profit &amp; Loss (Analytic)"
               parent="accounting_pdf_reports.menu_finance_legal_statement"
               action="action_account_report_pl_analytic"
               sequence="7"

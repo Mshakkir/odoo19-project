@@ -14,17 +14,22 @@ class AccountingReportAnalytic(models.TransientModel):
         help="Filter Balance Sheet / P&L by analytic accounts (warehouses)."
     )
 
-    def get_filters(self, default_filters=None):
-        """Extend filter values to include analytic accounts."""
-        res = super(AccountingReportAnalytic, self).get_filters(default_filters)
-        res['warehouse_analytic_ids'] = self.warehouse_analytic_ids.ids
+    def _get_filter_values(self):
+        """Build a data dictionary similar to other Odoo Mates reports."""
+        res = {
+            'date_from': self.date_from,
+            'date_to': self.date_to,
+            'target_move': self.target_move,
+            'warehouse_analytic_ids': self.warehouse_analytic_ids.ids,
+            'company_id': self.company_id.id if self.company_id else False,
+        }
+        _logger.info("Filter values prepared: %s", res)
         return res
 
     def _print_report(self, data):
         """Override report printing to include analytic filters."""
-        data = self.get_filters()
-
-        _logger.info("Printing financial report with analytic filters: %s", data)
+        data = self._get_filter_values()
+        _logger.info("Printing report with filters: %s", data)
 
         return self.env.ref(
             'accounting_pdf_reports.action_report_financial'

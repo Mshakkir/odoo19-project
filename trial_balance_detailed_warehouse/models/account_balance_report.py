@@ -121,18 +121,29 @@ class AccountBalanceReport(models.TransientModel):
         if not analytic_ids:
             return move_lines
 
-        # Query account_analytic_line to find move_ids with the selected analytic accounts
+        if not move_lines:
+            return move_lines
+
+        # Query account_analytic_line to find move_line_ids with the selected analytic accounts
+        # Note: account_analytic_line links to account_move_line, not account_move
         self.env.cr.execute("""
-            SELECT DISTINCT move_id 
-            FROM account_analytic_line 
-            WHERE account_id IN %s 
-            AND move_id IN %s
-        """, (tuple(analytic_ids), tuple(move_lines.mapped('move_id').ids)))
+            SELECT DISTINCT aal.id
+            FROM account_analytic_line aal
+            WHERE aal.account_id IN %s 
+            AND aal.move_line_id IN %s
+        """, (tuple(analytic_ids), tuple(move_lines.ids)))
 
-        filtered_move_ids = [row[0] for row in self.env.cr.fetchall()]
+        analytic_line_ids = [row[0] for row in self.env.cr.fetchall()]
 
-        # Return only lines from filtered moves
-        return move_lines.filtered(lambda l: l.move_id.id in filtered_move_ids)
+        if not analytic_line_ids:
+            return self.env['account.move.line']
+
+        # Get the move_line_ids from account_analytic_line
+        analytic_lines = self.env['account.analytic.line'].browse(analytic_line_ids)
+        filtered_move_line_ids = analytic_lines.mapped('move_line_id').ids
+
+        # Return only lines that have analytic entries
+        return move_lines.filtered(lambda l: l.id in filtered_move_line_ids)
 
     def _calculate_balance(self, move_lines, analytic_ids):
         """Calculate balance considering analytic distribution."""
@@ -211,8 +222,9 @@ class ReportTrialBalance(models.AbstractModel):
 
         if analytic_account_ids:
             _logger.info(f"Filtering Trial Balance PDF by analytic accounts: {analytic_account_ids}")
+            # Join through account_analytic_line which has move_line_id (not move_id)
             analytic_filter = (
-                " AND id IN (SELECT move_id FROM account_analytic_line WHERE account_id IN %s)"
+                " AND id IN (SELECT move_line_id FROM account_analytic_line WHERE account_id IN %s AND move_line_id IS NOT NULL)"
             )
             analytic_params = (tuple(a.id for a in analytic_account_ids),)
 

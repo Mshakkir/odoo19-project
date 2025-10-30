@@ -46,10 +46,6 @@ class AccountingReport(models.TransientModel):
         }
 
     def _get_balance_sheet_lines(self):
-        """
-        Return list of dicts: account_id, account_name, account_type, debit, credit, balance.
-        Filters: Only posted entries, optionally by analytic accounts.
-        """
         date_from = self.date_from or None
         date_to = self.date_to or None
         params = [self.env.company.id]
@@ -57,7 +53,7 @@ class AccountingReport(models.TransientModel):
         analytic_join_sql = ""
         analytic_filter_sql = ""
 
-        # ✅ Add date filters
+        # ✅ Date filters
         if date_from:
             date_filter_sql += " AND aml.date >= %s"
             params.append(date_from)
@@ -65,17 +61,17 @@ class AccountingReport(models.TransientModel):
             date_filter_sql += " AND aml.date <= %s"
             params.append(date_to)
 
-        # ✅ Analytic account filtering using new analytic relation
+        # ✅ Analytic filter (Community Edition)
         if self.warehouse_analytic_ids:
             analytic_ids = tuple(self.warehouse_analytic_ids.ids)
             analytic_join_sql = """
-                JOIN account_analytic_distribution aad
-                  ON aad.move_line_id = aml.id
+                JOIN account_analytic_line aal
+                  ON aal.move_id = aml.id
             """
             if len(analytic_ids) == 1:
-                analytic_filter_sql = f" AND aad.account_id = {analytic_ids[0]}"
+                analytic_filter_sql = f" AND aal.account_id = {analytic_ids[0]}"
             else:
-                analytic_filter_sql = f" AND aad.account_id IN {analytic_ids}"
+                analytic_filter_sql = f" AND aal.account_id IN {analytic_ids}"
 
         # ✅ Main Query
         query = f"""

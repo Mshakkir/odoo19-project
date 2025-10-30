@@ -8,6 +8,7 @@
     'depends': [
         'account',
         'accounting_pdf_reports',
+        'stock',
     ],
     'data': [
         'security/ir.model.access.csv',
@@ -16,6 +17,7 @@
         'views/account_detail_view.xml',
         'views/menu.xml',
         'views/report_financial_custom.xml',
+        'views/stock_warehouse_view.xml',
     ],
     'installable': True,
     'application': False,

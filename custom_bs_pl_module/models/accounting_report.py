@@ -48,13 +48,15 @@ class AccountingReport(models.TransientModel):
     def _get_balance_sheet_lines(self):
         """
         Return list of dicts: account_id, account_name, account_type, debit, credit, balance.
-        Filters: Only posted entries and optional analytic accounts.
+        Filters: Only posted entries, optionally by analytic accounts.
         """
         date_from = self.date_from or None
         date_to = self.date_to or None
         params = [self.env.company.id]
         date_filter_sql = ""
+        analytic_filter_sql = ""
 
+        # ✅ Add date filters
         if date_from:
             date_filter_sql += " AND aml.date >= %s"
             params.append(date_from)
@@ -62,10 +64,13 @@ class AccountingReport(models.TransientModel):
             date_filter_sql += " AND aml.date <= %s"
             params.append(date_to)
 
-        analytic_filter_sql = ""
+        # ✅ Add analytic account filter if selected
         if self.warehouse_analytic_ids:
             analytic_ids = tuple(self.warehouse_analytic_ids.ids)
-            analytic_filter_sql = f" AND aml.analytic_account_id IN {analytic_ids}"
+            if len(analytic_ids) == 1:
+                analytic_filter_sql = f" AND aml.analytic_account_id = {analytic_ids[0]}"
+            else:
+                analytic_filter_sql = f" AND aml.analytic_account_id IN {analytic_ids}"
 
         query = f"""
             SELECT
@@ -86,6 +91,7 @@ class AccountingReport(models.TransientModel):
             HAVING COALESCE(SUM(aml.debit),0) != 0 OR COALESCE(SUM(aml.credit),0) != 0
             ORDER BY aa.account_type, aa.name
         """
+
         self.env.cr.execute(query, params)
         return self.env.cr.dictfetchall()
 

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
 
+
 class AccountingReport(models.TransientModel):
     _inherit = 'accounting.report'
 
-
     # -------------------------------------------------------------------------
-    # NEW FIELD: Warehouse Analytic Filter
+    # WAREHOUSE ANALYTIC FILTER
     # -------------------------------------------------------------------------
     warehouse_analytic_ids = fields.Many2many(
         'account.analytic.account',
@@ -14,19 +14,11 @@ class AccountingReport(models.TransientModel):
         help='Select one or more warehouse analytic accounts to filter the report.'
     )
 
-    @api.onchange('warehouse_analytic_id')
-    def _onchange_warehouse_analytic_id(self):
-        """Optional: auto-set default report if warehouse selected"""
-        if self.warehouse_analytic_id:
-            self.account_report_id = self.env.ref(
-                'accounting_pdf_reports.account_financial_report_balancesheet0'
-            ).id
-
     # -------------------------------------------------------------------------
     # BALANCE SHEET LOGIC
     # -------------------------------------------------------------------------
     def action_view_balance_sheet_details(self):
-        """Generate balance sheet lines."""
+        """Generate balance sheet lines with warehouse filtering."""
         self.ensure_one()
         self.env['custom.balance.sheet.line'].search([]).unlink()
 
@@ -43,27 +35,41 @@ class AccountingReport(models.TransientModel):
                 'account_id': line.get('account_id'),
             })
 
+        # Build context with filter info
+        context = {
+            'group_by': ['section_type'],
+            'date_from': self.date_from,
+            'date_to': self.date_to,
+            'company_id': self.company_id.id,
+        }
+
+        # Add warehouse info to window name
+        window_name = 'Balance Sheet Details'
+        if self.warehouse_analytic_ids:
+            warehouse_names = ', '.join(self.warehouse_analytic_ids.mapped('name'))
+            window_name = f'Balance Sheet Details - {warehouse_names}'
+
         return {
-            'name': 'Balance Sheet Details',
+            'name': window_name,
             'type': 'ir.actions.act_window',
             'res_model': 'custom.balance.sheet.line',
             'view_mode': 'list',
             'views': [(self.env.ref('custom_bs_pl_module.view_account_list_balance_sheet').id, 'list')],
             'target': 'current',
-            'context': {'group_by': ['section_type']},
+            'context': context,
         }
 
     def _get_balance_sheet_lines(self):
         """
-        Compute balance sheet lines and append a Profit/Loss line
-        based on total debit - total credit.
+        Compute balance sheet lines filtered by warehouse analytics.
+        Returns lines for Assets, Liabilities, and Equity.
         """
         date_from = self.date_from or None
         date_to = self.date_to or None
         params = [self.env.company.id]
         date_filter_sql = ""
 
-        # --- Date filter ---
+        # Date filter
         if date_from:
             date_filter_sql += " AND aml.date >= %s"
             params.append(date_from)
@@ -71,15 +77,17 @@ class AccountingReport(models.TransientModel):
             date_filter_sql += " AND aml.date <= %s"
             params.append(date_to)
 
-        # --- ✅ Apply warehouse analytic filter if selected ---
+        # Warehouse analytic filter
         analytic_filter_sql = ""
         if self.warehouse_analytic_ids:
-            analytic_filter_sql += " AND aml.analytic_account_id IN %s"
+            analytic_filter_sql = " AND aml.analytic_account_id IN %s"
             params.append(tuple(self.warehouse_analytic_ids.ids))
-        # --- Final query ---
+
+        # Main query
         query = f"""
             SELECT
                 aa.id as account_id,
+                aa.code as account_code,
                 aa.name as account_name,
                 aa.account_type as account_type,
                 SUM(aml.debit) AS debit,
@@ -92,25 +100,19 @@ class AccountingReport(models.TransientModel):
               AND am.state = 'posted'
               {date_filter_sql}
               {analytic_filter_sql}
-            GROUP BY aa.id, aa.name, aa.account_type
+            GROUP BY aa.id, aa.code, aa.name, aa.account_type
             HAVING COALESCE(SUM(aml.debit),0) != 0 OR COALESCE(SUM(aml.credit),0) != 0
-            ORDER BY aa.account_type, aa.name
+            ORDER BY aa.account_type, aa.code, aa.name
         """
+
         self.env.cr.execute(query, params)
         result = self.env.cr.dictfetchall()
 
         asset_lines, liability_lines, equity_lines = [], [], []
-        total_debit = total_credit = 0.0
 
-        # --- Categorize accounts ---
+        # Categorize accounts by type
         for line in result:
             acc_type = line['account_type']
-            debit = line['debit'] or 0.0
-            credit = line['credit'] or 0.0
-            balance = debit - credit
-
-            total_debit += debit
-            total_credit += credit
 
             if acc_type.startswith('asset'):
                 line['section_type'] = 'asset'
@@ -121,18 +123,16 @@ class AccountingReport(models.TransientModel):
             elif acc_type.startswith('equity'):
                 line['section_type'] = 'equity'
                 equity_lines.append(line)
-            else:
-                continue
 
-        # --- Return all sections ---
         return asset_lines + liability_lines + equity_lines
 
     # -------------------------------------------------------------------------
-    # PROFIT & LOSS LOGIC (Unchanged)
+    # PROFIT & LOSS LOGIC
     # -------------------------------------------------------------------------
     def action_view_profit_loss_details(self):
-        """Open Profit & Loss details view"""
+        """Open Profit & Loss details view with warehouse filtering"""
         self.ensure_one()
+
         pl_types = [
             'income',
             'income_other',
@@ -140,22 +140,33 @@ class AccountingReport(models.TransientModel):
             'expense_depreciation',
             'expense_direct_cost',
         ]
+
         accounts = self.env['account.account'].search([('account_type', 'in', pl_types)])
+
+        # Build window name with warehouse info
+        window_name = 'Profit & Loss Details'
+        if self.warehouse_analytic_ids:
+            warehouse_names = ', '.join(self.warehouse_analytic_ids.mapped('name'))
+            window_name = f'Profit & Loss Details - {warehouse_names}'
+
+        # Pass warehouse filter to context
+        context = {
+            'date_from': self.date_from,
+            'date_to': self.date_to,
+            'company_id': self.company_id.id,
+            'warehouse_analytic_ids': self.warehouse_analytic_ids.ids,
+        }
+
         return {
-            'name': 'Profit & Loss Details',
+            'name': window_name,
             'type': 'ir.actions.act_window',
             'res_model': 'account.account',
             'view_mode': 'list',
             'views': [(self.env.ref('custom_bs_pl_module.view_account_list_profit_loss').id, 'list')],
             'domain': [('id', 'in', accounts.ids)],
-            'context': {
-                'date_from': self.date_from,
-                'date_to': self.date_to,
-                'company_id': self.company_id.id,
-            },
+            'context': context,
             'target': 'current',
         }
-
 
 
 

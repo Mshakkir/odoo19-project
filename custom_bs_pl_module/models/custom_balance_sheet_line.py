@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields
 
-
 class CustomBalanceSheetLine(models.TransientModel):
     _name = 'custom.balance.sheet.line'
     _description = 'Custom Balance Sheet Line'
@@ -30,44 +29,19 @@ class CustomBalanceSheetLine(models.TransientModel):
     )
 
     def action_view_ledger(self):
-        """Open ledger lines filtered by this account and warehouse analytics from context."""
+        """Open ledger lines filtered by this account."""
         if not self.account_id:
             return False
-
         account = self.account_id
-
-        # Get date filters from context
-        date_from = self.env.context.get('date_from')
-        date_to = self.env.context.get('date_to')
-        warehouse_analytic_ids = self.env.context.get('warehouse_analytic_ids')
-
-        domain = [
-            ('account_id', '=', account.id),
-            ('move_id.state', '=', 'posted')
-        ]
-
-        if date_from:
-            domain.append(('date', '>=', date_from))
-        if date_to:
-            domain.append(('date', '<=', date_to))
-
-        # ✅ Apply warehouse filter
-        if warehouse_analytic_ids:
-            domain.append(('analytic_account_id', 'in', warehouse_analytic_ids))
-
-        # Build title with warehouse info
-        title = f'Ledger: {account.display_name}'
-        if warehouse_analytic_ids:
-            warehouses = self.env['account.analytic.account'].browse(warehouse_analytic_ids)
-            warehouse_names = ', '.join(warehouses.mapped('name'))
-            title = f'Ledger: {account.display_name} [{warehouse_names}]'
-
         return {
-            'name': title,
+            'name': f'Ledger: {account.display_name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move.line',
             'view_mode': 'list,form',
-            'domain': domain,
+            'domain': [
+                ('account_id', '=', account.id),
+                ('move_id.state', '=', 'posted')
+            ],
             'context': {'default_account_id': account.id},
             'target': 'current',
         }
@@ -79,6 +53,7 @@ class CustomBalanceSheetLine(models.TransientModel):
 
 # # -*- coding: utf-8 -*-
 # from odoo import models, fields
+#
 #
 # class CustomBalanceSheetLine(models.TransientModel):
 #     _name = 'custom.balance.sheet.line'
@@ -108,19 +83,44 @@ class CustomBalanceSheetLine(models.TransientModel):
 #     )
 #
 #     def action_view_ledger(self):
-#         """Open ledger lines filtered by this account."""
+#         """Open ledger lines filtered by this account and warehouse analytics from context."""
 #         if not self.account_id:
 #             return False
+#
 #         account = self.account_id
+#
+#         # Get date filters from context
+#         date_from = self.env.context.get('date_from')
+#         date_to = self.env.context.get('date_to')
+#         warehouse_analytic_ids = self.env.context.get('warehouse_analytic_ids')
+#
+#         domain = [
+#             ('account_id', '=', account.id),
+#             ('move_id.state', '=', 'posted')
+#         ]
+#
+#         if date_from:
+#             domain.append(('date', '>=', date_from))
+#         if date_to:
+#             domain.append(('date', '<=', date_to))
+#
+#         # ✅ Apply warehouse filter
+#         if warehouse_analytic_ids:
+#             domain.append(('analytic_account_id', 'in', warehouse_analytic_ids))
+#
+#         # Build title with warehouse info
+#         title = f'Ledger: {account.display_name}'
+#         if warehouse_analytic_ids:
+#             warehouses = self.env['account.analytic.account'].browse(warehouse_analytic_ids)
+#             warehouse_names = ', '.join(warehouses.mapped('name'))
+#             title = f'Ledger: {account.display_name} [{warehouse_names}]'
+#
 #         return {
-#             'name': f'Ledger: {account.display_name}',
+#             'name': title,
 #             'type': 'ir.actions.act_window',
 #             'res_model': 'account.move.line',
 #             'view_mode': 'list,form',
-#             'domain': [
-#                 ('account_id', '=', account.id),
-#                 ('move_id.state', '=', 'posted')
-#             ],
+#             'domain': domain,
 #             'context': {'default_account_id': account.id},
 #             'target': 'current',
 #         }

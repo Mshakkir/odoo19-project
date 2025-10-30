@@ -131,12 +131,11 @@ class AccountBalanceReport(models.TransientModel):
         # Query account_analytic_line to find move_line_ids with the selected analytic accounts
         # Note: account_analytic_line links to account_move_line, not account_move
         self.env.cr.execute("""
-            SELECT DISTINCT COALESCE(aal.move_line_id, aml.id) AS move_line_id
+            SELECT DISTINCT aml.id
             FROM account_analytic_line aal
-            JOIN account_move_line aml ON aal.move_id = aml.move_id
-            WHERE aal.account_id IN %s
-              AND aml.id IN %s
-        """, (tuple(analytic_ids), tuple(move_lines.ids)))
+            JOIN account_move_line aml ON aal.move_line_id = aml.id
+            WHERE aal.account_id = ANY(%s)
+        """, (analytic_ids,))
 
         filtered_move_line_ids = [row[0] for row in self.env.cr.fetchall()]
 
@@ -186,20 +185,17 @@ class AccountBalanceReport(models.TransientModel):
 
         # Query account_analytic_line for this move_line
         self.env.cr.execute("""
-            SELECT account_id, amount 
-            FROM account_analytic_line 
-            WHERE move_id = %s 
-            AND account_id IN %s
-        """, (move_line.move_id.id, tuple(analytic_ids)))
+            SELECT 1
+            FROM account_analytic_line aal
+            WHERE aal.move_line_id = %s
+              AND aal.account_id = ANY(%s)
+            LIMIT 1
+        """, (move_line.id, analytic_ids))
 
-        results = self.env.cr.fetchall()
-
-        if not results:
-            return 0.0
-
-        # For simplicity, if analytic line exists, we count it as 100%
-        # In a real scenario, you might need to calculate proportions
-        return 100.0
+        result = self.env.cr.fetchone()
+        if result:
+            return 100.0  # Has analytic line in selected warehouses
+        return 0.0
 
 
 class ReportTrialBalance(models.AbstractModel):

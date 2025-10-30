@@ -29,4 +29,5 @@ class AccountingReport(models.TransientModel):
 
         return self.env.ref(
             'accounting_pdf_reports.action_report_financial'
-        ).report_action(self, data=data, config=False)
+        ).with_context(from_analytic=True).report_action(self, data=data)
+

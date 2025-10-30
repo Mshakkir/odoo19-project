@@ -65,8 +65,8 @@ class AccountingReport(models.TransientModel):
         if self.warehouse_analytic_ids:
             analytic_ids = tuple(self.warehouse_analytic_ids.ids)
             analytic_join_sql = """
-                JOIN account_analytic_line aal
-                  ON aal.move_id = aml.id
+                LEFT JOIN account_analytic_line aal
+                  ON aal.move_line_id = aml.id
             """
             if len(analytic_ids) == 1:
                 analytic_filter_sql = f" AND aal.account_id = {analytic_ids[0]}"

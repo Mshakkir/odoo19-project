@@ -131,11 +131,11 @@ class AccountBalanceReport(models.TransientModel):
         # Query account_analytic_line to find move_line_ids with the selected analytic accounts
         # Note: account_analytic_line links to account_move_line, not account_move
         self.env.cr.execute("""
-            SELECT DISTINCT aal.move_line_id
+            SELECT DISTINCT COALESCE(aal.move_line_id, aml.id) AS move_line_id
             FROM account_analytic_line aal
-            WHERE aal.account_id IN %s 
-            AND aal.move_line_id IN %s
-            AND aal.move_line_id IS NOT NULL
+            JOIN account_move_line aml ON aal.move_id = aml.move_id
+            WHERE aal.account_id IN %s
+              AND aml.id IN %s
         """, (tuple(analytic_ids), tuple(move_lines.ids)))
 
         filtered_move_line_ids = [row[0] for row in self.env.cr.fetchall()]

@@ -17,13 +17,11 @@
 
 
             <field name="target_move" position="before">
-                <group string="Warehouse Filter" colspan="4">
-                    <field name="warehouse_analytic_ids"
-                           widget="many2many_tags"
-                           options="{'no_create': True}"
-                           domain="[('company_id', '=', company_id)]"
-                           placeholder="Select Analytic Accounts (Warehouses)"/>
-                </group>
+                <field name="warehouse_analytic_ids"
+                       widget="many2many_tags"
+                       options="{'no_create': True}"
+                       domain="[('company_id', '=', company_id)]"
+                       placeholder="Select Analytic Accounts (Warehouses)"/>
             </field>
 
 

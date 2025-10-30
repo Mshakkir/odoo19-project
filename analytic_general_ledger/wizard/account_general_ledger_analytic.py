@@ -15,4 +15,6 @@ class AccountReportGeneralLedgerAnalytic(models.TransientModel):
         records, data = self._get_report_data(data)
         analytic_ids = self.read(['analytic_account_ids'])[0].get('analytic_account_ids', [])
         data['form']['analytic_account_ids'] = analytic_ids
-        return self.env.ref('analytic_general_ledger.action_report_general_ledger_analytic').with_context(landscape=True).report_action(records, data=data)
+        return self.env.ref('accounting_pdf_reports.action_report_general_ledger').with_context(
+            landscape=True).report_action(records, data=data)
+

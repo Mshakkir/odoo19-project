@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- List View for Trial Balance Lines -->
+    <record id="view_trial_balance_line_list" model="ir.ui.view">
+        <field name="name">trial.balance.line.list</field>
+        <field name="model">trial.balance.line</field>
+        <field name="arch" type="xml">
+            <list string="Trial Balance Details"
+                  default_order="account_code"
+                  create="false"
+                  edit="false"
+                  delete="false">
+
+                <field name="account_code" string="Code"/>
+                <field name="account_name" string="Account"/>
+                <field name="opening_balance" sum="Total Opening Balance"/>
+                <field name="debit" sum="Total Debit"/>
+                <field name="credit" sum="Total Credit"/>
+                <field name="ending_balance" sum="Total Ending Balance"/>
+                <field name="move_line_count" string="Journal Items"/>
+
+                <!-- Action buttons -->
+                <button name="action_view_journal_items"
+                        type="object"
+                        string="View Journal Items"
+                        icon="fa-list"
+                        invisible="move_line_count == 0"
+                        class="btn-link"/>
+
+                <button name="action_view_journal_entries"
+                        type="object"
+                        string="View Entries"
+                        icon="fa-book"
+                        invisible="move_line_count == 0"
+                        class="btn-link"/>
+
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View for Trial Balance Lines -->
+    <record id="view_trial_balance_line_form" model="ir.ui.view">
+        <field name="name">trial.balance.line.form</field>
+        <field name="model">trial.balance.line</field>
+        <field name="arch" type="xml">
+            <form string="Trial Balance Line Details" create="false" edit="false">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="account_id" readonly="1"/>
+                            <field name="account_code" readonly="1"/>
+                            <field name="account_name" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="company_currency_id" invisible="1"/>
+                            <field name="opening_balance" readonly="1"/>
+                            <field name="debit" readonly="1"/>
+                            <field name="credit" readonly="1"/>
+                            <field name="ending_balance" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Journal Items" name="journal_items">
+                            <field name="move_line_ids" readonly="1">
+                                <list>
+                                    <field name="date"/>
+                                    <field name="move_id"/>
+                                    <field name="name"/>
+                                    <field name="partner_id"/>
+                                    <field name="analytic_distribution" widget="analytic_distribution"/>
+                                    <field name="debit"/>
+                                    <field name="credit"/>
+                                    <field name="balance"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <div class="oe_chatter">
+                    <field name="move_line_count" invisible="1"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View for Trial Balance Lines -->
+    <record id="view_trial_balance_line_search" model="ir.ui.view">
+        <field name="name">trial.balance.line.search</field>
+        <field name="model">trial.balance.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Trial Balance">
+                <field name="account_id"/>
+                <field name="account_code"/>
+                <field name="account_name"/>
+
+                <filter string="With Movements" name="with_movements"
+                        domain="['|', ('debit', '!=', 0), ('credit', '!=', 0)]"/>
+                <filter string="With Balance" name="with_balance"
+                        domain="[('ending_balance', '!=', 0)]"/>
+
+                <group expand="0" string="Group By">
+                    <filter string="Account" name="group_account"
+                            context="{'group_by': 'account_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action for Trial Balance Lines -->
+    <record id="action_trial_balance_line" model="ir.actions.act_window">
+        <field name="name">Trial Balance Details</field>
+        <field name="res_model">trial.balance.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_trial_balance_line_search"/>
+        <field name="context">{'search_default_with_movements': 1}</field>
+    </record>
+
+</odoo>

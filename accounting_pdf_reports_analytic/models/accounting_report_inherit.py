@@ -1,15 +1,13 @@
 from odoo import api, fields, models, _
 
-class AccountingReportAnalytic(models.TransientModel):
-    _name = 'accounting.report.analytic'
+class AccountingReport(models.TransientModel):
     _inherit = 'accounting.report'
-    _description = 'Accounting Report (with Analytic filter)'
 
     analytic_account_ids = fields.Many2many(
         'account.analytic.account',
-        'accounting_report_analytic_rel',  # unique relation table name
-        'report_id',                       # column for this model
-        'analytic_id',                     # column for analytic account
+        'accounting_report_analytic_rel',
+        'report_id',
+        'analytic_id',
         string='Analytic Accounts',
         help='Filter the report by these analytic accounts'
     )

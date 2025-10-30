@@ -1,20 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <!-- Action to open the new wizard with Profit & Loss preselected -->
-    <record id="action_account_report_pl_analytic" model="ir.actions.act_window">
-        <field name="name">Profit and Loss (Analytic)</field>
-        <field name="res_model">accounting.report.analytic</field>
-        <field name="type">ir.actions.act_window</field>
-        <field name="view_mode">form</field>
-        <field name="view_id" ref="accounting_report_analytic_view_form"/>
-        <field name="target">new</field>
-        <field name="context" eval="{'default_account_report_id':ref('accounting_pdf_reports.account_financial_report_profitandloss0')}"/>
-    </record>
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    &lt;!&ndash; Action to open the new wizard with Profit & Loss preselected &ndash;&gt;-->
+<!--    <record id="action_account_report_pl_analytic" model="ir.actions.act_window">-->
+<!--        <field name="name">Profit and Loss (Analytic)</field>-->
+<!--        <field name="res_model">accounting.report.analytic</field>-->
+<!--        <field name="type">ir.actions.act_window</field>-->
+<!--        <field name="view_mode">form</field>-->
+<!--        <field name="view_id" ref="accounting_report_analytic_view_form"/>-->
+<!--        <field name="target">new</field>-->
+<!--        <field name="context" eval="{'default_account_report_id':ref('accounting_pdf_reports.account_financial_report_profitandloss0')}"/>-->
+<!--    </record>-->
 
-    <menuitem id="menu_account_report_pl_analytic"
-              name="Profit &amp; Loss (Analytic)"
-              parent="accounting_pdf_reports.menu_finance_legal_statement"
-              action="action_account_report_pl_analytic"
-              sequence="7"
-              groups="account.group_account_user,account.group_account_manager"/>
-</odoo>
+<!--<menuitem id="menu_account_report_pl_analytic"-->
+<!--          name="Profit &amp; Loss (Analytic)"-->
+<!--          parent="accounting_pdf_reports.menu_finance_legal_statement"-->
+<!--          action="action_account_report_pl_analytic"-->
+<!--          sequence="7"/>-->
+
+<!--</odoo>-->

@@ -10,7 +10,7 @@
     ],
     'data': [
         'views/accounting_report_analytic_views.xml',
-        'views/action_menu_analytic.xml',
+        # 'views/action_menu_analytic.xml',
     ],
     'installable': True,
     'application': False,

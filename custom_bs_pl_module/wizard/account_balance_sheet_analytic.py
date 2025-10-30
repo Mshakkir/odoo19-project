@@ -22,6 +22,8 @@ class AccountingReportAnalytic(models.TransientModel):
             'target_move': self.target_move,
             'warehouse_analytic_ids': self.warehouse_analytic_ids.ids,
             'company_id': self.company_id.id if self.company_id else False,
+            # 👇 REQUIRED FIELD for accounting_pdf_reports
+            'account_report_id': [self.account_report_id.id] if self.account_report_id else False,
         }
         return {'form': form_data}
 
@@ -30,7 +32,7 @@ class AccountingReportAnalytic(models.TransientModel):
         data = self._get_filter_values()
         _logger.info("Printing report with filters: %s", data)
 
-        # Use the existing Odoo Mates balance sheet action
+        # ✅ Use existing Odoo Mates balance sheet action
         return self.env.ref(
             'accounting_pdf_reports.action_report_financial'
         ).with_context(landscape=True).report_action(self, data=data)

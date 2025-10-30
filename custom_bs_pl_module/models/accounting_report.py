@@ -83,11 +83,10 @@ class AccountingReport(models.TransientModel):
             analytic_filter_sql = " AND aml.analytic_account_id IN %s"
             params.append(tuple(self.warehouse_analytic_ids.ids))
 
-        # Main query
+        # Main query (removed aa.code - not available in Odoo 19)
         query = f"""
             SELECT
                 aa.id as account_id,
-                aa.code as account_code,
                 aa.name as account_name,
                 aa.account_type as account_type,
                 SUM(aml.debit) AS debit,
@@ -100,9 +99,9 @@ class AccountingReport(models.TransientModel):
               AND am.state = 'posted'
               {date_filter_sql}
               {analytic_filter_sql}
-            GROUP BY aa.id, aa.code, aa.name, aa.account_type
+            GROUP BY aa.id, aa.name, aa.account_type
             HAVING COALESCE(SUM(aml.debit),0) != 0 OR COALESCE(SUM(aml.credit),0) != 0
-            ORDER BY aa.account_type, aa.code, aa.name
+            ORDER BY aa.account_type, aa.name
         """
 
         self.env.cr.execute(query, params)

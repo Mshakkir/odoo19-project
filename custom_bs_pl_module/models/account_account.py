@@ -77,11 +77,11 @@ class AccountAccount(models.Model):
             domain.append(('analytic_account_id', 'in', warehouse_analytic_ids))
 
         # Build title with warehouse info
-        title = f'Ledger Entries - {self.code} {self.name}'
+        title = f'Ledger Entries - {self.name}'
         if warehouse_analytic_ids:
             warehouses = self.env['account.analytic.account'].browse(warehouse_analytic_ids)
             warehouse_names = ', '.join(warehouses.mapped('name'))
-            title = f'Ledger Entries - {self.code} {self.name} [{warehouse_names}]'
+            title = f'Ledger Entries - {self.name} [{warehouse_names}]'
 
         return {
             'name': title,

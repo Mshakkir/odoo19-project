@@ -42,9 +42,9 @@ class TrialBalanceLine(models.TransientModel):
 
     @api.model_create_multi
     def create(self, vals_list):
-        """Override create to populate account_code and account_name"""
+        """Override create to populate account_code and account_name if not provided"""
         for vals in vals_list:
-            if vals.get('account_id'):
+            if vals.get('account_id') and not vals.get('account_code'):
                 account = self.env['account.account'].browse(vals['account_id'])
                 vals['account_code'] = account.code
                 vals['account_name'] = account.name

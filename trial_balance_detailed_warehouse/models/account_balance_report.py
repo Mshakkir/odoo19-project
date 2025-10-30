@@ -95,6 +95,8 @@ class AccountBalanceReport(models.TransientModel):
                 self.env['trial.balance.line'].create({
                     'wizard_id': self.id,
                     'account_id': account.id,
+                    'account_code': account.code,
+                    'account_name': account.name,
                     'opening_balance': opening,
                     'debit': debit,
                     'credit': credit,

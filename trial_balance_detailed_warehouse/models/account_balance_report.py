@@ -51,7 +51,9 @@ class AccountBalanceReport(models.TransientModel):
         _logger.info(f"=== OPENING TRIAL BALANCE DETAILS ===")
         _logger.info(f"Date range: {self.date_from} to {self.date_to}")
         _logger.info(f"Analytic filter: {analytic_ids}")
+        _logger.info(f"Total accounts to process: {len(accounts)}")
 
+        lines_created = 0
         for account in accounts:
             # Base domain for move lines
             domain = [
@@ -124,23 +126,25 @@ class AccountBalanceReport(models.TransientModel):
         if not move_lines:
             return move_lines
 
+        _logger.info(f"Filtering {len(move_lines)} move lines by analytic accounts {analytic_ids}")
+
         # Query account_analytic_line to find move_line_ids with the selected analytic accounts
         # Note: account_analytic_line links to account_move_line, not account_move
         self.env.cr.execute("""
-            SELECT DISTINCT aal.id
+            SELECT DISTINCT aal.move_line_id
             FROM account_analytic_line aal
             WHERE aal.account_id IN %s 
             AND aal.move_line_id IN %s
+            AND aal.move_line_id IS NOT NULL
         """, (tuple(analytic_ids), tuple(move_lines.ids)))
 
-        analytic_line_ids = [row[0] for row in self.env.cr.fetchall()]
+        filtered_move_line_ids = [row[0] for row in self.env.cr.fetchall()]
 
-        if not analytic_line_ids:
+        _logger.info(f"Found {len(filtered_move_line_ids)} move lines with analytic entries")
+
+        if not filtered_move_line_ids:
+            _logger.warning("No move lines found with the selected analytic accounts")
             return self.env['account.move.line']
-
-        # Get the move_line_ids from account_analytic_line
-        analytic_lines = self.env['account.analytic.line'].browse(analytic_line_ids)
-        filtered_move_line_ids = analytic_lines.mapped('move_line_id').ids
 
         # Return only lines that have analytic entries
         return move_lines.filtered(lambda l: l.id in filtered_move_line_ids)

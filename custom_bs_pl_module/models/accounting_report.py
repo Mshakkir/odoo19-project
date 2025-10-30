@@ -1,8 +1,15 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
 
+
 class AccountingReport(models.TransientModel):
     _inherit = 'accounting.report'
+
+    warehouse_analytic_ids = fields.Many2many(
+        'account.analytic.account',
+        string='Warehouse Analytic Accounts',
+        help='Select one or more analytic accounts (linked to warehouses) to filter the Balance Sheet report.'
+    )
 
     # -------------------------------------------------------------------------
     # BALANCE SHEET LOGIC
@@ -41,7 +48,7 @@ class AccountingReport(models.TransientModel):
     def _get_balance_sheet_lines(self):
         """
         Return list of dicts: account_id, account_name, account_type, debit, credit, balance.
-        Filters: Only posted entries.
+        Filters: Only posted entries and optional analytic accounts.
         """
         date_from = self.date_from or None
         date_to = self.date_to or None
@@ -54,6 +61,11 @@ class AccountingReport(models.TransientModel):
         if date_to:
             date_filter_sql += " AND aml.date <= %s"
             params.append(date_to)
+
+        analytic_filter_sql = ""
+        if self.warehouse_analytic_ids:
+            analytic_ids = tuple(self.warehouse_analytic_ids.ids)
+            analytic_filter_sql = f" AND aml.analytic_account_id IN {analytic_ids}"
 
         query = f"""
             SELECT
@@ -69,6 +81,7 @@ class AccountingReport(models.TransientModel):
             WHERE aml.company_id = %s
               AND am.state = 'posted'
               {date_filter_sql}
+              {analytic_filter_sql}
             GROUP BY aa.id, aa.name, aa.account_type
             HAVING COALESCE(SUM(aml.debit),0) != 0 OR COALESCE(SUM(aml.credit),0) != 0
             ORDER BY aa.account_type, aa.name
@@ -115,12 +128,6 @@ class AccountingReport(models.TransientModel):
             },
             'target': 'current',
         }
-
-
-
-
-
-
 
 # # -*- coding: utf-8 -*-
 # from odoo import models, fields, api

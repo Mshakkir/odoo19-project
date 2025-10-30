@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Balance Sheet Wizard View -->
+    <!-- ✅ Balance Sheet Wizard View -->
     <record id="accounting_report_view_balance_sheet" model="ir.ui.view">
         <field name="name">Accounting Report - Balance Sheet</field>
         <field name="model">accounting.report</field>
@@ -10,28 +10,29 @@
         <field name="priority">10</field>
         <field name="arch" type="xml">
 
-            <!-- Insert Account Report field before target_move -->
+            <!-- ✅ Insert custom analytic filter field before target_move -->
             <field name="target_move" position="before">
-                <field name="account_report_id" domain="[('parent_id','=',False)]"/>
+                <group string="Warehouse Filter" colspan="4">
+                    <field name="warehouse_analytic_ids"
+                           widget="many2many_tags"
+                           options="{'no_create': True}"
+                           domain="[('company_id', '=', company_id)]"
+                           placeholder="Select Analytic Accounts (Warehouses)"/>
+                </group>
             </field>
 
-
+            <!-- ✅ Existing Account Report field -->
             <field name="target_move" position="before">
-                <field name="warehouse_analytic_ids"
-                       widget="many2many_tags"
-                       options="{'no_create': True}"
-                       domain="[('company_id','=',company_id)]"
-                       placeholder="Select One or More Warehouses"/>
+                <field name="account_report_id" domain="[('parent_id', '=', False)]"/>
             </field>
 
-
-            <!-- Add Target Move, Comparison, and Display Debit/Credit Columns -->
+            <!-- ✅ Target Move, Comparison, and Display Debit/Credit -->
             <field name="target_move" position="after">
                 <field name="enable_filter"/>
                 <field name="debit_credit" invisible="enable_filter == True"/>
             </field>
 
-            <!-- Optional Comparison tab -->
+            <!-- ✅ Comparison Tab -->
             <field name="journal_ids" position="after">
                 <notebook tabpos="up" colspan="4">
                     <page string="Comparison" name="comparison" invisible="enable_filter == False">
@@ -47,7 +48,7 @@
                 </notebook>
             </field>
 
-            <!-- Add View Details button -->
+            <!-- ✅ Add View Details button -->
             <xpath expr="//footer" position="inside">
                 <button name="action_view_balance_sheet_details"
                         string="View Details"
@@ -59,7 +60,7 @@
         </field>
     </record>
 
-    <!-- Balance Sheet Action -->
+    <!-- ✅ Balance Sheet Action -->
     <record id="action_account_report_bs" model="ir.actions.act_window">
         <field name="name">Balance Sheet</field>
         <field name="res_model">accounting.report</field>
@@ -72,6 +73,7 @@
     </record>
 
 </odoo>
+
 
 
         <!--<?xml version="1.0" encoding="utf-8"?>-->

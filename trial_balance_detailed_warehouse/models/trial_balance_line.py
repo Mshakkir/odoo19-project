@@ -6,6 +6,8 @@ class TrialBalanceLine(models.TransientModel):
 
     wizard_id = fields.Many2one('account.balance.report', string='Wizard')
     account_id = fields.Many2one('account.account', string='Account')
+    account_code = fields.Char(string='Account Code')
+    account_name = fields.Char(string='Account Name')
     opening_balance = fields.Monetary(string='Opening Balance', currency_field='company_currency_id')
     debit = fields.Monetary(string='Debit', currency_field='company_currency_id')
     credit = fields.Monetary(string='Credit', currency_field='company_currency_id')

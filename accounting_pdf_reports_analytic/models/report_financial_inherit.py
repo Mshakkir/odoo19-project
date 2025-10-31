@@ -1,4 +1,7 @@
 from odoo import api, models
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class ReportFinancialInherit(models.AbstractModel):
@@ -6,6 +9,23 @@ class ReportFinancialInherit(models.AbstractModel):
 
     def _compute_account_balance(self, accounts):
         """Override to add analytic account filtering"""
+        analytic_account_ids = self.env.context.get('analytic_account_ids', [])
+
+        _logger.info("=" * 80)
+        _logger.info(f"_compute_account_balance called")
+        _logger.info(f"Accounts to compute: {accounts.mapped('code')}")
+        _logger.info(f"Analytic IDs from context: {analytic_account_ids}")
+        _logger.info(f"Full context: {self.env.context}")
+
+        # If no analytic filter, use original method
+        if not analytic_account_ids:
+            _logger.info("No analytic filter - using super()")
+            result = super(ReportFinancialInherit, self)._compute_account_balance(accounts)
+            _logger.info(f"Super returned {len(result)} accounts")
+            return result
+
+        _logger.info(f"Using analytic filter for IDs: {analytic_account_ids}")
+
         mapping = {
             'balance': "COALESCE(SUM(debit),0) - COALESCE(SUM(credit), 0) as balance",
             'debit': "COALESCE(SUM(debit), 0) as debit",
@@ -16,77 +36,111 @@ class ReportFinancialInherit(models.AbstractModel):
         for account in accounts:
             res[account.id] = dict.fromkeys(mapping, 0.0)
 
-        if accounts:
-            tables, where_clause, where_params = self.env['account.move.line']._query_get()
-            tables = tables.replace('"', '') if tables else "account_move_line"
-            wheres = [""]
+        if not accounts:
+            return res
 
-            if where_clause.strip():
-                wheres.append(where_clause.strip())
+        # Get move lines with analytic filter using domain
+        domain = [('account_id', 'in', accounts.ids)]
 
-            # Add analytic account filter from context
-            analytic_account_ids = self.env.context.get('analytic_account_ids', [])
-            if analytic_account_ids:
-                # Check if analytic lines exist, filter by them
-                wheres.append("""
-                    EXISTS (
-                        SELECT 1 FROM account_analytic_line aal 
-                        WHERE aal.move_line_id = account_move_line.id 
-                        AND aal.account_id IN %s
-                    )
-                """)
-                where_params = list(where_params) + [tuple(analytic_account_ids)]
-                where_params = tuple(where_params)
+        # Add date filters from context
+        context = self.env.context
+        if context.get('date_from'):
+            domain.append(('date', '>=', context['date_from']))
+            _logger.info(f"Date from filter: {context['date_from']}")
+        if context.get('date_to'):
+            domain.append(('date', '<=', context['date_to']))
+            _logger.info(f"Date to filter: {context['date_to']}")
+        if context.get('state') == 'posted':
+            domain.append(('move_id.state', '=', 'posted'))
+            _logger.info("State filter: posted only")
 
-            filters = " AND ".join(wheres)
-            request = "SELECT account_id as id, " + ', '.join(mapping.values()) + \
-                      " FROM " + tables + \
-                      " WHERE account_id IN %s " \
-                      + filters + \
-                      " GROUP BY account_id"
-            params = (tuple(accounts._ids),) + tuple(where_params)
-            self.env.cr.execute(request, params)
-            for row in self.env.cr.dictfetchall():
-                res[row['id']] = row
+        _logger.info(f"Base domain (before analytic): {domain}")
+
+        # Get all move lines first
+        all_move_lines = self.env['account.move.line'].search(domain)
+        _logger.info(f"Total move lines before analytic filter: {len(all_move_lines)}")
+
+        # Filter by analytic account
+        filtered_lines = all_move_lines.filtered(
+            lambda l: any(
+                anal_line.account_id.id in analytic_account_ids
+                for anal_line in l.analytic_line_ids
+            )
+        )
+
+        _logger.info(f"Move lines after analytic filter: {len(filtered_lines)}")
+
+        if filtered_lines:
+            _logger.info(f"Sample filtered line: Account={filtered_lines[0].account_id.code}, "
+                         f"Debit={filtered_lines[0].debit}, Credit={filtered_lines[0].credit}")
+
+        # Group by account and sum
+        for line in filtered_lines:
+            if line.account_id.id not in res:
+                res[line.account_id.id] = {'debit': 0.0, 'credit': 0.0, 'balance': 0.0}
+            res[line.account_id.id]['debit'] += line.debit
+            res[line.account_id.id]['credit'] += line.credit
+            res[line.account_id.id]['balance'] += (line.debit - line.credit)
+
+        _logger.info(
+            f"Final balance result: {len([v for v in res.values() if v['balance'] != 0])} accounts with non-zero balance")
+        for acc_id, values in res.items():
+            if values['balance'] != 0:
+                account = self.env['account.account'].browse(acc_id)
+                _logger.info(f"  {account.code}: Balance={values['balance']}")
 
         return res
 
     @api.model
     def _get_report_values(self, docids, data=None):
         """Override to handle separate reports per analytic account"""
+
+        _logger.info("=" * 80)
+        _logger.info("_get_report_values called")
+        _logger.info(f"docids: {docids}")
+        _logger.info(f"data: {data}")
+
         if not data or not data.get('form'):
+            _logger.info("No data form - using super()")
             return super(ReportFinancialInherit, self)._get_report_values(docids, data)
 
         analytic_account_ids = data['form'].get('analytic_account_ids', [])
         analytic_filter_mode = data['form'].get('analytic_filter_mode', 'combined')
 
-        # If separate mode and analytic accounts selected, generate multiple reports
+        _logger.info(f"Analytic IDs: {analytic_account_ids}")
+        _logger.info(f"Filter Mode: {analytic_filter_mode}")
+        _logger.info(f"Used context from data: {data['form'].get('used_context')}")
+
+        # If separate mode and analytic accounts selected
         if analytic_account_ids and analytic_filter_mode == 'separate':
+            _logger.info("SEPARATE MODE activated")
             all_reports = []
 
             for analytic_id in analytic_account_ids:
                 analytic_account = self.env['account.analytic.account'].browse(analytic_id)
+                _logger.info(f"Processing analytic account: {analytic_account.name} (ID: {analytic_id})")
 
-                # Create a copy of data with single analytic account
-                single_data = data.copy()
-                single_data['form'] = data['form'].copy()
-                single_data['form']['used_context'] = dict(data['form'].get('used_context', {}))
-                single_data['form']['used_context']['analytic_account_ids'] = [analytic_id]
+                # Create context with single analytic account
+                report_context = dict(data['form'].get('used_context', {}))
+                report_context['analytic_account_ids'] = [analytic_id]
 
-                # Get report lines for this analytic account
-                report_lines = self.get_account_lines(single_data['form'])
+                _logger.info(f"Report context for {analytic_account.name}: {report_context}")
+
+                # Get report lines
+                report_lines = self.with_context(**report_context).get_account_lines(data['form'])
+
+                _logger.info(f"Got {len(report_lines)} report lines for {analytic_account.name}")
 
                 all_reports.append({
                     'analytic_account': analytic_account,
                     'report_lines': report_lines,
-                    'data': single_data['form'],
+                    'data': data['form'],
                 })
 
-            # Return data for separate template
             model = self.env.context.get('active_model')
             docs = self.env[model].browse(self.env.context.get('active_id'))
 
-            return {
+            result = {
                 'doc_ids': self.ids,
                 'doc_model': model,
                 'data': data['form'],
@@ -96,5 +150,17 @@ class ReportFinancialInherit(models.AbstractModel):
                 'analytic_filter_mode': 'separate',
             }
 
-        # Combined mode or no analytic accounts - use original logic
+            _logger.info(f"Returning separate mode with {len(all_reports)} reports")
+            return result
+
+        # Combined mode - add context
+        if analytic_account_ids:
+            _logger.info("COMBINED MODE activated")
+            context = dict(self.env.context)
+            context['analytic_account_ids'] = analytic_account_ids
+            _logger.info(f"Combined context: {context}")
+            return super(ReportFinancialInherit, self.with_context(**context))._get_report_values(docids, data)
+
+        # No analytics
+        _logger.info("NO ANALYTICS - using super()")
         return super(ReportFinancialInherit, self)._get_report_values(docids, data)

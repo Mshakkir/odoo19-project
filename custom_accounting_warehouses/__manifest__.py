@@ -12,7 +12,7 @@
 ],
 "data": [
 "views/accounting_wizard_view_inherit.xml",
-"security/ir.model.access.csv"
+# "security/ir.model.access.csv"
 ],
 "installable": True,
 "application": False,

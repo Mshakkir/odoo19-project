@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, api
+import json
 
 
 class ReportProfitLossPDF(models.AbstractModel):
@@ -8,9 +9,8 @@ class ReportProfitLossPDF(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        """Include warehouse analytic breakdown for Profit & Loss"""
+        """Include warehouse analytic breakdown for Profit & Loss using analytic_distribution"""
 
-        # ✅ Use correct model matching Odoo Mates module
         docs = self.env['account.balance.report'].browse(docids)
         data = data or {}
 
@@ -19,7 +19,9 @@ class ReportProfitLossPDF(models.AbstractModel):
 
         for doc in docs:
             if hasattr(doc, 'warehouse_analytic_ids') and doc.warehouse_analytic_ids:
+                # Loop through each selected warehouse analytic account
                 for analytic in doc.warehouse_analytic_ids:
+                    # ✅ Query using analytic_distribution (JSON field in Odoo 19)
                     query = """
                         SELECT
                             SUM(aml.debit) AS debit,
@@ -30,10 +32,11 @@ class ReportProfitLossPDF(models.AbstractModel):
                         JOIN account_account aa ON aml.account_id = aa.id
                         WHERE am.state = 'posted'
                           AND aml.company_id = %s
-                          AND aml.analytic_account_id = %s
+                          AND aml.analytic_distribution IS NOT NULL
+                          AND aml.analytic_distribution::text LIKE %s
                     """
 
-                    params = [doc.company_id.id, analytic.id]
+                    params = [doc.company_id.id, f'%"{analytic.id}"%']
 
                     # Add date filters
                     if doc.date_from:
@@ -44,7 +47,7 @@ class ReportProfitLossPDF(models.AbstractModel):
                         query += " AND aml.date <= %s"
                         params.append(doc.date_to)
 
-                    # ✅ Filter only P&L accounts
+                    # Filter only P&L accounts
                     query += """
                         AND aa.account_type IN (
                             'income', 'income_other',
@@ -67,7 +70,7 @@ class ReportProfitLossPDF(models.AbstractModel):
                     combined_totals['credit'] += warehouse_data['credit']
                     combined_totals['balance'] += warehouse_data['balance']
             else:
-                # No analytics → Combined view
+                # No analytics selected → Show combined view
                 query = """
                     SELECT
                         SUM(aml.debit) AS debit,

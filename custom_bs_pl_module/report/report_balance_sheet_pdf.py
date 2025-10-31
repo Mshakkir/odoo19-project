@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, api
+import json
 
 
 class ReportBalanceSheetPDF(models.AbstractModel):
@@ -10,7 +11,6 @@ class ReportBalanceSheetPDF(models.AbstractModel):
     def _get_report_values(self, docids, data=None):
         """Include warehouse analytic breakdown + combined totals in PDF"""
 
-        # ✅ FIX 1: Use correct model (account.balance.report from Odoo Mates)
         docs = self.env['account.balance.report'].browse(docids)
         data = data or {}
 
@@ -21,7 +21,7 @@ class ReportBalanceSheetPDF(models.AbstractModel):
             # Check if warehouse analytics are selected
             if hasattr(doc, 'warehouse_analytic_ids') and doc.warehouse_analytic_ids:
                 for analytic in doc.warehouse_analytic_ids:
-                    # ✅ FIX 2: Build SQL query properly with conditional date filters
+                    # ✅ Use analytic_distribution (JSON field in Odoo 19 Community)
                     query = """
                         SELECT
                             SUM(aml.debit) AS debit,
@@ -32,10 +32,11 @@ class ReportBalanceSheetPDF(models.AbstractModel):
                         JOIN account_account aa ON aml.account_id = aa.id
                         WHERE am.state = 'posted'
                           AND aml.company_id = %s
-                          AND aml.analytic_account_id = %s
+                          AND aml.analytic_distribution IS NOT NULL
+                          AND aml.analytic_distribution::text LIKE %s
                     """
 
-                    params = [doc.company_id.id, analytic.id]
+                    params = [doc.company_id.id, f'%"{analytic.id}"%']
 
                     # Add date filters conditionally
                     if doc.date_from:
@@ -46,7 +47,7 @@ class ReportBalanceSheetPDF(models.AbstractModel):
                         query += " AND aml.date <= %s"
                         params.append(doc.date_to)
 
-                    # ✅ FIX 3: Filter only Balance Sheet accounts
+                    # Filter only Balance Sheet accounts
                     query += """
                         AND aa.account_type IN (
                             'asset_receivable', 'asset_cash', 'asset_current', 

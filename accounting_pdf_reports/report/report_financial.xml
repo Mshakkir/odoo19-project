@@ -5,7 +5,6 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.internal_layout">
-                    <main>
                         <div class="page">
                             <h2 t-esc="data['account_report_id'][1]"/>
 
@@ -109,7 +108,7 @@
                                 </tbody>
                             </table>
                         </div>
-                    </main>
+
                 </t>
             </t>
         </t>

@@ -6,7 +6,7 @@ _logger = logging.getLogger(__name__)
 
 
 class AccountingReportAnalytic(models.TransientModel):
-    _inherit = 'accounting.report'  # ✅ Fixed: was 'account.balance.report'
+    _inherit = 'account.balance.report'
 
     warehouse_analytic_ids = fields.Many2many(
         'account.analytic.account',
@@ -30,7 +30,7 @@ class AccountingReportAnalytic(models.TransientModel):
 
         _logger.info("✅ Final report data sent to Odoo Mates: %s", data)
 
-        # Call the Odoo Mates report action
+        # Call the Odoo Mates report action (no change in their code needed)
         return self.env.ref(
             'accounting_pdf_reports.action_report_financial'
         ).report_action(self, data=data)

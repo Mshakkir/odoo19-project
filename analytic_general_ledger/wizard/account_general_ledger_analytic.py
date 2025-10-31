@@ -63,10 +63,7 @@ class AccountReportGeneralLedgerAnalytic(models.TransientModel):
             domain.append(('move_id.state', '=', 'posted'))
 
         # Add display account filter
-        if self.display_account == 'not_zero':
-            # This will be handled in the view
-            pass
-        elif self.display_account == 'movement':
+        if self.display_account == 'movement':
             domain.append('|')
             domain.append(('debit', '!=', 0))
             domain.append(('credit', '!=', 0))
@@ -75,7 +72,7 @@ class AccountReportGeneralLedgerAnalytic(models.TransientModel):
             'name': _('General Ledger Details (Analytic)'),
             'type': 'ir.actions.act_window',
             'res_model': 'account.move.line',
-            'view_mode': 'tree',
+            'view_mode': 'list',  # Changed from 'tree' to 'list'
             'view_id': self.env.ref('analytic_general_ledger.view_general_ledger_analytic_line_tree').id,
             'domain': domain,
             'context': {

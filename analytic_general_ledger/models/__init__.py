@@ -1,1 +1,0 @@
-from . import general_ledger_detail_line

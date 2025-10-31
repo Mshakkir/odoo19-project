@@ -5,6 +5,4 @@
             <t t-set="analytic_account_ids" t-value="analytic_account_ids"/>
         </t>
     </template>
-
-
 </odoo>

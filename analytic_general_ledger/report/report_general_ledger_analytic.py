@@ -89,12 +89,15 @@ class GeneralLedgerWizard(models.TransientModel):
     _inherit = 'account.report.general.ledger'
 
     def action_show_details(self):
-        """Button action to open General Ledger details safely"""
+        """Open detailed journal items"""
         return {
             'type': 'ir.actions.act_window',
             'name': _('General Ledger Details'),
-            'view_mode': 'tree,form',
             'res_model': 'account.move.line',
-            'target': 'current',
             'domain': [],
+            'views': [
+                (self.env.ref('account.view_move_line_tree').id, 'tree'),
+                (self.env.ref('account.view_move_line_form').id, 'form')
+            ],
+            'target': 'current',
         }

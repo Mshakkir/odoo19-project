@@ -1,7 +1,4 @@
-import time
 from odoo import api, models, _
-from odoo.exceptions import UserError
-
 
 class ReportGeneralLedgerAnalytic(models.AbstractModel):
     _name = 'report.analytic_general_ledger.report_general_ledger_analytic'
@@ -33,7 +30,7 @@ class ReportGeneralLedgerAnalytic(models.AbstractModel):
         sql = ('''
             SELECT l.id AS lid, l.account_id AS account_id, 
                    l.date AS ldate, j.code AS lcode, l.currency_id, 
-                   l.amount_currency, aa.name AS analytic_account_id,
+                   l.amount_currency, aa.name AS analytic_account,
                    l.ref AS lref, l.name AS lname, COALESCE(l.debit,0) AS debit, 
                    COALESCE(l.credit,0) AS credit, 
                    (l.debit - l.credit) AS balance,
@@ -83,18 +80,21 @@ class ReportGeneralLedgerAnalytic(models.AbstractModel):
 
 
 # ============================
-# Add missing method for action
+# Safe separate transient class for action
 # ============================
 
-# class GeneralLedgerReport(models.Model):
-#     _inherit = 'account.report.general.ledger'
-#
-#     def action_show_details(self):
-#         """Button action to open General Ledger details"""
-#         return {
-#             'type': 'ir.actions.act_window',
-#             'name': _('General Ledger Details'),
-#             'view_mode': 'tree,form',
-#             'res_model': 'account.move.line',
-#             'domain': [],
-#         }
+from odoo import models
+
+class GeneralLedgerWizard(models.TransientModel):
+    _inherit = 'account.report.general.ledger'
+
+    def action_show_details(self):
+        """Button action to open General Ledger details safely"""
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('General Ledger Details'),
+            'view_mode': 'tree,form',
+            'res_model': 'account.move.line',
+            'target': 'current',
+            'domain': [],
+        }

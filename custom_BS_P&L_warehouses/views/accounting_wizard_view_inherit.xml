@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="view_accounting_report_inherit_analytic" model="ir.ui.view">
+<field name="name">accounting.report.wizard.analytic.inherit</field>
+<field name="model">accounting.report</field>
+<field name="inherit_id" ref="accounting_pdf_reports.account_common_report_view"/>
+<field name="arch" type="xml">
+<field name="journal_ids" position="after">
+<group string="Warehouse Analytic Filter" colspan="4">
+<field name="analytic_account_ids" widget="many2many_tags" options="{'no_create': True}"/>
+<field name="include_combined"/>
+</group>
+</field>
+</field>
+</record>
+</odoo>

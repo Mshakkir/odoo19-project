@@ -1,4 +1,7 @@
 from odoo import api, fields, models, _
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class AccountingReport(models.TransientModel):
@@ -21,6 +24,12 @@ class AccountingReport(models.TransientModel):
              'Combined: Combine all selected analytic accounts in one report')
 
     def _print_report(self, data):
+        _logger.info("=" * 80)
+        _logger.info("PRINT REPORT CALLED")
+        _logger.info(f"Analytic Account IDs selected: {self.analytic_account_ids.ids}")
+        _logger.info(f"Analytic names: {self.analytic_account_ids.mapped('name')}")
+        _logger.info(f"Filter mode: {self.analytic_filter_mode}")
+
         data['form'].update(self.read([
             'date_from_cmp', 'debit_credit', 'date_to_cmp',
             'filter_cmp', 'account_report_id', 'enable_filter',
@@ -35,18 +44,28 @@ class AccountingReport(models.TransientModel):
             # Update used_context
             used_context = data['form'].get('used_context', {})
             if isinstance(used_context, str):
-                used_context = eval(used_context)
+                import ast
+                try:
+                    used_context = ast.literal_eval(used_context)
+                except:
+                    used_context = {}
 
             used_context['analytic_account_ids'] = self.analytic_account_ids.ids
             data['form']['used_context'] = used_context
 
+            _logger.info(f"Updated data form: {data['form'].get('analytic_account_ids')}")
+            _logger.info(f"Updated used_context: {used_context.get('analytic_account_ids')}")
+
         # Use different template for separate mode
         if self.analytic_account_ids and self.analytic_filter_mode == 'separate':
-            return self.env.ref(
-                'accounting_pdf_reports_analytic.action_report_financial_separate_analytic'
-            ).report_action(self, data=data)
+            _logger.info("Using SEPARATE template")
+            report = self.env.ref('accounting_pdf_reports_analytic.action_report_financial_separate_analytic')
+            return report.with_context(analytic_account_ids=self.analytic_account_ids.ids).report_action(self,
+                                                                                                         data=data)
 
         # Use original template for combined or no analytic
-        return self.env.ref(
-            'accounting_pdf_reports.action_report_financial'
-        ).report_action(self, data=data)
+        _logger.info("Using COMBINED/ORIGINAL template")
+        report = self.env.ref('accounting_pdf_reports.action_report_financial')
+        if self.analytic_account_ids:
+            report = report.with_context(analytic_account_ids=self.analytic_account_ids.ids)
+        return report.report_action(self, data=data)

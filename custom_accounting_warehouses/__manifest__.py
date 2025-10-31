@@ -11,7 +11,7 @@
 "accounting_pdf_reports"
 ],
 "data": [
-"views/accounting_report_view_inherit.xml",
+"views/accounting_wizard_view_inherit.xml",
 "security/ir.model.access.csv"
 ],
 "installable": True,

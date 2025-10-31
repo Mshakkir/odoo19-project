@@ -8,6 +8,9 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='account_report_id']" position="after">
                 <field name="analytic_account_ids" widget="many2many_tags"/>
+                <field name="analytic_filter_mode"
+                       invisible="not analytic_account_ids"
+                       widget="radio"/>
             </xpath>
         </field>
     </record>

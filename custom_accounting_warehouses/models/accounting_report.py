@@ -42,6 +42,7 @@ class AccountingReport(models.TransientModel):
         data['form'].update(read_vals)
 
         ctx = dict(self.env.context or {}, analytic_account_ids=read_vals.get('analytic_account_ids'))
-        return self.env.ref('accounting_pdf_reports.action_report_financial').report_action(self, data=data,
-                                                                                            context=ctx)
+        # ✅ Apply context using with_context(), not as a report_action() argument
+        return self.with_context(ctx).env.ref('accounting_pdf_reports.action_report_financial').report_action(self,
+                                                                                                              data=data)
 

@@ -9,7 +9,9 @@ class ReportBalanceSheetPDF(models.AbstractModel):
     @api.model
     def _get_report_values(self, docids, data=None):
         """Include warehouse analytic breakdown + combined totals in PDF"""
-        docs = self.env['accounting.report'].browse(docids)
+
+        # ✅ FIX 1: Use correct model (account.balance.report from Odoo Mates)
+        docs = self.env['account.balance.report'].browse(docids)
         data = data or {}
 
         all_warehouse_data = []
@@ -19,7 +21,7 @@ class ReportBalanceSheetPDF(models.AbstractModel):
             # Check if warehouse analytics are selected
             if hasattr(doc, 'warehouse_analytic_ids') and doc.warehouse_analytic_ids:
                 for analytic in doc.warehouse_analytic_ids:
-                    # Build SQL query properly with conditional date filters
+                    # ✅ FIX 2: Build SQL query properly with conditional date filters
                     query = """
                         SELECT
                             SUM(aml.debit) AS debit,
@@ -44,7 +46,7 @@ class ReportBalanceSheetPDF(models.AbstractModel):
                         query += " AND aml.date <= %s"
                         params.append(doc.date_to)
 
-                    # Filter only Balance Sheet accounts
+                    # ✅ FIX 3: Filter only Balance Sheet accounts
                     query += """
                         AND aa.account_type IN (
                             'asset_receivable', 'asset_cash', 'asset_current', 

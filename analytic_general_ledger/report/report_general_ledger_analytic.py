@@ -129,12 +129,12 @@ class AccountReportGeneralLedgerAnalytic(models.TransientModel):
             # Accounts with balance != 0 (will be filtered in view)
             domain.append(('account_id.internal_group', 'not in', ['off_balance']))
 
-        # Return tree view with detailed information
+        # Return list view with detailed information
         return {
             'name': _('General Ledger Details - Analytic'),
             'type': 'ir.actions.act_window',
             'res_model': 'account.move.line',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',  # Changed from 'tree,form'
             'domain': domain,
             'context': {
                 'search_default_group_by_account': 1,

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Custom tree view for general ledger details -->
+    <!-- Custom list view for general ledger details -->
     <record id="view_move_line_general_ledger_analytic_tree" model="ir.ui.view">
         <field name="name">account.move.line.general.ledger.analytic.tree</field>
         <field name="model">account.move.line</field>
         <field name="arch" type="xml">
-            <tree string="General Ledger Details" create="false" delete="false" decoration-info="parent_state == 'draft'">
+            <list string="General Ledger Details" create="false" delete="false" decoration-info="parent_state == 'draft'">
                 <field name="date"/>
                 <field name="move_id" string="Entry"/>
                 <field name="journal_id"/>
@@ -25,7 +25,7 @@
                         class="btn-link"
                         icon="fa-external-link"
                         context="{'default_move_id': move_id}"/>
-            </tree>
+            </list>
         </field>
     </record>
 

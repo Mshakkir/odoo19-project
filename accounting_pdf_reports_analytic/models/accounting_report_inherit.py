@@ -20,26 +20,34 @@ class AccountingReport(models.TransientModel):
         help='Separate: Generate one report per analytic account\n'
              'Combined: Combine all selected analytic accounts in one report')
 
-    def _print_report(self, data):
-        data['form'].update(self.read([
-            'date_from_cmp', 'debit_credit', 'date_to_cmp',
-            'filter_cmp', 'account_report_id', 'enable_filter',
-            'label_filter', 'target_move', 'analytic_filter_mode'
-        ])[0])
 
-        # Pass analytic account IDs to the report
-        if self.analytic_account_ids:
-            data['form']['analytic_account_ids'] = self.analytic_account_ids.ids
-            data['form']['analytic_filter_mode'] = self.analytic_filter_mode
+def _print_report(self, data):
+    data['form'].update(self.read([
+        'date_from_cmp', 'debit_credit', 'date_to_cmp',
+        'filter_cmp', 'account_report_id', 'enable_filter',
+        'label_filter', 'target_move', 'analytic_filter_mode'
+    ])[0])
 
-            # Update used_context
-            used_context = data['form'].get('used_context', {})
-            if isinstance(used_context, str):
-                used_context = eval(used_context)
+    # Pass analytic account IDs to the report
+    if self.analytic_account_ids:
+        data['form']['analytic_account_ids'] = self.analytic_account_ids.ids
+        data['form']['analytic_filter_mode'] = self.analytic_filter_mode
 
-            used_context['analytic_account_ids'] = self.analytic_account_ids.ids
-            data['form']['used_context'] = used_context
+        # Update used_context
+        used_context = data['form'].get('used_context', {})
+        if isinstance(used_context, str):
+            used_context = eval(used_context)
 
+        used_context['analytic_account_ids'] = self.analytic_account_ids.ids
+        data['form']['used_context'] = used_context
+
+    # Use different template for separate mode
+    if self.analytic_account_ids and self.analytic_filter_mode == 'separate':
         return self.env.ref(
-            'accounting_pdf_reports.action_report_financial'
+            'accounting_pdf_reports_analytic.report_financial_separate_analytic'
         ).report_action(self, data=data)
+
+    # Use original template
+    return self.env.ref(
+        'accounting_pdf_reports.action_report_financial'
+    ).report_action(self, data=data)

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add analytic info to combined reports -->
+    <!-- Add analytic info to combined reports - simpler xpath -->
     <template id="report_financial_analytic_info" inherit_id="accounting_pdf_reports.report_financial">
-        <xpath expr="//div[@class='row mt32 mb32']" position="after">
+        <xpath expr="//h2" position="after">
             <div class="row mb16" t-if="analytic_accounts and analytic_filter_mode == 'combined'">
                 <div class="col-12">
                     <strong>Analytic Accounts: </strong>
@@ -130,22 +130,13 @@
                         </main>
                     </t>
 
-                    <!-- Page break between analytic account reports -->
-                    <p style="page-break-after: always;"/>
+                    <!-- Page break between analytic account reports (except last one) -->
+                    <t t-if="not report_data_last">
+                        <p style="page-break-after: always;"/>
+                    </t>
                 </t>
             </t>
         </t>
     </template>
 
-    <!-- Override the report action to use different template based on mode -->
-    <template id="report_financial_with_analytic" inherit_id="accounting_pdf_reports.report_financial">
-        <xpath expr="." position="replace">
-            <t t-if="analytic_filter_mode == 'separate'">
-                <t t-call="accounting_analytic_reports.report_financial_separate_analytic"/>
-            </t>
-            <t t-else="">
-                <t t-call="accounting_pdf_reports.report_financial"/>
-            </t>
-        </xpath>
-    </template>
 </odoo>

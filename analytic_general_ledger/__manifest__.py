@@ -9,6 +9,7 @@
     'data': [
         'views/general_ledger_analytic_view.xml',
         'views/move_line_tree_view.xml',
+        'views/account_move_line_view.xml',
         'report/report_general_ledger_analytic.xml',
     ],
     'installable': True,

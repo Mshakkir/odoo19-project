@@ -90,14 +90,23 @@ class GeneralLedgerWizard(models.TransientModel):
 
     def action_show_details(self):
         """Open detailed journal items"""
+        try:
+            tree_view = self.env.ref('account.view_move_line_tree').id
+            form_view = self.env.ref('account.view_move_line_form').id
+        except ValueError:
+            # fallback if the references are missing (custom Odoo versions)
+            tree_view = False
+            form_view = False
+
         return {
             'type': 'ir.actions.act_window',
             'name': _('General Ledger Details'),
             'res_model': 'account.move.line',
             'domain': [],
-            'views': [
-                (self.env.ref('account.view_move_line_tree').id, 'tree'),
-                (self.env.ref('account.view_move_line_form').id, 'form')
-            ],
             'target': 'current',
+            'views': [
+                (tree_view, 'tree'),
+                (form_view, 'form')
+            ] if tree_view and form_view else [],
+            'view_mode': 'tree,form',
         }

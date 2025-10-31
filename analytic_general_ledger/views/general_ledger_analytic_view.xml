@@ -6,16 +6,20 @@
         <field name="model">account.report.general.ledger</field>
         <field name="inherit_id" ref="accounting_pdf_reports.account_report_general_ledger_view"/>
         <field name="arch" type="xml">
+            <!-- Add analytic field -->
             <xpath expr="//field[@name='journal_ids']" position="after">
                 <field name="analytic_account_ids" widget="many2many_tags"
                        options="{'no_open': True, 'no_create': True}"/>
             </xpath>
-        </field>
-        <button name="open_general_ledger_details"
-        string="Show Details"
-        type="object"
-        class="btn-primary"/>
 
+            <!-- Add Show Details button in footer -->
+            <xpath expr="//footer" position="inside">
+                <button name="open_general_ledger_details"
+                        string="Show Details"
+                        type="object"
+                        class="btn-primary"/>
+            </xpath>
+        </field>
     </record>
 
     <record id="action_account_general_ledger_analytic" model="ir.actions.act_window">
@@ -26,6 +30,5 @@
         <field name="view_id" ref="view_account_report_general_ledger_analytic"/>
         <field name="target">new</field>
     </record>
-
 
 </odoo>

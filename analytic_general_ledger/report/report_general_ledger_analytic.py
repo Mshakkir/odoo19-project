@@ -86,15 +86,15 @@ class ReportGeneralLedgerAnalytic(models.AbstractModel):
 # Add missing method for action
 # ============================
 
-class GeneralLedgerReport(models.Model):
-    _inherit = 'account.report.general.ledger'
-
-    def action_show_details(self):
-        """Button action to open General Ledger details"""
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('General Ledger Details'),
-            'view_mode': 'tree,form',
-            'res_model': 'account.move.line',
-            'domain': [],
-        }
+# class GeneralLedgerReport(models.Model):
+#     _inherit = 'account.report.general.ledger'
+#
+#     def action_show_details(self):
+#         """Button action to open General Ledger details"""
+#         return {
+#             'type': 'ir.actions.act_window',
+#             'name': _('General Ledger Details'),
+#             'view_mode': 'tree,form',
+#             'res_model': 'account.move.line',
+#             'domain': [],
+#         }

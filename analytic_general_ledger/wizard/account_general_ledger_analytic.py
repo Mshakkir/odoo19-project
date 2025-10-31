@@ -40,57 +40,56 @@ class AccountReportGeneralLedgerAnalytic(models.TransientModel):
         return self.env.ref('accounting_pdf_reports.action_report_general_ledger').with_context(
             landscape=True).report_action(records, data=data)
 
-    def _get_filtered_move_lines(self):
-        """Get move lines filtered by all criteria including analytic accounts"""
-        self.ensure_one()
-
-        # Build SQL query
-        query = """
-            SELECT aml.id
-            FROM account_move_line aml
-            JOIN account_move am ON aml.move_id = am.id
-            WHERE aml.date >= %s
-              AND aml.date <= %s
-        """
-        params = [self.date_from, self.date_to]
-
-        # Add journal filter
-        if self.journal_ids:
-            query += " AND aml.journal_id IN %s"
-            params.append(tuple(self.journal_ids.ids))
-
-        # Add target move filter
-        if self.target_move == 'posted':
-            query += " AND am.state = 'posted'"
-
-        # Add analytic filter
-        if self.analytic_account_ids:
-            analytic_conditions = []
-            for analytic_id in self.analytic_account_ids.ids:
-                analytic_conditions.append(f"aml.analytic_distribution::text LIKE '%\"{analytic_id}\"%'")
-
-            if analytic_conditions:
-                query += " AND (" + " OR ".join(analytic_conditions) + ")"
-
-        # Add display account filter
-        if self.display_account == 'movement':
-            query += " AND (aml.debit != 0 OR aml.credit != 0)"
-
-        query += " ORDER BY aml.account_id, aml.date, aml.id"
-
-        self.env.cr.execute(query, params)
-        result = self.env.cr.fetchall()
-        return [r[0] for r in result]
-
     def check_report_analytic(self):
         """Open detailed view of general ledger with analytic accounts"""
         self.ensure_one()
 
-        # Get filtered line IDs
-        line_ids = self._get_filtered_move_lines()
+        # Build base domain
+        domain = [
+            ('date', '>=', self.date_from),
+            ('date', '<=', self.date_to),
+        ]
+
+        # Add journal filter
+        if self.journal_ids:
+            domain.append(('journal_id', 'in', self.journal_ids.ids))
+
+        # Add target move filter
+        if self.target_move == 'posted':
+            domain.append(('parent_state', '=', 'posted'))
+
+        # Get move lines
+        if self.analytic_account_ids:
+            # Need to filter by analytic distribution
+            # First get all lines matching other criteria
+            all_lines = self.env['account.move.line'].search(domain)
+
+            # Filter by analytic accounts
+            filtered_line_ids = []
+            for line in all_lines:
+                if line.analytic_distribution:
+                    # Check if any selected analytic account is in the distribution
+                    for analytic_id in self.analytic_account_ids.ids:
+                        if str(analytic_id) in str(line.analytic_distribution):
+                            filtered_line_ids.append(line.id)
+                            break
+
+            line_ids = filtered_line_ids
+        else:
+            # Just get all lines matching domain
+            line_ids = self.env['account.move.line'].search(domain).ids
+
+        # Apply display account filter
+        if self.display_account == 'movement' and line_ids:
+            lines = self.env['account.move.line'].browse(line_ids)
+            line_ids = [l.id for l in lines if l.debit != 0 or l.credit != 0]
 
         if not line_ids:
-            raise UserError(_('No journal entries found for the selected criteria.'))
+            raise UserError(_('No journal entries found for the selected criteria.\n\n'
+                              'Please check:\n'
+                              '- Date range has transactions\n'
+                              '- Selected journals have entries\n'
+                              '- Analytic accounts are assigned to journal entries'))
 
         return {
             'name': _('General Ledger Details (Analytic)'),

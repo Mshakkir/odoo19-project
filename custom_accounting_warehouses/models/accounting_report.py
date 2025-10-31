@@ -34,13 +34,14 @@ class AccountingReport(models.TransientModel):
         return res
 
     def _print_report(self, data):
-        """Pass our extra fields to the financial report print action."""
         read_vals = self.read([
             'date_from_cmp', 'debit_credit', 'date_to_cmp', 'filter_cmp',
             'account_report_id', 'enable_filter', 'label_filter',
             'target_move', 'analytic_account_ids', 'include_combined'
         ])[0]
         data['form'].update(read_vals)
-        return self.env.ref('accounting_pdf_reports.action_report_financial').report_action(
-            self, data=data, config=False
-        )
+
+        ctx = dict(self.env.context or {}, analytic_account_ids=read_vals.get('analytic_account_ids'))
+        return self.env.ref('accounting_pdf_reports.action_report_financial').report_action(self, data=data,
+                                                                                            context=ctx)
+

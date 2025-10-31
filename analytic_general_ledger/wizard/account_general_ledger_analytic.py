@@ -21,6 +21,7 @@
 
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError
+import json
 
 
 class AccountReportGeneralLedgerAnalytic(models.TransientModel):
@@ -54,9 +55,17 @@ class AccountReportGeneralLedgerAnalytic(models.TransientModel):
         if self.journal_ids:
             domain.append(('journal_id', 'in', self.journal_ids.ids))
 
-        # Add analytic account filter
+        # Add analytic account filter - using analytic_distribution
         if self.analytic_account_ids:
-            domain.append(('analytic_account_id', 'in', self.analytic_account_ids.ids))
+            # In Odoo 19, analytic_distribution is a JSON field
+            # We need to search for lines that contain any of the selected analytic accounts
+            analytic_domain = []
+            for analytic_account in self.analytic_account_ids:
+                analytic_domain.append(('analytic_distribution', 'ilike', str(analytic_account.id)))
+
+            if len(analytic_domain) > 1:
+                domain.append('|' * (len(analytic_domain) - 1))
+            domain.extend(analytic_domain)
 
         # Add target move filter
         if self.target_move == 'posted':
@@ -72,7 +81,7 @@ class AccountReportGeneralLedgerAnalytic(models.TransientModel):
             'name': _('General Ledger Details (Analytic)'),
             'type': 'ir.actions.act_window',
             'res_model': 'account.move.line',
-            'view_mode': 'list',  # Changed from 'tree' to 'list'
+            'view_mode': 'list',
             'view_id': self.env.ref('analytic_general_ledger.view_general_ledger_analytic_line_tree').id,
             'domain': domain,
             'context': {

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add analytic info to combined reports -->
+    <template id="report_financial_analytic_info" inherit_id="accounting_pdf_reports.report_financial">
+        <xpath expr="//div[@class='row mt32 mb32']" position="after">
+            <div class="row mb16" t-if="analytic_accounts and analytic_filter_mode == 'combined'">
+                <div class="col-12">
+                    <strong>Analytic Accounts: </strong>
+                    <span t-esc="', '.join(analytic_accounts.mapped('name'))"/>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- Template for separate reports (one per analytic account) -->
+    <template id="report_financial_separate_analytic">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <!-- Loop through each analytic account report -->
+                <t t-foreach="all_reports" t-as="report_data">
+                    <t t-call="web.internal_layout">
+                        <main>
+                            <div class="page">
+                                <h2 t-esc="data['account_report_id'][1]"/>
+                                <h3 class="text-primary" t-esc="'Analytic Account: ' + report_data['analytic_account'].name"/>
+
+                                <div class="row mt32 mb32">
+                                    <div class="col-4">
+                                        <strong>Target Moves:</strong>
+                                        <p>
+                                            <span t-if="data['target_move'] == 'all'">All Entries</span>
+                                            <span t-if="data['target_move'] == 'posted'">All Posted Entries</span>
+                                        </p>
+                                    </div>
+                                    <div class="col-4">
+                                        <p>
+                                            <t t-if="data['date_from']"><strong>Date from :</strong> <span t-esc="data['date_from']"/><br/></t>
+                                            <t t-if="data['date_to']"><strong>Date to :</strong> <span t-esc="data['date_to']"/></t>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Table with Debit/Credit -->
+                                <table class="table table-sm table-reports" t-if="data['debit_credit'] == 1">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th class="text-end">Debit</th>
+                                            <th class="text-end">Credit</th>
+                                            <th class="text-end">Balance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="report_data['report_lines']" t-as="a">
+                                            <t t-if="a['level'] != 0">
+                                                <t t-if="int(a.get('level')) &gt; 3"><t t-set="style" t-value="'font-weight: normal;'"/></t>
+                                                <t t-if="not int(a.get('level')) &gt; 3"><t t-set="style" t-value="'font-weight: bold;'"/></t>
+
+                                                <td>
+                                                    <span style="color: white;" t-esc="'..' * int(a.get('level', 0))"/>
+                                                    <span t-att-style="style" t-esc="a.get('name')"/>
+                                                </td>
+                                                <td class="text-end" style="white-space: text-nowrap;">
+                                                    <span t-att-style="style" t-esc="a.get('debit')" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                                </td>
+                                                <td class="text-end" style="white-space: text-nowrap;">
+                                                    <span t-att-style="style" t-esc="a.get('credit')" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                                </td>
+                                                <td class="text-end" style="white-space: text-nowrap;">
+                                                    <span t-att-style="style" t-esc="a.get('balance')" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                                </td>
+                                            </t>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- Table without Debit/Credit, no comparison -->
+                                <table class="table table-sm table-reports" t-if="not data['enable_filter'] and not data['debit_credit']">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th class="text-end">Balance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="report_data['report_lines']" t-as="a">
+                                            <t t-if="a['level'] != 0">
+                                                <t t-if="int(a.get('level')) &gt; 3"><t t-set="style" t-value="'font-weight: normal;'"/></t>
+                                                <t t-if="not int(a.get('level')) &gt; 3"><t t-set="style" t-value="'font-weight: bold;'"/></t>
+
+                                                <td>
+                                                    <span style="color: white;" t-esc="'..' * int(a.get('level', 0))"/>
+                                                    <span t-att-style="style" t-esc="a.get('name')"/>
+                                                </td>
+                                                <td class="text-end"><span t-att-style="style" t-esc="a.get('balance')" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/></td>
+                                            </t>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- Table with comparison -->
+                                <table class="table table-sm table-reports" t-if="data['enable_filter'] == 1 and not data['debit_credit']">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th class="text-end">Balance</th>
+                                            <th class="text-end"><span t-esc="data['label_filter']"/></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="report_data['report_lines']" t-as="a">
+                                            <t t-if="a['level'] != 0">
+                                                <t t-if="int(a.get('level')) &gt; 3"><t t-set="style" t-value="'font-weight: normal;'"/></t>
+                                                <t t-if="not int(a.get('level')) &gt; 3"><t t-set="style" t-value="'font-weight: bold;'"/></t>
+                                                <td>
+                                                    <span style="color: white;" t-esc="'..'"/>
+                                                    <span t-att-style="style" t-esc="a.get('name')"/>
+                                                </td>
+                                                <td class="text-end">
+                                                    <span t-att-style="style" t-esc="a.get('balance')" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                                </td>
+                                                <td class="text-end">
+                                                    <span t-att-style="style" t-esc="a.get('balance_cmp')" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                                </td>
+                                            </t>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </main>
+                    </t>
+
+                    <!-- Page break between analytic account reports -->
+                    <p style="page-break-after: always;"/>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- Override the report action to use different template based on mode -->
+    <template id="report_financial_with_analytic" inherit_id="accounting_pdf_reports.report_financial">
+        <xpath expr="." position="replace">
+            <t t-if="analytic_filter_mode == 'separate'">
+                <t t-call="accounting_analytic_reports.report_financial_separate_analytic"/>
+            </t>
+            <t t-else="">
+                <t t-call="accounting_pdf_reports.report_financial"/>
+            </t>
+        </xpath>
+    </template>
+</odoo>

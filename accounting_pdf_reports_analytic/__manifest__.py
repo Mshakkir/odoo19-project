@@ -10,7 +10,7 @@
     ],
     'data': [
         'views/accounting_report_analytic_views.xml',
-        # 'views/action_menu_analytic.xml',
+        'views/report_financial_analytic_template.xml',
     ],
     'installable': True,
     'application': False,

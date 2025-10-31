@@ -27,9 +27,14 @@ class ReportFinancialInherit(models.AbstractModel):
             # Add analytic account filter from context
             analytic_account_ids = self.env.context.get('analytic_account_ids', [])
             if analytic_account_ids:
-                # Join with analytic distribution table
-                tables += " LEFT JOIN account_analytic_line aal ON account_move_line.id = aal.move_line_id"
-                wheres.append("aal.account_id IN %s")
+                # Check if analytic lines exist, filter by them
+                wheres.append("""
+                    EXISTS (
+                        SELECT 1 FROM account_analytic_line aal 
+                        WHERE aal.move_line_id = account_move_line.id 
+                        AND aal.account_id IN %s
+                    )
+                """)
                 where_params = list(where_params) + [tuple(analytic_account_ids)]
                 where_params = tuple(where_params)
 
@@ -46,59 +51,57 @@ class ReportFinancialInherit(models.AbstractModel):
 
         return res
 
-    def get_account_lines(self, data):
-        """Override to handle separate reports per analytic account"""
-        analytic_account_ids = data.get('analytic_account_ids', [])
-        analytic_filter_mode = data.get('analytic_filter_mode', 'combined')
-
-        # If no analytic accounts selected or combined mode, use original logic
-        if not analytic_account_ids or analytic_filter_mode == 'combined':
-            return super(ReportFinancialInherit, self).get_account_lines(data)
-
-        # Separate mode: generate lines for each analytic account
-        all_lines = []
-        for analytic_id in analytic_account_ids:
-            analytic_account = self.env['account.analytic.account'].browse(analytic_id)
-
-            # Add section header for this analytic account
-            all_lines.append({
-                'name': f'=== {analytic_account.name} ===',
-                'balance': 0.0,
-                'type': 'report',
-                'level': 1,
-                'account_type': False,
-            })
-
-            # Get lines for this specific analytic account
-            temp_data = data.copy()
-            temp_data['used_context'] = dict(data.get('used_context', {}))
-            temp_data['used_context']['analytic_account_ids'] = [analytic_id]
-
-            lines = super(ReportFinancialInherit, self).get_account_lines(temp_data)
-            all_lines.extend(lines)
-
-            # Add spacing
-            all_lines.append({
-                'name': '',
-                'balance': 0.0,
-                'type': 'report',
-                'level': 0,
-                'account_type': False,
-            })
-
-        return all_lines
-
     @api.model
     def _get_report_values(self, docids, data=None):
-        """Override to pass analytic account info to template"""
-        result = super(ReportFinancialInherit, self)._get_report_values(docids, data)
+        """Override to handle separate reports per analytic account"""
+        if not data.get('form'):
+            return super(ReportFinancialInherit, self)._get_report_values(docids, data)
 
-        # Add analytic account information to the report
-        if data and data.get('form'):
-            analytic_account_ids = data['form'].get('analytic_account_ids', [])
+        analytic_account_ids = data['form'].get('analytic_account_ids', [])
+        analytic_filter_mode = data['form'].get('analytic_filter_mode', 'combined')
+
+        # If no analytic accounts or combined mode, use original logic
+        if not analytic_account_ids or analytic_filter_mode == 'combined':
+            result = super(ReportFinancialInherit, self)._get_report_values(docids, data)
+
+            # Add analytic info for display
             if analytic_account_ids:
                 analytic_accounts = self.env['account.analytic.account'].browse(analytic_account_ids)
                 result['analytic_accounts'] = analytic_accounts
-                result['analytic_filter_mode'] = data['form'].get('analytic_filter_mode', 'combined')
+                result['analytic_filter_mode'] = 'combined'
 
-        return result
+            return result
+
+        # Separate mode: Generate multiple reports
+        all_reports = []
+
+        for analytic_id in analytic_account_ids:
+            analytic_account = self.env['account.analytic.account'].browse(analytic_id)
+
+            # Create a copy of data with single analytic account
+            single_data = data.copy()
+            single_data['form'] = data['form'].copy()
+            single_data['form']['used_context'] = dict(data['form'].get('used_context', {}))
+            single_data['form']['used_context']['analytic_account_ids'] = [analytic_id]
+
+            # Get report for this analytic account
+            model = self.env.context.get('active_model')
+            docs = self.env[model].browse(self.env.context.get('active_id'))
+            report_lines = self.get_account_lines(single_data['form'])
+
+            all_reports.append({
+                'analytic_account': analytic_account,
+                'report_lines': report_lines,
+                'data': single_data['form'],
+            })
+
+        # Return combined result for separate reports
+        return {
+            'doc_ids': self.ids,
+            'doc_model': self.env.context.get('active_model'),
+            'data': data['form'],
+            'docs': self.env[self.env.context.get('active_model')].browse(self.env.context.get('active_id')),
+            'time': __import__('time'),
+            'all_reports': all_reports,
+            'analytic_filter_mode': 'separate',
+        }

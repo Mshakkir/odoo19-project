@@ -6,13 +6,4 @@
         </t>
     </template>
 
-    <report
-        id="action_report_general_ledger_analytic"
-        model="account.account"
-        string="General Ledger (Analytic)"
-        report_type="qweb-pdf"
-        name="analytic_general_ledger.report_general_ledger_analytic"
-        file="analytic_general_ledger.report_general_ledger_analytic"
-        print_report_name="'General Ledger (Analytic) - %s' % (object.name)"
-    />
 </odoo>

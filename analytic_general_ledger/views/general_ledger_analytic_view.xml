@@ -10,6 +10,14 @@
                 <field name="analytic_account_ids" widget="many2many_tags"
                        options="{'no_open': True, 'no_create': True}"/>
             </xpath>
+
+            <!-- Add Show Details button -->
+            <xpath expr="//footer/button[@name='check_report']" position="before">
+                <button string="Show Details"
+                        name="action_show_details"
+                        type="object"
+                        class="btn-primary"/>
+            </xpath>
         </field>
     </record>
 
@@ -28,3 +36,36 @@
               action="action_account_general_ledger_analytic"
               sequence="20"/>
 </odoo>
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+
+<!--    <record id="view_account_report_general_ledger_analytic" model="ir.ui.view">-->
+<!--        <field name="name">account.report.general.ledger.analytic</field>-->
+<!--        <field name="model">account.report.general.ledger</field>-->
+<!--        <field name="inherit_id" ref="accounting_pdf_reports.account_report_general_ledger_view"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//field[@name='journal_ids']" position="after">-->
+<!--                <field name="analytic_account_ids" widget="many2many_tags"-->
+<!--                       options="{'no_open': True, 'no_create': True}"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    <record id="action_account_general_ledger_analytic" model="ir.actions.act_window">-->
+<!--        <field name="name">General Ledger (Analytic)</field>-->
+<!--        <field name="type">ir.actions.act_window</field>-->
+<!--        <field name="res_model">account.report.general.ledger</field>-->
+<!--        <field name="view_mode">form</field>-->
+<!--        <field name="view_id" ref="view_account_report_general_ledger_analytic"/>-->
+<!--        <field name="target">new</field>-->
+<!--    </record>-->
+
+<!--    <menuitem id="menu_general_ledger_analytic"-->
+<!--              name="General Ledger (Analytic)"-->
+<!--              parent="accounting_pdf_reports.menu_finance_audit_reports"-->
+<!--              action="action_account_general_ledger_analytic"-->
+<!--              sequence="20"/>-->
+<!--</odoo>-->

@@ -97,13 +97,4 @@ class ReportFinancialInherit(models.AbstractModel):
             }
 
         # Combined mode or no analytic accounts - use original logic
-        result = super(ReportFinancialInherit, self)._get_report_values(docids, data)
-
-        # Add analytic info for display in combined mode
-        if analytic_account_ids:
-            analytic_accounts = self.env['account.analytic.account'].browse(analytic_account_ids)
-            result['analytic_accounts'] = analytic_accounts
-            result['analytic_filter_mode'] = 'combined'
-
-        return result
-
+        return super(ReportFinancialInherit, self)._get_report_values(docids, data)

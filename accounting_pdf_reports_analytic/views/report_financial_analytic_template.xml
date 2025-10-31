@@ -1,17 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add analytic info to combined reports - simpler xpath -->
-    <template id="report_financial_analytic_info" inherit_id="accounting_pdf_reports.report_financial">
-        <xpath expr="//h2" position="after">
-            <div class="row mb16" t-if="analytic_accounts and analytic_filter_mode == 'combined'">
-                <div class="col-12">
-                    <strong>Analytic Accounts: </strong>
-                    <span t-esc="', '.join(analytic_accounts.mapped('name'))"/>
-                </div>
-            </div>
-        </xpath>
-    </template>
-
     <!-- Template for separate reports (one per analytic account) -->
     <template id="report_financial_separate_analytic">
         <t t-call="web.html_container">
@@ -22,7 +10,7 @@
                         <main>
                             <div class="page">
                                 <h2 t-esc="data['account_report_id'][1]"/>
-                                <h3 class="text-primary" t-esc="'Analytic Account: ' + report_data['analytic_account'].name"/>
+                                <h3 class="text-primary mt-3" t-esc="'Analytic Account: ' + report_data['analytic_account'].name"/>
 
                                 <div class="row mt32 mb32">
                                     <div class="col-4">
@@ -130,7 +118,7 @@
                         </main>
                     </t>
 
-                    <!-- Page break between analytic account reports (except last one) -->
+                    <!-- Page break between analytic account reports -->
                     <t t-if="not report_data_last">
                         <p style="page-break-after: always;"/>
                     </t>
@@ -138,5 +126,17 @@
             </t>
         </t>
     </template>
+
+    <!-- Report action for separate analytic reports -->
+    <record id="action_report_financial_separate_analytic" model="ir.actions.report">
+        <field name="name">Financial Report (Separate by Analytic)</field>
+        <field name="model">accounting.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">accounting_pdf_reports_analytic.report_financial_separate_analytic</field>
+        <field name="report_file">accounting_pdf_reports_analytic.report_financial_separate_analytic</field>
+        <field name="print_report_name">'Financial Report - Separate'</field>
+        <field name="binding_model_id" ref="accounting_pdf_reports.model_accounting_report"/>
+        <field name="binding_type">report</field>
+    </record>
 
 </odoo>

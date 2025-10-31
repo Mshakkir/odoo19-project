@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
     <record id="view_account_report_general_ledger_analytic" model="ir.ui.view">
         <field name="name">account.report.general.ledger.analytic</field>
         <field name="model">account.report.general.ledger</field>
@@ -8,13 +9,6 @@
             <xpath expr="//field[@name='journal_ids']" position="after">
                 <field name="analytic_account_ids" widget="many2many_tags"
                        options="{'no_open': True, 'no_create': True}"/>
-            </xpath>
-            <xpath expr="//footer" position="inside">
-                <button name="action_show_details"
-                        string="Show Details"
-                        type="object"
-                        class="btn-primary"
-                        icon="fa-list"/>
             </xpath>
         </field>
     </record>
@@ -28,9 +22,5 @@
         <field name="target">new</field>
     </record>
 
-    <menuitem id="menu_general_ledger_analytic"
-              name="General Ledger (Analytic)"
-              parent="accounting_pdf_reports.menu_finance_audit_reports"
-              action="action_account_general_ledger_analytic"
-              sequence="20"/>
+
 </odoo>

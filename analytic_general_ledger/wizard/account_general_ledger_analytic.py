@@ -21,7 +21,6 @@
 
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError
-import json
 
 
 class AccountReportGeneralLedgerAnalytic(models.TransientModel):
@@ -41,41 +40,57 @@ class AccountReportGeneralLedgerAnalytic(models.TransientModel):
         return self.env.ref('accounting_pdf_reports.action_report_general_ledger').with_context(
             landscape=True).report_action(records, data=data)
 
+    def _get_filtered_move_lines(self):
+        """Get move lines filtered by all criteria including analytic accounts"""
+        self.ensure_one()
+
+        # Build SQL query
+        query = """
+            SELECT aml.id
+            FROM account_move_line aml
+            JOIN account_move am ON aml.move_id = am.id
+            WHERE aml.date >= %s
+              AND aml.date <= %s
+        """
+        params = [self.date_from, self.date_to]
+
+        # Add journal filter
+        if self.journal_ids:
+            query += " AND aml.journal_id IN %s"
+            params.append(tuple(self.journal_ids.ids))
+
+        # Add target move filter
+        if self.target_move == 'posted':
+            query += " AND am.state = 'posted'"
+
+        # Add analytic filter
+        if self.analytic_account_ids:
+            analytic_conditions = []
+            for analytic_id in self.analytic_account_ids.ids:
+                analytic_conditions.append(f"aml.analytic_distribution::text LIKE '%\"{analytic_id}\"%'")
+
+            if analytic_conditions:
+                query += " AND (" + " OR ".join(analytic_conditions) + ")"
+
+        # Add display account filter
+        if self.display_account == 'movement':
+            query += " AND (aml.debit != 0 OR aml.credit != 0)"
+
+        query += " ORDER BY aml.account_id, aml.date, aml.id"
+
+        self.env.cr.execute(query, params)
+        result = self.env.cr.fetchall()
+        return [r[0] for r in result]
+
     def check_report_analytic(self):
         """Open detailed view of general ledger with analytic accounts"""
         self.ensure_one()
 
-        # Build domain for filtering
-        domain = [
-            ('date', '>=', self.date_from),
-            ('date', '<=', self.date_to),
-        ]
+        # Get filtered line IDs
+        line_ids = self._get_filtered_move_lines()
 
-        # Add journal filter
-        if self.journal_ids:
-            domain.append(('journal_id', 'in', self.journal_ids.ids))
-
-        # Add analytic account filter - using analytic_distribution
-        if self.analytic_account_ids:
-            # In Odoo 19, analytic_distribution is a JSON field
-            # We need to search for lines that contain any of the selected analytic accounts
-            analytic_domain = []
-            for analytic_account in self.analytic_account_ids:
-                analytic_domain.append(('analytic_distribution', 'ilike', str(analytic_account.id)))
-
-            if len(analytic_domain) > 1:
-                domain.append('|' * (len(analytic_domain) - 1))
-            domain.extend(analytic_domain)
-
-        # Add target move filter
-        if self.target_move == 'posted':
-            domain.append(('move_id.state', '=', 'posted'))
-
-        # Add display account filter
-        if self.display_account == 'movement':
-            domain.append('|')
-            domain.append(('debit', '!=', 0))
-            domain.append(('credit', '!=', 0))
+        if not line_ids:
+            raise UserError(_('No journal entries found for the selected criteria.'))
 
         return {
             'name': _('General Ledger Details (Analytic)'),
@@ -83,7 +98,7 @@ class AccountReportGeneralLedgerAnalytic(models.TransientModel):
             'res_model': 'account.move.line',
             'view_mode': 'list',
             'view_id': self.env.ref('analytic_general_ledger.view_general_ledger_analytic_line_tree').id,
-            'domain': domain,
+            'domain': [('id', 'in', line_ids)],
             'context': {
                 'search_default_group_by_account': 1,
             },

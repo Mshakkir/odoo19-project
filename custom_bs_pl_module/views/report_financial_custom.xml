@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- ✅ Simplified: Just append at the end of the entire template -->
-    <template id="report_financial_balance_rename"
-              inherit_id="accounting_pdf_reports.report_financial"
-              name="Add Warehouse Analytic Summary">
+    <!-- ✅ OPTION 1: If inheritance doesn't work, create standalone warehouse summary report -->
 
-        <!-- Add warehouse summary at the very end -->
-        <xpath expr="//t[@t-name='accounting_pdf_reports.report_financial']" position="inside">
-            <t t-if="data.get('all_warehouse_data')">
-                <div class="mt-4">
-                    <h4>Warehouse Analytic Summary</h4>
-                    <table class="table table-sm table-bordered">
-                        <thead>
+    <!-- Warehouse Summary Template -->
+    <template id="warehouse_analytic_summary">
+        <t t-if="data.get('all_warehouse_data')">
+            <div class="page" style="page-break-before: always;">
+                <div class="container">
+                    <h3 class="text-center mb-4">Warehouse Analytic Summary</h3>
+
+                    <table class="table table-bordered table-sm">
+                        <thead style="background-color: #f8f9fa;">
                             <tr>
-                                <th>Warehouse / Analytic</th>
+                                <th>Warehouse / Analytic Account</th>
                                 <th class="text-end">Debit</th>
                                 <th class="text-end">Credit</th>
                                 <th class="text-end">Balance</th>
@@ -22,41 +21,38 @@
                         <tbody>
                             <t t-foreach="data['all_warehouse_data']" t-as="wh">
                                 <tr>
-                                    <td>
-                                        <span t-esc="wh['warehouse_name']"/>
-                                    </td>
-                                    <td class="text-end">
-                                        <span t-esc="'%.2f' % wh['debit']"/>
-                                    </td>
-                                    <td class="text-end">
-                                        <span t-esc="'%.2f' % wh['credit']"/>
-                                    </td>
-                                    <td class="text-end">
-                                        <span t-esc="'%.2f' % wh['balance']"/>
-                                    </td>
+                                    <td><span t-esc="wh['warehouse_name']"/></td>
+                                    <td class="text-end"><span t-esc="'%.2f' % wh['debit']"/></td>
+                                    <td class="text-end"><span t-esc="'%.2f' % wh['credit']"/></td>
+                                    <td class="text-end"><span t-esc="'%.2f' % wh['balance']"/></td>
                                 </tr>
                             </t>
-                            <tr class="fw-bold" style="background-color: #f0f0f0;">
+                            <tr class="fw-bold" style="background-color: #e9ecef;">
                                 <td>Total</td>
-                                <td class="text-end">
-                                    <span t-esc="'%.2f' % data['combined_totals']['debit']"/>
-                                </td>
-                                <td class="text-end">
-                                    <span t-esc="'%.2f' % data['combined_totals']['credit']"/>
-                                </td>
-                                <td class="text-end">
-                                    <span t-esc="'%.2f' % data['combined_totals']['balance']"/>
-                                </td>
+                                <td class="text-end"><span t-esc="'%.2f' % data['combined_totals']['debit']"/></td>
+                                <td class="text-end"><span t-esc="'%.2f' % data['combined_totals']['credit']"/></td>
+                                <td class="text-end"><span t-esc="'%.2f' % data['combined_totals']['balance']"/></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-            </t>
+            </div>
+        </t>
+    </template>
+
+    <!-- Inherit the main financial report and call our template -->
+    <template id="report_financial_with_warehouse"
+              inherit_id="accounting_pdf_reports.report_financial"
+              name="Financial Report with Warehouse Summary">
+
+        <!-- Add at the very end of the document -->
+        <xpath expr="." position="after">
+            <t t-call="custom_bs_pl_module.warehouse_analytic_summary"/>
         </xpath>
 
     </template>
-</odoo>
 
+</odoo>
 
 
 

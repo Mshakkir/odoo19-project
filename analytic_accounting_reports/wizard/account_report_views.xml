@@ -5,7 +5,6 @@
         <field name="model">accounting.report</field>
         <field name="inherit_id" ref="accounting_pdf_reports.accounting_report_view"/>
         <field name="arch" type="xml">
-            <!-- Insert analytic filter fields after journal selection -->
             <xpath expr="//field[@name='journal_ids']" position="after">
                 <group string="Warehouse / Analytic Account Filter" col="2">
                     <field name="analytic_account_ids"
@@ -22,7 +21,6 @@
         </field>
     </record>
 </odoo>
-
 
 
 

@@ -5,18 +5,48 @@
         <field name="model">accounting.report</field>
         <field name="inherit_id" ref="accounting_pdf_reports.accounting_report_view"/>
         <field name="arch" type="xml">
-
-            <!-- Insert our analytic filter fields after journal selection -->
+            <!-- Insert analytic filter fields after journal selection -->
             <xpath expr="//field[@name='journal_ids']" position="after">
-                <group string="Warehouse / Analytic Filter" col="4">
+                <group string="Warehouse / Analytic Account Filter" col="2">
                     <field name="analytic_account_ids"
                            widget="many2many_tags"
-                           options="{'no_create': True}"
-                           placeholder="Select warehouses (leave empty for all)"/>
-                    <field name="include_combined"/>
+                           options="{'no_create': True, 'no_open': True}"
+                           placeholder="Select warehouses (leave empty for all)"
+                           colspan="2"/>
+                    <field name="show_warehouse_breakdown" invisible="1"/>
+                    <field name="include_combined"
+                           attrs="{'invisible': [('show_warehouse_breakdown', '=', False)]}"
+                           colspan="2"/>
                 </group>
             </xpath>
-
         </field>
     </record>
 </odoo>
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <record id="view_accounting_report_inherit_analytic" model="ir.ui.view">-->
+<!--        <field name="name">accounting.report.wizard.analytic.inherit</field>-->
+<!--        <field name="model">accounting.report</field>-->
+<!--        <field name="inherit_id" ref="accounting_pdf_reports.accounting_report_view"/>-->
+<!--        <field name="arch" type="xml">-->
+
+<!--            &lt;!&ndash; Insert our analytic filter fields after journal selection &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='journal_ids']" position="after">-->
+<!--                <group string="Warehouse / Analytic Filter" col="4">-->
+<!--                    <field name="analytic_account_ids"-->
+<!--                           widget="many2many_tags"-->
+<!--                           options="{'no_create': True}"-->
+<!--                           placeholder="Select warehouses (leave empty for all)"/>-->
+<!--                    <field name="include_combined"/>-->
+<!--                </group>-->
+<!--            </xpath>-->
+
+<!--        </field>-->
+<!--    </record>-->
+<!--</odoo>-->

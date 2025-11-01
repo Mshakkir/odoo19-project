@@ -21,6 +21,7 @@
 
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError
+import json
 
 
 class AccountReportGeneralLedgerAnalytic(models.TransientModel):
@@ -59,25 +60,36 @@ class AccountReportGeneralLedgerAnalytic(models.TransientModel):
             domain.append(('parent_state', '=', 'posted'))
 
         # Get move lines
-        if self.analytic_account_ids:
-            # Need to filter by analytic distribution
-            # First get all lines matching other criteria
-            all_lines = self.env['account.move.line'].search(domain)
+        all_lines = self.env['account.move.line'].search(domain)
 
-            # Filter by analytic accounts
+        # Filter by analytic accounts if specified
+        if self.analytic_account_ids:
             filtered_line_ids = []
+            selected_analytic_ids = set(self.analytic_account_ids.ids)
+
             for line in all_lines:
                 if line.analytic_distribution:
-                    # Check if any selected analytic account is in the distribution
-                    for analytic_id in self.analytic_account_ids.ids:
-                        if str(analytic_id) in str(line.analytic_distribution):
+                    try:
+                        # Parse the JSON analytic_distribution
+                        if isinstance(line.analytic_distribution, str):
+                            distribution = json.loads(line.analytic_distribution)
+                        else:
+                            distribution = line.analytic_distribution
+
+                        # Get analytic account IDs from the distribution
+                        line_analytic_ids = set(int(k) for k in distribution.keys())
+
+                        # Check if any of the selected analytic accounts are in this line
+                        if selected_analytic_ids & line_analytic_ids:  # Intersection
                             filtered_line_ids.append(line.id)
-                            break
+                    except (json.JSONDecodeError, ValueError, AttributeError):
+                        # Skip lines with invalid analytic_distribution
+                        continue
 
             line_ids = filtered_line_ids
         else:
-            # Just get all lines matching domain
-            line_ids = self.env['account.move.line'].search(domain).ids
+            # If no analytic filter, show all lines
+            line_ids = all_lines.ids
 
         # Apply display account filter
         if self.display_account == 'movement' and line_ids:
@@ -85,21 +97,36 @@ class AccountReportGeneralLedgerAnalytic(models.TransientModel):
             line_ids = [l.id for l in lines if l.debit != 0 or l.credit != 0]
 
         if not line_ids:
-            raise UserError(_('No journal entries found for the selected criteria.\n\n'
-                              'Please check:\n'
-                              '- Date range has transactions\n'
-                              '- Selected journals have entries\n'
-                              '- Analytic accounts are assigned to journal entries'))
+            # Build helpful error message
+            error_msg = _('No journal entries found for the selected criteria.\n\nPlease check:')
+            error_details = []
+            error_details.append(f'- Date range: {self.date_from} to {self.date_to}')
+            if self.journal_ids:
+                error_details.append(f'- Journals: {", ".join(self.journal_ids.mapped("name"))}')
+            if self.analytic_account_ids:
+                error_details.append(f'- Analytic Accounts: {", ".join(self.analytic_account_ids.mapped("name"))}')
+            error_details.append('- Make sure journal entries have analytic distribution assigned')
+
+            raise UserError(error_msg + '\n' + '\n'.join(error_details))
+
+        # Build context with analytic account names for display
+        context = {
+            'search_default_group_by_account': 1,
+        }
+
+        # Build a descriptive name
+        title = _('General Ledger Details')
+        if self.analytic_account_ids:
+            analytic_names = ', '.join(self.analytic_account_ids.mapped('name'))
+            title += f' - {analytic_names}'
 
         return {
-            'name': _('General Ledger Details (Analytic)'),
+            'name': title,
             'type': 'ir.actions.act_window',
             'res_model': 'account.move.line',
             'view_mode': 'list',
             'view_id': self.env.ref('analytic_general_ledger.view_general_ledger_analytic_line_tree').id,
             'domain': [('id', 'in', line_ids)],
-            'context': {
-                'search_default_group_by_account': 1,
-            },
+            'context': context,
             'target': 'current',
         }

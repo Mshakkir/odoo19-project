@@ -7,8 +7,10 @@ class AccountingReport(models.TransientModel):
     # Add analytic account filtering fields
     analytic_filter = fields.Selection([
         ('all', 'All Warehouses Combined'),
-        ('specific', 'Specific Warehouse'),
-    ], string='Analytic Filter', default='all', required=True)
+        ('baladiya', 'SSAQCO - Baladiya'),
+        ('dammam', 'SSAQCO - Dammam'),
+        ('mainoffice', 'SSAQCO - Main Office'),
+    ], string='Warehouse Selection', default='all', required=True)
 
     analytic_account_id = fields.Many2one(
         'account.analytic.account',
@@ -18,7 +20,7 @@ class AccountingReport(models.TransientModel):
 
     show_analytic_breakdown = fields.Boolean(
         string='Show Warehouse Breakdown',
-        help='Display separate columns for each warehouse'
+        help='Display separate columns for each warehouse (Only for All Warehouses Combined)'
     )
 
     @api.onchange('analytic_filter')
@@ -34,8 +36,10 @@ class AccountingReport(models.TransientModel):
 
         # Add analytic filtering to context
         if data['form'].get('analytic_filter') == 'specific' and data['form'].get('analytic_account_id'):
-            result['analytic_account_id'] = data['form']['analytic_account_id'][0] if isinstance(
-                data['form']['analytic_account_id'], tuple) else data['form']['analytic_account_id']
+            analytic_id = data['form']['analytic_account_id']
+            if isinstance(analytic_id, tuple):
+                analytic_id = analytic_id[0]
+            result['analytic_account_id'] = analytic_id
 
         result['show_analytic_breakdown'] = data['form'].get('show_analytic_breakdown', False)
 
@@ -46,8 +50,10 @@ class AccountingReport(models.TransientModel):
         result = super(AccountingReport, self)._build_comparison_context(data)
 
         if data['form'].get('analytic_filter') == 'specific' and data['form'].get('analytic_account_id'):
-            result['analytic_account_id'] = data['form']['analytic_account_id'][0] if isinstance(
-                data['form']['analytic_account_id'], tuple) else data['form']['analytic_account_id']
+            analytic_id = data['form']['analytic_account_id']
+            if isinstance(analytic_id, tuple):
+                analytic_id = analytic_id[0]
+            result['analytic_account_id'] = analytic_id
 
         result['show_analytic_breakdown'] = data['form'].get('show_analytic_breakdown', False)
 

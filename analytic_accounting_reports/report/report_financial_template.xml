@@ -2,12 +2,12 @@
 <odoo>
     <template id="report_financial_inherit" inherit_id="accounting_pdf_reports.report_financial">
 
-        <!-- Add analytic account info in header -->
+        <!-- Add warehouse information in header after date range -->
         <div class="row mt32 mb32" position="after">
-            <div class="row mb16" t-if="analytic_account">
+            <div class="row mb16" t-if="warehouse_display">
                 <div class="col-12">
-                    <strong>Warehouse/Analytic Account:</strong>
-                    <span t-esc="analytic_account.name"/>
+                    <strong>Warehouse Selection:</strong>
+                    <span t-esc="warehouse_display"/>
                 </div>
             </div>
         </div>

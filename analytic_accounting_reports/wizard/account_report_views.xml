@@ -1,29 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="accounting_report_view_inherit" model="ir.ui.view">
-        <field name="name">accounting.report.form.inherit.analytic</field>
+    <record id="view_accounting_report_inherit_analytic" model="ir.ui.view">
+        <field name="name">accounting.report.wizard.analytic.inherit</field>
         <field name="model">accounting.report</field>
         <field name="inherit_id" ref="accounting_pdf_reports.accounting_report_view"/>
         <field name="arch" type="xml">
-
-            <!-- Add warehouse selection after account_report_id -->
-            <field name="account_report_id" position="after">
-                <separator string="Warehouse Selection" colspan="4"/>
-                <group>
-                    <group>
-                        <field name="analytic_filter" widget="radio"/>
-                    </group>
-                    <group>
-                        <field name="show_analytic_breakdown"
-                               invisible="analytic_filter != 'all'"
-                               help="Show separate columns for each warehouse in the report"/>
-                    </group>
+            <!-- Insert analytic filter right after journal_ids -->
+            <field name="journal_ids" position="after">
+                <group string="Warehouse Analytic Filter" colspan="4">
+                    <field name="analytic_account_ids"
+                           widget="many2many_tags"
+                           options="{'no_create': True}"
+                           domain="[('name', 'ilike', 'SSAQCO')]"
+                           placeholder="Select warehouses (leave empty for all)"/>
+                    <field name="include_combined"/>
                 </group>
-
-                <!-- Hidden field to store the analytic account ID -->
-                <field name="analytic_account_id" invisible="1"/>
             </field>
-
         </field>
     </record>
 </odoo>

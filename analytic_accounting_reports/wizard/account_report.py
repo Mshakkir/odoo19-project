@@ -22,13 +22,23 @@ class AccountingReport(models.TransientModel):
     # ------------------------------------------------------------------
     #  ANALYTIC FILTER FIELDS
     # ------------------------------------------------------------------
+    analytic_filter = fields.Selection(
+        [
+            ('all', 'All Analytic Accounts'),
+            ('selected', 'Selected Analytic Accounts'),
+        ],
+        string="Analytic Filter",
+        default='all'
+    )
+
     analytic_account_ids = fields.Many2many(
         'account.analytic.account',
-        'accounting_report_analytic_rel',
-        'report_id',
-        'analytic_id',
-        string='Warehouses / Analytic Accounts',
-        help='Select one or more warehouses/analytic accounts.'
+        string="Analytic Accounts"
+    )
+
+    show_analytic_breakdown = fields.Boolean(
+        string="Show Breakdown by Analytic",
+        help="If enabled, the report will split balances by analytic accounts."
     )
 
     include_combined = fields.Boolean(

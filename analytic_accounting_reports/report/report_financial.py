@@ -1,5 +1,4 @@
 from odoo import api, models
-import json
 
 
 class ReportFinancial(models.AbstractModel):
@@ -15,38 +14,52 @@ class ReportFinancial(models.AbstractModel):
 
         res = {}
         for account in accounts:
-            res[account.id] = dict.fromkeys(mapping, 0.0)
+            # initialize each account row with 0.0 for the keys we want
+            res[account.id] = {k: 0.0 for k in mapping.keys()}
 
-        if accounts:
-            tables, where_clause, where_params = self.env['account.move.line']._query_get()
-            tables = tables.replace('"', '') if tables else "account_move_line"
-            wheres = [""]
+        if not accounts:
+            return res
 
-            if where_clause.strip():
-                wheres.append(where_clause.strip())
+        # build base query parts using Odoo helper
+        tables, where_clause, where_params = self.env['account.move.line']._query_get()
+        # fallback defaults
+        tables = (tables or "account_move_line").replace('"', '')
+        where_clause = where_clause.strip() if where_clause else ''
+        where_params = where_params or []
 
-            # Add analytic distribution filtering for selected warehouses
-            analytic_account_ids = self.env.context.get('analytic_account_ids', [])
-            if analytic_account_ids:
-                # Build OR condition for multiple analytic accounts
-                analytic_conditions = []
-                for analytic_id in analytic_account_ids:
-                    analytic_conditions.append(
-                        f"(analytic_distribution::text LIKE '%\"{analytic_id}\"%' OR "
-                        f"analytic_distribution::text LIKE '%\"{analytic_id}\":%')"
-                    )
-                if analytic_conditions:
-                    wheres.append("(" + " OR ".join(analytic_conditions) + ")")
+        # assemble where parts cleanly
+        wheres = []
+        if where_clause:
+            wheres.append("(%s)" % where_clause)
 
-            filters = " AND ".join(wheres)
-            request = "SELECT account_id as id, " + ', '.join(mapping.values()) + \
-                      " FROM " + tables + \
-                      " WHERE account_id IN %s " + filters + \
-                      " GROUP BY account_id"
-            params = (tuple(accounts._ids),) + tuple(where_params)
-            self.env.cr.execute(request, params)
-            for row in self.env.cr.dictfetchall():
-                res[row['id']] = row
+        analytic_account_ids = self.env.context.get('analytic_account_ids', []) or []
+        if analytic_account_ids:
+            analytic_conditions = []
+            for analytic_id in analytic_account_ids:
+                # match either the key existence or key with a nested object/value
+                analytic_conditions.append(
+                    f"(analytic_distribution::text LIKE '%\"{int(analytic_id)}\"%' OR analytic_distribution::text LIKE '%\"{int(analytic_id)}\":%')"
+                )
+            if analytic_conditions:
+                wheres.append("(" + " OR ".join(analytic_conditions) + ")")
+
+        filters = (" AND ".join(wheres)) and " AND " + " AND ".join(wheres) or ""
+
+        request = (
+            "SELECT account_id as id, " + ', '.join(mapping.values()) +
+            " FROM " + tables +
+            " WHERE account_id IN %s " + filters +
+            " GROUP BY account_id"
+        )
+
+        params = [tuple(accounts.ids)] + list(where_params)
+        self.env.cr.execute(request, tuple(params))
+        for row in self.env.cr.dictfetchall():
+            res[row['id']] = {
+                'balance': row.get('balance', 0.0),
+                'debit': row.get('debit', 0.0),
+                'credit': row.get('credit', 0.0),
+            }
 
         return res
 
@@ -55,14 +68,11 @@ class ReportFinancial(models.AbstractModel):
         if not accounts:
             return {}, []
 
-        # Get selected warehouses or all SSAQCO warehouses
-        analytic_account_ids = self.env.context.get('analytic_account_ids', [])
+        analytic_account_ids = self.env.context.get('analytic_account_ids', []) or []
 
         if analytic_account_ids:
-            # Use selected warehouses
             warehouses = self.env['account.analytic.account'].browse(analytic_account_ids)
         else:
-            # Get all SSAQCO warehouses
             warehouses = self.env['account.analytic.account'].search([
                 ('name', 'ilike', 'SSAQCO')
             ], order='name')
@@ -70,51 +80,44 @@ class ReportFinancial(models.AbstractModel):
         if not warehouses:
             return {}, []
 
-        result = {}
-        for account in accounts:
-            result[account.id] = {}
-            for warehouse in warehouses:
-                result[account.id][warehouse.id] = {
-                    'balance': 0.0,
-                    'debit': 0.0,
-                    'credit': 0.0,
-                    'name': warehouse.name
-                }
+        # prepare result structure
+        result = {account.id: {w.id: {'balance': 0.0, 'debit': 0.0, 'credit': 0.0, 'name': w.name}
+                               for w in warehouses} for account in accounts}
 
         tables, where_clause, where_params = self.env['account.move.line']._query_get()
-        tables = tables.replace('"', '') if tables else "account_move_line"
+        tables = (tables or "account_move_line").replace('"', '')
+        where_clause = where_clause.strip() if where_clause else ''
+        where_params = where_params or []
 
         for warehouse in warehouses:
-            wheres = [""]
-            if where_clause.strip():
-                wheres.append(where_clause.strip())
+            wheres = []
+            if where_clause:
+                wheres.append("(%s)" % where_clause)
 
-            # Filter by this warehouse's analytic account
             wheres.append(
-                f"(analytic_distribution::text LIKE '%\"{warehouse.id}\"%' OR "
-                f"analytic_distribution::text LIKE '%\"{warehouse.id}\":%')"
+                f"(analytic_distribution::text LIKE '%\"{int(warehouse.id)}\"%' OR analytic_distribution::text LIKE '%\"{int(warehouse.id)}\":%')"
             )
 
-            filters = " AND ".join(wheres)
+            filters = (" AND ".join(wheres)) and " AND " + " AND ".join(wheres) or ""
 
-            request = """
-                SELECT account_id, 
+            request = f"""
+                SELECT account_id,
                        COALESCE(SUM(debit), 0) as debit,
                        COALESCE(SUM(credit), 0) as credit,
                        COALESCE(SUM(debit), 0) - COALESCE(SUM(credit), 0) as balance
-                FROM """ + tables + """
-                WHERE account_id IN %s """ + filters + """
+                FROM {tables}
+                WHERE account_id IN %s {filters}
                 GROUP BY account_id
             """
-            params = (tuple(accounts._ids),) + tuple(where_params)
-            self.env.cr.execute(request, params)
-
+            params = [tuple(accounts.ids)] + list(where_params)
+            self.env.cr.execute(request, tuple(params))
             for row in self.env.cr.dictfetchall():
-                if row['account_id'] in result:
-                    result[row['account_id']][warehouse.id] = {
-                        'balance': row['balance'],
-                        'debit': row['debit'],
-                        'credit': row['credit'],
+                acc_id = row.get('account_id')
+                if acc_id in result:
+                    result[acc_id][warehouse.id] = {
+                        'balance': row.get('balance', 0.0),
+                        'debit': row.get('debit', 0.0),
+                        'credit': row.get('credit', 0.0),
                         'name': warehouse.name
                     }
 
@@ -122,40 +125,32 @@ class ReportFinancial(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        """Override to pass analytic information"""
-        result = super(ReportFinancial, self)._get_report_values(docids, data)
+        """Override to pass analytic information for display"""
+        result = super(ReportFinancial, self)._get_report_values(docids, data) or {}
 
-        # Get selected warehouse names
-        warehouse_names = []
-        if data and data.get('form', {}).get('analytic_account_ids'):
-            analytic_data = data['form']['analytic_account_ids']
-            # Handle many2many format: [(6, 0, [id1, id2, id3])]
+        # default values
+        result['selected_warehouses'] = False
+        result['warehouse_display'] = 'All Warehouses'
+        result['include_combined'] = False
+
+        if data and data.get('form'):
+            analytic_data = data['form'].get('analytic_account_ids', [])
             analytic_ids = []
+            # normalize
             if analytic_data and isinstance(analytic_data[0], (list, tuple)):
                 analytic_ids = analytic_data[0][2] if len(analytic_data[0]) > 2 else []
             else:
-                analytic_ids = analytic_data
+                analytic_ids = analytic_data or []
 
             if analytic_ids:
                 analytic_accounts = self.env['account.analytic.account'].browse(analytic_ids)
-                warehouse_names = [acc.name for acc in analytic_accounts]
                 result['selected_warehouses'] = analytic_accounts
+                names = [acc.name for acc in analytic_accounts]
+                result['warehouse_display'] = ', '.join(names) if names else 'All Warehouses'
             else:
                 result['selected_warehouses'] = False
-        else:
-            result['selected_warehouses'] = False
+                result['warehouse_display'] = 'All Warehouses'
 
-        # Set display text
-        if warehouse_names:
-            if len(warehouse_names) == 1:
-                result['warehouse_display'] = warehouse_names[0]
-            else:
-                result['warehouse_display'] = ', '.join(warehouse_names)
-        else:
-            result['warehouse_display'] = 'All Warehouses'
-
-        # Add combined column flag
-        if data and data.get('form'):
-            result['include_combined'] = data['form'].get('include_combined', False)
+            result['include_combined'] = bool(data['form'].get('include_combined', False))
 
         return result

@@ -1,10 +1,24 @@
 from odoo import api, fields, models
 
 
+def _normalize_m2m_field(value):
+    """Return list of ids from possible many2many form formats:
+       - [(6, 0, [id1, id2])]
+       - [id1, id2]
+    """
+    if not value:
+        return []
+    if isinstance(value, (list, tuple)) and value and isinstance(value[0], (list, tuple)):
+        # command format
+        return value[0][2] if len(value[0]) > 2 else []
+    if isinstance(value, (list, tuple)):
+        return list(value)
+    return [value]
+
+
 class AccountingReport(models.TransientModel):
     _inherit = "accounting.report"
 
-    # Many2many field for selecting multiple warehouses
     analytic_account_ids = fields.Many2many(
         'account.analytic.account',
         'accounting_report_analytic_rel',
@@ -22,47 +36,46 @@ class AccountingReport(models.TransientModel):
 
     @api.onchange('analytic_account_ids')
     def _onchange_analytic_account_ids(self):
-        """Show/hide combined column option based on selection"""
         if len(self.analytic_account_ids) <= 1:
             self.include_combined = False
 
     def _build_contexts(self, data):
-        """Override to add analytic context"""
         result = super(AccountingReport, self)._build_contexts(data)
-
-        # Add analytic account IDs to context
-        analytic_ids = data['form'].get('analytic_account_ids', [])
-        if analytic_ids:
-            # Handle tuple format from form: [(6, 0, [id1, id2, id3])]
-            if analytic_ids and isinstance(analytic_ids[0], (list, tuple)):
-                analytic_ids = analytic_ids[0][2] if len(analytic_ids[0]) > 2 else []
-            result['analytic_account_ids'] = analytic_ids
-
-        result['include_combined'] = data['form'].get('include_combined', False)
-
+        analytic_field = data.get('form', {}).get('analytic_account_ids', [])
+        analytic_ids = _normalize_m2m_field(analytic_field)
+        result['analytic_account_ids'] = analytic_ids or []
+        result['include_combined'] = data.get('form', {}).get('include_combined', False)
         return result
 
     def _build_comparison_context(self, data):
-        """Override to add analytic context to comparison"""
         result = super(AccountingReport, self)._build_comparison_context(data)
-
-        # Add analytic account IDs to comparison context
-        analytic_ids = data['form'].get('analytic_account_ids', [])
-        if analytic_ids:
-            if analytic_ids and isinstance(analytic_ids[0], (list, tuple)):
-                analytic_ids = analytic_ids[0][2] if len(analytic_ids[0]) > 2 else []
-            result['analytic_account_ids'] = analytic_ids
-
-        result['include_combined'] = data['form'].get('include_combined', False)
-
+        analytic_field = data.get('form', {}).get('analytic_account_ids', [])
+        analytic_ids = _normalize_m2m_field(analytic_field)
+        result['analytic_account_ids'] = analytic_ids or []
+        result['include_combined'] = data.get('form', {}).get('include_combined', False)
         return result
 
     def _print_report(self, data):
-        """Override to pass analytic fields"""
-        data['form'].update(self.read([
-            'date_from_cmp', 'debit_credit', 'date_to_cmp', 'filter_cmp',
-            'account_report_id', 'enable_filter', 'label_filter', 'target_move',
-            'analytic_account_ids', 'include_combined'
-        ])[0])
+        """Pass analytic selections safely into the report action.
+
+        Some parent wizards may not have the same fields available via .read([...]).
+        So we try to read the parent fields but always update analytic keys explicitly.
+        """
+        # try to read parent fields (best-effort)
+        try:
+            vals = self.read([
+                'date_from_cmp', 'debit_credit', 'date_to_cmp', 'filter_cmp',
+                'account_report_id', 'enable_filter', 'label_filter', 'target_move',
+            ])[0]
+            data['form'].update(vals)
+        except Exception:
+            # ignore — we'll pass analytic fields explicitly below
+            pass
+
+        # ensure analytic fields are in the form in canonical many2many command form
+        data['form'].update({
+            'analytic_account_ids': [(6, 0, self.analytic_account_ids.ids)],
+            'include_combined': bool(self.include_combined),
+        })
         return self.env.ref('accounting_pdf_reports.action_report_financial').report_action(
             self, data=data, config=False)

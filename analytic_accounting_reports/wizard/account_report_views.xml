@@ -5,16 +5,18 @@
         <field name="model">accounting.report</field>
         <field name="inherit_id" ref="accounting_pdf_reports.accounting_report_view"/>
         <field name="arch" type="xml">
+
+            <!-- Insert our analytic filter fields after journal selection -->
             <xpath expr="//field[@name='journal_ids']" position="after">
-                <group string="Warehouse Analytic Filter" colspan="4">
+                <group string="Warehouse / Analytic Filter" col="4">
                     <field name="analytic_account_ids"
                            widget="many2many_tags"
                            options="{'no_create': True}"
-                           domain="[('name', 'ilike', 'SSAQCO')]"
                            placeholder="Select warehouses (leave empty for all)"/>
                     <field name="include_combined"/>
                 </group>
             </xpath>
+
         </field>
     </record>
 </odoo>

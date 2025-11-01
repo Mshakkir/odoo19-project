@@ -53,6 +53,11 @@ class AccountingReport(models.TransientModel):
         default=False,
         help="(Technical placeholder) Added because the XML view expects this field."
     )
+    analytic_account_id = fields.Many2one(
+        'account.analytic.account',
+        string='Analytic Account (Single)',
+        help='(Technical placeholder) Used because the view expects this field.'
+    )
 
     # ------------------------------------------------------------------
     #  ONCHANGE BEHAVIOUR

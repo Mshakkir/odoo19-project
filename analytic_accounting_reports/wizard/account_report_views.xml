@@ -1,0 +1,28 @@
+"""
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="accounting_report_view_inherit" model="ir.ui.view">
+        <field name="name">accounting.report.form.inherit</field>
+        <field name="model">accounting.report</field>
+        <field name="inherit_id" ref="accounting_pdf_reports.accounting_report_view"/>
+        <field name="arch" type="xml">
+
+            <!-- Add analytic filtering after account_report_id -->
+            <field name="account_report_id" position="after">
+                <separator string="Warehouse/Analytic Filtering" colspan="4"/>
+                <group>
+                    <field name="analytic_filter"/>
+                    <field name="analytic_account_id"
+                           invisible="analytic_filter != 'specific'"
+                           required="analytic_filter == 'specific'"
+                           domain="[('plan_id.name', 'ilike', 'warehouse')]"/>
+                    <field name="show_analytic_breakdown"
+                           invisible="analytic_filter != 'all'"
+                           help="Show separate columns for each warehouse"/>
+                </group>
+            </field>
+
+        </field>
+    </record>
+</odoo>
+"""

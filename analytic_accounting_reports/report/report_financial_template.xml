@@ -1,0 +1,18 @@
+"""
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_financial_inherit" inherit_id="accounting_pdf_reports.report_financial">
+
+        <!-- Add analytic account info in header -->
+        <div class="row mt32 mb32" position="after">
+            <div class="row mb16" t-if="analytic_account">
+                <div class="col-12">
+                    <strong>Warehouse/Analytic Account:</strong>
+                    <span t-esc="analytic_account.name"/>
+                </div>
+            </div>
+        </div>
+
+    </template>
+</odoo>
+"""

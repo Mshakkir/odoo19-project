@@ -48,6 +48,11 @@ class AccountingReport(models.TransientModel):
         default=False,
         help="(Technical field) Added to avoid view error in inherited wizard."
     )
+    show_analytic_breakdown = fields.Boolean(
+        string='Show Analytic Breakdown',
+        default=False,
+        help="(Technical placeholder) Added because the XML view expects this field."
+    )
 
     # ------------------------------------------------------------------
     #  ONCHANGE BEHAVIOUR

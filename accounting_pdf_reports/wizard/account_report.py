@@ -6,15 +6,6 @@ class AccountingReport(models.TransientModel):
     _inherit = "account.common.report"
     _description = "Accounting Report"
 
-    analytic_filter = fields.Selection(
-        [
-            ('none', 'No Filter'),
-            ('warehouse', 'By Warehouse'),
-            ('analytic_account', 'By Analytic Account')
-        ],
-        string='Analytic Filter',
-        default='none'
-    )
 
     @api.model
     def _get_account_report(self):

@@ -104,6 +104,16 @@ from odoo import api, fields, models
 class AccountingReport(models.TransientModel):
     _inherit = "accounting.report"
 
+    analytic_filter = fields.Selection(
+        [
+            ('none', 'No Filter'),
+            ('warehouse', 'By Warehouse'),
+            ('analytic_account', 'By Analytic Account')
+        ],
+        string='Analytic Filter',
+        default='none'
+    )
+
     # Analytic filter fields
     analytic_account_ids = fields.Many2many(
         'account.analytic.account',

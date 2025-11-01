@@ -1,84 +1,112 @@
-from odoo import models, api, Command
+from odoo import models, api
+import json
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
+    def _sync_analytic_to_receivable_payable(self):
+        """
+        Sync analytic distribution from invoice lines to receivable/payable lines
+        Uses direct SQL update to bypass ORM restrictions
+        """
+        for move in self:
+            # Only for invoices and bills
+            if move.move_type not in ['out_invoice', 'out_refund', 'in_invoice', 'in_refund']:
+                continue
+
+            # Get analytic from product lines
+            product_lines = move.invoice_line_ids.filtered(
+                lambda l: l.display_type == 'product' and l.analytic_distribution
+            )
+
+            if not product_lines:
+                _logger.info(f"No product lines with analytic for move {move.name}")
+                continue
+
+            # Get the analytic distribution from first product line
+            analytic_distribution = product_lines[0].analytic_distribution
+
+            # Convert to JSON string for SQL
+            if isinstance(analytic_distribution, dict):
+                analytic_json = json.dumps(analytic_distribution)
+            else:
+                analytic_json = analytic_distribution
+
+            _logger.info(f"Syncing analytic {analytic_json} to receivable/payable lines for {move.name}")
+
+            # Direct SQL update - bypasses all ORM restrictions
+            self.env.cr.execute("""
+                UPDATE account_move_line aml
+                SET analytic_distribution = %s::jsonb
+                FROM account_account aa
+                WHERE aml.account_id = aa.id
+                  AND aml.move_id = %s
+                  AND aa.account_type IN ('asset_receivable', 'liability_payable')
+            """, (analytic_json, move.id))
+
+            _logger.info(f"SQL updated {self.env.cr.rowcount} lines")
+
+            # Invalidate cache so Odoo reloads the values
+            move.line_ids.invalidate_recordset(['analytic_distribution'])
+
+            # Commit the transaction
+            self.env.cr.commit()
+
     def _recompute_dynamic_lines(self, recompute_all_taxes=False, recompute_tax_base_amount=False):
-        """
-        Override to set analytic distribution on receivable/payable lines
-        """
+        """Override to sync analytic after recompute"""
         res = super()._recompute_dynamic_lines(
             recompute_all_taxes=recompute_all_taxes,
             recompute_tax_base_amount=recompute_tax_base_amount
         )
 
-        for move in self:
-            if move.move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_refund']:
-                # Get analytic from product lines
-                product_lines = move.invoice_line_ids.filtered(
-                    lambda l: l.display_type == 'product' and l.analytic_distribution
-                )
-
-                if product_lines:
-                    analytic_distribution = product_lines[0].analytic_distribution
-
-                    # Update receivable/payable lines with context to bypass checks
-                    receivable_payable_lines = move.line_ids.filtered(
-                        lambda l: l.account_id.account_type in ['asset_receivable', 'liability_payable']
-                    )
-
-                    if receivable_payable_lines:
-                        # Use sudo() and special context to force the update
-                        receivable_payable_lines.sudo().with_context(
-                            check_move_validity=False,
-                            skip_invoice_sync=True,
-                            skip_account_move_synchronization=True
-                        ).write({
-                            'analytic_distribution': analytic_distribution
-                        })
+        # Sync analytic after recompute
+        self._sync_analytic_to_receivable_payable()
 
         return res
 
-    def _inverse_amount_total(self):
-        """Override to maintain analytic when amount changes"""
-        for move in self:
-            # Store current analytic before parent method
-            analytic_map = {}
-            for line in move.line_ids:
-                if line.account_id.account_type in ['asset_receivable', 'liability_payable']:
-                    analytic_map[line.id] = line.analytic_distribution
+    def action_post(self):
+        """Sync analytic before posting"""
+        self._sync_analytic_to_receivable_payable()
+        return super().action_post()
 
-        # Call parent
-        res = super()._inverse_amount_total()
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Sync analytic after creation"""
+        moves = super().create(vals_list)
+        moves._sync_analytic_to_receivable_payable()
+        return moves
 
-        # Restore analytic after parent method
-        for move in self:
-            for line in move.line_ids:
-                if line.id in analytic_map and analytic_map[line.id]:
-                    line.with_context(
-                        check_move_validity=False
-                    ).analytic_distribution = analytic_map[line.id]
+    def write(self, vals):
+        """Sync analytic after any update"""
+        res = super().write(vals)
 
-        return res
-
-
-class AccountMoveLine(models.Model):
-    _inherit = 'account.move.line'
-
-    @api.depends('move_id', 'product_id', 'analytic_distribution')
-    def _compute_all_tax(self):
-        """Override to preserve analytic distribution"""
-        # Store analytic before compute
-        analytic_map = {line.id: line.analytic_distribution for line in self}
-
-        # Call parent
-        res = super()._compute_all_tax()
-
-        # Restore analytic after compute
-        for line in self:
-            if line.id in analytic_map and analytic_map[line.id]:
-                if line.account_id.account_type in ['asset_receivable', 'liability_payable']:
-                    line.analytic_distribution = analytic_map[line.id]
+        # If invoice lines or journal items changed, sync
+        if 'invoice_line_ids' in vals or 'line_ids' in vals:
+            self._sync_analytic_to_receivable_payable()
 
         return res
+
+    def button_draft(self):
+        """Sync when reset to draft"""
+        res = super().button_draft()
+        self._sync_analytic_to_receivable_payable()
+        return res
+
+    def action_sync_analytic_manual(self):
+        """Manual button to force sync"""
+        self._sync_analytic_to_receivable_payable()
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Success!',
+                'message': 'Analytic distribution has been synced to Accounts Receivable/Payable lines',
+                'type': 'success',
+                'sticky': False,
+            }
+        }

@@ -1,4 +1,3 @@
-"""
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="accounting_report_view_inherit" model="ir.ui.view">
@@ -25,4 +24,3 @@
         </field>
     </record>
 </odoo>
-"""

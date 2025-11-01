@@ -55,6 +55,17 @@ class AccountingReport(models.TransientModel):
         string="Analytic Accounts"
     )
 
+    show_analytic_breakdown = fields.Boolean(
+        string="Show Breakdown by Analytic",
+        help="If enabled, the report will split balances by analytic accounts."
+    )
+
+    include_combined = fields.Boolean(
+        string='Show Combined Column',
+        default=False,
+        help='Show total column when multiple analytic accounts are selected.'
+    )
+
     def _build_comparison_context(self, data):
         result = {}
         result['journal_ids'] = data['form'].get('journal_ids')

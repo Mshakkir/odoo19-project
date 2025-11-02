@@ -13,10 +13,10 @@
                            options="{'no_create': True, 'no_open': True}"
                            placeholder="Select warehouses (leave empty for all)"
                            colspan="2"/>
-                    <field name="show_warehouse_breakdown" column_invisible="1"/>
-                    <field name="include_combined"
-                           invisible="not show_warehouse_breakdown"
-                           colspan="2"/>
+<!--                    <field name="show_warehouse_breakdown" column_invisible="1"/>-->
+<!--                    <field name="include_combined"-->
+<!--                           invisible="not show_warehouse_breakdown"-->
+<!--                           colspan="2"/>-->
                 </group>
             </xpath>
         </field>

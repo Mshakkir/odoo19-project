@@ -351,16 +351,25 @@ class AccountingReport(models.TransientModel):
         """Override to inject analytic data into the report"""
         self.ensure_one()
 
+        # Get all parent fields first
+        parent_fields = [
+            'date_from_cmp', 'debit_credit', 'date_to_cmp',
+            'filter_cmp', 'account_report_id', 'enable_filter',
+            'label_filter', 'target_move', 'date_from', 'date_to',
+            'journal_ids', 'company_id'
+        ]
+
+        # Add our custom fields
+        all_fields = parent_fields + ['analytic_account_ids', 'include_combined']
+
         # Prepare data dictionary
         data = {}
         data['ids'] = self.env.context.get('active_ids', [])
         data['model'] = self.env.context.get('active_model', 'ir.ui.menu')
-        data['form'] = self.read([
-            'date_from_cmp', 'debit_credit', 'date_to_cmp',
-            'filter_cmp', 'account_report_id', 'enable_filter',
-            'label_filter', 'target_move', 'date_from', 'date_to',
-            'journal_ids', 'analytic_account_ids', 'include_combined'
-        ])[0]
+
+        # Read all fields
+        form_data = self.read(all_fields)[0]
+        data['form'] = form_data
 
         # Ensure analytic_account_ids is in the proper format
         if self.analytic_account_ids:
@@ -372,7 +381,7 @@ class AccountingReport(models.TransientModel):
 
         # Build contexts with analytic filter
         for field in ['date_from_cmp', 'date_to_cmp', 'date_from', 'date_to']:
-            if data['form'][field]:
+            if field in data['form'] and data['form'][field]:
                 if isinstance(data['form'][field], tuple):
                     data['form'][field] = data['form'][field][0]
 
@@ -386,6 +395,5 @@ class AccountingReport(models.TransientModel):
 
         # Get the report action with context
         return self.env.ref('accounting_pdf_reports.action_report_financial').with_context(
-            analytic_account_ids=self.analytic_account_ids.ids,
-            include_combined=self.include_combined
+            **used_context
         ).report_action(self, data=data, config=False)

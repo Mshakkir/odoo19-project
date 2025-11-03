@@ -11,14 +11,6 @@
                     <field name="analytic_account_ids"
                            widget="many2many_tags"
                            options="{'no_create': True, 'no_open': True}"
-<<<<<<< HEAD
-                           placeholder="Select warehouses (leave empty for all)"
-                           colspan="2"/>
-<!--                    <field name="show_warehouse_breakdown" column_invisible="1"/>-->
-<!--                    <field name="include_combined"-->
-<!--                           invisible="not show_warehouse_breakdown"-->
-<!--                           colspan="2"/>-->
-=======
                            placeholder="Select warehouses (leave empty for all combined)"/>
 
                     <!-- Show helpful information -->
@@ -31,7 +23,6 @@
                     <field name="include_combined"
                            invisible="not show_warehouse_breakdown"
                            string="Show Breakdown by Warehouse"/>
->>>>>>> 84777d7 (odoomates)
                 </group>
             </xpath>
         </field>

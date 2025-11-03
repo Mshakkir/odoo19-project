@@ -303,3 +303,4 @@ class ReportDayBookAnalyticSeparate(models.AbstractModel):
             'print_journal': codes,
             'analytic_reports': analytic_reports,
         }
+

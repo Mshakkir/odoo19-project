@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Combined Report Action -->
+        <record id="action_report_daybook_analytic_combined" model="ir.actions.report">
+            <field name="name">Day Book - Analytic (Combined)</field>
+            <field name="model">account.daybook.analytic.report</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">om_account_daybook_analytic.report_daybook_analytic_combined</field>
+            <field name="report_file">om_account_daybook_analytic.report_daybook_analytic_combined</field>
+            <field name="print_report_name">'Day Book - Analytic - %s' % (object.date_from)</field>
+            <field name="binding_model_id" ref="model_account_daybook_analytic_report"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- Separate Report Action -->
+        <record id="action_report_daybook_analytic_separate" model="ir.actions.report">
+            <field name="name">Day Book - Analytic (Separate)</field>
+            <field name="model">account.daybook.analytic.report</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">om_account_daybook_analytic.report_daybook_analytic_separate</field>
+            <field name="report_file">om_account_daybook_analytic.report_daybook_analytic_separate</field>
+            <field name="print_report_name">'Day Book - Analytic (Separate) - %s' % (object.date_from)</field>
+            <field name="binding_model_id" ref="model_account_daybook_analytic_report"/>
+            <field name="binding_type">report</field>
+        </record>
+
+    </data>
+</odoo>

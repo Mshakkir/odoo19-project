@@ -1,0 +1,1 @@
+from . import account_daybook_analytic_report

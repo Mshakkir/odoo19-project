@@ -5,7 +5,7 @@ class AccountDaybookAnalyticWizard(models.TransientModel):
 
     analytic_account_ids = fields.Many2many(
         'account.analytic.account',
-        'rel_daybook_analytic_account_rel',  # short table name
+        'rel_daybook_analytic_account_rel',
         'wizard_id',
         'analytic_id',
         string='Analytic Accounts'
@@ -19,10 +19,15 @@ class AccountDaybookAnalyticWizard(models.TransientModel):
         if self.analytic_account_ids:
             domain.append(('analytic_account_id', 'in', self.analytic_account_ids.ids))
 
+        # Find default list and form view for account.move.line
+        tree_view = self.env.ref('account.view_move_line_tree')
+        form_view = self.env.ref('account.view_move_line_form')
+
         return {
             'name': 'Analytic Account Details',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move.line',
+            'views': [(tree_view.id, 'tree'), (form_view.id, 'form')],
             'view_mode': 'tree,form',
             'domain': domain,
             'target': 'current',

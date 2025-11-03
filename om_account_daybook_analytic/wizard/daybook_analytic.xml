@@ -1,131 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
     <record id="account_report_daybook_analytic_view" model="ir.ui.view">
-        <field name="name">Day Book with Analytic Accounts</field>
-        <field name="model">account.daybook.analytic.report</field>
+        <field name="name">account.daybook.analytic.wizard.form</field>
+        <field name="model">report.om_daybook_analytic.report_daybook_analytic_combined</field>
         <field name="arch" type="xml">
-            <form string="Report Options">
+            <form string="Daybook Analytic Report">
                 <group>
-                    <field name="target_move" widget="radio"/>
-                </group>
-
-                <group col="4">
                     <field name="date_from"/>
                     <field name="date_to"/>
-                </group>
-
-                <group>
+                    <field name="target_move"/>
                     <field name="journal_ids" widget="many2many_tags"/>
-                </group>
-
-                <group>
-                    <field name="report_type" widget="radio"/>
-                </group>
-
-                <!-- In Odoo 17+, "attrs" is not supported -->
-                <!-- So we handle visibility logic in backend or JS if needed -->
-                <group>
                     <field name="analytic_account_ids" widget="many2many_tags"/>
                 </group>
-
                 <footer>
-                    <button name="check_report"
-                            string="Print"
-                            type="object"
-                            default_focus="1"
-                            class="oe_highlight"/>
-                    <button string="Cancel"
-                            class="btn btn-default"
-                            special="cancel"/>
+                    <button string="Print Separate" type="object"
+                            name="print_report_separate" class="btn-primary"/>
+                    <button string="Print Combined" type="object"
+                            name="print_report_combined" class="btn-secondary"/>
+                    <button string="Cancel" special="cancel" class="btn-light"/>
                 </footer>
             </form>
         </field>
     </record>
 
-    <record id="action_account_daybook_analytic_menu" model="ir.actions.act_window">
-        <field name="name">Day Book (Analytic)</field>
-        <field name="type">ir.actions.act_window</field>
-        <field name="res_model">account.daybook.analytic.report</field>
+    <record id="action_account_daybook_analytic_report" model="ir.actions.act_window">
+        <field name="name">Daybook Analytic Report</field>
+        <field name="res_model">report.om_daybook_analytic.report_daybook_analytic_combined</field>
         <field name="view_mode">form</field>
-        <field name="view_id" ref="account_report_daybook_analytic_view"/>
         <field name="target">new</field>
     </record>
-
-    <menuitem
-        id="menu_daybook_analytic"
-        name="Day Book (Analytic)"
-        sequence="11"
-        parent="om_account_daily_reports.menu_finance_daily_reports"
-        action="action_account_daybook_analytic_menu"
-        groups="account.group_account_user,account.group_account_manager"
-    />
-
 </odoo>
-
-
-
-
-
-
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-
-<!--    <record id="account_report_daybook_analytic_view" model="ir.ui.view">-->
-<!--        <field name="name">Day Book with Analytic Accounts</field>-->
-<!--        <field name="model">account.daybook.analytic.report</field>-->
-<!--        <field name="arch" type="xml">-->
-<!--            <form string="Report Options">-->
-<!--                <group>-->
-<!--                    <field name="target_move" widget="radio"/>-->
-<!--                </group>-->
-<!--                <group col="4">-->
-<!--                    <field name="date_from"/>-->
-<!--                    <field name="date_to"/>-->
-<!--                </group>-->
-<!--                <group>-->
-<!--                    <field name="journal_ids" widget="many2many_tags"/>-->
-<!--                </group>-->
-<!--                <group>-->
-<!--                    <field name="report_type" widget="radio"/>-->
-<!--                </group>-->
-<!--                <group>-->
-<!--                    <field name="analytic_account_ids"-->
-<!--                           widget="many2many_tags"-->
-<!--                           attrs="{'invisible': [('report_type', '=', 'all')],-->
-<!--                                   'required': [('report_type', 'in', ['separate', 'combined'])]}"/>-->
-<!--                </group>-->
-<!--                <footer>-->
-<!--                    <button name="check_report"-->
-<!--                            string="Print"-->
-<!--                            type="object"-->
-<!--                            default_focus="1"-->
-<!--                            class="oe_highlight"/>-->
-<!--                    <button string="Cancel"-->
-<!--                            class="btn btn-default"-->
-<!--                            special="cancel"/>-->
-<!--                </footer>-->
-<!--            </form>-->
-<!--        </field>-->
-<!--    </record>-->
-
-<!--    <record id="action_account_daybook_analytic_menu" model="ir.actions.act_window">-->
-<!--        <field name="name">Day Book (Analytic)</field>-->
-<!--        <field name="type">ir.actions.act_window</field>-->
-<!--        <field name="res_model">account.daybook.analytic.report</field>-->
-<!--        <field name="view_mode">form</field>-->
-<!--        <field name="view_id" ref="account_report_daybook_analytic_view"/>-->
-<!--        <field name="target">new</field>-->
-<!--    </record>-->
-
-<!--    <menuitem-->
-<!--        id="menu_daybook_analytic"-->
-<!--        name="Day Book (Analytic)"-->
-<!--        sequence="11"-->
-<!--        parent="om_account_daily_reports.menu_finance_daily_reports"-->
-<!--        action="action_account_daybook_analytic_menu"-->
-<!--        groups="account.group_account_user,account.group_account_manager"-->
-<!--    />-->
-
-<!--</odoo>-->

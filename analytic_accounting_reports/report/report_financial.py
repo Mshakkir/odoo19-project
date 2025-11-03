@@ -342,6 +342,9 @@
 
 #third code for check get the separate reports
 from odoo import api, models
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class ReportFinancial(models.AbstractModel):
@@ -349,6 +352,15 @@ class ReportFinancial(models.AbstractModel):
 
     def _compute_account_balance(self, accounts):
         """Override to add analytic distribution filtering"""
+
+        # DEBUG: Check context
+        analytic_account_ids = self.env.context.get('analytic_account_ids', [])
+        _logger.info("=" * 80)
+        _logger.info("COMPUTE ACCOUNT BALANCE - DEBUG INFO")
+        _logger.info("Context analytic_account_ids: %s", analytic_account_ids)
+        _logger.info("Full context keys: %s", list(self.env.context.keys()))
+        _logger.info("=" * 80)
+
         mapping = {
             'balance': "COALESCE(SUM(debit),0) - COALESCE(SUM(credit), 0) as balance",
             'debit': "COALESCE(SUM(debit), 0) as debit",
@@ -368,22 +380,29 @@ class ReportFinancial(models.AbstractModel):
         where_clause = where_clause.strip() if where_clause else ''
         where_params = where_params or []
 
+        _logger.info("Base where_clause: %s", where_clause)
+        _logger.info("Base where_params: %s", where_params)
+
         # Build WHERE conditions
         wheres = []
         if where_clause:
             wheres.append("(%s)" % where_clause)
 
         # Add analytic filter if present
-        analytic_account_ids = self.env.context.get('analytic_account_ids', [])
         if analytic_account_ids:
+            _logger.info("Adding analytic filter for IDs: %s", analytic_account_ids)
             analytic_conditions = []
             for analytic_id in analytic_account_ids:
+                # Use JSONB operators for better accuracy
                 analytic_conditions.append(
-                    f"(analytic_distribution ? '{int(analytic_id)}' OR "
-                    f"analytic_distribution::text LIKE '%\"{int(analytic_id)}\"%')"
+                    f"(analytic_distribution ? '{int(analytic_id)}')"
                 )
             if analytic_conditions:
-                wheres.append("(" + " OR ".join(analytic_conditions) + ")")
+                analytic_filter = "(" + " OR ".join(analytic_conditions) + ")"
+                wheres.append(analytic_filter)
+                _logger.info("Analytic filter added: %s", analytic_filter)
+        else:
+            _logger.warning("NO ANALYTIC FILTER - Will show all data!")
 
         filters = (" AND ".join(wheres)) and " AND " + " AND ".join(wheres) or ""
 
@@ -395,14 +414,24 @@ class ReportFinancial(models.AbstractModel):
         )
 
         params = [tuple(accounts.ids)] + list(where_params)
+
+        _logger.info("FINAL SQL QUERY:")
+        _logger.info(request)
+        _logger.info("QUERY PARAMS: %s", params)
+
         self.env.cr.execute(request, tuple(params))
 
+        result_count = 0
         for row in self.env.cr.dictfetchall():
             res[row['id']] = {
                 'balance': row.get('balance', 0.0),
                 'debit': row.get('debit', 0.0),
                 'credit': row.get('credit', 0.0),
             }
+            result_count += 1
+
+        _logger.info("Query returned %s account records", result_count)
+        _logger.info("=" * 80)
 
         return res
 
@@ -446,11 +475,8 @@ class ReportFinancial(models.AbstractModel):
             if where_clause:
                 wheres.append("(%s)" % where_clause)
 
-            # Filter for specific warehouse only
-            wheres.append(
-                f"(analytic_distribution ? '{int(warehouse.id)}' OR "
-                f"analytic_distribution::text LIKE '%\"{int(warehouse.id)}\"%')"
-            )
+            # Filter for specific warehouse only using JSONB operator
+            wheres.append(f"(analytic_distribution ? '{int(warehouse.id)}')")
 
             filters = (" AND ".join(wheres)) and " AND " + " AND ".join(wheres) or ""
 
@@ -481,7 +507,24 @@ class ReportFinancial(models.AbstractModel):
     @api.model
     def _get_report_values(self, docids, data=None):
         """Override to pass analytic information for display"""
-        result = super(ReportFinancial, self)._get_report_values(docids, data)
+
+        # DEBUG: Log incoming data
+        _logger.info("=" * 80)
+        _logger.info("GET REPORT VALUES - DEBUG INFO")
+        _logger.info("Docids: %s", docids)
+        _logger.info("Data keys: %s", data.keys() if data else "No data")
+        if data and data.get('form'):
+            _logger.info("Form analytic_account_ids: %s", data['form'].get('analytic_account_ids'))
+            _logger.info("Form used_context: %s", data['form'].get('used_context', {}).get('analytic_account_ids'))
+        _logger.info("Current context analytic_account_ids: %s", self.env.context.get('analytic_account_ids'))
+        _logger.info("=" * 80)
+
+        # Call parent with context
+        if data and data.get('form') and data['form'].get('used_context'):
+            used_context = data['form']['used_context']
+            result = super(ReportFinancial, self.with_context(**used_context))._get_report_values(docids, data)
+        else:
+            result = super(ReportFinancial, self)._get_report_values(docids, data)
 
         if not result:
             result = {}
@@ -510,6 +553,8 @@ class ReportFinancial(models.AbstractModel):
                         # Format: [id1, id2, ...]
                         analytic_ids = list(analytic_data)
 
+            _logger.info("Normalized analytic_ids: %s", analytic_ids)
+
             if analytic_ids:
                 analytic_accounts = self.env['account.analytic.account'].browse(analytic_ids)
                 result['selected_warehouses'] = analytic_accounts
@@ -521,17 +566,21 @@ class ReportFinancial(models.AbstractModel):
                     result['warehouse_display'] = f'{names[0]} (Separate Report)'
                     result['show_warehouse_breakdown'] = False
                     result['single_warehouse_mode'] = True
+                    _logger.info("SINGLE WAREHOUSE MODE: %s", names[0])
                 else:
                     # Multiple warehouses selected
                     result['warehouse_display'] = ', '.join(names)
                     result['show_warehouse_breakdown'] = True
                     result['single_warehouse_mode'] = False
                     result['include_combined'] = bool(form_data.get('include_combined', False))
+                    _logger.info("MULTIPLE WAREHOUSE MODE: %s", names)
             else:
                 # No warehouse selected - show all combined
                 result['selected_warehouses'] = False
                 result['warehouse_display'] = 'All Warehouses (Combined)'
                 result['show_warehouse_breakdown'] = False
                 result['single_warehouse_mode'] = False
+                _logger.info("ALL WAREHOUSES MODE")
 
+        _logger.info("=" * 80)
         return result

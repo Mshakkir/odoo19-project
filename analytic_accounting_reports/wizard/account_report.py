@@ -237,6 +237,7 @@
 
 # -*- coding: utf-8 -*-
 #third code for check the separate datas
+# -*- coding: utf-8 -*-
 from odoo import api, fields, models
 
 
@@ -375,11 +376,16 @@ class AccountingReport(models.TransientModel):
                 if isinstance(data['form'][field], tuple):
                     data['form'][field] = data['form'][field][0]
 
+        # Build the used context with analytic filtering
+        used_context = self._build_contexts(data)
+        data['form']['used_context'] = used_context
+
         # Get the comparison context
         comparison_context = self._build_comparison_context(data)
         data['form']['comparison_context'] = comparison_context
 
-        # Get the report action
-        return self.env.ref('accounting_pdf_reports.action_report_financial').report_action(
-            self, data=data, config=False
-        )
+        # Get the report action with context
+        return self.env.ref('accounting_pdf_reports.action_report_financial').with_context(
+            analytic_account_ids=self.analytic_account_ids.ids,
+            include_combined=self.include_combined
+        ).report_action(self, data=data, config=False)

@@ -19,26 +19,23 @@ class AccountDaybookAnalyticWizard(models.TransientModel):
         if self.analytic_account_ids:
             domain.append(('analytic_account_id', 'in', self.analytic_account_ids.ids))
 
-        # ✅ Use your verified view IDs
-        tree_view = self.env.ref('account.view_move_line_tree', raise_if_not_found=False)
-        form_view = self.env.ref('account.view_move_line_form', raise_if_not_found=False)
-
-        views = []
-        if tree_view:
-            views.append((tree_view.id, 'tree'))
-        if form_view:
-            views.append((form_view.id, 'form'))
-
-        if not views:
-            raise ValueError("No valid tree or form view found for 'account.move.line'")
-
         return {
             'name': 'Analytic Account Details',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move.line',
-            'views': views,
-            'view_mode': 'list',
+            'view_mode': 'tree,form',  # ✅ Changed from 'list' to 'tree,form'
             'domain': domain,
             'target': 'current',
             'context': {'create': False},
         }
+
+    def _print_report(self, data):
+        """Extend original report filter to include analytic accounts"""
+        data = super(AccountDaybookAnalyticWizard, self)._print_report(data)
+
+        if self.analytic_account_ids:
+            data['form']['analytic_account_ids'] = self.analytic_account_ids.ids
+        else:
+            data['form']['analytic_account_ids'] = []
+
+        return data

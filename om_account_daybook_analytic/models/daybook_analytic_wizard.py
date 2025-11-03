@@ -37,7 +37,7 @@ class AccountDaybookAnalyticWizard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'res_model': 'account.move.line',
             'views': views,
-            'view_mode': 'tree,form',
+            'view_mode': 'list',
             'domain': domain,
             'target': 'current',
             'context': {'create': False},

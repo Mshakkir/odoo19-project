@@ -7,6 +7,7 @@ from datetime import timedelta
 class ReportDayBookAnalytic(models.AbstractModel):
     _name = 'report.om_account_daybook_analytic.report_daybook_analytic_combined'
     _description = 'Day Book with Analytic Accounts - Combined'
+    _table = 'report_daybook_analytic_combined'
 
     def _get_account_move_entry(self, accounts, form_data, date, analytic_account_id=None):
         """

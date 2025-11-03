@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <!-- Insert analytic filter fields after journal selection -->
             <xpath expr="//field[@name='journal_ids']" position="after">
-                <group string="Warehouse / Analytic Account Filter" col="1">
+                <group string="Warehouse / Analytic Account " col="1">
                     <field name="analytic_account_ids"
                            widget="many2many_tags"
                            options="{'no_create': True, 'no_open': True}"

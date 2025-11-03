@@ -247,7 +247,7 @@ class AccountingReport(models.TransientModel):
     # Analytic filter fields
     analytic_account_ids = fields.Many2many(
         'account.analytic.account',
-        string="Warehouses / Analytic Accounts",
+        string="",
         help="Select specific warehouses/analytic accounts for filtering.\n"
              "• Leave empty: Show all warehouses combined\n"
              "• Select ONE: Show only that warehouse (separate report)\n"
@@ -260,12 +260,12 @@ class AccountingReport(models.TransientModel):
         help='Show a combined total column when multiple analytic accounts are selected.'
     )
 
-    show_warehouse_breakdown = fields.Boolean(
-        string='Show Warehouse Breakdown',
-        compute='_compute_show_breakdown',
-        store=False,
-        help='Shows breakdown by warehouse when multiple are selected.'
-    )
+    # show_warehouse_breakdown = fields.Boolean(
+    #     string='Show Warehouse Breakdown',
+    #     compute='_compute_show_breakdown',
+    #     store=False,
+    #     help='Shows breakdown by warehouse when multiple are selected.'
+    # )
 
     warehouse_selection_info = fields.Html(
         string='Selection Info',

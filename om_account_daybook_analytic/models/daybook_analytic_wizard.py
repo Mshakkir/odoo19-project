@@ -28,14 +28,3 @@ class AccountDaybookAnalyticWizard(models.TransientModel):
             'target': 'current',
             'context': {'create': False},
         }
-
-    def _print_report(self, data):
-        """Extend original report filter to include analytic accounts"""
-        data = super(AccountDaybookAnalyticWizard, self)._print_report(data)
-
-        if self.analytic_account_ids:
-            data['form']['analytic_account_ids'] = self.analytic_account_ids.ids
-        else:
-            data['form']['analytic_account_ids'] = []
-
-        return data

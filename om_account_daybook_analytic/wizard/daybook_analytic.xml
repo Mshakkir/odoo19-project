@@ -1,32 +1,22 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <record id="account_report_daybook_analytic_view" model="ir.ui.view">
-        <field name="name">account.daybook.analytic.wizard.form</field>
-        <field name="model">report.om_daybook_analytic.report_daybook_analytic_combined</field>
-        <field name="arch" type="xml">
-            <form string="Daybook Analytic Report">
-                <group>
-                    <field name="date_from"/>
-                    <field name="date_to"/>
-                    <field name="target_move"/>
-                    <field name="journal_ids" widget="many2many_tags"/>
-                    <field name="analytic_account_ids" widget="many2many_tags"/>
-                </group>
-                <footer>
-                    <button string="Print Separate" type="object"
-                            name="print_report_separate" class="btn-primary"/>
-                    <button string="Print Combined" type="object"
-                            name="print_report_combined" class="btn-secondary"/>
-                    <button string="Cancel" special="cancel" class="btn-light"/>
-                </footer>
-            </form>
-        </field>
-    </record>
-
-    <record id="action_account_daybook_analytic_report" model="ir.actions.act_window">
-        <field name="name">Daybook Analytic Report</field>
-        <field name="res_model">report.om_daybook_analytic.report_daybook_analytic_combined</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-    </record>
-</odoo>
+<record id="account_report_daybook_analytic_view" model="ir.ui.view">
+    <field name="name">account.daybook.analytic.wizard.form</field>
+    <field name="model">report.om_daybook_analytic.daybook_analytic_wizard</field>
+    <field name="arch" type="xml">
+        <form string="Daybook Analytic Report">
+            <group>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="target_move"/>
+                <field name="journal_ids" widget="many2many_tags"/>
+                <field name="analytic_account_ids" widget="many2many_tags"/>
+            </group>
+            <footer>
+                <button string="Print Combined" type="object"
+                        name="print_report_combined" class="btn-primary"/>
+                <button string="Print Separate" type="object"
+                        name="print_report_separate" class="btn-secondary"/>
+                <button string="Cancel" special="cancel" class="btn-light"/>
+            </footer>
+        </form>
+    </field>
+</record>

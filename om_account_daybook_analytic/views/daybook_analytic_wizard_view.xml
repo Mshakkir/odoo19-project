@@ -10,7 +10,6 @@
                     <field name="analytic_account_id"/>
                 </group>
                 <footer>
-                    <button name="print_report" string="Print" type="object" class="btn-primary"/>
                     <button name="action_show_details" string="Show Details" type="object" class="btn-secondary"/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>

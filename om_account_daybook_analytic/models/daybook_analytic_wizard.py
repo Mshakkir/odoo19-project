@@ -1,4 +1,6 @@
 from odoo import api, fields, models
+from odoo.exceptions import UserError
+
 
 class AccountDaybookAnalyticWizard(models.TransientModel):
     _inherit = 'account.daybook.report'
@@ -19,12 +21,35 @@ class AccountDaybookAnalyticWizard(models.TransientModel):
         if self.analytic_account_ids:
             domain.append(('analytic_account_id', 'in', self.analytic_account_ids.ids))
 
-        return {
+        # Find available views for account.move.line
+        tree_view = self.env['ir.ui.view'].search([
+            ('model', '=', 'account.move.line'),
+            ('type', '=', 'tree')
+        ], limit=1)
+
+        form_view = self.env['ir.ui.view'].search([
+            ('model', '=', 'account.move.line'),
+            ('type', '=', 'form')
+        ], limit=1)
+
+        if not tree_view:
+            raise UserError("No tree view found for Journal Items. Please check your account module installation.")
+
+        action = {
             'name': 'Analytic Account Details',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move.line',
-            'view_mode': 'tree,form',  # ✅ Changed from 'list' to 'tree,form'
             'domain': domain,
             'target': 'current',
             'context': {'create': False},
         }
+
+        # Build views list
+        views = [(tree_view.id, 'tree')]
+        if form_view:
+            views.append((form_view.id, 'form'))
+
+        action['views'] = views
+        action['view_mode'] = ','.join([v[1] for v in views])
+
+        return action

@@ -1,4 +1,7 @@
 from odoo import api, fields, models
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class AccountDaybookAnalyticWizard(models.TransientModel):
@@ -16,30 +19,43 @@ class AccountDaybookAnalyticWizard(models.TransientModel):
         """Show account move lines filtered by selected dates and analytic accounts"""
         self.ensure_one()
 
-        # Get all move lines in date range
-        move_lines = self.env['account.move.line'].search([
+        _logger.info(f"Date From: {self.date_from}, Date To: {self.date_to}")
+        _logger.info(f"Selected Analytic Accounts: {self.analytic_account_ids.mapped('name')}")
+
+        # Get all move lines in date range first
+        domain = [
             ('date', '>=', self.date_from),
             ('date', '<=', self.date_to),
-            ('display_type', '=', False)
-        ])
+        ]
 
-        # Filter by analytic accounts if selected
+        move_lines = self.env['account.move.line'].search(domain)
+        _logger.info(f"Total move lines in date range: {len(move_lines)}")
+
+        # If analytic accounts are selected, filter further
         if self.analytic_account_ids:
-            filtered_lines = move_lines.filtered(
-                lambda line: line.analytic_distribution and
-                             any(str(acc.id) in (line.analytic_distribution or {})
-                                 for acc in self.analytic_account_ids)
-            )
-            domain = [('id', 'in', filtered_lines.ids)]
+            filtered_lines = self.env['account.move.line']
+            for line in move_lines:
+                if line.analytic_distribution:
+                    _logger.info(f"Line {line.id} analytic_distribution: {line.analytic_distribution}")
+                    # Check if any selected analytic account is in the distribution
+                    for acc in self.analytic_account_ids:
+                        if str(acc.id) in line.analytic_distribution:
+                            filtered_lines |= line
+                            break
+
+            _logger.info(f"Filtered lines with analytic: {len(filtered_lines)}")
+            final_domain = [('id', 'in', filtered_lines.ids)]
         else:
-            domain = [('id', 'in', move_lines.ids)]
+            final_domain = domain
+
+        _logger.info(f"Final domain: {final_domain}")
 
         return {
             'name': 'Analytic Account Details',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move.line',
             'view_mode': 'list,form',
-            'domain': domain,
+            'domain': final_domain,
             'target': 'current',
             'context': {'create': False},
         }

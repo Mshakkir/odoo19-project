@@ -19,26 +19,25 @@ class AccountDaybookAnalyticWizard(models.TransientModel):
         if self.analytic_account_ids:
             domain.append(('analytic_account_id', 'in', self.analytic_account_ids.ids))
 
-        # ✅ Try to find standard views safely
+        # ✅ Use your verified view IDs
         tree_view = self.env.ref('account.view_move_line_tree', raise_if_not_found=False)
         form_view = self.env.ref('account.view_move_line_form', raise_if_not_found=False)
 
-        # ✅ Prepare view list only for existing ones
         views = []
         if tree_view:
             views.append((tree_view.id, 'tree'))
         if form_view:
             views.append((form_view.id, 'form'))
 
-        # ✅ Use view_mode dynamically based on what exists
-        view_mode = 'tree,form' if views else 'list'
+        if not views:
+            raise ValueError("No valid tree or form view found for 'account.move.line'")
 
         return {
             'name': 'Analytic Account Details',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move.line',
-            'views': views or False,   # safe fallback
-            'view_mode': view_mode,
+            'views': views,
+            'view_mode': 'tree,form',
             'domain': domain,
             'target': 'current',
             'context': {'create': False},

@@ -1,0 +1,1 @@
+from . import daybook_analytic_wizard

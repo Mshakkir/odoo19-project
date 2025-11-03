@@ -1,20 +1,24 @@
 from odoo import api, fields, models
 
-class DaybookAnalyticWizard(models.TransientModel):
-    _name = 'daybook.analytic.wizard'
-    _description = 'Daybook Analytic Wizard'
+class AccountDaybookAnalyticWizard(models.TransientModel):
+    _inherit = 'account.daybook.report'
 
-    date_from = fields.Date(string='Start Date', required=True)
-    date_to = fields.Date(string='End Date', required=True)
-    analytic_account_id = fields.Many2one('account.analytic.account', string='Analytic Account')
+    analytic_account_ids = fields.Many2many(
+        'account.analytic.account',
+        'rel_daybook_analytic_account_rel',  # short table name
+        'wizard_id',
+        'analytic_id',
+        string='Analytic Accounts'
+    )
 
     def action_show_details(self):
+        """Show account move lines filtered by selected dates and analytic accounts"""
         self.ensure_one()
         domain = [('date', '>=', self.date_from), ('date', '<=', self.date_to)]
-        if self.analytic_account_id:
-            domain.append(('analytic_account_id', '=', self.analytic_account_id.id))
 
-        # Here, we assume you want to show account.move.line (journal items)
+        if self.analytic_account_ids:
+            domain.append(('analytic_account_id', 'in', self.analytic_account_ids.ids))
+
         return {
             'name': 'Analytic Account Details',
             'type': 'ir.actions.act_window',

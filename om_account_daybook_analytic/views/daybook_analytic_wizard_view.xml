@@ -1,19 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_daybook_analytic_wizard_form" model="ir.ui.view">
-        <field name="name">daybook.analytic.wizard.form</field>
-        <field name="model">daybook.analytic.wizard</field>
+    <record id="view_account_daybook_analytic_wizard_inherit" model="ir.ui.view">
+        <field name="name">account.daybook.analytic.wizard.inherit</field>
+        <field name="model">account.daybook.report</field>
+        <field name="inherit_id" ref="om_account_daily_reports.account_report_daybook_view"/>
         <field name="arch" type="xml">
-            <form string="Daybook Analytic Report">
-                <group>
-                    <field name="date_from"/>
-                    <field name="date_to"/>
-                    <field name="analytic_account_id"/>
-                </group>
-                <footer>
-                    <button name="action_show_details" string="Show Details" type="object" class="btn-secondary"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
-                </footer>
-            </form>
+
+            <!-- Add analytic account selection field -->
+            <xpath expr="//field[@name='journal_ids']" position="after">
+                <field name="analytic_account_ids" widget="many2many_tags"/>
+            </xpath>
+
+            <!-- Add Show Details button -->
+            <xpath expr="//footer" position="inside">
+                <button name="action_show_details" string="Show Details"
+                        type="object" class="btn-secondary"/>
+            </xpath>
+
         </field>
     </record>
 </odoo>

@@ -1,22 +1,32 @@
-<record id="account_report_daybook_analytic_view" model="ir.ui.view">
-    <field name="name">account.daybook.analytic.wizard.form</field>
-    <field name="model">report.om_daybook_analytic.daybook_analytic_wizard</field>
-    <field name="arch" type="xml">
-        <form string="Daybook Analytic Report">
-            <group>
-                <field name="date_from"/>
-                <field name="date_to"/>
-                <field name="target_move"/>
-                <field name="journal_ids" widget="many2many_tags"/>
-                <field name="analytic_account_ids" widget="many2many_tags"/>
-            </group>
-            <footer>
-                <button string="Print Combined" type="object"
-                        name="print_report_combined" class="btn-primary"/>
-                <button string="Print Separate" type="object"
-                        name="print_report_separate" class="btn-secondary"/>
-                <button string="Cancel" special="cancel" class="btn-light"/>
-            </footer>
-        </form>
-    </field>
-</record>
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_daybook_analytic_wizard_form" model="ir.ui.view">
+        <field name="name">daybook.analytic.wizard.form</field>
+        <field name="model">daybook.analytic.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Daybook Report">
+                <group col="4">
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                </group>
+                <group>
+                    <field name="journal_ids" widget="many2many_tags"/>
+                </group>
+                <group>
+                    <field name="analytic_account_ids" widget="many2many_tags"/>
+                </group>
+                <footer>
+                    <button name="check_report" string="Print" type="object" class="oe_highlight"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_daybook_analytic_wizard" model="ir.actions.act_window">
+        <field name="name">Daybook Analytic Report</field>
+        <field name="res_model">daybook.analytic.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

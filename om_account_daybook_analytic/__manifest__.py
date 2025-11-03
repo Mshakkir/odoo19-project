@@ -20,7 +20,7 @@
     'data': [
         'wizard/daybook_analytic.xml',
         'report/report_daybook_analytic.xml',
-        'views/report.xml',
+        
     ],
     'installable': True,
     'application': False,

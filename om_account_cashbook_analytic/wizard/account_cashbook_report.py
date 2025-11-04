@@ -1,6 +1,5 @@
 from odoo import fields, models, api, _
 
-
 class AccountCashBookReport(models.TransientModel):
     _inherit = "account.cashbook.report"
 
@@ -27,7 +26,6 @@ class AccountCashBookReport(models.TransientModel):
     )
 
     def _build_comparison_context(self, data):
-        """Override to add analytic account context"""
         result = super()._build_comparison_context(data)
         result['analytic_account_ids'] = data['form'].get('analytic_account_ids', [])
         result['report_type'] = data['form'].get('report_type', 'combined')
@@ -35,7 +33,6 @@ class AccountCashBookReport(models.TransientModel):
         return result
 
     def check_report(self):
-        """Override to use the new report with analytic accounts"""
         data = {}
         data['form'] = self.read([
             'target_move', 'date_from', 'date_to', 'journal_ids',
@@ -46,7 +43,7 @@ class AccountCashBookReport(models.TransientModel):
         comparison_context = self._build_comparison_context(data)
         data['form']['comparison_context'] = comparison_context
 
-        # Use the new report action with analytic accounts
+        # ✅ FIX: Use correct module name here
         return self.env.ref(
-            'account_cashbook_analytic.action_report_cash_book_analytic'
+            'om_account_cashbook_analytic.action_report_cash_book_analytic'
         ).report_action(self, data=data)

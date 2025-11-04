@@ -8,9 +8,9 @@
         <field name="arch" type="xml">
 
             <!-- Add analytic account field -->
-            <xpath expr="//field[@name='journal_ids']" position="after">
-                <field name="analytic_account_ids" widget="many2many_tags"/>
-            </xpath>
+        <xpath expr="//group[field[@name='journal_ids']]" position="inside">
+            <field name="analytic_account_ids" widget="many2many_tags"/>
+        </xpath>
 
             <!-- Replace "Print" button label -->
             <xpath expr="//button[@name='check_report']" position="replace">

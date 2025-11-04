@@ -13,9 +13,9 @@
     # OM / EE-like report module usually needs account as well
     'depends': ['accounting_pdf_reports', 'analytic', 'account'],
     'data': [
-        'wizard/account_report_views.xml',
+        # 'wizard/account_report_views.xml',
         'report/report_financial_template.xml',
-        # 'views/account_financial_report_line_views.xml',
+        'views/account_financial_report_line_views.xml',
     ],
     'installable': True,
     'application': False,

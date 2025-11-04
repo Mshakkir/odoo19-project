@@ -20,7 +20,15 @@
         </field>
     </record>
 
-    <!-- Optional menu (only if you really need a separate entry) -->
+    <!-- Define an action for Cashbook Report -->
+    <record id="action_cashbook_report_analytic" model="ir.actions.act_window">
+        <field name="name">Cashbook Report</field>
+        <field name="res_model">account.daybook.report</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Add a Menu Item -->
     <menuitem id="menu_cashbook_report_root"
               name="Cashbook Report"
               parent="account.menu_finance_reports"

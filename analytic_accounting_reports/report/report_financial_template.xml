@@ -11,21 +11,3 @@
         </xpath>
     </template>
 </odoo>
-
-
-
-
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-<!--    <template id="report_financial_inherit" inherit_id="accounting_pdf_reports.report_financial">-->
-<!--        <xpath expr="//div[@class='row mt32 mb32']" position="after">-->
-<!--            <div class="row mb16" t-if="warehouse_display">-->
-<!--                <div class="col-12">-->
-<!--                    <strong>Warehouse Selection:</strong>-->
-<!--                    <span t-esc="warehouse_display"/>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </xpath>-->
-<!--    </template>-->
-<!--</odoo>-->

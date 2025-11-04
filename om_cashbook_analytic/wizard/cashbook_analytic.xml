@@ -12,15 +12,15 @@
                 <field name="analytic_account_ids" widget="many2many_tags"/>
             </xpath>
 
-            <!-- Replace Print button -->
-            <xpath expr="//button[@name='action_print']" position="replace">
-                <button name="action_print" string="Print Cashbook" type="object" class="btn-primary"/>
+            <!-- Replace "Print" button label -->
+            <xpath expr="//button[@name='check_report']" position="replace">
+                <button name="check_report" string="Print Cashbook" type="object" class="btn-primary"/>
             </xpath>
 
         </field>
     </record>
 
-    <!-- Add a Menu Item (optional) -->
+    <!-- Optional menu (only if you really need a separate entry) -->
     <menuitem id="menu_cashbook_report_root"
               name="Cashbook Report"
               parent="account.menu_finance_reports"

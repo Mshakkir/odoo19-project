@@ -34,17 +34,18 @@ class AccountCashBookReport(models.TransientModel):
         result['group_by_analytic'] = data['form'].get('group_by_analytic', True)
         return result
 
-    def check_report(self):
-        """Override to use the new report with analytic accounts"""
-        data = {}
-        data['form'] = self.read([
-            'target_move', 'date_from', 'date_to', 'journal_ids',
-            'account_ids', 'sortby', 'initial_balance', 'display_account',
-            'analytic_account_ids', 'report_type', 'group_by_analytic'
-        ])[0]
 
-        comparison_context = self._build_comparison_context(data)
-        data['form']['comparison_context'] = comparison_context
+def check_report(self):
+    """Override to use the new report with analytic accounts"""
+    data = {}
+    data['form'] = self.read([
+        'target_move', 'date_from', 'date_to', 'journal_ids',
+        'account_ids', 'sortby', 'initial_balance', 'display_account',
+        'analytic_account_ids', 'report_type', 'group_by_analytic'
+    ])[0]
 
-        # Use the new report action with analytic accounts
-        return self.env.ref('om_cashbook_analytic.action_report_cash_book_analytic').report_action(self)
+    comparison_context = self._build_comparison_context(data)
+    data['form']['comparison_context'] = comparison_context
+
+    # ✅ Pass the data to the report
+    return self.env.ref('om_cashbook_analytic.action_report_cash_book_analytic').report_action(self, data=data)

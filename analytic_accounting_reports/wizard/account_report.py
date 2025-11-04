@@ -153,17 +153,85 @@ class AccountingReport(models.TransientModel):
     # New Button Action (Fix for XML)
     # -----------------------------
     def action_view_details(self):
-        """Dummy 'View Details' action to fix XML button call.
-        You can later replace this with your own logic.
-        """
+        """Open detailed Balance Sheet or P&L in a window."""
+        self.ensure_one()
+
+        # Determine report type (based on selected financial report)
+        report_type = 'balance_sheet'
+        if self.account_report_id and 'loss' in self.account_report_id.name.lower():
+            report_type = 'profit_loss'
+
+        # Clean old data (optional but helpful)
+        self.env['account.financial.report.line'].search([]).unlink()
+
+        # Build context for account move line query
+        ctx = self._build_contexts({'form': self.read()[0]})
+        analytic_ids = ctx.get('analytic_account_ids', [])
+        date_from = ctx.get('date_from')
+        date_to = ctx.get('date_to')
+        target_move = ctx.get('target_move', 'posted')
+
+        # Get all accounts used in this report
+        accounts = self.env['account.account'].search([
+            ('company_id', '=', self.company_id.id)
+        ])
+
+        # Compute balances manually similar to your report_financial.py logic
+        account_balances = self.env['report.accounting_pdf_reports.report_financial']\
+            .with_context(ctx)._compute_account_balance(accounts)
+
+        # Create temporary records
+        lines = []
+        for acc in accounts:
+            vals = account_balances.get(acc.id)
+            if not vals:
+                continue
+            balance = vals.get('balance', 0)
+            if abs(balance) < 0.01:
+                continue
+
+            lines.append({
+                'name': acc.name,
+                'code': acc.code,
+                'account_id': acc.id,
+                'debit': vals.get('debit', 0.0),
+                'credit': vals.get('credit', 0.0),
+                'balance': balance,
+                'report_type': report_type,
+                'date_from': date_from,
+                'date_to': date_to,
+                'target_move': target_move,
+                'analytic_account_ids': [(6, 0, analytic_ids)],
+            })
+
+        if lines:
+            self.env['account.financial.report.line'].create(lines)
+
+        # Open view
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Accounting Details',
-            'res_model': 'account.move.line',
-            'view_mode': 'list,form',
+            'name': f'{self.account_report_id.name} Details',
+            'res_model': 'account.financial.report.line',
+            'view_mode': 'list',
             'target': 'current',
-            'domain': [],  # You can filter results based on analytic_account_ids if needed
+            'context': ctx,
+            'domain': [('report_type', '=', report_type)],
         }
+
+
+
+    # def action_view_details(self):
+    #     """Dummy 'View Details' action to fix XML button call.
+    #     You can later replace this with your own logic.
+    #     """
+    #     return {
+    #         'type': 'ir.actions.act_window',
+    #         'name': 'Accounting Details',
+    #         'res_model': 'account.move.line',
+    #         'view_mode': 'list,form',
+    #         'target': 'current',
+    #         'domain': [],  # You can filter results based on analytic_account_ids if needed
+    #     }
 
 
 

@@ -13,6 +13,7 @@
     # OM / EE-like report module usually needs account as well
     'depends': ['accounting_pdf_reports', 'analytic', 'account'],
     'data': [
+        'security/ir.model.access.csv',
         'wizard/account_report_views.xml',
         'report/report_financial_template.xml',
         'views/account_financial_report_line_views.xml',

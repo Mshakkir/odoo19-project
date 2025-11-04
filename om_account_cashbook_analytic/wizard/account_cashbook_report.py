@@ -43,7 +43,7 @@ class AccountCashBookReport(models.TransientModel):
         comparison_context = self._build_comparison_context(data)
         data['form']['comparison_context'] = comparison_context
 
-        # ✅ FIX: Use correct module name here
+        # ✅ Correct version — single report_action call
         return self.env.ref(
-            'om_account_cashbook_analytic.action_report_cash_book_analytic'
+            'om_account_cashbook_analytic.action_report_cashbook_analytic'
         ).report_action(self, data=data)

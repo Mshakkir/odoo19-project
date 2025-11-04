@@ -16,11 +16,11 @@
                     <!-- Show helpful information -->
                     <field name="warehouse_selection_info" nolabel="1" widget="html"/>
 
+<<<<<<< HEAD
+=======
+                    <!-- Hidden computed field -->
+>>>>>>> e8099a0 (odoomates)
 
-                    <!-- Show combined column option only when multiple warehouses selected -->
-                    <field name="include_combined"
-                           invisible="not show_warehouse_breakdown"
-                           string="Show Breakdown by Warehouse"/>
                 </group>
             </xpath>
             <xpath expr="//footer/button[@name='check_report']" position="after">

@@ -5,8 +5,8 @@
          =========================== -->
 
     <!-- Tree view -->
-    <record id="view_account_financial_report_line_tree" model="ir.ui.view">
-        <field name="name">account.financial.report.line.tree</field>
+    <record id="view_account_financial_report_line_list" model="ir.ui.view">
+        <field name="name">account.financial.report.line.list</field>
         <field name="model">account.financial.report.line</field>
         <field name="arch" type="xml">
             <list string="Financial Report Details"

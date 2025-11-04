@@ -172,9 +172,7 @@ class AccountingReport(models.TransientModel):
         target_move = ctx.get('target_move', 'posted')
 
         # Get all accounts used in this report
-        accounts = self.env['account.account'].search([
-            ('company_id', '=', self.company_id.id)
-        ])
+        accounts = self.env['account.account'].search([])
 
         # Compute balances manually similar to your report_financial.py logic
         account_balances = self.env['report.accounting_pdf_reports.report_financial']\

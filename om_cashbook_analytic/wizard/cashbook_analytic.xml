@@ -1,36 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <!-- Extend the Daybook Wizard -->
-    <record id="view_account_cashbook_analytic_wizard_inherit" model="ir.ui.view">
-        <field name="name">account.cashbook.analytic.wizard.inherit</field>
-        <field name="model">account.daybook.report</field>
-        <field name="inherit_id" ref="om_account_daily_reports.account_report_daybook_view"/>
-        <field name="arch" type="xml">
+<record id="view_account_cashbook_analytic_wizard_inherit" model="ir.ui.view">
+    <field name="name">account.cashbook.analytic.wizard.inherit</field>
+    <field name="model">account.daybook.report</field>
+    <field name="inherit_id" ref="om_account_daily_reports.account_report_daybook_view"/>
+    <field name="arch" type="xml">
 
-            <!-- Add analytic account field -->
-        <xpath expr="//group[field[@name='journal_ids']]" position="inside">
+        <!-- Add analytic account field below journal_ids -->
+        <xpath expr="//field[@name='journal_ids']" position="after">
             <field name="analytic_account_ids" widget="many2many_tags"/>
         </xpath>
 
-            <!-- Replace "Print" button label -->
-            <xpath expr="//button[@name='check_report']" position="replace">
-                <button name="check_report" string="Print Cashbook" type="object" class="btn-primary"/>
-            </xpath>
+        <!-- Optional: rename Print button -->
+        <xpath expr="//button[@name='check_report']" position="replace">
+            <button name="check_report" string="Print Cashbook" type="object" class="btn-primary"/>
+        </xpath>
 
-        </field>
-    </record>
-
-    <!-- Define an action for Cashbook Report -->
-    <record id="action_cashbook_report_analytic" model="ir.actions.act_window">
-        <field name="name">Cashbook Report</field>
-        <field name="res_model">account.daybook.report</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-    </record>
-
-    <!-- Add a Menu Item -->
-    <menuitem id="menu_cashbook_report_root"
-              name="Cashbook Report"
-              parent="account.menu_finance_reports"
-              action="action_cashbook_report_analytic"/>
-</odoo>
+    </field>
+</record>

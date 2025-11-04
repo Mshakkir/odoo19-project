@@ -113,7 +113,7 @@ class AccountFinancialReportLine(models.Model):
             'name': f'Ledger - {self.code} {self.name}{warehouse_info}{date_info}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move.line',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'views': [(False, 'tree'), (False, 'form')],
             'domain': domain,
             'context': ctx,

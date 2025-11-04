@@ -160,7 +160,7 @@ class AccountingReport(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Accounting Details',
             'res_model': 'account.move.line',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'target': 'current',
             'domain': [],  # You can filter results based on analytic_account_ids if needed
         }

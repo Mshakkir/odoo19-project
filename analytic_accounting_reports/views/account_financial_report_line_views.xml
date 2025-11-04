@@ -31,7 +31,7 @@
     </record>
 
     <!-- ✅ Search view -->
-    <record id="view_account_financial_report_line_search" model="ir.ui.view">
+<record id="view_account_financial_report_line_search" model="ir.ui.view">
         <field name="name">account.financial.report.line.search</field>
         <field name="model">account.financial.report.line</field>
         <field name="arch" type="xml">
@@ -39,20 +39,25 @@
                 <field name="code"/>
                 <field name="name"/>
                 <field name="account_id" optional="show"/>
-                <separator/>
+
+                <!-- Removed <separator/> -->
+
                 <filter string="Balance Sheet"
                         name="filter_balance_sheet"
                         domain="[('report_type', '=', 'balance_sheet')]"/>
                 <filter string="Profit &amp; Loss"
                         name="filter_profit_loss"
                         domain="[('report_type', '=', 'profit_loss')]"/>
-                <separator/>
+
+                <!-- Removed second <separator/> -->
+
                 <filter string="Positive Balance"
                         name="filter_positive"
                         domain="[('balance', '&gt;', 0)]"/>
                 <filter string="Negative Balance"
                         name="filter_negative"
                         domain="[('balance', '&lt;', 0)]"/>
+
                 <group expand="0" string="Group By">
                     <filter string="Report Type"
                             name="group_report_type"

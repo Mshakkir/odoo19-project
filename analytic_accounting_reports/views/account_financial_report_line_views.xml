@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- ===========================
-         Financial Report Line Views
-         =========================== -->
+    <!-- Financial Report Line Views for Odoo 19 -->
 
-    <!-- ✅ Tree (List) view -->
+    <!-- List view (tree in older versions) -->
     <record id="view_account_financial_report_line_list" model="ir.ui.view">
         <field name="name">account.financial.report.line.list</field>
         <field name="model">account.financial.report.line</field>
@@ -14,24 +12,22 @@
                   decoration-success="balance &gt; 0"
                   create="false"
                   edit="false">
-                <field name="sequence" invisible="1"/>
+                <field name="sequence" column_invisible="1"/>
                 <field name="code" string="Code"/>
                 <field name="name" string="Account"/>
-                <field name="debit" sum="Total Debit" widget="monetary"/>
-                <field name="credit" sum="Total Credit" widget="monetary"/>
-                <field name="balance" sum="Total Balance" widget="monetary"/>
+                <field name="debit" sum="Total Debit"/>
+                <field name="credit" sum="Total Credit"/>
+                <field name="balance" sum="Total Balance"/>
                 <button name="action_view_ledger"
                         type="object"
                         string="View Ledger"
                         icon="fa-book"
-                        class="btn-link"
                         help="Open account ledger with applied filters"/>
             </list>
-
         </field>
     </record>
 
-    <!-- ✅ Search view -->
+    <!-- Search view -->
     <record id="view_account_financial_report_line_search" model="ir.ui.view">
         <field name="name">account.financial.report.line.search</field>
         <field name="model">account.financial.report.line</field>
@@ -39,15 +35,16 @@
             <search string="Search Financial Report Lines">
                 <field name="code"/>
                 <field name="name"/>
-                <field name="account_id" optional="show"/>
+                <field name="account_id"/>
 
-                <!-- Filters -->
                 <filter string="Balance Sheet"
                         name="filter_balance_sheet"
                         domain="[('report_type', '=', 'balance_sheet')]"/>
-                <filter string="Profit &amp; Loss"
+                <filter string="Profit and Loss"
                         name="filter_profit_loss"
                         domain="[('report_type', '=', 'profit_loss')]"/>
+
+                <separator/>
 
                 <filter string="Positive Balance"
                         name="filter_positive"
@@ -56,37 +53,35 @@
                         name="filter_negative"
                         domain="[('balance', '&lt;', 0)]"/>
 
-                <!-- Group by options -->
                 <group expand="0" string="Group By">
                     <filter string="Report Type"
                             name="group_report_type"
                             context="{'group_by': 'report_type'}"/>
-                    <filter string="Company"
-                            name="group_company"
-                            context="{'group_by': 'company_id'}"/>
                 </group>
             </search>
         </field>
     </record>
 
-    <!-- ✅ Action -->
+    <!-- Action -->
     <record id="action_account_financial_report_line" model="ir.actions.act_window">
         <field name="name">Financial Report Details</field>
         <field name="res_model">account.financial.report.line</field>
         <field name="view_mode">list</field>
         <field name="search_view_id" ref="view_account_financial_report_line_search"/>
-        <field name="context">{}</field>
         <field name="domain">[]</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No financial report data available.
             </p>
             <p>
-                Click <b>View Details</b> in the Balance Sheet or Profit &amp; Loss wizard to generate detailed results.
+                Click View Details in the Balance Sheet or Profit and Loss wizard to generate detailed results.
             </p>
         </field>
     </record>
 </odoo>
+
+
+
 
 
         <!--<?xml version="1.0" encoding="utf-8"?>-->

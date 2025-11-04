@@ -47,6 +47,4 @@ class AccountCashBookReport(models.TransientModel):
         data['form']['comparison_context'] = comparison_context
 
         # Use the new report action with analytic accounts
-        return self.env.ref(
-            'account_cashbook_analytic.action_report_cash_book_analytic'
-        ).report_action(self, data=data)
+        return self.env.ref('om_cashbook_analytic.action_report_cash_book_analytic').report_action(self)

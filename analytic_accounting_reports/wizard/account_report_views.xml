@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Inherit wizard to add analytic filter and View Details button -->
     <record id="view_accounting_report_inherit_analytic" model="ir.ui.view">
         <field name="name">accounting.report.wizard.analytic.inherit</field>
         <field name="model">accounting.report</field>
@@ -7,7 +8,7 @@
         <field name="arch" type="xml">
             <!-- Insert analytic filter fields after journal selection -->
             <xpath expr="//field[@name='journal_ids']" position="after">
-                <group string="Warehouse / Analytic Account " col="1">
+                <group string="Warehouse / Analytic Account" col="1">
                     <field name="analytic_account_ids"
                            widget="many2many_tags"
                            options="{'no_create': True, 'no_open': True}"
@@ -16,9 +17,14 @@
                     <!-- Show helpful information -->
                     <field name="warehouse_selection_info" nolabel="1" widget="html"/>
 
-                    <!-- Hidden computed field -->
+                    <!-- Show combined column option only when multiple warehouses selected -->
+                    <field name="include_combined"
+                           invisible="len(analytic_account_ids) &lt;= 1"
+                           string="Show Breakdown by Warehouse"/>
                 </group>
             </xpath>
+
+            <!-- Add View Details button in footer -->
             <xpath expr="//footer/button[@name='check_report']" position="after">
                 <button name="action_view_details"
                         string="View Details"
@@ -26,5 +32,71 @@
                         class="btn-primary"/>
             </xpath>
         </field>
+    </record>
+
+    <!-- Tree view for financial report lines -->
+    <record id="view_account_financial_report_line_tree" model="ir.ui.view">
+        <field name="name">account.financial.report.line.tree</field>
+        <field name="model">account.financial.report.line</field>
+        <field name="arch" type="xml">
+            <tree string="Financial Report Details"
+                  decoration-info="balance &lt; 0"
+                  decoration-success="balance &gt; 0">
+                <field name="sequence" column_invisible="1"/>
+                <field name="code" string="Code"/>
+                <field name="name" string="Account"/>
+                <field name="debit" sum="Total Debit"/>
+                <field name="credit" sum="Total Credit"/>
+                <field name="balance" sum="Total Balance"/>
+                <button name="action_view_ledger"
+                        type="object"
+                        string="View Ledger"
+                        class="btn-link"
+                        icon="fa-book"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form view for financial report lines (optional) -->
+    <record id="view_account_financial_report_line_form" model="ir.ui.view">
+        <field name="name">account.financial.report.line.form</field>
+        <field name="model">account.financial.report.line</field>
+        <field name="arch" type="xml">
+            <form string="Financial Report Line">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="account_id"/>
+                        </group>
+                        <group>
+                            <field name="debit"/>
+                            <field name="credit"/>
+                            <field name="balance"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                        <group>
+                            <field name="target_move"/>
+                            <field name="analytic_account_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action for financial report lines -->
+    <record id="action_account_financial_report_line" model="ir.actions.act_window">
+        <field name="name">Financial Report Details</field>
+        <field name="res_model">account.financial.report.line</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{}</field>
+        <field name="domain">[]</field>
     </record>
 </odoo>

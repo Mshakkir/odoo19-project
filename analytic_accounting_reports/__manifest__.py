@@ -15,7 +15,7 @@
     'data': [
         'wizard/account_report_views.xml',
         'report/report_financial_template.xml',
-        'views/account_financial_report_line_views.xml',
+
     ],
     'installable': True,
     'application': False,

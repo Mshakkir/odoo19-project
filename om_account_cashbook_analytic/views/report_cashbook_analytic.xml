@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Report Action -->
+    <!-- QWeb PDF Report Action -->
     <report
-        id="action_report_cash_book_analytic"
+        id="action_report_cashbook_analytic"
         model="account.cashbook.report"
         string="Cash Book with Analytic"
         report_type="qweb-pdf"
@@ -25,9 +25,39 @@
                             - Grouped by Analytic Account
                         </span>
                     </h2>
-                </div>
+                    <p><strong>Date From:</strong> <span t-esc="object.date_from"/></p>
+                    <p><strong>Date To:</strong> <span t-esc="object.date_to"/></p>
 
-                <!-- Your full report body remains same -->
+                    <!-- Sample report table -->
+                    <table class="table table-sm o_main_table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Journal</th>
+                                <th>Account</th>
+                                <th>Analytic Account</th>
+                                <th>Label</th>
+                                <th>Debit</th>
+                                <th>Credit</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="object.get_report_lines()" t-as="line">
+                                <tr>
+                                    <td><span t-esc="line.date"/></td>
+                                    <td><span t-esc="line.journal"/></td>
+                                    <td><span t-esc="line.account"/></td>
+                                    <td><span t-esc="line.analytic_account"/></td>
+                                    <td><span t-esc="line.label"/></td>
+                                    <td class="text-right"><span t-esc="line.debit"/></td>
+                                    <td class="text-right"><span t-esc="line.credit"/></td>
+                                    <td class="text-right"><span t-esc="line.balance"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
             </t>
         </t>
     </template>

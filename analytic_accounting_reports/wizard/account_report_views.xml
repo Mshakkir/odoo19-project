@@ -16,11 +16,7 @@
                     <!-- Show helpful information -->
                     <field name="warehouse_selection_info" nolabel="1" widget="html"/>
 
-<<<<<<< HEAD
-=======
                     <!-- Hidden computed field -->
->>>>>>> e8099a0 (odoomates)
-
                 </group>
             </xpath>
             <xpath expr="//footer/button[@name='check_report']" position="after">
@@ -32,4 +28,3 @@
         </field>
     </record>
 </odoo>
-

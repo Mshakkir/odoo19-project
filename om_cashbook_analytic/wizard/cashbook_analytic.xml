@@ -3,7 +3,7 @@
     <!-- Extend Daybook Wizard -->
     <record id="view_account_cashbook_analytic_wizard_inherit" model="ir.ui.view">
         <field name="name">account.cashbook.analytic.wizard.inherit</field>
-        <field name="model">account.daybook.report</field>
+        <field name="model">account.cashbook.report</field>
         <field name="inherit_id" ref="om_account_daily_reports.account_report_daybook_view"/>
         <field name="arch" type="xml">
 
@@ -23,7 +23,7 @@
     <!-- Define the action -->
     <record id="action_cashbook_report_analytic" model="ir.actions.act_window">
         <field name="name">Cashbook Report</field>
-        <field name="res_model">account.daybook.report</field>
+        <field name="res_model">account.cashbook.report</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>

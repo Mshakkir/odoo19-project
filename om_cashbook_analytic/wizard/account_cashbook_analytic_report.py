@@ -36,12 +36,37 @@ class AccountCashBookReport(models.TransientModel):
 
     def check_report(self):
         """Override to use the new report with analytic accounts"""
+        import logging
+        _logger = logging.getLogger(__name__)
+
         data = {}
         data['form'] = self.read([
             'target_move', 'date_from', 'date_to', 'journal_ids',
             'account_ids', 'sortby', 'initial_balance', 'display_account',
             'analytic_account_ids', 'report_type', 'group_by_analytic'
         ])[0]
+
+        # ✅ Convert Many2many fields to list of IDs (they come as list of tuples from read())
+        if data['form'].get('journal_ids'):
+            data['form']['journal_ids'] = data['form']['journal_ids']
+
+        if data['form'].get('account_ids'):
+            data['form']['account_ids'] = data['form']['account_ids']
+
+        if data['form'].get('analytic_account_ids'):
+            data['form']['analytic_account_ids'] = data['form']['analytic_account_ids']
+
+        # Debug logging
+        _logger.warning("=" * 80)
+        _logger.warning("WIZARD DATA BEING PASSED TO REPORT:")
+        _logger.warning("Date From: %s", data['form'].get('date_from'))
+        _logger.warning("Date To: %s", data['form'].get('date_to'))
+        _logger.warning("Report Type: %s", data['form'].get('report_type'))
+        _logger.warning("Analytic Account IDs: %s", data['form'].get('analytic_account_ids'))
+        _logger.warning("Journal IDs: %s", data['form'].get('journal_ids'))
+        _logger.warning("Account IDs: %s", data['form'].get('account_ids'))
+        _logger.warning("Target Move: %s", data['form'].get('target_move'))
+        _logger.warning("=" * 80)
 
         comparison_context = self._build_comparison_context(data)
         data['form']['comparison_context'] = comparison_context

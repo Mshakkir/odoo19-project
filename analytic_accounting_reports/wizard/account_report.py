@@ -285,14 +285,11 @@ class AccountingReport(models.TransientModel):
             expense_accounts = self.env['account.account'].search(
                 [('account_type', 'in', ['expense', 'other_expense'])])
 
-            income_balance = sum(
-                FinancialReportPL.with_context(ctx_pl)._compute_account_balance(income_accounts).values(),
-                key=lambda v: v['balance'])
-            expense_balance = sum(
-                FinancialReportPL.with_context(ctx_pl)._compute_account_balance(expense_accounts).values(),
-                key=lambda v: v['balance'])
+            income_balance = sum(v['balance'] for v in FinancialReportPL.with_context(ctx_pl)._compute_account_balance(
+                income_accounts).values())
+            expense_balance = sum(v['balance'] for v in FinancialReportPL.with_context(ctx_pl)._compute_account_balance(
+                expense_accounts).values())
             net_profit = income_balance + expense_balance
-
             total_label = "<b>Net Profit</b>" if net_profit < 0 else "<b>Net Loss</b>"
 
             ReportLine.create({

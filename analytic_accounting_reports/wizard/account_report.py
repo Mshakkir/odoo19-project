@@ -185,7 +185,7 @@ class AccountingReport(models.TransientModel):
                 'EXPENSES': ['expense', 'other_expense'],
             }
 
-        # ✅ Define correct Odoo internal account type mapping
+        # ✅ Map internal account types
         account_type_map = {
             'ASSETS': 'asset',
             'LIABILITIES': 'liability',
@@ -199,6 +199,7 @@ class AccountingReport(models.TransientModel):
 
         sequence = 1
 
+        # ✅ Build section-wise account balances
         for group_name, account_types in group_mapping.items():
             accounts = self.env['account.account'].search([('account_type', 'in', account_types)])
             if not accounts:
@@ -206,8 +207,8 @@ class AccountingReport(models.TransientModel):
 
             account_balances = FinancialReport.with_context(ctx)._compute_account_balance(accounts)
 
-            # ✅ Create section header
-            section_line = ReportLine.create({
+            # Section header
+            ReportLine.create({
                 'name': f"<b>{group_name}</b>",
                 'is_section': True,
                 'sequence': sequence,
@@ -219,7 +220,7 @@ class AccountingReport(models.TransientModel):
             })
             sequence += 1
 
-            # ✅ Add accounts under this section
+            # Account lines
             for acc in accounts:
                 vals = account_balances.get(acc.id)
                 if not vals:
@@ -245,31 +246,69 @@ class AccountingReport(models.TransientModel):
                 })
                 sequence += 1
 
-        # ✅ Add Net Profit / Net Loss total for both reports
-        all_lines = self.env['account.financial.report.line'].search([('report_type', '=', report_type)])
-        total_debit = sum(all_lines.mapped('debit'))
-        total_credit = sum(all_lines.mapped('credit'))
-        total_balance = sum(all_lines.mapped('balance'))
+        # ✅ Compute Net Profit / Loss
+        if report_type == 'profit_loss':
+            # -- Calculate total from P&L itself --
+            all_lines = self.env['account.financial.report.line'].search([('report_type', '=', 'profit_loss')])
+            total_debit = sum(all_lines.mapped('debit'))
+            total_credit = sum(all_lines.mapped('credit'))
+            total_balance = sum(all_lines.mapped('balance'))
 
-        if total_balance < 0:
-            total_label = "<b>Net Profit</b>"
-        else:
-            total_label = "<b>Net Loss</b>"
+            total_label = "<b>Net Profit</b>" if total_balance < 0 else "<b>Net Loss</b>"
 
-        ReportLine.create({
-            'name': total_label,
-            'is_total': True,
-            'is_section': False,
-            'report_type': report_type,
-            'debit': total_debit,
-            'credit': total_credit,
-            'balance': total_balance,
-            'sequence': 9999,
-            'date_from': date_from,
-            'date_to': date_to,
-            'target_move': target_move,
-            'analytic_account_ids': [(6, 0, analytic_ids)],
-        })
+            ReportLine.create({
+                'name': total_label,
+                'is_total': True,
+                'is_section': False,
+                'report_type': 'profit_loss',
+                'debit': total_debit,
+                'credit': total_credit,
+                'balance': total_balance,
+                'sequence': 9999,
+                'date_from': date_from,
+                'date_to': date_to,
+                'target_move': target_move,
+                'analytic_account_ids': [(6, 0, analytic_ids)],
+            })
+
+        elif report_type == 'balance_sheet':
+            # -- Pull profit/loss from Profit & Loss report for same period --
+            profit_loss_report = self.env['accounting.report'].create({
+                'date_from': date_from,
+                'date_to': date_to,
+                'target_move': target_move,
+            })
+            ctx_pl = profit_loss_report._build_contexts({'form': profit_loss_report.read()[0]})
+            FinancialReportPL = self.env['report.accounting_pdf_reports.report_financial']
+
+            income_accounts = self.env['account.account'].search([('account_type', 'in', ['income', 'other_income'])])
+            expense_accounts = self.env['account.account'].search(
+                [('account_type', 'in', ['expense', 'other_expense'])])
+
+            income_balance = sum(
+                FinancialReportPL.with_context(ctx_pl)._compute_account_balance(income_accounts).values(),
+                key=lambda v: v['balance'])
+            expense_balance = sum(
+                FinancialReportPL.with_context(ctx_pl)._compute_account_balance(expense_accounts).values(),
+                key=lambda v: v['balance'])
+            net_profit = income_balance + expense_balance
+
+            total_label = "<b>Net Profit</b>" if net_profit < 0 else "<b>Net Loss</b>"
+
+            ReportLine.create({
+                'name': total_label,
+                'is_total': True,
+                'is_section': False,
+                'report_type': 'balance_sheet',
+                'debit': 0.0,
+                'credit': 0.0,
+                'balance': net_profit,
+                'sequence': 9999,
+                'date_from': date_from,
+                'date_to': date_to,
+                'target_move': target_move,
+                'analytic_account_ids': [(6, 0, analytic_ids)],
+            })
 
         # ✅ Return the tree view action
         return {
@@ -281,11 +320,6 @@ class AccountingReport(models.TransientModel):
             'context': ctx,
             'domain': [('report_type', '=', report_type)],
         }
-
-
-
-
-
 
     # def action_view_details(self):
     #     """Open detailed Balance Sheet or P&L in a window with section headers."""

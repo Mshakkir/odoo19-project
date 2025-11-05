@@ -153,14 +153,14 @@ class AccountingReport(models.TransientModel):
     # New Button Action (Fix for XML)
     # -----------------------------
     def action_view_details(self):
-        """Open detailed Balance Sheet or P&L in a window, grouped by type."""
+        """Open detailed Balance Sheet or P&L in a window with section headers."""
         self.ensure_one()
 
         report_type = 'balance_sheet'
         if self.account_report_id and 'loss' in self.account_report_id.name.lower():
             report_type = 'profit_loss'
 
-        # Clear previous lines
+        # Clean old data
         self.env['account.financial.report.line'].search([]).unlink()
 
         ctx = self._build_contexts({'form': self.read()[0]})
@@ -169,45 +169,45 @@ class AccountingReport(models.TransientModel):
         date_to = ctx.get('date_to')
         target_move = ctx.get('target_move', 'posted')
 
-        # ✅ Account type selection
+        # Define account type groups
         if report_type == 'balance_sheet':
             group_mapping = {
-                'Asset': ['asset_non_current', 'asset_current'],
-                'Liability': ['liability_non_current', 'liability_current'],
-                'Equity': ['equity'],
+                'ASSETS': ['asset_non_current', 'asset_current'],
+                'LIABILITIES': ['liability_non_current', 'liability_current'],
+                'EQUITY': ['equity'],
             }
         else:
             group_mapping = {
-                'Income': ['income', 'other_income'],
-                'Expense': ['expense', 'other_expense'],
+                'INCOME': ['income', 'other_income'],
+                'EXPENSES': ['expense', 'other_expense'],
             }
 
         ReportLine = self.env['account.financial.report.line']
         FinancialReport = self.env['report.accounting_pdf_reports.report_financial']
 
-        # ✅ Create grouped lines
+        sequence = 1
+
         for group_name, account_types in group_mapping.items():
-            accounts = self.env['account.account'].search([
-                ('account_type', 'in', account_types)
-            ])
+            accounts = self.env['account.account'].search([('account_type', 'in', account_types)])
             if not accounts:
                 continue
 
             account_balances = FinancialReport.with_context(ctx)._compute_account_balance(accounts)
 
-            # Create group header line
-            group_line = ReportLine.create({
-                'name': group_name.upper(),
-                'code': '',
-                'balance': 0.0,
+            # ✅ Create section header
+            section_line = ReportLine.create({
+                'name': group_name,
+                'is_section': True,
+                'sequence': sequence,
                 'report_type': report_type,
                 'date_from': date_from,
                 'date_to': date_to,
                 'target_move': target_move,
                 'analytic_account_ids': [(6, 0, analytic_ids)],
             })
+            sequence += 1
 
-            # Add child account lines under group
+            # ✅ Add accounts under this section
             for acc in accounts:
                 vals = account_balances.get(acc.id)
                 if not vals:
@@ -224,14 +224,16 @@ class AccountingReport(models.TransientModel):
                     'credit': vals.get('credit', 0.0),
                     'balance': balance,
                     'report_type': report_type,
+                    'sequence': sequence,
+                    'account_type': group_name.lower(),
                     'date_from': date_from,
                     'date_to': date_to,
                     'target_move': target_move,
                     'analytic_account_ids': [(6, 0, analytic_ids)],
-                    'parent_id': group_line.id,  # ✅ Grouped hierarchy
                 })
+                sequence += 1
 
-        # ✅ Open tree view
+        # ✅ Return the tree view action
         return {
             'type': 'ir.actions.act_window',
             'name': f'{self.account_report_id.name} Details',

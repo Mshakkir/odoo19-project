@@ -1,25 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
     <record id="account_report_cashbook_analytic_view" model="ir.ui.view">
-        <field name="name">Cash Book with Analytic Account</field>
+        <field name="name">account.cashbook.report.analytic.form</field>
         <field name="model">account.cashbook.report</field>
         <field name="inherit_id" ref="om_account_daily_reports.account_report_cashbook_view"/>
         <field name="arch" type="xml">
-            <!-- Add analytic account field after journal_ids -->
-            <field name="journal_ids" position="after">
+
+            <!-- ✅ Add analytic account field after journal_ids -->
+            <xpath expr="//field[@name='journal_ids']" position="after">
                 <field name="analytic_account_ids"
                        widget="many2many_tags"
                        options="{'no_create': True}"/>
-            </field>
-                        <!-- Add Show Details button -->
+            </xpath>
+
+            <!-- ✅ Add Show Details button safely -->
             <xpath expr="//footer" position="inside">
                 <button name="action_show_details"
                         string="Show Details"
                         type="object"
-                        class="btn-primary"/>
+                        class="oe_highlight"/>
             </xpath>
+
         </field>
     </record>
-
 </odoo>
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+
+<!--    <record id="account_report_cashbook_analytic_view" model="ir.ui.view">-->
+<!--        <field name="name">Cash Book with Analytic Account</field>-->
+<!--        <field name="model">account.cashbook.report</field>-->
+<!--        <field name="inherit_id" ref="om_account_daily_reports.account_report_cashbook_view"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            &lt;!&ndash; Add analytic account field after journal_ids &ndash;&gt;-->
+<!--            <field name="journal_ids" position="after">-->
+<!--                <field name="analytic_account_ids"-->
+<!--                       widget="many2many_tags"-->
+<!--                       options="{'no_create': True}"/>-->
+<!--            </field>-->
+<!--                        &lt;!&ndash; Add Show Details button &ndash;&gt;-->
+<!--            <xpath expr="//footer" position="inside">-->
+<!--                <button name="action_show_details"-->
+<!--                        string="Show Details"-->
+<!--                        type="object"-->
+<!--                        class="btn-primary"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--</odoo>-->

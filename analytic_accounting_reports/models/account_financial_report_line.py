@@ -7,21 +7,20 @@ _logger = logging.getLogger(__name__)
 
 
 class AccountFinancialReportLine(models.Model):
-    """Temporary model for displaying financial report lines (Balance Sheet / P&L)."""
+    """Temporary model for displaying financial report lines (used in Balance Sheet / P&L)."""
     _name = 'account.financial.report.line'
     _description = 'Financial Report Line'
     _order = 'sequence, code'
 
     # -------------------------------------------------------------------------
-    # Basic Fields
+    # Fields
     # -------------------------------------------------------------------------
     name = fields.Html(string='Account', required=True, sanitize=False)
     code = fields.Char(string='Code')
     account_id = fields.Many2one('account.account', string='Account', ondelete='cascade')
-
     debit = fields.Float(string='Debit', digits=(16, 2))
     credit = fields.Float(string='Credit', digits=(16, 2))
-    balance = fields.Float(string='Amount', digits=(16, 2))
+    balance = fields.Float(string='Balance', digits=(16, 2))
 
     report_type = fields.Selection([
         ('balance_sheet', 'Balance Sheet'),
@@ -30,15 +29,9 @@ class AccountFinancialReportLine(models.Model):
 
     sequence = fields.Integer(string='Sequence', default=10)
 
-    # -------------------------------------------------------------------------
-    # Section Handling
-    # -------------------------------------------------------------------------
-    is_section = fields.Boolean(
-        string='Section Header',
-        default=False,
-        help="If true, this line is a section header (e.g. <b>ASSETS</b>, <b>LIABILITIES</b>)."
-    )
-
+    # Section flags (like ASSETS, LIABILITIES)
+    is_section = fields.Boolean(string='Section Header', default=False)
+    is_total = fields.Boolean(string='Section Total', default=False)
     account_type = fields.Selection([
         ('asset', 'Asset'),
         ('liability', 'Liability'),
@@ -48,9 +41,7 @@ class AccountFinancialReportLine(models.Model):
         ('profit_loss', 'Profit/Loss'),
     ], string='Account Type')
 
-    # -------------------------------------------------------------------------
-    # Filter Context
-    # -------------------------------------------------------------------------
+    # Filter context fields
     date_from = fields.Date(string='Date From')
     date_to = fields.Date(string='Date To')
     analytic_account_ids = fields.Many2many(
@@ -67,62 +58,26 @@ class AccountFinancialReportLine(models.Model):
     company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company)
 
     # -------------------------------------------------------------------------
-    # Utility: Create Section Header + Total
-    # -------------------------------------------------------------------------
-    @api.model
-    def create_section_lines(self, grouped_data):
-        """
-        Build report lines grouped by section (ASSETS, LIABILITIES, EQUITY, etc.)
-        Each section header shows total amount and bold formatting.
-        """
-        lines = []
-        seq = 0
-        for section, accounts in grouped_data.items():
-            section_total = sum(a['balance'] for a in accounts)
-            seq += 1
-            # Section header (bold + total)
-            lines.append((0, 0, {
-                'sequence': seq,
-                'name': f"<b>{section}</b>",
-                'balance': section_total,
-                'is_section': True,
-            }))
-            # Child account lines
-            for acc in accounts:
-                seq += 1
-                lines.append((0, 0, {
-                    'sequence': seq,
-                    'code': acc.get('code'),
-                    'name': acc.get('name'),
-                    'debit': acc.get('debit', 0.0),
-                    'credit': acc.get('credit', 0.0),
-                    'balance': acc.get('balance', 0.0),
-                    'account_id': acc.get('account_id'),
-                    'account_type': acc.get('account_type'),
-                    'is_section': False,
-                }))
-        return lines
-
-    # -------------------------------------------------------------------------
     # Actions
     # -------------------------------------------------------------------------
     def action_view_ledger(self):
         """Open General Ledger view for this account with applied filters."""
         self.ensure_one()
 
-        if not self.account_id:
+        if not self.account_id or self.is_section or self.is_total:
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'title': 'Warning',
-                    'message': 'No account linked to this line.',
+                    'title': 'Notice',
+                    'message': 'This line is a section or total, not a specific account.',
                     'type': 'warning',
                     'sticky': False,
                 }
             }
 
         domain = [('account_id', '=', self.account_id.id)]
+
         if self.date_from:
             domain.append(('date', '>=', self.date_from))
         if self.date_to:
@@ -130,7 +85,7 @@ class AccountFinancialReportLine(models.Model):
         if self.target_move == 'posted':
             domain.append(('move_id.state', '=', 'posted'))
 
-        # Analytic account filter (Warehouse)
+        # Analytic filter
         if self.analytic_account_ids:
             analytic_domain = []
             for analytic in self.analytic_account_ids:
@@ -175,7 +130,36 @@ class AccountFinancialReportLine(models.Model):
         }
 
     # -------------------------------------------------------------------------
-    # Cleanup (Optional)
+    # Section Totals
+    # -------------------------------------------------------------------------
+    @api.model
+    def create_section_totals(self, lines):
+        """Insert section total lines for Assets, Liabilities, and Equity."""
+        totals = {}
+        result = []
+        for line in lines:
+            if line.account_type in ['asset', 'liability', 'equity'] and not line.is_section:
+                totals.setdefault(line.account_type, {'debit': 0, 'credit': 0, 'balance': 0})
+                totals[line.account_type]['debit'] += line.debit
+                totals[line.account_type]['credit'] += line.credit
+                totals[line.account_type]['balance'] += line.balance
+            result.append(line)
+
+        for acc_type, vals in totals.items():
+            result.append(self.create({
+                'name': f"<b>Total {acc_type.capitalize()}</b>",
+                'is_total': True,
+                'is_section': False,
+                'account_type': acc_type,
+                'debit': vals['debit'],
+                'credit': vals['credit'],
+                'balance': vals['balance'],
+                'sequence': 9999,
+            }))
+        return result
+
+    # -------------------------------------------------------------------------
+    # Maintenance (optional cron)
     # -------------------------------------------------------------------------
     @api.model
     def cleanup_old_lines(self):

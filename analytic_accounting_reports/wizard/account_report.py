@@ -153,73 +153,71 @@ class AccountingReport(models.TransientModel):
     # New Button Action (Fix for XML)
     # -----------------------------
     def action_view_details(self):
-        """Open detailed Balance Sheet or P&L without section headers (flat list)."""
+        """Open detailed Balance Sheet or P&L in a window."""
         self.ensure_one()
 
-        # Detect report type based on report name
         report_type = 'balance_sheet'
-        if self.account_report_id and 'loss' in (self.account_report_id.name or '').lower():
+        if self.account_report_id and 'loss' in self.account_report_id.name.lower():
             report_type = 'profit_loss'
 
-        # Remove previous lines
         self.env['account.financial.report.line'].search([]).unlink()
 
-        # Build context and extract filters
         ctx = self._build_contexts({'form': self.read()[0]})
         analytic_ids = ctx.get('analytic_account_ids', [])
         date_from = ctx.get('date_from')
         date_to = ctx.get('date_to')
         target_move = ctx.get('target_move', 'posted')
 
-        # Allowed account types based on detected report
+        # ✅ Filter by account types based on report
         if report_type == 'balance_sheet':
-            account_types = ['asset', 'liability', 'equity']
+            account_types = [
+                'asset_non_current', 'asset_current',
+                'liability_non_current', 'liability_current', 'equity'
+            ]
         else:
             account_types = ['income', 'expense', 'other_income', 'other_expense']
 
-        # Fetch accounts sorted by code
         accounts = self.env['account.account'].search([
             ('account_type', 'in', account_types)
-        ], order='code asc')
+        ])
 
-        # Compute balances
         account_balances = self.env['report.accounting_pdf_reports.report_financial'] \
             .with_context(ctx)._compute_account_balance(accounts)
 
         lines = []
-
-        # Add only account rows (no sections, no profit/loss summary)
         for acc in accounts:
             vals = account_balances.get(acc.id)
-            if vals and abs(vals.get('balance', 0.0)) > 0.009:
-                lines.append({
-                    'name': acc.name,
-                    'code': acc.code,
-                    'account_id': acc.id,
-                    'debit': vals.get('debit', 0.0),
-                    'credit': vals.get('credit', 0.0),
-                    'balance': vals.get('balance', 0.0),
-                    'is_section': False,
-                    'account_type': acc.account_type,  # ✅ valid (asset/liability/equity/income/expense)
-                    'report_type': report_type,
-                    'date_from': date_from,
-                    'date_to': date_to,
-                    'target_move': target_move,
-                    'analytic_account_ids': [(6, 0, analytic_ids)],
-                })
+            if not vals:
+                continue
+            balance = vals.get('balance', 0)
+            if abs(balance) < 0.01:
+                continue
 
-        # Create records
+            lines.append({
+                'name': acc.name,
+                'code': acc.code,
+                'account_id': acc.id,
+                'debit': vals.get('debit', 0.0),
+                'credit': vals.get('credit', 0.0),
+                'balance': balance,
+                'report_type': report_type,
+                'date_from': date_from,
+                'date_to': date_to,
+                'target_move': target_move,
+                'analytic_account_ids': [(6, 0, analytic_ids)],
+            })
+
         if lines:
             self.env['account.financial.report.line'].create(lines)
 
-        # Open result in list view (no grouping)
         return {
-            'name': f"{'Balance Sheet' if report_type == 'balance_sheet' else 'Profit & Loss'} Details",
             'type': 'ir.actions.act_window',
+            'name': f'{self.account_report_id.name} Details',
             'res_model': 'account.financial.report.line',
-            'view_mode': 'list,form',
+            'view_mode': 'list',
             'target': 'current',
-            'context': {'group_by': False},  # ✅ disable grouping
+            'context': ctx,
+            'domain': [('report_type', '=', report_type)],
         }
 
 

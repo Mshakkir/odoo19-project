@@ -29,14 +29,14 @@ class AccountFinancialReportLine(models.Model):
 
     sequence = fields.Integer(string='Sequence', default=10)
 
-    # Section header flag
+    # 🔹 Added field for section header (Assets / Liabilities / Profit Loss)
     is_section = fields.Boolean(string='Section Header', default=False,
                                 help="If true, this line is used as a section header (e.g. Assets, Liabilities).")
 
-    # Use simple keys for grouping (these values will be used in action group_by)
+    # 🔹 Optional: categorize accounts for grouping
     account_type = fields.Selection([
-        ('assets', 'Assets'),
-        ('liabilities', 'Liabilities'),
+        ('asset', 'Asset'),
+        ('liability', 'Liability'),
         ('equity', 'Equity'),
         ('income', 'Income'),
         ('expense', 'Expense'),
@@ -78,7 +78,7 @@ class AccountFinancialReportLine(models.Model):
                 }
             }
 
-        # Domain setup (account.move.line uses field 'account_id')
+        # Domain setup
         domain = [('account_id', '=', self.account_id.id)]
 
         if self.date_from:
@@ -88,20 +88,18 @@ class AccountFinancialReportLine(models.Model):
         if self.target_move == 'posted':
             domain.append(('move_id.state', '=', 'posted'))
 
-        # Analytic filter (warehouse) - using ilike JSON fragment as before
+        # Analytic filter (warehouse)
         if self.analytic_account_ids:
             analytic_domain = []
             for analytic in self.analytic_account_ids:
                 analytic_domain.append(('analytic_distribution', 'ilike', f'"{analytic.id}"'))
-            # Combine ORs: insert the required number of '|' operators
+            # Combine with OR
             if len(analytic_domain) > 1:
-                domain = ['|'] * (len(analytic_domain) - 1) + domain + analytic_domain
-            else:
-                domain += analytic_domain
+                domain.append('|' * (len(analytic_domain) - 1))
+            domain.extend(analytic_domain)
 
-        # Context for ledger
+        # Context
         ctx = dict(self.env.context or {})
-        # Use 'search_default_posted' only if a filter exists in the search view; safe addition
         ctx.update({
             'search_default_posted': 1 if self.target_move == 'posted' else 0,
             'default_account_id': self.account_id.id,
@@ -153,11 +151,6 @@ class AccountFinancialReportLine(models.Model):
                 _logger.info("✅ No old financial report lines found to clean up.")
         except Exception as e:
             _logger.exception("Error during cleanup_old_lines: %s", e)
-
-
-
-
-
 
 
 

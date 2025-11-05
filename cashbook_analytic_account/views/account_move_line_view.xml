@@ -23,12 +23,14 @@
     </record>
 
     <!-- Action to open the view -->
-    <record id="action_my_report" model="ir.actions.act_window">
-        <field name="name">My Report</field>
-        <field name="res_model">account.move.line</field>
-        <field name="type">ir.actions.act_window</field>
-        <field name="view_mode">list,form</field>
-        <field name="view_id" ref="view_account_move_line_cashbook_analytic_tree"/>
-    </record>
+<record id="action_my_report" model="ir.actions.act_window">
+    <field name="name">My Report</field>
+    <field name="res_model">account.move.line</field>
+    <field name="type">ir.actions.act_window</field>
+    <field name="view_mode">list,form</field>
+    <field name="view_id" ref="view_account_move_line_cashbook_analytic_tree"/>
+</record>
+
+
 
 </odoo>

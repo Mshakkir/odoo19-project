@@ -25,23 +25,33 @@ class ReportCashbookAnalytic(models.AbstractModel):
         date_from = form_data['date_from']
         date_to = form_data['date_to']
 
-        # Account filter (if selected)
+        # Account filter
         account_ids = form_data.get('account_ids', [])
         account_filter = ""
         if account_ids:
-            account_filter = f"AND l.account_id IN %s"
+            account_filter = "AND l.account_id IN %s"
 
-        # Analytic filter
+        # ✅ Analytic filter (this part is the fix)
         analytic_filter = ""
+        params = [cash_journal_ids, date_from, date_to]
+
         if analytic_account_id:
+            # single analytic (used in separate reports)
             analytic_filter = "AND l.analytic_distribution ? %s"
+            params.append(str(analytic_account_id))
         elif form_data.get('analytic_account_ids'):
             analytic_ids = [str(aid) for aid in form_data['analytic_account_ids']]
+            # dynamically build OR conditions for each analytic
             analytic_filter = "AND (" + " OR ".join(
-                [f"l.analytic_distribution ? '{aid}'" for aid in analytic_ids]
+                ["l.analytic_distribution ? %s" for _ in analytic_ids]
             ) + ")"
+            params.extend(analytic_ids)
 
-        # Build SQL query
+        # Add account_ids if selected
+        if account_ids:
+            params.append(tuple(account_ids))
+
+        # ✅ Final SQL
         sql = f"""
             SELECT 
                 l.id AS lid,
@@ -56,13 +66,16 @@ class ReportCashbookAnalytic(models.AbstractModel):
                 COALESCE(l.credit, 0.0) AS credit,
                 COALESCE(l.debit, 0) - COALESCE(l.credit, 0) AS balance,
                 m.name AS move_name,
-                aa.name AS analytic_account_name
+                (
+                    SELECT string_agg(aa.name, ', ')
+                    FROM account_analytic_account aa
+                    WHERE l.analytic_distribution ? CAST(aa.id AS TEXT)
+                ) AS analytic_account_name
             FROM account_move_line l
             JOIN account_move m ON (l.move_id = m.id)
             JOIN account_journal j ON (l.journal_id = j.id)
             JOIN account_account acc ON (l.account_id = acc.id)
             LEFT JOIN res_partner p ON (l.partner_id = p.id)
-            LEFT JOIN account_analytic_account aa ON (l.analytic_distribution ? CAST(aa.id AS TEXT))
             WHERE l.journal_id IN %s
             AND l.date BETWEEN %s AND %s
             {target_move}
@@ -71,14 +84,7 @@ class ReportCashbookAnalytic(models.AbstractModel):
             ORDER BY l.date, j.code, l.id
         """
 
-        # Prepare params dynamically
-        params = [cash_journal_ids, date_from, date_to]
-        if analytic_account_id:
-            params.append(str(analytic_account_id))
-        if account_ids:
-            params.append(tuple(account_ids))
-
-        cr.execute(sql, params)
+        cr.execute(sql, tuple(params))
         data = cr.dictfetchall()
 
         debit = sum(line['debit'] for line in data)

@@ -1,8 +1,8 @@
 from odoo import fields, models, api
-
 import logging
 
 _logger = logging.getLogger(__name__)
+
 
 class AccountCashBookReportAnalytic(models.TransientModel):
     _inherit = "account.cashbook.report"
@@ -36,8 +36,7 @@ class AccountCashBookReportAnalytic(models.TransientModel):
             'om_account_daily_reports.action_report_cash_book'
         ).report_action(self, data=data)
 
-    import logging
-    _logger = logging.getLogger(__name__)
+
 
 
 def action_show_details(self):
@@ -69,4 +68,5 @@ def action_show_details(self):
         'target': 'current',
         'view_id': self.env.ref('cashbook_analytic_account.view_account_move_line_cashbook_analytic_tree').id,
     }
+
 

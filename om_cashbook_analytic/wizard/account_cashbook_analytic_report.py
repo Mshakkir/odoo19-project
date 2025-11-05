@@ -1,4 +1,8 @@
+# -*- coding: utf-8 -*-
 from odoo import fields, models, api, _
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class AccountCashBookReport(models.TransientModel):
@@ -28,24 +32,27 @@ class AccountCashBookReport(models.TransientModel):
 
     def _build_comparison_context(self, data):
         """Override to add analytic account context"""
-        result = super()._build_comparison_context(data)
+        result = super(AccountCashBookReport, self)._build_comparison_context(data)
         result['analytic_account_ids'] = data['form'].get('analytic_account_ids', [])
         result['report_type'] = data['form'].get('report_type', 'combined')
         result['group_by_analytic'] = data['form'].get('group_by_analytic', True)
         return result
 
+    def check_report(self):
+        """Override to use the new report with analytic accounts and pass data"""
+        data = {}
+        # read() returns primitive values for many2many as list of ids
+        data['form'] = self.read([
+            'target_move', 'date_from', 'date_to', 'journal_ids',
+            'account_ids', 'sortby', 'initial_balance', 'display_account',
+            'analytic_account_ids', 'report_type', 'group_by_analytic'
+        ])[0]
 
-def check_report(self):
-    """Override to use the new report with analytic accounts"""
-    data = {}
-    data['form'] = self.read([
-        'target_move', 'date_from', 'date_to', 'journal_ids',
-        'account_ids', 'sortby', 'initial_balance', 'display_account',
-        'analytic_account_ids', 'report_type', 'group_by_analytic'
-    ])[0]
+        comparison_context = self._build_comparison_context(data)
+        data['form']['comparison_context'] = comparison_context
 
-    comparison_context = self._build_comparison_context(data)
-    data['form']['comparison_context'] = comparison_context
+        # Debug log: show what will be sent to report
+        _logger.info("Cashbook analytic report - form sent: %s", data['form'])
 
-    # ✅ Pass the data to the report
-    return self.env.ref('om_cashbook_analytic.action_report_cash_book_analytic').report_action(self, data=data)
+        # Pass the data to the report (important)
+        return self.env.ref('om_cashbook_analytic.action_report_cash_book_analytic').report_action(self, data=data)

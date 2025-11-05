@@ -245,32 +245,31 @@ class AccountingReport(models.TransientModel):
                 })
                 sequence += 1
 
-        # ✅ Add Net Profit / Net Loss total for Profit & Loss
-        if report_type == 'profit_loss':
-            all_lines = self.env['account.financial.report.line'].search([('report_type', '=', 'profit_loss')])
-            total_debit = sum(all_lines.mapped('debit'))
-            total_credit = sum(all_lines.mapped('credit'))
-            total_balance = sum(all_lines.mapped('balance'))
+        # ✅ Add Net Profit / Net Loss total for both reports
+        all_lines = self.env['account.financial.report.line'].search([('report_type', '=', report_type)])
+        total_debit = sum(all_lines.mapped('debit'))
+        total_credit = sum(all_lines.mapped('credit'))
+        total_balance = sum(all_lines.mapped('balance'))
 
-            if total_balance < 0:
-                total_label = "<b>Net Profit</b>"
-            else:
-                total_label = "<b>Net Loss</b>"
+        if total_balance < 0:
+            total_label = "<b>Net Profit</b>"
+        else:
+            total_label = "<b>Net Loss</b>"
 
-            ReportLine.create({
-                'name': total_label,
-                'is_total': True,
-                'is_section': False,
-                'report_type': 'profit_loss',
-                'debit': total_debit,
-                'credit': total_credit,
-                'balance': total_balance,
-                'sequence': 9999,
-                'date_from': date_from,
-                'date_to': date_to,
-                'target_move': target_move,
-                'analytic_account_ids': [(6, 0, analytic_ids)],
-            })
+        ReportLine.create({
+            'name': total_label,
+            'is_total': True,
+            'is_section': False,
+            'report_type': report_type,
+            'debit': total_debit,
+            'credit': total_credit,
+            'balance': total_balance,
+            'sequence': 9999,
+            'date_from': date_from,
+            'date_to': date_to,
+            'target_move': target_move,
+            'analytic_account_ids': [(6, 0, analytic_ids)],
+        })
 
         # ✅ Return the tree view action
         return {
@@ -282,17 +281,6 @@ class AccountingReport(models.TransientModel):
             'context': ctx,
             'domain': [('report_type', '=', report_type)],
         }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

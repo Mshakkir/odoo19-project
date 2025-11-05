@@ -93,49 +93,6 @@ class AccountingReport(models.TransientModel):
     # -----------------------------
     # Main Report Action
     # -----------------------------
-    def check_report(self):
-        self.ensure_one()
-
-        parent_fields = [
-            'date_from_cmp', 'debit_credit', 'date_to_cmp',
-            'filter_cmp', 'account_report_id', 'enable_filter',
-            'label_filter', 'target_move', 'date_from', 'date_to',
-            'journal_ids', 'company_id'
-        ]
-        all_fields = parent_fields + ['analytic_account_ids', 'include_combined']
-
-        data = {
-            'ids': self.env.context.get('active_ids', []),
-            'model': self.env.context.get('active_model', 'ir.ui.menu'),
-        }
-
-        form_data = self.read(all_fields)[0]
-        data['form'] = form_data
-
-        if self.analytic_account_ids:
-            data['form']['analytic_account_ids'] = [(6, 0, self.analytic_account_ids.ids)]
-        else:
-            data['form']['analytic_account_ids'] = []
-
-        data['form']['include_combined'] = self.include_combined
-
-        for field in ['date_from_cmp', 'date_to_cmp', 'date_from', 'date_to']:
-            if field in data['form'] and data['form'][field]:
-                if isinstance(data['form'][field], tuple):
-                    data['form'][field] = data['form'][field][0]
-
-        used_context = self._build_contexts(data)
-        data['form']['used_context'] = used_context
-        comparison_context = self._build_comparison_context(data)
-        data['form']['comparison_context'] = comparison_context
-
-        return self.env.ref('accounting_pdf_reports.action_report_financial').with_context(
-            **used_context
-        ).report_action(self, data=data, config=False)
-
-    # -----------------------------
-    # View Details Button (Modified)
-    # -----------------------------
     def action_view_details(self):
         """Open detailed Balance Sheet or P&L in a window with section headers and totals."""
         self.ensure_one()
@@ -187,8 +144,22 @@ class AccountingReport(models.TransientModel):
                 continue
 
             account_balances = FinancialReport.with_context(ctx)._compute_account_balance(accounts)
-
             total_debit = total_credit = total_balance = 0.0
+
+            # ✅ Section header line first (above accounts)
+            section_line = ReportLine.create({
+                'name': f"<b>{group_name}</b>",
+                'is_section': True,
+                'sequence': sequence,
+                'report_type': report_type,
+                'date_from': date_from,
+                'date_to': date_to,
+                'target_move': target_move,
+                'analytic_account_ids': [(6, 0, analytic_ids)],
+            })
+            sequence += 1
+
+            # Account lines
             for acc in accounts:
                 vals = account_balances.get(acc.id)
                 if not vals:
@@ -203,7 +174,6 @@ class AccountingReport(models.TransientModel):
                 total_credit += credit
                 total_balance += balance
 
-                # Create account line
                 ReportLine.create({
                     'name': acc.name,
                     'code': acc.code,
@@ -221,21 +191,12 @@ class AccountingReport(models.TransientModel):
                 })
                 sequence += 1
 
-            # Section header line
-            ReportLine.create({
-                'name': f"<b>{group_name}</b>",
-                'is_section': True,
-                'sequence': sequence,
-                'report_type': report_type,
-                'date_from': date_from,
-                'date_to': date_to,
-                'target_move': target_move,
+            # ✅ Update section totals
+            section_line.write({
                 'debit': total_debit,
                 'credit': total_credit,
                 'balance': total_balance,
-                'analytic_account_ids': [(6, 0, analytic_ids)],
             })
-            sequence += 1
 
             group_totals[group_name] = total_balance
 
@@ -302,10 +263,6 @@ class AccountingReport(models.TransientModel):
             'context': ctx,
             'domain': [('report_type', '=', report_type)],
         }
-
-
-
-
 
 # # -*- coding: utf-8 -*-
 # from odoo import api, fields, models

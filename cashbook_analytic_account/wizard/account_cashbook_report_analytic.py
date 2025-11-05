@@ -34,22 +34,18 @@ class AccountCashBookReportAnalytic(models.TransientModel):
         ).report_action(self, data=data)
 
     def action_show_details(self):
-        """Open detailed account move lines filtered by analytic account and other fields"""
         domain = [('journal_id', 'in', self.journal_ids.ids)]
 
-        # Add date range
         if self.date_from:
             domain.append(('date', '>=', self.date_from))
         if self.date_to:
             domain.append(('date', '<=', self.date_to))
 
-        # Add analytic filter
         if self.analytic_account_ids:
             domain.append(('analytic_distribution', '!=', False))
             analytic_ids = [str(aid.id) for aid in self.analytic_account_ids]
             domain.append(('analytic_distribution', 'ilike', analytic_ids[0]))
 
-        # Add accounts filter
         if self.account_ids:
             domain.append(('account_id', 'in', self.account_ids.ids))
 
@@ -57,10 +53,9 @@ class AccountCashBookReportAnalytic(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Cashbook Analytic Details',
             'res_model': 'account.move.line',
-            'view_mode': 'tree,form',
+            'view_mode': 'tree',  # ✅ only one view mode
             'domain': domain,
             'context': {'search_default_group_by_move_id': 1},
             'target': 'current',
             'view_id': self.env.ref('cashbook_analytic_account.view_account_move_line_cashbook_analytic_tree').id,
-            # ✅ Correct XML ID
         }

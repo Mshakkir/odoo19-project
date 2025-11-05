@@ -153,25 +153,22 @@ class AccountingReport(models.TransientModel):
     # New Button Action (Fix for XML)
     # -----------------------------
     def action_view_details(self):
-        """Open detailed Balance Sheet or P&L in a window."""
+        """Open detailed Balance Sheet or P&L grouped by section."""
         self.ensure_one()
 
-        # Determine report type
         report_type = 'balance_sheet'
         if self.account_report_id and 'loss' in self.account_report_id.name.lower():
             report_type = 'profit_loss'
 
-        # Clear existing detail lines
         self.env['account.financial.report.line'].search([]).unlink()
 
-        # Build context
         ctx = self._build_contexts({'form': self.read()[0]})
         analytic_ids = ctx.get('analytic_account_ids', [])
         date_from = ctx.get('date_from')
         date_to = ctx.get('date_to')
         target_move = ctx.get('target_move', 'posted')
 
-        # Choose account types by report type
+        # Select relevant account types
         if report_type == 'balance_sheet':
             account_types = [
                 'asset_non_current', 'asset_current',
@@ -183,23 +180,21 @@ class AccountingReport(models.TransientModel):
         accounts = self.env['account.account'].search([
             ('account_type', 'in', account_types)
         ])
-
-        # Compute balances
         account_balances = self.env['report.accounting_pdf_reports.report_financial'] \
             .with_context(ctx)._compute_account_balance(accounts)
 
-        # Initialize lines
         lines = []
 
-        # ✅ Define helper to create heading rows
-        def add_heading(name):
+        def add_section(section_name):
+            """Helper to create collapsible section headers."""
             return {
-                'name': name,
+                'name': section_name,
                 'code': '',
                 'account_id': False,
                 'debit': 0.0,
                 'credit': 0.0,
                 'balance': 0.0,
+                'is_section': True,
                 'report_type': report_type,
                 'date_from': date_from,
                 'date_to': date_to,
@@ -207,116 +202,138 @@ class AccountingReport(models.TransientModel):
                 'analytic_account_ids': [(6, 0, analytic_ids)],
             }
 
-        # === BALANCE SHEET ===
+        # ========== BALANCE SHEET ==========
         if report_type == 'balance_sheet':
-            lines.append(add_heading('Balance Sheet'))
-
-            # Assets
+            lines.append(add_section('Assets'))
             asset_types = ['asset_non_current', 'asset_current']
-            asset_accounts = accounts.filtered(lambda a: a.account_type in asset_types)
-            if asset_accounts:
-                lines.append(add_heading('Assets'))
-                for acc in asset_accounts:
-                    vals = account_balances.get(acc.id)
-                    if vals and abs(vals.get('balance', 0)) > 0.01:
-                        lines.append({
-                            'name': acc.name,
-                            'code': acc.code,
-                            'account_id': acc.id,
-                            'debit': vals.get('debit', 0.0),
-                            'credit': vals.get('credit', 0.0),
-                            'balance': vals.get('balance', 0.0),
-                            'report_type': report_type,
-                            'date_from': date_from,
-                            'date_to': date_to,
-                            'target_move': target_move,
-                            'analytic_account_ids': [(6, 0, analytic_ids)],
-                        })
+            for acc in accounts.filtered(lambda a: a.account_type in asset_types):
+                vals = account_balances.get(acc.id)
+                if vals and abs(vals.get('balance', 0)) > 0.01:
+                    lines.append({
+                        'name': acc.name,
+                        'code': acc.code,
+                        'account_id': acc.id,
+                        'debit': vals.get('debit', 0.0),
+                        'credit': vals.get('credit', 0.0),
+                        'balance': vals.get('balance', 0.0),
+                        'is_section': False,
+                        'report_type': report_type,
+                        'date_from': date_from,
+                        'date_to': date_to,
+                        'target_move': target_move,
+                        'analytic_account_ids': [(6, 0, analytic_ids)],
+                    })
 
-            # Liabilities
-            liability_types = ['liability_non_current', 'liability_current', 'equity']
-            liability_accounts = accounts.filtered(lambda a: a.account_type in liability_types)
-            if liability_accounts:
-                lines.append(add_heading('Liabilities'))
-                for acc in liability_accounts:
-                    vals = account_balances.get(acc.id)
-                    if vals and abs(vals.get('balance', 0)) > 0.01:
-                        lines.append({
-                            'name': acc.name,
-                            'code': acc.code,
-                            'account_id': acc.id,
-                            'debit': vals.get('debit', 0.0),
-                            'credit': vals.get('credit', 0.0),
-                            'balance': vals.get('balance', 0.0),
-                            'report_type': report_type,
-                            'date_from': date_from,
-                            'date_to': date_to,
-                            'target_move': target_move,
-                            'analytic_account_ids': [(6, 0, analytic_ids)],
-                        })
+            lines.append(add_section('Liabilities'))
+            liability_types = ['liability_non_current', 'liability_current']
+            for acc in accounts.filtered(lambda a: a.account_type in liability_types):
+                vals = account_balances.get(acc.id)
+                if vals and abs(vals.get('balance', 0)) > 0.01:
+                    lines.append({
+                        'name': acc.name,
+                        'code': acc.code,
+                        'account_id': acc.id,
+                        'debit': vals.get('debit', 0.0),
+                        'credit': vals.get('credit', 0.0),
+                        'balance': vals.get('balance', 0.0),
+                        'is_section': False,
+                        'report_type': report_type,
+                        'date_from': date_from,
+                        'date_to': date_to,
+                        'target_move': target_move,
+                        'analytic_account_ids': [(6, 0, analytic_ids)],
+                    })
 
-            # Profit (Loss) section (heading only)
-            lines.append(add_heading('Profit (Loss) to report'))
+            lines.append(add_section('Equity'))
+            equity_accounts = accounts.filtered(lambda a: a.account_type == 'equity')
+            for acc in equity_accounts:
+                vals = account_balances.get(acc.id)
+                if vals and abs(vals.get('balance', 0)) > 0.01:
+                    lines.append({
+                        'name': acc.name,
+                        'code': acc.code,
+                        'account_id': acc.id,
+                        'debit': vals.get('debit', 0.0),
+                        'credit': vals.get('credit', 0.0),
+                        'balance': vals.get('balance', 0.0),
+                        'is_section': False,
+                        'report_type': report_type,
+                        'date_from': date_from,
+                        'date_to': date_to,
+                        'target_move': target_move,
+                        'analytic_account_ids': [(6, 0, analytic_ids)],
+                    })
 
-        # === PROFIT & LOSS ===
+            # ✅ Profit/Loss summary line only (not under section)
+            lines.append({
+                'name': 'Profit (Loss) to Report',
+                'code': '',
+                'account_id': False,
+                'debit': 0.0,
+                'credit': 0.0,
+                'balance': 0.0,
+                'is_section': False,
+                'report_type': report_type,
+                'date_from': date_from,
+                'date_to': date_to,
+                'target_move': target_move,
+                'analytic_account_ids': [(6, 0, analytic_ids)],
+            })
+
+        # ========== PROFIT & LOSS ==========
         else:
-            lines.append(add_heading('Profit and Loss'))
-
-            # Income
+            lines.append(add_section('Income'))
             income_types = ['income', 'other_income']
-            income_accounts = accounts.filtered(lambda a: a.account_type in income_types)
-            if income_accounts:
-                lines.append(add_heading('Income'))
-                for acc in income_accounts:
-                    vals = account_balances.get(acc.id)
-                    if vals and abs(vals.get('balance', 0)) > 0.01:
-                        lines.append({
-                            'name': acc.name,
-                            'code': acc.code,
-                            'account_id': acc.id,
-                            'debit': vals.get('debit', 0.0),
-                            'credit': vals.get('credit', 0.0),
-                            'balance': vals.get('balance', 0.0),
-                            'report_type': report_type,
-                            'date_from': date_from,
-                            'date_to': date_to,
-                            'target_move': target_move,
-                            'analytic_account_ids': [(6, 0, analytic_ids)],
-                        })
+            for acc in accounts.filtered(lambda a: a.account_type in income_types):
+                vals = account_balances.get(acc.id)
+                if vals and abs(vals.get('balance', 0)) > 0.01:
+                    lines.append({
+                        'name': acc.name,
+                        'code': acc.code,
+                        'account_id': acc.id,
+                        'debit': vals.get('debit', 0.0),
+                        'credit': vals.get('credit', 0.0),
+                        'balance': vals.get('balance', 0.0),
+                        'is_section': False,
+                        'report_type': report_type,
+                        'date_from': date_from,
+                        'date_to': date_to,
+                        'target_move': target_move,
+                        'analytic_account_ids': [(6, 0, analytic_ids)],
+                    })
 
-            # Expense
+            lines.append(add_section('Expenses'))
             expense_types = ['expense', 'other_expense']
-            expense_accounts = accounts.filtered(lambda a: a.account_type in expense_types)
-            if expense_accounts:
-                lines.append(add_heading('Expense'))
-                for acc in expense_accounts:
-                    vals = account_balances.get(acc.id)
-                    if vals and abs(vals.get('balance', 0)) > 0.01:
-                        lines.append({
-                            'name': acc.name,
-                            'code': acc.code,
-                            'account_id': acc.id,
-                            'debit': vals.get('debit', 0.0),
-                            'credit': vals.get('credit', 0.0),
-                            'balance': vals.get('balance', 0.0),
-                            'report_type': report_type,
-                            'date_from': date_from,
-                            'date_to': date_to,
-                            'target_move': target_move,
-                            'analytic_account_ids': [(6, 0, analytic_ids)],
-                        })
+            for acc in accounts.filtered(lambda a: a.account_type in expense_types):
+                vals = account_balances.get(acc.id)
+                if vals and abs(vals.get('balance', 0)) > 0.01:
+                    lines.append({
+                        'name': acc.name,
+                        'code': acc.code,
+                        'account_id': acc.id,
+                        'debit': vals.get('debit', 0.0),
+                        'credit': vals.get('credit', 0.0),
+                        'balance': vals.get('balance', 0.0),
+                        'is_section': False,
+                        'report_type': report_type,
+                        'date_from': date_from,
+                        'date_to': date_to,
+                        'target_move': target_move,
+                        'analytic_account_ids': [(6, 0, analytic_ids)],
+                    })
 
-        # ✅ Create all records in the detail model
-        self.env['account.financial.report.line'].create(lines)
+        # Save to temporary model
+        for line in lines:
+            self.env['account.financial.report.line'].create(line)
 
-        # ✅ Return action to open list view
+        # Open the result tree view
         return {
-            'name': f"{'Balance Sheet' if report_type == 'balance_sheet' else 'Profit and Loss'} Details",
+            'name': f"{'Balance Sheet' if report_type == 'balance_sheet' else 'Profit & Loss'} Details",
             'type': 'ir.actions.act_window',
             'res_model': 'account.financial.report.line',
-            'view_mode': 'list',
+            'view_mode': 'list,form',
             'target': 'current',
-            'context': {'create': False},
+            'context': ctx,
         }
 
         # for acc in accounts:

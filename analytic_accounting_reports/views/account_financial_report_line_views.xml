@@ -39,13 +39,14 @@
                 <field name="target_move" invisible="1"/>
                 <field name="analytic_account_ids" invisible="1"/>
 
-                <!-- ✅ Button only for actual account lines -->
+                <!-- ✅ Correct invisible condition (no attrs in v17+) -->
                 <button name="action_view_ledger"
                         type="object"
                         string="View Ledger"
                         icon="fa-book"
-                        help="Open account ledger for this account."
-                        attrs="{'invisible': [('is_section', '=', True)]}"/>
+                        help="Open account ledger for this account.">
+                    <invisible>is_section</invisible>
+                </button>
             </list>
         </field>
     </record>
@@ -67,6 +68,7 @@
         </field>
     </record>
 </odoo>
+
 
 
 

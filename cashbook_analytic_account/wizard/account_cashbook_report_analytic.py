@@ -58,7 +58,7 @@ class AccountCashBookReportAnalytic(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Cashbook Analytic Details',
             'res_model': 'account.move.line',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': domain,
             'context': {'search_default_group_by_move_id': 1},
             'target': 'current',

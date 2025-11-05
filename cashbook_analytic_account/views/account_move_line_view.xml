@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_account_move_line_cashbook_analytic_tree" model="ir.ui.view">
+        <field name="name">account.move.line.cashbook.analytic.tree</field>
+        <field name="model">account.move.line</field>
+        <field name="arch" type="xml">
+            <tree string="Cashbook Analytic Details" create="false" edit="false">
+                <field name="date"/>
+                <field name="move_id" widget="many2one_clickable"/>
+                <field name="journal_id"/>
+                <field name="account_id"/>
+                <field name="partner_id"/>
+                <field name="analytic_distribution"/>
+                <field name="debit"/>
+                <field name="credit"/>
+                <field name="balance"/>
+                <field name="ref"/>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+</odoo>

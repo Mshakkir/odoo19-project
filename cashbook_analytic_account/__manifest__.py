@@ -19,6 +19,7 @@
     'data': [
         'wizard/account_cashbook_report_analytic_views.xml',
         'report/report_cashbook_analytic.xml',
+        'views/account_move_line_view.xml',
     ],
     'installable': True,
     'application': False,

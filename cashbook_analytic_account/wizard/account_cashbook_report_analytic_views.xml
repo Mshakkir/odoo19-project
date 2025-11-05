@@ -12,6 +12,13 @@
                        widget="many2many_tags"
                        options="{'no_create': True}"/>
             </field>
+                        <!-- Add Show Details button -->
+            <xpath expr="//footer" position="inside">
+                <button name="action_show_details"
+                        string="Show Details"
+                        type="object"
+                        class="btn-primary"/>
+            </xpath>
         </field>
     </record>
 

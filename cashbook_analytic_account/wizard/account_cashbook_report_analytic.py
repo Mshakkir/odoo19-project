@@ -57,10 +57,10 @@ class AccountCashBookReportAnalytic(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Cashbook Analytic Details',
             'res_model': 'account.move.line',
-            'view_mode': 'tree,form',  # ✅ Corrected
+            'view_mode': 'tree,form',
             'domain': domain,
             'context': {'search_default_group_by_move_id': 1},
             'target': 'current',
-            'view_id': self.env.ref('your_module_name.view_account_move_line_cashbook_analytic_tree').id,
-            # optional but safer
+            'view_id': self.env.ref('cashbook_analytic_account.view_account_move_line_cashbook_analytic_tree').id,
+            # ✅ Correct XML ID
         }

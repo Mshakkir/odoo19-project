@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_cashbook_analytic_inherit" inherit_id="om_account_daily_reports.report_cashbook">
+
+        <!-- Add Analytic Account information in the header section -->
+        <xpath expr="//div[@class='col-2'][last()]" position="after">
+            <div class="col-4">
+                <strong>Analytic Accounts:</strong>
+                <p t-esc="analytic_accounts"/>
+            </div>
+        </xpath>
+
+    </template>
+
+</odoo>

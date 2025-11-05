@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="account_report_cashbook_analytic_view" model="ir.ui.view">
+        <field name="name">Cash Book with Analytic Account</field>
+        <field name="model">account.cashbook.report</field>
+        <field name="inherit_id" ref="om_account_daily_reports.account_report_cashbook_view"/>
+        <field name="arch" type="xml">
+            <!-- Add analytic account field after journal_ids -->
+            <field name="journal_ids" position="after">
+                <field name="analytic_account_ids"
+                       widget="many2many_tags"
+                       options="{'no_create': True}"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

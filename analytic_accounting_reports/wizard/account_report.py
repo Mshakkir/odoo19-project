@@ -153,57 +153,53 @@ class AccountingReport(models.TransientModel):
     # New Button Action (Fix for XML)
     # -----------------------------
     def action_view_details(self):
-        """Open detailed Balance Sheet or P&L in a window."""
+        """Open detailed Balance Sheet or P&L in a window, grouped by type."""
         self.ensure_one()
 
-        # Detect report type from report name
         report_type = 'balance_sheet'
         if self.account_report_id and 'loss' in self.account_report_id.name.lower():
             report_type = 'profit_loss'
 
-        # Remove previous generated lines
+        # Clear previous lines
         self.env['account.financial.report.line'].search([]).unlink()
 
-        # Extract context values
         ctx = self._build_contexts({'form': self.read()[0]})
         analytic_ids = ctx.get('analytic_account_ids', [])
         date_from = ctx.get('date_from')
         date_to = ctx.get('date_to')
         target_move = ctx.get('target_move', 'posted')
 
-        # ✅ Valid native Odoo account types
+        # ✅ Account type selection
         if report_type == 'balance_sheet':
-            account_types = ['asset', 'liability', 'equity']
+            group_mapping = {
+                'Asset': ['asset_non_current', 'asset_current'],
+                'Liability': ['liability_non_current', 'liability_current'],
+                'Equity': ['equity'],
+            }
         else:
-            account_types = ['income', 'expense', 'other_income', 'other_expense']
+            group_mapping = {
+                'Income': ['income', 'other_income'],
+                'Expense': ['expense', 'other_expense'],
+            }
 
-        # Search accounts sorted by code
-        accounts = self.env['account.account'].search([
-            ('account_type', 'in', account_types)
-        ], order="code asc")
+        ReportLine = self.env['account.financial.report.line']
+        FinancialReport = self.env['report.accounting_pdf_reports.report_financial']
 
-        # Compute balances
-        account_balances = self.env['report.accounting_pdf_reports.report_financial'] \
-            .with_context(ctx)._compute_account_balance(accounts)
-
-        lines = []
-        for acc in accounts:
-            vals = account_balances.get(acc.id)
-            if not vals:
+        # ✅ Create grouped lines
+        for group_name, account_types in group_mapping.items():
+            accounts = self.env['account.account'].search([
+                ('account_type', 'in', account_types)
+            ])
+            if not accounts:
                 continue
 
-            balance = vals.get('balance', 0.0)
-            if abs(balance) < 0.01:
-                continue  # ignore near-zero accounts
+            account_balances = FinancialReport.with_context(ctx)._compute_account_balance(accounts)
 
-            lines.append({
-                'name': acc.name,
-                'code': acc.code,
-                'account_id': acc.id,
-                'debit': vals.get('debit', 0.0),
-                'credit': vals.get('credit', 0.0),
-                'balance': balance,
-                'account_type': acc.account_type,  # ✅ stored for search filter
+            # Create group header line
+            group_line = ReportLine.create({
+                'name': group_name.upper(),
+                'code': '',
+                'balance': 0.0,
                 'report_type': report_type,
                 'date_from': date_from,
                 'date_to': date_to,
@@ -211,18 +207,38 @@ class AccountingReport(models.TransientModel):
                 'analytic_account_ids': [(6, 0, analytic_ids)],
             })
 
-        # Create records
-        if lines:
-            self.env['account.financial.report.line'].create(lines)
+            # Add child account lines under group
+            for acc in accounts:
+                vals = account_balances.get(acc.id)
+                if not vals:
+                    continue
+                balance = vals.get('balance', 0)
+                if abs(balance) < 0.01:
+                    continue
 
-        # Open tree view with no grouping
+                ReportLine.create({
+                    'name': acc.name,
+                    'code': acc.code,
+                    'account_id': acc.id,
+                    'debit': vals.get('debit', 0.0),
+                    'credit': vals.get('credit', 0.0),
+                    'balance': balance,
+                    'report_type': report_type,
+                    'date_from': date_from,
+                    'date_to': date_to,
+                    'target_move': target_move,
+                    'analytic_account_ids': [(6, 0, analytic_ids)],
+                    'parent_id': group_line.id,  # ✅ Grouped hierarchy
+                })
+
+        # ✅ Open tree view
         return {
             'type': 'ir.actions.act_window',
             'name': f'{self.account_report_id.name} Details',
             'res_model': 'account.financial.report.line',
             'view_mode': 'list',
             'target': 'current',
-            'context': {'group_by': False},
+            'context': ctx,
             'domain': [('report_type', '=', report_type)],
         }
 

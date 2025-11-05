@@ -178,6 +178,8 @@ class AccountingReport(models.TransientModel):
         FinancialReport = self.env['report.accounting_pdf_reports.report_financial']
         sequence = 1
 
+        group_totals = {}  # for later use in Net Profit/Loss calculation
+
         # Loop through groups
         for group_name, account_types in group_mapping.items():
             accounts = self.env['account.account'].search([('account_type', 'in', account_types)])
@@ -201,7 +203,25 @@ class AccountingReport(models.TransientModel):
                 total_credit += credit
                 total_balance += balance
 
-            # Section line with totals
+                # Create account line
+                ReportLine.create({
+                    'name': acc.name,
+                    'code': acc.code,
+                    'account_id': acc.id,
+                    'debit': debit,
+                    'credit': credit,
+                    'balance': balance,
+                    'report_type': report_type,
+                    'sequence': sequence,
+                    'account_type': account_type_map.get(group_name, 'other'),
+                    'date_from': date_from,
+                    'date_to': date_to,
+                    'target_move': target_move,
+                    'analytic_account_ids': [(6, 0, analytic_ids)],
+                })
+                sequence += 1
+
+            # Section header line
             ReportLine.create({
                 'name': f"<b>{group_name}</b>",
                 'is_section': True,
@@ -217,46 +237,24 @@ class AccountingReport(models.TransientModel):
             })
             sequence += 1
 
-            # Account detail lines
-            for acc in accounts:
-                vals = account_balances.get(acc.id)
-                if not vals:
-                    continue
-                balance = vals.get('balance', 0)
-                if abs(balance) < 0.01:
-                    continue
-
-                ReportLine.create({
-                    'name': acc.name,
-                    'code': acc.code,
-                    'account_id': acc.id,
-                    'debit': vals.get('debit', 0.0),
-                    'credit': vals.get('credit', 0.0),
-                    'balance': balance,
-                    'report_type': report_type,
-                    'sequence': sequence,
-                    'account_type': account_type_map.get(group_name, 'other'),
-                    'date_from': date_from,
-                    'date_to': date_to,
-                    'target_move': target_move,
-                    'analytic_account_ids': [(6, 0, analytic_ids)],
-                })
-                sequence += 1
+            group_totals[group_name] = total_balance
 
         # -------------------------
-        # Net Profit / Loss
+        # ✅ Net Profit / Loss (for Profit & Loss)
         # -------------------------
         if report_type == 'profit_loss':
-            all_lines = self.env['account.financial.report.line'].search([('report_type', '=', 'profit_loss')])
-            total_balance = sum(all_lines.mapped('balance'))
+            income_total = group_totals.get('INCOME', 0.0)
+            expense_total = group_totals.get('EXPENSES', 0.0)
 
-            total_label = "<b>Net Profit</b>" if total_balance > 0 else "<b>Net Loss</b>"
+            # Since income is usually negative, add both to get net
+            net_profit_loss = income_total + expense_total
+            total_label = "<b>Net Profit</b>" if net_profit_loss > 0 else "<b>Net Loss</b>"
 
             ReportLine.create({
                 'name': total_label,
                 'is_total': True,
                 'report_type': 'profit_loss',
-                'balance': total_balance,
+                'balance': net_profit_loss,
                 'sequence': 9999,
                 'date_from': date_from,
                 'date_to': date_to,
@@ -264,12 +262,18 @@ class AccountingReport(models.TransientModel):
                 'analytic_account_ids': [(6, 0, analytic_ids)],
             })
 
+        # -------------------------
+        # ✅ Include Net Profit/Loss in Balance Sheet
+        # -------------------------
         elif report_type == 'balance_sheet':
             income_accounts = self.env['account.account'].search([('account_type', 'in', ['income', 'other_income'])])
-            expense_accounts = self.env['account.account'].search([('account_type', 'in', ['expense', 'other_expense'])])
+            expense_accounts = self.env['account.account'].search(
+                [('account_type', 'in', ['expense', 'other_expense'])])
 
-            income_balance = sum(v.get('balance', 0) for v in FinancialReport.with_context(ctx)._compute_account_balance(income_accounts).values())
-            expense_balance = sum(v.get('balance', 0) for v in FinancialReport.with_context(ctx)._compute_account_balance(expense_accounts).values())
+            income_balance = sum(v.get('balance', 0.0) for v in
+                                 FinancialReport.with_context(ctx)._compute_account_balance(income_accounts).values())
+            expense_balance = sum(v.get('balance', 0.0) for v in
+                                  FinancialReport.with_context(ctx)._compute_account_balance(expense_accounts).values())
 
             net_profit = income_balance + expense_balance
             total_label = "<b>Net Profit</b>" if net_profit > 0 else "<b>Net Loss</b>"
@@ -286,7 +290,9 @@ class AccountingReport(models.TransientModel):
                 'analytic_account_ids': [(6, 0, analytic_ids)],
             })
 
-        # Return list view
+        # -------------------------
+        # ✅ Return window action
+        # -------------------------
         return {
             'type': 'ir.actions.act_window',
             'name': f'{self.account_report_id.name} Details',
@@ -296,18 +302,6 @@ class AccountingReport(models.TransientModel):
             'context': ctx,
             'domain': [('report_type', '=', report_type)],
         }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

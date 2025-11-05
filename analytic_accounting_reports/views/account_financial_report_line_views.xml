@@ -6,18 +6,17 @@
         <field name="model">account.financial.report.line</field>
         <field name="arch" type="xml">
             <list string="Financial Report Details"
-                  decoration-info="balance &lt; 0"
-                  decoration-success="balance &gt; 0"
                   create="false"
-                  edit="false">
+                  edit="false"
+                  default_order="sequence">
 
                 <!-- Hidden sorting -->
-                <field name="sequence" invisible="1"/>
+                <field name="sequence" optional="hide"/>
 
                 <!-- ✅ Account Code -->
                 <field name="code" string="Code"/>
 
-                <!-- ✅ Account Name (supports bold HTML sections) -->
+                <!-- ✅ Account Name (supports bold HTML for headers like ASSETS, LIABILITIES) -->
                 <field name="name" string="Account" widget="html" options="{'sanitize': False}"/>
 
                 <!-- ✅ Amount Columns -->
@@ -25,19 +24,12 @@
                 <field name="credit" string="Credit" sum="Total Credit"/>
                 <field name="balance" string="Amount" sum="Total Amount"/>
 
-                <!-- ✅ Hidden helper fields -->
-                <field name="is_section" invisible="1"/>
-                <field name="account_id" invisible="1"/>
-                <field name="company_id" invisible="1"/>
-
-                <!-- ✅ View Ledger button (conditionally invisible) -->
+                <!-- ✅ Button: View Ledger -->
                 <button name="action_view_ledger"
                         type="object"
                         string="View Ledger"
                         icon="fa-book"
-                        help="Open account ledger for this account.">
-                    <invisible>is_section</invisible>
-                </button>
+                        help="Open account ledger for this account."/>
             </list>
         </field>
     </record>
@@ -59,6 +51,7 @@
         </field>
     </record>
 </odoo>
+
 
 
 

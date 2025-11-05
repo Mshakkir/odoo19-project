@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- ✅ Financial Report Line List View -->
-    <record id="view_account_financial_report_line_list" model="ir.ui.view">
-        <field name="name">account.financial.report.line.list</field>
+    <!-- ✅ Financial Report Line Tree View -->
+    <record id="view_account_financial_report_line_tree" model="ir.ui.view">
+        <field name="name">account.financial.report.line.tree</field>
         <field name="model">account.financial.report.line</field>
         <field name="arch" type="xml">
-            <list string="Financial Report Details"
-                  create="false"
-                  edit="false"
-                  default_order="sequence">
+            <list string="Financial Report Details" create="false" edit="false" default_order="sequence">
 
                 <!-- Hidden sorting -->
-                <field name="sequence" optional="hide"/>
+                <field name="sequence" invisible="1"/>
 
                 <!-- ✅ Account Code -->
                 <field name="code" string="Code"/>
 
-                <!-- ✅ Account Name (supports bold HTML for headers like ASSETS, LIABILITIES) -->
+                <!-- ✅ Account Name (bold headers via HTML) -->
                 <field name="name" string="Account" widget="html" options="{'sanitize': False}"/>
 
                 <!-- ✅ Amount Columns -->
@@ -24,7 +21,7 @@
                 <field name="credit" string="Credit" sum="Total Credit"/>
                 <field name="balance" string="Amount" sum="Total Amount"/>
 
-                <!-- ✅ Button: View Ledger -->
+                <!-- ✅ Action Button -->
                 <button name="action_view_ledger"
                         type="object"
                         string="View Ledger"
@@ -38,7 +35,7 @@
     <record id="action_account_financial_report_line" model="ir.actions.act_window">
         <field name="name">Financial Report Details</field>
         <field name="res_model">account.financial.report.line</field>
-        <field name="view_mode">list</field>
+        <field name="view_mode">tree</field>
         <field name="domain">[]</field>
         <field name="context">{}</field>
         <field name="help" type="html">
@@ -51,6 +48,64 @@
         </field>
     </record>
 </odoo>
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    &lt;!&ndash; ✅ Financial Report Line List View &ndash;&gt;-->
+<!--    <record id="view_account_financial_report_line_list" model="ir.ui.view">-->
+<!--        <field name="name">account.financial.report.line.list</field>-->
+<!--        <field name="model">account.financial.report.line</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <list string="Financial Report Details"-->
+<!--                  create="false"-->
+<!--                  edit="false"-->
+<!--                  default_order="sequence">-->
+
+<!--                &lt;!&ndash; Hidden sorting &ndash;&gt;-->
+<!--                <field name="sequence" optional="hide"/>-->
+
+<!--                &lt;!&ndash; ✅ Account Code &ndash;&gt;-->
+<!--                <field name="code" string="Code"/>-->
+
+<!--                &lt;!&ndash; ✅ Account Name (supports bold HTML for headers like ASSETS, LIABILITIES) &ndash;&gt;-->
+<!--                <field name="name" string="Account" widget="html" options="{'sanitize': False}"/>-->
+
+<!--                &lt;!&ndash; ✅ Amount Columns &ndash;&gt;-->
+<!--                <field name="debit" string="Debit" sum="Total Debit"/>-->
+<!--                <field name="credit" string="Credit" sum="Total Credit"/>-->
+<!--                <field name="balance" string="Amount" sum="Total Amount"/>-->
+
+<!--                &lt;!&ndash; ✅ Button: View Ledger &ndash;&gt;-->
+<!--                <button name="action_view_ledger"-->
+<!--                        type="object"-->
+<!--                        string="View Ledger"-->
+<!--                        icon="fa-book"-->
+<!--                        help="Open account ledger for this account."/>-->
+<!--            </list>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; ✅ Action Window &ndash;&gt;-->
+<!--    <record id="action_account_financial_report_line" model="ir.actions.act_window">-->
+<!--        <field name="name">Financial Report Details</field>-->
+<!--        <field name="res_model">account.financial.report.line</field>-->
+<!--        <field name="view_mode">list</field>-->
+<!--        <field name="domain">[]</field>-->
+<!--        <field name="context">{}</field>-->
+<!--        <field name="help" type="html">-->
+<!--            <p class="o_view_nocontent_smiling_face">-->
+<!--                No financial report details found.-->
+<!--            </p>-->
+<!--            <p>-->
+<!--                Click <b>View Details</b> from the Balance Sheet or Profit &amp; Loss report wizard to generate them.-->
+<!--            </p>-->
+<!--        </field>-->
+<!--    </record>-->
+<!--</odoo>-->
 
 
 

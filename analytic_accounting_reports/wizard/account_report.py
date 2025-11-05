@@ -153,7 +153,7 @@ class AccountingReport(models.TransientModel):
     # New Button Action (Fix for XML)
     # -----------------------------
     def action_view_details(self):
-        """Open detailed Balance Sheet or P&L grouped by section."""
+        """Open detailed Balance Sheet or P&L grouped by account_type (collapsible)."""
         self.ensure_one()
 
         report_type = 'balance_sheet'
@@ -170,6 +170,7 @@ class AccountingReport(models.TransientModel):
         date_to = ctx.get('date_to')
         target_move = ctx.get('target_move', 'posted')
 
+        # Which account.account types to fetch from chart of accounts
         if report_type == 'balance_sheet':
             account_types = [
                 'asset_non_current', 'asset_current',
@@ -178,35 +179,17 @@ class AccountingReport(models.TransientModel):
         else:
             account_types = ['income', 'expense', 'other_income', 'other_expense']
 
-        accounts = self.env['account.account'].search([('account_type', 'in', account_types)])
+        accounts = self.env['account.account'].search([('account_type', 'in', account_types)], order='code asc')
         account_balances = self.env['report.accounting_pdf_reports.report_financial'] \
             .with_context(ctx)._compute_account_balance(accounts)
 
         lines = []
 
-        # helper to add a section row (sets account_type to group key)
-        def add_section_row(title, group_key):
-            lines.append({
-                'name': f"<b>{title}</b>",
-                'code': '',
-                'account_id': False,
-                'debit': 0.0,
-                'credit': 0.0,
-                'balance': 0.0,
-                'is_section': True,
-                'account_type': group_key,
-                'report_type': report_type,
-                'date_from': date_from,
-                'date_to': date_to,
-                'target_move': target_move,
-                'analytic_account_ids': [(6, 0, analytic_ids)],
-            })
-
-        # helper to add an account row
         def add_account_row(acc, vals, group_key):
+            """Create a single account row dict with proper grouping key."""
             lines.append({
                 'name': acc.name,
-                'code': acc.code,
+                'code': acc.code or '',
                 'account_id': acc.id,
                 'debit': vals.get('debit', 0.0),
                 'credit': vals.get('credit', 0.0),
@@ -220,30 +203,28 @@ class AccountingReport(models.TransientModel):
                 'analytic_account_ids': [(6, 0, analytic_ids)],
             })
 
-        # Build lines grouped by section
+        # Build grouped rows (no separate "section" rows)
         if report_type == 'balance_sheet':
-            # Assets
-            add_section_row('Assets', 'assets')
-            for acc in accounts.filtered(lambda a: a.account_type in ['asset_non_current', 'asset_current']):
+            # Assets group
+            for acc in accounts.filtered(lambda a: a.account_type in ('asset_non_current', 'asset_current')):
                 vals = account_balances.get(acc.id)
                 if vals and abs(vals.get('balance', 0.0)) > 0.009:
                     add_account_row(acc, vals, 'assets')
 
-            # Liabilities
-            add_section_row('Liabilities', 'liabilities')
-            for acc in accounts.filtered(lambda a: a.account_type in ['liability_non_current', 'liability_current']):
+            # Liabilities group
+            for acc in accounts.filtered(lambda a: a.account_type in ('liability_non_current', 'liability_current')):
                 vals = account_balances.get(acc.id)
                 if vals and abs(vals.get('balance', 0.0)) > 0.009:
                     add_account_row(acc, vals, 'liabilities')
 
-            # Equity
-            add_section_row('Equity', 'equity')
+            # Equity group
             for acc in accounts.filtered(lambda a: a.account_type == 'equity'):
                 vals = account_balances.get(acc.id)
                 if vals and abs(vals.get('balance', 0.0)) > 0.009:
                     add_account_row(acc, vals, 'equity')
 
-            # Profit (Loss) to report — single summary row (group it under profit_loss)
+            # Add a single Profit (Loss) group summary row (optional)
+            # This will appear as its own group (profit_loss)
             lines.append({
                 'name': 'Profit (Loss) to Report',
                 'code': '',
@@ -261,34 +242,37 @@ class AccountingReport(models.TransientModel):
             })
 
         else:
-            # Profit & Loss: Income and Expense
-            add_section_row('Income', 'income')
-            for acc in accounts.filtered(lambda a: a.account_type in ['income', 'other_income']):
+            # Profit & Loss: Income
+            for acc in accounts.filtered(lambda a: a.account_type in ('income', 'other_income')):
                 vals = account_balances.get(acc.id)
                 if vals and abs(vals.get('balance', 0.0)) > 0.009:
                     add_account_row(acc, vals, 'income')
 
-            add_section_row('Expense', 'expense')
-            for acc in accounts.filtered(lambda a: a.account_type in ['expense', 'other_expense']):
+            # Profit & Loss: Expense
+            for acc in accounts.filtered(lambda a: a.account_type in ('expense', 'other_expense')):
                 vals = account_balances.get(acc.id)
                 if vals and abs(vals.get('balance', 0.0)) > 0.009:
                     add_account_row(acc, vals, 'expense')
 
-        # Bulk create lines (single call)
+        # Bulk create
         if lines:
             self.env['account.financial.report.line'].create(lines)
 
-        # Open the action (the action uses context to group by account_type)
+        # Open the action; this action's context groups list by account_type (collapsible)
+        action = self.env.ref('analytic_accounting_reports.action_account_financial_report_line')
+        # Merge contexts so group_by is applied and also preserve analytic context
+        action_ctx = dict(action.read(['context'])[0].get('context') or {})
+        # ensure view group_by is applied (if action has group_by in XML use it; else set here)
+        action_ctx.update(ctx)
         return {
-            'name': f"{'Balance Sheet' if report_type == 'balance_sheet' else 'Profit & Loss'} Details",
             'type': 'ir.actions.act_window',
             'res_model': 'account.financial.report.line',
+            'name': f"{'Balance Sheet' if report_type == 'balance_sheet' else 'Profit & Loss'} Details",
             'view_mode': 'list,form',
+            'context': action_ctx,
             'target': 'current',
-            'context': ctx,
+            'domain': [],
         }
-
-
 
         # for acc in accounts:
         #     vals = account_balances.get(acc.id)

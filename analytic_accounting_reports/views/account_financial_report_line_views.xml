@@ -1,57 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- ✅ Financial Report Line List View -->
+    <!-- List view for financial report lines (Odoo 17/18/19 compatible) -->
     <record id="view_account_financial_report_line_list" model="ir.ui.view">
         <field name="name">account.financial.report.line.list</field>
         <field name="model">account.financial.report.line</field>
         <field name="arch" type="xml">
-            <list string="Financial Report Details"
-                  decoration-info="balance &lt; 0"
-                  decoration-success="balance &gt; 0"
-                  create="false"
-                  edit="false">
-
-                <!-- Hidden sorting -->
-                <field name="sequence" invisible="1"/>
-
-                <!-- ✅ Code -->
-                <field name="code" string="Code"/>
-
-                <!-- ✅ Account Name (can contain HTML formatting) -->
-                <field name="name" string="Account" widget="html" options="{'sanitize': False}"/>
-
-                <!-- ✅ Debit, Credit, Balance totals -->
-                <field name="debit" sum="Total Debit" string="Debit"/>
-                <field name="credit" sum="Total Credit" string="Credit"/>
-                <field name="balance" sum="Total Balance" string="Balance"/>
-
-                <!-- ✅ Safe button (no attrs) -->
-                <button name="action_view_ledger"
-                        type="object"
-                        string="View Ledger"
-                        icon="fa-book"
-                        help="Open account ledger for this account."/>
+            <list string="Financial Report Details" create="false" edit="false"
+                  decoration-info="balance &lt; 0" decoration-success="balance &gt; 0">
+                <field name="account_type" invisible="1"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="debit" sum="Total Debit"/>
+                <field name="credit" sum="Total Credit"/>
+                <field name="balance" sum="Total Balance"/>
+                <button name="action_view_ledger" type="object" string="View Ledger" icon="fa-book"
+                        attrs="{}"/>
             </list>
         </field>
     </record>
 
-    <!-- ✅ Action Window -->
+    <!-- Action: group by account_type so the list is collapsible by section -->
     <record id="action_account_financial_report_line" model="ir.actions.act_window">
         <field name="name">Financial Report Details</field>
         <field name="res_model">account.financial.report.line</field>
-        <field name="view_mode">list</field>
-        <field name="domain">[]</field>
-        <field name="context">{}</field>
+        <field name="view_mode">list,form</field>
+        <!-- Important: tell the action to group by account_type initially -->
+        <field name="context">{'group_by': ['account_type']}</field>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                No financial report details found.
-            </p>
-            <p>
-                Click <b>View Details</b> from the Balance Sheet or Profit &amp; Loss report wizard to generate them.
-            </p>
+            <p class="o_view_nocontent_smiling_face">No financial report data available.</p>
+            <p>Click <b>View Details</b> in the Balance Sheet or Profit and Loss wizard to generate detailed results.</p>
         </field>
     </record>
 </odoo>
+
 
 
 

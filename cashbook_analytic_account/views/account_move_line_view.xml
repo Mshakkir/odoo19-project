@@ -5,7 +5,7 @@
         <field name="name">account.move.line.cashbook.analytic.tree</field>
         <field name="model">account.move.line</field>
         <field name="arch" type="xml">
-            <tree string="Cashbook Analytic Details" create="false" edit="false">
+            <list string="Cashbook Analytic Details" create="false" edit="false">
                 <field name="date"/>
                 <field name="move_id" widget="many2one_clickable"/>
                 <field name="journal_id"/>
@@ -17,7 +17,7 @@
                 <field name="balance"/>
                 <field name="ref"/>
                 <field name="name"/>
-            </tree>
+            </list>
         </field>
     </record>
 

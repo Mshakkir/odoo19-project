@@ -12,33 +12,36 @@ class ReportCashbookAnalytic(models.AbstractModel):
         cr = self.env.cr
 
         # Determine posted/draft move filter
-        target_move = "AND m.state = 'posted'" if form_data.get('target_move') == 'posted' else ''
+        target_move = "AND m.state = 'posted'" if form_data['target_move'] == 'posted' else ''
 
-        # Filter only cash/bank journals
-        cash_journal_ids = self.env['account.journal'].search([('type', 'in', ['cash', 'bank'])]).ids
+        # Get cash/bank journals
+        cash_journal_ids = tuple(
+            self.env['account.journal'].search([('type', 'in', ['cash', 'bank'])]).ids
+        )
         if not cash_journal_ids:
             return {'debit': 0, 'credit': 0, 'balance': 0, 'lines': []}
 
-        date_from = form_data.get('date_from')
-        date_to = form_data.get('date_to')
+        # Date range
+        date_from = form_data['date_from']
+        date_to = form_data['date_to']
 
-        if not date_from or not date_to:
-            raise UserError(_("Please provide both start and end dates."))
+        # Account filter (if selected)
+        account_ids = form_data.get('account_ids', [])
+        account_filter = ""
+        if account_ids:
+            account_filter = f"AND l.account_id IN %s"
 
         # Analytic filter
         analytic_filter = ""
-        where_params = [tuple(cash_journal_ids), date_from, date_to]
-
         if analytic_account_id:
             analytic_filter = "AND l.analytic_distribution ? %s"
-            where_params.append(str(analytic_account_id))
         elif form_data.get('analytic_account_ids'):
             analytic_ids = [str(aid) for aid in form_data['analytic_account_ids']]
             analytic_filter = "AND (" + " OR ".join(
                 [f"l.analytic_distribution ? '{aid}'" for aid in analytic_ids]
             ) + ")"
 
-        # SQL Query
+        # Build SQL query
         sql = f"""
             SELECT 
                 l.id AS lid,
@@ -61,38 +64,27 @@ class ReportCashbookAnalytic(models.AbstractModel):
             LEFT JOIN res_partner p ON (l.partner_id = p.id)
             LEFT JOIN account_analytic_account aa ON (l.analytic_distribution ? CAST(aa.id AS TEXT))
             WHERE l.journal_id IN %s
-              AND l.date BETWEEN %s AND %s
-              {target_move}
-              {analytic_filter}
+            AND l.date BETWEEN %s AND %s
+            {target_move}
+            {analytic_filter}
+            {account_filter}
             ORDER BY l.date, j.code, l.id
         """
 
-        cr.execute(sql, where_params)
+        # Prepare params dynamically
+        params = [cash_journal_ids, date_from, date_to]
+        if analytic_account_id:
+            params.append(str(analytic_account_id))
+        if account_ids:
+            params.append(tuple(account_ids))
+
+        cr.execute(sql, params)
         data = cr.dictfetchall()
 
         debit = sum(line['debit'] for line in data)
         credit = sum(line['credit'] for line in data)
         balance = debit - credit
-
-        # Optional debug log (visible in Odoo logs)
-        _logger = self.env['ir.logging']
-        _logger.create({
-            'name': 'Analytic Cashbook',
-            'type': 'server',
-            'dbname': self._cr.dbname,
-            'level': 'INFO',
-            'message': f"Fetched {len(data)} lines for {analytic_account_id or 'ALL'}",
-            'path': __name__,
-            'line': '0',
-            'func': '_get_account_move_entry',
-        })
-
-        return {
-            'debit': debit,
-            'credit': credit,
-            'balance': balance,
-            'lines': data
-        }
+        return {'debit': debit, 'credit': credit, 'balance': balance, 'lines': data}
 
     @api.model
     def _get_report_values(self, docids, data=None):
@@ -103,6 +95,7 @@ class ReportCashbookAnalytic(models.AbstractModel):
         docs = self.env[model].browse(self.env.context.get('active_ids', []))
         form_data = data['form']
 
+        # Prepare analytic names
         analytic_names = []
         analytic_accounts = []
         if form_data.get('analytic_account_ids'):
@@ -113,6 +106,7 @@ class ReportCashbookAnalytic(models.AbstractModel):
         records = []
 
         if report_type == 'separate' and analytic_accounts:
+            # Separate report per analytic account
             for analytic_acc in analytic_accounts:
                 res = self._get_account_move_entry(form_data, analytic_acc.id)
                 if res['lines']:
@@ -124,6 +118,7 @@ class ReportCashbookAnalytic(models.AbstractModel):
                         'balance': res['balance']
                     })
         else:
+            # Combined report
             res = self._get_account_move_entry(form_data)
             if res['lines']:
                 records.append({
@@ -145,3 +140,4 @@ class ReportCashbookAnalytic(models.AbstractModel):
             'date_from': form_data.get('date_from'),
             'date_to': form_data.get('date_to'),
         }
+

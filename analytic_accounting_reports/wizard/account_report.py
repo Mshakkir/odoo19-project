@@ -156,12 +156,12 @@ class AccountingReport(models.TransientModel):
         """Open detailed Balance Sheet or P&L without section headers (flat list)."""
         self.ensure_one()
 
-        # Detect report type
+        # Detect report type using existing wizard report name
         report_type = 'balance_sheet'
         if self.account_report_id and 'loss' in (self.account_report_id.name or '').lower():
             report_type = 'profit_loss'
 
-        # Remove previous lines
+        # Remove previously generated lines created by this wizard
         self.env['account.financial.report.line'].search([]).unlink()
 
         # Build context and extract filters
@@ -171,37 +171,35 @@ class AccountingReport(models.TransientModel):
         date_to = ctx.get('date_to')
         target_move = ctx.get('target_move', 'posted')
 
-        # Allowed account types based on report
+        # Allowed account types (✅ valid Odoo values only)
         if report_type == 'balance_sheet':
-            account_types = [
-                'asset_non_current', 'asset_current',
-                'liability_non_current', 'liability_current', 'equity'
-            ]
+            account_types = ['asset', 'liability', 'equity']
         else:
             account_types = ['income', 'expense', 'other_income', 'other_expense']
 
+        # Fetch accounts
         accounts = self.env['account.account'].search([
             ('account_type', 'in', account_types)
-        ], order='code asc')  # ✅ Sort by code
+        ], order='code asc')
 
+        # Compute balances using existing report logic
         account_balances = self.env['report.accounting_pdf_reports.report_financial'] \
             .with_context(ctx)._compute_account_balance(accounts)
 
         lines = []
 
-        # Add only real account rows (no section rows)
         for acc in accounts:
             vals = account_balances.get(acc.id)
-            if vals and abs(vals.get('balance', 0.0)) > 0.009:
+            if vals and abs(vals.get('balance', 0.0)) > 0.009:  # Filter 0 balance lines
                 lines.append({
-                    'name': acc.name,
+                    'name': f"{acc.code} {acc.name}",
                     'code': acc.code,
                     'account_id': acc.id,
                     'debit': vals.get('debit', 0.0),
                     'credit': vals.get('credit', 0.0),
                     'balance': vals.get('balance', 0.0),
-                    'is_section': False,
-                    'account_type': acc.account_type,
+                    'is_section': False,  # ✅ no group headers
+                    'account_type': acc.account_type,  # ✅ valid types only
                     'report_type': report_type,
                     'date_from': date_from,
                     'date_to': date_to,
@@ -209,20 +207,19 @@ class AccountingReport(models.TransientModel):
                     'analytic_account_ids': [(6, 0, analytic_ids)],
                 })
 
-        # Create result records
+        # Create records in model
         if lines:
             self.env['account.financial.report.line'].create(lines)
 
-        # Open result with no grouping
+        # Open result list view
         return {
             'name': f"{'Balance Sheet' if report_type == 'balance_sheet' else 'Profit & Loss'} Details",
             'type': 'ir.actions.act_window',
             'res_model': 'account.financial.report.line',
             'view_mode': 'list,form',
             'target': 'current',
-            'context': {'group_by': False},  # ✅ disable automatic grouping
+            'context': {'group_by': False},  # ✅ disable grouping
         }
-
         # for acc in accounts:
         #     vals = account_balances.get(acc.id)
         #     if not vals:

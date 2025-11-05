@@ -8,6 +8,7 @@
             <list string="Financial Report Details"
                   decoration-info="balance &lt; 0"
                   decoration-success="balance &gt; 0"
+                  decoration-bf="is_section == True"
                   create="false"
                   edit="false">
 
@@ -17,20 +18,34 @@
                 <!-- ✅ Code -->
                 <field name="code" string="Code"/>
 
-                <!-- ✅ Account Name (can contain HTML formatting) -->
-                <field name="name" string="Account" widget="html" options="{'sanitize': False}"/>
+                <!-- ✅ Account Name -->
+                <field name="name"
+                       string="Account"
+                       widget="html"
+                       options="{'sanitize': False}"/>
 
-                <!-- ✅ Debit, Credit, Balance totals -->
+                <!-- ✅ Debit, Credit, Amount totals -->
                 <field name="debit" sum="Total Debit" string="Debit"/>
                 <field name="credit" sum="Total Credit" string="Credit"/>
-                <field name="balance" sum="Total Balance" string="Balance"/>
+                <field name="balance" sum="Total Amount" string="Amount"/>
 
-                <!-- ✅ Safe button (no attrs) -->
+                <!-- Hidden technical fields -->
+                <field name="is_section" invisible="1"/>
+                <field name="account_id" invisible="1"/>
+                <field name="report_type" invisible="1"/>
+                <field name="company_id" invisible="1"/>
+                <field name="date_from" invisible="1"/>
+                <field name="date_to" invisible="1"/>
+                <field name="target_move" invisible="1"/>
+                <field name="analytic_account_ids" invisible="1"/>
+
+                <!-- ✅ Button only for actual account lines -->
                 <button name="action_view_ledger"
                         type="object"
                         string="View Ledger"
                         icon="fa-book"
-                        help="Open account ledger for this account."/>
+                        help="Open account ledger for this account."
+                        attrs="{'invisible': [('is_section', '=', True)]}"/>
             </list>
         </field>
     </record>
@@ -52,6 +67,7 @@
         </field>
     </record>
 </odoo>
+
 
 
 

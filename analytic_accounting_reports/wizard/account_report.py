@@ -182,6 +182,15 @@ class AccountingReport(models.TransientModel):
                 'EXPENSES': ['expense', 'other_expense'],
             }
 
+        # ✅ Define correct Odoo internal account type mapping
+        account_type_map = {
+            'ASSETS': 'asset',
+            'LIABILITIES': 'liability',
+            'EQUITY': 'equity',
+            'INCOME': 'income',
+            'EXPENSES': 'expense',
+        }
+
         ReportLine = self.env['account.financial.report.line']
         FinancialReport = self.env['report.accounting_pdf_reports.report_financial']
 
@@ -225,7 +234,8 @@ class AccountingReport(models.TransientModel):
                     'balance': balance,
                     'report_type': report_type,
                     'sequence': sequence,
-                    'account_type': group_name.lower().rstrip('s'),
+                    # ✅ Use correct mapping instead of rstrip()
+                    'account_type': account_type_map.get(group_name, 'other'),
                     'date_from': date_from,
                     'date_to': date_to,
                     'target_move': target_move,
@@ -243,6 +253,9 @@ class AccountingReport(models.TransientModel):
             'context': ctx,
             'domain': [('report_type', '=', report_type)],
         }
+
+
+
 
         # for acc in accounts:
         #     vals = account_balances.get(acc.id)

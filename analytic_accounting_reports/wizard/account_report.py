@@ -314,7 +314,7 @@ class AccountingReport(models.TransientModel):
             'name': f"{'Balance Sheet' if report_type == 'balance_sheet' else 'Profit and Loss'} Details",
             'type': 'ir.actions.act_window',
             'res_model': 'account.financial.report.line',
-            'view_mode': 'tree',
+            'view_mode': 'list',
             'target': 'current',
             'context': {'create': False},
         }

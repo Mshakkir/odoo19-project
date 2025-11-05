@@ -71,5 +71,17 @@ class AccountCashBookReport(models.TransientModel):
         comparison_context = self._build_comparison_context(data)
         data['form']['comparison_context'] = comparison_context
 
-        # ✅ Pass the data to the report
-        return self.env.ref('om_cashbook_analytic.action_report_cash_book_analytic').report_action(self, data=data)
+        # Try to find and verify the report exists
+        try:
+            report = self.env.ref('om_cashbook_analytic.action_report_cash_book_analytic')
+            _logger.warning("Found report: %s (ID: %s)", report.name, report.id)
+            _logger.warning("Report model: %s", report.model)
+            _logger.warning("Report name: %s", report.report_name)
+
+            # ✅ Pass the data to the report
+            result = report.report_action(self, data=data)
+            _logger.warning("Report action result: %s", result)
+            return result
+        except Exception as e:
+            _logger.error("Error calling report: %s", str(e), exc_info=True)
+            raise

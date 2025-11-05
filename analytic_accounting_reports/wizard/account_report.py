@@ -5,7 +5,9 @@ from odoo import api, fields, models
 class AccountingReport(models.TransientModel):
     _inherit = "accounting.report"
 
+    # -----------------------------
     # Analytic filter fields
+    # -----------------------------
     analytic_account_ids = fields.Many2many(
         'account.analytic.account',
         string="",
@@ -34,7 +36,6 @@ class AccountingReport(models.TransientModel):
     # -----------------------------
     @api.depends('analytic_account_ids')
     def _compute_warehouse_info(self):
-        """Show helpful info about what report will be generated"""
         for record in self:
             count = len(record.analytic_account_ids)
             if count == 0:
@@ -49,64 +50,50 @@ class AccountingReport(models.TransientModel):
                 )
             record.warehouse_selection_info = info
 
-    # -----------------------------
-    # Onchange methods
-    # -----------------------------
     @api.onchange('analytic_account_ids')
     def _onchange_analytic_account_ids(self):
-        """Auto-disable combined column when only one analytic is selected"""
         if len(self.analytic_account_ids) <= 1:
             self.include_combined = False
 
     # -----------------------------
-    # Context builders
+    # Context Builders
     # -----------------------------
     def _build_contexts(self, data):
-        """Override to add analytic account context"""
         result = super()._build_contexts(data)
-
         analytic_ids = []
         form_data = data.get('form', {})
         analytic_data = form_data.get('analytic_account_ids', [])
 
-        # Handle different formats of many2many field
         if analytic_data:
-            if isinstance(analytic_data, (list, tuple)) and analytic_data:
-                if isinstance(analytic_data[0], (list, tuple)):
-                    # Format: [(6, 0, [ids])]
-                    analytic_ids = analytic_data[0][2] if len(analytic_data[0]) > 2 else []
-                else:
-                    # Format: [id1, id2, ...]
-                    analytic_ids = list(analytic_data)
+            if isinstance(analytic_data[0], (list, tuple)):
+                analytic_ids = analytic_data[0][2] if len(analytic_data[0]) > 2 else []
+            else:
+                analytic_ids = list(analytic_data)
 
         result['analytic_account_ids'] = analytic_ids
         result['include_combined'] = form_data.get('include_combined', False)
         return result
 
     def _build_comparison_context(self, data):
-        """Override to add analytic account context for comparison"""
         result = super()._build_comparison_context(data)
-
         analytic_ids = []
         form_data = data.get('form', {})
         analytic_data = form_data.get('analytic_account_ids', [])
 
         if analytic_data:
-            if isinstance(analytic_data, (list, tuple)) and analytic_data:
-                if isinstance(analytic_data[0], (list, tuple)):
-                    analytic_ids = analytic_data[0][2] if len(analytic_data[0]) > 2 else []
-                else:
-                    analytic_ids = list(analytic_data)
+            if isinstance(analytic_data[0], (list, tuple)):
+                analytic_ids = analytic_data[0][2] if len(analytic_data[0]) > 2 else []
+            else:
+                analytic_ids = list(analytic_data)
 
         result['analytic_account_ids'] = analytic_ids
         result['include_combined'] = form_data.get('include_combined', False)
         return result
 
     # -----------------------------
-    # Main report action
+    # Main Report Action
     # -----------------------------
     def check_report(self):
-        """Override to inject analytic data into the report"""
         self.ensure_one()
 
         parent_fields = [
@@ -115,7 +102,6 @@ class AccountingReport(models.TransientModel):
             'label_filter', 'target_move', 'date_from', 'date_to',
             'journal_ids', 'company_id'
         ]
-
         all_fields = parent_fields + ['analytic_account_ids', 'include_combined']
 
         data = {
@@ -126,7 +112,6 @@ class AccountingReport(models.TransientModel):
         form_data = self.read(all_fields)[0]
         data['form'] = form_data
 
-        # Ensure analytic_account_ids is in proper format
         if self.analytic_account_ids:
             data['form']['analytic_account_ids'] = [(6, 0, self.analytic_account_ids.ids)]
         else:
@@ -134,7 +119,6 @@ class AccountingReport(models.TransientModel):
 
         data['form']['include_combined'] = self.include_combined
 
-        # Clean tuple date fields
         for field in ['date_from_cmp', 'date_to_cmp', 'date_from', 'date_to']:
             if field in data['form'] and data['form'][field]:
                 if isinstance(data['form'][field], tuple):
@@ -150,20 +134,17 @@ class AccountingReport(models.TransientModel):
         ).report_action(self, data=data, config=False)
 
     # -----------------------------
-    # New Button Action (Fix for XML)
-    # -----------------------------
-    # -----------------------------
-    # New Button Action (Fix for XML)
+    # View Details Button (Modified)
     # -----------------------------
     def action_view_details(self):
-        """Open detailed Balance Sheet or P&L in a window with section headers."""
+        """Open detailed Balance Sheet or P&L in a window with section headers and totals."""
         self.ensure_one()
 
         report_type = 'balance_sheet'
         if self.account_report_id and 'loss' in self.account_report_id.name.lower():
             report_type = 'profit_loss'
 
-        # Clean old data
+        # Clear existing records
         self.env['account.financial.report.line'].search([]).unlink()
 
         ctx = self._build_contexts({'form': self.read()[0]})
@@ -172,7 +153,7 @@ class AccountingReport(models.TransientModel):
         date_to = ctx.get('date_to')
         target_move = ctx.get('target_move', 'posted')
 
-        # Define account type groups
+        # Define account groups
         if report_type == 'balance_sheet':
             group_mapping = {
                 'ASSETS': ['asset_non_current', 'asset_current'],
@@ -185,7 +166,6 @@ class AccountingReport(models.TransientModel):
                 'EXPENSES': ['expense', 'other_expense'],
             }
 
-        # ✅ Map internal account types
         account_type_map = {
             'ASSETS': 'asset',
             'LIABILITIES': 'liability',
@@ -196,10 +176,9 @@ class AccountingReport(models.TransientModel):
 
         ReportLine = self.env['account.financial.report.line']
         FinancialReport = self.env['report.accounting_pdf_reports.report_financial']
-
         sequence = 1
 
-        # ✅ Build section-wise account balances
+        # Loop through groups
         for group_name, account_types in group_mapping.items():
             accounts = self.env['account.account'].search([('account_type', 'in', account_types)])
             if not accounts:
@@ -207,7 +186,22 @@ class AccountingReport(models.TransientModel):
 
             account_balances = FinancialReport.with_context(ctx)._compute_account_balance(accounts)
 
-            # Section header
+            total_debit = total_credit = total_balance = 0.0
+            for acc in accounts:
+                vals = account_balances.get(acc.id)
+                if not vals:
+                    continue
+                balance = vals.get('balance', 0)
+                if abs(balance) < 0.01:
+                    continue
+
+                debit = vals.get('debit', 0.0)
+                credit = vals.get('credit', 0.0)
+                total_debit += debit
+                total_credit += credit
+                total_balance += balance
+
+            # Section line with totals
             ReportLine.create({
                 'name': f"<b>{group_name}</b>",
                 'is_section': True,
@@ -216,11 +210,14 @@ class AccountingReport(models.TransientModel):
                 'date_from': date_from,
                 'date_to': date_to,
                 'target_move': target_move,
+                'debit': total_debit,
+                'credit': total_credit,
+                'balance': total_balance,
                 'analytic_account_ids': [(6, 0, analytic_ids)],
             })
             sequence += 1
 
-            # Account lines
+            # Account detail lines
             for acc in accounts:
                 vals = account_balances.get(acc.id)
                 if not vals:
@@ -246,23 +243,19 @@ class AccountingReport(models.TransientModel):
                 })
                 sequence += 1
 
-        # ✅ Compute Net Profit / Loss
+        # -------------------------
+        # Net Profit / Loss
+        # -------------------------
         if report_type == 'profit_loss':
-            # -- Calculate total from P&L itself --
             all_lines = self.env['account.financial.report.line'].search([('report_type', '=', 'profit_loss')])
-            total_debit = sum(all_lines.mapped('debit'))
-            total_credit = sum(all_lines.mapped('credit'))
             total_balance = sum(all_lines.mapped('balance'))
 
-            total_label = "<b>Net Profit</b>" if total_balance < 0 else "<b>Net Loss</b>"
+            total_label = "<b>Net Profit</b>" if total_balance > 0 else "<b>Net Loss</b>"
 
             ReportLine.create({
                 'name': total_label,
                 'is_total': True,
-                'is_section': False,
                 'report_type': 'profit_loss',
-                'debit': total_debit,
-                'credit': total_credit,
                 'balance': total_balance,
                 'sequence': 9999,
                 'date_from': date_from,
@@ -272,33 +265,19 @@ class AccountingReport(models.TransientModel):
             })
 
         elif report_type == 'balance_sheet':
-            # -- Pull profit/loss from Profit & Loss report for same period --
-            profit_loss_report = self.env['accounting.report'].create({
-                'date_from': date_from,
-                'date_to': date_to,
-                'target_move': target_move,
-            })
-            ctx_pl = profit_loss_report._build_contexts({'form': profit_loss_report.read()[0]})
-            FinancialReportPL = self.env['report.accounting_pdf_reports.report_financial']
-
             income_accounts = self.env['account.account'].search([('account_type', 'in', ['income', 'other_income'])])
-            expense_accounts = self.env['account.account'].search(
-                [('account_type', 'in', ['expense', 'other_expense'])])
+            expense_accounts = self.env['account.account'].search([('account_type', 'in', ['expense', 'other_expense'])])
 
-            income_balance = sum(v['balance'] for v in FinancialReportPL.with_context(ctx_pl)._compute_account_balance(
-                income_accounts).values())
-            expense_balance = sum(v['balance'] for v in FinancialReportPL.with_context(ctx_pl)._compute_account_balance(
-                expense_accounts).values())
+            income_balance = sum(v.get('balance', 0) for v in FinancialReport.with_context(ctx)._compute_account_balance(income_accounts).values())
+            expense_balance = sum(v.get('balance', 0) for v in FinancialReport.with_context(ctx)._compute_account_balance(expense_accounts).values())
+
             net_profit = income_balance + expense_balance
-            total_label = "<b>Net Profit</b>" if net_profit < 0 else "<b>Net Loss</b>"
+            total_label = "<b>Net Profit</b>" if net_profit > 0 else "<b>Net Loss</b>"
 
             ReportLine.create({
                 'name': total_label,
                 'is_total': True,
-                'is_section': False,
                 'report_type': 'balance_sheet',
-                'debit': 0.0,
-                'credit': 0.0,
                 'balance': net_profit,
                 'sequence': 9999,
                 'date_from': date_from,
@@ -307,7 +286,7 @@ class AccountingReport(models.TransientModel):
                 'analytic_account_ids': [(6, 0, analytic_ids)],
             })
 
-        # ✅ Return the tree view action
+        # Return list view
         return {
             'type': 'ir.actions.act_window',
             'name': f'{self.account_report_id.name} Details',
@@ -317,6 +296,346 @@ class AccountingReport(models.TransientModel):
             'context': ctx,
             'domain': [('report_type', '=', report_type)],
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# # -*- coding: utf-8 -*-
+# from odoo import api, fields, models
+#
+#
+# class AccountingReport(models.TransientModel):
+#     _inherit = "accounting.report"
+#
+#     # Analytic filter fields
+#     analytic_account_ids = fields.Many2many(
+#         'account.analytic.account',
+#         string="",
+#         help=(
+#             "Select specific warehouses/analytic accounts for filtering.\n"
+#             "• Leave empty: Show all warehouses combined\n"
+#             "• Select ONE: Show only that warehouse (separate report)\n"
+#             "• Select MULTIPLE: Show combined with optional breakdown"
+#         )
+#     )
+#
+#     include_combined = fields.Boolean(
+#         string='Show Combined Column',
+#         default=False,
+#         help='Show a combined total column when multiple analytic accounts are selected.'
+#     )
+#
+#     warehouse_selection_info = fields.Html(
+#         string='Selection Info',
+#         compute='_compute_warehouse_info',
+#         store=False
+#     )
+#
+#     # -----------------------------
+#     # Computed fields
+#     # -----------------------------
+#     @api.depends('analytic_account_ids')
+#     def _compute_warehouse_info(self):
+#         """Show helpful info about what report will be generated"""
+#         for record in self:
+#             count = len(record.analytic_account_ids)
+#             if count == 0:
+#                 info = '<span style="color:#0066cc;">📊 Will show <b>ALL WAREHOUSES COMBINED</b></span>'
+#             elif count == 1:
+#                 name = record.analytic_account_ids[0].name
+#                 info = f'<span style="color:#28a745;">📋 Will show <b>{name} ONLY</b> (Separate Report)</span>'
+#             else:
+#                 info = (
+#                     f'<span style="color:#ff6600;">📦 Will show <b>{count} WAREHOUSES COMBINED</b> '
+#                     f'(with optional breakdown)</span>'
+#                 )
+#             record.warehouse_selection_info = info
+#
+#     # -----------------------------
+#     # Onchange methods
+#     # -----------------------------
+#     @api.onchange('analytic_account_ids')
+#     def _onchange_analytic_account_ids(self):
+#         """Auto-disable combined column when only one analytic is selected"""
+#         if len(self.analytic_account_ids) <= 1:
+#             self.include_combined = False
+#
+#     # -----------------------------
+#     # Context builders
+#     # -----------------------------
+#     def _build_contexts(self, data):
+#         """Override to add analytic account context"""
+#         result = super()._build_contexts(data)
+#
+#         analytic_ids = []
+#         form_data = data.get('form', {})
+#         analytic_data = form_data.get('analytic_account_ids', [])
+#
+#         # Handle different formats of many2many field
+#         if analytic_data:
+#             if isinstance(analytic_data, (list, tuple)) and analytic_data:
+#                 if isinstance(analytic_data[0], (list, tuple)):
+#                     # Format: [(6, 0, [ids])]
+#                     analytic_ids = analytic_data[0][2] if len(analytic_data[0]) > 2 else []
+#                 else:
+#                     # Format: [id1, id2, ...]
+#                     analytic_ids = list(analytic_data)
+#
+#         result['analytic_account_ids'] = analytic_ids
+#         result['include_combined'] = form_data.get('include_combined', False)
+#         return result
+#
+#     def _build_comparison_context(self, data):
+#         """Override to add analytic account context for comparison"""
+#         result = super()._build_comparison_context(data)
+#
+#         analytic_ids = []
+#         form_data = data.get('form', {})
+#         analytic_data = form_data.get('analytic_account_ids', [])
+#
+#         if analytic_data:
+#             if isinstance(analytic_data, (list, tuple)) and analytic_data:
+#                 if isinstance(analytic_data[0], (list, tuple)):
+#                     analytic_ids = analytic_data[0][2] if len(analytic_data[0]) > 2 else []
+#                 else:
+#                     analytic_ids = list(analytic_data)
+#
+#         result['analytic_account_ids'] = analytic_ids
+#         result['include_combined'] = form_data.get('include_combined', False)
+#         return result
+#
+#     # -----------------------------
+#     # Main report action
+#     # -----------------------------
+#     def check_report(self):
+#         """Override to inject analytic data into the report"""
+#         self.ensure_one()
+#
+#         parent_fields = [
+#             'date_from_cmp', 'debit_credit', 'date_to_cmp',
+#             'filter_cmp', 'account_report_id', 'enable_filter',
+#             'label_filter', 'target_move', 'date_from', 'date_to',
+#             'journal_ids', 'company_id'
+#         ]
+#
+#         all_fields = parent_fields + ['analytic_account_ids', 'include_combined']
+#
+#         data = {
+#             'ids': self.env.context.get('active_ids', []),
+#             'model': self.env.context.get('active_model', 'ir.ui.menu'),
+#         }
+#
+#         form_data = self.read(all_fields)[0]
+#         data['form'] = form_data
+#
+#         # Ensure analytic_account_ids is in proper format
+#         if self.analytic_account_ids:
+#             data['form']['analytic_account_ids'] = [(6, 0, self.analytic_account_ids.ids)]
+#         else:
+#             data['form']['analytic_account_ids'] = []
+#
+#         data['form']['include_combined'] = self.include_combined
+#
+#         # Clean tuple date fields
+#         for field in ['date_from_cmp', 'date_to_cmp', 'date_from', 'date_to']:
+#             if field in data['form'] and data['form'][field]:
+#                 if isinstance(data['form'][field], tuple):
+#                     data['form'][field] = data['form'][field][0]
+#
+#         used_context = self._build_contexts(data)
+#         data['form']['used_context'] = used_context
+#         comparison_context = self._build_comparison_context(data)
+#         data['form']['comparison_context'] = comparison_context
+#
+#         return self.env.ref('accounting_pdf_reports.action_report_financial').with_context(
+#             **used_context
+#         ).report_action(self, data=data, config=False)
+#
+#     # -----------------------------
+#     # New Button Action (Fix for XML)
+#     # -----------------------------
+#     # -----------------------------
+#     # New Button Action (Fix for XML)
+#     # -----------------------------
+#     def action_view_details(self):
+#         """Open detailed Balance Sheet or P&L in a window with section headers."""
+#         self.ensure_one()
+#
+#         report_type = 'balance_sheet'
+#         if self.account_report_id and 'loss' in self.account_report_id.name.lower():
+#             report_type = 'profit_loss'
+#
+#         # Clean old data
+#         self.env['account.financial.report.line'].search([]).unlink()
+#
+#         ctx = self._build_contexts({'form': self.read()[0]})
+#         analytic_ids = ctx.get('analytic_account_ids', [])
+#         date_from = ctx.get('date_from')
+#         date_to = ctx.get('date_to')
+#         target_move = ctx.get('target_move', 'posted')
+#
+#         # Define account type groups
+#         if report_type == 'balance_sheet':
+#             group_mapping = {
+#                 'ASSETS': ['asset_non_current', 'asset_current'],
+#                 'LIABILITIES': ['liability_non_current', 'liability_current'],
+#                 'EQUITY': ['equity'],
+#             }
+#         else:
+#             group_mapping = {
+#                 'INCOME': ['income', 'other_income'],
+#                 'EXPENSES': ['expense', 'other_expense'],
+#             }
+#
+#         # ✅ Map internal account types
+#         account_type_map = {
+#             'ASSETS': 'asset',
+#             'LIABILITIES': 'liability',
+#             'EQUITY': 'equity',
+#             'INCOME': 'income',
+#             'EXPENSES': 'expense',
+#         }
+#
+#         ReportLine = self.env['account.financial.report.line']
+#         FinancialReport = self.env['report.accounting_pdf_reports.report_financial']
+#
+#         sequence = 1
+#
+#         # ✅ Build section-wise account balances
+#         for group_name, account_types in group_mapping.items():
+#             accounts = self.env['account.account'].search([('account_type', 'in', account_types)])
+#             if not accounts:
+#                 continue
+#
+#             account_balances = FinancialReport.with_context(ctx)._compute_account_balance(accounts)
+#
+#             # Section header
+#             ReportLine.create({
+#                 'name': f"<b>{group_name}</b>",
+#                 'is_section': True,
+#                 'sequence': sequence,
+#                 'report_type': report_type,
+#                 'date_from': date_from,
+#                 'date_to': date_to,
+#                 'target_move': target_move,
+#                 'analytic_account_ids': [(6, 0, analytic_ids)],
+#             })
+#             sequence += 1
+#
+#             # Account lines
+#             for acc in accounts:
+#                 vals = account_balances.get(acc.id)
+#                 if not vals:
+#                     continue
+#                 balance = vals.get('balance', 0)
+#                 if abs(balance) < 0.01:
+#                     continue
+#
+#                 ReportLine.create({
+#                     'name': acc.name,
+#                     'code': acc.code,
+#                     'account_id': acc.id,
+#                     'debit': vals.get('debit', 0.0),
+#                     'credit': vals.get('credit', 0.0),
+#                     'balance': balance,
+#                     'report_type': report_type,
+#                     'sequence': sequence,
+#                     'account_type': account_type_map.get(group_name, 'other'),
+#                     'date_from': date_from,
+#                     'date_to': date_to,
+#                     'target_move': target_move,
+#                     'analytic_account_ids': [(6, 0, analytic_ids)],
+#                 })
+#                 sequence += 1
+#
+#         # ✅ Compute Net Profit / Loss
+#         if report_type == 'profit_loss':
+#             # -- Calculate total from P&L itself --
+#             all_lines = self.env['account.financial.report.line'].search([('report_type', '=', 'profit_loss')])
+#             total_debit = sum(all_lines.mapped('debit'))
+#             total_credit = sum(all_lines.mapped('credit'))
+#             total_balance = sum(all_lines.mapped('balance'))
+#
+#             total_label = "<b>Net Profit</b>" if total_balance < 0 else "<b>Net Loss</b>"
+#
+#             ReportLine.create({
+#                 'name': total_label,
+#                 'is_total': True,
+#                 'is_section': False,
+#                 'report_type': 'profit_loss',
+#                 'debit': total_debit,
+#                 'credit': total_credit,
+#                 'balance': total_balance,
+#                 'sequence': 9999,
+#                 'date_from': date_from,
+#                 'date_to': date_to,
+#                 'target_move': target_move,
+#                 'analytic_account_ids': [(6, 0, analytic_ids)],
+#             })
+#
+#         elif report_type == 'balance_sheet':
+#             # -- Pull profit/loss from Profit & Loss report for same period --
+#             profit_loss_report = self.env['accounting.report'].create({
+#                 'date_from': date_from,
+#                 'date_to': date_to,
+#                 'target_move': target_move,
+#             })
+#             ctx_pl = profit_loss_report._build_contexts({'form': profit_loss_report.read()[0]})
+#             FinancialReportPL = self.env['report.accounting_pdf_reports.report_financial']
+#
+#             income_accounts = self.env['account.account'].search([('account_type', 'in', ['income', 'other_income'])])
+#             expense_accounts = self.env['account.account'].search(
+#                 [('account_type', 'in', ['expense', 'other_expense'])])
+#
+#             income_balance = sum(v['balance'] for v in FinancialReportPL.with_context(ctx_pl)._compute_account_balance(
+#                 income_accounts).values())
+#             expense_balance = sum(v['balance'] for v in FinancialReportPL.with_context(ctx_pl)._compute_account_balance(
+#                 expense_accounts).values())
+#             net_profit = income_balance + expense_balance
+#             total_label = "<b>Net Profit</b>" if net_profit < 0 else "<b>Net Loss</b>"
+#
+#             ReportLine.create({
+#                 'name': total_label,
+#                 'is_total': True,
+#                 'is_section': False,
+#                 'report_type': 'balance_sheet',
+#                 'debit': 0.0,
+#                 'credit': 0.0,
+#                 'balance': net_profit,
+#                 'sequence': 9999,
+#                 'date_from': date_from,
+#                 'date_to': date_to,
+#                 'target_move': target_move,
+#                 'analytic_account_ids': [(6, 0, analytic_ids)],
+#             })
+#
+#         # ✅ Return the tree view action
+#         return {
+#             'type': 'ir.actions.act_window',
+#             'name': f'{self.account_report_id.name} Details',
+#             'res_model': 'account.financial.report.line',
+#             'view_mode': 'list',
+#             'target': 'current',
+#             'context': ctx,
+#             'domain': [('report_type', '=', report_type)],
+#         }
+
+
+
+
 
     # def action_view_details(self):
     #     """Open detailed Balance Sheet or P&L in a window with section headers."""

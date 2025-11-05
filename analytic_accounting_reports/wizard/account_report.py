@@ -156,29 +156,34 @@ class AccountingReport(models.TransientModel):
         """Open detailed Balance Sheet or P&L in a window."""
         self.ensure_one()
 
-        # Determine report type (based on selected financial report)
         report_type = 'balance_sheet'
         if self.account_report_id and 'loss' in self.account_report_id.name.lower():
             report_type = 'profit_loss'
 
-        # Clean old data (optional but helpful)
         self.env['account.financial.report.line'].search([]).unlink()
 
-        # Build context for account move line query
         ctx = self._build_contexts({'form': self.read()[0]})
         analytic_ids = ctx.get('analytic_account_ids', [])
         date_from = ctx.get('date_from')
         date_to = ctx.get('date_to')
         target_move = ctx.get('target_move', 'posted')
 
-        # Get all accounts used in this report
-        accounts = self.env['account.account'].search([])
+        # ✅ Filter by account types based on report
+        if report_type == 'balance_sheet':
+            account_types = [
+                'asset_non_current', 'asset_current',
+                'liability_non_current', 'liability_current', 'equity'
+            ]
+        else:
+            account_types = ['income', 'expense', 'other_income', 'other_expense']
 
-        # Compute balances manually similar to your report_financial.py logic
-        account_balances = self.env['report.accounting_pdf_reports.report_financial']\
+        accounts = self.env['account.account'].search([
+            ('account_type', 'in', account_types)
+        ])
+
+        account_balances = self.env['report.accounting_pdf_reports.report_financial'] \
             .with_context(ctx)._compute_account_balance(accounts)
 
-        # Create temporary records
         lines = []
         for acc in accounts:
             vals = account_balances.get(acc.id)
@@ -205,7 +210,6 @@ class AccountingReport(models.TransientModel):
         if lines:
             self.env['account.financial.report.line'].create(lines)
 
-        # Open view
         return {
             'type': 'ir.actions.act_window',
             'name': f'{self.account_report_id.name} Details',
@@ -215,8 +219,6 @@ class AccountingReport(models.TransientModel):
             'context': ctx,
             'domain': [('report_type', '=', report_type)],
         }
-
-
 
     # def action_view_details(self):
     #     """Dummy 'View Details' action to fix XML button call.

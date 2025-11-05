@@ -152,6 +152,12 @@ class AccountFinancialReportLine(models.Model):
         except Exception as e:
             _logger.exception("Error during cleanup_old_lines: %s", e)
 
+
+
+
+
+
+
 # from odoo import api, fields, models
 # import logging
 #

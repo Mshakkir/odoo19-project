@@ -326,12 +326,12 @@ class AccountingReport(models.TransientModel):
         for line in lines:
             self.env['account.financial.report.line'].create(line)
 
-        # Open the result tree view
+        # Open the result list view
         return {
             'name': f"{'Balance Sheet' if report_type == 'balance_sheet' else 'Profit & Loss'} Details",
             'type': 'ir.actions.act_window',
             'res_model': 'account.financial.report.line',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'target': 'current',
             'context': ctx,
         }

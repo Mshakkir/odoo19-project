@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- Tree view definition -->
     <record id="view_account_move_line_cashbook_analytic_tree" model="ir.ui.view">
         <field name="name">account.move.line.cashbook.analytic.tree</field>
         <field name="model">account.move.line</field>
         <field name="arch" type="xml">
-            <list string="Cashbook Analytic Details" create="false" edit="false">
+            <tree string="Cashbook Analytic Details" create="false" edit="false">
                 <field name="date"/>
                 <field name="move_id" widget="many2one_clickable"/>
                 <field name="journal_id"/>
@@ -17,8 +18,17 @@
                 <field name="balance"/>
                 <field name="ref"/>
                 <field name="name"/>
-            </list>
+            </tree>
         </field>
+    </record>
+
+    <!-- Action definition -->
+    <record id="action_my_report" model="ir.actions.act_window">
+        <field name="name">My Report</field>
+        <field name="res_model">account.move.line</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_account_move_line_cashbook_analytic_tree"/>
     </record>
 
 </odoo>

@@ -52,7 +52,7 @@ class AccountCashBookReport(models.TransientModel):
         data['form']['comparison_context'] = comparison_context
 
         # Debug log: show what will be sent to report
-        _logger.info("Cashbook analytic report - form sent: %s", data['form'])
+        _logger.warning(">>> CASHBOOK WIZARD DATA: %s", data['form'])
+        _logger.warning(">>> ANALYTIC IDS SENT: %s", data['form'].get('analytic_account_ids'))
 
-        # Pass the data to the report (important)
         return self.env.ref('om_cashbook_analytic.action_report_cash_book_analytic').report_action(self, data=data)

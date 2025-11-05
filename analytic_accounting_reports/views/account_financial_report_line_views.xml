@@ -19,10 +19,10 @@
                 <!-- ✅ Account Name (supports bold HTML for headers like ASSETS, LIABILITIES) -->
                 <field name="name" string="Account" widget="html" options="{'sanitize': False}"/>
 
-                <!-- ✅ Amount Columns -->
-                <field name="debit" string="Debit" sum="Total Debit"/>
-                <field name="credit" string="Credit" sum="Total Credit"/>
-                <field name="balance" string="Amount" sum="Total Amount"/>
+                <!-- ✅ Amount Columns (no auto sum bar) -->
+                <field name="debit" string="Debit"/>
+                <field name="credit" string="Credit"/>
+                <field name="balance" string="Amount"/>
 
                 <!-- ✅ Button: View Ledger -->
                 <button name="action_view_ledger"
@@ -51,6 +51,7 @@
         </field>
     </record>
 </odoo>
+
 
 
 

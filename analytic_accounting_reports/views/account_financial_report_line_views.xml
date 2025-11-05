@@ -12,31 +12,25 @@
                   edit="false">
 
                 <!-- Hidden sorting -->
-                <field name="sequence" column_invisible="1"/>
+                <field name="sequence" invisible="1"/>
 
                 <!-- ✅ Code -->
-                <field name="code" string="Code" width="80"/>
+                <field name="code" string="Code"/>
 
-                <!-- ✅ Account Name (bold for section headers) -->
-                <field name="name" string="Account"
-                       widget="html"
-                       options="{'sanitize': False}">
-                    <attribute name="widget">html</attribute>
-                    <attribute name="options">{'sanitize': False}</attribute>
-                </field>
+                <!-- ✅ Account Name (can contain HTML formatting) -->
+                <field name="name" string="Account" widget="html" options="{'sanitize': False}"/>
 
                 <!-- ✅ Debit, Credit, Balance totals -->
-                <field name="debit" sum="Total Debit" string="Debit" width="100"/>
-                <field name="credit" sum="Total Credit" string="Credit" width="100"/>
-                <field name="balance" sum="Total Balance" string="Balance" width="100"/>
+                <field name="debit" sum="Total Debit" string="Debit"/>
+                <field name="credit" sum="Total Credit" string="Credit"/>
+                <field name="balance" sum="Total Balance" string="Balance"/>
 
-                <!-- ✅ Button to open ledger -->
+                <!-- ✅ Safe button (no attrs) -->
                 <button name="action_view_ledger"
                         type="object"
                         string="View Ledger"
                         icon="fa-book"
-                        help="Open account ledger for this account."
-                        attrs="{'invisible': [('account_id', '=', False)]}"/>
+                        help="Open account ledger for this account."/>
             </list>
         </field>
     </record>
@@ -58,6 +52,7 @@
         </field>
     </record>
 </odoo>
+
 
 
 

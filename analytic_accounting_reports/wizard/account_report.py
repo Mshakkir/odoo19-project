@@ -225,7 +225,7 @@ class AccountingReport(models.TransientModel):
                     'balance': balance,
                     'report_type': report_type,
                     'sequence': sequence,
-                    'account_type': group_name.lower(),
+                    'account_type': group_name.lower().rstrip('s'),
                     'date_from': date_from,
                     'date_to': date_to,
                     'target_move': target_move,

@@ -21,11 +21,27 @@ class AccountFinancialReportLine(models.Model):
     debit = fields.Float(string='Debit', digits=(16, 2))
     credit = fields.Float(string='Credit', digits=(16, 2))
     balance = fields.Float(string='Balance', digits=(16, 2))
+
     report_type = fields.Selection([
         ('balance_sheet', 'Balance Sheet'),
         ('profit_loss', 'Profit & Loss')
     ], string='Report Type', default='balance_sheet')
+
     sequence = fields.Integer(string='Sequence', default=10)
+
+    # 🔹 Added field for section header (Assets / Liabilities / Profit Loss)
+    is_section = fields.Boolean(string='Section Header', default=False,
+                                help="If true, this line is used as a section header (e.g. Assets, Liabilities).")
+
+    # 🔹 Optional: categorize accounts for grouping
+    account_type = fields.Selection([
+        ('asset', 'Asset'),
+        ('liability', 'Liability'),
+        ('equity', 'Equity'),
+        ('income', 'Income'),
+        ('expense', 'Expense'),
+        ('profit_loss', 'Profit/Loss'),
+    ], string='Account Type')
 
     # Filter context fields
     date_from = fields.Date(string='Date From')
@@ -135,17 +151,6 @@ class AccountFinancialReportLine(models.Model):
                 _logger.info("✅ No old financial report lines found to clean up.")
         except Exception as e:
             _logger.exception("Error during cleanup_old_lines: %s", e)
-
-
-
-
-
-
-
-
-
-
-
 
 # from odoo import api, fields, models
 # import logging

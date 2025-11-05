@@ -31,21 +31,22 @@ class ReportCashbookAnalytic(models.AbstractModel):
         if account_ids:
             account_filter = "AND l.account_id IN %s"
 
-        # ✅ Analytic filter (this part is the fix)
+        # ✅ Analytic filter (Odoo 17+ JSON field only)
         analytic_filter = ""
         params = [cash_journal_ids, date_from, date_to]
 
         if analytic_account_id:
-            # single analytic (used in separate reports)
+            # Filter for a single analytic account
             analytic_filter = "AND l.analytic_distribution ? %s"
             params.append(str(analytic_account_id))
         elif form_data.get('analytic_account_ids'):
+            # Filter for multiple analytic accounts
             analytic_ids = [str(aid) for aid in form_data['analytic_account_ids']]
-            # dynamically build OR conditions for each analytic
             analytic_filter = "AND (" + " OR ".join(
                 ["l.analytic_distribution ? %s" for _ in analytic_ids]
             ) + ")"
             params.extend(analytic_ids)
+
 
         # Add account_ids if selected
         if account_ids:

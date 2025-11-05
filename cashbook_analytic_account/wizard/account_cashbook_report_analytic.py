@@ -1,7 +1,4 @@
 from odoo import fields, models, api
-import logging
-
-_logger = logging.getLogger(__name__)
 
 
 class AccountCashBookReportAnalytic(models.TransientModel):
@@ -36,37 +33,29 @@ class AccountCashBookReportAnalytic(models.TransientModel):
             'om_account_daily_reports.action_report_cash_book'
         ).report_action(self, data=data)
 
+    def action_show_details(self):
+        domain = [('journal_id', 'in', self.journal_ids.ids)]
 
+        if self.date_from:
+            domain.append(('date', '>=', self.date_from))
+        if self.date_to:
+            domain.append(('date', '<=', self.date_to))
 
+        if self.analytic_account_ids:
+            domain.append(('analytic_distribution', '!=', False))
+            analytic_ids = [str(aid.id) for aid in self.analytic_account_ids]
+            domain.append(('analytic_distribution', 'ilike', analytic_ids[0]))
 
-def action_show_details(self):
-    domain = [('journal_id', 'in', self.journal_ids.ids)]
+        if self.account_ids:
+            domain.append(('account_id', 'in', self.account_ids.ids))
 
-    if self.date_from:
-        domain.append(('date', '>=', self.date_from))
-    if self.date_to:
-        domain.append(('date', '<=', self.date_to))
-
-    # Analytic filter
-    if self.analytic_account_ids:
-        domain.append(('analytic_distribution', '!=', False))
-        for analytic in self.analytic_account_ids:
-            domain.append(('analytic_distribution', 'ilike', f'"{analytic.id}"'))
-
-    if self.account_ids:
-        domain.append(('account_id', 'in', self.account_ids.ids))
-
-    _logger.info("🔍 Domain Used for Cashbook Analytic: %s", domain)
-
-    return {
-        'type': 'ir.actions.act_window',
-        'name': 'Cashbook Analytic Details',
-        'res_model': 'account.move.line',
-        'view_mode': 'list',
-        'domain': domain,
-        'context': {'search_default_group_by_move_id': 1},
-        'target': 'current',
-        'view_id': self.env.ref('cashbook_analytic_account.view_account_move_line_cashbook_analytic_tree').id,
-    }
-
-
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Cashbook Analytic Details',
+            'res_model': 'account.move.line',
+            'view_mode': 'list',  # ✅ only one view mode
+            'domain': domain,
+            'context': {'search_default_group_by_move_id': 1},
+            'target': 'current',
+            'view_id': self.env.ref('cashbook_analytic_account.view_account_move_line_cashbook_analytic_tree').id,
+        }

@@ -156,19 +156,22 @@ class AccountingReport(models.TransientModel):
         """Open detailed Balance Sheet or P&L in a window."""
         self.ensure_one()
 
+        # Determine report type
         report_type = 'balance_sheet'
         if self.account_report_id and 'loss' in self.account_report_id.name.lower():
             report_type = 'profit_loss'
 
+        # Clear existing detail lines
         self.env['account.financial.report.line'].search([]).unlink()
 
+        # Build context
         ctx = self._build_contexts({'form': self.read()[0]})
         analytic_ids = ctx.get('analytic_account_ids', [])
         date_from = ctx.get('date_from')
         date_to = ctx.get('date_to')
         target_move = ctx.get('target_move', 'posted')
 
-        # ✅ Filter by account types based on report
+        # Choose account types by report type
         if report_type == 'balance_sheet':
             account_types = [
                 'asset_non_current', 'asset_current',
@@ -181,12 +184,15 @@ class AccountingReport(models.TransientModel):
             ('account_type', 'in', account_types)
         ])
 
+        # Compute balances
         account_balances = self.env['report.accounting_pdf_reports.report_financial'] \
             .with_context(ctx)._compute_account_balance(accounts)
 
+        # Initialize lines
         lines = []
-        def add_heading(name, report_type):
-            """Helper to create heading rows."""
+
+        # ✅ Define helper to create heading rows
+        def add_heading(name):
             return {
                 'name': name,
                 'code': '',
@@ -203,14 +209,13 @@ class AccountingReport(models.TransientModel):
 
         # === BALANCE SHEET ===
         if report_type == 'balance_sheet':
-            # Top header
-            lines.append(add_heading('Balance Sheet', report_type))
+            lines.append(add_heading('Balance Sheet'))
 
             # Assets
             asset_types = ['asset_non_current', 'asset_current']
             asset_accounts = accounts.filtered(lambda a: a.account_type in asset_types)
             if asset_accounts:
-                lines.append(add_heading('Assets', report_type))
+                lines.append(add_heading('Assets'))
                 for acc in asset_accounts:
                     vals = account_balances.get(acc.id)
                     if vals and abs(vals.get('balance', 0)) > 0.01:
@@ -232,7 +237,7 @@ class AccountingReport(models.TransientModel):
             liability_types = ['liability_non_current', 'liability_current', 'equity']
             liability_accounts = accounts.filtered(lambda a: a.account_type in liability_types)
             if liability_accounts:
-                lines.append(add_heading('Liabilities', report_type))
+                lines.append(add_heading('Liabilities'))
                 for acc in liability_accounts:
                     vals = account_balances.get(acc.id)
                     if vals and abs(vals.get('balance', 0)) > 0.01:
@@ -250,18 +255,18 @@ class AccountingReport(models.TransientModel):
                             'analytic_account_ids': [(6, 0, analytic_ids)],
                         })
 
-            # Profit (Loss) to report (only heading, no account lines)
-            lines.append(add_heading('Profit (Loss) to report', report_type))
+            # Profit (Loss) section (heading only)
+            lines.append(add_heading('Profit (Loss) to report'))
 
         # === PROFIT & LOSS ===
         else:
-            lines.append(add_heading('Profit and Loss', report_type))
+            lines.append(add_heading('Profit and Loss'))
 
             # Income
             income_types = ['income', 'other_income']
             income_accounts = accounts.filtered(lambda a: a.account_type in income_types)
             if income_accounts:
-                lines.append(add_heading('Income', report_type))
+                lines.append(add_heading('Income'))
                 for acc in income_accounts:
                     vals = account_balances.get(acc.id)
                     if vals and abs(vals.get('balance', 0)) > 0.01:
@@ -283,7 +288,7 @@ class AccountingReport(models.TransientModel):
             expense_types = ['expense', 'other_expense']
             expense_accounts = accounts.filtered(lambda a: a.account_type in expense_types)
             if expense_accounts:
-                lines.append(add_heading('Expense', report_type))
+                lines.append(add_heading('Expense'))
                 for acc in expense_accounts:
                     vals = account_balances.get(acc.id)
                     if vals and abs(vals.get('balance', 0)) > 0.01:
@@ -300,6 +305,19 @@ class AccountingReport(models.TransientModel):
                             'target_move': target_move,
                             'analytic_account_ids': [(6, 0, analytic_ids)],
                         })
+
+        # ✅ Create all records in the detail model
+        self.env['account.financial.report.line'].create(lines)
+
+        # ✅ Return action to open list view
+        return {
+            'name': f"{'Balance Sheet' if report_type == 'balance_sheet' else 'Profit and Loss'} Details",
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.financial.report.line',
+            'view_mode': 'tree',
+            'target': 'current',
+            'context': {'create': False},
+        }
 
         # for acc in accounts:
         #     vals = account_balances.get(acc.id)

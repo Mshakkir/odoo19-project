@@ -8,38 +8,29 @@
             <list string="Financial Report Details"
                   decoration-info="balance &lt; 0"
                   decoration-success="balance &gt; 0"
-                  decoration-bf="is_section == True"
                   create="false"
                   edit="false">
 
                 <!-- Hidden sorting -->
                 <field name="sequence" invisible="1"/>
 
-                <!-- ✅ Code -->
+                <!-- ✅ Account Code -->
                 <field name="code" string="Code"/>
 
-                <!-- ✅ Account Name -->
-                <field name="name"
-                       string="Account"
-                       widget="html"
-                       options="{'sanitize': False}"/>
+                <!-- ✅ Account Name (supports bold HTML sections) -->
+                <field name="name" string="Account" widget="html" options="{'sanitize': False}"/>
 
-                <!-- ✅ Debit, Credit, Amount totals -->
-                <field name="debit" sum="Total Debit" string="Debit"/>
-                <field name="credit" sum="Total Credit" string="Credit"/>
-                <field name="balance" sum="Total Amount" string="Amount"/>
+                <!-- ✅ Amount Columns -->
+                <field name="debit" string="Debit" sum="Total Debit"/>
+                <field name="credit" string="Credit" sum="Total Credit"/>
+                <field name="balance" string="Amount" sum="Total Amount"/>
 
-                <!-- Hidden technical fields -->
+                <!-- ✅ Hidden helper fields -->
                 <field name="is_section" invisible="1"/>
                 <field name="account_id" invisible="1"/>
-                <field name="report_type" invisible="1"/>
                 <field name="company_id" invisible="1"/>
-                <field name="date_from" invisible="1"/>
-                <field name="date_to" invisible="1"/>
-                <field name="target_move" invisible="1"/>
-                <field name="analytic_account_ids" invisible="1"/>
 
-                <!-- ✅ Correct invisible condition (no attrs in v17+) -->
+                <!-- ✅ View Ledger button (conditionally invisible) -->
                 <button name="action_view_ledger"
                         type="object"
                         string="View Ledger"
@@ -68,6 +59,7 @@
         </field>
     </record>
 </odoo>
+
 
 
 

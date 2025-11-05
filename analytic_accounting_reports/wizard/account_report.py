@@ -156,31 +156,33 @@ class AccountingReport(models.TransientModel):
         """Open detailed Balance Sheet or P&L in a window."""
         self.ensure_one()
 
+        # Detect report type from report name
         report_type = 'balance_sheet'
         if self.account_report_id and 'loss' in self.account_report_id.name.lower():
             report_type = 'profit_loss'
 
+        # Remove previous generated lines
         self.env['account.financial.report.line'].search([]).unlink()
 
+        # Extract context values
         ctx = self._build_contexts({'form': self.read()[0]})
         analytic_ids = ctx.get('analytic_account_ids', [])
         date_from = ctx.get('date_from')
         date_to = ctx.get('date_to')
         target_move = ctx.get('target_move', 'posted')
 
-        # ✅ Filter by account types based on report
+        # ✅ Valid native Odoo account types
         if report_type == 'balance_sheet':
-            account_types = [
-                'asset_non_current', 'asset_current',
-                'liability_non_current', 'liability_current', 'equity'
-            ]
+            account_types = ['asset', 'liability', 'equity']
         else:
             account_types = ['income', 'expense', 'other_income', 'other_expense']
 
+        # Search accounts sorted by code
         accounts = self.env['account.account'].search([
             ('account_type', 'in', account_types)
-        ])
+        ], order="code asc")
 
+        # Compute balances
         account_balances = self.env['report.accounting_pdf_reports.report_financial'] \
             .with_context(ctx)._compute_account_balance(accounts)
 
@@ -189,9 +191,10 @@ class AccountingReport(models.TransientModel):
             vals = account_balances.get(acc.id)
             if not vals:
                 continue
-            balance = vals.get('balance', 0)
+
+            balance = vals.get('balance', 0.0)
             if abs(balance) < 0.01:
-                continue
+                continue  # ignore near-zero accounts
 
             lines.append({
                 'name': acc.name,
@@ -200,6 +203,7 @@ class AccountingReport(models.TransientModel):
                 'debit': vals.get('debit', 0.0),
                 'credit': vals.get('credit', 0.0),
                 'balance': balance,
+                'account_type': acc.account_type,  # ✅ stored for search filter
                 'report_type': report_type,
                 'date_from': date_from,
                 'date_to': date_to,
@@ -207,22 +211,20 @@ class AccountingReport(models.TransientModel):
                 'analytic_account_ids': [(6, 0, analytic_ids)],
             })
 
+        # Create records
         if lines:
             self.env['account.financial.report.line'].create(lines)
 
+        # Open tree view with no grouping
         return {
             'type': 'ir.actions.act_window',
             'name': f'{self.account_report_id.name} Details',
             'res_model': 'account.financial.report.line',
             'view_mode': 'list',
             'target': 'current',
-            'context': ctx,
+            'context': {'group_by': False},
             'domain': [('report_type', '=', report_type)],
         }
-
-
-
-
 
         # for acc in accounts:
         #     vals = account_balances.get(acc.id)

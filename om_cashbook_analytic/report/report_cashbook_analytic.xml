@@ -4,40 +4,72 @@
     <template id="report_cash_book_analytic_template">
         <t t-call="web.html_container">
             <t t-foreach="records" t-as="record">
-                <h2>Cashbook Report</h2>
-                <p>Date: <t t-esc="data.get('date_from')"/> to <t t-esc="data.get('date_to')"/></p>
-                <p>Analytic Accounts: <t t-esc="analytic_accounts"/></p>
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Cashbook Report</h2>
+                        <p><strong>Date:</strong> <t t-esc="data.get('date_from')"/> to <t t-esc="data.get('date_to')"/></p>
+                        <p><strong>Analytic Accounts:</strong> <t t-esc="analytic_accounts"/></p>
 
-                <h3><t t-esc="record.date"/></h3>
-                <table class="table table-sm table-hover o_main_table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Journal</th>
-                            <th>Account</th>
-                            <th>Partner</th>
-                            <th>Analytic Account</th>
-                            <th>Debit</th>
-                            <th>Credit</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <t t-foreach="record.lines" t-as="line">
-                            <tr>
-                                <td><t t-esc="line['ldate']"/></td>
-                                <td><t t-esc="line['lcode']"/></td>
-                                <td><t t-esc="line['account_name']"/></td>
-                                <td><t t-esc="line['partner_name'] or ''"/></td>
-                                <td><t t-esc="line['analytic_account_name'] or ''"/></td>
-                                <td class="text-right"><t t-esc="line['debit']"/></td>
-                                <td class="text-right"><t t-esc="line['credit']"/></td>
-                            </tr>
+                        <!-- Show which analytic account this section is for -->
+                        <h3 style="color: #875A7B; margin-top: 20px;">
+                            <t t-esc="record['analytic_account']"/>
+                        </h3>
+
+                        <table class="table table-sm table-hover o_main_table" style="margin-top: 15px;">
+                            <thead>
+                                <tr style="background-color: #875A7B; color: white;">
+                                    <th>Date</th>
+                                    <th>Journal</th>
+                                    <th>Account</th>
+                                    <th>Partner</th>
+                                    <th>Analytic Account</th>
+                                    <th class="text-right">Debit</th>
+                                    <th class="text-right">Credit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-if="record['lines']">
+                                    <t t-foreach="record['lines']" t-as="line">
+                                        <tr>
+                                            <td><t t-esc="line['ldate']"/></td>
+                                            <td><t t-esc="line['journal_code']"/></td>
+                                            <td><t t-esc="line['account_code']"/> - <t t-esc="line['account_name']"/></td>
+                                            <td><t t-esc="line['partner_name'] or ''"/></td>
+                                            <td><t t-esc="line['analytic_account_name'] or ''"/></td>
+                                            <td class="text-right"><t t-esc="'%.2f' % line['debit']"/></td>
+                                            <td class="text-right"><t t-esc="'%.2f' % line['credit']"/></td>
+                                        </tr>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <tr>
+                                        <td colspan="7" class="text-center" style="padding: 20px; color: #999;">
+                                            No transactions found for this analytic account in the selected period.
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <tfoot>
+                                <tr style="font-weight: bold; background-color: #f5f5f5;">
+                                    <td colspan="5" class="text-right">Total:</td>
+                                    <td class="text-right"><t t-esc="'%.2f' % record['debit']"/></td>
+                                    <td class="text-right"><t t-esc="'%.2f' % record['credit']"/></td>
+                                </tr>
+                                <tr style="font-weight: bold;">
+                                    <td colspan="5" class="text-right">Balance:</td>
+                                    <td colspan="2" class="text-right">
+                                        <t t-esc="'%.2f' % record['balance']"/>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <!-- Page break between different analytic accounts in separate mode -->
+                        <t t-if="not record_last">
+                            <p style="page-break-after: always;"></p>
                         </t>
-                    </tbody>
-                </table>
-                <p><strong>Total Debit:</strong> <t t-esc="record.debit"/> |
-                   <strong>Total Credit:</strong> <t t-esc="record.credit"/> |
-                   <strong>Balance:</strong> <t t-esc="record.balance"/></p>
+                    </div>
+                </t>
             </t>
         </t>
     </template>
@@ -49,5 +81,7 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">om_cashbook_analytic.report_cash_book_analytic_template</field>
         <field name="report_file">om_cashbook_analytic.report_cash_book_analytic_template</field>
+        <field name="binding_model_id" ref="model_account_cashbook_report"/>
+        <field name="binding_type">report</field>
     </record>
 </odoo>

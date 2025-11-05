@@ -39,6 +39,43 @@ class AccountCashBookReport(models.TransientModel):
         import logging
         _logger = logging.getLogger(__name__)
 
+        # First, let's test if we can query data directly
+        _logger.warning("=" * 80)
+        _logger.warning("TESTING DATABASE QUERY FROM WIZARD")
+
+        # Test query to see if we have any matching records
+        test_query = """
+            SELECT COUNT(*) as count
+            FROM account_move_line l
+            JOIN account_journal j ON (l.journal_id = j.id)
+            WHERE j.type IN ('cash', 'bank')
+              AND l.date BETWEEN %s AND %s
+              AND l.analytic_distribution IS NOT NULL
+        """
+        self.env.cr.execute(test_query, (self.date_from, self.date_to))
+        test_result = self.env.cr.fetchone()
+        _logger.warning("Found %s move lines with analytic distribution in date range",
+                        test_result[0] if test_result else 0)
+
+        # Check if analytic account exists and has data
+        if self.analytic_account_ids:
+            for analytic in self.analytic_account_ids:
+                _logger.warning("Analytic Account: ID=%s, Name=%s", analytic.id, analytic.name)
+
+                # Check if this analytic account is used in any transactions
+                check_query = """
+                    SELECT COUNT(*) as count
+                    FROM account_move_line l
+                    WHERE l.analytic_distribution ? %s
+                      AND l.date BETWEEN %s AND %s
+                """
+                self.env.cr.execute(check_query, (str(analytic.id), self.date_from, self.date_to))
+                analytic_result = self.env.cr.fetchone()
+                _logger.warning("  -> Found %s move lines for this analytic account",
+                                analytic_result[0] if analytic_result else 0)
+
+        _logger.warning("=" * 80)
+
         data = {}
         data['form'] = self.read([
             'target_move', 'date_from', 'date_to', 'journal_ids',

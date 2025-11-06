@@ -64,6 +64,7 @@ class AccountFinancialReportLine(models.Model):
         """Open General Ledger view for this account with applied filters."""
         self.ensure_one()
 
+        # Ignore non-account lines
         if not self.account_id or self.is_section or self.is_total:
             return {
                 'type': 'ir.actions.client',
@@ -78,6 +79,7 @@ class AccountFinancialReportLine(models.Model):
 
         domain = [('account_id', '=', self.account_id.id)]
 
+        # Date filters
         if self.date_from:
             domain.append(('date', '>=', self.date_from))
         if self.date_to:
@@ -85,17 +87,18 @@ class AccountFinancialReportLine(models.Model):
         if self.target_move == 'posted':
             domain.append(('move_id.state', '=', 'posted'))
 
-        # ✅ FIXED: Handle both normal and JSON-based analytic filters (even single)
+        # ✅ FIXED: Only use analytic_distribution JSON field (modern Odoo)
         if self.analytic_account_ids:
             analytic_domain_parts = []
             for analytic in self.analytic_account_ids:
-                analytic_domain_parts.append(('analytic_account_id', '=', analytic.id))
                 analytic_domain_parts.append(('analytic_distribution', 'ilike', f'"{analytic.id}"'))
 
-            # Build OR logic even if only one analytic is selected
-            total_conditions = len(analytic_domain_parts)
-            or_operator = ['|'] * (total_conditions - 1)
-            domain = domain + or_operator + analytic_domain_parts
+            # Build OR chain for multiple analytics
+            if len(analytic_domain_parts) > 1:
+                or_operator = ['|'] * (len(analytic_domain_parts) - 1)
+                domain = domain + or_operator + analytic_domain_parts
+            else:
+                domain.extend(analytic_domain_parts)
 
         ctx = dict(self.env.context or {})
         ctx.update({
@@ -103,6 +106,7 @@ class AccountFinancialReportLine(models.Model):
             'default_account_id': self.account_id.id,
         })
 
+        # Label information
         warehouse_info = ''
         if self.analytic_account_ids:
             warehouse_names = ', '.join(self.analytic_account_ids.mapped('name'))
@@ -131,7 +135,6 @@ class AccountFinancialReportLine(models.Model):
             'context': ctx,
             'target': 'current',
         }
-
     # -------------------------------------------------------------------------
     # Section Totals
     # -------------------------------------------------------------------------

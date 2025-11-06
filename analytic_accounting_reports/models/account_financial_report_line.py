@@ -87,19 +87,43 @@ class AccountFinancialReportLine(models.Model):
         if self.target_move == 'posted':
             domain.append(('move_id.state', '=', 'posted'))
 
-        # ✅ FIXED: Properly handle analytic_distribution for both single and multiple analytics
+        # ✅ FIXED: Handle analytic_distribution JSON properly
         if self.analytic_account_ids:
-            analytic_domain_parts = []
-            for analytic in self.analytic_account_ids:
-                analytic_domain_parts.append(('analytic_distribution', 'ilike', f'"{analytic.id}"'))
+            # Get all move lines for this account first (with date/state filters)
+            MoveLine = self.env['account.move.line']
+            all_lines = MoveLine.search(domain)
 
-            # Build OR chain for multiple analytics OR add single condition
-            if len(analytic_domain_parts) > 1:
-                or_operator = ['|'] * (len(analytic_domain_parts) - 1)
-                domain = domain + or_operator + analytic_domain_parts
+            _logger.info("=" * 80)
+            _logger.info("🔍 DEBUGGING ANALYTIC FILTER")
+            _logger.info("Account: %s - %s", self.code, self.name)
+            _logger.info("Selected Analytics: %s", self.analytic_account_ids.mapped('name'))
+            _logger.info("Selected Analytic IDs: %s", self.analytic_account_ids.ids)
+            _logger.info("Total lines before analytic filter: %d", len(all_lines))
+
+            # Filter by analytic accounts manually
+            filtered_line_ids = []
+            for line in all_lines:
+                if line.analytic_distribution:
+                    _logger.info("Line ID %d - Analytic Distribution: %s", line.id, line.analytic_distribution)
+                    # Check if any of our selected analytics are in this line's distribution
+                    for analytic_id in self.analytic_account_ids.ids:
+                        if str(analytic_id) in line.analytic_distribution:
+                            filtered_line_ids.append(line.id)
+                            _logger.info("  ✅ MATCH: Line %d contains analytic %d", line.id, analytic_id)
+                            break
+                else:
+                    _logger.info("Line ID %d - No analytic distribution", line.id)
+
+            _logger.info("Filtered line IDs: %s", filtered_line_ids)
+            _logger.info("Total lines after analytic filter: %d", len(filtered_line_ids))
+            _logger.info("=" * 80)
+
+            # Update domain to only include filtered lines
+            if filtered_line_ids:
+                domain = [('id', 'in', filtered_line_ids)]
             else:
-                # ✅ FIX: For single analytic, append the single tuple directly
-                domain.append(analytic_domain_parts[0])
+                # No lines match - return empty domain
+                domain = [('id', '=', False)]
 
         ctx = dict(self.env.context or {})
         ctx.update({
@@ -123,7 +147,7 @@ class AccountFinancialReportLine(models.Model):
 
         _logger.info("=" * 80)
         _logger.info("VIEW LEDGER - Account: %s %s", self.code, self.name)
-        _logger.info("Domain: %s", domain)
+        _logger.info("Final Domain: %s", domain)
         _logger.info("Context: %s", ctx)
         _logger.info("=" * 80)
 
@@ -136,6 +160,7 @@ class AccountFinancialReportLine(models.Model):
             'context': ctx,
             'target': 'current',
         }
+
     # -------------------------------------------------------------------------
     # Section Totals
     # -------------------------------------------------------------------------

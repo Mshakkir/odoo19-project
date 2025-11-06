@@ -10,12 +10,12 @@ class ReportFinancial(models.AbstractModel):
     def _compute_account_balance(self, accounts):
         """Override to add analytic distribution filtering"""
 
-        # Get the SINGLE analytic account for this computation
-        analytic_account_id = self.env.context.get('current_analytic_id')
+        # Get analytic filter from context
+        analytic_account_ids = self.env.context.get('analytic_account_ids', [])
 
         _logger.info("=" * 80)
         _logger.info("COMPUTE ACCOUNT BALANCE - DEBUG INFO")
-        _logger.info("Current analytic_account_id: %s", analytic_account_id)
+        _logger.info("Context analytic_account_ids: %s", analytic_account_ids)
         _logger.info("=" * 80)
 
         mapping = {
@@ -35,165 +35,166 @@ class ReportFinancial(models.AbstractModel):
         tables, where_clause, where_params = self.env['account.move.line']._query_get()
         tables = (tables or "account_move_line").replace('"', '')
         where_clause = where_clause.strip() if where_clause else ''
-        where_params = where_params or []
+        where_params = list(where_params) if where_params else []
+
+        _logger.info("Base where_clause: %s", where_clause)
+        _logger.info("Base where_params: %s", where_params)
 
         # Build WHERE conditions
         wheres = []
         if where_clause:
             wheres.append("(%s)" % where_clause)
 
-        # Add analytic filter for SINGLE warehouse
-        if analytic_account_id:
-            _logger.info("Adding analytic filter for ID: %s", analytic_account_id)
-            # Use JSONB operators for single analytic account
-            analytic_filter = f"(analytic_distribution ? '{int(analytic_account_id)}')"
-            wheres.append(analytic_filter)
-            _logger.info("Analytic filter added: %s", analytic_filter)
+        # Add analytic filter if present
+        if analytic_account_ids:
+            _logger.info("Adding analytic filter for IDs: %s", analytic_account_ids)
 
-        filters = (" AND ".join(wheres)) and " AND " + " AND ".join(wheres) or ""
+            # Build analytic condition - check if ANY of the selected analytic accounts exist in the distribution
+            analytic_conditions = []
+            for analytic_id in analytic_account_ids:
+                # Convert to string as Odoo stores analytic_distribution keys as strings
+                # Check if the key exists in the JSONB field
+                analytic_conditions.append(
+                    f"(account_move_line.analytic_distribution ? '{str(analytic_id)}')"
+                )
+
+            if analytic_conditions:
+                analytic_filter = "(" + " OR ".join(analytic_conditions) + ")"
+                wheres.append(analytic_filter)
+                _logger.info("Analytic filter added: %s", analytic_filter)
+        else:
+            _logger.info("No analytic filter - showing all data")
+
+        # FIXED: Correct filter construction
+        filters = (" AND " + " AND ".join(wheres)) if wheres else ""
 
         request = (
                 "SELECT account_id as id, " + ', '.join(mapping.values()) +
                 " FROM " + tables +
-                " WHERE account_id IN %s " + filters +
+                " WHERE account_id IN %s" + filters +
                 " GROUP BY account_id"
         )
 
-        params = [tuple(accounts.ids)] + list(where_params)
+        params = [tuple(accounts.ids)] + where_params
 
         _logger.info("FINAL SQL QUERY:")
         _logger.info(request)
         _logger.info("QUERY PARAMS: %s", params)
 
-        self.env.cr.execute(request, tuple(params))
+        try:
+            self.env.cr.execute(request, tuple(params))
 
-        result_count = 0
-        for row in self.env.cr.dictfetchall():
-            res[row['id']] = {
-                'balance': row.get('balance', 0.0),
-                'debit': row.get('debit', 0.0),
-                'credit': row.get('credit', 0.0),
-            }
-            result_count += 1
+            result_count = 0
+            for row in self.env.cr.dictfetchall():
+                res[row['id']] = {
+                    'balance': row.get('balance', 0.0),
+                    'debit': row.get('debit', 0.0),
+                    'credit': row.get('credit', 0.0),
+                }
+                result_count += 1
 
-        _logger.info("Query returned %s account records", result_count)
+            _logger.info("Query returned %s account records", result_count)
+
+            # Log sample results for debugging
+            if result_count > 0:
+                sample_accounts = list(res.items())[:3]
+                _logger.info("Sample results: %s", sample_accounts)
+            else:
+                _logger.warning("WARNING: Query returned ZERO results!")
+
+        except Exception as e:
+            _logger.error("SQL Query Error: %s", str(e))
+            _logger.error("Query: %s", request)
+            _logger.error("Params: %s", params)
+            raise
+
         _logger.info("=" * 80)
-
         return res
-
-    def _get_warehouse_report_data(self, docids, data, analytic_id=None):
-        """Generate report data for a single warehouse or combined"""
-
-        # Set context with single analytic account
-        context = dict(self.env.context)
-        if analytic_id:
-            context['current_analytic_id'] = analytic_id
-
-        # Call parent with updated context
-        if data and data.get('form') and data['form'].get('used_context'):
-            used_context = data['form']['used_context'].copy()
-            used_context['current_analytic_id'] = analytic_id
-            result = super(ReportFinancial, self.with_context(**used_context))._get_report_values(docids, data)
-        else:
-            result = super(ReportFinancial, self.with_context(**context))._get_report_values(docids, data)
-
-        return result if result else {}
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        """Override to generate separate reports for each warehouse"""
+        """Override to pass analytic information for display"""
 
         _logger.info("=" * 80)
         _logger.info("GET REPORT VALUES - DEBUG INFO")
         _logger.info("Docids: %s", docids)
+        _logger.info("Data: %s", data)
 
-        if not data or not data.get('form'):
-            # No form data, return default
-            return super(ReportFinancial, self)._get_report_values(docids, data)
-
-        form_data = data['form']
-
-        # Handle analytic account IDs
-        analytic_data = form_data.get('analytic_account_ids', [])
+        # Extract context and analytic IDs early
+        used_context = {}
         analytic_ids = []
 
-        # Normalize the many2many field data
-        if analytic_data:
-            if isinstance(analytic_data, (list, tuple)) and analytic_data:
-                if isinstance(analytic_data[0], (list, tuple)):
-                    # Format: [(6, 0, [ids])]
-                    analytic_ids = analytic_data[0][2] if len(analytic_data[0]) > 2 else []
-                else:
-                    # Format: [id1, id2, ...]
-                    analytic_ids = list(analytic_data)
+        if data and data.get('form'):
+            form_data = data['form']
+            _logger.info("Form data keys: %s", form_data.keys())
 
-        _logger.info("Normalized analytic_ids: %s", analytic_ids)
+            # Get context from form
+            if form_data.get('used_context'):
+                used_context = form_data['used_context']
+                _logger.info("Used context from form: %s", used_context)
 
-        # If no analytic accounts or single account, use simple mode
-        if not analytic_ids or len(analytic_ids) == 1:
-            analytic_id = analytic_ids[0] if analytic_ids else None
-            result = self._get_warehouse_report_data(docids, data, analytic_id)
+            # Extract analytic account IDs
+            analytic_data = form_data.get('analytic_account_ids', [])
 
-            # Add display information
-            result['selected_warehouses'] = False
-            result['show_warehouse_breakdown'] = False
-            result['single_warehouse_mode'] = True
-            result['warehouse_reports'] = []
+            # Normalize the many2many field data
+            if analytic_data:
+                if isinstance(analytic_data, (list, tuple)) and analytic_data:
+                    if isinstance(analytic_data[0], (list, tuple)) and len(analytic_data[0]) > 2:
+                        # Format: [(6, 0, [ids])]
+                        analytic_ids = analytic_data[0][2]
+                    else:
+                        # Format: [id1, id2, ...]
+                        analytic_ids = list(analytic_data)
 
-            if analytic_id:
-                analytic_account = self.env['account.analytic.account'].browse(analytic_id)
-                result['warehouse_display'] = f'{analytic_account.name} (Separate Report)'
-                result['selected_warehouses'] = analytic_account
+            _logger.info("Extracted analytic_ids: %s", analytic_ids)
+
+            # CRITICAL: Ensure analytic_ids are in the context
+            if analytic_ids:
+                used_context['analytic_account_ids'] = analytic_ids
+
+        # Call parent with proper context
+        if used_context:
+            _logger.info("Calling parent with context: %s", used_context)
+            result = super(ReportFinancial, self.with_context(**used_context))._get_report_values(docids, data)
+        else:
+            _logger.info("Calling parent without additional context")
+            result = super(ReportFinancial, self)._get_report_values(docids, data)
+
+        if not result:
+            result = {}
+
+        # Initialize default values
+        result['selected_warehouses'] = False
+        result['warehouse_display'] = 'All Warehouses (Combined)'
+        result['include_combined'] = False
+        result['show_warehouse_breakdown'] = False
+        result['single_warehouse_mode'] = False
+
+        # Process warehouse/analytic display information
+        if analytic_ids:
+            analytic_accounts = self.env['account.analytic.account'].browse(analytic_ids)
+            result['selected_warehouses'] = analytic_accounts
+            names = [acc.name for acc in analytic_accounts]
+
+            if len(analytic_accounts) == 1:
+                # Single warehouse mode
+                result['warehouse_display'] = f'{names[0]} (Separate Report)'
+                result['show_warehouse_breakdown'] = False
+                result['single_warehouse_mode'] = True
+                _logger.info("SINGLE WAREHOUSE MODE: %s", names[0])
             else:
-                result['warehouse_display'] = 'All Warehouses (Combined)'
+                # Multiple warehouses mode
+                result['warehouse_display'] = ', '.join(names)
+                result['show_warehouse_breakdown'] = True
+                result['single_warehouse_mode'] = False
+                if data and data.get('form'):
+                    result['include_combined'] = bool(data['form'].get('include_combined', False))
+                _logger.info("MULTIPLE WAREHOUSE MODE: %s", names)
+        else:
+            # All warehouses mode
+            _logger.info("ALL WAREHOUSES MODE")
 
-            _logger.info("SINGLE MODE: %s", result['warehouse_display'])
-            _logger.info("=" * 80)
-            return result
-
-        # Multiple warehouses - generate separate reports
-        analytic_accounts = self.env['account.analytic.account'].browse(analytic_ids)
-        warehouse_reports = []
-
-        _logger.info("MULTIPLE WAREHOUSE MODE - Generating %s separate reports", len(analytic_ids))
-
-        # Generate report for each warehouse
-        for analytic_account in analytic_accounts:
-            _logger.info("Generating report for warehouse: %s (ID: %s)",
-                         analytic_account.name, analytic_account.id)
-
-            warehouse_data = self._get_warehouse_report_data(docids, data, analytic_account.id)
-
-            warehouse_reports.append({
-                'warehouse_name': analytic_account.name,
-                'warehouse_id': analytic_account.id,
-                'report_data': warehouse_data,
-            })
-
-        # Generate combined report if requested
-        include_combined = bool(form_data.get('include_combined', False))
-        combined_data = None
-
-        if include_combined:
-            _logger.info("Generating COMBINED report")
-            combined_data = self._get_warehouse_report_data(docids, data, None)
-
-        # Build final result
-        result = warehouse_reports[0]['report_data'].copy() if warehouse_reports else {}
-
-        result.update({
-            'selected_warehouses': analytic_accounts,
-            'warehouse_display': ', '.join([acc.name for acc in analytic_accounts]),
-            'show_warehouse_breakdown': True,
-            'single_warehouse_mode': False,
-            'warehouse_reports': warehouse_reports,
-            'include_combined': include_combined,
-            'combined_report_data': combined_data,
-        })
-
-        _logger.info("Generated %s warehouse reports", len(warehouse_reports))
-        if include_combined:
-            _logger.info("Combined report included")
+        _logger.info("Final result keys: %s", result.keys())
         _logger.info("=" * 80)
 
         return result

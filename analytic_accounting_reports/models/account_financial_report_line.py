@@ -64,7 +64,6 @@ class AccountFinancialReportLine(models.Model):
         """Open General Ledger view for this account with applied filters."""
         self.ensure_one()
 
-        # Guard against non-account lines
         if not self.account_id or self.is_section or self.is_total:
             return {
                 'type': 'ir.actions.client',
@@ -77,10 +76,8 @@ class AccountFinancialReportLine(models.Model):
                 }
             }
 
-        # Base domain
         domain = [('account_id', '=', self.account_id.id)]
 
-        # Date filters
         if self.date_from:
             domain.append(('date', '>=', self.date_from))
         if self.date_to:
@@ -88,48 +85,29 @@ class AccountFinancialReportLine(models.Model):
         if self.target_move == 'posted':
             domain.append(('move_id.state', '=', 'posted'))
 
-        # ---------------------------------------------------------------------
-        # ✅ FIXED: Analytic filtering (Odoo 19 JSON-safe)
-        # ---------------------------------------------------------------------
+        # ✅ FIXED: Handle both normal and JSON-based analytic filters (even single)
         if self.analytic_account_ids:
-            analytic_domain = []
-            aml_fields = self.env['account.move.line']._fields  # dynamic field detection
-
+            analytic_domain_parts = []
             for analytic in self.analytic_account_ids:
-                # JSON-based analytics (Odoo 16+)
-                analytic_domain.append(('analytic_distribution', 'ilike', f'"{analytic.id}"'))
+                analytic_domain_parts.append(('analytic_account_id', '=', analytic.id))
+                analytic_domain_parts.append(('analytic_distribution', 'ilike', f'"{analytic.id}"'))
 
-                # Optional backward-compatibility or custom analytic fields
-                if 'x_analytic_account_id' in aml_fields:
-                    analytic_domain.append(('x_analytic_account_id', '=', analytic.id))
-                if 'analytic_id' in aml_fields:
-                    analytic_domain.append(('analytic_id', '=', analytic.id))
-                if 'analytic_account_id' in aml_fields:
-                    analytic_domain.append(('analytic_account_id', '=', analytic.id))
+            # Build OR logic even if only one analytic is selected
+            total_conditions = len(analytic_domain_parts)
+            or_operator = ['|'] * (total_conditions - 1)
+            domain = domain + or_operator + analytic_domain_parts
 
-            # Combine all analytic filters with OR logic
-            if len(analytic_domain) > 1:
-                or_operator = ['|'] * (len(analytic_domain) - 1)
-                domain = domain + or_operator + analytic_domain
-            else:
-                domain.extend(analytic_domain)
-
-        # ---------------------------------------------------------------------
-        # Context setup
-        # ---------------------------------------------------------------------
         ctx = dict(self.env.context or {})
         ctx.update({
             'search_default_posted': 1 if self.target_move == 'posted' else 0,
             'default_account_id': self.account_id.id,
         })
 
-        # Warehouse info for display name
         warehouse_info = ''
         if self.analytic_account_ids:
             warehouse_names = ', '.join(self.analytic_account_ids.mapped('name'))
             warehouse_info = f' - {warehouse_names}'
 
-        # Date range info
         date_info = ''
         if self.date_from and self.date_to:
             date_info = f' ({self.date_from} to {self.date_to})'

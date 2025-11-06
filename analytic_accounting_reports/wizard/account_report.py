@@ -100,6 +100,7 @@ class AccountingReport(models.TransientModel):
         if self.account_report_id and 'loss' in self.account_report_id.name.lower():
             report_type = 'profit_loss'
 
+        # Clear old lines
         self.env['account.financial.report.line'].search([]).unlink()
 
         ctx = self._build_contexts({'form': self.read()[0]})
@@ -108,12 +109,12 @@ class AccountingReport(models.TransientModel):
         date_to = ctx.get('date_to')
         target_move = ctx.get('target_move', 'posted')
 
-        # ✅ Updated account group mapping
+        # ✅ Updated account type mapping
         if report_type == 'balance_sheet':
             group_mapping = OrderedDict([
                 ('ASSETS', [
-                    'asset_receivable', 'asset_bank', 'asset_current',
-                    'asset_non_current', 'asset_prepayments', 'asset_fixed'
+                    'asset_receivable', 'asset_bank', 'asset_cash',
+                    'asset_current', 'asset_non_current', 'asset_prepayments', 'asset_fixed'
                 ]),
                 ('LIABILITIES', [
                     'liability_payable', 'liability_credit_card',
@@ -149,7 +150,7 @@ class AccountingReport(models.TransientModel):
             balances = FinancialReport.with_context(ctx)._compute_account_balance(accounts)
             total_balance = total_debit = total_credit = 0.0
 
-            # Section header (e.g., ASSETS, LIABILITIES)
+            # Section Header
             section = ReportLine.create({
                 'name': f"<b>{group_name}</b>",
                 'is_section': True,
@@ -166,16 +167,13 @@ class AccountingReport(models.TransientModel):
                 val = balances.get(acc.id)
                 if not val:
                     continue
-                balance = val.get('balance', 0.0)
+                balance = abs(val.get('balance', 0.0))  # ✅ Always positive
                 debit = val.get('debit', 0.0)
                 credit = val.get('credit', 0.0)
 
                 # ✅ Skip zero-balance accounts
                 if abs(balance) < 0.0001 and abs(debit) < 0.0001 and abs(credit) < 0.0001:
                     continue
-
-                if report_type == 'profit_loss' and group_name == 'INCOME':
-                    balance = abs(balance)  # show positive income
 
                 total_balance += balance
                 total_debit += debit
@@ -197,6 +195,7 @@ class AccountingReport(models.TransientModel):
                 })
                 sequence += 1
 
+            # Section total
             section.write({
                 'debit': total_debit,
                 'credit': total_credit,
@@ -205,7 +204,7 @@ class AccountingReport(models.TransientModel):
             group_totals[group_name] = total_balance
             sequence += 1
 
-        # ✅ Compute Net Profit / Loss and show on report
+        # ✅ Compute Net Profit / Loss
         FinancialReport = self.env['report.accounting_pdf_reports.report_financial']
         income_accounts = self.env['account.account'].search([
             ('account_type', 'in', ['income', 'other_income'])
@@ -214,22 +213,24 @@ class AccountingReport(models.TransientModel):
             ('account_type', 'in', ['expense', 'other_expense', 'depreciation', 'cost_of_revenue'])
         ])
 
-        income_total = sum(v.get('balance', 0.0) for v in FinancialReport.with_context(ctx)._compute_account_balance(income_accounts).values())
-        expense_total = sum(v.get('balance', 0.0) for v in FinancialReport.with_context(ctx)._compute_account_balance(expense_accounts).values())
-        net = income_total - expense_total
+        income_total = abs(sum(v.get('balance', 0.0) for v in
+                               FinancialReport.with_context(ctx)._compute_account_balance(income_accounts).values()))
+        expense_total = abs(sum(v.get('balance', 0.0) for v in
+                                FinancialReport.with_context(ctx)._compute_account_balance(expense_accounts).values()))
 
+        net = income_total - expense_total
         label = "<b>Net Profit</b>" if net > 0 else "<b>Net Loss</b>"
 
-        # ✅ In Balance Sheet → show under Equity
+        # ✅ For Balance Sheet → place under EQUITY
         if report_type == 'balance_sheet':
-            section = ReportLine.search([('name', 'ilike', 'EQUITY')], limit=1)
-            sequence = (section.sequence + 1) if section else 9999
+            equity_section = ReportLine.search([('name', 'ilike', 'EQUITY')], limit=1)
+            sequence = (equity_section.sequence + 1) if equity_section else 9999
 
         ReportLine.create({
             'name': label,
             'is_total': True,
             'report_type': report_type,
-            'balance': net,
+            'balance': abs(net),  # ✅ Always positive display
             'sequence': sequence,
             'date_from': date_from,
             'date_to': date_to,
@@ -246,7 +247,6 @@ class AccountingReport(models.TransientModel):
             'domain': [('report_type', '=', report_type)],
             'context': ctx,
         }
-
 
 
 

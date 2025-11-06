@@ -95,12 +95,18 @@ class AccountingReport(models.TransientModel):
     # Main Report Action
     # -----------------------------
     def action_view_details(self):
+        """
+        Build view details for Balance Sheet or Profit & Loss.
+        - Shows only non-zero accounts
+        - Shows Income & Expense as positive
+        - Places Net Profit/Loss immediately after the last Equity account
+        """
         self.ensure_one()
         report_type = 'balance_sheet'
         if self.account_report_id and 'loss' in self.account_report_id.name.lower():
             report_type = 'profit_loss'
 
-        # Clear old lines
+        # Clear old temporary lines
         self.env['account.financial.report.line'].search([]).unlink()
 
         ctx = self._build_contexts({'form': self.read()[0]})
@@ -109,7 +115,7 @@ class AccountingReport(models.TransientModel):
         date_to = ctx.get('date_to')
         target_move = ctx.get('target_move', 'posted')
 
-        # ✅ Account type group mapping
+        # Account groups (ordered)
         if report_type == 'balance_sheet':
             group_mapping = OrderedDict([
                 ('ASSETS', [
@@ -132,6 +138,7 @@ class AccountingReport(models.TransientModel):
                 ]),
                 ('EXPENSES', [
                     'expense', 'other_expense', 'depreciation',
+                    # common technical keys for cost of revenue / direct cost in Odoo variants
                     'expense_direct_cost', 'expense_cost_of_revenue'
                 ]),
             ])
@@ -141,19 +148,18 @@ class AccountingReport(models.TransientModel):
 
         sequence = 1
         group_totals = {}
-        equity_section_last_seq = None  # Track last sequence for equity
+        equity_last_account_seq = None  # sequence index of last equity account (to insert net after it)
 
+        # Build sections and account lines
         for group_name, account_types in group_mapping.items():
-            accounts = self.env['account.account'].search([
-                ('account_type', 'in', account_types)
-            ])
+            accounts = self.env['account.account'].search([('account_type', 'in', account_types)])
             if not accounts:
                 continue
 
             balances = FinancialReport.with_context(ctx)._compute_account_balance(accounts)
             total_balance = total_debit = total_credit = 0.0
 
-            # Section Header
+            # Create section header (ASSETS / LIABILITIES / EQUITY / INCOME / EXPENSES)
             section = ReportLine.create({
                 'name': f"<b>{group_name}</b>",
                 'is_section': True,
@@ -166,16 +172,17 @@ class AccountingReport(models.TransientModel):
             })
             sequence += 1
 
+            # Create account lines under the section
             for acc in accounts:
-                val = balances.get(acc.id)
-                if not val:
+                vals = balances.get(acc.id)
+                if not vals:
                     continue
+                # display positive amounts for readability
+                balance = abs(vals.get('balance', 0.0))
+                debit = vals.get('debit', 0.0)
+                credit = vals.get('credit', 0.0)
 
-                balance = abs(val.get('balance', 0.0))  # ✅ Always positive
-                debit = val.get('debit', 0.0)
-                credit = val.get('credit', 0.0)
-
-                # ✅ Skip zero-balance accounts
+                # skip accounts with no activity
                 if abs(balance) < 0.0001 and abs(debit) < 0.0001 and abs(credit) < 0.0001:
                     continue
 
@@ -183,6 +190,7 @@ class AccountingReport(models.TransientModel):
                 total_debit += debit
                 total_credit += credit
 
+                # create the account line
                 ReportLine.create({
                     'name': acc.name,
                     'code': acc.code,
@@ -197,9 +205,14 @@ class AccountingReport(models.TransientModel):
                     'target_move': target_move,
                     'analytic_account_ids': [(6, 0, analytic_ids)],
                 })
+
+                # If this account is part of EQUITY, remember its sequence to insert Net after it
+                if group_name == 'EQUITY':
+                    equity_last_account_seq = sequence
+
                 sequence += 1
 
-            # Section totals
+            # update section totals
             section.write({
                 'debit': total_debit,
                 'credit': total_credit,
@@ -207,41 +220,48 @@ class AccountingReport(models.TransientModel):
             })
 
             group_totals[group_name] = total_balance
-
-            # Track last Equity sequence
-            if group_name == 'EQUITY':
-                equity_section_last_seq = sequence
-
             sequence += 1
 
-        # ✅ Compute Net Profit / Loss
-        FinancialReport = self.env['report.accounting_pdf_reports.report_financial']
-        income_accounts = self.env['account.account'].search([
-            ('account_type', 'in', ['income', 'other_income'])
-        ])
-        expense_accounts = self.env['account.account'].search([
-            ('account_type', 'in', ['expense', 'other_expense', 'depreciation', 'cost_of_revenue'])
-        ])
+        # -------------------------
+        # Net Profit / Net Loss
+        # -------------------------
+        # For Profit & Loss, use group_totals computed above (INCOME and EXPENSES)
+        if report_type == 'profit_loss':
+            income_total = group_totals.get('INCOME', 0.0)
+            expense_total = group_totals.get('EXPENSES', 0.0)
+            net = income_total - expense_total  # Income - Expenses
+        else:
+            # For Balance Sheet, compute P&L for the same period and use it as retained earnings
+            income_accounts = self.env['account.account'].search([('account_type', 'in', ['income', 'other_income'])])
+            expense_accounts = self.env['account.account'].search([('account_type', 'in',
+                                                                    ['expense', 'other_expense', 'depreciation',
+                                                                     'expense_direct_cost',
+                                                                     'expense_cost_of_revenue'])])
 
-        income_total = abs(sum(v.get('balance', 0.0) for v in
-                               FinancialReport.with_context(ctx)._compute_account_balance(income_accounts).values()))
-        expense_total = abs(sum(v.get('balance', 0.0) for v in
-                                FinancialReport.with_context(ctx)._compute_account_balance(expense_accounts).values()))
+            inc_bal = sum(v.get('balance', 0.0) for v in
+                          FinancialReport.with_context(ctx)._compute_account_balance(income_accounts).values())
+            exp_bal = sum(v.get('balance', 0.0) for v in
+                          FinancialReport.with_context(ctx)._compute_account_balance(expense_accounts).values())
 
-        net = income_total - expense_total
+            # inc_bal is often negative in Odoo accounting representation, bring to positive for real-world formula
+            net = abs(inc_bal) - abs(exp_bal)
+
         label = "<b>Net Profit</b>" if net > 0 else "<b>Net Loss</b>"
+        display_value = abs(net)
 
-        # ✅ Place Net Profit/Loss UNDER Equity accounts, not below section
-        equity_sequence = equity_section_last_seq or sequence
-        if report_type == 'balance_sheet':
-            equity_sequence += 1  # place right after last equity account
+        # Insert Net Profit/Loss immediately after last equity account (if exists)
+        if report_type == 'balance_sheet' and equity_last_account_seq:
+            insert_sequence = equity_last_account_seq + 1
+        else:
+            # otherwise append at the end
+            insert_sequence = sequence + 1
 
         ReportLine.create({
             'name': label,
             'is_total': True,
             'report_type': report_type,
-            'balance': abs(net),  # ✅ Always positive display
-            'sequence': equity_sequence,
+            'balance': display_value,
+            'sequence': insert_sequence,
             'date_from': date_from,
             'date_to': date_to,
             'target_move': target_move,

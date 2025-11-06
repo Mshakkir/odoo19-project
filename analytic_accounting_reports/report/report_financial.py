@@ -92,74 +92,74 @@ class ReportFinancial(models.AbstractModel):
 
         return res
 
-    def _get_warehouse_breakdown(self, accounts):
-        """Get balance breakdown by warehouse for the accounts"""
-        if not accounts:
-            return {}, []
+    # def _get_warehouse_breakdown(self, accounts):
+    #     """Get balance breakdown by warehouse for the accounts"""
+    #     if not accounts:
+    #         return {}, []
+    #
+    #     analytic_account_ids = self.env.context.get('analytic_account_ids', [])
+    #
+    #     if analytic_account_ids:
+    #         warehouses = self.env['account.analytic.account'].browse(analytic_account_ids)
+    #     else:
+    #         # If no specific warehouses selected, get all
+    #         warehouses = self.env['account.analytic.account'].search([], order='name')
+    #
+    #     if not warehouses:
+    #         return {}, []
 
-        analytic_account_ids = self.env.context.get('analytic_account_ids', [])
-
-        if analytic_account_ids:
-            warehouses = self.env['account.analytic.account'].browse(analytic_account_ids)
-        else:
-            # If no specific warehouses selected, get all
-            warehouses = self.env['account.analytic.account'].search([], order='name')
-
-        if not warehouses:
-            return {}, []
-
-        # Initialize result structure
-        result = {}
-        for account in accounts:
-            result[account.id] = {}
-            for w in warehouses:
-                result[account.id][w.id] = {
-                    'balance': 0.0,
-                    'debit': 0.0,
-                    'credit': 0.0,
-                    'name': w.name
-                }
-
-        # Get base query components
-        tables, where_clause, where_params = self.env['account.move.line']._query_get()
-        tables = (tables or "account_move_line").replace('"', '')
-        where_clause = where_clause.strip() if where_clause else ''
-        where_params = where_params or []
-
-        # Query each warehouse separately
-        for warehouse in warehouses:
-            wheres = []
-            if where_clause:
-                wheres.append("(%s)" % where_clause)
-
-            # Filter for specific warehouse only using JSONB operator
-            wheres.append(f"(analytic_distribution ? '{int(warehouse.id)}')")
-
-            filters = (" AND ".join(wheres)) and " AND " + " AND ".join(wheres) or ""
-
-            request = f"""
-                SELECT account_id,
-                       COALESCE(SUM(debit), 0) as debit,
-                       COALESCE(SUM(credit), 0) as credit,
-                       COALESCE(SUM(debit), 0) - COALESCE(SUM(credit), 0) as balance
-                FROM {tables}
-                WHERE account_id IN %s {filters}
-                GROUP BY account_id
-            """
-            params = [tuple(accounts.ids)] + list(where_params)
-            self.env.cr.execute(request, tuple(params))
-
-            for row in self.env.cr.dictfetchall():
-                acc_id = row.get('account_id')
-                if acc_id in result:
-                    result[acc_id][warehouse.id] = {
-                        'balance': row.get('balance', 0.0),
-                        'debit': row.get('debit', 0.0),
-                        'credit': row.get('credit', 0.0),
-                        'name': warehouse.name
-                    }
-
-        return result, warehouses
+        # # Initialize result structure
+        # result = {}
+        # for account in accounts:
+        #     result[account.id] = {}
+        #     for w in warehouses:
+        #         result[account.id][w.id] = {
+        #             'balance': 0.0,
+        #             'debit': 0.0,
+        #             'credit': 0.0,
+        #             'name': w.name
+        #         }
+        #
+        # # Get base query components
+        # tables, where_clause, where_params = self.env['account.move.line']._query_get()
+        # tables = (tables or "account_move_line").replace('"', '')
+        # where_clause = where_clause.strip() if where_clause else ''
+        # where_params = where_params or []
+        #
+        # # Query each warehouse separately
+        # for warehouse in warehouses:
+        #     wheres = []
+        #     if where_clause:
+        #         wheres.append("(%s)" % where_clause)
+        #
+        #     # Filter for specific warehouse only using JSONB operator
+        #     wheres.append(f"(analytic_distribution ? '{int(warehouse.id)}')")
+        #
+        #     filters = (" AND ".join(wheres)) and " AND " + " AND ".join(wheres) or ""
+        #
+        #     request = f"""
+        #         SELECT account_id,
+        #                COALESCE(SUM(debit), 0) as debit,
+        #                COALESCE(SUM(credit), 0) as credit,
+        #                COALESCE(SUM(debit), 0) - COALESCE(SUM(credit), 0) as balance
+        #         FROM {tables}
+        #         WHERE account_id IN %s {filters}
+        #         GROUP BY account_id
+        #     """
+        #     params = [tuple(accounts.ids)] + list(where_params)
+        #     self.env.cr.execute(request, tuple(params))
+        #
+        #     for row in self.env.cr.dictfetchall():
+        #         acc_id = row.get('account_id')
+        #         if acc_id in result:
+        #             result[acc_id][warehouse.id] = {
+        #                 'balance': row.get('balance', 0.0),
+        #                 'debit': row.get('debit', 0.0),
+        #                 'credit': row.get('credit', 0.0),
+        #                 'name': warehouse.name
+        #             }
+        #
+        # return result, warehouses
 
     @api.model
     def _get_report_values(self, docids, data=None):

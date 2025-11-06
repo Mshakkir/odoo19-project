@@ -20,12 +20,12 @@
     </record>
 
     <!-- Report Action -->
-    <record id="action_report_bank_book_analytic" model="ir.actions.report">
+    <record id="action_report_bankbook_analytic" model="ir.actions.report">
         <field name="name">Bank Book with Analytic</field>
         <field name="model">account.bankbook.report</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">bank_book_analytic.report_bankbook_analytic</field>
-        <field name="report_file">bank_book_analytic.report_bankbook_analytic</field>
+        <field name="report_name">bankbook_analytic.report_bankbook_analytic</field>
+        <field name="report_file">bankbook_analytic.report_bankbook_analytic</field>
         <field name="binding_model_id" ref="om_account_daily_reports.model_account_bankbook_report"/>
         <field name="binding_type">report</field>
         <field name="print_report_name">'Bank Book - %s' % (object.date_from)</field>

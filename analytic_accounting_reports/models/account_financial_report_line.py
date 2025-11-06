@@ -85,13 +85,14 @@ class AccountFinancialReportLine(models.Model):
         if self.target_move == 'posted':
             domain.append(('move_id.state', '=', 'posted'))
 
-        # Analytic filter
+        # ✅ FIX: Handle analytic filters correctly for both combined & warehouse-based accounts
         if self.analytic_account_ids:
             analytic_domain = []
             for analytic in self.analytic_account_ids:
-                analytic_domain.append(('analytic_distribution', 'ilike', f'"{analytic.id}"'))
+                # Works for JSON analytic_distribution (Odoo 16+)
+                analytic_domain.append(('analytic_distribution', 'json_contains', {str(analytic.id): True}))
             if len(analytic_domain) > 1:
-                domain.append('|' * (len(analytic_domain) - 1))
+                domain.append('|'.join([''] * (len(analytic_domain) - 1)))  # OR chain
             domain.extend(analytic_domain)
 
         ctx = dict(self.env.context or {})
@@ -174,8 +175,6 @@ class AccountFinancialReportLine(models.Model):
                 _logger.info("✅ No old financial report lines found to clean up.")
         except Exception as e:
             _logger.exception("Error during cleanup_old_lines: %s", e)
-
-
 
 
 

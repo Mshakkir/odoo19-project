@@ -87,19 +87,19 @@ class AccountFinancialReportLine(models.Model):
         if self.target_move == 'posted':
             domain.append(('move_id.state', '=', 'posted'))
 
-
-        # ✅ FIXED: Only use analytic_distribution JSON field (modern Odoo)
+        # ✅ FIXED: Properly handle analytic_distribution for both single and multiple analytics
         if self.analytic_account_ids:
             analytic_domain_parts = []
             for analytic in self.analytic_account_ids:
                 analytic_domain_parts.append(('analytic_distribution', 'ilike', f'"{analytic.id}"'))
 
-            # Build OR chain for multiple analytics
+            # Build OR chain for multiple analytics OR add single condition
             if len(analytic_domain_parts) > 1:
                 or_operator = ['|'] * (len(analytic_domain_parts) - 1)
                 domain = domain + or_operator + analytic_domain_parts
             else:
-                domain.extend(analytic_domain_parts)
+                # ✅ FIX: For single analytic, append the single tuple directly
+                domain.append(analytic_domain_parts[0])
 
         ctx = dict(self.env.context or {})
         ctx.update({

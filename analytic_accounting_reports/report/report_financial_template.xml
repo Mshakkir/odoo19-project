@@ -1,13 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="report_financial_inherit" inherit_id="accounting_pdf_reports.report_financial">
-        <xpath expr="//div[@class='row mt32 mb32']" position="after">
-            <div class="row mb16" t-if="warehouse_display">
-                <div class="col-12">
-                    <strong>Warehouse Selection: </strong>
-                    <span t-esc="warehouse_display"/>
-                </div>
-            </div>
+        <xpath expr="//t[@t-call='accounting_pdf_reports.external_layout']" position="replace">
+            <t t-foreach="warehouse_reports" t-as="report_data">
+                <t t-call="accounting_pdf_reports.external_layout">
+                    <div class="page">
+                        <div class="row mb16" t-if="report_data.get('warehouse_display')">
+                            <div class="col-12">
+                                <strong>Warehouse Selection:</strong>
+                                <span t-esc="report_data['warehouse_display']"/>
+                            </div>
+                        </div>
+
+                        <t t-set="docs" t-value="report_data.get('docs')"/>
+                        <t t-set="lines_data" t-value="report_data.get('lines_data')"/>
+                        <t t-set="data" t-value="report_data"/>
+                        <t t-call="accounting_pdf_reports.report_financial_body"/>
+                    </div>
+                    <div class="page-break" t-if="not loop.last"/>
+                </t>
+            </t>
         </xpath>
     </template>
 </odoo>
+
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <template id="report_financial_inherit" inherit_id="accounting_pdf_reports.report_financial">-->
+<!--        <xpath expr="//div[@class='row mt32 mb32']" position="after">-->
+<!--            <div class="row mb16" t-if="warehouse_display">-->
+<!--                <div class="col-12">-->
+<!--                    <strong>Warehouse Selection: </strong>-->
+<!--                    <span t-esc="warehouse_display"/>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </xpath>-->
+<!--    </template>-->
+<!--</odoo>-->

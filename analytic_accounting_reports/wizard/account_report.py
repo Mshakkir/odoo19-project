@@ -2,6 +2,7 @@
 from odoo import api, fields, models
 from collections import OrderedDict
 
+
 class AccountingReport(models.TransientModel):
     _inherit = "accounting.report"
 
@@ -94,11 +95,13 @@ class AccountingReport(models.TransientModel):
     # Main Report Action
     # -----------------------------
     def action_view_details(self):
+        """Show detailed Balance Sheet or Profit & Loss with clean totals and Net Profit/Loss."""
         self.ensure_one()
         report_type = 'balance_sheet'
         if self.account_report_id and 'loss' in self.account_report_id.name.lower():
             report_type = 'profit_loss'
 
+        # Clear existing lines
         self.env['account.financial.report.line'].search([]).unlink()
 
         ctx = self._build_contexts({'form': self.read()[0]})
@@ -107,7 +110,7 @@ class AccountingReport(models.TransientModel):
         date_to = ctx.get('date_to')
         target_move = ctx.get('target_move', 'posted')
 
-        # ✅ Order preserved
+        # ✅ Ordered grouping
         if report_type == 'balance_sheet':
             group_mapping = OrderedDict([
                 ('ASSETS', ['asset_non_current', 'asset_current']),
@@ -126,6 +129,9 @@ class AccountingReport(models.TransientModel):
         sequence = 1
         group_totals = {}
 
+        # ==========================
+        # Loop Through Each Section
+        # ==========================
         for group_name, account_types in group_mapping.items():
             accounts = self.env['account.account'].search([('account_type', 'in', account_types)])
             if not accounts:
@@ -134,7 +140,7 @@ class AccountingReport(models.TransientModel):
             balances = FinancialReport.with_context(ctx)._compute_account_balance(accounts)
             total_balance = total_debit = total_credit = 0.0
 
-            # ✅ Create section header first (above accounts)
+            # Section header
             section = ReportLine.create({
                 'name': f"<b>{group_name}</b>",
                 'is_section': True,
@@ -147,18 +153,23 @@ class AccountingReport(models.TransientModel):
             })
             sequence += 1
 
-            # ✅ Add accounts under each section
+            # Accounts under section
             for acc in accounts:
                 val = balances.get(acc.id)
                 if not val:
                     continue
 
-                balance = val.get('balance', 0)
                 debit = val.get('debit', 0.0)
                 credit = val.get('credit', 0.0)
+                balance = val.get('balance', 0.0)
 
+                # ✅ Skip accounts with no movement
+                if abs(balance) < 0.0001 and abs(debit) < 0.0001 and abs(credit) < 0.0001:
+                    continue
+
+                # ✅ Make Income positive for readability
                 if report_type == 'profit_loss' and group_name == 'INCOME':
-                    balance = abs(balance)  # income positive
+                    balance = abs(balance)
 
                 total_balance += balance
                 total_debit += debit
@@ -180,7 +191,7 @@ class AccountingReport(models.TransientModel):
                 })
                 sequence += 1
 
-            # ✅ Section total (optional)
+            # Update section totals
             section.write({
                 'debit': total_debit,
                 'credit': total_credit,
@@ -190,29 +201,39 @@ class AccountingReport(models.TransientModel):
             group_totals[group_name] = total_balance
             sequence += 1
 
-        # ✅ Net Profit / Loss or Retained Earnings
+        # ==========================
+        # Net Profit or Net Loss
+        # ==========================
         if report_type == 'profit_loss':
             income_total = group_totals.get('INCOME', 0.0)
             expense_total = group_totals.get('EXPENSES', 0.0)
-            net = income_total - expense_total
+            net = income_total - expense_total  # ✅ Profit = Income - Expenses
             label = "<b>Net Profit</b>" if net > 0 else "<b>Net Loss</b>"
         else:
-            income_accounts = self.env['account.account'].search([('account_type', 'in', ['income', 'other_income'])])
+            # ✅ For Balance Sheet: compute retained earnings
+            income_accounts = self.env['account.account'].search(
+                [('account_type', 'in', ['income', 'other_income'])]
+            )
             expense_accounts = self.env['account.account'].search(
-                [('account_type', 'in', ['expense', 'other_expense'])])
-            FinancialReport = self.env['report.accounting_pdf_reports.report_financial']
-            inc_bal = abs(sum(v.get('balance', 0) for v in
-                              FinancialReport.with_context(ctx)._compute_account_balance(income_accounts).values()))
-            exp_bal = sum(v.get('balance', 0) for v in
+                [('account_type', 'in', ['expense', 'other_expense'])]
+            )
+
+            inc_bal = sum(v.get('balance', 0.0)
+                          for v in FinancialReport.with_context(ctx)._compute_account_balance(income_accounts).values())
+            exp_bal = sum(v.get('balance', 0.0)
+                          for v in
                           FinancialReport.with_context(ctx)._compute_account_balance(expense_accounts).values())
-            net = inc_bal - exp_bal
+
+            # Flip income to positive (since Odoo income balances are usually negative)
+            net = abs(inc_bal) - exp_bal
             label = "<b>Net Profit</b>" if net > 0 else "<b>Net Loss</b>"
 
+        # Create summary line
         ReportLine.create({
             'name': label,
             'is_total': True,
             'report_type': report_type,
-            'balance': net,
+            'balance': abs(net),
             'sequence': 9999,
             'date_from': date_from,
             'date_to': date_to,
@@ -220,6 +241,9 @@ class AccountingReport(models.TransientModel):
             'analytic_account_ids': [(6, 0, analytic_ids)],
         })
 
+        # ==========================
+        # Return Action
+        # ==========================
         return {
             'type': 'ir.actions.act_window',
             'name': f'{self.account_report_id.name} Details',
@@ -229,14 +253,6 @@ class AccountingReport(models.TransientModel):
             'domain': [('report_type', '=', report_type)],
             'context': ctx,
         }
-
-
-
-
-
-
-
-
 
 
 
@@ -562,107 +578,104 @@ class AccountingReport(models.TransientModel):
 #         }
 
 
-
-
-
-    # def action_view_details(self):
-    #     """Open detailed Balance Sheet or P&L in a window with section headers."""
-    #     self.ensure_one()
-    #
-    #     report_type = 'balance_sheet'
-    #     if self.account_report_id and 'loss' in self.account_report_id.name.lower():
-    #         report_type = 'profit_loss'
-    #
-    #     # Clean old data
-    #     self.env['account.financial.report.line'].search([]).unlink()
-    #
-    #     ctx = self._build_contexts({'form': self.read()[0]})
-    #     analytic_ids = ctx.get('analytic_account_ids', [])
-    #     date_from = ctx.get('date_from')
-    #     date_to = ctx.get('date_to')
-    #     target_move = ctx.get('target_move', 'posted')
-    #
-    #     # Define account type groups
-    #     if report_type == 'balance_sheet':
-    #         group_mapping = {
-    #             'ASSETS': ['asset_non_current', 'asset_current'],
-    #             'LIABILITIES': ['liability_non_current', 'liability_current'],
-    #             'EQUITY': ['equity'],
-    #         }
-    #     else:
-    #         group_mapping = {
-    #             'INCOME': ['income', 'other_income'],
-    #             'EXPENSES': ['expense', 'other_expense'],
-    #         }
-    #
-    #     # ✅ Define correct Odoo internal account type mapping
-    #     account_type_map = {
-    #         'ASSETS': 'asset',
-    #         'LIABILITIES': 'liability',
-    #         'EQUITY': 'equity',
-    #         'INCOME': 'income',
-    #         'EXPENSES': 'expense',
-    #     }
-    #
-    #     ReportLine = self.env['account.financial.report.line']
-    #     FinancialReport = self.env['report.accounting_pdf_reports.report_financial']
-    #
-    #     sequence = 1
-    #
-    #     for group_name, account_types in group_mapping.items():
-    #         accounts = self.env['account.account'].search([('account_type', 'in', account_types)])
-    #         if not accounts:
-    #             continue
-    #
-    #         account_balances = FinancialReport.with_context(ctx)._compute_account_balance(accounts)
-    #
-    #         # ✅ Create section header
-    #         section_line = ReportLine.create({
-    #             'name': group_name,
-    #             'is_section': True,
-    #             'sequence': sequence,
-    #             'report_type': report_type,
-    #             'date_from': date_from,
-    #             'date_to': date_to,
-    #             'target_move': target_move,
-    #             'analytic_account_ids': [(6, 0, analytic_ids)],
-    #         })
-    #         sequence += 1
-    #
-    #         # ✅ Add accounts under this section
-    #         for acc in accounts:
-    #             vals = account_balances.get(acc.id)
-    #             if not vals:
-    #                 continue
-    #             balance = vals.get('balance', 0)
-    #             if abs(balance) < 0.01:
-    #                 continue
-    #
-    #             ReportLine.create({
-    #                 'name': acc.name,
-    #                 'code': acc.code,
-    #                 'account_id': acc.id,
-    #                 'debit': vals.get('debit', 0.0),
-    #                 'credit': vals.get('credit', 0.0),
-    #                 'balance': balance,
-    #                 'report_type': report_type,
-    #                 'sequence': sequence,
-    #                 # ✅ Use correct mapping instead of rstrip()
-    #                 'account_type': account_type_map.get(group_name, 'other'),
-    #                 'date_from': date_from,
-    #                 'date_to': date_to,
-    #                 'target_move': target_move,
-    #                 'analytic_account_ids': [(6, 0, analytic_ids)],
-    #             })
-    #             sequence += 1
-    #
-    #     # ✅ Return the tree view action
-    #     return {
-    #         'type': 'ir.actions.act_window',
-    #         'name': f'{self.account_report_id.name} Details',
-    #         'res_model': 'account.financial.report.line',
-    #         'view_mode': 'list',
-    #         'target': 'current',
-    #         'context': ctx,
-    #         'domain': [('report_type', '=', report_type)],
-    #     }
+# def action_view_details(self):
+#     """Open detailed Balance Sheet or P&L in a window with section headers."""
+#     self.ensure_one()
+#
+#     report_type = 'balance_sheet'
+#     if self.account_report_id and 'loss' in self.account_report_id.name.lower():
+#         report_type = 'profit_loss'
+#
+#     # Clean old data
+#     self.env['account.financial.report.line'].search([]).unlink()
+#
+#     ctx = self._build_contexts({'form': self.read()[0]})
+#     analytic_ids = ctx.get('analytic_account_ids', [])
+#     date_from = ctx.get('date_from')
+#     date_to = ctx.get('date_to')
+#     target_move = ctx.get('target_move', 'posted')
+#
+#     # Define account type groups
+#     if report_type == 'balance_sheet':
+#         group_mapping = {
+#             'ASSETS': ['asset_non_current', 'asset_current'],
+#             'LIABILITIES': ['liability_non_current', 'liability_current'],
+#             'EQUITY': ['equity'],
+#         }
+#     else:
+#         group_mapping = {
+#             'INCOME': ['income', 'other_income'],
+#             'EXPENSES': ['expense', 'other_expense'],
+#         }
+#
+#     # ✅ Define correct Odoo internal account type mapping
+#     account_type_map = {
+#         'ASSETS': 'asset',
+#         'LIABILITIES': 'liability',
+#         'EQUITY': 'equity',
+#         'INCOME': 'income',
+#         'EXPENSES': 'expense',
+#     }
+#
+#     ReportLine = self.env['account.financial.report.line']
+#     FinancialReport = self.env['report.accounting_pdf_reports.report_financial']
+#
+#     sequence = 1
+#
+#     for group_name, account_types in group_mapping.items():
+#         accounts = self.env['account.account'].search([('account_type', 'in', account_types)])
+#         if not accounts:
+#             continue
+#
+#         account_balances = FinancialReport.with_context(ctx)._compute_account_balance(accounts)
+#
+#         # ✅ Create section header
+#         section_line = ReportLine.create({
+#             'name': group_name,
+#             'is_section': True,
+#             'sequence': sequence,
+#             'report_type': report_type,
+#             'date_from': date_from,
+#             'date_to': date_to,
+#             'target_move': target_move,
+#             'analytic_account_ids': [(6, 0, analytic_ids)],
+#         })
+#         sequence += 1
+#
+#         # ✅ Add accounts under this section
+#         for acc in accounts:
+#             vals = account_balances.get(acc.id)
+#             if not vals:
+#                 continue
+#             balance = vals.get('balance', 0)
+#             if abs(balance) < 0.01:
+#                 continue
+#
+#             ReportLine.create({
+#                 'name': acc.name,
+#                 'code': acc.code,
+#                 'account_id': acc.id,
+#                 'debit': vals.get('debit', 0.0),
+#                 'credit': vals.get('credit', 0.0),
+#                 'balance': balance,
+#                 'report_type': report_type,
+#                 'sequence': sequence,
+#                 # ✅ Use correct mapping instead of rstrip()
+#                 'account_type': account_type_map.get(group_name, 'other'),
+#                 'date_from': date_from,
+#                 'date_to': date_to,
+#                 'target_move': target_move,
+#                 'analytic_account_ids': [(6, 0, analytic_ids)],
+#             })
+#             sequence += 1
+#
+#     # ✅ Return the tree view action
+#     return {
+#         'type': 'ir.actions.act_window',
+#         'name': f'{self.account_report_id.name} Details',
+#         'res_model': 'account.financial.report.line',
+#         'view_mode': 'list',
+#         'target': 'current',
+#         'context': ctx,
+#         'domain': [('report_type', '=', report_type)],
+#     }

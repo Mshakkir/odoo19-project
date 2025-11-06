@@ -166,9 +166,6 @@ class ReportFinancial(models.AbstractModel):
         # Initialize default values
         result['selected_warehouses'] = False
         result['warehouse_display'] = 'All Warehouses (Combined)'
-        result['include_combined'] = False
-        result['show_warehouse_breakdown'] = False
-        result['single_warehouse_mode'] = False
 
         # Process warehouse/analytic display information
         if analytic_ids:
@@ -178,18 +175,12 @@ class ReportFinancial(models.AbstractModel):
 
             if len(analytic_accounts) == 1:
                 # Single warehouse mode
-                result['warehouse_display'] = f'{names[0]} (Separate Report)'
-                result['show_warehouse_breakdown'] = False
-                result['single_warehouse_mode'] = True
+                result['warehouse_display'] = f'{names[0]}'
                 _logger.info("SINGLE WAREHOUSE MODE: %s", names[0])
             else:
-                # Multiple warehouses mode
+                # Multiple warehouses mode - combined
                 result['warehouse_display'] = ', '.join(names)
-                result['show_warehouse_breakdown'] = True
-                result['single_warehouse_mode'] = False
-                if data and data.get('form'):
-                    result['include_combined'] = bool(data['form'].get('include_combined', False))
-                _logger.info("MULTIPLE WAREHOUSE MODE: %s", names)
+                _logger.info("MULTIPLE WAREHOUSE MODE (Combined): %s", names)
         else:
             # All warehouses mode
             _logger.info("ALL WAREHOUSES MODE")

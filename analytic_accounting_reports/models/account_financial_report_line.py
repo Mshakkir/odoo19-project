@@ -85,14 +85,15 @@ class AccountFinancialReportLine(models.Model):
         if self.target_move == 'posted':
             domain.append(('move_id.state', '=', 'posted'))
 
-        # ✅ FIXED: Safe analytic filter for Odoo 19 (no json_contains)
+        # ✅ FIXED: Handle both normal and JSON-based analytic filters
         if self.analytic_account_ids:
             analytic_domain = []
             for analytic in self.analytic_account_ids:
-                # Match both simple and nested JSON keys for analytic_distribution
+                analytic_domain.append(('analytic_account_id', '=', analytic.id))
                 analytic_domain.append(('analytic_distribution', 'ilike', f'"{analytic.id}"'))
+
+            # Combine all with OR logic
             if len(analytic_domain) > 1:
-                # Proper OR chaining
                 or_operator = ['|'] * (len(analytic_domain) - 1)
                 domain = domain + or_operator + analytic_domain
             else:

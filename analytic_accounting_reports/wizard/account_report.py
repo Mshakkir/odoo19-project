@@ -109,12 +109,13 @@ class AccountingReport(models.TransientModel):
         date_to = ctx.get('date_to')
         target_move = ctx.get('target_move', 'posted')
 
-        # ✅ Updated account type mapping
+        # ✅ Account type group mapping
         if report_type == 'balance_sheet':
             group_mapping = OrderedDict([
                 ('ASSETS', [
                     'asset_receivable', 'asset_bank', 'asset_cash',
-                    'asset_current', 'asset_non_current', 'asset_prepayments', 'asset_fixed'
+                    'asset_current', 'asset_non_current',
+                    'asset_prepayments', 'asset_fixed'
                 ]),
                 ('LIABILITIES', [
                     'liability_payable', 'liability_credit_card',
@@ -139,6 +140,7 @@ class AccountingReport(models.TransientModel):
 
         sequence = 1
         group_totals = {}
+        equity_section_last_seq = None  # Track last sequence for equity
 
         for group_name, account_types in group_mapping.items():
             accounts = self.env['account.account'].search([
@@ -167,6 +169,7 @@ class AccountingReport(models.TransientModel):
                 val = balances.get(acc.id)
                 if not val:
                     continue
+
                 balance = abs(val.get('balance', 0.0))  # ✅ Always positive
                 debit = val.get('debit', 0.0)
                 credit = val.get('credit', 0.0)
@@ -195,13 +198,19 @@ class AccountingReport(models.TransientModel):
                 })
                 sequence += 1
 
-            # Section total
+            # Section totals
             section.write({
                 'debit': total_debit,
                 'credit': total_credit,
                 'balance': total_balance,
             })
+
             group_totals[group_name] = total_balance
+
+            # Track last Equity sequence
+            if group_name == 'EQUITY':
+                equity_section_last_seq = sequence
+
             sequence += 1
 
         # ✅ Compute Net Profit / Loss
@@ -213,25 +222,23 @@ class AccountingReport(models.TransientModel):
             ('account_type', 'in', ['expense', 'other_expense', 'depreciation', 'cost_of_revenue'])
         ])
 
-        income_total = abs(sum(v.get('balance', 0.0) for v in
-                               FinancialReport.with_context(ctx)._compute_account_balance(income_accounts).values()))
-        expense_total = abs(sum(v.get('balance', 0.0) for v in
-                                FinancialReport.with_context(ctx)._compute_account_balance(expense_accounts).values()))
+        income_total = abs(sum(v.get('balance', 0.0) for v in FinancialReport.with_context(ctx)._compute_account_balance(income_accounts).values()))
+        expense_total = abs(sum(v.get('balance', 0.0) for v in FinancialReport.with_context(ctx)._compute_account_balance(expense_accounts).values()))
 
         net = income_total - expense_total
         label = "<b>Net Profit</b>" if net > 0 else "<b>Net Loss</b>"
 
-        # ✅ For Balance Sheet → place under EQUITY
+        # ✅ Place Net Profit/Loss UNDER Equity accounts, not below section
+        equity_sequence = equity_section_last_seq or sequence
         if report_type == 'balance_sheet':
-            equity_section = ReportLine.search([('name', 'ilike', 'EQUITY')], limit=1)
-            sequence = (equity_section.sequence + 1) if equity_section else 9999
+            equity_sequence += 1  # place right after last equity account
 
         ReportLine.create({
             'name': label,
             'is_total': True,
             'report_type': report_type,
             'balance': abs(net),  # ✅ Always positive display
-            'sequence': sequence,
+            'sequence': equity_sequence,
             'date_from': date_from,
             'date_to': date_to,
             'target_move': target_move,

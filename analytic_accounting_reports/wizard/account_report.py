@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models
-
+from collections import OrderedDict
 
 class AccountingReport(models.TransientModel):
     _inherit = "accounting.report"

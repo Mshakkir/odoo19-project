@@ -131,7 +131,8 @@ class AccountingReport(models.TransientModel):
                     'income', 'other_income'
                 ]),
                 ('EXPENSES', [
-                    'expense', 'other_expense', 'depreciation', 'cost_of_revenue'
+                    'expense', 'other_expense', 'depreciation',
+                    'expense_direct_cost', 'expense_cost_of_revenue'
                 ]),
             ])
 
@@ -222,8 +223,10 @@ class AccountingReport(models.TransientModel):
             ('account_type', 'in', ['expense', 'other_expense', 'depreciation', 'cost_of_revenue'])
         ])
 
-        income_total = abs(sum(v.get('balance', 0.0) for v in FinancialReport.with_context(ctx)._compute_account_balance(income_accounts).values()))
-        expense_total = abs(sum(v.get('balance', 0.0) for v in FinancialReport.with_context(ctx)._compute_account_balance(expense_accounts).values()))
+        income_total = abs(sum(v.get('balance', 0.0) for v in
+                               FinancialReport.with_context(ctx)._compute_account_balance(income_accounts).values()))
+        expense_total = abs(sum(v.get('balance', 0.0) for v in
+                                FinancialReport.with_context(ctx)._compute_account_balance(expense_accounts).values()))
 
         net = income_total - expense_total
         label = "<b>Net Profit</b>" if net > 0 else "<b>Net Loss</b>"
@@ -254,8 +257,6 @@ class AccountingReport(models.TransientModel):
             'domain': [('report_type', '=', report_type)],
             'context': ctx,
         }
-
-
 
 # # -*- coding: utf-8 -*-
 # from odoo import api, fields, models

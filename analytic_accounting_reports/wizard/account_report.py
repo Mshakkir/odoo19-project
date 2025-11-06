@@ -94,14 +94,14 @@ class AccountingReport(models.TransientModel):
     # Main Report Action
     # -----------------------------
     def action_view_details(self):
-        """Open detailed Balance Sheet or P&L in a window with section headers and totals."""
+        """Open detailed Balance Sheet or P&L in a window with section headers and totals (real-world logic)."""
         self.ensure_one()
 
         report_type = 'balance_sheet'
         if self.account_report_id and 'loss' in self.account_report_id.name.lower():
             report_type = 'profit_loss'
 
-        # Clear existing records
+        # Clear existing lines
         self.env['account.financial.report.line'].search([]).unlink()
 
         ctx = self._build_contexts({'form': self.read()[0]})
@@ -110,7 +110,6 @@ class AccountingReport(models.TransientModel):
         date_to = ctx.get('date_to')
         target_move = ctx.get('target_move', 'posted')
 
-        # Define account groups
         if report_type == 'balance_sheet':
             group_mapping = {
                 'ASSETS': ['asset_non_current', 'asset_current'],
@@ -134,8 +133,7 @@ class AccountingReport(models.TransientModel):
         ReportLine = self.env['account.financial.report.line']
         FinancialReport = self.env['report.accounting_pdf_reports.report_financial']
         sequence = 1
-
-        group_totals = {}  # for later use in Net Profit/Loss calculation
+        group_totals = {}
 
         # Loop through groups
         for group_name, account_types in group_mapping.items():
@@ -146,20 +144,6 @@ class AccountingReport(models.TransientModel):
             account_balances = FinancialReport.with_context(ctx)._compute_account_balance(accounts)
             total_debit = total_credit = total_balance = 0.0
 
-            # ✅ Section header line first (above accounts)
-            section_line = ReportLine.create({
-                'name': f"<b>{group_name}</b>",
-                'is_section': True,
-                'sequence': sequence,
-                'report_type': report_type,
-                'date_from': date_from,
-                'date_to': date_to,
-                'target_move': target_move,
-                'analytic_account_ids': [(6, 0, analytic_ids)],
-            })
-            sequence += 1
-
-            # Account lines
             for acc in accounts:
                 vals = account_balances.get(acc.id)
                 if not vals:
@@ -167,6 +151,10 @@ class AccountingReport(models.TransientModel):
                 balance = vals.get('balance', 0)
                 if abs(balance) < 0.01:
                     continue
+
+                # Flip income balances to positive for real-world logic
+                if group_name == 'INCOME':
+                    balance = abs(balance)
 
                 debit = vals.get('debit', 0.0)
                 credit = vals.get('credit', 0.0)
@@ -191,24 +179,32 @@ class AccountingReport(models.TransientModel):
                 })
                 sequence += 1
 
-            # ✅ Update section totals
-            section_line.write({
+            # Section header above accounts
+            ReportLine.create({
+                'name': f"<b>{group_name}</b>",
+                'is_section': True,
+                'sequence': sequence - len(accounts) - 1,  # ensures section appears above
+                'report_type': report_type,
+                'date_from': date_from,
+                'date_to': date_to,
+                'target_move': target_move,
                 'debit': total_debit,
                 'credit': total_credit,
                 'balance': total_balance,
+                'analytic_account_ids': [(6, 0, analytic_ids)],
             })
 
             group_totals[group_name] = total_balance
+            sequence += 1
 
         # -------------------------
-        # ✅ Net Profit / Loss (for Profit & Loss)
+        # ✅ Net Profit / Loss (Real-world logic)
         # -------------------------
         if report_type == 'profit_loss':
             income_total = group_totals.get('INCOME', 0.0)
             expense_total = group_totals.get('EXPENSES', 0.0)
+            net_profit_loss = income_total - expense_total  # ✅ Now standard formula
 
-            # Since income is usually negative, add both to get net
-            net_profit_loss = income_total + expense_total
             total_label = "<b>Net Profit</b>" if net_profit_loss > 0 else "<b>Net Loss</b>"
 
             ReportLine.create({
@@ -223,20 +219,19 @@ class AccountingReport(models.TransientModel):
                 'analytic_account_ids': [(6, 0, analytic_ids)],
             })
 
-        # -------------------------
-        # ✅ Include Net Profit/Loss in Balance Sheet
-        # -------------------------
         elif report_type == 'balance_sheet':
             income_accounts = self.env['account.account'].search([('account_type', 'in', ['income', 'other_income'])])
             expense_accounts = self.env['account.account'].search(
                 [('account_type', 'in', ['expense', 'other_expense'])])
 
-            income_balance = sum(v.get('balance', 0.0) for v in
-                                 FinancialReport.with_context(ctx)._compute_account_balance(income_accounts).values())
-            expense_balance = sum(v.get('balance', 0.0) for v in
+            income_balance = abs(sum(v.get('balance', 0.0)
+                                     for v in FinancialReport.with_context(ctx)._compute_account_balance(
+                income_accounts).values()))
+            expense_balance = sum(v.get('balance', 0.0)
+                                  for v in
                                   FinancialReport.with_context(ctx)._compute_account_balance(expense_accounts).values())
 
-            net_profit = income_balance + expense_balance
+            net_profit = income_balance - expense_balance  # ✅ Real-world formula
             total_label = "<b>Net Profit</b>" if net_profit > 0 else "<b>Net Loss</b>"
 
             ReportLine.create({
@@ -251,9 +246,7 @@ class AccountingReport(models.TransientModel):
                 'analytic_account_ids': [(6, 0, analytic_ids)],
             })
 
-        # -------------------------
-        # ✅ Return window action
-        # -------------------------
+        # Return window action
         return {
             'type': 'ir.actions.act_window',
             'name': f'{self.account_report_id.name} Details',

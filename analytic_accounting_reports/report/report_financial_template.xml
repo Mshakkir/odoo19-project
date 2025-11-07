@@ -9,6 +9,9 @@
                 </div>
             </div>
         </xpath>
+         <xpath expr="//th[contains(text(), 'Balance')]" position="replace">
+            <th>Amount</th>
+        </xpath>
     </template>
 </odoo>
 

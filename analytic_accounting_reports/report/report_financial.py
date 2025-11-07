@@ -17,6 +17,7 @@ class ReportFinancial(models.AbstractModel):
         _logger.info("🔍 COMPUTE ACCOUNT BALANCE - CALLED")
         _logger.info("Full Context: %s", dict(self.env.context))
         _logger.info("analytic_account_ids from context: %s", analytic_account_ids)
+        _logger.info("Type: %s", type(analytic_account_ids))
         _logger.info("Number of accounts to process: %s", len(accounts) if accounts else 0)
 
         if accounts:
@@ -59,7 +60,7 @@ class ReportFinancial(models.AbstractModel):
 
         # Add analytic filter if present
         if analytic_account_ids:
-            _logger.info("🏢 Adding analytic filter for warehouse IDs: %s", analytic_account_ids)
+            _logger.info("🏢 APPLYING ANALYTIC FILTER for warehouse IDs: %s", analytic_account_ids)
 
             # Build analytic condition
             analytic_conditions = []
@@ -74,7 +75,8 @@ class ReportFinancial(models.AbstractModel):
                 wheres.append(analytic_filter)
                 _logger.info("  ✅ Analytic filter SQL: %s", analytic_filter)
         else:
-            _logger.info("ℹ️ No analytic filter - showing ALL warehouses")
+            _logger.info("⚠️ NO ANALYTIC FILTER FOUND - showing ALL warehouses")
+            _logger.info("  This means the context was NOT passed correctly!")
 
         # Construct WHERE clause
         where_str = " AND ".join(wheres)
@@ -119,7 +121,7 @@ class ReportFinancial(models.AbstractModel):
                     )
             else:
                 _logger.warning("⚠️ WARNING: Query returned ZERO results!")
-                _logger.warning("   This means NO move lines match the filter criteria")
+                _logger.warning("   Check if analytic_distribution field has data")
 
         except Exception as e:
             _logger.error("❌ SQL Query Error: %s", str(e))
@@ -136,8 +138,11 @@ class ReportFinancial(models.AbstractModel):
 
         _logger.info("=" * 80)
         _logger.info("🎯 _GET_REPORT_VALUES - CALLED (PDF Generation)")
+        _logger.info("=" * 80)
         _logger.info("Docids: %s", docids)
-        _logger.info("Data keys: %s", data.keys() if data else None)
+        _logger.info("Data: %s", data)
+        _logger.info("Current context BEFORE processing: %s", dict(self.env.context))
+        _logger.info("=" * 80)
 
         # Extract context and analytic IDs early
         used_context = {}
@@ -145,16 +150,21 @@ class ReportFinancial(models.AbstractModel):
 
         if data and data.get('form'):
             form_data = data['form']
-            _logger.info("📋 Form data keys: %s", form_data.keys())
+            _logger.info("📋 Form data received:")
+            for key, value in form_data.items():
+                _logger.info("  - %s: %s (type: %s)", key, value, type(value))
 
             # Get context from form
             if form_data.get('used_context'):
                 used_context = form_data['used_context']
-                _logger.info("📦 Used context from form: %s", used_context)
+                _logger.info("📦 Used context from form:")
+                for key, value in used_context.items():
+                    _logger.info("  - %s: %s", key, value)
 
             # Extract analytic account IDs
             analytic_data = form_data.get('analytic_account_ids', [])
-            _logger.info("🏢 Raw analytic_data: %s (type: %s)", analytic_data, type(analytic_data))
+            _logger.info("🏢 Raw analytic_account_ids from form: %s (type: %s)",
+                         analytic_data, type(analytic_data))
 
             # Normalize the many2many field data
             if analytic_data:
@@ -162,23 +172,33 @@ class ReportFinancial(models.AbstractModel):
                     if isinstance(analytic_data[0], (list, tuple)) and len(analytic_data[0]) > 2:
                         # Format: [(6, 0, [ids])]
                         analytic_ids = analytic_data[0][2]
+                        _logger.info("  Extracted from tuple format: %s", analytic_ids)
                     else:
                         # Format: [id1, id2, ...]
                         analytic_ids = list(analytic_data)
+                        _logger.info("  Extracted from list format: %s", analytic_ids)
 
-            _logger.info("✅ Extracted analytic_ids: %s", analytic_ids)
+            _logger.info("✅ FINAL extracted analytic_ids: %s (type: %s)",
+                         analytic_ids, type(analytic_ids))
 
             # CRITICAL: Ensure analytic_ids are in the context
             if analytic_ids:
                 used_context['analytic_account_ids'] = analytic_ids
                 _logger.info("✅ Added analytic_ids to used_context")
+                _logger.info("   used_context is now: %s", used_context)
             else:
-                _logger.info("ℹ️ No analytic accounts selected - will show all")
+                _logger.warning("⚠️ NO analytic IDs found - will show all warehouses")
 
-        # Call parent with proper context
-        if used_context:
-            _logger.info("🔄 Calling parent WITH context: %s", used_context)
-            result = super(ReportFinancial, self.with_context(**used_context))._get_report_values(docids, data)
+        # CRITICAL FIX: Force the context update
+        if used_context and analytic_ids:
+            _logger.info("=" * 80)
+            _logger.info("🔄 Calling parent WITH FORCED CONTEXT")
+            _logger.info("   Forcing context: %s", used_context)
+            _logger.info("=" * 80)
+
+            # Create new environment with forced context
+            new_self = self.with_context(**used_context)
+            result = super(ReportFinancial, new_self)._get_report_values(docids, data)
         else:
             _logger.info("🔄 Calling parent WITHOUT additional context")
             result = super(ReportFinancial, self)._get_report_values(docids, data)
@@ -201,13 +221,13 @@ class ReportFinancial(models.AbstractModel):
 
             if len(analytic_accounts) == 1:
                 # Single warehouse mode
-                result['warehouse_display'] = f'📍 {names[0]} (Separate Report)'
+                result['warehouse_display'] = f'{names[0]} (Separate Report)'
                 result['show_warehouse_breakdown'] = False
                 result['single_warehouse_mode'] = True
                 _logger.info("🏢 SINGLE WAREHOUSE MODE: %s", names[0])
             else:
                 # Multiple warehouses mode
-                result['warehouse_display'] = f'📦 {", ".join(names)} (Combined)'
+                result['warehouse_display'] = f'{", ".join(names)} (Combined)'
                 result['show_warehouse_breakdown'] = True
                 result['single_warehouse_mode'] = False
                 if data and data.get('form'):
@@ -215,10 +235,13 @@ class ReportFinancial(models.AbstractModel):
                 _logger.info("🏢 MULTIPLE WAREHOUSE MODE: %s", ", ".join(names))
         else:
             # All warehouses mode
-            result['warehouse_display'] = '🌍 All Warehouses (Combined)'
-            _logger.info("🌍 ALL WAREHOUSES MODE")
+            result['warehouse_display'] = 'All Warehouses (Combined)'
+            _logger.info("🌍 ALL WAREHOUSES MODE (No filter)")
 
-        _logger.info("📊 Final result keys: %s", result.keys())
+        _logger.info("=" * 80)
+        _logger.info("📊 FINAL REPORT VALUES:")
+        _logger.info("  warehouse_display: %s", result.get('warehouse_display'))
+        _logger.info("  single_warehouse_mode: %s", result.get('single_warehouse_mode'))
         _logger.info("=" * 80)
 
         return result

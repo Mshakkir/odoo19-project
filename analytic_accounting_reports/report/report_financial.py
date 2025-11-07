@@ -14,8 +14,13 @@ class ReportFinancial(models.AbstractModel):
         analytic_account_ids = self.env.context.get('analytic_account_ids', [])
 
         _logger.info("=" * 80)
-        _logger.info("COMPUTE ACCOUNT BALANCE - DEBUG INFO")
-        _logger.info("Context analytic_account_ids: %s", analytic_account_ids)
+        _logger.info("🔍 COMPUTE ACCOUNT BALANCE - CALLED")
+        _logger.info("Full Context: %s", dict(self.env.context))
+        _logger.info("analytic_account_ids from context: %s", analytic_account_ids)
+        _logger.info("Number of accounts to process: %s", len(accounts) if accounts else 0)
+
+        if accounts:
+            _logger.info("Sample accounts: %s", [(a.id, a.code, a.name) for a in accounts[:3]])
         _logger.info("=" * 80)
 
         mapping = {
@@ -29,6 +34,7 @@ class ReportFinancial(models.AbstractModel):
             res[account.id] = {k: 0.0 for k in mapping.keys()}
 
         if not accounts:
+            _logger.warning("⚠️ No accounts provided to _compute_account_balance!")
             return res
 
         # Build base query parts
@@ -37,26 +43,28 @@ class ReportFinancial(models.AbstractModel):
         where_clause = where_clause.strip() if where_clause else ''
         where_params = list(where_params) if where_params else []
 
-        _logger.info("Base where_clause: %s", where_clause)
-        _logger.info("Base where_params: %s", where_params)
+        _logger.info("📝 Base query info:")
+        _logger.info("  Tables: %s", tables)
+        _logger.info("  Base where_clause: %s", where_clause)
+        _logger.info("  Base where_params: %s", where_params)
 
         # Build WHERE conditions
         wheres = ["account_id IN %s"]
         params = [tuple(accounts.ids)]
 
+        # Add base where clause
         if where_clause:
             wheres.append("(%s)" % where_clause)
             params.extend(where_params)
 
         # Add analytic filter if present
         if analytic_account_ids:
-            _logger.info("Adding analytic filter for IDs: %s", analytic_account_ids)
+            _logger.info("🏢 Adding analytic filter for warehouse IDs: %s", analytic_account_ids)
 
-            # Build analytic condition - check if ANY of the selected analytic accounts exist in the distribution
+            # Build analytic condition
             analytic_conditions = []
             for analytic_id in analytic_account_ids:
-                # Convert to string as Odoo stores analytic_distribution keys as strings
-                # Check if the key exists in the JSONB field
+                # JSONB operator to check if key exists
                 analytic_conditions.append(
                     f"(account_move_line.analytic_distribution ? '{str(analytic_id)}')"
                 )
@@ -64,24 +72,26 @@ class ReportFinancial(models.AbstractModel):
             if analytic_conditions:
                 analytic_filter = "(" + " OR ".join(analytic_conditions) + ")"
                 wheres.append(analytic_filter)
-                _logger.info("Analytic filter added: %s", analytic_filter)
+                _logger.info("  ✅ Analytic filter SQL: %s", analytic_filter)
         else:
-            _logger.info("No analytic filter - showing all data")
+            _logger.info("ℹ️ No analytic filter - showing ALL warehouses")
 
-        # Construct the WHERE clause
+        # Construct WHERE clause
         where_str = " AND ".join(wheres)
 
         # Build final query
         request = (
-            "SELECT account_id as id, " + ', '.join(mapping.values()) +
-            " FROM " + tables +
-            " WHERE " + where_str +
-            " GROUP BY account_id"
+                "SELECT account_id as id, " + ', '.join(mapping.values()) +
+                " FROM " + tables +
+                " WHERE " + where_str +
+                " GROUP BY account_id"
         )
 
-        _logger.info("FINAL SQL QUERY:")
+        _logger.info("=" * 80)
+        _logger.info("📊 FINAL SQL QUERY:")
         _logger.info(request)
-        _logger.info("QUERY PARAMS: %s", params)
+        _logger.info("🔢 QUERY PARAMS: %s", params)
+        _logger.info("=" * 80)
 
         try:
             self.env.cr.execute(request, tuple(params))
@@ -95,17 +105,24 @@ class ReportFinancial(models.AbstractModel):
                 }
                 result_count += 1
 
-            _logger.info("Query returned %s account records", result_count)
+            _logger.info("✅ Query returned %d account records", result_count)
 
-            # Log sample results for debugging
             if result_count > 0:
-                sample_accounts = list(res.items())[:3]
-                _logger.info("Sample results: %s", sample_accounts)
+                # Log first 3 results
+                sample_results = list(res.items())[:3]
+                for acc_id, values in sample_results:
+                    account = self.env['account.account'].browse(acc_id)
+                    _logger.info(
+                        "  Account %s (%s): Balance=%.2f, Debit=%.2f, Credit=%.2f",
+                        account.code, account.name,
+                        values['balance'], values['debit'], values['credit']
+                    )
             else:
-                _logger.warning("WARNING: Query returned ZERO results!")
+                _logger.warning("⚠️ WARNING: Query returned ZERO results!")
+                _logger.warning("   This means NO move lines match the filter criteria")
 
         except Exception as e:
-            _logger.error("SQL Query Error: %s", str(e))
+            _logger.error("❌ SQL Query Error: %s", str(e))
             _logger.error("Query: %s", request)
             _logger.error("Params: %s", params)
             raise
@@ -118,9 +135,9 @@ class ReportFinancial(models.AbstractModel):
         """Override to pass analytic information for display"""
 
         _logger.info("=" * 80)
-        _logger.info("GET REPORT VALUES - DEBUG INFO")
+        _logger.info("🎯 _GET_REPORT_VALUES - CALLED (PDF Generation)")
         _logger.info("Docids: %s", docids)
-        _logger.info("Data: %s", data)
+        _logger.info("Data keys: %s", data.keys() if data else None)
 
         # Extract context and analytic IDs early
         used_context = {}
@@ -128,19 +145,20 @@ class ReportFinancial(models.AbstractModel):
 
         if data and data.get('form'):
             form_data = data['form']
-            _logger.info("Form data keys: %s", form_data.keys())
+            _logger.info("📋 Form data keys: %s", form_data.keys())
 
             # Get context from form
             if form_data.get('used_context'):
                 used_context = form_data['used_context']
-                _logger.info("Used context from form: %s", used_context)
+                _logger.info("📦 Used context from form: %s", used_context)
 
             # Extract analytic account IDs
             analytic_data = form_data.get('analytic_account_ids', [])
+            _logger.info("🏢 Raw analytic_data: %s (type: %s)", analytic_data, type(analytic_data))
 
             # Normalize the many2many field data
             if analytic_data:
-                if isinstance(analytic_data, (list, tuple)) and analytic_data:
+                if isinstance(analytic_data, (list, tuple)) and len(analytic_data) > 0:
                     if isinstance(analytic_data[0], (list, tuple)) and len(analytic_data[0]) > 2:
                         # Format: [(6, 0, [ids])]
                         analytic_ids = analytic_data[0][2]
@@ -148,18 +166,21 @@ class ReportFinancial(models.AbstractModel):
                         # Format: [id1, id2, ...]
                         analytic_ids = list(analytic_data)
 
-            _logger.info("Extracted analytic_ids: %s", analytic_ids)
+            _logger.info("✅ Extracted analytic_ids: %s", analytic_ids)
 
             # CRITICAL: Ensure analytic_ids are in the context
             if analytic_ids:
                 used_context['analytic_account_ids'] = analytic_ids
+                _logger.info("✅ Added analytic_ids to used_context")
+            else:
+                _logger.info("ℹ️ No analytic accounts selected - will show all")
 
         # Call parent with proper context
         if used_context:
-            _logger.info("Calling parent with context: %s", used_context)
+            _logger.info("🔄 Calling parent WITH context: %s", used_context)
             result = super(ReportFinancial, self.with_context(**used_context))._get_report_values(docids, data)
         else:
-            _logger.info("Calling parent without additional context")
+            _logger.info("🔄 Calling parent WITHOUT additional context")
             result = super(ReportFinancial, self)._get_report_values(docids, data)
 
         if not result:
@@ -180,23 +201,24 @@ class ReportFinancial(models.AbstractModel):
 
             if len(analytic_accounts) == 1:
                 # Single warehouse mode
-                result['warehouse_display'] = f'{names[0]} (Separate Report)'
+                result['warehouse_display'] = f'📍 {names[0]} (Separate Report)'
                 result['show_warehouse_breakdown'] = False
                 result['single_warehouse_mode'] = True
-                _logger.info("SINGLE WAREHOUSE MODE: %s", names[0])
+                _logger.info("🏢 SINGLE WAREHOUSE MODE: %s", names[0])
             else:
                 # Multiple warehouses mode
-                result['warehouse_display'] = ', '.join(names)
+                result['warehouse_display'] = f'📦 {", ".join(names)} (Combined)'
                 result['show_warehouse_breakdown'] = True
                 result['single_warehouse_mode'] = False
                 if data and data.get('form'):
                     result['include_combined'] = bool(data['form'].get('include_combined', False))
-                _logger.info("MULTIPLE WAREHOUSE MODE: %s", names)
+                _logger.info("🏢 MULTIPLE WAREHOUSE MODE: %s", ", ".join(names))
         else:
             # All warehouses mode
-            _logger.info("ALL WAREHOUSES MODE")
+            result['warehouse_display'] = '🌍 All Warehouses (Combined)'
+            _logger.info("🌍 ALL WAREHOUSES MODE")
 
-        _logger.info("Final result keys: %s", result.keys())
+        _logger.info("📊 Final result keys: %s", result.keys())
         _logger.info("=" * 80)
 
         return result

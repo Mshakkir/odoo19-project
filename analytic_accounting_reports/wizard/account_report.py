@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models
 from collections import OrderedDict
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class AccountingReport(models.TransientModel):
@@ -11,7 +14,7 @@ class AccountingReport(models.TransientModel):
     # -----------------------------
     analytic_account_ids = fields.Many2many(
         'account.analytic.account',
-        string="",
+        string="Warehouses",
         help=(
             "Select specific warehouses/analytic accounts for filtering.\n"
             "• Leave empty: Show all warehouses combined\n"
@@ -57,39 +60,90 @@ class AccountingReport(models.TransientModel):
             self.include_combined = False
 
     # -----------------------------
-    # Context Builders
+    # Context Builders - FIXED
     # -----------------------------
     def _build_contexts(self, data):
+        """Override to include analytic account IDs in context"""
         result = super()._build_contexts(data)
+
         analytic_ids = []
         form_data = data.get('form', {})
         analytic_data = form_data.get('analytic_account_ids', [])
 
-        if analytic_data:
-            if isinstance(analytic_data[0], (list, tuple)):
-                analytic_ids = analytic_data[0][2] if len(analytic_data[0]) > 2 else []
-            else:
-                analytic_ids = list(analytic_data)
+        _logger.info("=" * 80)
+        _logger.info("🔧 _build_contexts called")
+        _logger.info("Form data: %s", form_data)
+        _logger.info("Analytic data raw: %s", analytic_data)
 
+        if analytic_data:
+            if isinstance(analytic_data, (list, tuple)) and len(analytic_data) > 0:
+                if isinstance(analytic_data[0], (list, tuple)) and len(analytic_data[0]) > 2:
+                    # Format: [(6, 0, [ids])]
+                    analytic_ids = analytic_data[0][2]
+                else:
+                    # Format: [id1, id2, ...]
+                    analytic_ids = list(analytic_data)
+
+        _logger.info("Extracted analytic_ids: %s", analytic_ids)
+
+        # CRITICAL: Add to context
         result['analytic_account_ids'] = analytic_ids
         result['include_combined'] = form_data.get('include_combined', False)
+
+        _logger.info("Final context: %s", result)
+        _logger.info("=" * 80)
+
         return result
 
     def _build_comparison_context(self, data):
+        """Override to include analytic account IDs in comparison context"""
         result = super()._build_comparison_context(data)
+
         analytic_ids = []
         form_data = data.get('form', {})
         analytic_data = form_data.get('analytic_account_ids', [])
 
         if analytic_data:
-            if isinstance(analytic_data[0], (list, tuple)):
-                analytic_ids = analytic_data[0][2] if len(analytic_data[0]) > 2 else []
-            else:
-                analytic_ids = list(analytic_data)
+            if isinstance(analytic_data, (list, tuple)) and len(analytic_data) > 0:
+                if isinstance(analytic_data[0], (list, tuple)) and len(analytic_data[0]) > 2:
+                    analytic_ids = analytic_data[0][2]
+                else:
+                    analytic_ids = list(analytic_data)
 
         result['analytic_account_ids'] = analytic_ids
         result['include_combined'] = form_data.get('include_combined', False)
+
         return result
+
+    # -----------------------------
+    # Override check_report to ensure context is passed
+    # -----------------------------
+    def check_report(self):
+        """Override to ensure analytic context is properly set before generating report"""
+        self.ensure_one()
+
+        _logger.info("=" * 80)
+        _logger.info("🖨️ CHECK_REPORT (Print Button) called")
+        _logger.info("Selected analytic accounts: %s", self.analytic_account_ids.ids)
+        _logger.info("Analytic names: %s", self.analytic_account_ids.mapped('name'))
+        _logger.info("=" * 80)
+
+        # Get the data dictionary
+        data = {}
+        data['ids'] = self.env.context.get('active_ids', [])
+        data['model'] = self.env.context.get('active_model', 'ir.ui.menu')
+        data['form'] = self.read(['date_from', 'date_to', 'journal_ids', 'target_move',
+                                  'analytic_account_ids', 'include_combined'])[0]
+
+        # Ensure used_context is built with analytic IDs
+        used_context = self._build_contexts(data)
+        data['form']['used_context'] = used_context
+
+        _logger.info("Data being passed to report: %s", data)
+        _logger.info("Used context: %s", used_context)
+
+        # Call parent with updated context
+        return super(AccountingReport, self.with_context(**used_context)).check_report()
 
     # -----------------------------
     # Main Report Action
@@ -115,6 +169,13 @@ class AccountingReport(models.TransientModel):
         date_to = ctx.get('date_to')
         target_move = ctx.get('target_move', 'posted')
 
+        _logger.info("=" * 80)
+        _logger.info("📊 ACTION_VIEW_DETAILS (Show Details) called")
+        _logger.info("Report type: %s", report_type)
+        _logger.info("Context analytic_ids: %s", analytic_ids)
+        _logger.info("Full context: %s", ctx)
+        _logger.info("=" * 80)
+
         # Account groups (ordered)
         if report_type == 'balance_sheet':
             group_mapping = OrderedDict([
@@ -138,7 +199,6 @@ class AccountingReport(models.TransientModel):
                 ]),
                 ('EXPENSES', [
                     'expense', 'other_expense', 'depreciation',
-                    # common technical keys for cost of revenue / direct cost in Odoo variants
                     'expense_direct_cost', 'expense_cost_of_revenue'
                 ]),
             ])
@@ -148,7 +208,7 @@ class AccountingReport(models.TransientModel):
 
         sequence = 1
         group_totals = {}
-        equity_last_account_seq = None  # sequence index of last equity account (to insert net after it)
+        equity_last_account_seq = None
 
         # Build sections and account lines
         for group_name, account_types in group_mapping.items():
@@ -159,7 +219,7 @@ class AccountingReport(models.TransientModel):
             balances = FinancialReport.with_context(ctx)._compute_account_balance(accounts)
             total_balance = total_debit = total_credit = 0.0
 
-            # Create section header (ASSETS / LIABILITIES / EQUITY / INCOME / EXPENSES)
+            # Create section header
             section = ReportLine.create({
                 'name': f"<b>{group_name}</b>",
                 'is_section': True,
@@ -172,17 +232,16 @@ class AccountingReport(models.TransientModel):
             })
             sequence += 1
 
-            # Create account lines under the section
+            # Create account lines
             for acc in accounts:
                 vals = balances.get(acc.id)
                 if not vals:
                     continue
-                # display positive amounts for readability
+
                 balance = abs(vals.get('balance', 0.0))
                 debit = vals.get('debit', 0.0)
                 credit = vals.get('credit', 0.0)
 
-                # skip accounts with no activity
                 if abs(balance) < 0.0001 and abs(debit) < 0.0001 and abs(credit) < 0.0001:
                     continue
 
@@ -190,7 +249,6 @@ class AccountingReport(models.TransientModel):
                 total_debit += debit
                 total_credit += credit
 
-                # create the account line
                 ReportLine.create({
                     'name': acc.name,
                     'code': acc.code,
@@ -206,13 +264,11 @@ class AccountingReport(models.TransientModel):
                     'analytic_account_ids': [(6, 0, analytic_ids)],
                 })
 
-                # If this account is part of EQUITY, remember its sequence to insert Net after it
                 if group_name == 'EQUITY':
                     equity_last_account_seq = sequence
 
                 sequence += 1
 
-            # update section totals
             section.write({
                 'debit': total_debit,
                 'credit': total_credit,
@@ -222,38 +278,33 @@ class AccountingReport(models.TransientModel):
             group_totals[group_name] = total_balance
             sequence += 1
 
-        # -------------------------
         # Net Profit / Net Loss
-        # -------------------------
-        # For Profit & Loss, use group_totals computed above (INCOME and EXPENSES)
         if report_type == 'profit_loss':
             income_total = group_totals.get('INCOME', 0.0)
             expense_total = group_totals.get('EXPENSES', 0.0)
-            net = income_total - expense_total  # Income - Expenses
+            net = income_total - expense_total
         else:
-            # For Balance Sheet, compute P&L for the same period and use it as retained earnings
-            income_accounts = self.env['account.account'].search([('account_type', 'in', ['income', 'other_income'])])
-            expense_accounts = self.env['account.account'].search([('account_type', 'in',
-                                                                    ['expense', 'other_expense', 'depreciation',
-                                                                     'expense_direct_cost',
-                                                                     'expense_cost_of_revenue'])])
+            income_accounts = self.env['account.account'].search([
+                ('account_type', 'in', ['income', 'other_income'])
+            ])
+            expense_accounts = self.env['account.account'].search([
+                ('account_type', 'in', ['expense', 'other_expense', 'depreciation',
+                                        'expense_direct_cost', 'expense_cost_of_revenue'])
+            ])
 
             inc_bal = sum(v.get('balance', 0.0) for v in
                           FinancialReport.with_context(ctx)._compute_account_balance(income_accounts).values())
             exp_bal = sum(v.get('balance', 0.0) for v in
                           FinancialReport.with_context(ctx)._compute_account_balance(expense_accounts).values())
 
-            # inc_bal is often negative in Odoo accounting representation, bring to positive for real-world formula
             net = abs(inc_bal) - abs(exp_bal)
 
         label = "<b>Net Profit</b>" if net > 0 else "<b>Net Loss</b>"
         display_value = abs(net)
 
-        # Insert Net Profit/Loss immediately after last equity account (if exists)
         if report_type == 'balance_sheet' and equity_last_account_seq:
             insert_sequence = equity_last_account_seq + 1
         else:
-            # otherwise append at the end
             insert_sequence = sequence + 1
 
         ReportLine.create({

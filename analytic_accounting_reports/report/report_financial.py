@@ -7,6 +7,56 @@ _logger = logging.getLogger(__name__)
 class ReportFinancial(models.AbstractModel):
     _inherit = 'report.accounting_pdf_reports.report_financial'
 
+    def _get_accounts_by_analytic(self, accounts, analytic_ids):
+        """
+        Filter accounts to only include those with move lines
+        matching the selected analytic accounts
+        """
+        if not analytic_ids or not accounts:
+            return accounts
+
+        _logger.info("🔍 Filtering %d accounts by analytic IDs: %s", len(accounts), analytic_ids)
+
+        # Get date filters from context
+        date_from = self.env.context.get('date_from')
+        date_to = self.env.context.get('date_to')
+        target_move = self.env.context.get('target_move', 'posted')
+
+        # Build domain for move lines
+        domain = [
+            ('account_id', 'in', accounts.ids),
+        ]
+
+        if date_from:
+            domain.append(('date', '>=', date_from))
+        if date_to:
+            domain.append(('date', '<=', date_to))
+        if target_move == 'posted':
+            domain.append(('move_id.state', '=', 'posted'))
+
+        # Get all move lines for these accounts
+        all_lines = self.env['account.move.line'].search(domain)
+
+        _logger.info("  Found %d total move lines", len(all_lines))
+
+        # Filter by analytic distribution
+        matching_account_ids = set()
+        for line in all_lines:
+            if line.analytic_distribution:
+                for analytic_id in analytic_ids:
+                    if str(analytic_id) in line.analytic_distribution:
+                        matching_account_ids.add(line.account_id.id)
+                        break
+
+        _logger.info("  Found %d accounts with matching analytic data", len(matching_account_ids))
+
+        # Return filtered accounts
+        filtered_accounts = accounts.filtered(lambda a: a.id in matching_account_ids)
+
+        _logger.info("  Returning %d filtered accounts", len(filtered_accounts))
+
+        return filtered_accounts
+
     def _compute_account_balance(self, accounts):
         """Override to add analytic distribution filtering"""
 
@@ -14,14 +64,9 @@ class ReportFinancial(models.AbstractModel):
         analytic_account_ids = self.env.context.get('analytic_account_ids', [])
 
         _logger.info("=" * 80)
-        _logger.info("🔍 COMPUTE ACCOUNT BALANCE - CALLED")
-        _logger.info("Full Context: %s", dict(self.env.context))
-        _logger.info("analytic_account_ids from context: %s", analytic_account_ids)
-        _logger.info("Type: %s", type(analytic_account_ids))
-        _logger.info("Number of accounts to process: %s", len(accounts) if accounts else 0)
-
-        if accounts:
-            _logger.info("Sample accounts: %s", [(a.id, a.code, a.name) for a in accounts[:3]])
+        _logger.info("🔍 _compute_account_balance CALLED")
+        _logger.info("Context analytic_account_ids: %s", analytic_account_ids)
+        _logger.info("Number of accounts: %s", len(accounts) if accounts else 0)
         _logger.info("=" * 80)
 
         mapping = {
@@ -35,7 +80,6 @@ class ReportFinancial(models.AbstractModel):
             res[account.id] = {k: 0.0 for k in mapping.keys()}
 
         if not accounts:
-            _logger.warning("⚠️ No accounts provided to _compute_account_balance!")
             return res
 
         # Build base query parts
@@ -44,28 +88,20 @@ class ReportFinancial(models.AbstractModel):
         where_clause = where_clause.strip() if where_clause else ''
         where_params = list(where_params) if where_params else []
 
-        _logger.info("📝 Base query info:")
-        _logger.info("  Tables: %s", tables)
-        _logger.info("  Base where_clause: %s", where_clause)
-        _logger.info("  Base where_params: %s", where_params)
-
         # Build WHERE conditions
         wheres = ["account_id IN %s"]
         params = [tuple(accounts.ids)]
 
-        # Add base where clause
         if where_clause:
             wheres.append("(%s)" % where_clause)
             params.extend(where_params)
 
         # Add analytic filter if present
         if analytic_account_ids:
-            _logger.info("🏢 APPLYING ANALYTIC FILTER for warehouse IDs: %s", analytic_account_ids)
+            _logger.info("🏢 Adding analytic filter for IDs: %s", analytic_account_ids)
 
-            # Build analytic condition
             analytic_conditions = []
             for analytic_id in analytic_account_ids:
-                # JSONB operator to check if key exists
                 analytic_conditions.append(
                     f"(account_move_line.analytic_distribution ? '{str(analytic_id)}')"
                 )
@@ -73,15 +109,9 @@ class ReportFinancial(models.AbstractModel):
             if analytic_conditions:
                 analytic_filter = "(" + " OR ".join(analytic_conditions) + ")"
                 wheres.append(analytic_filter)
-                _logger.info("  ✅ Analytic filter SQL: %s", analytic_filter)
-        else:
-            _logger.info("⚠️ NO ANALYTIC FILTER FOUND - showing ALL warehouses")
-            _logger.info("  This means the context was NOT passed correctly!")
+                _logger.info("  ✅ Filter: %s", analytic_filter)
 
-        # Construct WHERE clause
         where_str = " AND ".join(wheres)
-
-        # Build final query
         request = (
                 "SELECT account_id as id, " + ', '.join(mapping.values()) +
                 " FROM " + tables +
@@ -89,159 +119,140 @@ class ReportFinancial(models.AbstractModel):
                 " GROUP BY account_id"
         )
 
-        _logger.info("=" * 80)
-        _logger.info("📊 FINAL SQL QUERY:")
-        _logger.info(request)
-        _logger.info("🔢 QUERY PARAMS: %s", params)
-        _logger.info("=" * 80)
+        _logger.info("SQL: %s", request)
+        _logger.info("Params: %s", params)
 
         try:
             self.env.cr.execute(request, tuple(params))
 
-            result_count = 0
             for row in self.env.cr.dictfetchall():
                 res[row['id']] = {
                     'balance': row.get('balance', 0.0),
                     'debit': row.get('debit', 0.0),
                     'credit': row.get('credit', 0.0),
                 }
-                result_count += 1
 
-            _logger.info("✅ Query returned %d account records", result_count)
-
-            if result_count > 0:
-                # Log first 3 results
-                sample_results = list(res.items())[:3]
-                for acc_id, values in sample_results:
-                    account = self.env['account.account'].browse(acc_id)
-                    _logger.info(
-                        "  Account %s (%s): Balance=%.2f, Debit=%.2f, Credit=%.2f",
-                        account.code, account.name,
-                        values['balance'], values['debit'], values['credit']
-                    )
-            else:
-                _logger.warning("⚠️ WARNING: Query returned ZERO results!")
-                _logger.warning("   Check if analytic_distribution field has data")
+            _logger.info("✅ Returned %d account balances", len([v for v in res.values() if v['balance'] != 0]))
 
         except Exception as e:
-            _logger.error("❌ SQL Query Error: %s", str(e))
-            _logger.error("Query: %s", request)
-            _logger.error("Params: %s", params)
+            _logger.error("❌ SQL Error: %s", str(e))
             raise
 
         _logger.info("=" * 80)
         return res
 
+    def get_account_lines(self, data):
+        """
+        CRITICAL OVERRIDE: This is likely what the parent template calls
+        We need to intercept and filter accounts here
+        """
+        _logger.info("=" * 80)
+        _logger.info("🎯 get_account_lines CALLED")
+        _logger.info("Data: %s", data)
+        _logger.info("Context: %s", dict(self.env.context))
+        _logger.info("=" * 80)
+
+        # Extract analytic IDs from context
+        analytic_ids = self.env.context.get('analytic_account_ids', [])
+
+        # Call parent method
+        lines = super().get_account_lines(data)
+
+        _logger.info("Parent returned %d lines", len(lines) if lines else 0)
+
+        # If analytic filter is active, filter the lines
+        if analytic_ids and lines:
+            _logger.info("🏢 Filtering lines by analytic IDs: %s", analytic_ids)
+
+            filtered_lines = []
+            for line in lines:
+                account_id = line.get('account_id')
+                if account_id:
+                    # Check if this account has move lines with matching analytics
+                    account = self.env['account.account'].browse(account_id)
+
+                    # Get balances with analytic filter
+                    balances = self._compute_account_balance(account)
+
+                    if account_id in balances and balances[account_id]['balance'] != 0:
+                        # Update line with filtered balance
+                        line.update(balances[account_id])
+                        filtered_lines.append(line)
+
+            _logger.info("✅ Filtered to %d lines", len(filtered_lines))
+            return filtered_lines
+
+        return lines
+
     @api.model
     def _get_report_values(self, docids, data=None):
-        """Override to pass analytic information for display"""
+        """Override to pass analytic information and ensure filtering"""
 
         _logger.info("=" * 80)
-        _logger.info("🎯 _GET_REPORT_VALUES - CALLED (PDF Generation)")
-        _logger.info("=" * 80)
-        _logger.info("Docids: %s", docids)
-        _logger.info("Data: %s", data)
-        _logger.info("Current context BEFORE processing: %s", dict(self.env.context))
+        _logger.info("🎯 _get_report_values CALLED")
         _logger.info("=" * 80)
 
-        # Extract context and analytic IDs early
+        # Extract analytic IDs
         used_context = {}
         analytic_ids = []
 
         if data and data.get('form'):
             form_data = data['form']
-            _logger.info("📋 Form data received:")
-            for key, value in form_data.items():
-                _logger.info("  - %s: %s (type: %s)", key, value, type(value))
 
-            # Get context from form
+            _logger.info("📋 Form data:")
+            _logger.info("  analytic_account_ids: %s", form_data.get('analytic_account_ids'))
+
             if form_data.get('used_context'):
                 used_context = form_data['used_context']
-                _logger.info("📦 Used context from form:")
-                for key, value in used_context.items():
-                    _logger.info("  - %s: %s", key, value)
+                _logger.info("📦 Used context: %s", used_context)
 
-            # Extract analytic account IDs
+            # Extract analytic IDs
             analytic_data = form_data.get('analytic_account_ids', [])
-            _logger.info("🏢 Raw analytic_account_ids from form: %s (type: %s)",
-                         analytic_data, type(analytic_data))
 
-            # Normalize the many2many field data
             if analytic_data:
                 if isinstance(analytic_data, (list, tuple)) and len(analytic_data) > 0:
                     if isinstance(analytic_data[0], (list, tuple)) and len(analytic_data[0]) > 2:
-                        # Format: [(6, 0, [ids])]
                         analytic_ids = analytic_data[0][2]
-                        _logger.info("  Extracted from tuple format: %s", analytic_ids)
                     else:
-                        # Format: [id1, id2, ...]
                         analytic_ids = list(analytic_data)
-                        _logger.info("  Extracted from list format: %s", analytic_ids)
 
-            _logger.info("✅ FINAL extracted analytic_ids: %s (type: %s)",
-                         analytic_ids, type(analytic_ids))
+            _logger.info("✅ Extracted analytic_ids: %s", analytic_ids)
 
-            # CRITICAL: Ensure analytic_ids are in the context
             if analytic_ids:
                 used_context['analytic_account_ids'] = analytic_ids
-                _logger.info("✅ Added analytic_ids to used_context")
-                _logger.info("   used_context is now: %s", used_context)
-            else:
-                _logger.warning("⚠️ NO analytic IDs found - will show all warehouses")
 
-        # CRITICAL FIX: Force the context update
-        if used_context and analytic_ids:
-            _logger.info("=" * 80)
-            _logger.info("🔄 Calling parent WITH FORCED CONTEXT")
-            _logger.info("   Forcing context: %s", used_context)
-            _logger.info("=" * 80)
-
-            # Create new environment with forced context
-            new_self = self.with_context(**used_context)
-            result = super(ReportFinancial, new_self)._get_report_values(docids, data)
+        # Call parent with context
+        if used_context:
+            _logger.info("🔄 Calling parent WITH context: %s", used_context)
+            result = super(ReportFinancial, self.with_context(**used_context))._get_report_values(docids, data)
         else:
-            _logger.info("🔄 Calling parent WITHOUT additional context")
+            _logger.info("🔄 Calling parent WITHOUT context")
             result = super(ReportFinancial, self)._get_report_values(docids, data)
 
         if not result:
             result = {}
 
-        # Initialize default values
+        # Set display information
         result['selected_warehouses'] = False
         result['warehouse_display'] = 'All Warehouses (Combined)'
-        result['include_combined'] = False
-        result['show_warehouse_breakdown'] = False
         result['single_warehouse_mode'] = False
 
-        # Process warehouse/analytic display information
         if analytic_ids:
             analytic_accounts = self.env['account.analytic.account'].browse(analytic_ids)
             result['selected_warehouses'] = analytic_accounts
             names = [acc.name for acc in analytic_accounts]
 
             if len(analytic_accounts) == 1:
-                # Single warehouse mode
                 result['warehouse_display'] = f'{names[0]} (Separate Report)'
-                result['show_warehouse_breakdown'] = False
                 result['single_warehouse_mode'] = True
-                _logger.info("🏢 SINGLE WAREHOUSE MODE: %s", names[0])
+                _logger.info("🏢 SINGLE WAREHOUSE: %s", names[0])
             else:
-                # Multiple warehouses mode
-                result['warehouse_display'] = f'{", ".join(names)} (Combined)'
-                result['show_warehouse_breakdown'] = True
-                result['single_warehouse_mode'] = False
-                if data and data.get('form'):
-                    result['include_combined'] = bool(data['form'].get('include_combined', False))
-                _logger.info("🏢 MULTIPLE WAREHOUSE MODE: %s", ", ".join(names))
+                result['warehouse_display'] = f'{", ".join(names)}'
+                _logger.info("🏢 MULTIPLE WAREHOUSES: %s", names)
         else:
-            # All warehouses mode
-            result['warehouse_display'] = 'All Warehouses (Combined)'
-            _logger.info("🌍 ALL WAREHOUSES MODE (No filter)")
+            _logger.info("🌍 ALL WAREHOUSES")
 
-        _logger.info("=" * 80)
-        _logger.info("📊 FINAL REPORT VALUES:")
-        _logger.info("  warehouse_display: %s", result.get('warehouse_display'))
-        _logger.info("  single_warehouse_mode: %s", result.get('single_warehouse_mode'))
+        _logger.info("📊 Final warehouse_display: %s", result['warehouse_display'])
         _logger.info("=" * 80)
 
         return result

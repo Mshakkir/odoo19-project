@@ -135,37 +135,50 @@ class AccountingReport(models.TransientModel):
     # -----------------------------
     # Override check_report to ensure context is passed
     # -----------------------------
+    # Replace the check_report method in your wizard/account_report.py with this:
+
     def check_report(self):
-        """Override to ensure analytic context is properly set before generating report"""
+        """Override to pass data with analytic filtering"""
         self.ensure_one()
 
         _logger.info("=" * 80)
-        _logger.info("🖨️ CHECK_REPORT (Print Button) called")
-        _logger.info("Selected analytic accounts: %s", self.analytic_account_ids.ids)
-        _logger.info("Analytic names: %s", self.analytic_account_ids.mapped('name'))
+        _logger.info("🖨️ CHECK_REPORT - Print button clicked")
+        _logger.info("Selected analytics: %s", self.analytic_account_ids.mapped('name'))
         _logger.info("=" * 80)
 
-        # Get the data dictionary with ALL required fields
-        data = {}
-        data['ids'] = self.env.context.get('active_ids', [])
-        data['model'] = self.env.context.get('active_model', 'ir.ui.menu')
+        # Build data dictionary
+        data = {
+            'ids': self.env.context.get('active_ids', []),
+            'model': self.env.context.get('active_model', 'ir.ui.menu'),
+            'form': self.read([
+                'date_from', 'date_to', 'journal_ids', 'target_move',
+                'company_id', 'analytic_account_ids', 'include_combined',
+                'account_report_id', 'enable_filter', 'debit_credit',
+                'date_from_cmp', 'date_to_cmp', 'filter_cmp', 'label_filter'
+            ])[0]
+        }
 
-        # Read ALL fields that parent module expects
-        data['form'] = self.read([
-            'date_from', 'date_to', 'journal_ids', 'target_move',
-            'company_id',  # CRITICAL: Parent module needs this
-            'analytic_account_ids', 'include_combined'
-        ])[0]
-
-        # Ensure used_context is built with analytic IDs
+        # Build contexts
         used_context = self._build_contexts(data)
         data['form']['used_context'] = used_context
 
-        _logger.info("Data being passed to report: %s", data)
-        _logger.info("Used context: %s", used_context)
+        # Log what we're passing
+        _logger.info("Analytic IDs being passed: %s", used_context.get('analytic_account_ids'))
 
-        # Call parent with updated context
-        return super(AccountingReport, self.with_context(**used_context)).check_report()
+        # Get report action from parent but DON'T call it yet
+        # We need to modify it to use our custom context
+        action = self.env.ref('accounting_pdf_reports.action_report_financial').report_action(self, data=data)
+
+        # Force our context into the action
+        if 'context' not in action:
+            action['context'] = {}
+        action['context'].update(used_context)
+
+        _logger.info("=" * 80)
+        _logger.info("✅ Returning action with context: %s", action.get('context'))
+        _logger.info("=" * 80)
+
+        return action
 
     # -----------------------------
     # Main Report Action

@@ -64,15 +64,25 @@ class AccountingReport(models.TransientModel):
     # -----------------------------
     def _build_contexts(self, data):
         """Override to include analytic account IDs in context"""
-        result = super()._build_contexts(data)
 
         analytic_ids = []
         form_data = data.get('form', {})
-        analytic_data = form_data.get('analytic_account_ids', [])
 
         _logger.info("=" * 80)
         _logger.info("🔧 _build_contexts called")
-        _logger.info("Form data: %s", form_data)
+        _logger.info("Form data keys: %s", form_data.keys())
+
+        # CRITICAL FIX: Ensure company_id is present before calling parent
+        if 'company_id' not in form_data:
+            company = self.company_id if self.company_id else self.env.company
+            form_data['company_id'] = [company.id, company.name]
+            _logger.info("Added missing company_id: %s", form_data['company_id'])
+
+        # Now safe to call parent
+        result = super()._build_contexts(data)
+
+        # Extract analytic data
+        analytic_data = form_data.get('analytic_account_ids', [])
         _logger.info("Analytic data raw: %s", analytic_data)
 
         if analytic_data:
@@ -97,10 +107,17 @@ class AccountingReport(models.TransientModel):
 
     def _build_comparison_context(self, data):
         """Override to include analytic account IDs in comparison context"""
+
+        form_data = data.get('form', {})
+
+        # CRITICAL FIX: Ensure company_id is present before calling parent
+        if 'company_id' not in form_data:
+            company = self.company_id if self.company_id else self.env.company
+            form_data['company_id'] = [company.id, company.name]
+
         result = super()._build_comparison_context(data)
 
         analytic_ids = []
-        form_data = data.get('form', {})
         analytic_data = form_data.get('analytic_account_ids', [])
 
         if analytic_data:
@@ -128,12 +145,17 @@ class AccountingReport(models.TransientModel):
         _logger.info("Analytic names: %s", self.analytic_account_ids.mapped('name'))
         _logger.info("=" * 80)
 
-        # Get the data dictionary
+        # Get the data dictionary with ALL required fields
         data = {}
         data['ids'] = self.env.context.get('active_ids', [])
         data['model'] = self.env.context.get('active_model', 'ir.ui.menu')
-        data['form'] = self.read(['date_from', 'date_to', 'journal_ids', 'target_move',
-                                  'analytic_account_ids', 'include_combined'])[0]
+
+        # Read ALL fields that parent module expects
+        data['form'] = self.read([
+            'date_from', 'date_to', 'journal_ids', 'target_move',
+            'company_id',  # CRITICAL: Parent module needs this
+            'analytic_account_ids', 'include_combined'
+        ])[0]
 
         # Ensure used_context is built with analytic IDs
         used_context = self._build_contexts(data)

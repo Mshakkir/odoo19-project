@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="report_financial_inherit" inherit_id="accounting_pdf_reports.report_financial">
+        <!-- Add Warehouse Selection Display -->
         <xpath expr="//div[@class='row mt32 mb32']" position="after">
             <div class="row mb16" t-if="warehouse_display">
                 <div class="col-12">
@@ -9,19 +10,32 @@
                 </div>
             </div>
         </xpath>
-         <xpath expr="//th[contains(text(), 'Balance')]" position="replace">
-            <th>Amount</th>
+
+        <!-- Change "Balance" column header to "Amount" -->
+        <xpath expr="//th[contains(text(), 'Balance')]" position="replace">
+            <th class="text-right">Amount</th>
+        </xpath>
+
+        <!-- Alternative: If the header uses t-esc or variables -->
+        <xpath expr="//th[@class='text-right']/span[contains(text(), 'Balance')]" position="replace">
+            <span>Amount</span>
+        </xpath>
+
+        <!-- Alternative: If using different structure, try this -->
+        <xpath expr="//thead//th[last()]" position="replace">
+            <th class="text-right">Amount</th>
         </xpath>
     </template>
 </odoo>
 
 
 
+
+
+
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 <!--    <template id="report_financial_inherit" inherit_id="accounting_pdf_reports.report_financial">-->
-
-<!--        &lt;!&ndash; Add warehouse selection info after the date range &ndash;&gt;-->
 <!--        <xpath expr="//div[@class='row mt32 mb32']" position="after">-->
 <!--            <div class="row mb16" t-if="warehouse_display">-->
 <!--                <div class="col-12">-->
@@ -30,62 +44,7 @@
 <!--                </div>-->
 <!--            </div>-->
 <!--        </xpath>-->
-
-<!--        &lt;!&ndash; Replace the report lines section to handle multiple warehouses &ndash;&gt;-->
-<!--        <xpath expr="//t[@t-call='accounting_pdf_reports.report_financial_lines']" position="replace">-->
-
-<!--            &lt;!&ndash; Single warehouse or all warehouses combined mode &ndash;&gt;-->
-<!--            <t t-if="not show_warehouse_breakdown">-->
-<!--                <t t-call="accounting_pdf_reports.report_financial_lines"/>-->
-<!--            </t>-->
-
-<!--            &lt;!&ndash; Multiple warehouses - show each separately &ndash;&gt;-->
-<!--            <t t-if="show_warehouse_breakdown">-->
-<!--                <t t-foreach="warehouse_reports" t-as="warehouse_report">-->
-<!--                    <div class="warehouse-section" style="page-break-before: always; margin-top: 30px;">-->
-<!--                        <h3 style="background-color: #f0f0f0; padding: 10px; margin-bottom: 20px; border-left: 4px solid #875a7b;">-->
-<!--                            <strong>Warehouse: </strong>-->
-<!--                            <span t-esc="warehouse_report['warehouse_name']"/>-->
-<!--                        </h3>-->
-
-<!--                        &lt;!&ndash; Set warehouse-specific variables for this iteration &ndash;&gt;-->
-<!--                        <t t-set="account_report_id" t-value="warehouse_report['report_data'].get('account_report_id')"/>-->
-<!--                        <t t-set="Accounts" t-value="warehouse_report['report_data'].get('Accounts')"/>-->
-<!--                        <t t-set="print_journal" t-value="warehouse_report['report_data'].get('print_journal')"/>-->
-<!--                        <t t-set="currency" t-value="warehouse_report['report_data'].get('currency')"/>-->
-
-<!--                        <t t-call="accounting_pdf_reports.report_financial_lines"/>-->
-<!--                    </div>-->
-<!--                </t>-->
-
-<!--                &lt;!&ndash; Combined report if requested &ndash;&gt;-->
-<!--                <t t-if="include_combined and combined_report_data">-->
-<!--                    <div class="warehouse-section" style="page-break-before: always; margin-top: 30px;">-->
-<!--                        <h3 style="background-color: #d4edda; padding: 10px; margin-bottom: 20px; border-left: 4px solid #28a745;">-->
-<!--                            <strong>COMBINED REPORT - All Selected Warehouses</strong>-->
-<!--                        </h3>-->
-
-<!--                        &lt;!&ndash; Set combined report variables &ndash;&gt;-->
-<!--                        <t t-set="account_report_id" t-value="combined_report_data.get('account_report_id')"/>-->
-<!--                        <t t-set="Accounts" t-value="combined_report_data.get('Accounts')"/>-->
-<!--                        <t t-set="print_journal" t-value="combined_report_data.get('print_journal')"/>-->
-<!--                        <t t-set="currency" t-value="combined_report_data.get('currency')"/>-->
-
-<!--                        <t t-call="accounting_pdf_reports.report_financial_lines"/>-->
-<!--                    </div>-->
-<!--                </t>-->
-<!--            </t>-->
-<!--        </xpath>-->
 <!--    </template>-->
 <!--</odoo>-->
-
-
-
-
-
-
-
-
-
 
 

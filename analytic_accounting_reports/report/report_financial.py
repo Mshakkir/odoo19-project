@@ -41,9 +41,12 @@ class ReportFinancial(models.AbstractModel):
         _logger.info("Base where_params: %s", where_params)
 
         # Build WHERE conditions
-        wheres = []
+        wheres = ["account_id IN %s"]
+        params = [tuple(accounts.ids)]
+
         if where_clause:
             wheres.append("(%s)" % where_clause)
+            params.extend(where_params)
 
         # Add analytic filter if present
         if analytic_account_ids:
@@ -65,17 +68,16 @@ class ReportFinancial(models.AbstractModel):
         else:
             _logger.info("No analytic filter - showing all data")
 
-        # FIXED: Correct filter construction
-        filters = (" AND " + " AND ".join(wheres)) if wheres else ""
+        # Construct the WHERE clause
+        where_str = " AND ".join(wheres)
 
+        # Build final query
         request = (
-                "SELECT account_id as id, " + ', '.join(mapping.values()) +
-                " FROM " + tables +
-                " WHERE account_id IN %s" + filters +
-                " GROUP BY account_id"
+            "SELECT account_id as id, " + ', '.join(mapping.values()) +
+            " FROM " + tables +
+            " WHERE " + where_str +
+            " GROUP BY account_id"
         )
-
-        params = [tuple(accounts.ids)] + where_params
 
         _logger.info("FINAL SQL QUERY:")
         _logger.info(request)
@@ -166,6 +168,9 @@ class ReportFinancial(models.AbstractModel):
         # Initialize default values
         result['selected_warehouses'] = False
         result['warehouse_display'] = 'All Warehouses (Combined)'
+        result['include_combined'] = False
+        result['show_warehouse_breakdown'] = False
+        result['single_warehouse_mode'] = False
 
         # Process warehouse/analytic display information
         if analytic_ids:
@@ -175,12 +180,18 @@ class ReportFinancial(models.AbstractModel):
 
             if len(analytic_accounts) == 1:
                 # Single warehouse mode
-                result['warehouse_display'] = f'{names[0]}'
+                result['warehouse_display'] = f'{names[0]} (Separate Report)'
+                result['show_warehouse_breakdown'] = False
+                result['single_warehouse_mode'] = True
                 _logger.info("SINGLE WAREHOUSE MODE: %s", names[0])
             else:
-                # Multiple warehouses mode - combined
+                # Multiple warehouses mode
                 result['warehouse_display'] = ', '.join(names)
-                _logger.info("MULTIPLE WAREHOUSE MODE (Combined): %s", names)
+                result['show_warehouse_breakdown'] = True
+                result['single_warehouse_mode'] = False
+                if data and data.get('form'):
+                    result['include_combined'] = bool(data['form'].get('include_combined', False))
+                _logger.info("MULTIPLE WAREHOUSE MODE: %s", names)
         else:
             # All warehouses mode
             _logger.info("ALL WAREHOUSES MODE")
@@ -189,8 +200,6 @@ class ReportFinancial(models.AbstractModel):
         _logger.info("=" * 80)
 
         return result
-
-
 
 
 

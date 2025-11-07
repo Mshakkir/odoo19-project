@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="report_financial_inherit" inherit_id="accounting_pdf_reports.report_financial">
+
         <!-- Add Warehouse Selection Display -->
         <xpath expr="//div[@class='row mt32 mb32']" position="after">
             <div class="row mb16" t-if="warehouse_display">
@@ -11,23 +12,23 @@
             </div>
         </xpath>
 
-        <!-- Change "Balance" column header to "Amount" -->
-        <xpath expr="//th[contains(text(), 'Balance')]" position="replace">
-            <th class="text-right">Amount</th>
+        <!-- Change "Balance" to "Amount" in Table 1: With Debit/Credit columns -->
+        <xpath expr="//table[@t-if=&quot;data['debit_credit'] == 1&quot;]//thead//tr//th[contains(text(), 'Balance')]" position="replace">
+            <th class="text-end">Amount</th>
         </xpath>
 
-        <!-- Alternative: If the header uses t-esc or variables -->
-        <xpath expr="//th[@class='text-right']/span[contains(text(), 'Balance')]" position="replace">
-            <span>Amount</span>
+        <!-- Change "Balance" to "Amount" in Table 2: Without filter, without debit/credit -->
+        <xpath expr="//table[@t-if=&quot;not data['enable_filter'] and not data['debit_credit']&quot;]//thead//tr//th[contains(text(), 'Balance')]" position="replace">
+            <th class="text-end">Amount</th>
         </xpath>
 
-        <!-- Alternative: If using different structure, try this -->
-        <xpath expr="//thead//th[last()]" position="replace">
-            <th class="text-right">Amount</th>
+        <!-- Change "Balance" to "Amount" in Table 3: With filter enabled -->
+        <xpath expr="//table[@t-if=&quot;data['enable_filter'] == 1 and not data['debit_credit']&quot;]//thead//tr//th[contains(text(), 'Balance')]" position="replace">
+            <th class="text-end">Amount</th>
         </xpath>
+
     </template>
 </odoo>
-
 
 
 

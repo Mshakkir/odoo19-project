@@ -4,22 +4,29 @@ from odoo import models, api
 class StockMove(models.Model):
     _inherit = 'stock.move'
 
-    @api.model
-    def create(self, vals):
-        # Get product and set default location if available
-        if vals.get('product_id'):
-            product = self.env['product.product'].browse(vals['product_id'])
-            if product.product_tmpl_id.default_location_id:
-                # For incoming moves (purchases), set destination location
-                if vals.get('location_dest_id'):
-                    picking = self.env['stock.picking'].browse(vals.get('picking_id'))
-                    if picking and picking.picking_type_id.code == 'incoming':
-                        vals['location_dest_id'] = product.product_tmpl_id.default_location_id.id
+    @api.model_create_multi
+    def create(self, vals_list):
+        # Handle both single dict and list of dicts
+        if not isinstance(vals_list, list):
+            vals_list = [vals_list]
 
-                # For outgoing moves (sales/deliveries), set source location
-                if vals.get('location_id'):
-                    picking = self.env['stock.picking'].browse(vals.get('picking_id'))
-                    if picking and picking.picking_type_id.code == 'outgoing':
-                        vals['location_id'] = product.product_tmpl_id.default_location_id.id
+        for vals in vals_list:
+            if vals.get('product_id'):
+                product = self.env['product.product'].browse(vals['product_id'])
+                default_location = product.product_tmpl_id.default_location_id
 
-        return super(StockMove, self).create(vals)
+                if default_location:
+                    # Check picking type to determine which location to update
+                    picking_id = vals.get('picking_id')
+                    if picking_id:
+                        picking = self.env['stock.picking'].browse(picking_id)
+
+                        # For incoming moves (Purchase/Receipt)
+                        if picking.picking_type_id.code == 'incoming':
+                            vals['location_dest_id'] = default_location.id
+
+                        # For outgoing moves (Sales/Delivery)
+                        elif picking.picking_type_id.code == 'outgoing':
+                            vals['location_id'] = default_location.id
+
+        return super(StockMove, self).create(vals_list)

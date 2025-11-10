@@ -3,10 +3,11 @@
     <record id="product_template_form_view_inherit_location" model="ir.ui.view">
         <field name="name">product.template.form.inherit.location</field>
         <field name="model">product.template</field>
-        <field name="inherit_id" ref="stock.product_template_form_view_stock"/>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
         <field name="arch" type="xml">
-            <xpath expr="//group[@name='group_lots_and_weight']" position="after">
-                <group string="Storage Location">
+            <!-- Add at the end of Inventory tab -->
+            <xpath expr="//page[@name='inventory']" position="inside">
+                <group string="Storage Location" name="storage_location">
                     <field name="default_location_id" options="{'no_create': True}"/>
                 </group>
             </xpath>

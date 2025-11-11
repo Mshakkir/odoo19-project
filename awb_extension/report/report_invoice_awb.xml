@@ -1,11 +1,10 @@
 <odoo>
     <template id="report_invoice_awb_inherit" inherit_id="account.report_invoice_document">
-        <xpath expr="//div[@class='row mt32 mb32']" position="after">
-            <div class="row mt8">
-                <div class="col-6">
-                    <p><strong>Air Waybill No:</strong> <span t-esc="o.awb_number or ''"/></p>
-                    <p><strong>Carrier:</strong> <span t-esc="o.carrier_name or ''"/></p>
-                </div>
+        <xpath expr="//div[@class='page']" position="inside">
+            <div class="mt16 mb16">
+                <h4>Air Waybill Details</h4>
+                <p><strong>AWB Number:</strong> <span t-field="o.awb_number"/></p>
+                <p><strong>Carrier:</strong> <span t-field="o.carrier_name"/></p>
             </div>
         </xpath>
     </template>

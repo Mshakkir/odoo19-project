@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sale_order_awb,sale.order.awb,sale.model_sale_order,sales_team.group_sale_salesman,1,1,1,0
+access_account_move_awb,account.move.awb,account.model_account_move,account.group_account_invoice,1,1,1,0

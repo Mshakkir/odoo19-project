@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Invoice Form View - Add AWB Field -->
+    <record id="view_move_form_awb" model="ir.ui.view">
+        <field name="name">account.move.form.awb</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='ref']" position="after">
+                <field name="awb_number"
+                       placeholder="e.g., 125-12345678"
+                       attrs="{'invisible': [('move_type', 'not in', ['out_invoice', 'out_refund'])]}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

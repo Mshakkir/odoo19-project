@@ -131,10 +131,19 @@
                                 <!-- Only show P.O, Terms, Delivery for sales invoices -->
                                 <t t-if="o.move_type in ('out_invoice','out_refund')">
                                     <tr style="background-color:#FFFFFF;">
+                                        <!--                                        <td style="border:1px solid #000; padding:4px; width:33%;">-->
+                                        <!--                                            <strong>P.O No:</strong>-->
+                                        <!--                                            &lt;!&ndash;                                            <span t-esc="o.invoice_origin or ''"/>&ndash;&gt;-->
+                                        <!--                                            <span t-if="o.sale_id" t-field="o.sale_id.client_order_ref"/>-->
+                                        <!--                                            <span t-else="">-</span>-->
+                                        <!--                                        </td>-->
                                         <td style="border:1px solid #000; padding:4px; width:33%;">
                                             <strong>P.O No:</strong>
-                                            <!--                                            <span t-esc="o.invoice_origin or ''"/>-->
-                                            <span t-if="o.sale_id" t-field="o.sale_id.client_order_ref"/>
+                                            <!-- Safely get related Sale Order reference -->
+                                            <t t-set="sale_order"
+                                               t-value="o.invoice_line_ids and o.invoice_line_ids[0].sale_line_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id"/>
+                                            <span t-if="sale_order"
+                                                  t-esc="sale_order.client_order_ref or sale_order.name"/>
                                             <span t-else="">-</span>
                                         </td>
                                         <td style="border:1px solid #000; padding:4px; width:33%;">
@@ -142,8 +151,14 @@
                                             <t t-esc="o.invoice_payment_term_id.name or ''"/>
                                         </td>
                                         <td style="border:1px solid #000; padding:4px; width:34%;">
+                                            <!--                                            <strong>Delivery Note:</strong>-->
+                                            <!--                                            <span t-field="o.name"/>-->
                                             <strong>Delivery Note:</strong>
-                                            <span t-field="o.name"/>
+                                            <t t-set="delivery"
+                                               t-value="o.invoice_line_ids and o.invoice_line_ids[0].sale_line_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id.picking_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id.picking_ids[0]"/>
+                                            <span t-if="delivery" t-esc="delivery.name"/>
+                                            <span t-else="">-</span>
+
                                         </td>
                                     </tr>
                                 </t>

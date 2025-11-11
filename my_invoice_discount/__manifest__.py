@@ -8,7 +8,7 @@
     "data": [
         # "views/sale_order_views.xml",
         # "views/account_move_views.xml",
-        "views/report_invoice_templates.xml",
+        # "views/report_invoice_templates.xml",
     ],
     "installable": True,
     "application": False,

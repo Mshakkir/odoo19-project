@@ -1,0 +1,15 @@
+<odoo>
+    <record id="view_picking_form_awb" model="ir.ui.view">
+        <field name="name">stock.picking.form.awb</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='pack_operation_group']" position="after">
+                <group string="Air Waybill">
+                    <field name="awb_number"/>
+                    <field name="carrier_name"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

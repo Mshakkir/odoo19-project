@@ -197,10 +197,10 @@
                                         <br/>
                                         <span style="font-family:'Tajawal';font-weight:900;">سعر الوحدة</span>
                                     </th>
-                                    <th>Disc Amt
-                                        <br/>
-                                        <span style="font-family:'Tajawal';font-weight:900;">مبلغ الخصم</span>
-                                    </th>
+<!--                                    <th>Disc Amt-->
+<!--                                        <br/>-->
+<!--                                        <span style="font-family:'Tajawal';font-weight:900;">مبلغ الخصم</span>-->
+<!--                                    </th>-->
                                     <th>Amount
                                         <br/>
                                         <span style="font-family:'Tajawal';font-weight:900;">المبلغ</span>

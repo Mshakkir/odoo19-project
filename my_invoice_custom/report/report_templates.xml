@@ -192,6 +192,12 @@
                                         &#160;&#160;
                                         <span style="font-family:'Tajawal';font-weight:900;">التاريخ</span>
                                     </td>
+                                                                                                                    <!-- ===== AWB FIELD ADDED HERE ===== -->
+                                        <td style="border:1px solid #000; padding:4px 8px;">
+                                            <strong>AWB No:</strong>
+                                            <span t-if="o.awb_number" t-esc="o.awb_number"/>
+                                            <span t-else="">-</span>
+                                        </td>
                                 </tr>
 
                                 <!-- Only show P.O, Terms, Delivery for sales invoices -->
@@ -218,12 +224,7 @@
                                             <span t-else="">-</span>
 
                                         </td>
-                                                                                <!-- ===== AWB FIELD ADDED HERE ===== -->
-                                        <td style="border:1px solid #000; padding:4px; width:25%;">
-                                            <strong>AWB No:</strong>
-                                            <span t-if="o.awb_number" t-esc="o.awb_number"/>
-                                            <span t-else="">-</span>
-                                        </td>
+
                                     </tr>
                                 </t>
                             </table>

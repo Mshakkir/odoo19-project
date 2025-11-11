@@ -15,7 +15,7 @@
     'data': [
         'report/report.xml',
         'report/report_templates.xml',
-        'views/sale_order_view.xml',
+        # 'views/sale_order_view.xml',
     ],
     'assets': {},
     'installable': True,

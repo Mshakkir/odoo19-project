@@ -234,11 +234,11 @@
                                         <span t-field="l[1].price_unit"
                                               t-options='{"widget": "float", "precision": 2}'/>
                                     </td>
-                                    <td style="text-align:right;">
-                                        <t t-set="disc"
-                                           t-value="l[1].quantity * l[1].price_unit * (l[1].discount or 0)/100.0"/>
-                                        <span t-esc="disc" t-options='{"widget":"float","precision":2}'/>
-                                    </td>
+<!--                                    <td style="text-align:right;">-->
+<!--                                        <t t-set="disc"-->
+<!--                                           t-value="l[1].quantity * l[1].price_unit * (l[1].discount or 0)/100.0"/>-->
+<!--                                        <span t-esc="disc" t-options='{"widget":"float","precision":2}'/>-->
+<!--                                    </td>-->
                                     <td style="text-align:right;">
                                         <t t-set="subt"
                                            t-value="l[1].quantity * l[1].price_unit * (1 - (l[1].discount or 0)/100.0)"/>

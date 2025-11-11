@@ -9,7 +9,7 @@
             <xpath expr="//field[@name='ref']" position="after">
                 <field name="awb_number"
                        placeholder="e.g., 125-12345678"
-                       attrs="{'invisible': [('move_type', 'not in', ['out_invoice', 'out_refund'])]}"/>
+                       invisible="move_type not in ['out_invoice', 'out_refund']"/>
             </xpath>
         </field>
     </record>

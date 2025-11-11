@@ -144,8 +144,12 @@
                                     <td style="padding: 4px;">
                                         <span t-field="doc.scheduled_date"/>
                                     </td>
+                                    <!--                                    <td style="padding: 4px;">-->
+                                    <!--                                        <span t-field="doc.origin"/>-->
+                                    <!--                                    </td>-->
                                     <td style="padding: 4px;">
-                                        <span t-field="doc.origin"/>
+                                        <span t-if="doc.sale_id" t-field="doc.sale_id.client_order_ref"/>
+                                        <span t-else="">-</span>
                                     </td>
                                 </tr>
                             </table>

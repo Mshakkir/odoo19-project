@@ -361,10 +361,10 @@
                                 <td colspan="4"
                                     style="border: 1px solid #ccc; padding: 10px; background: #fafafa; font-weight: bold; text-align: center;">
                                     <!-- Arabic Amount in Words -->
-                                    <div style="direction: rtl; font-family: 'Amiri', 'Tajawal', sans-serif; font-size: 13px;">
+                                    <div style="direction: rtl; line-height:1.5; font-family: 'Tajawal', sans-serif; font-weight:900; font-size: 13px;">
                                         فقط
-                                        <span t-esc="o.amount_to_text_arabic(o.amount_total)"/>
-                                        لا غير
+                                        <span style="line-height:1.5; font-family: 'Tajawal', sans-serif; font-weight:900;" t-esc="o.amount_to_text_arabic(o.amount_total)"/>
+<!--                                        لا غير-->
                                     </div>
                                     <!-- English Amount in Words -->
                                     <div style="direction: ltr; margin-top: 5px; font-size: 12px;">

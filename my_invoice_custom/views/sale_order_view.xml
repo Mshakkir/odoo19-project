@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_inherit_shipping_to" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.shipping.to</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Insert the Shipping To field below Customer field -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="shipping_to" placeholder="Enter shipping address or location..."/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

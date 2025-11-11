@@ -4,12 +4,15 @@
         <field name="model">stock.picking</field>
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//group[@name='pack_operation_group']" position="after">
-                <group string="Air Waybill">
+
+            <!-- ✅ Correct position: After "scheduled_date" field -->
+            <xpath expr="//field[@name='scheduled_date']" position="after">
+                <group string="Air Waybill Information">
                     <field name="awb_number"/>
                     <field name="carrier_name"/>
                 </group>
             </xpath>
+
         </field>
     </record>
 </odoo>

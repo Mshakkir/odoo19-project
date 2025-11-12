@@ -1,17 +1,7 @@
 <odoo>
-    <!-- First, hide all default header elements -->
-    <template id="custom_purchaseorder_report_hide_default" inherit_id="purchase.report_purchaseorder_document">
-        <!-- Remove default company header -->
-        <xpath expr="//div[contains(@class,'page')]//div[@class='row']" position="replace"/>
-
-        <!-- Remove default address block -->
-        <xpath expr="//div[@id='informations']" position="replace"/>
-    </template>
-
-    <!-- Now create your custom report -->
     <template id="custom_purchaseorder_report" inherit_id="purchase.report_purchaseorder_document">
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
-            <t t-call="web.html_container">
+            <t t-call="web.basic_layout">
                 <t t-foreach="docs" t-as="o">
                     <div class="article" style="page-break-after: always;">
                         <style type="text/css">
@@ -23,8 +13,8 @@
                             }
                             body {
                                 font-family: 'Tajawal', sans-serif !important;
-                                margin: 0;
-                                padding: 0;
+                                margin: 0 !important;
+                                padding: 0 !important;
                             }
                             * {
                                 font-family: 'Tajawal', sans-serif !important;
@@ -40,6 +30,8 @@
                             }
                             .article {
                                 page-break-inside: avoid;
+                                margin: 0 !important;
+                                padding: 0 !important;
                             }
                         </style>
 

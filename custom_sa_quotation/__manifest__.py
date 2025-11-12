@@ -7,7 +7,7 @@
     'data': [
         'report/report.xml',
         'report/custom_quotation_template.xml',
-        'report/sale_order_report.xml',
+        # 'views/sale_order_views.xml',
     ],
     'assets': {
         'web.report_assets_common': [

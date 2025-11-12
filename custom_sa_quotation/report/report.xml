@@ -1,25 +1,13 @@
+
 <odoo>
-    <data>
-
-        <!-- Sales Order Print -->
-        <report
-            id="custom_salesorder_report"
-            model="sale.order"
-            string="Sales Order"
-            report_type="qweb-pdf"
-            name="custom_sa_quotation.custom_salesorder_template"
-            file="custom_sa_quotation.custom_salesorder_template"
-        />
-
-        <!-- Quotation Print -->
-        <report
-            id="custom_quotation_report"
-            model="sale.order"
-            string="Quotation"
-            report_type="qweb-pdf"
-            name="custom_sa_quotation.custom_quotation_template"
-            file="custom_sa_quotation.custom_quotation_template"
-        />
-
-    </data>
+    <!-- Single report that works for both Quotation and Sales Order -->
+    <report
+        id="custom_saleorder_report"
+        model="sale.order"
+        string="Custom Quotation / Sales Order"
+        report_type="qweb-pdf"
+        name="custom_sa_quotation.custom_saleorder_report"
+        file="custom_sa_quotation.custom_saleorder_report"
+        print_report_name="(object.state in ['draft', 'sent'] and 'Quotation - %s' or 'Sales Order - %s') % (object.name)"
+    />
 </odoo>

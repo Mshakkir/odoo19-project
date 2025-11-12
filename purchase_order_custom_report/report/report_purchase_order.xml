@@ -24,7 +24,7 @@
                             }
                         </style>
 
-                        <div style="border: 3px solid black; padding: 15px; border-radius: 5px;">
+                        <div style="border: 3px solid black; padding: 5px; border-radius: 5px;">
 
                             <!-- HEADER SECTION -->
                             <div class="po-header" style="display: flex; padding: 15px 20px; border:2px solid #800000; border-radius: 6px; background: white; margin-bottom: 15px;">

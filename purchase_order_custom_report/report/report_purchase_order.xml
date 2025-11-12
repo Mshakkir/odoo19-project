@@ -46,7 +46,7 @@
                     <div style="border: 3px solid black; padding: 10px; border-radius: 5px;">
 
                         <!-- CUSTOM HEADER SECTION -->
-                        <table style="width: 100%; border: 2px solid #800000; border-radius: 6px; background: white; margin-bottom: 10px; padding: 8px;">
+                        <table style="width: 100%; border: 2px solid #800000; border-radius: 6px; background: white; margin-bottom: 5px; padding: 8px;">
                             <tr>
                                 <!-- Left Column: English Info -->
                                 <td style="width: 33%; text-align: left; font-size: 9px; color: #4a4a4a; vertical-align: top; padding: 4px;">

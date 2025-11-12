@@ -23,16 +23,16 @@
                         </style>
                     </head>
 
-                    <div style="border: 3px solid green; padding: 15px; border-radius: 5px;">
+                    <div style="border: 3px solid black; padding: 15px; border-radius: 5px;">
 
                         <!-- HEADER SECTION -->
                         <div class="page">
                             <div class="header"
-                                 style="display: flex; padding: 15px 20px;  border-radius: 2px; background: white; margin-bottom: 15px;">
+                                 style="display: flex; padding: 15px 20px; border:2px solid #800000; border-radius: 6px; background: white; margin-bottom: 15px;">
                                 <table style="width: 100%; border:2px solid white;">
                                     <tr>
                                         <!-- Left Column: English Info -->
-                                        <td style="width: 33%; text-align: left; font-size: 10px; color: #4a4a4a; vertical-align: top;margin-top:-10px;">
+                                        <td style="width: 33%; text-align: left; font-size: 13px; color: #4a4a4a; vertical-align: top;">
                                             <div style="font-weight: 700; font-size: 16px; color: #800000; margin-bottom: 8px;">
                                                 SAMEER SHARAF AL OTAIBI TRADING COMPANY
                                             </div>
@@ -75,8 +75,8 @@
 
                         <!-- TITLE -->
                         <t t-call="web.external_layout">
-                            <div style="padding-top:70px;">
-                                <div style="background-color:#d3d3d3; color:black; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
+                            <div style="padding-top:100px;">
+                                <div style="background-color:#d3d3d3; color:white; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
                                     Purchase Order / <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">أمر شراء</span>
                                 </div>
                             </div>

@@ -88,9 +88,33 @@
 
                         <!-- ===== CUSTOMER INFO ===== -->
                         <div style="border:1px solid #999; margin-bottom:10px; font-size:12px;">
+                            <!--                            <table style="width:100%; border-collapse:collapse;">-->
+                            <!--                                <tr style="background-color:#d3d3d3;">-->
+                            <!--                                    <td colspan="2" style="padding:4px 8px; font-weight:bold;">-->
+                            <!--                                        <t t-if="o.move_type in ('out_invoice','out_refund')">-->
+                            <!--                                            Sold To &#160;&#160;&#160;&#160;&#160;&#160;&#160; اسم العميل-->
+                            <!--                                        </t>-->
+                            <!--                                        <t t-elif="o.move_type in ('in_invoice','in_refund')">-->
+                            <!--                                            Supplier &#160;&#160;&#160;&#160;&#160;&#160;&#160;المورد-->
+                            <!--                                        </t>-->
+                            <!--                                    </td>-->
+                            <!--                                </tr>-->
+                            <!--                                <tr>-->
+                            <!--                                    <td colspan="2" style="padding:6px 10px;">-->
+                            <!--                                        <strong>-->
+                            <!--                                            <t t-esc="o.partner_id.name"/>-->
+                            <!--                                        </strong>-->
+                            <!--                                        <br/>-->
+                            <!--                                        <br/>-->
+                            <!--                                        <strong>VAT NO :</strong>-->
+                            <!--                                        <t t-esc="o.partner_id.vat or 'N/A'"/>-->
+                            <!--                                    </td>-->
+                            <!--                                </tr>-->
+                            <!--                            </table>-->
                             <table style="width:100%; border-collapse:collapse;">
                                 <tr style="background-color:#d3d3d3;">
-                                    <td colspan="2" style="padding:4px 8px; font-weight:bold;">
+                                    <!-- Left column: Sold To / Supplier -->
+                                    <td style="padding:4px 8px; font-weight:bold; width:50%; border-right:1px solid #999;">
                                         <t t-if="o.move_type in ('out_invoice','out_refund')">
                                             Sold To &#160;&#160;&#160;&#160;&#160;&#160;&#160; اسم العميل
                                         </t>
@@ -98,9 +122,17 @@
                                             Supplier &#160;&#160;&#160;&#160;&#160;&#160;&#160;المورد
                                         </t>
                                     </td>
+
+                                    <!-- Right column: Shipping To (only for out_invoice) -->
+                                    <td style="padding:4px 8px; font-weight:bold; width:50%;">
+                                        <t t-if="o.move_type in ('out_invoice','out_refund') and o.shipping_to">
+                                            Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160; عنوان الشحن
+                                        </t>
+                                    </td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2" style="padding:6px 10px;">
+                                    <!-- Left column: Customer details -->
+                                    <td style="padding:6px 10px; vertical-align:top; border-right:1px solid #999;">
                                         <strong>
                                             <t t-esc="o.partner_id.name"/>
                                         </strong>
@@ -108,6 +140,13 @@
                                         <br/>
                                         <strong>VAT NO :</strong>
                                         <t t-esc="o.partner_id.vat or 'N/A'"/>
+                                    </td>
+
+                                    <!-- Right column: Shipping address -->
+                                    <td style="padding:6px 10px; vertical-align:top;">
+                                        <t t-if="o.move_type in ('out_invoice','out_refund') and o.shipping_to">
+                                            <span style="white-space:pre-line;" t-esc="o.shipping_to"/>
+                                        </t>
                                     </td>
                                 </tr>
                             </table>
@@ -126,12 +165,12 @@
                                         &#160;&#160;
                                         <span style="font-family:'Tajawal';font-weight:900;">التاريخ</span>
                                     </td>
-                                                                                                                    <!-- ===== AWB FIELD ADDED HERE ===== -->
-                                        <td style="border:1px solid #000; padding:4px 8px;">
-                                            <strong>AWB No:</strong>
-                                            <span t-if="o.awb_number" t-esc="o.awb_number"/>
-                                            <span t-else="">-</span>
-                                        </td>
+                                    <!-- ===== AWB FIELD ADDED HERE ===== -->
+                                    <td style="border:1px solid #000; padding:4px 8px;">
+                                        <strong>AWB No:</strong>
+                                        <span t-if="o.awb_number" t-esc="o.awb_number"/>
+                                        <span t-else="">-</span>
+                                    </td>
                                 </tr>
 
                                 <!-- Only show P.O, Terms, Delivery for sales invoices -->
@@ -369,8 +408,9 @@
                                     <!-- Arabic Amount in Words -->
                                     <div style="direction: rtl; line-height:1.5; font-family: 'Tajawal', sans-serif; font-weight:900; font-size: 13px;">
                                         فقط
-                                        <span style="line-height:1.5; font-family: 'Tajawal', sans-serif; font-weight:900;" t-esc="o.amount_to_text_arabic(o.amount_total)"/>
-<!--                                        لا غير-->
+                                        <span style="line-height:1.5; font-family: 'Tajawal', sans-serif; font-weight:900;"
+                                              t-esc="o.amount_to_text_arabic(o.amount_total)"/>
+                                        <!--                                        لا غير-->
                                     </div>
                                     <!-- English Amount in Words -->
                                     <div style="direction: ltr; margin-top: 5px; font-size: 12px;">

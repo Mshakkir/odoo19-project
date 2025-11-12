@@ -88,95 +88,29 @@
 
                         <!-- ===== CUSTOMER INFO ===== -->
                         <div style="border:1px solid #999; margin-bottom:10px; font-size:12px;">
-<!--                                                        <table style="width:100%; border-collapse:collapse;">-->
-<!--                                                            <tr style="background-color:#d3d3d3;">-->
-<!--                                                                <td colspan="2" style="padding:4px 8px; font-weight:bold;">-->
-<!--                                                                    <t t-if="o.move_type in ('out_invoice','out_refund')">-->
-<!--                                                                        Sold To &#160;&#160;&#160;&#160;&#160;&#160;&#160; اسم العميل-->
-<!--                                                                    </t>-->
-<!--                                                                    <t t-elif="o.move_type in ('in_invoice','in_refund')">-->
-<!--                                                                        Supplier &#160;&#160;&#160;&#160;&#160;&#160;&#160;المورد-->
-<!--                                                                    </t>-->
-<!--                                                                </td>-->
-<!--                                                            </tr>-->
-<!--                                                            <tr>-->
-<!--                                                                <td colspan="2" style="padding:6px 10px;">-->
-<!--                                                                    <strong>-->
-<!--                                                                        <t t-esc="o.partner_id.name"/>-->
-<!--                                                                    </strong>-->
-<!--                                                                    <br/>-->
-<!--                                                                    <br/>-->
-<!--                                                                    <strong>VAT NO :</strong>-->
-<!--                                                                    <t t-esc="o.partner_id.vat or 'N/A'"/>-->
-<!--                                                                </td>-->
-<!--                                                            </tr>-->
-<!--                                                        </table>-->
                             <table style="width:100%; border-collapse:collapse;">
                                 <tr style="background-color:#d3d3d3;">
-                                    <td style="padding:4px 8px; font-weight:bold; width:50%;">
+                                    <td colspan="2" style="padding:4px 8px; font-weight:bold;">
                                         <t t-if="o.move_type in ('out_invoice','out_refund')">
                                             Sold To &#160;&#160;&#160;&#160;&#160;&#160;&#160; اسم العميل
                                         </t>
                                         <t t-elif="o.move_type in ('in_invoice','in_refund')">
-                                            Supplier &#160;&#160;&#160;&#160;&#160;&#160;&#160; المورد
+                                            Supplier &#160;&#160;&#160;&#160;&#160;&#160;&#160;المورد
                                         </t>
                                     </td>
-
-                                    <!-- Only show Shipping To for customer invoices -->
-                                    <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                        <td style="padding:4px 8px; font-weight:bold; width:50%;">
-                                            Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160; عنوان الشحن
-                                        </td>
-                                    </t>
-                                    <t t-else="">
-                                        <td></td>
-                                    </t>
                                 </tr>
-
                                 <tr>
-                                    <!-- SOLD TO DETAILS -->
-                                    <td style="padding:6px 10px; vertical-align:top;">
+                                    <td colspan="2" style="padding:6px 10px;">
                                         <strong>
                                             <t t-esc="o.partner_id.name"/>
                                         </strong>
                                         <br/>
-                                        <t t-esc="o.partner_id.street or ''"/>
-                                        <br/>
-                                        <t t-esc="o.partner_id.city or ''"/>
-                                        <t t-if="o.partner_id.zip">,
-                                            <t t-esc="o.partner_id.zip"/>
-                                        </t>
                                         <br/>
                                         <strong>VAT NO :</strong>
                                         <t t-esc="o.partner_id.vat or 'N/A'"/>
                                     </td>
-
-                                    <!-- SHIPPING TO DETAILS -->
-                                    <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                        <td style="padding:6px 10px; vertical-align:top;">
-                                            <t t-set="delivery_partner"
-                                               t-value="o.partner_shipping_id or o.partner_id"/>
-                                            <strong>
-                                                <t t-esc="delivery_partner.name or ''"/>
-                                            </strong>
-                                            <br/>
-                                            <t t-esc="delivery_partner.street or ''"/>
-                                            <br/>
-                                            <t t-esc="delivery_partner.city or ''"/>
-                                            <t t-if="delivery_partner.zip">,
-                                                <t t-esc="delivery_partner.zip"/>
-                                            </t>
-                                            <br/>
-                                            <strong>VAT NO :</strong>
-                                            <t t-esc="delivery_partner.vat or 'N/A'"/>
-                                        </td>
-                                    </t>
-                                    <t t-else="">
-                                        <td></td>
-                                    </t>
                                 </tr>
                             </table>
-
                             <!-- ===== INVOICE INFO ===== -->
                             <table style="width:100%; border-top:1px solid #999; background-color:#d3d3d3; font-weight:bold;">
                                 <tr>

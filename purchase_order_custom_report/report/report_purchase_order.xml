@@ -3,8 +3,11 @@
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="o">
-                    <head>
-                        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+                    <div class="header" style="display: none;"/>
+                    <div class="footer" style="display: none;"/>
+
+                    <t t-set="o_doc" t-value="o"/>
+                    <div class="page" style="page-break-after: always;">
                         <style type="text/css">
                             @font-face {
                                 font-family: 'Tajawal';
@@ -22,16 +25,11 @@
                             }
                             /* Add page margins */
                             @page {
-                                margin: 20mm 15mm 20mm 15mm;
-                            }
-                            .page {
-                                padding: 0;
-                                margin: 0;
+                                margin: 15mm 10mm 15mm 10mm;
                             }
                         </style>
-                    </head>
 
-                    <div class="page" style="border: 3px solid black; padding: 20px; border-radius: 5px; margin: 15px;">
+                    <div style="border: 3px solid black; padding: 15px; border-radius: 5px;">
 
                         <!-- HEADER SECTION -->
                         <div class="header" style="display: flex; padding: 15px 20px; border:2px solid #800000; border-radius: 6px; background: white; margin-bottom: 15px;">

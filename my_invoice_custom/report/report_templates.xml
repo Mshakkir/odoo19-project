@@ -3,12 +3,31 @@
     <template id="custom_invoice_report" inherit_id="l10n_sa.l10n_sa_report_invoice_document">
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
             <t t-call="web.html_container">
-<!--                <style>-->
-<!--                    @page {-->
-<!--                    margin-top: 40mm; /* header space */-->
-<!--                    margin-bottom: 40mm; /* footer space */-->
-<!--                    }-->
-<!--                </style>-->
+                <style>
+                    @page {
+                    margin-top: 50mm; /* Space for header - adjust this */
+                    margin-bottom: 30mm; /* Space for footer - adjust this */
+                    margin-left: 10mm; /* Left margin */
+                    margin-right: 10mm; /* Right margin */
+                    }
+
+                    /* Header positioning */
+                    .header {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    }
+
+                    /* Footer positioning */
+                    .footer {
+                    position: fixed;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    }
+                </style>
+
 
                 <!-- Loop through invoices -->
                 <t t-foreach="docs" t-as="o">

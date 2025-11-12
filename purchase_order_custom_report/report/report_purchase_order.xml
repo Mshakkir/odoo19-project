@@ -194,10 +194,10 @@
                                 <tr>
                                     <!-- Left: Notes -->
                                     <td style="width: 50%; padding-right:8px; vertical-align: top;">
-                                        <t t-if="o.notes">
+                                        <t t-if="o.note">
                                             <div style="margin:0;">
                                                 <strong style="font-size:9px;">Terms and Conditions: / <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">الشروط والأحكام</span></strong><br/>
-                                                <span t-field="o.notes"/>
+                                                <span t-field="o.note"/>
                                             </div>
                                         </t>
                                     </td>

@@ -49,16 +49,6 @@
             </t>
         </template>
 
-        <!-- Report Action -->
-        <report
-            id="action_report_salesorder_custom"
-            string="Sales Order"
-            model="sale.order"
-            report_type="qweb-pdf"
-            name="custom_sa_quotation.custom_salesorder_report"
-            file="custom_sa_quotation.custom_salesorder_report"
-            print_report_name="'Sales Order - %s' % (object.name)"
-            domain="[('state','=','sale')]"
-        />
+
     </data>
 </odoo>

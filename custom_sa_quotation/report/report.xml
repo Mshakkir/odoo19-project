@@ -1,24 +1,38 @@
+
 <!--<odoo>-->
 <!--    <report-->
-<!--            id="custom_saleorder_report"-->
-<!--            model="sale.order"-->
-<!--            string="Custom Quotation"-->
-<!--            report_type="qweb-pdf"-->
-<!--            name="custom_sa_quotation.custom_quotation_template"-->
-<!--            file="custom_sa_quotation.custom_quotation_template"-->
-<!--    />-->
+<!--    id="custom_saleorder_report"-->
+<!--    model="sale.order"-->
+<!--    string="Custom Quotation"-->
+<!--    report_type="qweb-pdf"-->
+<!--    name="custom_sa_quotation.custom_saleorder_report"-->
+<!--    file="custom_sa_quotation.custom_saleorder_report"-->
+<!--    print_report_name="'Quotation - %s' % (object.name)"-->
+<!--    domain="[('state','=','draft')]"-->
+<!--/>-->
 
 <!--</odoo>-->
-<odoo>
-    <report
-    id="custom_saleorder_report"
-    model="sale.order"
-    string="Custom Quotation"
-    report_type="qweb-pdf"
-    name="custom_sa_quotation.custom_saleorder_report"
-    file="custom_sa_quotation.custom_saleorder_report"
-    print_report_name="'Quotation - %s' % (object.name)"
-    domain="[('state','=','draft')]"
-/>
 
+<odoo>
+    <data>
+
+        <report
+            id="custom_saleorder_report"
+            model="sale.order"
+            string="Sales Order"
+            report_type="qweb-pdf"
+            name="custom_sa_quotation.custom_saleorder_template"
+            file="custom_sa_quotation.custom_saleorder_template"
+        />
+
+        <report
+            id="custom_quotation_report"
+            model="sale.order"
+            string="Quotation"
+            report_type="qweb-pdf"
+            name="custom_sa_quotation.custom_quotation_template"
+            file="custom_sa_quotation.custom_quotation_template"
+        />
+
+    </data>
 </odoo>

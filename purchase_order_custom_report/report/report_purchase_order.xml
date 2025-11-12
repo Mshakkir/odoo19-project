@@ -1,9 +1,9 @@
 <odoo>
     <template id="custom_purchaseorder_report" inherit_id="purchase.report_purchaseorder_document">
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
-            <t t-call="web.basic_layout">
-                <t t-foreach="docs" t-as="o">
-                    <div class="article" style="page-break-after: always;">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.html_container">
+                    <div class="article o_report_layout_standard" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')">
                         <style type="text/css">
                             @font-face {
                                 font-family: 'Tajawal';
@@ -26,11 +26,14 @@
                             }
                             @page {
                                 size: A4;
-                                margin: 8mm 8mm 8mm 8mm;
+                                margin: 10mm 10mm 10mm 10mm;
                             }
                             .article {
                                 page-break-inside: avoid;
                                 margin: 0 !important;
+                                padding: 0 !important;
+                            }
+                            .o_report_layout_standard .article {
                                 padding: 0 !important;
                             }
                         </style>

@@ -85,15 +85,7 @@
     <!-- =========================================
          CUSTOM FOOTER TEMPLATE (SEPARATE)
     ========================================== -->
-    <template id="custom_invoice_footer" inherit_id="web.external_layout_footer">
-        <xpath expr="//div[@class='footer']" position="replace">
-            <div class="footer" style="text-align:center; font-size: 12px; margin-top: 20px;">
-                <p><strong>Authorized Signature</strong></p>
-                <p>__________________________</p>
-                <p>This is a system-generated invoice.</p>
-            </div>
-        </xpath>
-    </template>
+
 
     <!-- =========================================
          CUSTOM PURCHASE ORDER REPORT ACTION

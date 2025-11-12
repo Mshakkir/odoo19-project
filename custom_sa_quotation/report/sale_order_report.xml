@@ -1,26 +1,21 @@
 <odoo>
     <data>
-        <!-- Custom Sales Order Report Template -->
-        <template id="custom_salesorder_report">
+        <template id="custom_salesorder_template">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="o">
                     <t t-call="web.external_layout">
 
-                        <!-- Header -->
                         <div style="text-align:center; margin-bottom:10px;">
                             <h2 style="color:#800000;">Sales Order / أمر البيع</h2>
                             <p><strong>Order Reference:</strong> <span t-esc="o.name"/></p>
                             <p><strong>Date:</strong> <span t-field="o.date_order"/></p>
                         </div>
 
-                        <!-- Customer Information -->
                         <div style="margin-bottom:10px;">
-                            <strong>Customer:</strong> <span t-esc="o.partner_id.name"/>
-                            <br/>
+                            <strong>Customer:</strong> <span t-esc="o.partner_id.name"/><br/>
                             <strong>Address:</strong> <span t-esc="o.partner_id.contact_address"/>
                         </div>
 
-                        <!-- Order Lines Table -->
                         <table class="table table-sm" style="width:100%; border:1px solid black; border-collapse:collapse; font-size:13px;">
                             <thead style="background:#d3d3d3;">
                                 <tr>
@@ -48,7 +43,5 @@
                 </t>
             </t>
         </template>
-
-
     </data>
 </odoo>

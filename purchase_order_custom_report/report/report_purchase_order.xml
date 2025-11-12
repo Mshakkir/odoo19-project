@@ -15,8 +15,7 @@
     <template id="report_purchaseorder_custom_document">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
-                <t t-call="web.internal_layout">
-                    <div class="page">
+                <div class="page">
                         <style type="text/css">
                             @font-face {
                                 font-family: 'Tajawal';
@@ -241,7 +240,7 @@
                     </div>
                 </t>
             </t>
-        </t>
+
     </template>
 </odoo>
 

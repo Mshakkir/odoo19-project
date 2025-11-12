@@ -163,11 +163,21 @@
                                     <t t-foreach="o.order_line" t-as="line">
                                         <t t-set="counter" t-value="counter + 1"/>
                                         <tr>
-                                            <td style="border:1px solid #000; padding:3px; text-align:center;" t-esc="counter"/>
-                                            <td style="border:1px solid #000; padding:3px;" t-field="line.name"/>
-                                            <td style="border:1px solid #000; padding:3px; text-align:center;" t-field="line.date_planned" t-options='{"widget": "date"}'/>
-                                            <td style="border:1px solid #000; padding:3px; text-align:center;" t-field="line.product_qty"/>
-                                            <td style="border:1px solid #000; padding:3px; text-align:center;" t-field="line.product_uom.name"/>
+                                            <td style="border:1px solid #000; padding:3px; text-align:center;">
+                                                <span t-esc="counter"/>
+                                            </td>
+                                            <td style="border:1px solid #000; padding:3px;">
+                                                <span t-field="line.name"/>
+                                            </td>
+                                            <td style="border:1px solid #000; padding:3px; text-align:center;">
+                                                <span t-field="line.date_planned" t-options='{"widget": "date"}'/>
+                                            </td>
+                                            <td style="border:1px solid #000; padding:3px; text-align:center;">
+                                                <span t-field="line.product_qty"/>
+                                            </td>
+                                            <td style="border:1px solid #000; padding:3px; text-align:center;">
+                                                <span t-field="line.product_uom.name"/>
+                                            </td>
                                             <td style="border:1px solid #000; padding:3px; text-align:right;">
                                                 <span t-field="line.price_unit" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                             </td>

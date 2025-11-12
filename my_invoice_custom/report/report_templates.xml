@@ -73,7 +73,7 @@
                     <t t-call="web.external_layout">
                         <!-- ===== INVOICE TITLE ===== -->
                         <div style="padding-top:10px;">
-                            <div style="background-color:#581d35; color:white; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
+                            <div style="background-color:white; color:black; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
                                 <t t-if="o.move_type in ('out_invoice','out_refund')">
                                     Tax Invoice /
                                     <span style="font-family:'Tajawal',sans-serif;font-weight:900;">فاتورة ضريبية</span>

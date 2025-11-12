@@ -13,64 +13,68 @@
                     <div style="border: 3px solid black; padding: 15px; border-radius: 5px;">
                         <body>
 
+                            <div class="page">
+                                <div class="header"
+                                     style="display: flex; padding: 15px 20px; border:2px solid #800000; border-radius: 6px; background: white; margin-bottom: 15px;">
+                                    <table style="width: 100%; border:2px solid white;">
+                                        <tr>
+                                            <!-- Left Column: English Info -->
+                                            <td style="width: 33%; text-align: left; font-size: 13px; color: #4a4a4a; vertical-align: top;">
+                                                <div style="font-weight: 700; font-size: 16px; color: #800000; margin-bottom: 8px;">
+                                                    SAMEER SHARAF AL OTAIBI TRADING COMPANY
+                                                </div>
+                                                <div style="line-height: 1.5; font-size: 16px; font-weight: 900; margit-top:3px;">
+                                                    C.R. 4030216154<br/>
+                                                    VAT Regd: 311299944700003<br/>
+                                                    Al Anwar Centre, Showroom No. 12,<br/>
+                                                    Baladiya Street, Jeddah 23334 - Saudi Arabia<br/>
+                                                    Tel: 0536122833<br/>
+                                                    Email: ssaoe.jeddah@gmail.com
+                                                </div>
+                                            </td>
 
-                            <!-- Keep the default structure -->
-                                                   <div class="page">
-                            <div class="header"
-                                 style="display: flex; padding: 15px 20px; border:2px solid #800000; border-radius: 6px; background: white; margin-bottom: 15px;">
-                                <table style="width: 100%; border:2px solid white;">
-                                    <tr>
-                                        <!-- Left Column: English Info -->
-                                        <td style="width: 33%; text-align: left; font-size: 13px; color: #4a4a4a; vertical-align: top;">
-                                            <div style="font-weight: 700; font-size: 16px; color: #800000; margin-bottom: 8px;">
-                                                SAMEER SHARAF AL OTAIBI TRADING COMPANY
-                                            </div>
-                                            <div style="line-height: 1.5; font-size: 16px; font-weight: 900; margit-top:3px;">
-                                                C.R. 4030216154<br/>
-                                                VAT Regd: 311299944700003<br/>
-                                                Al Anwar Centre, Showroom No. 12,<br/>
-                                                Baladiya Street, Jeddah 23334 - Saudi Arabia<br/>
-                                                Tel: 0536122833<br/>
-                                                Email: ssaoe.jeddah@gmail.com
-                                            </div>
-                                        </td>
+                                            <!-- Center Column: Company Logo -->
+                                            <td style="width: 33%; text-align: center; vertical-align: middle;">
+                                                <t t-if="o.company_id.logo">
+                                                    <img t-att-src="image_data_uri(o.company_id.logo)"
+                                                         style="max-height: 130px; max-width: 100%; object-fit: contain;"/>
+                                                </t>
+                                            </td>
 
-                                        <!-- Center Column: Company Logo -->
-                                        <td style="width: 33%; text-align: center; vertical-align: middle;">
-                                            <t t-if="o.company_id.logo">
-                                                <img t-att-src="image_data_uri(o.company_id.logo)"
-                                                     style="max-height: 130px; max-width: 100%; object-fit: contain;"/>
-                                            </t>
-                                        </td>
-
-                                        <!-- Right Column: Arabic Info -->
-                                        <td style="width: 33%; text-align: right; font-size: 13px; color: #4a4a4a; vertical-align: top; direction: rtl;">
-                                            <div style="font-weight: 900; font-size: 22px; color: #800000; margin-bottom: 8px;" class="arabic-word">
-                                                شركة سمير شرف العتيبي التجارية
-                                            </div>
-                                            <div style="line-height: 1.5; font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; font-size: 16px" >
-                                                ٤٠٣٠٢١٦١٥٤ :س.ت<br/>
-                                                ٣١١٢٩٩٩٤٤٧٠٠٠٠٣ :الرقم الضريبي<br/>
-                                                مركز الأنوار، رقم محل ١٢<br/>
-                                                شارع البلدية، جدة ٢٣٣٣٤ - المملكة العربية السعودية<br/>
-                                                ٠٥٣٦١٢٢٨٣٣ :هاتف<br/>
-                                                ssaoe.jeddah@gmail.com :البريد الإلكتروني
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </table>
+                                            <!-- Right Column: Arabic Info -->
+                                            <td style="width: 33%; text-align: right; font-size: 13px; color: #4a4a4a; vertical-align: top; direction: rtl;">
+                                                <div style="font-weight: 900; font-size: 22px; color: #800000; margin-bottom: 8px;" class="arabic-word">
+                                                    شركة سمير شرف العتيبي التجارية
+                                                </div>
+                                                <div style="line-height: 1.5; font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; font-size: 16px" >
+                                                    ٤٠٣٠٢١٦١٥٤ :س.ت<br/>
+                                                    ٣١١٢٩٩٩٤٤٧٠٠٠٠٣ :الرقم الضريبي<br/>
+                                                    مركز الأنوار، رقم محل ١٢<br/>
+                                                    شارع البلدية، جدة ٢٣٣٣٤ - المملكة العربية السعودية<br/>
+                                                    ٠٥٣٦١٢٢٨٣٣ :هاتف<br/>
+                                                    ssaoe.jeddah@gmail.com :البريد الإلكتروني
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
                             </div>
-                        </div>
 
                             <t t-call="web.external_layout">
-                                <!-- ===== Title Section ===== -->
+                                <!-- ===== Dynamic Title Section ===== -->
                                 <div style="padding-top:70px;">
                                     <div style=" background-color:#d3d3d3; color:black; padding:8px ; text-align:center; margin-bottom:10px ; font-weight:bold; font-size:16px;">
-                                        Quotation /
-                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">عرض سعر</span>
+                                        <!-- Dynamic title based on state -->
+                                        <t t-if="o.state in ('draft', 'sent')">
+                                            Quotation /
+                                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">عرض سعر</span>
+                                        </t>
+                                        <t t-if="o.state in ('sale', 'done')">
+                                            Sales Order /
+                                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">طلب مبيعات</span>
+                                        </t>
                                     </div>
                                 </div>
-
 
                                 <!-- ===== Customer & Quote Info ===== -->
                                 <table width="100%"
@@ -94,8 +98,15 @@
                                         </td>
                                         <td width="50%" style="vertical-align: top; padding: 10px;">
                                             <div style="font-weight: bold; padding: 5px; margin-bottom: 5px; background-color: #9e9d9d; color:#080808;">
-                                                Quote / Project Description /
-                                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">عرض سعر</span>
+                                                <!-- Dynamic header label -->
+                                                <t t-if="o.state in ['draft', 'sent']">
+                                                    Quote / Project Description /
+                                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">عرض سعر</span>
+                                                </t>
+                                                <t t-else="">
+                                                    Order Description /
+                                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">وصف الطلب</span>
+                                                </t>
                                             </div>
                                             <div>
                                                 Date:
@@ -111,8 +122,6 @@
                                     </tr>
                                 </table>
 
-
-                                <!-- ===== Order Lines ===== -->
                                 <!-- ===== Order Lines Table ===== -->
                                 <table width="100%" border="1"
                                        style="border-collapse: collapse; font-size: 13px;margin-top:10px;"
@@ -147,9 +156,9 @@
                                         </tr>
                                     </thead>
                                     <tbody style="text-align:center;">
-                                        <tr t-foreach="doc.order_line" t-as="line">
+                                        <tr t-foreach="o.order_line" t-as="line">
                                             <td>
-                                                <t t-esc="line.sequence or loop.index"/>
+                                                <t t-esc="line_index + 1"/>
                                             </td>
                                             <td>
                                                 <span t-field="line.name"/>
@@ -159,7 +168,7 @@
                                                 <span t-field="line.product_uom_qty"/>
                                             </td>
                                             <td>
-                                                <span t-esc="line.product_uom_id.name or ''"/>
+                                                <span t-esc="line.product_uom.name or ''"/>
                                             </td>
                                             <td class="text-right">
                                                 <span t-field="line.price_unit"/>
@@ -171,25 +180,24 @@
                                     </tbody>
                                 </table>
 
-
                                 <!-- ===== Totals and Notes Section ===== -->
                                 <table width="100%" style="font-size: 13px; margin-top: 10px;">
                                     <tr>
                                         <!-- Left: Notes -->
                                         <td style="width: 60%;padding-left:3px; ">
-                                            <t t-if="doc.payment_term_id">
+                                            <t t-if="o.payment_term_id">
                                                 <p>
                                                     <strong>Payment Terms:</strong>
-                                                    <span t-esc="doc.payment_term_id.name"/>
+                                                    <span t-esc="o.payment_term_id.name"/>
                                                 </p>
                                             </t>
-                                            <t t-if="doc.note">
+                                            <t t-if="o.note">
                                                 <div class="mt-4"
                                                      style="font-size: 13px; margin-top: 10px; padding-left:3px;">
                                                     <p>
                                                         <strong>Offer Terms and Conditions:</strong>
                                                     </p>
-                                                    <p t-field="doc.note"/>
+                                                    <p t-field="o.note"/>
                                                 </div>
                                             </t>
                                         </td>
@@ -199,21 +207,21 @@
                                                 <tr>
                                                     <td>Subtotal</td>
                                                     <td style="text-align:right;">
-                                                        <span t-field="doc.amount_untaxed"/>
+                                                        <span t-field="o.amount_untaxed"/>
                                                         SAR
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>Discount</td>
                                                     <td style="text-align:right;">
-                                                        <t t-esc="doc.discount_amount or 0.0"/>
+                                                        <t t-esc="o.discount_amount or 0.0"/>
                                                         SAR
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>Freight</td>
                                                     <td style="text-align:right;">
-                                                        <t t-esc="doc.freight_amount or 0.0"/>
+                                                        <t t-esc="o.freight_amount or 0.0"/>
                                                         SAR
                                                     </td>
                                                 </tr>
@@ -223,7 +231,7 @@
                                                     </td>
                                                     <td style="text-align:right;">
                                                         <t t-set="gross_total"
-                                                           t-value="doc.amount_untaxed - (doc.discount_amount or 0.0) + (doc.freight_amount or 0.0)"/>
+                                                           t-value="o.amount_untaxed - (o.discount_amount or 0.0) + (o.freight_amount or 0.0)"/>
                                                         <t t-esc="gross_total"/>
                                                         SAR
                                                     </td>
@@ -248,12 +256,9 @@
                                                     </td>
                                                 </tr>
                                             </table>
-
-
                                         </td>
                                     </tr>
                                 </table>
-
 
                                 <footer>
                                     <td style="width: 20%; text-align: center;">
@@ -267,10 +272,6 @@
                                 </footer>
                             </t>
 
-
-
-
-
                         </body>
                     </div>
 
@@ -279,6 +280,3 @@
         </xpath>
     </template>
 </odoo>
-
-
-

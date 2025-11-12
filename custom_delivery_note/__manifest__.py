@@ -5,7 +5,7 @@
     "data": [
         "report/report.xml",
         "report/report_delivery_note_custom.xml",
-        'report/sale_order_report.xml',
+
     ],
     "installable": True,
 }

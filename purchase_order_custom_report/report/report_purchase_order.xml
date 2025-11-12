@@ -23,12 +23,12 @@
                         </style>
                     </head>
 
-                    <div style="border: 3px solid black; padding: 15px; border-radius: 5px;">
+                    <div style="border: 3px solid green; padding: 15px; border-radius: 5px;margin-top:-20px;">
 
                         <!-- HEADER SECTION -->
                         <div class="page">
                             <div class="header"
-                                 style="display: flex; padding: 15px 20px; border:1px solid #800000; border-radius: 2px; background: white; margin-bottom: 15px;">
+                                 style="display: flex; padding: 15px 20px;  border-radius: 1px; background: white; margin-bottom: 15px;">
                                 <table style="width: 100%; border:2px solid white;">
                                     <tr>
                                         <!-- Left Column: English Info -->

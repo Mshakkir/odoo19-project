@@ -16,8 +16,17 @@ class SaleOrder(models.Model):
         default=lambda self: self.env.company.currency_id
     )
 
+    @api.onchange('shipping_currency_id')
+    def _onchange_shipping_currency(self):
+        """Update the order currency when shipping currency changes"""
+        if self.shipping_currency_id:
+            self.currency_id = self.shipping_currency_id
+            # Recalculate prices for all order lines
+            for line in self.order_line:
+                line._compute_amount()
+
     def _prepare_invoice(self):
-        """Pass shipping_to and currency to invoice"""
+        """Pass shipping info to invoice"""
         invoice_vals = super()._prepare_invoice()
         invoice_vals['shipping_to'] = self.shipping_to
         invoice_vals['shipping_currency_id'] = self.shipping_currency_id.id if self.shipping_currency_id else False

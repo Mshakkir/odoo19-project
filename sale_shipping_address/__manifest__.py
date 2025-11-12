@@ -6,7 +6,7 @@
     'depends': ['sale', 'account', 'my_invoice_custom'],
     'data': [
         'views/sale_order_views.xml',
-        'reports/invoice_report_inherit.xml',
+
     ],
     'installable': True,
     'application': False,

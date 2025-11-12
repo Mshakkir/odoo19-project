@@ -17,6 +17,8 @@
     report_type="qweb-pdf"
     name="custom_sa_quotation.custom_saleorder_report"
     file="custom_sa_quotation.custom_saleorder_report"
+    print_report_name="'Quotation - %s' % (object.name)"
+    domain="[('state','=','draft')]"
 />
 
 </odoo>

@@ -56,5 +56,6 @@
         name="custom_sa_quotation.custom_salesorder_report"
         file="custom_sa_quotation.custom_salesorder_report"
         print_report_name="'Sales Order - %s' % (object.name)"
+        domain="[('state','=','sale')]"
     />
 </odoo>

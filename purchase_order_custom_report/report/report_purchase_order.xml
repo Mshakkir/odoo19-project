@@ -102,33 +102,33 @@
                                 <tr>
                                     <td style="border:1px solid #000; padding:3px; font-weight:bold; width:18%;">Vendor</td>
                                     <td style="border:1px solid #000; padding:3px; width:32%;">
-                                        <span t-field="o.partner_id.name"/>
+                                        <span t-esc="o.partner_id.name"/>
                                     </td>
                                     <td style="border:1px solid #000; padding:3px; font-weight:bold; width:18%;">Order Date</td>
                                     <td style="border:1px solid #000; padding:3px; width:32%;">
-                                        <span t-field="o.date_order" t-options='{"widget": "date"}'/>
+                                        <span t-esc="o.date_order and o.date_order.strftime('%d-%b-%Y')"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style="border:1px solid #000; padding:3px; font-weight:bold;">Vendor Address</td>
                                     <td style="border:1px solid #000; padding:3px;" colspan="3">
-                                        <div t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
+                                        <span t-esc="o.partner_id.contact_address"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style="border:1px solid #000; padding:3px; font-weight:bold;">Shipping Address</td>
                                     <td style="border:1px solid #000; padding:3px;" colspan="3">
-                                        <div t-field="o.company_id.partner_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
+                                        <span t-esc="o.company_id.partner_id.contact_address"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style="border:1px solid #000; padding:3px; font-weight:bold;">PO Number</td>
                                     <td style="border:1px solid #000; padding:3px;">
-                                        <span t-field="o.name"/>
+                                        <span t-esc="o.name"/>
                                     </td>
                                     <td style="border:1px solid #000; padding:3px; font-weight:bold;">Vendor Reference</td>
                                     <td style="border:1px solid #000; padding:3px;">
-                                        <span t-field="o.partner_ref"/>
+                                        <span t-esc="o.partner_ref or '-'"/>
                                     </td>
                                 </tr>
                             </table>

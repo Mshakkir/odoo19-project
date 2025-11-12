@@ -1,27 +1,12 @@
 <odoo>
-    <!-- Define the report action -->
-    <record id="action_report_purchase_order_custom" model="ir.actions.report">
-        <field name="name">Purchase Order Custom</field>
-        <field name="model">purchase.order</field>
-        <field name="report_type">qweb-pdf</field>
-        <field name="report_name">purchase_order_custom_report.report_purchaseorder_custom_document</field>
-        <field name="report_file">purchase_order_custom_report.report_purchaseorder_custom_document</field>
-        <field name="binding_model_id" ref="purchase.model_purchase_order"/>
-        <field name="binding_type">report</field>
-        <field name="paperformat_id" ref="base.paperformat_euro"/>
-        <field name="print_report_name">'PO - %s' % (object.name)</field>
-    </record>
+    <report
+        id="purchase.report_purchaseorder"
+        model="purchase.order"
+        string="Purchase Order"
+        report_type="qweb-pdf"
+        name="purchase_order_custom_report.custom_purchaseorder_report"
+        file="purchase_order_custom_report.custom_purchaseorder_report"
+        print_report_name="'Purchase Order - %s' % (object.name)"
+    />
 </odoo>
-
-<!--<odoo>-->
-<!--    <report-->
-<!--        id="purchase.report_purchaseorder"-->
-<!--        model="purchase.order"-->
-<!--        string="Purchase Order"-->
-<!--        report_type="qweb-pdf"-->
-<!--        name="purchase_order_custom_report.custom_purchaseorder_report"-->
-<!--        file="purchase_order_custom_report.custom_purchaseorder_report"-->
-<!--        print_report_name="'Purchase Order - %s' % (object.name)"-->
-<!--    />-->
-<!--</odoo>-->
 

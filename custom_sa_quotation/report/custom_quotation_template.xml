@@ -99,11 +99,11 @@
                                         <td width="50%" style="vertical-align: top; padding: 10px;">
                                             <div style="font-weight: bold; padding: 5px; margin-bottom: 5px; background-color: #9e9d9d; color:#080808;">
                                                 <!-- Dynamic header label -->
-                                                <t t-if="o.state in ['draft', 'sent']">
+                                                <t t-if="o.state in ('draft', 'sent')">
                                                     Quote / Project Description /
                                                     <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">عرض سعر</span>
                                                 </t>
-                                                <t t-else="">
+                                                <t t-if="o.state in ('sale', 'done')">
                                                     Order Description /
                                                     <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">وصف الطلب</span>
                                                 </t>
@@ -168,7 +168,7 @@
                                                 <span t-field="line.product_uom_qty"/>
                                             </td>
                                             <td>
-                                                <span t-esc="line.product_uom.name or ''"/>
+                                                <span t-field="line.product_uom_id"/>
                                             </td>
                                             <td class="text-right">
                                                 <span t-field="line.price_unit"/>

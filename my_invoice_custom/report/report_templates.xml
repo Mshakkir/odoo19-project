@@ -137,6 +137,29 @@
                                             <t t-esc="o.partner_id.name"/>
                                         </strong>
                                         <br/>
+                                        <!-- Address Details -->
+                                        <t t-if="o.partner_id.street">
+                                            <t t-esc="o.partner_id.street"/>
+                                            <br/>
+                                        </t>
+                                        <t t-if="o.partner_id.street2">
+                                            <t t-esc="o.partner_id.street2"/>
+                                            <br/>
+                                        </t>
+                                        <t t-if="o.partner_id.city or o.partner_id.state_id or o.partner_id.zip">
+                                            <t t-if="o.partner_id.city" t-esc="o.partner_id.city"/>
+                                            <t t-if="o.partner_id.state_id">,
+                                                <t t-esc="o.partner_id.state_id.name"/>
+                                            </t>
+                                            <t t-if="o.partner_id.zip">-
+                                                <t t-esc="o.partner_id.zip"/>
+                                            </t>
+                                            <br/>
+                                        </t>
+                                        <t t-if="o.partner_id.country_id">
+                                            <t t-esc="o.partner_id.country_id.name"/>
+                                            <br/>
+                                        </t>
                                         <br/>
                                         <strong>VAT NO :</strong>
                                         <t t-esc="o.partner_id.vat or 'N/A'"/>
@@ -144,9 +167,11 @@
 
                                     <!-- Right column: Shipping address -->
                                     <td style="padding:6px 10px; vertical-align:top;">
-                                        <t t-if="o.move_type in ('out_invoice','out_refund') and o.shipping_to">
-                                            <span style="white-space:pre-line;" t-esc="o.shipping_to"/>
-                                        </t>
+                                        <strong>
+                                            <t t-if="o.move_type in ('out_invoice','out_refund') and o.shipping_to">
+                                                <span style="white-space:pre-line;" t-esc="o.shipping_to"/>
+                                            </t>
+                                        </strong>
                                     </td>
                                 </tr>
                             </table>

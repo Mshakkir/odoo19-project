@@ -201,52 +201,101 @@
                                 </t>
                             </table>
 
+                            <table width="100%" style="font-size: 13px; margin-top: 10px; border:2px solid white;">
+    <tr>
+        <!-- Left: Notes -->
+        <td style="width: 60%; padding-left:3px;">
+            <t t-if="o.note">
+                <p>
+                    <strong>
+                        Terms and Conditions: /
+                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                            الشروط والأحكام
+                        </span>
+                    </strong>
+                    <span t-esc="o.note"/>
+                </p>
+            </t>
+        </td>
 
-                            <table width="100%" style="font-size: 13px; margin-top: 10px; border:2px solid white;line-height:20px;">
-                                <tr>
-                                    <!-- Left: Notes -->
-                                    <td style="width: 60%;padding-left:3px; ">
-                                        <t t-if="o.note">
-                                            <p>
-                                                <strong>Terms and Conditions: /
-                                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
-                                                        الشروط والأحكام
-                                                    </span>
-                                                </strong>
-                                                <span t-esc="o.note"/>
-                                            </p>
-                                        </t>
-                                    </td>
-                                    <!-- Right: Totals -->
-                                    <td style="width: 60%; border:white;">
-                                        <table style="width:100%; border:1px solid #000; border-collapse:collapse; line-height:20px;">
-                                            <tr style="width:30%;">
-                                                <td>Subtotal</td>
-                                                <td style="text-align:right;">
-                                                    <span t-field="o.amount_untaxed"
-                                                          t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                                </td>
-                                            </tr>
-                                            <tr style="width:30%;">
-                                                <td>VAT (15%)</td>
-                                                <td style="text-align:right;">
-                                                    <span t-field="o.amount_tax"
-                                                          t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                                    SAR
-                                                </td>
-                                            </tr>
-                                            <tr style="background-color:#D3D3D3; width:30%;">
-                                                <td>
-                                                    <strong>Net Total</strong>
-                                                </td>
-                                                <td style="text-align:right;">
-                                                    <strong>
-                                                        <span t-field="o.amount_total"
-                                                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                                    </strong>
-                                                </td>
-                                            </tr>
-                                        </table>
+        <!-- Right: Totals -->
+        <td style="width: 40%; vertical-align: top;">
+            <table style="width:100%; border:1px solid #000; border-collapse:collapse; line-height:1.8;">
+                <tr style="width:30%; height:32px;">
+                    <td style="padding:8px 10px; border:1px solid #000;">Subtotal</td>
+                    <td style="padding:8px 10px; text-align:right; border:1px solid #000;">
+                        <span t-field="o.amount_untaxed"
+                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                    </td>
+                </tr>
+                <tr style="width:30%; height:32px;">
+                    <td style="padding:8px 10px; border:1px solid #000;">VAT (15%)</td>
+                    <td style="padding:8px 10px; text-align:right; border:1px solid #000;">
+                        <span t-field="o.amount_tax"
+                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/> SAR
+                    </td>
+                </tr>
+                <tr style="background-color:#D3D3D3; width:30%; height:36px;">
+                    <td style="padding:10px; border:1px solid #000;"><strong>Net Total</strong></td>
+                    <td style="padding:10px; text-align:right; border:1px solid #000;">
+                        <strong>
+                            <span t-field="o.amount_total"
+                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                        </strong>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+
+
+<!--                            <table width="100%" style="font-size: 13px; margin-top: 10px; border:2px solid white;">-->
+<!--                                <tr>-->
+<!--                                    &lt;!&ndash; Left: Notes &ndash;&gt;-->
+<!--                                    <td style="width: 60%;padding-left:3px; ">-->
+<!--                                        <t t-if="o.note">-->
+<!--                                            <p>-->
+<!--                                                <strong>Terms and Conditions: /-->
+<!--                                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
+<!--                                                        الشروط والأحكام-->
+<!--                                                    </span>-->
+<!--                                                </strong>-->
+<!--                                                <span t-esc="o.note"/>-->
+<!--                                            </p>-->
+<!--                                        </t>-->
+<!--                                    </td>-->
+<!--                                    &lt;!&ndash; Right: Totals &ndash;&gt;-->
+<!--                                    <td style="width: 60%; border:white;">-->
+<!--                                        <table style="width:100%; border:1px solid #000; border-collapse:collapse; ">-->
+<!--                                            <tr style="width:30%;">-->
+<!--                                                <td>Subtotal</td>-->
+<!--                                                <td style="text-align:right;">-->
+<!--                                                    <span t-field="o.amount_untaxed"-->
+<!--                                                          t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>-->
+<!--                                                </td>-->
+<!--                                            </tr>-->
+<!--                                            <tr style="width:30%;">-->
+<!--                                                <td>VAT (15%)</td>-->
+<!--                                                <td style="text-align:right;">-->
+<!--                                                    <span t-field="o.amount_tax"-->
+<!--                                                          t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>-->
+<!--                                                    SAR-->
+<!--                                                </td>-->
+<!--                                            </tr>-->
+<!--                                            <tr style="background-color:#D3D3D3; width:30%;">-->
+<!--                                                <td>-->
+<!--                                                    <strong>Net Total</strong>-->
+<!--                                                </td>-->
+<!--                                                <td style="text-align:right;">-->
+<!--                                                    <strong>-->
+<!--                                                        <span t-field="o.amount_total"-->
+<!--                                                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>-->
+<!--                                                    </strong>-->
+<!--                                                </td>-->
+<!--                                            </tr>-->
+<!--                                        </table>-->
 
 
                                     </td>

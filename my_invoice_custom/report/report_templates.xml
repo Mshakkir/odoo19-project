@@ -242,13 +242,17 @@
                                     </th>
                                     <th>VAT
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:300;">القيمة<br/>
-                                            الضريبة</span>
+                                        <span style="font-family:'Tajawal';font-weight:300;">القيمة
+                                            <br/>
+                                            الضريبة
+                                        </span>
                                     </th>
                                     <th>Total Price
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:300;">القيمة <br/>
-                                            الإجمالية</span>
+                                        <span style="font-family:'Tajawal';font-weight:300;">القيمة
+                                            <br/>
+                                            الإجمالية
+                                        </span>
                                     </th>
                                 </tr>
                             </thead>
@@ -353,47 +357,78 @@
                                 </t>
 
                                 <!-- Totals -->
-                                <td width="40%" style="border:1px solid #ccc; padding:5px;">
-                                    <table width="100%" height="100%" style="font-size:12px; border-collapse:collapse;">
-                                        <tr>
-                                            <td>Subtotal:</td>
-                                            <td style="text-align:right;">
-                                                <span t-esc="subtotal_before_discount"
-                                                      t-options='{"widget":"float","precision":2}'/>
-                                            </td>
-                                        </tr>
-                                        <t t-if="total_discount_amount > 0">
-                                            <tr>
-                                                <td>Total Discount:</td>
-                                                <td style="text-align:right;">
-                                                    <span t-esc="total_discount_amount"
-                                                          t-options='{"widget":"float","precision":2}'/>
-                                                </td>
-                                            </tr>
-                                        </t>
-                                        <tr>
-                                            <td>Net Amount:</td>
-                                            <td style="text-align:right;">
-                                                <span t-esc="o.amount_untaxed"
-                                                      t-options='{"widget":"float","precision":2}'/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>VAT Amount:</td>
-                                            <td style="text-align:right;">
-                                                <span t-esc="o.amount_tax"
-                                                      t-options='{"widget":"float","precision":2}'/>
-                                            </td>
-                                        </tr>
-                                        <tr style="background:#f5f5f5; font-weight:bold;">
-                                            <td>Grand Total:</td>
-                                            <td style="text-align:right;">
-                                                <span t-esc="o.amount_total"
-                                                      t-options='{"widget":"float","precision":2}'/>
-                                            </td>
-                                        </tr>
-                                    </table>
+                                <td width="40%" style="border:1px solid #ccc; padding:5px; font-size:12px;">
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                                        <span>Subtotal:</span>
+                                        <span t-esc="subtotal_before_discount"
+                                              t-options='{"widget":"float","precision":2}'/>
+                                    </div>
+
+                                    <t t-if="total_discount_amount > 0">
+                                        <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                                            <span>Total Discount:</span>
+                                            <span t-esc="total_discount_amount"
+                                                  t-options='{"widget":"float","precision":2}'/>
+                                        </div>
+                                    </t>
+
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                                        <span>Net Amount:</span>
+                                        <span t-esc="o.amount_untaxed" t-options='{"widget":"float","precision":2}'/>
+                                    </div>
+
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                                        <span>VAT Amount:</span>
+                                        <span t-esc="o.amount_tax" t-options='{"widget":"float","precision":2}'/>
+                                    </div>
+
+                                    <div style="display:flex; justify-content:space-between; background:#f5f5f5; font-weight:bold; padding:2px;">
+                                        <span>Grand Total:</span>
+                                        <span t-esc="o.amount_total" t-options='{"widget":"float","precision":2}'/>
+                                    </div>
                                 </td>
+
+                                <!--                                <td width="40%" style="border:1px solid #ccc; padding:5px;">-->
+                                <!--                                    <table width="100%" height="100%" style="font-size:12px; border-collapse:collapse;">-->
+                                <!--                                        <tr>-->
+                                <!--                                            <td>Subtotal:</td>-->
+                                <!--                                            <td style="text-align:right;">-->
+                                <!--                                                <span t-esc="subtotal_before_discount"-->
+                                <!--                                                      t-options='{"widget":"float","precision":2}'/>-->
+                                <!--                                            </td>-->
+                                <!--                                        </tr>-->
+                                <!--                                        <t t-if="total_discount_amount > 0">-->
+                                <!--                                            <tr>-->
+                                <!--                                                <td>Total Discount:</td>-->
+                                <!--                                                <td style="text-align:right;">-->
+                                <!--                                                    <span t-esc="total_discount_amount"-->
+                                <!--                                                          t-options='{"widget":"float","precision":2}'/>-->
+                                <!--                                                </td>-->
+                                <!--                                            </tr>-->
+                                <!--                                        </t>-->
+                                <!--                                        <tr>-->
+                                <!--                                            <td>Net Amount:</td>-->
+                                <!--                                            <td style="text-align:right;">-->
+                                <!--                                                <span t-esc="o.amount_untaxed"-->
+                                <!--                                                      t-options='{"widget":"float","precision":2}'/>-->
+                                <!--                                            </td>-->
+                                <!--                                        </tr>-->
+                                <!--                                        <tr>-->
+                                <!--                                            <td>VAT Amount:</td>-->
+                                <!--                                            <td style="text-align:right;">-->
+                                <!--                                                <span t-esc="o.amount_tax"-->
+                                <!--                                                      t-options='{"widget":"float","precision":2}'/>-->
+                                <!--                                            </td>-->
+                                <!--                                        </tr>-->
+                                <!--                                        <tr style="background:#f5f5f5; font-weight:bold;">-->
+                                <!--                                            <td>Grand Total:</td>-->
+                                <!--                                            <td style="text-align:right;">-->
+                                <!--                                                <span t-esc="o.amount_total"-->
+                                <!--                                                      t-options='{"widget":"float","precision":2}'/>-->
+                                <!--                                            </td>-->
+                                <!--                                        </tr>-->
+                                <!--                                    </table>-->
+                                <!--                                </td>-->
                             </tr>
 
                             <!-- Amount in Words - UPDATED WITH ARABIC -->

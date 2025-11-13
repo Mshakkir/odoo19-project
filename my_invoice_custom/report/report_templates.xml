@@ -257,19 +257,19 @@
                                     </th>
                                     <th>Item / Description
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:900;">الصنف / الوصف</span>
+                                        <span style="font-family:'Tajawal';font-weight:200;">الصنف / الوصف</span>
                                     </th>
                                     <th>QTY
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:900;">الكمية</span>
+                                        <span style="font-family:'Tajawal';font-weight:200;">الكمية</span>
                                     </th>
                                     <th>Unit
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:900;">الوحدة</span>
+                                        <span style="font-family:'Tajawal';font-weight:200;">الوحدة</span>
                                     </th>
                                     <th>S.Rate
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:900;">سعر الوحدة</span>
+                                        <span style="font-family:'Tajawal';font-weight:200;">سعر الوحدة</span>
                                     </th>
                                     <!--                                    <th>Disc Amt-->
                                     <!--                                        <br/>-->
@@ -277,19 +277,19 @@
                                     <!--                                    </th>-->
                                     <th>Amount
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:900;">المبلغ</span>
+                                        <span style="font-family:'Tajawal';font-weight:200;">المبلغ</span>
                                     </th>
                                     <th>VAT%
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:900;">الضريبة</span>
+                                        <span style="font-family:'Tajawal';font-weight:200;">الضريبة</span>
                                     </th>
                                     <th>VAT
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:900;">القيمة الضريبة</span>
+                                        <span style="font-family:'Tajawal';font-weight:200;">القيمة الضريبة</span>
                                     </th>
                                     <th>Total Price
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:900;">القيمة الإجمالية</span>
+                                        <span style="font-family:'Tajawal';font-weight:200;">القيمة الإجمالية</span>
                                     </th>
                                 </tr>
                             </thead>

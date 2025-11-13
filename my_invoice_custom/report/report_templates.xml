@@ -331,7 +331,7 @@
 
                                 <!-- Company Seal (only for sales invoice) -->
                                 <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                    <td width="15%" style="border:1px solid #ccc; text-align:center;">
+                                    <td width="15%" style="border:1px solid #ccc; text-align:center; padding-top:15px;">
                                         <br/>
                                         <img t-att-src="'/my_invoice_custom/static/src/img/stamp.png'"
                                              style="max-height:100px; max-width:100px; margin:8px auto;"/>

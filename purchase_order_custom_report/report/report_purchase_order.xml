@@ -30,8 +30,8 @@
                             <div class="header" style="border:2px solid #8B1538; border-radius: 6px; background: white; margin-bottom: 15px;">
 
                                 <!-- Company Names in One Row -->
-                                <table style="width: 100%; border-collapse: collapse; border-bottom: 2px solid #8B1538;">
-                                    <tr style="color:white;">
+                                <table style="width: 100%; border-collapse: collapse; border-bottom: 2px solid white;">
+                                    <tr>
                                         <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle;">
                                             <div style="color: #8B1538; font-size: 14px; font-weight: bold; text-transform: uppercase;">
                                                 SAMEER SHARAF AL OTAIBI TRADING COMPANY
@@ -46,8 +46,8 @@
                                 </table>
 
                                 <!-- Details and Logo Row -->
-                                <table style="width: 100%; border-collapse: collapse; border-bottom: 8px solid #8B1538;">
-                                    <tr style="color:white;">
+                                <table style="width: 100%; border-collapse: collapse; border-bottom: 8px solid white;">
+                                    <tr >
                                         <!-- Left Column: English Info -->
                                         <td style="width: 33%; text-align: left; font-size: 11px; color: #333; vertical-align: middle; padding: 10px 20px 15px 20px;">
                                             <div style="line-height: 1.6; font-weight: 700;font-size:15px;">

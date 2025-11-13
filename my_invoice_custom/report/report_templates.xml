@@ -15,7 +15,7 @@
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tr>
                                     <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border-right: 0px solid white; border-bottom: 0px solid white;">
-                                        <div style="color: #8B1538; font-size: 16px; font-weight:bold; text-transform: uppercase;">
+                                        <div style="color: #8B1538; font-size: 16px; font-weight: bold; text-transform: uppercase;">
                                             SAMEER SHARAF AL OTAIBI TRADING COMPANY
                                         </div>
                                     </td>
@@ -32,8 +32,9 @@
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tr>
                                     <!-- Left Column: English Info -->
-                                    <td style="width: 33%; text-align: left; font-size: 17px; color: #333; vertical-align: middle; padding: 15px 20px; border-right: 0px solid white; border-bottom: 0px solid white;border-top: 1px solid  #8B1538;">
-                                        <div style="line-height: 1.6; font-weight: 500;">
+                                    <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: middle;
+                   padding: 6px 10px; border-top: 1px solid #8B1538;border-right: 0px solid white; border-bottom: 0px solid white;border-top: 1px solid  #8B1538;">
+                                        <div style="line-height: 1.3; font-weight: 500;">
                                             C.R. 4030216154
                                             <br/>
                                             VAT Regd: 311299944700003
@@ -41,16 +42,18 @@
                                     </td>
 
                                     <!-- Center Column: Company Logo -->
-                                    <td style="width: 34%; text-align: center; vertical-align: middle; padding: 15px 20px; border-right: 0px solid white;border-bottom: 0px solid white;border-top: 1px solid  #8B1538;">
+                                    <td style="width: 34%; text-align: center; vertical-align: middle;
+                   padding: 6px 10px; border-top: 1px solid #8B1538;border-right: 0px solid white; border-bottom: 0px solid white;border-top: 1px solid  #8B1538;">
                                         <t t-if="o.company_id.logo">
                                             <img t-att-src="image_data_uri(o.company_id.logo)"
-                                                 style="max-height: 100px; max-width: 100%; object-fit: contain;"/>
+                                                 style="max-height: 70px; max-width: 100%; object-fit: contain;"/>
                                         </t>
                                     </td>
 
                                     <!-- Right Column: Arabic Info -->
-                                    <td style="width: 33%; text-align: right; font-size: 15px; color: #333; vertical-align: middle; direction: rtl; padding: 15px 20px;border-bottom: 0px solid white;border-top: 1px solid  #8B1538;">
-                                        <div style="line-height: 1.6; font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                    <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle;
+                   direction: rtl; padding: 6px 10px; border-top: 1px solid #8B1538;border-right: 0px solid white; border-bottom: 0px solid white;border-top: 1px solid  #8B1538;">
+                                        <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
                                             ٤٠٣٠٢١٦١٥٤ :س.ت
                                             <br/>
                                             ٣١١٢٩٩٩٤٤٧٠٠٠٠٣ :الرقم الضريبي
@@ -58,8 +61,63 @@
                                     </td>
                                 </tr>
                             </table>
+
+
                         </div>
                     </div>
+
+                    <!--                        <div class="header"-->
+                    <!--                             style="border:2px solid #8B1538; border-radius: 6px; background: white; margin-bottom: 15px;">-->
+
+                    <!--                            &lt;!&ndash; Company Names in One Row &ndash;&gt;-->
+                    <!--                            <table style="width: 100%; border-collapse: collapse;">-->
+                    <!--                                <tr>-->
+                    <!--                                    <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border-right: 0px solid white; border-bottom: 0px solid white;">-->
+                    <!--                                        <div style="color: #8B1538; font-size: 16px; font-weight:bold; text-transform: uppercase;">-->
+                    <!--                                            SAMEER SHARAF AL OTAIBI TRADING COMPANY-->
+                    <!--                                        </div>-->
+                    <!--                                    </td>-->
+                    <!--                                    <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border-bottom: 0px solid white;">-->
+                    <!--                                        <div style="color: #8B1538; font-size: 16px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;"-->
+                    <!--                                             class="arabic-word">-->
+                    <!--                                            شركة سمير شرف العتيبي التجارية-->
+                    <!--                                        </div>-->
+                    <!--                                    </td>-->
+                    <!--                                </tr>-->
+                    <!--                            </table>-->
+
+                    <!--                            &lt;!&ndash; Details and Logo Row &ndash;&gt;-->
+                    <!--                            <table style="width: 100%; border-collapse: collapse;">-->
+                    <!--                                <tr>-->
+                    <!--                                    &lt;!&ndash; Left Column: English Info &ndash;&gt;-->
+                    <!--                                    <td style="width: 33%; text-align: left; font-size: 17px; color: #333; vertical-align: middle; padding: 15px 20px; border-right: 0px solid white; border-bottom: 0px solid white;border-top: 1px solid  #8B1538;">-->
+                    <!--                                        <div style="line-height: 1.6; font-weight: 500;">-->
+                    <!--                                            C.R. 4030216154-->
+                    <!--                                            <br/>-->
+                    <!--                                            VAT Regd: 311299944700003-->
+                    <!--                                        </div>-->
+                    <!--                                    </td>-->
+
+                    <!--                                    &lt;!&ndash; Center Column: Company Logo &ndash;&gt;-->
+                    <!--                                    <td style="width: 34%; text-align: center; vertical-align: middle; padding: 15px 20px; border-right: 0px solid white;border-bottom: 0px solid white;border-top: 1px solid  #8B1538;">-->
+                    <!--                                        <t t-if="o.company_id.logo">-->
+                    <!--                                            <img t-att-src="image_data_uri(o.company_id.logo)"-->
+                    <!--                                                 style="max-height: 100px; max-width: 100%; object-fit: contain;"/>-->
+                    <!--                                        </t>-->
+                    <!--                                    </td>-->
+
+                    <!--                                    &lt;!&ndash; Right Column: Arabic Info &ndash;&gt;-->
+                    <!--                                    <td style="width: 33%; text-align: right; font-size: 15px; color: #333; vertical-align: middle; direction: rtl; padding: 15px 20px;border-bottom: 0px solid white;border-top: 1px solid  #8B1538;">-->
+                    <!--                                        <div style="line-height: 1.6; font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
+                    <!--                                            ٤٠٣٠٢١٦١٥٤ :س.ت-->
+                    <!--                                            <br/>-->
+                    <!--                                            ٣١١٢٩٩٩٤٤٧٠٠٠٠٣ :الرقم الضريبي-->
+                    <!--                                        </div>-->
+                    <!--                                    </td>-->
+                    <!--                                </tr>-->
+                    <!--                            </table>-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
 
                     <t t-call="web.external_layout">
                         <!-- ===== INVOICE TITLE ===== -->
@@ -214,19 +272,19 @@
                                     </th>
                                     <th>Item / Description
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:300;">الصنف / الوصف</span>
+                                        <span style="font-family:'Tajawal';font-weight:500;">الصنف / الوصف</span>
                                     </th>
                                     <th>QTY
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:300;">الكمية</span>
+                                        <span style="font-family:'Tajawal';font-weight:500;">الكمية</span>
                                     </th>
                                     <th>Unit
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:300;">الوحدة</span>
+                                        <span style="font-family:'Tajawal';font-weight:500;">الوحدة</span>
                                     </th>
                                     <th>S.Rate
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:300;">سعر الوحدة</span>
+                                        <span style="font-family:'Tajawal';font-weight:500;">سعر الوحدة</span>
                                     </th>
                                     <!--                                    <th>Disc Amt-->
                                     <!--                                        <br/>-->
@@ -234,22 +292,22 @@
                                     <!--                                    </th>-->
                                     <th>Amount
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:300;">المبلغ</span>
+                                        <span style="font-family:'Tajawal';font-weight:500;">المبلغ</span>
                                     </th>
                                     <th>VAT%
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:300;">الضريبة</span>
+                                        <span style="font-family:'Tajawal';font-weight:500;">الضريبة</span>
                                     </th>
                                     <th>VAT
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:300;">القيمة
+                                        <span style="font-family:'Tajawal';font-weight:500;">القيمة
                                             <br/>
                                             الضريبة
                                         </span>
                                     </th>
                                     <th>Total Price
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:300;">القيمة
+                                        <span style="font-family:'Tajawal';font-weight:500;">القيمة
                                             <br/>
                                             الإجمالية
                                         </span>

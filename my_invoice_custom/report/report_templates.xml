@@ -3,65 +3,63 @@
     <template id="custom_invoice_report" inherit_id="l10n_sa.l10n_sa_report_invoice_document">
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
             <t t-call="web.html_container">
+
                 <!-- Loop through invoices -->
                 <t t-foreach="docs" t-as="o">
                     <!-- ===== HEADER ===== -->
-
                     <div class="page">
                         <div class="header"
-                             style="display: flex; padding: 15px 20px; border:2px solid #800000; border-radius: 6px; background: white; margin-bottom: 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-                            <table style="width: 100%; border:1px white;">
+                             style="border:2px solid #8B1538; border-radius: 6px; background: white; margin-bottom: 15px;">
+
+                            <!-- Company Names in One Row -->
+                            <table style="width: 100%; border-collapse: collapse;">
                                 <tr>
-                                    <tr>
-                                        <!-- English name (left) -->
-                                        <td style="width: 50%; text-align: left; font-size: 13px; color: #800000; font-weight: 900; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                                    <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border-right: 0px solid white; border-bottom: 0px solid white;">
+                                        <div style="color: #8B1538; font-size: 14px; font-weight: bold; text-transform: uppercase;">
                                             SAMEER SHARAF AL OTAIBI TRADING COMPANY
-                                        </td>
-
-                                        <!-- Arabic name (right) -->
-                                        <td style="width: 50%; text-align: right; font-size: 13px; color: #800000; font-weight: 900; direction: rtl; font-family: 'NotoNaskhArabic', 'Tajawal', sans-serif;">
+                                        </div>
+                                    </td>
+                                    <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border-bottom: 0px solid white;">
+                                        <div style="color: #8B1538; font-size: 16px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;"
+                                             class="arabic-word">
                                             شركة سمير شرف العتيبي التجارية
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2">
-                                            <hr style="border:1px solid #800000; margin-top:5px; margin-bottom:10px;"/>
-                                        </td>
-                                    </tr>
-
+                                        </div>
+                                    </td>
                                 </tr>
+                            </table>
 
+                            <!-- Details and Logo Row -->
+                            <table style="width: 100%; border-collapse: collapse;">
                                 <tr>
-                                    <!-- English Info -->
-                                    <td style="width: 33%; text-align: left; font-size: 13px; color: #4a4a4a; vertical-align: top; padding-right: 10px;">
-                                        <div style="line-height: 1.5;">
+                                    <!-- Left Column: English Info -->
+                                    <td style="width: 33%; text-align: left; font-size: 17px; color: #333; vertical-align: middle; padding: 15px 20px; border-right: 0px solid white; border-bottom: 0px solid white;border-top: 1px solid  #8B1538;">
+                                        <div style="line-height: 1.6; font-weight: 500;">
                                             C.R. 4030216154
                                             <br/>
                                             VAT Regd: 311299944700003
                                         </div>
                                     </td>
 
-                                    <!-- Logo -->
-                                    <td style="width: 33%; text-align: center; vertical-align: middle;">
+                                    <!-- Center Column: Company Logo -->
+                                    <td style="width: 34%; text-align: center; vertical-align: middle; padding: 15px 20px; border-right: 0px solid white;border-bottom: 0px solid white;border-top: 1px solid  #8B1538;">
                                         <t t-if="o.company_id.logo">
                                             <img t-att-src="image_data_uri(o.company_id.logo)"
-                                                 style="max-height: 110px; max-width: 100%; object-fit: contain;"/>
+                                                 style="max-height: 100px; max-width: 100%; object-fit: contain;"/>
                                         </t>
                                     </td>
 
-                                    <!-- Arabic Info -->
-                                    <td style="width: 33%; text-align: right; font-size: 13px; color: #4a4a4a; vertical-align: top; direction: rtl;">
-                                        <div style="line-height:1.5; font-family: 'Tajawal', sans-serif; font-weight:900;">
-                                            س.ت : ٤٠٣٠٢١٦١٥٤
+                                    <!-- Right Column: Arabic Info -->
+                                    <td style="width: 33%; text-align: right; font-size: 15px; color: #333; vertical-align: middle; direction: rtl; padding: 15px 20px;border-bottom: 0px solid white;border-top: 1px solid  #8B1538;">
+                                        <div style="line-height: 1.6; font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                            ٤٠٣٠٢١٦١٥٤ :س.ت
                                             <br/>
-                                            الرقم الضريبي : ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
+                                            ٣١١٢٩٩٩٤٤٧٠٠٠٠٣ :الرقم الضريبي
                                         </div>
                                     </td>
                                 </tr>
                             </table>
                         </div>
                     </div>
-
                     <!--                    <div class="page">-->
                     <!--                        <div class="header"-->
                     <!--                             style="display: flex; padding: 15px 20px; border:2px solid #800000; border-radius: 6px; background: white; margin-bottom: 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">-->

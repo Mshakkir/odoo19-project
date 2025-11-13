@@ -10,15 +10,15 @@
                     <div class="page">
                         <div class="header"
                              style="display: flex; padding: 15px 20px; border:2px solid #800000; border-radius: 6px; background: white; margin-bottom: 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-                            <table style="width: 80%; ">
+                            <table style="width: 100%; border:1px white;">
                                 <tr>
                                     <!-- English & Arabic Heading (same line) -->
                                     <td colspan="3"
-                                        style="text-align: left; font-size: 16px; color: #800000; font-weight: 900; padding-bottom: 8px;">
+                                        style="text-align: center; font-size: 16px; color: #800000; font-weight: 900; padding-bottom: 8px;">
                                         <span style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 17px;">
                                             SAMEER SHARAF AL OTAIBI TRADING COMPANY
                                         </span>
-                                        &#160; | &#160;
+                                        &#160;  &#160;&#160;&#160;
                                         <span style="font-family: 'NotoNaskhArabic', 'Tajawal', sans-serif; direction: rtl; font-size: 18px;">
                                             شركة سمير شرف العتيبي التجارية
                                         </span>

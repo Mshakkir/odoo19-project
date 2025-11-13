@@ -264,13 +264,13 @@
                                         </t>
                                         <span t-field="l[1].name"/>
                                     </td>
-                                    <td style="width:40px;">
+                                    <td style="width:70px;">
                                         <span t-field="l[1].quantity"/>
                                     </td>
-                                    <td style="width:40px;">
+                                    <td style="width:70px;">
                                         <span t-field="l[1].product_uom_id.name"/>
                                     </td>
-                                    <td style="text-align:center; width:50px;">
+                                    <td style="text-align:center; width:100px;">
                                         <span t-field="l[1].price_unit"
                                               t-options='{"widget": "float", "precision": 2}'/>
                                     </td>
@@ -279,7 +279,7 @@
                                     <!--                                           t-value="l[1].quantity * l[1].price_unit * (l[1].discount or 0)/100.0"/>-->
                                     <!--                                        <span t-esc="disc" t-options='{"widget":"float","precision":2}'/>-->
                                     <!--                                    </td>-->
-                                    <td style="text-align:center; width:50px;">
+                                    <td style="text-align:center; width:100px;">
                                         <t t-set="subt"
                                            t-value="l[1].quantity * l[1].price_unit * (1 - (l[1].discount or 0)/100.0)"/>
                                         <span t-esc="subt" t-options='{"widget":"float","precision":2}'/>

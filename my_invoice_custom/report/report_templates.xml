@@ -332,7 +332,6 @@
                                 <!-- Company Seal (only for sales invoice) -->
                                 <t t-if="o.move_type in ('out_invoice','out_refund')">
                                     <td width="15%" style="border:1px solid #ccc; text-align:center;">
-                                        <strong>Company Seal</strong>
                                         <br/>
                                         <img t-att-src="'/my_invoice_custom/static/src/img/stamp.png'"
                                              style="max-height:100px; max-width:100px; margin:8px auto;"/>
@@ -349,7 +348,7 @@
                                             <img t-att-src="'data:image/png;base64,%s' % o.qr_code_image.decode('utf-8')"
                                                  style="max-height:90px; max-width:90px; margin:5px;"/>
                                         </t>
-                                        <div style="font-size:11px; color:#555;">Scan for Invoice</div>
+<!--                                        <div style="font-size:11px; color:#555;">Scan for Invoice</div>-->
                                     </td>
                                 </t>
                                 <t t-else="">

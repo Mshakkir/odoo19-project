@@ -36,7 +36,7 @@
                                                 SAMEER SHARAF AL OTAIBI TRADING COMPANY
                                             </div>
                                         </td>
-                                        <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border-bottom: 1px solid white;border-right: 1px solid white;">
+                                        <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border-bottom: 1px solid white;border-right: 1px solid white;border-top: 1px solid white;">
                                             <div style="color: #8B1538; font-size: 14px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;" class="arabic-word">
                                                 شركة سمير شرف العتيبي التجارية
                                             </div>
@@ -64,7 +64,7 @@
                                         </td>
 
                                         <!-- Right Column: Arabic Info -->
-                                        <td style="width: 33%; text-align: right; font-size: 11px; color: #333; vertical-align: middle; direction: rtl; padding: 15px 20px; border-bottom: 1px solid white;border-right: 1px solid white;">
+                                        <td style="width: 33%; text-align: right; font-size: 11px; color: #333; vertical-align: middle; direction: rtl; padding: 15px 20px; border-bottom: 1px solid white;border-right: 1px solid white;border-top: 1px solid white;">
                                             <div style="line-height: 1.6; font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;font-size:15px;" >
                                                 ٤٠٣٠٢١٦١٥٤ :س.ت<br/>
                                                 ٣١١٢٩٩٩٤٤٧٠٠٠٠٣ :الرقم الضريبي

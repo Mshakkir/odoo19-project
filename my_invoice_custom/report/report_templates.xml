@@ -331,29 +331,33 @@
 
                                 <!-- Company Seal (only for sales invoice) -->
                                 <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                    <td width="15%" style="border:1px solid #ccc; text-align:center; padding-top:2px;">
-                                        <br/>
-                                        <img t-att-src="'/my_invoice_custom/static/src/img/stamp.png'"
-                                             style="max-height:100px; max-width:100px; margin:8px auto;"/>
+                                    <td width="15%"
+                                        style="border:1px solid #ccc; text-align:center; vertical-align:middle; padding:10px;">
+                                        <div style="display:flex; align-items:center; justify-content:center; height:120px;">
+                                            <img t-att-src="'/my_invoice_custom/static/src/img/stamp.png'"
+                                                 style="max-height:100%; max-width:100%; object-fit:contain;"/>
+                                        </div>
                                     </td>
                                 </t>
                                 <t t-else="">
                                     <td width="15%" style="border:1px solid #ccc;">&#160;</td>
                                 </t>
 
-                                <!-- QR Code (only for sales invoice) -->
+                                <!-- QR Code -->
                                 <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                    <td width="15%" style="border:1px solid #ccc; text-align:center;">
-                                        <t t-if="o.qr_code_image">
-                                            <img t-att-src="'data:image/png;base64,%s' % o.qr_code_image.decode('utf-8')"
-                                                 style="max-height:90px; max-width:90px; margin:5px;"/>
-                                        </t>
+                                    <td width="15%"
+                                        style="border:1px solid #ccc; text-align:center; vertical-align:middle; padding:10px;">
+                                        <div style="display:flex; align-items:center; justify-content:center; height:120px;">
+                                            <t t-if="o.qr_code_image">
+                                                <img t-att-src="'data:image/png;base64,%s' % o.qr_code_image.decode('utf-8')"
+                                                     style="max-height:100%; max-width:100%; object-fit:contain;"/>
+                                            </t>
+                                        </div>
                                     </td>
                                 </t>
                                 <t t-else="">
                                     <td width="15%" style="border:1px solid #ccc;">&#160;</td>
                                 </t>
-
                                 <!-- Totals -->
                                 <td width="40%" style="border:1px solid #ccc; padding:6px; vertical-align:top;">
                                     <table width="100%" style="font-size:12px; border-collapse:collapse;">

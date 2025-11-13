@@ -315,12 +315,12 @@
                                         <strong>Delivered By</strong>
                                         <br/>
                                         <span style="font-family:'Tajawal';font-weight:900;">سلمت بواسطة</span>
-                                        <div style="height:40px;"></div>
+                                        <div style="height:20px;"></div>
                                         <hr style="border:none; border-top:1px dashed #aaa; margin:5px 0;"/>
                                         <strong>Received By</strong>
                                         <br/>
                                         <span style="font-family:'Tajawal';font-weight:900;">المستلم</span>
-                                        <div style="height:40px;"></div>
+                                        <div style="height:20px;"></div>
                                     </td>
                                 </t>
                                 <t t-else="">
@@ -348,7 +348,6 @@
                                             <img t-att-src="'data:image/png;base64,%s' % o.qr_code_image.decode('utf-8')"
                                                  style="max-height:90px; max-width:90px; margin:5px;"/>
                                         </t>
-<!--                                        <div style="font-size:11px; color:#555;">Scan for Invoice</div>-->
                                     </td>
                                 </t>
                                 <t t-else="">

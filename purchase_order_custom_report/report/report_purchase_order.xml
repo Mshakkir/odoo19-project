@@ -110,10 +110,7 @@
             <div><span t-esc="o.company_id.partner_id.contact_address"/></div>
         </td>
 
-        <!-- Empty / Optional Column -->
-        <td style="width:34%; vertical-align:top; border:1px solid #000; padding:3px;">
-            <!-- Optional field -->
-        </td>
+
     </tr>
 
     <!-- ===== Row 2 ===== -->

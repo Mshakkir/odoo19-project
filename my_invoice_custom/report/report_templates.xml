@@ -14,12 +14,12 @@
                                 <tr>
                                     <tr>
                                         <!-- English name (left) -->
-                                        <td style="width: 33%; text-align: left; font-size: 13px; color: #800000; font-weight: 900; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                                        <td style="width: 50%; text-align: left; font-size: 13px; color: #800000; font-weight: 900; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
                                             SAMEER SHARAF AL OTAIBI TRADING COMPANY
                                         </td>
 
                                         <!-- Arabic name (right) -->
-                                        <td style="width: 33%; text-align: right; font-size: 13px; color: #800000; font-weight: 900; direction: rtl; font-family: 'NotoNaskhArabic', 'Tajawal', sans-serif;">
+                                        <td style="width: 50%; text-align: right; font-size: 13px; color: #800000; font-weight: 900; direction: rtl; font-family: 'NotoNaskhArabic', 'Tajawal', sans-serif;">
                                             شركة سمير شرف العتيبي التجارية
                                         </td>
                                     </tr>

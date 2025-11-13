@@ -49,7 +49,7 @@
                                 <table style="width: 100%; border-collapse: collapse;">
                                     <tr>
                                         <!-- Left Column: English Info -->
-                                        <td style="width: 33%; text-align: left; font-size: 11px; color: #333; vertical-align: middle; padding: 15px 20px; border-right: 2px solid white;font-size:17px;border-bottom: 2px solid white;">
+                                        <td style="width: 33%; text-align: left; font-size: 11px; color: #333; vertical-align: middle; padding: 15px 20px; border-right: 2px solid white;font-size:17px;border-bottom: 1px solid #8B1538;">
                                             <div style="line-height: 1.6; font-weight: 700;">
                                                 C.R. 4030216154<br/>
                                                 VAT Regd: 311299944700003
@@ -57,7 +57,7 @@
                                         </td>
 
                                         <!-- Center Column: Company Logo -->
-                                        <td style="width: 34%; text-align: center; vertical-align: middle; padding: 15px 20px; border-right: 2px solid white; border-bottom: 2px solid white;">
+                                        <td style="width: 34%; text-align: center; vertical-align: middle; padding: 15px 20px; border-right: 2px solid white; border-bottom: 1px solid #8B1538;">
                                             <t t-if="o.company_id.logo">
                                                 <img t-att-src="image_data_uri(o.company_id.logo)"
                                                      style="max-height: 100px; max-width: 100%; object-fit: contain;"/>
@@ -65,7 +65,7 @@
                                         </td>
 
                                         <!-- Right Column: Arabic Info -->
-                                        <td style="width: 33%; text-align: right; font-size: 11px; color: #333; vertical-align: middle; direction: rtl; padding: 15px 20px; border-bottom: 2px solid #8B1538;">
+                                        <td style="width: 33%; text-align: right; font-size: 11px; color: #333; vertical-align: middle; direction: rtl; padding: 15px 20px; border-bottom: 1px solid #8B1538;">
                                             <div style="line-height: 1.6; font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;font-size:15px;" >
                                                 ٤٠٣٠٢١٦١٥٤ :س.ت<br/>
                                                 ٣١١٢٩٩٩٤٤٧٠٠٠٠٣ :الرقم الضريبي

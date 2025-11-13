@@ -15,12 +15,12 @@
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tr>
                                     <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border-right: 0px solid white; border-bottom: 0px solid white;">
-                                        <div style="color: #8B1538; font-size: 20px; font-weight: bold; text-transform: uppercase;">
+                                        <div style="color: #8B1538; font-size: 16px; font-weight:bold; text-transform: uppercase;">
                                             SAMEER SHARAF AL OTAIBI TRADING COMPANY
                                         </div>
                                     </td>
                                     <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border-bottom: 0px solid white;">
-                                        <div style="color: #8B1538; font-size: 20px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;"
+                                        <div style="color: #8B1538; font-size: 16px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;"
                                              class="arabic-word">
                                             شركة سمير شرف العتيبي التجارية
                                         </div>
@@ -214,19 +214,19 @@
                                     </th>
                                     <th>Item / Description
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:200;">الصنف / الوصف</span>
+                                        <span style="font-family:'Tajawal';font-weight:300;">الصنف / الوصف</span>
                                     </th>
                                     <th>QTY
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:200;">الكمية</span>
+                                        <span style="font-family:'Tajawal';font-weight:300;">الكمية</span>
                                     </th>
                                     <th>Unit
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:200;">الوحدة</span>
+                                        <span style="font-family:'Tajawal';font-weight:300;">الوحدة</span>
                                     </th>
                                     <th>S.Rate
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:200;">سعر الوحدة</span>
+                                        <span style="font-family:'Tajawal';font-weight:300;">سعر الوحدة</span>
                                     </th>
                                     <!--                                    <th>Disc Amt-->
                                     <!--                                        <br/>-->
@@ -234,19 +234,19 @@
                                     <!--                                    </th>-->
                                     <th>Amount
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:200;">المبلغ</span>
+                                        <span style="font-family:'Tajawal';font-weight:300;">المبلغ</span>
                                     </th>
                                     <th>VAT%
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:200;">الضريبة</span>
+                                        <span style="font-family:'Tajawal';font-weight:300;">الضريبة</span>
                                     </th>
                                     <th>VAT
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:200;">القيمة الضريبة</span>
+                                        <span style="font-family:'Tajawal';font-weight:300;">القيمة الضريبة</span>
                                     </th>
                                     <th>Total Price
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:200;">القيمة الإجمالية</span>
+                                        <span style="font-family:'Tajawal';font-weight:300;">القيمة الإجمالية</span>
                                     </th>
                                 </tr>
                             </thead>

@@ -53,7 +53,7 @@
                    padding: 6px 10px; border-top: 1px solid #8B1538;border-right: 0px solid white; border-bottom: 0px solid white;border-top: 1px solid  #8B1538;">
                                                 <t t-if="o.company_id.logo">
                                                     <img t-att-src="image_data_uri(o.company_id.logo)"
-                                                         style="max-height: 70px; max-width: 100%; object-fit: contain;"/>
+                                                         style="max-height: 85px; max-width: 100%; object-fit: contain;"/>
                                                 </t>
                                             </td>
 
@@ -294,17 +294,14 @@
                                     </tr>
                                 </table>
 
-                                <footer>
-                                    <td style="width: 20%; text-align: center;">
-                                        <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/footer_companies_names.png'"
-                                             style="height: 200px;text-align:center; width:100%; padding-top:30px;"/>
-                                    </td>
-                                    <td style="width: 20%; text-align: center;">
-                                        <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/company_bank_details_last_footer.jpg'"
-                                             style="height: 300px;text-align:center; width:100%; padding-top:80px;"/>
-                                    </td>
-                                </footer>
-                                 <table style="width:100%; border-collapse:collapse; margin-top:40px; font-size:12px; text-align:center;line-height:17px;">
+
+
+<!--                                    <td style="width: 20%; text-align: center;">-->
+<!--                                        <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/company_bank_details_last_footer.jpg'"-->
+<!--                                             style="height: 300px;text-align:center; width:100%; padding-top:80px;"/>-->
+<!--                                    </td>-->
+
+                                 <table style="width:100%; border-collapse:collapse; margin-top:50px; font-size:12px; text-align:center;line-height:17px;">
                                 <tr style="font-weight:bold; background-color:#f2f2f2;">
                                     <td style="width:33.3%; border:1px solid #8B1538; padding:6px;">Dammam Branch</td>
                                     <td style="width:33.3%; border:1px solid #8B1538; padding:6px;">Jeddah Branch</td>
@@ -325,6 +322,11 @@
                                         7655, Al Fayha, Al Fayha Dist,
                                         <br/>
                                         Jeddah - 22244-3108, Saudi Arabia
+                                    </td>
+
+                                             <td style="width: 20%; text-align: center;">
+                                        <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/footer_companies_names.png'"
+                                             style="height: 150px;text-align:center; width:80%; padding-top:30px;"/>
                                     </td>
                                 </tr>
                             </table>

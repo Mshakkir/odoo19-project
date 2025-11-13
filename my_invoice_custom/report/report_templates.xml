@@ -10,7 +10,7 @@
                     <div class="page">
                         <div class="header"
                              style="display: flex; padding: 15px 20px; border:2px solid #800000; border-radius: 6px; background: white; margin-bottom: 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-                            <table style="width: 100%; border:1px white;">
+                            <table style="width: 100%; border:1px black;">
                                 <tr>
                                     <tr>
                                         <!-- English name (left) -->

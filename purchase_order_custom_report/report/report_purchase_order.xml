@@ -85,7 +85,7 @@
                         <!-- TITLE -->
                         <t t-call="web.external_layout">
                             <div style="padding-top:75px;">
-                                <div style="background-color:#d3d3d3; color:black; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
+                                <div style="background-color:white; color:black; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
                                     Purchase Order /
                                     <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
                                         أمر شراء
@@ -113,28 +113,25 @@
 
     </tr>
 </table>
-<table style="width:90%; border-collapse:collapse; margin-top:8px; font-size:13px;">
-    <!-- ===== Row 2 ===== -->
+<table style="width:100%; border-collapse:collapse; margin-top:4px; font-size:12px; line-height:14px;">
     <tr>
-        <!-- PO Number -->
-        <td style="border:1px solid #000; padding:3px;">
+        <td style="border:1px solid #000; padding:2px;">
             <div style="font-weight:bold;">PO Number</div>
             <div><span t-esc="o.name"/></div>
         </td>
 
-        <!-- Vendor Reference -->
-        <td style="border:1px solid #000; padding:3px;">
+        <td style="border:1px solid #000; padding:2px;">
             <div style="font-weight:bold;">Vendor Reference</div>
             <div><span t-esc="o.partner_ref or '-'"/></div>
         </td>
 
-        <!-- Order Date -->
-        <td style="border:1px solid #000; padding:3px;">
+        <td style="border:1px solid #000; padding:2px;">
             <div style="font-weight:bold;">Order Date</div>
             <div><span t-esc="o.date_order and o.date_order.strftime('%d-%b-%Y')"/></div>
         </td>
     </tr>
 </table>
+
 
 
 

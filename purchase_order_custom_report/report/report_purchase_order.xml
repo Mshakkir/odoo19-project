@@ -32,12 +32,12 @@
                                 <!-- Company Names in One Row -->
                                 <table style="width: 100%; border-collapse: collapse;">
                                     <tr>
-                                        <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border-right: 2px solid white; border-bottom: 2px solid white;">
+                                        <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border-right: 2px solid white; border-bottom: 2px solid #8B1538 ;">
                                             <div style="color: #8B1538; font-size: 14px; font-weight: bold; text-transform: uppercase;">
                                                 SAMEER SHARAF AL OTAIBI TRADING COMPANY
                                             </div>
                                         </td>
-                                        <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border-bottom: 2px solid white;">
+                                        <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border-bottom: 2px solid #8B1538;">
                                             <div style="color: #8B1538; font-size: 14px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;" class="arabic-word">
                                                 شركة سمير شرف العتيبي التجارية
                                             </div>

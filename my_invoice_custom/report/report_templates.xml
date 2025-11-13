@@ -60,51 +60,10 @@
                             </table>
                         </div>
                     </div>
-                    <!--                    <div class="page">-->
-                    <!--                        <div class="header"-->
-                    <!--                             style="display: flex; padding: 15px 20px; border:2px solid #800000; border-radius: 6px; background: white; margin-bottom: 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">-->
-                    <!--                            <table style="width: 100%; border:2px solid white;">-->
-                    <!--                                <tr>-->
-                    <!--                                    &lt;!&ndash; English Info &ndash;&gt;-->
-                    <!--                                    <td style="width: 33%; text-align: left; font-size: 13px; color: #4a4a4a; vertical-align: top; padding-right: 10px;">-->
-                    <!--                                        <div style="font-weight: 700; font-size: 16px; color: #800000; margin-bottom: 8px;">-->
-                    <!--                                            SAMEER SHARAF AL OTAIBI TRADING COMPANY-->
-                    <!--                                        </div>-->
-                    <!--                                        <div style="line-height: 1.5;">-->
-                    <!--                                            C.R. 4030216154-->
-                    <!--                                            <br/>-->
-                    <!--                                            VAT Regd: 311299944700003-->
-                    <!--                                        </div>-->
-                    <!--                                    </td>-->
-
-                    <!--                                    &lt;!&ndash; Logo &ndash;&gt;-->
-                    <!--                                    <td style="width: 33%; text-align: center; vertical-align: middle;">-->
-                    <!--                                        <t t-if="o.company_id.logo">-->
-                    <!--                                            <img t-att-src="image_data_uri(o.company_id.logo)"-->
-                    <!--                                                 style="max-height: 130px; max-width: 100%; object-fit: contain;"/>-->
-                    <!--                                        </t>-->
-                    <!--                                    </td>-->
-
-                    <!--                                    &lt;!&ndash; Arabic Info &ndash;&gt;-->
-                    <!--                                    <td style="width: 33%; text-align: right; font-size: 13px; color: #4a4a4a; vertical-align: top; direction: rtl;">-->
-                    <!--                                        <div style="font-weight:900; font-size:18px; color:#800000; margin-bottom:8px; font-family: 'NotoNaskhArabic';">-->
-                    <!--                                            شركة سمير شرف العتيبي التجارية-->
-                    <!--                                        </div>-->
-                    <!--                                        <div style="line-height:1.5; font-family: 'Tajawal', sans-serif; font-weight:900;">-->
-                    <!--                                            ٤٠٣٠٢١٦١٥٤ :س.ت-->
-                    <!--                                            <br/>-->
-                    <!--                                            ٣١١٢٩٩٩٤٤٧٠٠٠٠٣ :الرقم الضريبي-->
-
-                    <!--                                        </div>-->
-                    <!--                                    </td>-->
-                    <!--                                </tr>-->
-                    <!--                            </table>-->
-                    <!--                        </div>-->
-                    <!--                    </div>-->
 
                     <t t-call="web.external_layout">
                         <!-- ===== INVOICE TITLE ===== -->
-                        <div style="padding-top:10px;">
+                        <div style="padding-top:30px;">
                             <div style="background-color:#d3d3d3; color:black; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
                                 <t t-if="o.move_type in ('out_invoice','out_refund')">
                                     Tax Invoice /

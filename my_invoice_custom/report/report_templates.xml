@@ -450,16 +450,19 @@
                                             <!-- ===== LEFT COLUMN (DAMMAM) ===== -->
                                             <td style="width:33%; padding:4px; border-right:1px solid #333;">
                                                 <div style="font-size:14px; font-weight:bold;">
-                                                   شركة سمير شرف العتيبي التجارية
+                                                    ٨٥١٥، شارع قتيبة بن مسلم،
+                                                    <br/>
+                                                    حي السوق، الدمام ٤٥٢٥–٣٢٢٤٢
+                                                    المملكة العربية السعودية
+                                                    <br/>
+                                                    هاتف/جوال: ٠٥٣٥٠٨١٠٠٨
                                                 </div>
 
                                                 <div style="margin-top:6px; font-size:13px;">
-                                                    Sameer Sharaf Al Otaibi Trading Company
-                                                    <br/>
-                                                     Building No. 8515,Qutaibah bin Muslim ST,
+                                                    Building No. 8515,Qutaibah bin Muslim ST,
                                                     <br/>
                                                     Al Souq, Dammam 4525-32242, Saudi Arabia
-                                                   <br/>
+                                                    <br/>
                                                     Tel/Mobile: 0535081008
                                                     <br/>
                                                     Email: ssaoe.dammam@gmail.com
@@ -469,7 +472,13 @@
                                             <!-- ===== MIDDLE COLUMN (JEDDAH MAIN) ===== -->
                                             <td style="width:33%; padding:4px; border-right:1px solid #333;">
                                                 <div style="font-size:14px; font-weight:bold;">
-                                                    شركة سمير شرف العتيبي التجارية
+                                                    جدة، ٧٦٥٥ الفيحاء
+                                                    <br/>
+                                                    حي الفيحاء، جدة ٢٢٢٤٤–٣١٠٨
+                                                    <br/>
+                                                    المملكة العربية السعودية
+                                                    <br/>
+                                                    هاتف/جوال:
                                                 </div>
 
                                                 <div style="margin-top:6px; font-size:13px;">
@@ -488,11 +497,17 @@
                                             <!-- ===== RIGHT COLUMN (JEDDAH AL-FAYHA) ===== -->
                                             <td style="width:33%; padding:4px;">
                                                 <div style="font-size:14px; font-weight:bold;">
-                                                    شركة سمير شرف العتيبي التجارية
+                                                    سوق الأنوار، البلدية، العزيزية،
+                                                    <br/>
+                                                    جدة ٣١٣٠٣
+                                                    <br/>
+                                                    المملكة العربية السعودية
+                                                    <br/>
+                                                    هاتف/جوال:
                                                 </div>
 
                                                 <div style="margin-top:6px; font-size:13px;">
-                                                   Sookul Anwar, Al Baladeah, Aziziyah,
+                                                    Sookul Anwar, Al Baladeah, Aziziyah,
                                                     <br/>
                                                     Jeddah 31303
                                                     <br/>
@@ -528,15 +543,11 @@
                                                     :
                                                 </span>
                                             </td>
-
                                         </tr>
                                     </table>
-
                                 </div>
-
                             </xpath>
                         </template>
-
 
 
                         <!--                        <template id="custom_invoice_footer" inherit_id="web.external_layout_footer">-->

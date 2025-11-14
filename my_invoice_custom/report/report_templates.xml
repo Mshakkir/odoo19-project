@@ -532,7 +532,7 @@
                                         <!-- ===== ROW 1: ALRAJHI BANK ===== -->
                                         <tr>
                                             <!-- LEFT: English -->
-                                            <td style="width:50%; padding:10px; border-right:2px #808080; font-size:11px; text-align:center;">
+                                            <td style="width:50%; padding:5px; border-right:2px #808080; font-size:11px; text-align:center;">
                                                 Alrajhi Bank :
                                                 Sameer Sharaf Al-Otibi Trading Company
                                                 <br/>
@@ -544,7 +544,7 @@
                                             </td>
 
                                             <!-- RIGHT: Arabic -->
-                                            <td style="width:50%; padding:10px; font-size:11px; direction:rtl; text-align:center; font-family:'Tajawal';">
+                                            <td style="width:50%; padding:5px; font-size:11px; direction:rtl; text-align:center; font-family:'Tajawal';">
                                                مصرف الراجحي: شركة سمير شرف العتيبي التجارية
                                                 <br/>
                                                 رقم الحساب: ١٤٣٩١٧٠٠٦٠٠٠٠١٢٣
@@ -563,7 +563,7 @@
                                         <!-- ===== ROW 2: SNB BANK ===== -->
                                         <tr>
                                             <!-- LEFT: English -->
-                                            <td style="width:50%; padding:10px; border-right:2px #808080; font-size:11px; text-align:center;">
+                                            <td style="width:50%; padding:5px; border-right:2px #808080; font-size:11px; text-align:center;">
                                                 SNB - Saudi National Bank:
                                                 <br/>
                                                 Sameer Sharaf Al-Otib Trading Company
@@ -576,7 +576,7 @@
                                             </td>
 
                                             <!-- RIGHT: Arabic -->
-                                            <td style="width:50%; padding:10px; font-size:11px; direction:rtl; text-align:center; font-family:'Tajawal';">
+                                            <td style="width:50%; padding:5px; font-size:11px; direction:rtl; text-align:center; font-family:'Tajawal';">
                                                 البنك الوطني السعودي : شركة سمير شرف العتيبي التجارية
                                                 <br/>
                                                 رقم الحساب لدى البنك الوطني السعودي:

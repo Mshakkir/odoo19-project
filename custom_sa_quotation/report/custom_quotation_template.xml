@@ -298,7 +298,7 @@
                             </t>
 
                         </body>
-                        <t t-call="web.external_standard">
+                        <t t-call="web.external_layout_standard">
                           <div style="margin-top: 20px; page-break-inside: avoid;">
                                     <!-- Branch Details Section -->
                                     <table width="100%" style="border: 1px solid #000; border-collapse: collapse; font-size: 10px; margin-bottom: 5px;">

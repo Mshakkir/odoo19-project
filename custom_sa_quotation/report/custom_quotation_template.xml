@@ -373,6 +373,237 @@
                             </div>
                 </t>
 
+
+                  <t t-call="web.external_layout">
+                                <!-- ===== Dynamic Title Section ===== -->
+                                <div style="padding-top:55px;">
+                                    <div style=" background-color:#d3d3d3; color:black; padding:8px ; text-align:center; margin-bottom:10px ; font-weight:bold; font-size:16px;">
+                                        <!-- Dynamic title based on state -->
+                                        <t t-if="o.state in ('draft', 'sent')">
+                                            Quotation /
+                                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                                عرض سعر
+                                            </span>
+                                        </t>
+                                        <t t-if="o.state in ('sale', 'done')">
+                                            Sales Order /
+                                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                                طلب مبيعات
+                                            </span>
+                                        </t>
+                                    </div>
+                                </div>
+
+                                <!-- ===== Customer & Quote Info ===== -->
+                                <table width="100%"
+                                       style="border: 1px solid #000; border-collapse: collapse; font-size: 13px; margin-bottom:5px; margin-top: 5px; height:30px;">
+                                    <tr>
+                                        <td width="50%"
+                                            style="border-right: 1px solid #000; vertical-align: top; padding: 10px;">
+                                            <div style="font-weight: bold; padding: 5px; margin-bottom: 5px;  color:#080808;">
+                                                Customer Name &amp; Address /
+                                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                                    اسم العميل وعنوانه
+                                                </span>
+                                            </div>
+                                            <div>
+                                                Attn:
+                                                <span t-esc="o.partner_id.name"/>
+                                                <br/>
+                                                <span t-esc="o.partner_id.city"/>
+                                                <br/>
+                                                MOB:
+                                                <span t-esc="o.partner_id.phone or ''"/>
+                                            </div>
+                                        </td>
+                                        <td width="50%" style="vertical-align: top; padding: 10px;">
+                                            <div style="font-weight: bold; padding: 5px; margin-bottom: 5px;  color:#080808;">
+                                                <!-- Dynamic header label -->
+                                                <t t-if="o.state in ('draft', 'sent')">
+                                                    Quote / Project Description /
+                                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                                        عرض سعر
+                                                    </span>
+                                                </t>
+                                                <t t-if="o.state in ('sale', 'done')">
+                                                    Order Description /
+                                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                                        وصف الطلب
+                                                    </span>
+                                                </t>
+                                            </div>
+                                            <div>
+                                                Date:
+                                                <span t-field="o.date_order"/>
+                                                <br/>
+                                                Our Reference:
+                                                <span t-esc="o.name"/>
+                                                <br/>
+                                                Your Reference:
+                                                <span t-esc="o.client_order_ref or '-'"/>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <!-- ===== Order Lines Table ===== -->
+                                <table width="100%" border="1"
+                                       style="border-collapse: collapse; font-size: 13px;margin-top:10px;"
+                                       cellpadding="5">
+                                    <thead style="background-color: #9e9d9d;">
+                                        <tr>
+                                            <th style="width:2%;text-align:center; color:#080808;">SN</th>
+                                            <th style="width:15%;text-align:center; color:#080808;">Item Description
+                                                <br/>
+                                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                                    المنتج الوصف
+                                                </span>
+                                            </th>
+                                            <th style="width:3%;text-align:center; color:#080808;">Duration
+                                                <br/>
+                                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                                    مدة
+                                                </span>
+                                            </th>
+                                            <th style="width:3%;text-align:center; color:#080808;">QTY
+                                                <br/>
+                                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                                    الكمية
+                                                </span>
+                                            </th>
+                                            <th style="width:3%;text-align:center; color:#080808;">U/M
+                                                <br/>
+                                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                                    وحدة
+                                                </span>
+                                            </th>
+                                            <th style="width:3%;text-align:center; color:#080808;">Unit Price
+                                                <br/>
+                                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                                    سعر الوحدة
+                                                </span>
+                                            </th>
+                                            <th style="width:3%;text-align:center; color:#080808;">Line Total
+                                                <br/>
+                                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                                    مجموع الخط
+                                                </span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody style="text-align:center;">
+                                        <tr t-foreach="o.order_line" t-as="line">
+                                            <td>
+                                                <t t-esc="line_index + 1"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="line.name"/>
+                                            </td>
+                                            <td>2-3 Weeks</td>
+                                            <td class="text-right">
+                                                <span t-field="line.product_uom_qty"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="line.product_uom_id"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-field="line.price_unit"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-field="line.price_subtotal"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- ===== Totals and Notes Section ===== -->
+                                <table width="100%" style="font-size: 13px; margin-top: 10px;">
+                                    <tr>
+                                        <!-- Left: Notes -->
+                                        <td style="width: 60%;padding-left:3px; ">
+                                            <t t-if="o.payment_term_id">
+                                                <p>
+                                                    <strong>Payment Terms:</strong>
+                                                    <span t-esc="o.payment_term_id.name"/>
+                                                </p>
+                                            </t>
+                                            <t t-if="o.note">
+                                                <div class="mt-4"
+                                                     style="font-size: 13px; margin-top: 10px; padding-left:3px;">
+                                                    <p>
+                                                        <strong>Offer Terms and Conditions:</strong>
+                                                    </p>
+                                                    <p t-field="o.note"/>
+                                                </div>
+                                            </t>
+                                        </td>
+                                        <!-- Right: Totals -->
+                                        <td style="width: 40%; border:white;">
+                                            <table style="width:100%; border:1px solid #000; border-collapse:collapse;">
+                                                <tr>
+                                                    <td>Subtotal</td>
+                                                    <td style="text-align:right;">
+                                                        <span t-field="o.amount_untaxed"/>
+                                                        SAR
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Discount</td>
+                                                    <td style="text-align:right;">
+                                                        <t t-esc="o.discount_amount or 0.0"/>
+                                                        SAR
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Freight</td>
+                                                    <td style="text-align:right;">
+                                                        <t t-esc="o.freight_amount or 0.0"/>
+                                                        SAR
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <strong>Gross Total</strong>
+                                                    </td>
+                                                    <td style="text-align:right;">
+                                                        <t t-set="gross_total"
+                                                           t-value="o.amount_untaxed - (o.discount_amount or 0.0) + (o.freight_amount or 0.0)"/>
+                                                        <t t-esc="gross_total"/>
+                                                        SAR
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>VAT (15%)</td>
+                                                    <td style="text-align:right;">
+                                                        <t t-set="vat_amount" t-value="gross_total * 0.15"/>
+                                                        <t t-esc="vat_amount"/>
+                                                        SAR
+                                                    </td>
+                                                </tr>
+                                                <tr style="background-color:#D3D3D3;">
+                                                    <td>
+                                                        <strong>Net Total</strong>
+                                                    </td>
+                                                    <td style="text-align:right;">
+                                                        <strong>
+                                                            <t t-esc="gross_total + vat_amount"/>
+                                                            SAR
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+
+
+
+
+                            </t>
+
+
+
+
                 <div class="footer" style="padding:10px; font-size:13px; background:#fff;">
 
                     <!-- ====== 3 COLUMN ADDRESS SECTION ====== -->

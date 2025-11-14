@@ -294,7 +294,12 @@
                                 </table>
 
                                 <!-- ===== FOOTER SECTION ===== -->
-                                <div style="margin-top: 20px; page-break-inside: avoid;">
+
+                            </t>
+
+                        </body>
+                        <t t-call="web.external_standard">
+                          <div style="margin-top: 20px; page-break-inside: avoid;">
                                     <!-- Branch Details Section -->
                                     <table width="100%" style="border: 1px solid #000; border-collapse: collapse; font-size: 10px; margin-bottom: 5px;">
                                         <tr>
@@ -377,10 +382,8 @@
                                              style="max-width: 100%; height: auto; display: block; margin: 0 auto;"/>
                                     </div>
                                 </div>
+                        </t>
 
-                            </t>
-
-                        </body>
                     </div>
 
                 </t>

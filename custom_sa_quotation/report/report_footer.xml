@@ -1,3 +1,4 @@
+<odoo>
 <template id="custom_footer_layout" inherit_id="web.external_layout_standard">
     <xpath expr="//div[contains(@class,'o_footer_content')]/div[contains(@class,'flex-grow-1')]" position="replace">
         <div class="text-start">
@@ -9,3 +10,4 @@
         </div>
     </xpath>
 </template>
+</odoo>

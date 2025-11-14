@@ -9,17 +9,17 @@
                     <!-- ===== HEADER ===== -->
                     <div class="page">
                         <div class="header"
-                             style="border:2px solid #8B1538; border-radius: 6px; background: white; margin-bottom: 15px;">
+                             style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
 
                             <!-- Company Names in One Row -->
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tr>
-                                    <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border-right: 0px solid white; border-bottom: 0px solid white;">
+                                    <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white;">
                                         <div style="color: #8B1538; font-size: 16px; font-weight: bold; text-transform: uppercase;">
                                             SAMEER SHARAF AL OTAIBI TRADING COMPANY
                                         </div>
                                     </td>
-                                    <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border-bottom: 0px solid white;">
+                                    <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white;">
                                         <div style="color: #8B1538; font-size: 16px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;"
                                              class="arabic-word">
                                             شركة سمير شرف العتيبي التجارية
@@ -29,11 +29,12 @@
                             </table>
 
                             <!-- Details and Logo Row -->
+                            <!-- Details and Logo Row -->
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tr>
                                     <!-- Left Column: English Info -->
                                     <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: middle;
-                   padding: 6px 10px; border-top: 1px solid #8B1538;border-right: 0px solid white; border-bottom: 0px solid white;border-top: 1px solid  #8B1538;">
+                   padding: 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid  white;">
                                         <div style="line-height: 1.3; font-weight: 500;">
                                             C.R. 4030216154
                                             <br/>
@@ -43,16 +44,16 @@
 
                                     <!-- Center Column: Company Logo -->
                                     <td style="width: 34%; text-align: center; vertical-align: middle;
-                   padding: 6px 10px; border-top: 1px solid #8B1538;border-right: 0px solid white; border-bottom: 0px solid white;border-top: 1px solid  #8B1538;">
+                   padding: 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid  white;">
                                         <t t-if="o.company_id.logo">
                                             <img t-att-src="image_data_uri(o.company_id.logo)"
-                                                 style="max-height: 70px; max-width: 100%; object-fit: contain;"/>
+                                                 style="max-height: 110px; max-width: 100%; object-fit: contain;"/>
                                         </t>
                                     </td>
 
                                     <!-- Right Column: Arabic Info -->
                                     <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle;
-                   direction: rtl; padding: 6px 10px; border-top: 1px solid #8B1538;border-right: 0px solid white; border-bottom: 0px solid white;border-top: 1px solid  #8B1538;">
+                   direction: rtl; padding: 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid  white;">
                                         <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
                                             ٤٠٣٠٢١٦١٥٤ :س.ت
                                             <br/>
@@ -262,7 +263,7 @@
                             </thead>
                             <tbody>
                                 <tr t-foreach="enumerate(o.invoice_line_ids, start=1)" t-as="l">
-                                    <td style="text-align:center; width:50px;">
+                                    <td style="text-align:center; width:30px;">
                                         <t t-esc="l[0]"/>
                                     </td>
                                     <td style="text-align:left;">
@@ -278,7 +279,7 @@
                                     <td style="width:70px;">
                                         <span t-field="l[1].product_uom_id.name"/>
                                     </td>
-                                    <td style="text-align:center; width:100px;">
+                                    <td style="text-align:center; width:80px;">
                                         <span t-field="l[1].price_unit"
                                               t-options='{"widget": "float", "precision": 2}'/>
                                     </td>
@@ -287,7 +288,7 @@
                                     <!--                                           t-value="l[1].quantity * l[1].price_unit * (l[1].discount or 0)/100.0"/>-->
                                     <!--                                        <span t-esc="disc" t-options='{"widget":"float","precision":2}'/>-->
                                     <!--                                    </td>-->
-                                    <td style="text-align:center; width:100px;">
+                                    <td style="text-align:center; width:80px;">
                                         <t t-set="subt"
                                            t-value="l[1].quantity * l[1].price_unit * (1 - (l[1].discount or 0)/100.0)"/>
                                         <span t-esc="subt" t-options='{"widget":"float","precision":2}'/>

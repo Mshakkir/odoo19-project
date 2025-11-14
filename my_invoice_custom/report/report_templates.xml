@@ -437,7 +437,7 @@
                             </tr>
                         </table>
 
-                        <!-- ===== FOOTER (BANK DETAILS) ===== -->
+                        <!-- ===== FOOTER (BANK DETAILS,ADDRESS) ===== -->
                         <template id="custom_invoice_footer" inherit_id="web.external_layout_footer">
                             <xpath expr="//div[@class='footer']" position="replace">
 
@@ -450,63 +450,57 @@
                                             <!-- ===== LEFT COLUMN (DAMMAM) ===== -->
                                             <td style="width:33%; padding:4px; border-right:1px solid #333;">
                                                 <div style="font-size:14px; font-weight:bold;">
-                                                    حي السوق، شارع سعد الكندي، رقم المبنى ٨٥١٥
-                                                    <br/>
-                                                    الدمام ٣٢٢٤٢ - المملكة العربية السعودية
-                                                    <br/>
-                                                    هاتف: ٠٥٣٥٠٨١٠٠٨
+                                                   شركة سمير شرف العتيبي التجارية
                                                 </div>
 
                                                 <div style="margin-top:6px; font-size:13px;">
-                                                    District Al Souq, Street Sa’ad Al Kandi, Building No. 8515
+                                                    Sameer Sharaf Al Otaibi Trading Company
                                                     <br/>
-                                                    Dammam 4525-32242 - Saudi Arabia
+                                                     Building No. 8515,Qutaibah bin Muslim ST,
                                                     <br/>
-                                                    Tel: 0535081008
+                                                    Al Souq, Dammam 4525-32242, Saudi Arabia
+                                                   <br/>
+                                                    Tel/Mobile: 0535081008
                                                     <br/>
-                                                    Email: ssaoe.dammam@gmail.com , oprndmm@ssaoco.com
+                                                    Email: ssaoe.dammam@gmail.com
                                                 </div>
                                             </td>
 
                                             <!-- ===== MIDDLE COLUMN (JEDDAH MAIN) ===== -->
                                             <td style="width:33%; padding:4px; border-right:1px solid #333;">
                                                 <div style="font-size:14px; font-weight:bold;">
-                                                    مركز الأنوار، رقم محل ١٢، شارع البلدية
-                                                    <br/>
-                                                    جدة ٢٣٣٣٤ - المملكة العربية السعودية
-                                                    <br/>
-                                                    هاتف: ٠٥٣٦١٢٢٨٣٣
+                                                    شركة سمير شرف العتيبي التجارية
                                                 </div>
 
                                                 <div style="margin-top:6px; font-size:13px;">
-                                                    Al Anwar Centre, Showroom No.12,
+                                                    Jeddah, 7655 Al Fayha
                                                     <br/>
-                                                    Baladiya Street, Jeddah 23334 - Saudi Arabia
+                                                    Al Fayha Dist. JEDDAH 22244-3108
                                                     <br/>
-                                                    Tel: 0536122833
+                                                    SaudiArabia
                                                     <br/>
-                                                    Email: ssaoe.jeddah@gmail.com
+                                                    Tel/Mobile:
+                                                    <br/>
+                                                    Email:
                                                 </div>
                                             </td>
 
                                             <!-- ===== RIGHT COLUMN (JEDDAH AL-FAYHA) ===== -->
                                             <td style="width:33%; padding:4px;">
                                                 <div style="font-size:14px; font-weight:bold;">
-                                                    الفيحاء ٧٦٥٥
-                                                    <br/>
-                                                    جدة ٣١٠٨-٢٢٢٤٤ - المملكة العربية السعودية
-                                                    <br/>
-                                                    هاتف: ٠١٢٢٣٤٥٥٢٣
+                                                    شركة سمير شرف العتيبي التجارية
                                                 </div>
 
                                                 <div style="margin-top:6px; font-size:13px;">
-                                                    Al Fayha 7655
+                                                   Sookul Anwar, Al Baladeah, Aziziyah,
                                                     <br/>
-                                                    Jeddah 22244-3108 - Saudi Arabia
+                                                    Jeddah 31303
                                                     <br/>
-                                                    Tel: 0122345523
+                                                    Saudi Arabia
                                                     <br/>
-                                                    Email: ssaoe.jeddah@gmail.com
+                                                    Tel:
+                                                    <br/>
+                                                    Email:
                                                 </div>
                                             </td>
 

@@ -107,7 +107,7 @@
                     <!-- ===== Bank Details ===== -->
                     <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                         <tr>
-                            <td style="padding:5px; text-align:left;">
+                            <td style="padding:2px; text-align:left;">
                                 <b>Bank Details:</b>
                                 <br/>
                                 Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.
@@ -116,7 +116,7 @@
                                 <br/>
                                 IBAN: SA7880000123608010143917
                             </td>
-                            <td style="padding:5px; text-align:right;">
+                            <td style="padding:2px; text-align:right;">
                                 <b>تفاصيل البنك:</b>
                                 <br/>
                                 بنك الراجحي – شركة سمير شرف العتيبي للتجارة
@@ -128,7 +128,7 @@
                         </tr>
                         <tr>
                             <!-- English Column -->
-                            <td style="padding:5px; text-align:left;">
+                            <td style="padding:2px; text-align:left;">
                                 <b>Bank Details:</b>
                                 <br/>
                                 SNB - Saudi National Bank
@@ -141,7 +141,7 @@
                             </td>
 
                             <!-- Arabic Column -->
-                            <td style="padding:5px; text-align:left; direction:rtl;">
+                            <td style="padding:2px; text-align:right;">
                                 <b>تفاصيل البنك:</b>
                                 <br/>
                                 البنك الأهلي السعودي - SNB

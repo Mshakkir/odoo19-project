@@ -67,256 +67,102 @@
 
                     <!-- ====== 3 COLUMN ADDRESS SECTION ====== -->
                     <!-- ===== Branch Details ===== -->
-<!--                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">-->
-<!--                        <tr>-->
-<!--                            <td style="width:33%; padding:4px;">-->
-<!--                                <strong>Dammam</strong>-->
-<!--                                Sameer Sharaf Al Otaibi Trading Company-->
-<!--                                8515, Qutaibah bin Muslim ST,-->
-<!--                                Al Souq, Dammam 4525-32242-->
-<!--                                Saudi Arabia-->
-<!--                                <br/>-->
-<!--                                Tel/Mobile: 0535081008-->
-<!--                                <br/>-->
-<!--                                Email: ssaoe.dammam@gmail.com-->
-<!--                            </td>-->
-
-<!--                            <td style="width:33%; padding:4px;">-->
-<!--                                <strong>Main</strong>-->
-<!--                                Sameer Sharaf Al Otaibi Trading Company-->
-<!--                                شركة سمير شرف العتيبي التجارية-->
-<!--                                Jeddah, 7655 Al Fayha-->
-<!--                                Al Fayha Dist. JEDDAH 22244-3108-->
-<!--                                Saudi Arabia-->
-<!--                                <br/>-->
-<!--                                Tel:-->
-<!--                                <br/>-->
-<!--                                Email:-->
-<!--                            </td>-->
-
-<!--                            <td style="width:33%; padding:4px;">-->
-<!--                                <strong>Baladiya</strong>-->
-<!--                                Sameer Sharaf Al Otaibi Trading Company-->
-<!--                                شركة سمير شرف العتيبي التجارية-->
-<!--                                Sookul Anwar, Al Baladeah, Aziziyah,-->
-<!--                                Jeddah 31303-->
-<!--                                Tel: 0535081008-->
-<!--                                <br/>-->
-<!--                                Email: ssaoe.dammam@gmail.com-->
-<!--                            </td>-->
-<!--                        </tr>-->
-<!--                    </table>-->
-
-<!--                    &lt;!&ndash; ===== Bank Details ===== &ndash;&gt;-->
-<!--                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">-->
-<!--                        <tr>-->
-<!--                            <td style="padding:2px; text-align:left;">-->
-<!--                                <b>Bank Details:</b>-->
-<!--                                <br/>-->
-<!--                                Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.-->
-<!--                                <br/>-->
-<!--                                Account Number: 123000010006080143917-->
-<!--                                <br/>-->
-<!--                                IBAN: SA7880000123608010143917-->
-
-<!--                            <span style="padding:2px; text-align:right;">-->
-<!--                                <b>تفاصيل البنك:</b>-->
-<!--                                <br/>-->
-<!--                                بنك الراجحي – شركة سمير شرف العتيبي للتجارة-->
-<!--                                <br/>-->
-<!--                                رقم الحساب: 123000010006080143917-->
-<!--                                <br/>-->
-<!--                                الآيبان: SA7880000123608010143917-->
-<!--                            </span>-->
-<!--                            </td>-->
-<!--                        </tr>-->
-<!--                        <tr>-->
-<!--                            &lt;!&ndash; English Column &ndash;&gt;-->
-<!--                            <td style="padding:2px; text-align:left;">-->
-<!--                                <b>Bank Details:</b>-->
-<!--                                <br/>-->
-<!--                                SNB - Saudi National Bank-->
-<!--                                <br/>-->
-<!--                                Sameer Sharaf Al-Otib Trading Company-->
-<!--                                <br/>-->
-<!--                                Account Number at SNB: 13200000678707-->
-<!--                                <br/>-->
-<!--                                International Account Number (IBAN): SA2110000013200000678707-->
-
-
-<!--                            &lt;!&ndash; Arabic Column &ndash;&gt;-->
-<!--                            <span style="padding:2px; text-align:right;">-->
-<!--                                <b>تفاصيل البنك:</b>-->
-<!--                                <br/>-->
-<!--                                البنك الأهلي السعودي - SNB-->
-<!--                                <br/>-->
-<!--                                شركة سمير شرف العتيبي التجارية-->
-<!--                                <br/>-->
-<!--                                رقم الحساب: 13200000678707-->
-<!--                                <br/>-->
-<!--                                رقم الحساب الدولي (IBAN): SA2110000013200000678707-->
-<!--                            </span>-->
-<!--                            </td>-->
-
-<!--                        </tr>-->
-
-<!--                    </table>-->
-                     <table width="100%" style="border: 1px solid #333; border-collapse: collapse; font-size: 9px; margin-bottom: 5px; background-color: #f9f9f9;">
-        <thead>
-            <tr style="background-color: #8B1538; color: white;">
-                <th style="width: 33.33%; padding: 6px; border-right: 1px solid #fff; text-align: center; font-weight: bold; font-size: 10px;">
-                    BRANCH LOCATIONS / المواقع الفرعية
-                </th>
-                <th style="width: 33.33%; padding: 6px; border-right: 1px solid #fff; text-align: center; font-weight: bold; font-size: 10px;">
-                    BRANCH LOCATIONS / المواقع الفرعية
-                </th>
-                <th style="width: 33.33%; padding: 6px; text-align: center; font-weight: bold; font-size: 10px;">
-                    BRANCH LOCATIONS / المواقع الفرعية
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <!-- Branch 1: Dammam -->
-                <td style="width: 33.33%; padding: 8px; border-right: 1px solid #ddd; vertical-align: top;">
-                    <div style="text-align: center; margin-bottom: 5px;">
-                        <strong style="color: #8B1538; font-size: 11px; display: block; margin-bottom: 3px;">DAMMAM BRANCH</strong>
-                        <span style="font-family: 'Tajawal', sans-serif; font-weight: bold; direction: rtl; display: block; color: #8B1538; font-size: 10px;">فرع الدمام</span>
-                    </div>
-                    <div style="line-height: 1.6; text-align: left; font-size: 9px;">
-                        <strong>Sameer Sharaf Al Otaibi Trading Company</strong><br/>
-                        <span style="font-family: 'Tajawal', sans-serif; direction: rtl;">شركة سمير شرف العتيبي التجارية</span><br/>
-                        <strong>Address:</strong> District Al Souq, Street Sa'ad Al Kandi<br/>
-                        Building No. 8515, Dammam 4525-32242<br/>
-                        Kingdom of Saudi Arabia<br/>
-                        <span style="font-family: 'Tajawal', sans-serif; direction: rtl;">حي السوق، شارع سعد الكندي، رقم المبنى 8515</span><br/>
-                        <strong>Tel:</strong> 0535081008<br/>
-                        <strong>Email:</strong> ssaoe.dammam@gmail.com<br/>
-                        oprndmm@ssaoco.com
-                    </div>
-                </td>
-
-                <!-- Branch 2: Al Fayha (Main) -->
-                <td style="width: 33.33%; padding: 8px; border-right: 1px solid #ddd; vertical-align: top;">
-                    <div style="text-align: center; margin-bottom: 5px;">
-                        <strong style="color: #8B1538; font-size: 11px; display: block; margin-bottom: 3px;">AL FAYHA BRANCH (MAIN)</strong>
-                        <span style="font-family: 'Tajawal', sans-serif; font-weight: bold; direction: rtl; display: block; color: #8B1538; font-size: 10px;">فرع الفيحاء (الرئيسي)</span>
-                    </div>
-                    <div style="line-height: 1.6; text-align: left; font-size: 9px;">
-                        <strong>Sameer Sharaf Al Otaibi Trading Company</strong><br/>
-                        <span style="font-family: 'Tajawal', sans-serif; direction: rtl;">شركة سمير شرف العتيبي التجارية</span><br/>
-                        <strong>Address:</strong> 7655 Al Fayha<br/>
-                        Al Fayha District, Jeddah 22244-3108<br/>
-                        Kingdom of Saudi Arabia<br/>
-                        <span style="font-family: 'Tajawal', sans-serif; direction: rtl;">الفيحاء 7655، حي الفيحاء، جدة</span><br/>
-                        <strong>Tel:</strong> 0122345523<br/>
-                        <strong>Email:</strong> ssaoe.jeddah@gmail.com
-                    </div>
-                </td>
-
-                <!-- Branch 3: Baladiya -->
-                <td style="width: 33.33%; padding: 8px; vertical-align: top;">
-                    <div style="text-align: center; margin-bottom: 5px;">
-                        <strong style="color: #8B1538; font-size: 11px; display: block; margin-bottom: 3px;">AL BALADIYA BRANCH</strong>
-                        <span style="font-family: 'Tajawal', sans-serif; font-weight: bold; direction: rtl; display: block; color: #8B1538; font-size: 10px;">فرع البلدية</span>
-                    </div>
-                    <div style="line-height: 1.6; text-align: left; font-size: 9px;">
-                        <strong>Sameer Sharaf Al Otaibi Trading Company</strong><br/>
-                        <span style="font-family: 'Tajawal', sans-serif; direction: rtl;">شركة سمير شرف العتيبي التجارية</span><br/>
-                        <strong>Address:</strong> Al Anwar Centre, Showroom No. 12<br/>
-                        Baladiya Street, Aziziyah, Jeddah 31303<br/>
-                        Kingdom of Saudi Arabia<br/>
-                        <span style="font-family: 'Tajawal', sans-serif; direction: rtl;">مركز الأنوار، محل رقم 12، شارع البلدية</span><br/>
-                        <strong>Tel:</strong> 0536122833<br/>
-                        <strong>Email:</strong> ssaoe.jeddah@gmail.com
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-    <!-- Bank Details Section -->
-    <table width="100%" style="border: 1px solid #333; border-collapse: collapse; font-size: 9px; margin-bottom: 5px; background-color: #f9f9f9;">
-        <thead>
-            <tr style="background-color: #8B1538; color: white;">
-                <th style="padding: 6px; text-align: center; font-weight: bold; font-size: 10px;">
-                    BANKING INFORMATION / المعلومات المصرفية
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Al Rajhi Bank -->
-            <tr>
-                <td style="padding: 8px;">
-                    <table width="100%" style="border-collapse: collapse;">
+                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                         <tr>
-                            <!-- English Column -->
-                            <td style="width: 50%; padding-right: 10px; vertical-align: top; border-right: 1px solid #ddd;">
-                                <div style="line-height: 1.6;">
-                                    <strong style="color: #8B1538; font-size: 10px;">AL RAJHI BANK</strong><br/>
-                                    <strong>Beneficiary Name:</strong><br/>
-                                    Sameer Sharaf Al-Otaibi Trading Company<br/>
-                                    <strong>Account Number:</strong> 123000010006080143917<br/>
-                                    <strong>IBAN:</strong> SA7880000123608010143917<br/>
-                                    <strong>Bank:</strong> Al Rajhi Bank, Saudi Arabia
-                                </div>
+                            <td style="width:33%; padding:4px;">
+                                <strong>Dammam</strong>
+                                Sameer Sharaf Al Otaibi Trading Company
+                                8515, Qutaibah bin Muslim ST,
+                                Al Souq, Dammam 4525-32242
+                                Saudi Arabia
+                                <br/>
+                                Tel/Mobile: 0535081008
+                                <br/>
+                                Email: ssaoe.dammam@gmail.com
                             </td>
-                            <!-- Arabic Column -->
-                            <td style="width: 50%; padding-left: 10px; vertical-align: top; text-align: right; direction: rtl;">
-                                <div style="line-height: 1.6; font-family: 'Tajawal', sans-serif;">
-                                    <strong style="color: #8B1538; font-size: 10px;">بنك الراجحي</strong><br/>
-                                    <strong>اسم المستفيد:</strong><br/>
-                                    شركة سمير شرف العتيبي التجارية<br/>
-                                    <strong>رقم الحساب:</strong> 123000010006080143917<br/>
-                                    <strong>رقم الآيبان:</strong> SA7880000123608010143917<br/>
-                                    <strong>البنك:</strong> بنك الراجحي، المملكة العربية السعودية
-                                </div>
+
+                            <td style="width:33%; padding:4px;">
+                                <strong>Main</strong>
+                                Sameer Sharaf Al Otaibi Trading Company
+                                شركة سمير شرف العتيبي التجارية
+                                Jeddah, 7655 Al Fayha
+                                Al Fayha Dist. JEDDAH 22244-3108
+                                Saudi Arabia
+                                <br/>
+                                Tel:
+                                <br/>
+                                Email:
+                            </td>
+
+                            <td style="width:33%; padding:4px;">
+                                <strong>Baladiya</strong>
+                                Sameer Sharaf Al Otaibi Trading Company
+                                شركة سمير شرف العتيبي التجارية
+                                Sookul Anwar, Al Baladeah, Aziziyah,
+                                Jeddah 31303
+                                Tel: 0535081008
+                                <br/>
+                                Email: ssaoe.dammam@gmail.com
                             </td>
                         </tr>
                     </table>
-                </td>
-            </tr>
 
-            <!-- Separator Line -->
-            <tr>
-                <td style="padding: 0;">
-                    <div style="border-top: 1px solid #ddd; margin: 0;"></div>
-                </td>
-            </tr>
+                    <!-- ===== Bank Details ===== -->
+                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
+                        <tr>
+                            <td style="padding:2px; text-align:left;">
+                                <b>Bank Details:</b>
+                                <br/>
+                                Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.
+                                <br/>
+                                Account Number: 123000010006080143917
+                                <br/>
+                                IBAN: SA7880000123608010143917
+                            </td>
 
-            <!-- Saudi National Bank -->
-            <tr>
-                <td style="padding: 8px;">
-                    <table width="100%" style="border-collapse: collapse;">
+                            <td style="padding:2px; text-align:right;">
+                                <b>تفاصيل البنك:</b>
+                                <br/>
+                                بنك الراجحي – شركة سمير شرف العتيبي للتجارة
+                                <br/>
+                                رقم الحساب: 123000010006080143917
+                                <br/>
+                                الآيبان: SA7880000123608010143917
+                            </td>
+
+                        </tr>
                         <tr>
                             <!-- English Column -->
-                            <td style="width: 50%; padding-right: 10px; vertical-align: top; border-right: 1px solid #ddd;">
-                                <div style="line-height: 1.6;">
-                                    <strong style="color: #8B1538; font-size: 10px;">SAUDI NATIONAL BANK (SNB)</strong><br/>
-                                    <strong>Beneficiary Name:</strong><br/>
-                                    Sameer Sharaf Al-Otaibi Trading Company<br/>
-                                    <strong>Account Number:</strong> 13200000678707<br/>
-                                    <strong>IBAN:</strong> SA2110000013200000678707<br/>
-                                    <strong>Bank:</strong> Saudi National Bank, Saudi Arabia
-                                </div>
+                            <td style="padding:2px; text-align:left;">
+                                <b>Bank Details:</b>
+                                <br/>
+                                SNB - Saudi National Bank
+                                <br/>
+                                Sameer Sharaf Al-Otib Trading Company
+                                <br/>
+                                Account Number at SNB: 13200000678707
+                                <br/>
+                                International Account Number (IBAN): SA2110000013200000678707
                             </td>
+
+
                             <!-- Arabic Column -->
-                            <td style="width: 50%; padding-left: 10px; vertical-align: top; text-align: right; direction: rtl;">
-                                <div style="line-height: 1.6; font-family: 'Tajawal', sans-serif;">
-                                    <strong style="color: #8B1538; font-size: 10px;">البنك الأهلي السعودي</strong><br/>
-                                    <strong>اسم المستفيد:</strong><br/>
-                                    شركة سمير شرف العتيبي التجارية<br/>
-                                    <strong>رقم الحساب:</strong> 13200000678707<br/>
-                                    <strong>رقم الآيبان:</strong> SA2110000013200000678707<br/>
-                                    <strong>البنك:</strong> البنك الأهلي السعودي، المملكة العربية السعودية
-                                </div>
+                            <td style="padding:2px; text-align:right;">
+                                <b>تفاصيل البنك:</b>
+                                <br/>
+                                البنك الأهلي السعودي - SNB
+                                <br/>
+                                شركة سمير شرف العتيبي التجارية
+                                <br/>
+                                رقم الحساب: 13200000678707
+                                <br/>
+                                رقم الحساب الدولي (IBAN): SA2110000013200000678707
                             </td>
+
+
                         </tr>
+
                     </table>
-                </td>
-            </tr>
-        </tbody>
-    </table>
 
                     <!-- ===== Footer Logos ===== -->
                     <div style="text-align:center; margin-top:8px;">
@@ -494,21 +340,21 @@
                             <td style="width: 40%; border:white;">
                                 <table style="width:100%; border:1px solid #000; border-collapse:collapse;">
                                     <tr style="padding:4px;">
-                                        <td style="padding-left:3px;">Subtotal</td>
+                                        <td style="padding-left:5px;">Subtotal</td>
                                         <td style="text-align:right;">
                                             <span t-field="o.amount_untaxed"/>
                                             SAR
                                         </td>
                                     </tr>
                                     <tr style="padding:4px;">
-                                        <td style="padding-left:3px;">Discount</td>
+                                        <td style="padding-left:5px;">Discount</td>
                                         <td style="text-align:right;">
                                             <t t-esc="o.discount_amount or 0.0"/>
                                             SAR
                                         </td>
                                     </tr>
                                     <tr style="padding:4px;">
-                                        <td style="padding-left:3px;">Freight</td>
+                                        <td style="padding-left:5px;">Freight</td>
                                         <td style="text-align:right;">
                                             <t t-esc="o.freight_amount or 0.0"/>
                                             SAR
@@ -516,7 +362,7 @@
                                     </tr>
                                     <tr style="padding:4px;">
                                         <td>
-                                            <strong style="padding-left:3px;">Gross Total</strong>
+                                            <strong style="padding-left:5px;">Gross Total</strong>
                                         </td>
                                         <td style="text-align:right;">
                                             <t t-set="gross_total"
@@ -526,7 +372,7 @@
                                         </td>
                                     </tr>
                                     <tr style="padding:4px;">
-                                        <td style="padding-left:3px;">VAT (15%)</td>
+                                        <td style="padding-left:5px;">VAT (15%)</td>
                                         <td style="text-align:right;">
                                             <t t-set="vat_amount" t-value="gross_total * 0.15"/>
                                             <t t-esc="vat_amount"/>
@@ -535,7 +381,7 @@
                                     </tr>
                                     <tr style="background-color:#D3D3D3;padding:6px;">
                                         <td>
-                                            <strong style="padding-left:3px;">Net Total</strong>
+                                            <strong style="padding-left:5px;">Net Total</strong>
                                         </td>
                                         <td style="text-align:right;">
                                             <strong>

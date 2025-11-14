@@ -68,7 +68,7 @@
                     </div>
                     <t t-call="web.external_layout">
                         <!-- ===== INVOICE TITLE ===== -->
-                        <div style="padding-top:50px;">
+                        <div style="padding-top:60px;">
                             <div style="background-color:#d3d3d3; color:black; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
                                 <t t-if="o.move_type in ('out_invoice','out_refund')">
                                     Tax Invoice /
@@ -215,23 +215,23 @@
                                 <tr>
                                     <th>S.N
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:500;font-size:10px;">م</span>
+                                        <span style="font-family:'Tajawal';font-weight:600;font-size:15px;">م</span>
                                     </th>
                                     <th>Item / Description
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:500;font-size:10px;">الصنف / الوصف</span>
+                                        <span style="font-family:'Tajawal';font-weight:600;font-size:15px;">الصنف / الوصف</span>
                                     </th>
                                     <th>QTY
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:500;font-size:10px;">الكمية</span>
+                                        <span style="font-family:'Tajawal';font-weight:600;font-size:15px;">الكمية</span>
                                     </th>
                                     <th>Unit
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:500;font-size:10px;">الوحدة</span>
+                                        <span style="font-family:'Tajawal';font-weight:600;font-size:15px;">الوحدة</span>
                                     </th>
                                     <th>S.Rate
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:500;font-size:10px;">سعر الوحدة</span>
+                                        <span style="font-family:'Tajawal';font-weight:600;font-size:15px;">سعر الوحدة</span>
                                     </th>
                                     <!--                                    <th>Disc Amt-->
                                     <!--                                        <br/>-->
@@ -239,20 +239,20 @@
                                     <!--                                    </th>-->
                                     <th>Amount
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:500;font-size:10px;">المبلغ</span>
+                                        <span style="font-family:'Tajawal';font-weight:600;font-size:15px;">المبلغ</span>
                                     </th>
                                     <th>VAT%
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:500;font-size:10px;">الضريبة</span>
+                                        <span style="font-family:'Tajawal';font-weight:600;font-size:15px;">الضريبة</span>
                                     </th>
                                     <th>VAT
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:500;font-size:10px;">القيمة الضريبة
+                                        <span style="font-family:'Tajawal';font-weight:600;font-size:15px;">القيمة الضريبة
                                         </span>
                                     </th>
                                     <th>Total Price
                                         <br/>
-                                        <span style="font-family:'Tajawal';font-weight:500;font-size:10px;">القيمة الإجمالية
+                                        <span style="font-family:'Tajawal';font-weight:600;font-size:15px;">القيمة الإجمالية
                                         </span>
                                     </th>
                                 </tr>

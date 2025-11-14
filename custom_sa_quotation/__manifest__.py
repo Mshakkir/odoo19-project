@@ -7,6 +7,7 @@
     'data': [
         'report/report.xml',
         'report/custom_quotation_template.xml',
+        "report/report_footer.xml",
 
     ],
     'assets': {

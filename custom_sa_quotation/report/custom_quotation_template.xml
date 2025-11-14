@@ -74,7 +74,7 @@
                             </div>
                             <t t-call="web.external_layout">
                                 <!-- ===== Dynamic Title Section ===== -->
-                                <div style="padding-top:15px;">
+                                <div style="padding-top:45px;">
                                     <div style=" background-color:#d3d3d3; color:black; padding:8px ; text-align:center; margin-bottom:10px ; font-weight:bold; font-size:16px;">
                                         <!-- Dynamic title based on state -->
                                         <t t-if="o.state in ('draft', 'sent')">
@@ -304,12 +304,13 @@
                                     <tr style="font-weight:bold; background-color:#f2f2f2;">
                                         <td style="width:33.3%; border:1px solid #8B1538; padding:6px;">Dammam Branch
                                         </td>
-                                        <td style="width:33.3%; border:1px solid #8B1538; padding:6px;">Jeddah Branch
+                                        <td style="width:33.3%; border:1px solid #8B1538; padding:6px;">Baladiya Branch
                                         </td>
                                         <td style="width:33.3%; border:1px solid #8B1538; padding:6px;">Main Office</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid #8B1538; padding:6px; line-height:1.5;">
+                                            Sameer Sharaf Al Otaibi Trading Company
                                             8515, Qutaibah bin Muslim ST,
                                             Al Souq, Dammam 4525-32242
                                             <br/>
@@ -320,11 +321,13 @@
                                             <br/>
                                         </td>
                                         <td style="border:1px solid #8B1538; padding:6px; line-height:1.5;">
+                                            Sameer Sharaf Al Otaibi Trading Company
                                             شركة سمير شرف العتيبي التجارية<br/>
                                             Sookul Anwar, Al Baladeah, Aziziyah,
                                             Jeddah 31303
                                         </td>
                                         <td style="border:1px solid #8B1538; padding:6px; line-height:1.5;">
+                                            Sameer Sharaf Al Otaibi Trading Company
                                             شركة سمير شرف العتيبي التجارية
                                             Jeddah, 7655 Al Fayha
                                             Al Fayha Dist. JEDDAH 22244-3108
@@ -337,7 +340,7 @@
                                 </table>
                                 <div style="width: 100%; text-align: center;margin-top:250px;">
                                     <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/footer_companies_names.jpg'"
-                                         style="height: 150px;text-align:center; width:80%; padding-top:30px;"/>
+                                         style="height: 150px;text-align:center; width:80%; padding-top:5px;"/>
                                 </div>
                             </t>
 

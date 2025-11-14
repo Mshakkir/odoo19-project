@@ -517,16 +517,11 @@
                                     </table>
 
                                     <!-- ===== BANK DETAILS BOX ===== -->
-                                    <table style="width:100%; border:2px solid #000; border-collapse:collapse;">
+                                    <table style="width:100%; border:2px #808080; border-collapse:collapse;">
 
                                         <!-- ===== HEADER ROW ===== -->
                                         <tr>
-                                            <td colspan="2" style="
-                        text-align:center;
-                        padding:6px;
-                        font-size:12px;
-                        font-weight:bold;
-                        border-bottom:2px solid #000;">
+                                            <td colspan="2" style="padding:6px;font-size:11px;font-weight:bold;border-bottom:2px #808080;float:left;">
                                                 Bank details:
                                                 <span style="float:right; font-family:'Tajawal'; font-weight:900;">
                                                     التفاصيل المصرفية :
@@ -537,20 +532,20 @@
                                         <!-- ===== ROW 1: ALRAJHI BANK ===== -->
                                         <tr>
                                             <!-- LEFT: English -->
-                                            <td style="width:50%; padding:10px; border-right:2px solid #000; font-size:13px; text-align:center;">
-                                                <b>Alrajhi Bank :</b>
+                                            <td style="width:50%; padding:10px; border-right:2px #808080; font-size:11px; text-align:center;">
+                                                Alrajhi Bank :
                                                 Sameer Sharaf Al-Otibi Trading Company
                                                 <br/>
-                                                <b>Account Number :</b>
+                                                Account Number :
                                                 123000010006080143917
                                                 <br/>
-                                                <b>IBAN :</b>
+                                                IBAN :
                                                 SA7880000123608010143917
                                             </td>
 
                                             <!-- RIGHT: Arabic -->
-                                            <td style="width:50%; padding:10px; font-size:14px; direction:rtl; text-align:center; font-family:'Tajawal';">
-                                                <b>مصرف الراجحي، شركة سمير شرف العتيبي التجارية</b>
+                                            <td style="width:50%; padding:10px; font-size:11px; direction:rtl; text-align:center; font-family:'Tajawal';">
+                                               مصرف الراجحي: شركة سمير شرف العتيبي التجارية
                                                 <br/>
                                                 رقم الحساب: ١٤٣٩١٧٠٠٦٠٠٠٠١٢٣
                                                 <br/>
@@ -562,14 +557,14 @@
 
                                         <!-- ===== HORIZONTAL DIVIDER ===== -->
                                         <tr>
-                                            <td colspan="2" style="border-top:2px solid #000;"></td>
+                                            <td colspan="2" style="border-top:2px #808080;"></td>
                                         </tr>
 
                                         <!-- ===== ROW 2: SNB BANK ===== -->
                                         <tr>
                                             <!-- LEFT: English -->
-                                            <td style="width:50%; padding:10px; border-right:2px solid #000; font-size:13px; text-align:center;">
-                                                <b>SNB - Saudi National Bank</b>
+                                            <td style="width:50%; padding:10px; border-right:2px #808080; font-size:11px; text-align:center;">
+                                                SNB - Saudi National Bank:
                                                 <br/>
                                                 Sameer Sharaf Al-Otib Trading Company
                                                 <br/>
@@ -581,8 +576,8 @@
                                             </td>
 
                                             <!-- RIGHT: Arabic -->
-                                            <td style="width:50%; padding:10px; font-size:14px; direction:rtl; text-align:center; font-family:'Tajawal';">
-                                                <b>البنك الوطني السعودي – شركة سمير شرف العتيبي التجارية</b>
+                                            <td style="width:50%; padding:10px; font-size:11px; direction:rtl; text-align:center; font-family:'Tajawal';">
+                                                البنك الوطني السعودي : شركة سمير شرف العتيبي التجارية
                                                 <br/>
                                                 رقم الحساب لدى البنك الوطني السعودي:
                                                 <br/>

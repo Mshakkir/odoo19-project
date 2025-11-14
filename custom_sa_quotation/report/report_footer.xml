@@ -1,62 +1,11 @@
-<odoo>
-    <template id="custom_footer_inherit" inherit_id="web.external_layout_standard">
-
-        <!-- Replace the default Odoo footer -->
-        <xpath expr="//div[contains(@class, 'o_footer')]" position="replace">
-
-            <div class="footer o_footer" style="font-size:10px; text-align:center; width:100%; margin-top:20px;">
-
-                <div style="page-break-inside: avoid; border-top:1px solid #000; padding-top:10px;">
-
-                    <!-- ===== Branch Details ===== -->
-                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
-                        <tr>
-                            <td style="width:33%; padding:4px;">
-                                <b>Al Fayha 7655</b><br/>
-                                Jeddah 22244-3108, Saudi Arabia<br/>
-                                Tel: 0122345523<br/>
-                                Email: ssaoe.jeddah@gmail.com
-                            </td>
-
-                            <td style="width:33%; padding:4px;">
-                                <b>Al Anwar Centre, Shop 12</b><br/>
-                                Jeddah 23334, Saudi Arabia<br/>
-                                Tel: 0536122833<br/>
-                                Email: ssaoe.jeddah@gmail.com
-                            </td>
-
-                            <td style="width:33%; padding:4px;">
-                                <b>District Al Souq, Bldg No. 8515</b><br/>
-                                Dammam 4525-32242, Saudi Arabia<br/>
-                                Tel: 0535081008<br/>
-                                Email: ssaoe.dammam@gmail.com
-                            </td>
-                        </tr>
-                    </table>
-
-                    <!-- ===== Bank Details ===== -->
-                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
-                        <tr>
-                            <td style="padding:5px; text-align:left;">
-                                <b>Bank Details:</b><br/>
-                                Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.<br/>
-                                Account Number: 123000010006080143917<br/>
-                                IBAN: SA7880000123608010143917
-                            </td>
-                        </tr>
-                    </table>
-
-                    <!-- ===== Footer Logos ===== -->
-                    <div style="text-align:center; margin-top:8px;">
-                        <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/footer_companies_names.jpg'"
-                             style="max-width:100%; height:auto;" />
-                    </div>
-
-                </div>
-
-            </div>
-
-        </xpath>
-
-    </template>
-</odoo>
+<template id="custom_footer_layout" inherit_id="web.external_layout_standard">
+    <xpath expr="//div[@class='o_footer_content']//div[@class='flex-grow-1']" position="replace">
+        <div class="text-start">
+            <p><strong>SSAOC Trading Co. Ltd.</strong></p>
+            <p>Phone: +966 540 83 1118</p>
+            <p>Email: ssaoe.jeddah@gmail.com</p>
+            <p>Website: www.ssaoco.com</p>
+            <p>CR: 311299944700003</p>
+        </div>
+    </xpath>
+</template>

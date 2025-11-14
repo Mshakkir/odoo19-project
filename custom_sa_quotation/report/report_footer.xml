@@ -1,7 +1,7 @@
 <odoo>
 <template id="custom_footer_layout" inherit_id="web.external_layout_standard">
-    <xpath expr="//div[contains(@class,'o_footer_content')]/div[contains(@class,'flex-grow-1')]" position="replace">
-        <div class="text-start">
+    <xpath expr="//div[contains(@class,'o_footer_content')]//div[contains(@class,'flex-grow-1')]" position="replace">
+        <div class="flex-grow-1 text-start me-2">
             <p><strong>SSAOC Trading Co. Ltd.</strong></p>
             <p>Phone: +966 540 83 1118</p>
             <p>Email: ssaoe.jeddah@gmail.com</p>

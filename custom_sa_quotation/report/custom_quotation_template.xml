@@ -11,7 +11,7 @@
                     </head>
 
                     <div style="border: 3px solid black; padding: 15px; border-radius: 5px;">
-                        <body>
+
                             <!-- HEADER SECTION - UPDATED -->
                             <div class="page">
                                 <div class="header"
@@ -293,10 +293,16 @@
                                         </td>
                                     </tr>
                                 </table>
+                            </t>
 
 
-<!-- ===== FIXED FOOTER AT BOTTOM ===== -->
-<div style="
+
+
+                    </div>
+
+                </t>
+            </t>
+            <div style="
     position: absolute;
     bottom: 20px;
     left: 0;
@@ -304,61 +310,45 @@
     width: 100%;
     text-align: center;
     font-size: 11px;
+    z-index: 10;
 ">
 
-    <!-- ===== Branch Table (Reduced Width + Compact) ===== -->
+    <!-- Branch Table -->
     <div style="width: 80%; margin: 0 auto;">
-
         <table style="width:100%; border-collapse:collapse; font-size:10px;">
             <tr style="font-weight:bold;">
                 <td style="border:1px solid #8B1538; padding:4px;">Dammam Branch</td>
                 <td style="border:1px solid #8B1538; padding:4px;">Baladiya Branch</td>
                 <td style="border:1px solid #8B1538; padding:4px;">Main Office</td>
             </tr>
-
             <tr>
                 <td style="border:1px solid #8B1538; padding:3px; line-height:12px;">
                     Sameer Sharaf Al Otaibi Trading Company<br/>
                     8515 Qutaibah bin Muslim ST.<br/>
-                    Al Souq, Dammam 4525-32242<br/>
-                    Saudi Arabia<br/>
+                    Al Souq, Dammam<br/>
                     Tel: 0535081008
                 </td>
-
                 <td style="border:1px solid #8B1538; padding:3px; line-height:12px;">
                     Sameer Sharaf Al Otaibi Trading Co.<br/>
                     Sookul Anwar, Al Baladeah<br/>
-                    Aziziyah, Jeddah 31303
+                    Aziziyah, Jeddah
                 </td>
-
                 <td style="border:1px solid #8B1538; padding:3px; line-height:12px;">
                     Sameer Sharaf Al Otaibi Trading Co.<br/>
                     7655 Al Fayha<br/>
-                    Al Fayha Dist., Jeddah 22244-3108<br/>
-                    Saudi Arabia
+                    Jeddah 22244
                 </td>
             </tr>
         </table>
-
     </div>
 
-    <!-- ===== Company Logos (Reduced Height) ===== -->
+    <!-- Logos -->
     <div style="margin-top:8px;">
         <img t-att-src="'/custom_sa_quotation/static/src/img/footer_companies_names.jpg'"
              style="height:70px; width:auto;" />
     </div>
 
 </div>
-
-
-
-                            </t>
-
-                        </body>
-                    </div>
-
-                </t>
-            </t>
         </xpath>
     </template>
 </odoo>

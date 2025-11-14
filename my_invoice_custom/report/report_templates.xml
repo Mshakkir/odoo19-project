@@ -9,7 +9,7 @@
                     <!-- ===== HEADER ===== -->
                     <div class="page">
                         <div class="header"
-                             style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
+                             style="border:2px solid #8B1538; border-radius: 6px; background: white; margin-bottom: 15px;">
 
                             <!-- Company Names in One Row -->
                             <table style="width: 100%; border-collapse: collapse;">
@@ -65,8 +65,6 @@
 
                         </div>
                     </div>
-
-
                     <t t-call="web.external_layout">
                         <!-- ===== INVOICE TITLE ===== -->
                         <div style="padding-top:35px;">
@@ -264,7 +262,7 @@
                             </thead>
                             <tbody>
                                 <tr t-foreach="enumerate(o.invoice_line_ids, start=1)" t-as="l">
-                                    <td>
+                                    <td style="text-align:center; width:50px;">
                                         <t t-esc="l[0]"/>
                                     </td>
                                     <td style="text-align:left;">

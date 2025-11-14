@@ -449,16 +449,16 @@
 
                                             <!-- ===== LEFT COLUMN (DAMMAM) ===== -->
                                             <td style="width:33%; padding:4px; border-right:2px #808080;border-left:1px solid white; border-top:1px solid white;border-bottom:1px solid white;">
-                                                <div style="font-family:'Tajawal';font-weight:550;font-size:10px;">
+                                                <div style="font-family:'Tajawal';font-weight:550;font-size:11px;">
                                                     ٨٥١٥، شارع قتيبة بن مسلم،حي السوق،
                                                     <br/>
-                                                     الدمام ٤٥٢٥–٣٢٢٤٢
+                                                    الدمام ٤٥٢٥–٣٢٢٤٢
                                                     ,المملكة العربية السعودية
                                                     <br/>
                                                     هاتف/جوال: ٠٥٣٥٠٨١٠٠٨
                                                 </div>
 
-                                                <div style="margin-top:6px; font-size:10px;">
+                                                <div style="margin-top:6px; font-size:11px;">
                                                     Building No. 8515,Qutaibah bin Muslim ST,
                                                     <br/>
                                                     Al Souq, Dammam 4525-32242, Saudi Arabia
@@ -471,16 +471,16 @@
 
                                             <!-- ===== MIDDLE COLUMN (JEDDAH MAIN) ===== -->
                                             <td style="width:33%; padding:4px; border-right:2px  #808080;border-top:1px solid white;border-bottom:1px solid white;">
-                                                <div style="font-family:'Tajawal';font-weight:550;font-size:10px;">
+                                                <div style="font-family:'Tajawal';font-weight:550;font-size:11px;">
                                                     جدة، ٧٦٥٥ الفيحاء
                                                     <br/>
                                                     حي الفيحاء، جدة ٢٢٢٤٤–٣١٠٨
-                                                   , المملكة العربية السعودية
+                                                    , المملكة العربية السعودية
                                                     <br/>
                                                     هاتف/جوال:
                                                 </div>
 
-                                                <div style="margin-top:6px; font-size:10px;">
+                                                <div style="margin-top:6px; font-size:11px;">
                                                     Jeddah, 7655 Al Fayha
                                                     <br/>
                                                     Al Fayha Dist. JEDDAH 22244-3108 ,SaudiArabia
@@ -493,7 +493,7 @@
 
                                             <!-- ===== RIGHT COLUMN (JEDDAH AL-FAYHA) ===== -->
                                             <td style="width:33%; padding:4px;border-top:1px solid white;border-bottom:1px solid white;border-right:1px solid white;">
-                                                <div style="font-family:'Tajawal';font-weight:550;font-size:10px;">
+                                                <div style="font-family:'Tajawal';font-weight:550;font-size:11px;">
                                                     سوق الأنوار، البلدية، العزيزية،
                                                     <br/>
                                                     جدة ٣١٣٠٣
@@ -502,7 +502,7 @@
                                                     هاتف/جوال:
                                                 </div>
 
-                                                <div style="margin-top:6px; font-size:10px;">
+                                                <div style="margin-top:6px; font-size:11px;">
                                                     Sookul Anwar, Al Baladeah, Aziziyah,
                                                     <br/>
                                                     Jeddah 31303 ,Saudi Arabia
@@ -517,28 +517,85 @@
                                     </table>
 
                                     <!-- ===== BANK DETAILS BOX ===== -->
-                                    <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:10px;">
+                                    <table style="width:100%; border:2px solid #000; border-collapse:collapse;">
+
+                                        <!-- ===== HEADER ROW ===== -->
                                         <tr>
-
-                                            <td style="width:25%; padding:6px; text-align:left; font-weight:bold; font-size:14px;">
-                                                Bank Details :
-                                            </td>
-
-                                            <td style="width:50%; padding:6px; text-align:center; font-size:13px;">
-                                                Alrajhi Bank : Sameer Sharaf Al-Otibi Trading Company
-                                                <br/>
-                                                Account Number : 123000010006080143917
-                                                <br/>
-                                                IBAN : SA7880000123608010143917
-                                            </td>
-
-                                            <td style="width:25%; padding:6px; text-align:right; font-weight:bold; font-size:14px;">
-                                                <span style="font-family:'Tajawal'; font-weight:900;">التفاصيل المصرفية
-                                                    :
+                                            <td colspan="2" style="
+                        text-align:center;
+                        padding:6px;
+                        font-size:12px;
+                        font-weight:bold;
+                        border-bottom:2px solid #000;">
+                                                Bank details:
+                                                <span style="float:right; font-family:'Tajawal'; font-weight:900;">
+                                                    التفاصيل المصرفية :
                                                 </span>
                                             </td>
                                         </tr>
+
+                                        <!-- ===== ROW 1: ALRAJHI BANK ===== -->
+                                        <tr>
+                                            <!-- LEFT: English -->
+                                            <td style="width:50%; padding:10px; border-right:2px solid #000; font-size:13px; text-align:center;">
+                                                <b>Alrajhi Bank :</b>
+                                                Sameer Sharaf Al-Otibi Trading Company
+                                                <br/>
+                                                <b>Account Number :</b>
+                                                123000010006080143917
+                                                <br/>
+                                                <b>IBAN :</b>
+                                                SA7880000123608010143917
+                                            </td>
+
+                                            <!-- RIGHT: Arabic -->
+                                            <td style="width:50%; padding:10px; font-size:14px; direction:rtl; text-align:center; font-family:'Tajawal';">
+                                                <b>مصرف الراجحي، شركة سمير شرف العتيبي التجارية</b>
+                                                <br/>
+                                                رقم الحساب: ١٤٣٩١٧٠٠٦٠٠٠٠١٢٣
+                                                <br/>
+                                                رقم الحساب المصرفي الدولي:
+                                                <br/>
+                                                SA7880000123608010143917
+                                            </td>
+                                        </tr>
+
+                                        <!-- ===== HORIZONTAL DIVIDER ===== -->
+                                        <tr>
+                                            <td colspan="2" style="border-top:2px solid #000;"></td>
+                                        </tr>
+
+                                        <!-- ===== ROW 2: SNB BANK ===== -->
+                                        <tr>
+                                            <!-- LEFT: English -->
+                                            <td style="width:50%; padding:10px; border-right:2px solid #000; font-size:13px; text-align:center;">
+                                                <b>SNB - Saudi National Bank</b>
+                                                <br/>
+                                                Sameer Sharaf Al-Otib Trading Company
+                                                <br/>
+                                                Account Number at SNB: 132000000678707
+                                                <br/>
+                                                International Account Number:
+                                                <br/>
+                                                SA2110000013200000678707 (IBAN)
+                                            </td>
+
+                                            <!-- RIGHT: Arabic -->
+                                            <td style="width:50%; padding:10px; font-size:14px; direction:rtl; text-align:center; font-family:'Tajawal';">
+                                                <b>البنك الوطني السعودي – شركة سمير شرف العتيبي التجارية</b>
+                                                <br/>
+                                                رقم الحساب لدى البنك الوطني السعودي:
+                                                <br/>
+                                                ١٣٢٠٠٠٠٠٠٦٧٨٧٠٧
+                                                <br/>
+                                                رقم الحساب الدولي:
+                                                <br/>
+                                                SA2110000013200000678707 (IBAN)
+                                            </td>
+                                        </tr>
+
                                     </table>
+
                                 </div>
                             </xpath>
                         </template>

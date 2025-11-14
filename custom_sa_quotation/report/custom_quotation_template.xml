@@ -308,114 +308,61 @@
                 </t>
             </t>
         </xpath>
-        <template id="custom_invoice_footer" inherit_id="web.external_layout_footer">
-            <xpath expr="//div[@class='footer']" position="replace">
+    </template>
+        <template id="custom_saleorder_report" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//t[@t-call='web.external_layout']" position="replace">
+            <t t-call="web.html_container">
 
                 <div class="footer" style="padding:10px; font-size:13px; background:#fff;">
 
                     <!-- ====== 3 COLUMN ADDRESS SECTION ====== -->
-                    <table style="width:100%; border-collapse:collapse; margin-bottom:5px; text-align:center;">
+                     <!-- ===== Branch Details ===== -->
+                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                         <tr>
-
-                            <!-- ===== LEFT COLUMN (DAMMAM) ===== -->
-                            <td style="width:33%; padding:4px; border-right:2px #808080;border-left:1px solid white; border-top:1px solid white;border-bottom:1px solid white;">
-                                <div style="font-family:'Tajawal';font-weight:550;font-size:12px;">
-                                    ٨٥١٥، شارع قتيبة بن مسلم،
-                                    <br/>
-                                    حي السوق، الدمام ٤٥٢٥–٣٢٢٤٢
-                                    ,المملكة العربية السعودية
-                                    <br/>
-                                    هاتف/جوال: ٠٥٣٥٠٨١٠٠٨
-                                </div>
-
-                                <div style="margin-top:4px; font-size:12px;">
-                                    Building No. 8515,Qutaibah bin Muslim ST,
-                                    <br/>
-                                    Al Souq, Dammam 4525-32242, Saudi Arabia
-                                    <br/>
-                                    Tel/Mobile: 0535081008
-                                    <br/>
-                                    Email: ssaoe.dammam@gmail.com
-                                </div>
+                            <td style="width:33%; padding:4px;">
+                                <b>Al Fayha 7655</b><br/>
+                                Jeddah 22244-3108, Saudi Arabia<br/>
+                                Tel: 0122345523<br/>
+                                Email: ssaoe.jeddah@gmail.com
                             </td>
 
-                            <!-- ===== MIDDLE COLUMN (JEDDAH MAIN) ===== -->
-                            <td style="width:33%; padding:4px; border-right:2px  #808080;border-top:1px solid white;border-bottom:1px solid white;">
-                                <div style="font-family:'Tajawal';font-weight:550;font-size:12px;">
-                                    جدة، ٧٦٥٥ الفيحاء
-                                    <br/>
-                                    حي الفيحاء، جدة ٢٢٢٤٤–٣١٠٨
-                                    , المملكة العربية السعودية
-                                    <br/>
-                                    هاتف/جوال:
-                                </div>
-
-                                <div style="margin-top:4px; font-size:12px;">
-                                    Jeddah, 7655 Al Fayha
-                                    <br/>
-                                    Al Fayha Dist. JEDDAH 22244-3108 ,SaudiArabia
-                                    <br/>
-                                    Tel/Mobile:
-                                    <br/>
-                                    Email:
-                                </div>
+                            <td style="width:33%; padding:4px;">
+                                <b>Al Anwar Centre, Shop 12</b><br/>
+                                Jeddah 23334, Saudi Arabia<br/>
+                                Tel: 0536122833<br/>
+                                Email: ssaoe.jeddah@gmail.com
                             </td>
 
-                            <!-- ===== RIGHT COLUMN (JEDDAH AL-FAYHA) ===== -->
-                            <td style="width:33%; padding:4px;border-top:1px solid white;border-bottom:1px solid white;border-right:1px solid white;">
-                                <div style="font-family:'Tajawal';font-weight:550;font-size:12px;">
-                                    سوق الأنوار، البلدية، العزيزية،
-                                    <br/>
-                                    جدة ٣١٣٠٣
-                                    ,المملكة العربية السعودية
-                                    <br/>
-                                    هاتف/جوال:
-                                </div>
-
-                                <div style="margin-top:4px; font-size:12px;">
-                                    Sookul Anwar, Al Baladeah, Aziziyah,
-                                    <br/>
-                                    Jeddah 31303 ,Saudi Arabia
-                                    <br/>
-                                    Tel:
-                                    <br/>
-                                    Email:
-                                </div>
+                            <td style="width:33%; padding:4px;">
+                                <b>District Al Souq, Bldg No. 8515</b><br/>
+                                Dammam 4525-32242, Saudi Arabia<br/>
+                                Tel: 0535081008<br/>
+                                Email: ssaoe.dammam@gmail.com
                             </td>
-
                         </tr>
                     </table>
 
-                    <!-- ===== BANK DETAILS BOX ===== -->
-                    <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:10px;">
+                    <!-- ===== Bank Details ===== -->
+                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                         <tr>
-
-                            <td style="width:25%; padding:6px; text-align:left; font-weight:bold; font-size:14px;">
-                                Bank Details :
-                            </td>
-
-                            <td style="width:50%; padding:6px; text-align:center; font-size:13px;">
-                                Alrajhi Bank : Sameer Sharaf Al-Otibi Trading Company
-                                <br/>
-                                Account Number : 123000010006080143917
-                                <br/>
-                                IBAN : SA7880000123608010143917
-                            </td>
-
-                            <td style="width:25%; padding:6px; text-align:right; font-weight:bold; font-size:14px;">
-                                <span style="font-family:'Tajawal'; font-weight:900;">التفاصيل المصرفية
-                                    :
-                                </span>
+                            <td style="padding:5px; text-align:left;">
+                                <b>Bank Details:</b><br/>
+                                Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.<br/>
+                                Account Number: 123000010006080143917<br/>
+                                IBAN: SA7880000123608010143917
                             </td>
                         </tr>
                     </table>
+
+                    <!-- ===== Footer Logos ===== -->
                     <div style="text-align:center; margin-top:8px;">
                         <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/footer_companies_names.jpg'"
-                             style="max-width:100%; height:auto;"/>
+                             style="max-width:100%; height:auto;" />
                     </div>
                 </div>
+            </t>
             </xpath>
-        </template>
+
     </template>
 </odoo>
 

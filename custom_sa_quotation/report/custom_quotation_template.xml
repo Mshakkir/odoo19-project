@@ -74,7 +74,7 @@
                             </div>
                             <t t-call="web.external_layout">
                                 <!-- ===== Dynamic Title Section ===== -->
-                                <div style="padding-top:55px;">
+                                <div style="padding-top:35px;">
                                     <div style=" background-color:#d3d3d3; color:black; padding:8px ; text-align:center; margin-bottom:10px ; font-weight:bold; font-size:16px;">
                                         <!-- Dynamic title based on state -->
                                         <t t-if="o.state in ('draft', 'sent')">
@@ -295,19 +295,19 @@
                                 </table>
 
                                 <!-- ===== FOOTER SECTION ===== -->
-                                <div style="margin-top: 30px; page-break-inside: avoid;">
+                                <div style="margin-top: 20px; page-break-inside: avoid;">
                                     <!-- Branch Details Section -->
-                                    <table width="100%" style="border: 1px solid #000; border-collapse: collapse; font-size: 11px; margin-bottom: 10px;">
+                                    <table width="100%" style="border: 1px solid #000; border-collapse: collapse; font-size: 10px; margin-bottom: 5px;">
                                         <tr>
                                             <!-- Branch 1: Al Fayha -->
-                                            <td style="width: 33.33%; padding: 8px; border-right: 1px solid #000; vertical-align: top;">
-                                                <div style="text-align: center; direction: rtl; font-family: 'Tajawal', sans-serif; font-weight: bold; margin-bottom: 5px;">
+                                            <td style="width: 33.33%; padding: 4px 6px; border-right: 1px solid #000; vertical-align: top;">
+                                                <div style="text-align: center; direction: rtl; font-family: 'Tajawal', sans-serif; font-weight: bold; margin-bottom: 3px;">
                                                     الفيحاء 7655
                                                 </div>
-                                                <div style="text-align: center; font-weight: bold; margin-bottom: 5px;">
+                                                <div style="text-align: center; font-weight: bold; margin-bottom: 3px;">
                                                     Al Fayha 7655
                                                 </div>
-                                                <div style="text-align: center; line-height: 1.5;">
+                                                <div style="text-align: center; line-height: 1.3;">
                                                     جدة 22244-3108 - المملكة العربية السعودية<br/>
                                                     Jeddah 22244-3108 - Saudi Arabia<br/>
                                                     هاتف : 0122345523<br/>
@@ -317,14 +317,14 @@
                                             </td>
 
                                             <!-- Branch 2: Al Anwar Centre -->
-                                            <td style="width: 33.33%; padding: 8px; border-right: 1px solid #000; vertical-align: top;">
-                                                <div style="text-align: center; direction: rtl; font-family: 'Tajawal', sans-serif; font-weight: bold; margin-bottom: 5px;">
+                                            <td style="width: 33.33%; padding: 4px 6px; border-right: 1px solid #000; vertical-align: top;">
+                                                <div style="text-align: center; direction: rtl; font-family: 'Tajawal', sans-serif; font-weight: bold; margin-bottom: 3px;">
                                                     مركز الأنوار ، رقم محل 12 ، شارع البلدية
                                                 </div>
-                                                <div style="text-align: center; font-weight: bold; margin-bottom: 5px;">
+                                                <div style="text-align: center; font-weight: bold; margin-bottom: 3px;">
                                                     Al Anwar Centre, Showroom No. 12, Baladiya Street
                                                 </div>
-                                                <div style="text-align: center; line-height: 1.5;">
+                                                <div style="text-align: center; line-height: 1.3;">
                                                     جدة 23334 - المملكة العربية السعودية<br/>
                                                     Jeddah 23334 - Saudi Arabia<br/>
                                                     هاتف : 0536122833<br/>
@@ -334,14 +334,14 @@
                                             </td>
 
                                             <!-- Branch 3: District Al Souq -->
-                                            <td style="width: 33.33%; padding: 8px; vertical-align: top;">
-                                                <div style="text-align: center; direction: rtl; font-family: 'Tajawal', sans-serif; font-weight: bold; margin-bottom: 5px;">
+                                            <td style="width: 33.33%; padding: 4px 6px; vertical-align: top;">
+                                                <div style="text-align: center; direction: rtl; font-family: 'Tajawal', sans-serif; font-weight: bold; margin-bottom: 3px;">
                                                     حي السوق ، شارع/ سعد الكندي ، رقم المبنى 8515
                                                 </div>
-                                                <div style="text-align: center; font-weight: bold; margin-bottom: 5px;">
+                                                <div style="text-align: center; font-weight: bold; margin-bottom: 3px;">
                                                     District Al Souq, Street Sa'ad Al Kandi, Building No. 8515
                                                 </div>
-                                                <div style="text-align: center; line-height: 1.5;">
+                                                <div style="text-align: center; line-height: 1.3;">
                                                     الدمام 4525-32242 - المملكة العربية السعودية<br/>
                                                     Dammam 4525-32242 - Saudi Arabia<br/>
                                                     هاتف : 0535081008<br/>
@@ -353,17 +353,17 @@
                                     </table>
 
                                     <!-- Bank Details Section -->
-                                    <table width="100%" style="border: 1px solid #000; border-collapse: collapse; font-size: 12px; margin-bottom: 10px;">
+                                    <table width="100%" style="border: 1px solid #000; border-collapse: collapse; font-size: 10px; margin-bottom: 5px;">
                                         <tr>
-                                            <td style="padding: 8px; text-align: left; vertical-align: middle; border-right: 1px solid #000;">
+                                            <td style="width: 15%; padding: 4px 6px; text-align: left; vertical-align: middle; border-right: 1px solid #000;">
                                                 <strong>Bank Details:</strong>
                                             </td>
-                                            <td style="padding: 8px; text-align: left; vertical-align: middle; border-right: 1px solid #000;">
+                                            <td style="width: 42.5%; padding: 4px 6px; text-align: left; vertical-align: middle; border-right: 1px solid #000; line-height: 1.3;">
                                                 Alrajhi Bank: Sameer Sharaf Al-Otibi Trading company<br/>
                                                 Account Number: 123000010006080143917<br/>
                                                 IBAN: SA7880000123608010143917
                                             </td>
-                                            <td style="padding: 8px; text-align: right; vertical-align: middle; direction: rtl; font-family: 'Tajawal', sans-serif;">
+                                            <td style="width: 42.5%; padding: 4px 6px; text-align: right; vertical-align: middle; direction: rtl; font-family: 'Tajawal', sans-serif; line-height: 1.3;">
                                                 <strong>التفاصيل المصرفية :</strong><br/>
                                                 مصرف الراجحي : شركة سمير شرف العتيبي التجارية<br/>
                                                 رقم الحساب: 123000010006080143917<br/>
@@ -373,7 +373,7 @@
                                     </table>
 
                                     <!-- Brand Logos Section -->
-                                    <div style="text-align: center; margin-top: 15px; margin-bottom: 10px;">
+                                    <div style="text-align: center; margin-top: 8px; margin-bottom: 5px;">
                                         <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/footer_companies_names.jpg'"
                                              style="max-width: 100%; height: auto; display: block; margin: 0 auto;"/>
                                     </div>
@@ -389,7 +389,6 @@
         </xpath>
     </template>
 </odoo>
-
 
 
 

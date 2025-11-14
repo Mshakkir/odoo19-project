@@ -1,14 +1,14 @@
 <odoo>
     <template id="custom_footer_inherit" inherit_id="web.external_layout_standard">
 
-        <!-- Replace ONLY the footer -->
-        <xpath expr="//div[@class='footer']" position="replace">
-            <div class="footer" style="font-size:10px; text-align:center;">
+        <!-- Replace the default Odoo footer -->
+        <xpath expr="//div[contains(@class, 'o_footer')]" position="replace">
 
-                <!-- Custom Footer Section -->
-                <div style="margin-top:20px; border-top:1px solid #000; padding-top:10px;">
+            <div class="footer o_footer" style="font-size:10px; text-align:center; width:100%; margin-top:20px;">
 
-                    <!-- Branch Details -->
+                <div style="page-break-inside: avoid; border-top:1px solid #000; padding-top:10px;">
+
+                    <!-- ===== Branch Details ===== -->
                     <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                         <tr>
                             <td style="width:33%; padding:4px;">
@@ -34,7 +34,7 @@
                         </tr>
                     </table>
 
-                    <!-- Bank Details -->
+                    <!-- ===== Bank Details ===== -->
                     <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                         <tr>
                             <td style="padding:5px; text-align:left;">
@@ -46,7 +46,7 @@
                         </tr>
                     </table>
 
-                    <!-- Logos -->
+                    <!-- ===== Footer Logos ===== -->
                     <div style="text-align:center; margin-top:8px;">
                         <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/footer_companies_names.jpg'"
                              style="max-width:100%; height:auto;" />
@@ -55,6 +55,7 @@
                 </div>
 
             </div>
+
         </xpath>
 
     </template>

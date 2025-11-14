@@ -295,57 +295,61 @@
                                 </table>
 
 
-                                <!-- ===== CUSTOM FOOTER SECTION ===== -->
-<div style="margin-top: 40px; page-break-inside: avoid;">
+<!-- ===== FIXED FOOTER AT BOTTOM ===== -->
+<div style="
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 11px;
+">
 
-    <!-- ==== Branch Address Table ==== -->
-    <table style="width:100%; border-collapse:collapse; font-size:12px; text-align:center; line-height:17px;">
-        <tr style="font-weight:bold; background-color:#f2f2f2;">
-            <td style="width:33.3%; border:1px solid #8B1538; padding:6px;">
-                Dammam Branch
-            </td>
-            <td style="width:33.3%; border:1px solid #8B1538; padding:6px;">
-                Baladiya Branch
-            </td>
-            <td style="width:33.3%; border:1px solid #8B1538; padding:6px;">
-                Main Office
-            </td>
-        </tr>
-        <tr>
-            <td style="border:1px solid #8B1538; padding:6px; line-height:1.5;">
-                Sameer Sharaf Al Otaibi Trading Company<br/>
-                8515, Qutaibah bin Muslim ST,<br/>
-                Al Souq, Dammam 4525-32242<br/>
-                Saudi Arabia<br/>
-                Tel/Mobile: 0535081008<br/>
-                ssaoe.dammam@gmail.com
-            </td>
+    <!-- ===== Branch Table (Reduced Width + Compact) ===== -->
+    <div style="width: 80%; margin: 0 auto;">
 
-            <td style="border:1px solid #8B1538; padding:6px; line-height:1.5;">
-                Sameer Sharaf Al Otaibi Trading Company<br/>
-                شركة سمير شرف العتيبي التجارية<br/>
-                Sookul Anwar, Al Baladeah, Aziziyah,<br/>
-                Jeddah 31303
-            </td>
+        <table style="width:100%; border-collapse:collapse; font-size:10px;">
+            <tr style="font-weight:bold;">
+                <td style="border:1px solid #8B1538; padding:4px;">Dammam Branch</td>
+                <td style="border:1px solid #8B1538; padding:4px;">Baladiya Branch</td>
+                <td style="border:1px solid #8B1538; padding:4px;">Main Office</td>
+            </tr>
 
-            <td style="border:1px solid #8B1538; padding:6px; line-height:1.5;">
-                Sameer Sharaf Al Otaibi Trading Company<br/>
-                شركة سمير شرف العتيبي التجارية<br/>
-                Jeddah, 7655 Al Fayha<br/>
-                Al Fayha Dist. JEDDAH 22244-3108<br/>
-                Saudi Arabia
-            </td>
-        </tr>
-    </table>
+            <tr>
+                <td style="border:1px solid #8B1538; padding:3px; line-height:12px;">
+                    Sameer Sharaf Al Otaibi Trading Company<br/>
+                    8515 Qutaibah bin Muslim ST.<br/>
+                    Al Souq, Dammam 4525-32242<br/>
+                    Saudi Arabia<br/>
+                    Tel: 0535081008
+                </td>
 
-    <!-- ==== Footer Image ==== -->
-    <div style="width:100%; text-align:center; margin-top:25px;">
-        <img t-att-src="request.httprequest.host_url +
-            'custom_sa_quotation/static/src/img/footer_companies_names.jpg'"
-            style="height:120px; width:80%; object-fit:contain;"/>
+                <td style="border:1px solid #8B1538; padding:3px; line-height:12px;">
+                    Sameer Sharaf Al Otaibi Trading Co.<br/>
+                    Sookul Anwar, Al Baladeah<br/>
+                    Aziziyah, Jeddah 31303
+                </td>
+
+                <td style="border:1px solid #8B1538; padding:3px; line-height:12px;">
+                    Sameer Sharaf Al Otaibi Trading Co.<br/>
+                    7655 Al Fayha<br/>
+                    Al Fayha Dist., Jeddah 22244-3108<br/>
+                    Saudi Arabia
+                </td>
+            </tr>
+        </table>
+
+    </div>
+
+    <!-- ===== Company Logos (Reduced Height) ===== -->
+    <div style="margin-top:8px;">
+        <img t-att-src="'/custom_sa_quotation/static/src/img/footer_companies_names.jpg'"
+             style="height:70px; width:auto;" />
     </div>
 
 </div>
+
 
 
                             </t>

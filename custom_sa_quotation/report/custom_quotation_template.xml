@@ -151,7 +151,7 @@
                                         <span t-field="line.product_uom_qty"/>
                                     </td>
                                     <td style="text-align: center; padding: 8px; border: 1px solid #000;">
-                                        <span t-field="line.product_uom.name"/>
+                                        <span t-field="line.product_uom_id.name"/>
                                     </td>
                                     <td style="text-align: right; padding: 8px; border: 1px solid #000;">
                                         <span t-field="line.price_unit" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>

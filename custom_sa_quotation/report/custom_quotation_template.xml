@@ -373,8 +373,56 @@
                             </div>
                 </t>
 
+                <div class="footer" style="padding:10px; font-size:13px; background:#fff;">
 
-                  <t t-call="web.external_layout">
+                    <!-- ====== 3 COLUMN ADDRESS SECTION ====== -->
+                     <!-- ===== Branch Details ===== -->
+                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
+                        <tr>
+                            <td style="width:33%; padding:4px;">
+                                <b>Al Fayha 7655</b><br/>
+                                Jeddah 22244-3108, Saudi Arabia<br/>
+                                Tel: 0122345523<br/>
+                                Email: ssaoe.jeddah@gmail.com
+                            </td>
+
+                            <td style="width:33%; padding:4px;">
+                                <b>Al Anwar Centre, Shop 12</b><br/>
+                                Jeddah 23334, Saudi Arabia<br/>
+                                Tel: 0536122833<br/>
+                                Email: ssaoe.jeddah@gmail.com
+                            </td>
+
+                            <td style="width:33%; padding:4px;">
+                                <b>District Al Souq, Bldg No. 8515</b><br/>
+                                Dammam 4525-32242, Saudi Arabia<br/>
+                                Tel: 0535081008<br/>
+                                Email: ssaoe.dammam@gmail.com
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- ===== Bank Details ===== -->
+                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
+                        <tr>
+                            <td style="padding:5px; text-align:left;">
+                                <b>Bank Details:</b><br/>
+                                Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.<br/>
+                                Account Number: 123000010006080143917<br/>
+                                IBAN: SA7880000123608010143917
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- ===== Footer Logos ===== -->
+                    <div style="text-align:center; margin-top:8px;">
+                        <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/footer_companies_names.jpg'"
+                             style="max-width:100%; height:auto;" />
+                    </div>
+                </div>
+            </t>
+
+                        <t t-call="web.external_layout">
                                 <!-- ===== Dynamic Title Section ===== -->
                                 <div style="padding-top:55px;">
                                     <div style=" background-color:#d3d3d3; color:black; padding:8px ; text-align:center; margin-bottom:10px ; font-weight:bold; font-size:16px;">
@@ -600,58 +648,6 @@
 
 
                             </t>
-
-
-
-
-                <div class="footer" style="padding:10px; font-size:13px; background:#fff;">
-
-                    <!-- ====== 3 COLUMN ADDRESS SECTION ====== -->
-                     <!-- ===== Branch Details ===== -->
-                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
-                        <tr>
-                            <td style="width:33%; padding:4px;">
-                                <b>Al Fayha 7655</b><br/>
-                                Jeddah 22244-3108, Saudi Arabia<br/>
-                                Tel: 0122345523<br/>
-                                Email: ssaoe.jeddah@gmail.com
-                            </td>
-
-                            <td style="width:33%; padding:4px;">
-                                <b>Al Anwar Centre, Shop 12</b><br/>
-                                Jeddah 23334, Saudi Arabia<br/>
-                                Tel: 0536122833<br/>
-                                Email: ssaoe.jeddah@gmail.com
-                            </td>
-
-                            <td style="width:33%; padding:4px;">
-                                <b>District Al Souq, Bldg No. 8515</b><br/>
-                                Dammam 4525-32242, Saudi Arabia<br/>
-                                Tel: 0535081008<br/>
-                                Email: ssaoe.dammam@gmail.com
-                            </td>
-                        </tr>
-                    </table>
-
-                    <!-- ===== Bank Details ===== -->
-                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
-                        <tr>
-                            <td style="padding:5px; text-align:left;">
-                                <b>Bank Details:</b><br/>
-                                Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.<br/>
-                                Account Number: 123000010006080143917<br/>
-                                IBAN: SA7880000123608010143917
-                            </td>
-                        </tr>
-                    </table>
-
-                    <!-- ===== Footer Logos ===== -->
-                    <div style="text-align:center; margin-top:8px;">
-                        <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/footer_companies_names.jpg'"
-                             style="max-width:100%; height:auto;" />
-                    </div>
-                </div>
-            </t>
             </xpath>
 
     </template>

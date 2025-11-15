@@ -528,9 +528,9 @@
 
 <odoo>
     <!-- Custom Header Template -->
-    <template id="custom_external_layout_header" inherit_id="web.external_layout_standard">
-    <xpath expr="//div[@class='header']" position="replace">
-        <div class="header o_clean_header">
+   <template id="custom_external_layout_header" inherit_id="web.external_layout_standard">
+    <xpath expr="//div[@class='o_report_header']" position="replace">
+        <div class="o_report_header">
                 <div style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
                     <!-- Company Names in One Row -->
                     <table style="width: 100%; border-collapse: collapse;border:none">

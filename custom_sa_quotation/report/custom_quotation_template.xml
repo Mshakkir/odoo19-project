@@ -25,38 +25,44 @@
                             </table>
 
                             <!-- Details and Logo Row -->
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <tr>
-                                    <!-- Left Column: English Info -->
-                                    <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: top;
+  <table style="width: 100%; border-collapse: collapse;">
+    <tr>
+        <!-- Left Column: English Info -->
+        <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: top;
 border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;padding-top:0px;padding-left:0px;">
-                                        <div style="line-height: 1.3; font-weight: 500;padding-left:0px;padding-top:0px;margin-top:0px;">
-                                            C.R. 4030216154
-                                            <br/>
-                                            VAT Regd: 311299944700003
-                                        </div>
-                                    </td>
+            <div style="line-height: 1.3; font-weight: 500;padding-left:0px;padding-top:0px;margin-top:0px;">
+                C.R. 4030216154
+                <br/>
+                VAT Regd: 311299944700003
+            </div>
+        </td>
 
-                                    <!-- Center Column: Company Logo -->
-                                    <td style="width: 34%; text-align: center; vertical-align: top;
+        <!-- Center Column: Company Logo -->
+        <td style="width: 34%; text-align: center; vertical-align: top;
 padding: 0px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">
-                                        <t t-if="o.company_id.logo">
-                                            <img t-att-src="image_data_uri(o.company_id.logo)"
-                                                 style="max-height: 140px; max-width: 100%; object-fit: contain; display: block; margin: 0 auto;"/>
-                                        </t>
-                                    </td>
+            <t t-if="o.company_id.logo">
+                <img t-att-src="image_data_uri(o.company_id.logo)"
+                     style="max-height: 140px; max-width: 100%; object-fit: contain; display: block; margin: 0 auto;"/>
+            </t>
+        </td>
 
-                                    <!-- Right Column: Arabic Info -->
-                                    <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: top;
-direction: rtl; padding: 0px 10px 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">
-                                        <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight:900;padding-right:0px;margin-top:0px;">
-                                            ٤٠٣٠٢١٦١٥٤ :س.ت
-                                            <br/>
-                                            ٣١١٢٩٩٩٤٤٧٠٠٠٠٣ :الرقم الضريبي
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
+        <!-- Right Column: Arabic Info with Border -->
+        <td style="width: 33%; text-align: right; vertical-align: top;
+border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white; padding: 0px 10px 6px 0px;">
+            <div style="border: 2px solid #000; border-radius: 50px 50px 0px 50px; padding: 15px 20px; display: inline-block; margin-left: auto; direction: rtl; font-family: 'Tajawal', sans-serif; font-weight: 900; line-height: 1.6; font-size: 14px; color: #333;">
+                <div style="text-align: right;">
+                    شركة سمير شرف العتيبي التجارية
+                </div>
+                <div style="text-align: right; margin-top: 8px;">
+                    ٤٠٣٠٢١٦١٥٤ :س.ت
+                </div>
+                <div style="text-align: right;">
+                    ٣١١٢٩٩٩٤٤٧٠٠٠٠٣ :الرقم الضريبي
+                </div>
+            </div>
+        </td>
+    </tr>
+</table>
 
 
                         </div>
@@ -67,89 +73,34 @@ direction: rtl; padding: 0px 10px 6px 10px; border-top: 1px solid white;border-r
 
 
                     <!-- ===== Bank Details ===== -->
-<!--                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">-->
-<!--                        <tr>-->
-<!--                            <td style="padding:2px; text-align:left;">-->
-<!--                                <b>Bank Details/تفاصيل البنك</b>-->
-<!--                                <br/>-->
-<!--                                Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.-->
-<!--                                <br/>-->
-<!--                                بنك الراجحي – شركة سمير شرف العتيبي للتجارة-->
-<!--                                <br/>-->
-<!--                                Account Number:رقم الحساب:123000010006080143917-->
-<!--                                <br/>-->
-<!--                                IBAN: SA7880000123608010143917 :الآيبان-->
-<!--                            </td>-->
+                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
+                        <tr>
+                            <td style="padding:2px; text-align:left;width:50%;">
+                                <b>Bank Details/تفاصيل البنك</b>
+                                <br/>
+                                Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.
+                                <br/>
+                                بنك الراجحي – شركة سمير شرف العتيبي للتجارة
+                                <br/>
+                                Account Number:رقم الحساب:123000010006080143917
+                                <br/>
+                                IBAN: SA7880000123608010143917 :الآيبان
+                            </td>
 
 
-<!--                            &lt;!&ndash; English Column &ndash;&gt;-->
-<!--                            <td style="padding:2px; text-align:right;">-->
-<!--                                <b>Bank Details/تفاصيل البنك</b>-->
-<!--                                <br/>-->
-<!--                                SNB - Saudi National Bank/البنك الأهلي السعودي-->
-<!--                                <br/>-->
-<!--                                Account Number at SNB: 13200000678707 :رقم الحساب-->
-<!--                                <br/>-->
-<!--                                International Account Number (IBAN): SA2110000013200000678707 :رقم الحساب الدولي (IBAN)-->
-<!--                            </td>-->
-<!--                        </tr>-->
+                            <!-- English Column -->
+                            <td style="padding:2px; text-align:right;width:50%;">
+                                <b>Bank Details/تفاصيل البنك</b>
+                                <br/>
+                                SNB - Saudi National Bank/البنك الأهلي السعودي
+                                <br/>
+                                Account Number at SNB: 13200000678707 :رقم الحساب
+                                <br/>
+                                International Account Number (IBAN): SA2110000013200000678707 :رقم الحساب الدولي (IBAN)
+                            </td>
+                        </tr>
 
-<!--                    </table>-->
-                    <table width="100%" style="border-collapse: collapse; margin-bottom: 5px; font-size: 10px;">
-    <tr>
-        <!-- Left Column - Alrajhi Bank -->
-        <td style="padding: 8px; text-align: left; vertical-align: top; width: 50%; border-right: 1px solid #ddd;">
-            <div style="margin-bottom: 4px;">
-                <b>Bank Details / تفاصيل البنك</b>
-            </div>
-            <div style="line-height: 1.6;">
-                Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.
-                <br/>
-                <span style="font-family: 'Tajawal', sans-serif; direction: rtl;">
-                    بنك الراجحي – شركة سمير شرف العتيبي للتجارة
-                </span>
-                <br/>
-                <b>Account Number:</b> 123000010006080143917
-                <br/>
-                <span style="font-family: 'Tajawal', sans-serif; direction: rtl;">
-                    <b>رقم الحساب:</b> 123000010006080143917
-                </span>
-                <br/>
-                <b>IBAN:</b> SA7880000123608010143917
-                <br/>
-                <span style="font-family: 'Tajawal', sans-serif; direction: rtl;">
-                    <b>الآيبان:</b> SA7880000123608010143917
-                </span>
-            </div>
-        </td>
-
-        <!-- Right Column - SNB -->
-        <td style="padding: 8px; text-align: left; vertical-align: top; width: 50%;">
-            <div style="margin-bottom: 4px;">
-                <b>Bank Details / تفاصيل البنك</b>
-            </div>
-            <div style="line-height: 1.6;">
-                SNB - Saudi National Bank
-                <br/>
-                <span style="font-family: 'Tajawal', sans-serif; direction: rtl;">
-                    البنك الأهلي السعودي
-                </span>
-                <br/>
-                <b>Account Number:</b> 13200000678707
-                <br/>
-                <span style="font-family: 'Tajawal', sans-serif; direction: rtl;">
-                    <b>رقم الحساب:</b> 13200000678707
-                </span>
-                <br/>
-                <b>IBAN:</b> SA2110000013200000678707
-                <br/>
-                <span style="font-family: 'Tajawal', sans-serif; direction: rtl;">
-                    <b>رقم الحساب الدولي (IBAN):</b> SA2110000013200000678707
-                </span>
-            </div>
-        </td>
-    </tr>
-</table>
+                    </table>
 
 
                     <!-- ===== Branch Details ===== -->

@@ -526,6 +526,7 @@
 
 
 
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Custom Header Template -->
     <template id="custom_external_layout_header" inherit_id="web.external_layout_standard">
@@ -679,11 +680,11 @@
         </xpath>
     </template>
 
-    <!-- Main Invoice Template -->
-    <template id="custom_invoice_report" inherit_id="l10n_sa.l10n_sa_report_invoice_document">
+    <!-- Main Invoice Template - Inherit from account.report_invoice_document -->
+    <template id="custom_invoice_report" inherit_id="account.report_invoice_document">
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
             <t t-call="web.external_layout">
-                <t t-set="o" t-value="doc"/>
+                <t t-set="o" t-value="o.with_context(lang=lang)"/>
 
                 <div class="page">
                     <!-- ===== Dynamic Title Section ===== -->
@@ -716,7 +717,7 @@
 
                                 <!-- Right column: Shipping To (only for out_invoice) -->
                                 <td style="padding:4px 8px; font-weight:bold; width:50%;">
-                                    <t t-if="o.move_type in ('out_invoice','out_refund') and o.shipping_to">
+                                    <t t-if="o.move_type in ('out_invoice','out_refund') and o.partner_shipping_id">
                                         Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160; عنوان الشحن
                                     </t>
                                 </td>
@@ -758,11 +759,11 @@
 
                                 <!-- Right column: Shipping address -->
                                 <td style="padding:6px 10px; vertical-align:top;">
-                                    <strong>
-                                        <t t-if="o.move_type in ('out_invoice','out_refund') and o.shipping_to">
-                                            <span style="white-space:pre-line;" t-esc="o.shipping_to"/>
-                                        </t>
-                                    </strong>
+                                    <t t-if="o.move_type in ('out_invoice','out_refund') and o.partner_shipping_id">
+                                        <strong>
+                                            <div t-field="o.partner_shipping_id" t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
+                                        </strong>
+                                    </t>
                                 </td>
                             </tr>
                         </table>
@@ -771,20 +772,20 @@
                             <tr>
                                 <td style="padding:4px 8px;">
                                     Inv #:
-                                    <span t-esc="o.name"/>
+                                    <span t-field="o.name"/>
                                     &#160;&#160;
                                     <span style="font-family:'Tajawal';font-weight:900;">رقم الفاتورة</span>
                                 </td>
                                 <td style="padding:4px 8px;">
                                     Date:
-                                    <span t-esc="o.invoice_date.strftime('%d/%b/%Y') if o.invoice_date else ''"/>
+                                    <span t-field="o.invoice_date"/>
                                     &#160;&#160;
                                     <span style="font-family:'Tajawal';font-weight:900;">التاريخ</span>
                                 </td>
                                 <!-- ===== AWB FIELD ===== -->
                                 <td style="padding:4px 8px;">
                                     <strong>AWB No:</strong>
-                                    <span t-if="o.awb_number" t-esc="o.awb_number"/>
+                                    <span t-if="o.awb_number" t-field="o.awb_number"/>
                                     <span t-else="">-</span>
                                 </td>
                             </tr>
@@ -794,34 +795,31 @@
                                 <tr style="background-color:#FFFFFF;">
                                     <td style="border:1px solid #000; padding:4px; width:33%;">
                                         <strong>P.O No:</strong>
-                                        <t t-set="sale_order" t-value="o.invoice_line_ids and o.invoice_line_ids[0].sale_line_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id"/>
-                                        <span t-if="sale_order" t-esc="sale_order.client_order_ref or sale_order.name"/>
-                                        <span t-else="">-</span>
+                                        <t t-set="sale_order" t-value="o.invoice_line_ids.sale_line_ids.order_id[:1]"/>
+                                        <span t-if="sale_order" t-field="sale_order.client_order_ref"/>
+                                        <span t-if="not sale_order or not sale_order.client_order_ref" t-field="sale_order.name"/>
+                                        <span t-if="not sale_order">-</span>
                                     </td>
                                     <td style="border:1px solid #000; padding:4px; width:33%;">
                                         <strong>Terms:</strong>
-                                        <t t-esc="o.invoice_payment_term_id.name or ''"/>
+                                        <span t-field="o.invoice_payment_term_id.name"/>
                                     </td>
                                     <td style="border:1px solid #000; padding:4px; width:34%;">
                                         <strong>Delivery Note:</strong>
-                                        <t t-set="delivery" t-value="o.invoice_line_ids and o.invoice_line_ids[0].sale_line_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id.picking_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id.picking_ids[0]"/>
-                                        <span t-if="delivery" t-esc="delivery.name"/>
+                                        <t t-set="delivery" t-value="o.invoice_line_ids.sale_line_ids.order_id.picking_ids[:1]"/>
+                                        <span t-if="delivery" t-field="delivery.name"/>
                                         <span t-else="">-</span>
                                     </td>
                                 </tr>
                             </t>
                         </table>
                     </div>
-                    <!-- ===== CALCULATIONS =====-->
-                    <t t-set="total_discount_amount" t-value="sum(line.quantity * line.price_unit * (line.discount or 0.0)/100.0 for line in o.invoice_line_ids)"/>
-                    <t t-set="subtotal_before_discount" t-value="sum(line.quantity * line.price_unit for line in o.invoice_line_ids)"/>
-                    <t t-set="subtotal_after_discount" t-value="subtotal_before_discount - total_discount_amount"/>
 
                     <!-- ===== ITEMS TABLE ===== -->
                     <table width="100%" border="1" style="border-collapse:collapse; font-size:13px; text-align:center;">
                         <thead style="background-color:#d9d9d9; color:#080808; font-size:14px;">
                             <tr>
-                                <th>S.N
+                                <th style="width:35px;">S.N
                                     <br/>
                                     <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">م</span>
                                 </th>
@@ -829,19 +827,19 @@
                                     <br/>
                                     <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">الصنف / الوصف</span>
                                 </th>
-                                <th>QTY
+                                <th style="width:70px;">QTY
                                     <br/>
                                     <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">الكمية</span>
                                 </th>
-                                <th>Unit
+                                <th style="width:70px;">Unit
                                     <br/>
                                     <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">الوحدة</span>
                                 </th>
-                                <th>S.Rate
+                                <th style="width:80px;">S.Rate
                                     <br/>
                                     <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">سعر الوحدة</span>
                                 </th>
-                                <th>Amount
+                                <th style="width:80px;">Amount
                                     <br/>
                                     <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">المبلغ</span>
                                 </th>
@@ -860,44 +858,42 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr t-foreach="enumerate(o.invoice_line_ids, start=1)" t-as="l">
-                                <td style="text-align:center; width:35px;">
-                                    <t t-esc="l[0]"/>
-                                </td>
-                                <td style="text-align:left;">
-                                    <t t-if="l[1].product_id.default_code">
-                                        <span t-esc="l[1].product_id.default_code"/>
-                                        -
-                                    </t>
-                                    <span t-field="l[1].name"/>
-                                </td>
-                                <td style="width:70px;">
-                                    <span t-field="l[1].quantity"/>
-                                </td>
-                                <td style="width:70px;">
-                                    <span t-field="l[1].product_uom_id.name"/>
-                                </td>
-                                <td style="text-align:center; width:80px;">
-                                    <span t-field="l[1].price_unit" t-options='{"widget": "float", "precision": 2}'/>
-                                </td>
-                                <td style="text-align:center; width:80px;">
-                                    <t t-set="subt" t-value="l[1].quantity * l[1].price_unit * (1 - (l[1].discount or 0)/100.0)"/>
-                                    <span t-esc="subt" t-options='{"widget":"float","precision":2}'/>
-                                </td>
-                                <td>
-                                    <t t-if="l[1].tax_ids">
-                                        <span t-esc="', '.join(str(t.amount) + '%' for t in l[1].tax_ids)"/>
-                                    </t>
-                                    <t t-else="">0%</t>
-                                </td>
-                                <td style="text-align:center;">
-                                    <t t-set="vat" t-value="subt * (sum(t.amount for t in l[1].tax_ids)/100.0)"/>
-                                    <span t-esc="vat" t-options='{"widget":"float","precision":2}'/>
-                                </td>
-                                <td style="text-align:center;">
-                                    <span t-esc="subt + vat" t-options='{"widget":"float","precision":2}'/>
-                                </td>
-                            </tr>
+                            <t t-set="current_subtotal" t-value="0"/>
+                            <t t-foreach="o.invoice_line_ids" t-as="line">
+                                <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"/>
+                                <tr>
+                                    <td style="text-align:center;">
+                                        <span t-esc="line_index + 1"/>
+                                    </td>
+                                    <td style="text-align:left; padding:4px;">
+                                        <span t-if="line.product_id.default_code" t-field="line.product_id.default_code"/>
+                                        <span t-if="line.product_id.default_code"> - </span>
+                                        <span t-field="line.name"/>
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <span t-field="line.quantity"/>
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <span t-field="line.product_uom_id.name"/>
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <span t-field="line.price_unit" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <span t-field="line.price_subtotal" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <span t-if="line.tax_ids" t-esc="', '.join(map(lambda x: '%s%%' % x.amount, line.tax_ids))"/>
+                                        <span t-else="">0%</span>
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <span t-esc="line.price_total - line.price_subtotal" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <span t-field="line.price_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </t>
                         </tbody>
                     </table>
 
@@ -940,8 +936,8 @@
                             <t t-if="o.move_type in ('out_invoice','out_refund')">
                                 <td width="15%" style="border:1px solid #ccc; text-align:center; vertical-align:middle; padding:10px;">
                                     <div style="display:flex; align-items:center; justify-content:center; height:120px;">
-                                        <t t-if="o.qr_code_image">
-                                            <img t-att-src="'data:image/png;base64,%s' % o.qr_code_image.decode('utf-8')" style="max-height:100%; max-width:100%; object-fit:contain;"/>
+                                        <t t-if="o.l10n_sa_qr_code_str">
+                                            <img t-att-src="image_data_uri(o.l10n_sa_qr_code_str)" style="max-height:100%; max-width:100%; object-fit:contain;"/>
                                         </t>
                                     </div>
                                 </td>
@@ -956,37 +952,21 @@
                                     <tr>
                                         <td style="padding:4px 6px;">Subtotal:</td>
                                         <td style="text-align:right; padding:4px 6px;">
-                                            <span t-esc="subtotal_before_discount" t-options='{"widget":"float","precision":2}'/>
-                                        </td>
-                                    </tr>
-
-                                    <t t-if="total_discount_amount > 0">
-                                        <tr>
-                                            <td style="padding:4px 6px;">Total Discount:</td>
-                                            <td style="text-align:right; padding:4px 6px;">
-                                                <span t-esc="total_discount_amount" t-options='{"widget":"float","precision":2}'/>
-                                            </td>
-                                        </tr>
-                                    </t>
-
-                                    <tr>
-                                        <td style="padding:4px 6px;">Net Amount:</td>
-                                        <td style="text-align:right; padding:4px 6px;">
-                                            <span t-esc="o.amount_untaxed" t-options='{"widget":"float","precision":2}'/>
+                                            <span t-field="o.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                         </td>
                                     </tr>
 
                                     <tr>
                                         <td style="padding:4px 6px;">VAT Amount:</td>
                                         <td style="text-align:right; padding:4px 6px;">
-                                            <span t-esc="o.amount_tax" t-options='{"widget":"float","precision":2}'/>
+                                            <span t-field="o.amount_tax" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                         </td>
                                     </tr>
 
                                     <tr style="background:#f5f5f5; font-weight:bold;">
                                         <td style="padding:5px 6px;">Grand Total:</td>
                                         <td style="text-align:right; padding:5px 6px;">
-                                            <span t-esc="o.amount_total" t-options='{"widget":"float","precision":2}'/>
+                                            <span t-field="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                         </td>
                                     </tr>
                                 </table>
@@ -996,15 +976,10 @@
                         <!-- Amount in Words -->
                         <tr>
                             <td colspan="4" style="border: 1px solid #ccc; padding: 10px; background: #fafafa; font-weight: bold; text-align: center;">
-                                <!-- Arabic Amount in Words -->
-                                <div style="direction: rtl; line-height:1.5; font-family: 'Tajawal', sans-serif; font-weight:900; font-size: 13px;">
-                                    فقط
-                                    <span style="line-height:1.5; font-family: 'Tajawal', sans-serif; font-weight:900;" t-esc="o.amount_to_text_arabic(o.amount_total)"/>
-                                </div>
                                 <!-- English Amount in Words -->
-                                <div style="direction: ltr; margin-top: 5px; font-size: 12px;">
-                                    <span t-esc="o.currency_id.with_context(lang='en_US').amount_to_text(o.amount_total)"/>
-                                    Only
+                                <div style="direction: ltr; font-size: 12px;">
+                                    <span t-field="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id, "lang": "en_US"}'/>
+                                    (<span t-field="o.currency_id.with_context(lang='en_US').amount_to_text(o.amount_total)"/>) Only
                                 </div>
                             </td>
                         </tr>

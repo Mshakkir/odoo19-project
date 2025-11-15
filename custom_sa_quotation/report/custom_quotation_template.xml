@@ -67,34 +67,89 @@ direction: rtl; padding: 0px 10px 6px 10px; border-top: 1px solid white;border-r
 
 
                     <!-- ===== Bank Details ===== -->
-                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
-                        <tr>
-                            <td style="padding:2px; text-align:left;">
-                                <b>Bank Details/تفاصيل البنك</b>
-                                <br/>
-                                Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.
-                                <br/>
-                                بنك الراجحي – شركة سمير شرف العتيبي للتجارة
-                                <br/>
-                                Account Number:رقم الحساب:123000010006080143917
-                                <br/>
-                                IBAN: SA7880000123608010143917 :الآيبان
-                            </td>
+<!--                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">-->
+<!--                        <tr>-->
+<!--                            <td style="padding:2px; text-align:left;">-->
+<!--                                <b>Bank Details/تفاصيل البنك</b>-->
+<!--                                <br/>-->
+<!--                                Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.-->
+<!--                                <br/>-->
+<!--                                بنك الراجحي – شركة سمير شرف العتيبي للتجارة-->
+<!--                                <br/>-->
+<!--                                Account Number:رقم الحساب:123000010006080143917-->
+<!--                                <br/>-->
+<!--                                IBAN: SA7880000123608010143917 :الآيبان-->
+<!--                            </td>-->
 
 
-                            <!-- English Column -->
-                            <td style="padding:2px; text-align:right;">
-                                <b>Bank Details/تفاصيل البنك</b>
-                                <br/>
-                                SNB - Saudi National Bank/البنك الأهلي السعودي
-                                <br/>
-                                Account Number at SNB: 13200000678707 :رقم الحساب
-                                <br/>
-                                International Account Number (IBAN): SA2110000013200000678707 :رقم الحساب الدولي (IBAN)
-                            </td>
-                        </tr>
+<!--                            &lt;!&ndash; English Column &ndash;&gt;-->
+<!--                            <td style="padding:2px; text-align:right;">-->
+<!--                                <b>Bank Details/تفاصيل البنك</b>-->
+<!--                                <br/>-->
+<!--                                SNB - Saudi National Bank/البنك الأهلي السعودي-->
+<!--                                <br/>-->
+<!--                                Account Number at SNB: 13200000678707 :رقم الحساب-->
+<!--                                <br/>-->
+<!--                                International Account Number (IBAN): SA2110000013200000678707 :رقم الحساب الدولي (IBAN)-->
+<!--                            </td>-->
+<!--                        </tr>-->
 
-                    </table>
+<!--                    </table>-->
+                    <table width="100%" style="border-collapse: collapse; margin-bottom: 5px; font-size: 10px;">
+    <tr>
+        <!-- Left Column - Alrajhi Bank -->
+        <td style="padding: 8px; text-align: left; vertical-align: top; width: 50%; border-right: 1px solid #ddd;">
+            <div style="margin-bottom: 4px;">
+                <b>Bank Details / تفاصيل البنك</b>
+            </div>
+            <div style="line-height: 1.6;">
+                Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.
+                <br/>
+                <span style="font-family: 'Tajawal', sans-serif; direction: rtl;">
+                    بنك الراجحي – شركة سمير شرف العتيبي للتجارة
+                </span>
+                <br/>
+                <b>Account Number:</b> 123000010006080143917
+                <br/>
+                <span style="font-family: 'Tajawal', sans-serif; direction: rtl;">
+                    <b>رقم الحساب:</b> 123000010006080143917
+                </span>
+                <br/>
+                <b>IBAN:</b> SA7880000123608010143917
+                <br/>
+                <span style="font-family: 'Tajawal', sans-serif; direction: rtl;">
+                    <b>الآيبان:</b> SA7880000123608010143917
+                </span>
+            </div>
+        </td>
+
+        <!-- Right Column - SNB -->
+        <td style="padding: 8px; text-align: left; vertical-align: top; width: 50%;">
+            <div style="margin-bottom: 4px;">
+                <b>Bank Details / تفاصيل البنك</b>
+            </div>
+            <div style="line-height: 1.6;">
+                SNB - Saudi National Bank
+                <br/>
+                <span style="font-family: 'Tajawal', sans-serif; direction: rtl;">
+                    البنك الأهلي السعودي
+                </span>
+                <br/>
+                <b>Account Number:</b> 13200000678707
+                <br/>
+                <span style="font-family: 'Tajawal', sans-serif; direction: rtl;">
+                    <b>رقم الحساب:</b> 13200000678707
+                </span>
+                <br/>
+                <b>IBAN:</b> SA2110000013200000678707
+                <br/>
+                <span style="font-family: 'Tajawal', sans-serif; direction: rtl;">
+                    <b>رقم الحساب الدولي (IBAN):</b> SA2110000013200000678707
+                </span>
+            </div>
+        </td>
+    </tr>
+</table>
 
 
                     <!-- ===== Branch Details ===== -->

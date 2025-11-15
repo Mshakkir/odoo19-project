@@ -315,9 +315,9 @@
                             </tbody>
                         </table>
 
-                        <!-- ===== FOOTER SECTION ===== -->
+                        <!-- =====total section===== -->
                         <table width="100%"
-                               style="margin-top:100px; font-size:13px; border:1px solid #ccc; border-collapse:collapse;">
+                               style="margin-top:20px; font-size:13px; border:1px solid #ccc; border-collapse:collapse;">
                             <tr>
                                 <!-- Delivered & Received (only for sales invoice) -->
                                 <t t-if="o.move_type in ('out_invoice','out_refund')">
@@ -594,31 +594,6 @@
                                 </div>
                             </xpath>
                         </template>
-
-
-                        <!--                        <template id="custom_invoice_footer" inherit_id="web.external_layout_footer">-->
-                        <!--                            <xpath expr="//div[@class='footer']" position="replace">-->
-                        <!--                                <div class="footer"-->
-                        <!--                                     style="font-size:12px; padding:6px; border-top:1px solid #000; background:#fff;">-->
-                        <!--                                    <table style="width:100%; border-collapse:collapse;">-->
-                        <!--                                        <tr>-->
-                        <!--                                            <td style="width:30%; text-align:right; font-weight:bold;">Bank Details :-->
-                        <!--                                            </td>-->
-                        <!--                                            <td style="width:40%; text-align:center;">-->
-                        <!--                                                SNB Beneficiary Name: Sameer Sharaf Al-Otibi Trading Co.-->
-                        <!--                                                <br/>-->
-                        <!--                                                IBAN: SA29 1000 00 10768366000104-->
-                        <!--                                            </td>-->
-                        <!--                                            <td style="width:30%; text-align:left; font-weight:bold;">-->
-                        <!--                                                <span style="font-family:'Tajawal';font-weight:900;">التفاصيل-->
-                        <!--                                                    المصرفية:-->
-                        <!--                                                </span>-->
-                        <!--                                            </td>-->
-                        <!--                                        </tr>-->
-                        <!--                                    </table>-->
-                        <!--                                </div>-->
-                        <!--                            </xpath>-->
-                        <!--                        </template>-->
                     </t>
                 </t>
             </t>

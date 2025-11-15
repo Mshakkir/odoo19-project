@@ -30,7 +30,7 @@
                                     <!-- Left Column: English Info -->
                                     <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: middle;
                    padding: 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid  white;">
-                                        <div style="line-height: 1.3; font-weight: 500;">
+                                        <div style="line-height: 1.3; font-weight: 500;padding-left:3px;">
                                             C.R. 4030216154
                                             <br/>
                                             VAT Regd: 311299944700003
@@ -42,14 +42,14 @@
                    padding: 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid  white;">
                                         <t t-if="o.company_id.logo">
                                             <img t-att-src="image_data_uri(o.company_id.logo)"
-                                                 style="max-height: 110px; max-width: 100%; object-fit: contain;"/>
+                                                 style="max-height: 140px; max-width: 100%; object-fit: contain;"/>
                                         </t>
                                     </td>
 
                                     <!-- Right Column: Arabic Info -->
                                     <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle;
                    direction: rtl; padding: 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid  white;">
-                                        <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                        <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;padding-right:3px;">
                                             ٤٠٣٠٢١٦١٥٤ :س.ت
                                             <br/>
                                             ٣١١٢٩٩٩٤٤٧٠٠٠٠٣ :الرقم الضريبي
@@ -65,11 +65,49 @@
 
                 <div class="footer" style="padding:10px; font-size:13px; background:#fff;">
 
-                    <!-- ====== 3 COLUMN ADDRESS SECTION ====== -->
+
+                    <!-- ===== Bank Details ===== -->
+                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
+                        <tr>
+                            <td style="padding:2px; text-align:left;">
+                                <b>Bank Details/تفاصيل البنك</b>
+                                <br/>
+                                Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.
+                                <br/>
+                                 بنك الراجحي – شركة سمير شرف العتيبي للتجارة
+                                <br/>
+                                Account Number:رقم الحساب:123000010006080143917
+                                <br/>
+                                IBAN: SA7880000123608010143917 :الآيبان
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <!-- English Column -->
+                            <td style="padding:2px; text-align:right;">
+                                <b>Bank Details/تفاصيل البنك</b>
+                                <br/>
+                                SNB - Saudi National Bank
+                               <br/>
+                                البنك الأهلي السعودي - SNB
+                                <br/>
+                                Sameer Sharaf Al-Otib Trading Company
+                                <br/>
+                                شركة سمير شرف العتيبي التجارية
+                                <br/>
+                                Account Number at SNB: 13200000678707 :رقم الحساب
+                                <br/>
+                                International Account Number (IBAN): SA2110000013200000678707 :رقم الحساب الدولي (IBAN)
+                            </td>
+                        </tr>
+
+                    </table>
+
+
                     <!-- ===== Branch Details ===== -->
                     <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                         <tr>
-                            <td style="width:33%; padding:4px;">
+                            <td style="width:33%; padding:4px;border-right: 1px solid black;">
                                 <strong>Dammam</strong>
                                 Sameer Sharaf Al Otaibi Trading Company
                                 8515, Qutaibah bin Muslim ST,
@@ -81,7 +119,7 @@
                                 Email: ssaoe.dammam@gmail.com
                             </td>
 
-                            <td style="width:33%; padding:4px;">
+                            <td style="width:33%; padding:4px;border-right: 1px solid black;">
                                 <strong>Main</strong>
                                 Sameer Sharaf Al Otaibi Trading Company
                                 شركة سمير شرف العتيبي التجارية
@@ -105,63 +143,6 @@
                                 Email: ssaoe.dammam@gmail.com
                             </td>
                         </tr>
-                    </table>
-
-                    <!-- ===== Bank Details ===== -->
-                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
-                        <tr>
-                            <td style="padding:2px; text-align:left;">
-                                <b>Bank Details:</b>
-                                <br/>
-                                Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.
-                                <br/>
-                                Account Number: 123000010006080143917
-                                <br/>
-                                IBAN: SA7880000123608010143917
-                            </td>
-
-                            <td style="padding:2px; text-align:right;">
-                                <b>تفاصيل البنك:</b>
-                                <br/>
-                                بنك الراجحي – شركة سمير شرف العتيبي للتجارة
-                                <br/>
-                                رقم الحساب: 123000010006080143917
-                                <br/>
-                                الآيبان: SA7880000123608010143917
-                            </td>
-
-                        </tr>
-                        <tr>
-                            <!-- English Column -->
-                            <td style="padding:2px; text-align:left;">
-                                <b>Bank Details:</b>
-                                <br/>
-                                SNB - Saudi National Bank
-                                <br/>
-                                Sameer Sharaf Al-Otib Trading Company
-                                <br/>
-                                Account Number at SNB: 13200000678707
-                                <br/>
-                                International Account Number (IBAN): SA2110000013200000678707
-                            </td>
-
-
-                            <!-- Arabic Column -->
-                            <td style="padding:2px; text-align:right;">
-                                <b>تفاصيل البنك:</b>
-                                <br/>
-                                البنك الأهلي السعودي - SNB
-                                <br/>
-                                شركة سمير شرف العتيبي التجارية
-                                <br/>
-                                رقم الحساب: 13200000678707
-                                <br/>
-                                رقم الحساب الدولي (IBAN): SA2110000013200000678707
-                            </td>
-
-
-                        </tr>
-
                     </table>
 
                     <!-- ===== Footer Logos ===== -->
@@ -290,12 +271,12 @@
                                 </th>
                             </tr>
                         </thead>
-                        <tbody style="text-align:center;">
+                        <tbody style="text-align:center; padding-top:4px;padding-bottom:4px;">
                             <tr t-foreach="o.order_line" t-as="line">
                                 <td>
                                     <t t-esc="line_index + 1"/>
                                 </td>
-                                <td>
+                                <td style="text-align:left;">
                                     <span t-field="line.name"/>
                                 </td>
                                 <td>2-3 Weeks</td>

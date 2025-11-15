@@ -528,9 +528,9 @@
 
 <odoo>
     <!-- Custom Header Template -->
-   <template id="custom_external_layout_header" inherit_id="web.external_layout_standard">
-    <xpath expr="//div[@class='o_report_header']" position="replace">
-        <div class="o_report_header">
+    <template id="custom_external_layout_header" inherit_id="web.external_layout_standard">
+        <xpath expr="//div[hasclass('o_report_header')]" position="replace">
+            <div class="o_report_header">
                 <div style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
                     <!-- Company Names in One Row -->
                     <table style="width: 100%; border-collapse: collapse;border:none">
@@ -583,9 +583,9 @@
     </template>
 
     <!-- Custom Footer Template -->
-    <template id="custom_external_layout_footer" inherit_id="web.external_layout_footer">
-        <xpath expr="//div[@class='footer o_background_footer']" position="replace">
-            <div class="footer o_background_footer" style="padding:10px; font-size:13px; background:#fff;">
+    <template id="custom_external_layout_footer" inherit_id="web.external_layout_standard">
+        <xpath expr="//div[hasclass('o_report_footer')]" position="replace">
+            <div class="o_report_footer" style="padding:10px; font-size:13px; background:#fff;">
                 <!-- ===== Bank Details ===== -->
                 <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                     <tr>
@@ -619,9 +619,13 @@
                     <tr>
                         <td style="width:33%; padding:4px;border-right: 1px solid black;">
                             <strong>Dammam</strong>
+                            <br/>
                             Sameer Sharaf Al Otaibi Trading Company
+                            <br/>
                             8515, Qutaibah bin Muslim ST,
+                            <br/>
                             Al Souq, Dammam 4525-32242
+                            <br/>
                             Saudi Arabia
                             <br/>
                             Tel/Mobile: 0535081008
@@ -631,10 +635,15 @@
 
                         <td style="width:33%; padding:4px;border-right: 1px solid black;">
                             <strong>Main</strong>
+                            <br/>
                             Sameer Sharaf Al Otaibi Trading Company
+                            <br/>
                             شركة سمير شرف العتيبي التجارية
+                            <br/>
                             Jeddah, 7655 Al Fayha
+                            <br/>
                             Al Fayha Dist. JEDDAH 22244-3108
+                            <br/>
                             Saudi Arabia
                             <br/>
                             Tel:
@@ -644,10 +653,15 @@
 
                         <td style="width:33%; padding:4px;">
                             <strong>Baladiya</strong>
+                            <br/>
                             Sameer Sharaf Al Otaibi Trading Company
+                            <br/>
                             شركة سمير شرف العتيبي التجارية
+                            <br/>
                             Sookul Anwar, Al Baladeah, Aziziyah,
+                            <br/>
                             Jeddah 31303
+                            <br/>
                             Tel: 0535081008
                             <br/>
                             Email: ssaoe.dammam@gmail.com
@@ -767,7 +781,7 @@
                                     &#160;&#160;
                                     <span style="font-family:'Tajawal';font-weight:900;">التاريخ</span>
                                 </td>
-                                <!-- ===== AWB FIELD ADDED HERE ===== -->
+                                <!-- ===== AWB FIELD ===== -->
                                 <td style="padding:4px 8px;">
                                     <strong>AWB No:</strong>
                                     <span t-if="o.awb_number" t-esc="o.awb_number"/>
@@ -780,7 +794,6 @@
                                 <tr style="background-color:#FFFFFF;">
                                     <td style="border:1px solid #000; padding:4px; width:33%;">
                                         <strong>P.O No:</strong>
-                                        <!-- Safely get related Sale Order reference -->
                                         <t t-set="sale_order" t-value="o.invoice_line_ids and o.invoice_line_ids[0].sale_line_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id"/>
                                         <span t-if="sale_order" t-esc="sale_order.client_order_ref or sale_order.name"/>
                                         <span t-else="">-</span>

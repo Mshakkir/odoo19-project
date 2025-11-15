@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--<odoo>-->
 <!--    <template id="custom_invoice_report" inherit_id="l10n_sa.l10n_sa_report_invoice_document">-->
 <!--        <xpath expr="//t[@t-call='web.external_layout']" position="replace">-->

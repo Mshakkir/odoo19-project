@@ -3,10 +3,9 @@
     <template id="custom_invoice_report" inherit_id="l10n_sa.l10n_sa_report_invoice_document">
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
             <t t-call="web.html_container">
-                <!-- Loop through invoices -->
                 <t t-foreach="docs" t-as="o">
+                    <!-- ===== HEADER (Outside external_layout) ===== -->
                     <div class="page">
-                        <!-- ===== HEADER ===== -->
                         <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
                             <!-- Company Names in One Row -->
                             <table style="width: 100%; border-collapse: collapse;">
@@ -28,18 +27,18 @@
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tr>
                                     <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: middle; padding: 6px 10px; border-top: 1px solid white; border-right: 0; border-bottom: 2px solid #8B1538; border-left: 1px solid white;">
-                                        <div style="line-height: 1.3; font-weight: 500;">
+                                        <div style="line-height: 1.3; font-weight: 500; padding-left:3px;">
                                             C.R. 4030216154<br/>
                                             VAT Regd: 311299944700003
                                         </div>
                                     </td>
                                     <td style="width: 34%; text-align: center; vertical-align: middle; padding: 6px 10px; border-top: 1px solid white; border-right: 0; border-bottom: 2px solid #8B1538; border-left: 1px solid white;">
                                         <t t-if="o.company_id.logo">
-                                            <img t-att-src="image_data_uri(o.company_id.logo)" style="max-height: 110px; max-width: 100%; object-fit: contain;"/>
+                                            <img t-att-src="image_data_uri(o.company_id.logo)" style="max-height: 140px; max-width: 100%; object-fit: contain;"/>
                                         </t>
                                     </td>
                                     <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle; direction: rtl; padding: 6px 10px; border-top: 1px solid white; border-right: 0; border-bottom: 2px solid #8B1538; border-left: 1px solid white;">
-                                        <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
+                                        <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl; padding-right:3px;">
                                             ٤٠٣٠٢١٦١٥٤ :س.ت<br/>
                                             ٣١١٢٩٩٩٤٤٧٠٠٠٠٣ :الرقم الضريبي
                                         </div>
@@ -47,15 +46,117 @@
                                 </tr>
                             </table>
                         </div>
+                    </div>
+                </t>
 
+                <!-- ===== FOOTER (Outside external_layout) ===== -->
+                <div class="footer" style="padding:10px; font-size:13px; background:#fff;">
+                    <!-- 3 COLUMN ADDRESS SECTION -->
+                    <table style="width:100%; border-collapse:collapse; margin-bottom:5px; text-align:center;">
+                        <tr>
+                            <td style="width:33%; padding:4px; border-right:2px solid #808080; border-left:1px solid white; border-top:1px solid white; border-bottom:1px solid white;">
+                                <div style="font-family:'Tajawal';font-weight:550;font-size:11px;">
+                                    ٨٥١٥، شارع قتيبة بن مسلم،حي السوق،<br/>
+                                    الدمام ٤٥٢٥–٣٢٢٤٢, المملكة العربية السعودية<br/>
+                                    هاتف/جوال: ٠٥٣٥٠٨١٠٠٨
+                                </div>
+                                <div style="margin-top:6px; font-size:11px;">
+                                    Building No. 8515,Qutaibah bin Muslim ST,<br/>
+                                    Al Souq, Dammam 4525-32242, Saudi Arabia<br/>
+                                    Tel/Mobile: 0535081008<br/>
+                                    Email: ssaoe.dammam@gmail.com
+                                </div>
+                            </td>
+
+                            <td style="width:33%; padding:4px; border-right:2px solid #808080; border-top:1px solid white; border-bottom:1px solid white;">
+                                <div style="font-family:'Tajawal';font-weight:550;font-size:11px;">
+                                    جدة، ٧٦٥٥ الفيحاء<br/>
+                                    حي الفيحاء، جدة ٢٢٢٤٤–٣١٠٨, المملكة العربية السعودية<br/>
+                                    هاتف/جوال:
+                                </div>
+                                <div style="margin-top:6px; font-size:11px;">
+                                    Jeddah, 7655 Al Fayha<br/>
+                                    Al Fayha Dist. JEDDAH 22244-3108, Saudi Arabia<br/>
+                                    Tel/Mobile:<br/>
+                                    Email:
+                                </div>
+                            </td>
+
+                            <td style="width:33%; padding:4px; border-top:1px solid white; border-bottom:1px solid white; border-right:1px solid white;">
+                                <div style="font-family:'Tajawal';font-weight:550;font-size:11px;">
+                                    سوق الأنوار، البلدية، العزيزية،<br/>
+                                    جدة ٣١٣٠٣, المملكة العربية السعودية<br/>
+                                    هاتف/جوال:
+                                </div>
+                                <div style="margin-top:6px; font-size:11px;">
+                                    Sookul Anwar, Al Baladeah, Aziziyah,<br/>
+                                    Jeddah 31303, Saudi Arabia<br/>
+                                    Tel:<br/>
+                                    Email:
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- BANK DETAILS BOX -->
+                    <table style="width:100%; border:2px solid #808080; border-collapse:collapse;">
+                        <tr>
+                            <td colspan="2" style="text-align:left; padding:6px; font-size:11px; font-weight:bold; border-bottom:2px solid #808080;">
+                                Bank details:
+                                <span style="float:right; font-family:'Tajawal'; font-weight:900;">التفاصيل المصرفية :</span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td style="width:50%; padding:5px; border-right:2px solid #808080; font-size:11px; text-align:center;">
+                                Alrajhi Bank : Sameer Sharaf Al-Otibi Trading Company<br/>
+                                Account Number : 123000010006080143917<br/>
+                                IBAN : SA7880000123608010143917
+                            </td>
+                            <td style="width:50%; padding:5px; font-size:11px; direction:rtl; text-align:center; font-family:'Tajawal';">
+                                مصرف الراجحي: شركة سمير شرف العتيبي التجارية<br/>
+                                رقم الحساب: ١٤٣٩١٧٠٠٦٠٠٠٠١٢٣<br/>
+                                رقم الحساب المصرفي الدولي:<br/>
+                                SA7880000123608010143917
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="2" style="border-top:2px solid #808080;"></td>
+                        </tr>
+
+                        <tr>
+                            <td style="width:50%; padding:5px; border-right:2px solid #808080; font-size:11px; text-align:center;">
+                                SNB - Saudi National Bank:<br/>
+                                Sameer Sharaf Al-Otib Trading Company<br/>
+                                Account Number at SNB: 132000000678707<br/>
+                                International Account Number:<br/>
+                                SA2110000013200000678707 (IBAN)
+                            </td>
+                            <td style="width:50%; padding:5px; font-size:11px; direction:rtl; text-align:center; font-family:'Tajawal';">
+                                البنك الوطني السعودي : شركة سمير شرف العتيبي التجارية<br/>
+                                رقم الحساب لدى البنك الوطني السعودي:<br/>
+                                ١٣٢٠٠٠٠٠٠٦٧٨٧٠٧<br/>
+                                رقم الحساب الدولي:<br/>
+                                SA2110000013200000678707 (IBAN)
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- ===== CONTENT (Inside external_layout) ===== -->
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
                         <!-- ===== INVOICE TITLE ===== -->
-                        <div style="background-color:#d3d3d3; color:black; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
-                            <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                Tax Invoice / <span style="font-family:'Tajawal',sans-serif;font-weight:900;">فاتورة ضريبية</span>
-                            </t>
-                            <t t-elif="o.move_type in ('in_invoice','in_refund')">
-                                Purchase Invoice / <span style="font-family:'Tajawal',sans-serif;font-weight:900;">فاتورة مشتريات</span>
-                            </t>
+                        <div style="padding-top:15px;">
+                            <div style="background-color:#d3d3d3; color:black; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
+                                <t t-if="o.move_type in ('out_invoice','out_refund')">
+                                    Tax Invoice / <span style="font-family:'Tajawal',sans-serif;font-weight:900;">فاتورة ضريبية</span>
+                                </t>
+                                <t t-elif="o.move_type in ('in_invoice','in_refund')">
+                                    Purchase Invoice / <span style="font-family:'Tajawal',sans-serif;font-weight:900;">فاتورة مشتريات</span>
+                                </t>
+                            </div>
                         </div>
 
                         <!-- ===== CUSTOMER INFO ===== -->
@@ -285,110 +386,12 @@
                                 </td>
                             </tr>
                         </table>
-
-                        <!-- ===== FOOTER ===== -->
-                        <div style="margin-top:20px; padding:10px; font-size:13px; background:#fff; page-break-inside:avoid;">
-                            <!-- 3 COLUMN ADDRESS SECTION -->
-                            <table style="width:100%; border-collapse:collapse; margin-bottom:5px; text-align:center;">
-                                <tr>
-                                    <td style="width:33%; padding:4px; border-right:2px solid #808080;">
-                                        <div style="font-family:'Tajawal';font-weight:550;font-size:11px;">
-                                            ٨٥١٥، شارع قتيبة بن مسلم،حي السوق،<br/>
-                                            الدمام ٤٥٢٥–٣٢٢٤٢, المملكة العربية السعودية<br/>
-                                            هاتف/جوال: ٠٥٣٥٠٨١٠٠٨
-                                        </div>
-                                        <div style="margin-top:6px; font-size:11px;">
-                                            Building No. 8515,Qutaibah bin Muslim ST,<br/>
-                                            Al Souq, Dammam 4525-32242, Saudi Arabia<br/>
-                                            Tel/Mobile: 0535081008<br/>
-                                            Email: ssaoe.dammam@gmail.com
-                                        </div>
-                                    </td>
-
-                                    <td style="width:33%; padding:4px; border-right:2px solid #808080;">
-                                        <div style="font-family:'Tajawal';font-weight:550;font-size:11px;">
-                                            جدة، ٧٦٥٥ الفيحاء<br/>
-                                            حي الفيحاء، جدة ٢٢٢٤٤–٣١٠٨, المملكة العربية السعودية<br/>
-                                            هاتف/جوال:
-                                        </div>
-                                        <div style="margin-top:6px; font-size:11px;">
-                                            Jeddah, 7655 Al Fayha<br/>
-                                            Al Fayha Dist. JEDDAH 22244-3108, Saudi Arabia<br/>
-                                            Tel/Mobile:<br/>
-                                            Email:
-                                        </div>
-                                    </td>
-
-                                    <td style="width:33%; padding:4px;">
-                                        <div style="font-family:'Tajawal';font-weight:550;font-size:11px;">
-                                            سوق الأنوار، البلدية، العزيزية،<br/>
-                                            جدة ٣١٣٠٣, المملكة العربية السعودية<br/>
-                                            هاتف/جوال:
-                                        </div>
-                                        <div style="margin-top:6px; font-size:11px;">
-                                            Sookul Anwar, Al Baladeah, Aziziyah,<br/>
-                                            Jeddah 31303, Saudi Arabia<br/>
-                                            Tel:<br/>
-                                            Email:
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- BANK DETAILS BOX -->
-                            <table style="width:100%; border:2px solid #808080; border-collapse:collapse;">
-                                <tr>
-                                    <td colspan="2" style="text-align:left; padding:6px; font-size:11px; font-weight:bold; border-bottom:2px solid #808080;">
-                                        Bank details:
-                                        <span style="float:right; font-family:'Tajawal'; font-weight:900;">التفاصيل المصرفية :</span>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td style="width:50%; padding:5px; border-right:2px solid #808080; font-size:11px; text-align:center;">
-                                        Alrajhi Bank : Sameer Sharaf Al-Otibi Trading Company<br/>
-                                        Account Number : 123000010006080143917<br/>
-                                        IBAN : SA7880000123608010143917
-                                    </td>
-                                    <td style="width:50%; padding:5px; font-size:11px; direction:rtl; text-align:center; font-family:'Tajawal';">
-                                        مصرف الراجحي: شركة سمير شرف العتيبي التجارية<br/>
-                                        رقم الحساب: ١٤٣٩١٧٠٠٦٠٠٠٠١٢٣<br/>
-                                        رقم الحساب المصرفي الدولي:<br/>
-                                        SA7880000123608010143917
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td colspan="2" style="border-top:2px solid #808080;"></td>
-                                </tr>
-
-                                <tr>
-                                    <td style="width:50%; padding:5px; border-right:2px solid #808080; font-size:11px; text-align:center;">
-                                        SNB - Saudi National Bank:<br/>
-                                        Sameer Sharaf Al-Otib Trading Company<br/>
-                                        Account Number at SNB: 132000000678707<br/>
-                                        International Account Number:<br/>
-                                        SA2110000013200000678707 (IBAN)
-                                    </td>
-                                    <td style="width:50%; padding:5px; font-size:11px; direction:rtl; text-align:center; font-family:'Tajawal';">
-                                        البنك الوطني السعودي : شركة سمير شرف العتيبي التجارية<br/>
-                                        رقم الحساب لدى البنك الوطني السعودي:<br/>
-                                        ١٣٢٠٠٠٠٠٠٦٧٨٧٠٧<br/>
-                                        رقم الحساب الدولي:<br/>
-                                        SA2110000013200000678707 (IBAN)
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
+                    </t>
                 </t>
             </t>
         </xpath>
     </template>
 </odoo>
-
-
-
 
 
 

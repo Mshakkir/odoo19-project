@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <template id="custom_invoice_footer" inherit_id="web.external_layout_footer">
+    <template id="custom_external_footer" inherit_id="web.external_layout_standard">
 
         <xpath expr="//div[@class='footer']" position="replace">
 

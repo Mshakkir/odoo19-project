@@ -70,7 +70,7 @@
     <table style="width: 100%; border-collapse: collapse;border:none; margin-bottom:0px;">
         <tr>
             <td style="width: 50%; padding: 5px 20px 0px 0px; text-align: left; vertical-align: middle; border:none;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white">
-                <div style="color: #8B1538; font-size: 18px; font-weight: bold; text-transform: uppercase; margin-bottom: 0px;">
+                <div style="color: #8B1538; font-size: 17px; font-weight: bold; text-transform: uppercase; margin-bottom: 0px;padding-bottom:0px;">
                     SAMEER SHARAF AL OTAIBI TRADING COMPANY
                 </div>
             </td>
@@ -107,7 +107,7 @@ padding: 0px 10px; border-top: 1px solid white;border-right: 0px solid white; bo
             </td>
 
             <!-- Right Column: Arabic Info -->
-            <td style="width: 40%; text-align: right; font-size: 18px; color: #000; vertical-align: middle; padding: 0px 0px; border:green;">
+            <td style="width: 40%; text-align: right; font-size: 18px; color: #000; vertical-align: middle; padding: 0px 0px; border:none;">
                 <div style="line-height: 1.7; font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; margin-top: 0px;">
                     س.ت: ٤٠٣٠٢١٦١٥٤
                     <br/>

@@ -26,113 +26,73 @@
 
                             <!-- Details and Logo Row -->
                             <table style="width: 100%; border-collapse: collapse;">
-    <tr>
+                                <tr>
+                                    <!-- Left Column: English Info -->
+                                    <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: top;
+border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;padding-top:0px;padding-left:0px;">
+                                        <div style="line-height: 1.3; font-weight: 500;padding-left:0px;padding-top:0px;margin-top:0px;">
+                                            C.R. 4030216154
+                                            <br/>
+                                            VAT Regd: 311299944700003
+                                        </div>
+                                    </td>
 
-        <!-- Left Column: English Info -->
-        <td style="width: 33%; text-align: left; font-size: 16px; color: #333;
-        vertical-align: top;  /* CHANGED */
-        border-top: 1px solid white;border-right: 0px solid white;
-        border-bottom: 2px solid #8B1538;border-left: 1px solid white;
-        padding-top:0px; padding-left:0px;">   <!-- CHANGED -->
+                                    <!-- Center Column: Company Logo -->
+                                    <td style="width: 34%; text-align: center; vertical-align: top;
+padding: 0px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">
+                                        <t t-if="o.company_id.logo">
+                                            <img t-att-src="image_data_uri(o.company_id.logo)"
+                                                 style="max-height: 140px; max-width: 100%; object-fit: contain; display: block; margin: 0 auto;padding-top:8px;"/>
+                                        </t>
+                                    </td>
 
-            <div style="line-height: 1.3; font-weight: 500; padding-left:0px; padding-top:0px;"> <!-- CHANGED -->
-                C.R. 4030216154
-                <br/>
-                VAT Regd: 311299944700003
-            </div>
-        </td>
+                                    <!-- Right Column: Arabic Info -->
+                                    <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: top;
+direction: rtl; padding: 0px 10px 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">
+                                        <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight:900; padding-right:0px; margin-top:0px; text-align: right; direction: rtl;">
+                                            س.ت: ٤٠٣٠٢١٦١٥٤
+                                            <br/>
+                                            الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
+                                            <br/>
 
-        <!-- Center Column: Company Logo -->
-        <td style="width: 34%; text-align: center; vertical-align: middle;
-        padding: 6px 10px; border-top: 1px solid white;border-right: 0px solid white;
-        border-bottom: 2px solid #8B1538;border-left: 1px solid white;">
-            <t t-if="o.company_id.logo">
-                <img t-att-src="image_data_uri(o.company_id.logo)"
-                     style="max-height: 140px; max-width: 100%; object-fit: contain;"/>
-            </t>
-        </td>
-
-        <!-- Right Column: Arabic Info -->
-        <td style="width: 33%; text-align: right; font-size: 14px; color: #333;
-        vertical-align: top;  /* CHANGED */
-        direction: rtl; padding: 0px 10px;  /* CHANGED */
-        border-top: 1px solid white;border-right: 0px solid white;
-        border-bottom: 2px solid #8B1538;border-left: 1px solid white;">
-
-            <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif;
-            font-weight:900; padding-right:0px; margin-top:0px;"> <!-- CHANGED -->
-                ٤٠٣٠٢١٦١٥٤ :س.ت
-                <br/>
-                ٣١١٢٩٩٩٤٤٧٠٠٠٠٣ :الرقم الضريبي
-            </div>
-        </td>
-
-    </tr>
-</table>
-
-<!--                            <table style="width: 100%; border-collapse: collapse;">-->
-<!--                                <tr>-->
-<!--                                    &lt;!&ndash; Left Column: English Info &ndash;&gt;-->
-<!--                                    <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: middle;-->
-<!--                   border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid  white;padding-top:2px;padding-left:0px;">-->
-<!--                                        <div style="line-height: 1.3; font-weight: 500;padding-left:0px;padding-top:2px;">-->
-<!--                                            C.R. 4030216154-->
-<!--                                            <br/>-->
-<!--                                            VAT Regd: 311299944700003-->
-<!--                                        </div>-->
-<!--                                    </td>-->
-
-<!--                                    &lt;!&ndash; Center Column: Company Logo &ndash;&gt;-->
-<!--                                    <td style="width: 34%; text-align: center; vertical-align: middle;-->
-<!--                   padding: 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid  white;">-->
-<!--                                        <t t-if="o.company_id.logo">-->
-<!--                                            <img t-att-src="image_data_uri(o.company_id.logo)"-->
-<!--                                                 style="max-height: 140px; max-width: 100%; object-fit: contain;"/>-->
-<!--                                        </t>-->
-<!--                                    </td>-->
-
-<!--                                    &lt;!&ndash; Right Column: Arabic Info &ndash;&gt;-->
-<!--                                    <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle;-->
-<!--                   direction: rtl; padding: 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid  white;">-->
-<!--                                        <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight:900;padding-right:0px;margin-top:2px;">-->
-<!--                                            ٤٠٣٠٢١٦١٥٤ :س.ت-->
-<!--                                            <br/>-->
-<!--                                            ٣١١٢٩٩٩٤٤٧٠٠٠٠٣ :الرقم الضريبي-->
-<!--                                        </div>-->
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                            </table>-->
+                                            C.R. 4030216154
+                                            <br/>
+                                            VAT Regd: 311299944700003
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
 
 
                         </div>
                     </div>
                 </t>
 
-                <div class="footer" style="padding:10px; font-size:13px; background:#fff;">
+                <div width="100%" class="footer" style="padding:10px; font-size:13px; background:#fff;">
 
 
                     <!-- ===== Bank Details ===== -->
                     <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                         <tr>
-                            <td style="padding:2px; text-align:left;">
+                            <td style="padding:2px; text-align:left;width:50%;">
                                 <b>Bank Details/تفاصيل البنك</b>
                                 <br/>
                                 Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.
                                 <br/>
-                                 بنك الراجحي – شركة سمير شرف العتيبي للتجارة
+                                بنك الراجحي – شركة سمير شرف العتيبي للتجارة
                                 <br/>
                                 Account Number:رقم الحساب:123000010006080143917
                                 <br/>
-                                IBAN: SA7880000123608010143917 :الآيبان
+                                IBAN: SA7880000123608010143917 :رقم الحساب الدولي
                             </td>
 
 
                             <!-- English Column -->
-                            <td style="padding:2px; text-align:right;">
+                            <td style="padding:2px; text-align:right;width:50%;">
                                 <b>Bank Details/تفاصيل البنك</b>
                                 <br/>
                                 SNB - Saudi National Bank/البنك الأهلي السعودي
-                               <br/>
+                                <br/>
                                 Account Number at SNB: 13200000678707 :رقم الحساب
                                 <br/>
                                 International Account Number (IBAN): SA2110000013200000678707 :رقم الحساب الدولي (IBAN)
@@ -266,68 +226,74 @@
 
                     <!-- ===== Order Lines Table ===== -->
                     <table width="100%" border="1"
-                           style="border-collapse: collapse; font-size: 13px;margin-top:10px;"
-                           cellpadding="5">
+                           style="border-collapse: collapse; font-size: 13px; margin-top: 10px; border-color: #cccccc;"
+                           cellpadding="0" cellspacing="0">
                         <thead style="background-color: #9e9d9d;">
                             <tr>
-                                <th style="width:2%;text-align:center; color:#080808;">SN</th>
-                                <th style="width:15%;text-align:center; color:#080808;">Item Description
+                                <th style="width: 2%; text-align: center; color: #080808; padding: 12px 8px;">SN</th>
+                                <th style="width: 15%; text-align: center; color: #080808; padding: 12px 8px;">
+                                    Item Description
                                     <br/>
-                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                    <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
                                         المنتج الوصف
                                     </span>
                                 </th>
-                                <th style="width:3%;text-align:center; color:#080808;">Duration
+                                <th style="width: 3%; text-align: center; color: #080808; padding: 12px 8px;">
+                                    Delivery Time
                                     <br/>
-                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                    <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
                                         مدة
                                     </span>
                                 </th>
-                                <th style="width:3%;text-align:center; color:#080808;">QTY
+                                <th style="width: 3%; text-align: center; color: #080808; padding: 12px 8px;">
+                                    QTY
                                     <br/>
-                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                    <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
                                         الكمية
                                     </span>
                                 </th>
-                                <th style="width:3%;text-align:center; color:#080808;">U/M
+                                <th style="width: 3%; text-align: center; color: #080808; padding: 12px 8px;">
+                                    U/M
                                     <br/>
-                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                    <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
                                         وحدة
                                     </span>
                                 </th>
-                                <th style="width:3%;text-align:center; color:#080808;">Unit Price
+                                <th style="width: 3%; text-align: center; color: #080808; padding: 12px 8px;">
+                                    Unit Price
                                     <br/>
-                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                    <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
                                         سعر الوحدة
                                     </span>
                                 </th>
-                                <th style="width:3%;text-align:center; color:#080808;">Line Total
+                                <th style="width: 3%; text-align: center; color: #080808; padding: 12px 8px;">
+                                    Line Total
                                     <br/>
-                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                    <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
                                         مجموع الخط
                                     </span>
                                 </th>
                             </tr>
                         </thead>
-                        <tbody style="text-align:center; padding-top:4px;padding-bottom:4px;">
+                        <tbody style="text-align: center;">
                             <tr t-foreach="o.order_line" t-as="line">
-                                <td>
+                                <td style="padding: 10px 8px; vertical-align: middle;">
                                     <t t-esc="line_index + 1"/>
                                 </td>
-                                <td style="text-align:left;">
+                                <td style="text-align: left; padding: 10px 8px; vertical-align: middle;">
                                     <span t-field="line.name"/>
                                 </td>
-                                <td>2-3 Weeks</td>
-                                <td class="text-right">
+                                <td style="padding: 10px 8px; vertical-align: middle;">2-3 Weeks</td>
+                                <td style="text-align: center; padding: 10px 8px; vertical-align: middle;">
                                     <span t-field="line.product_uom_qty"/>
                                 </td>
-                                <td>
+                                <td style="padding: 10px 8px; vertical-align: middle;">
                                     <span t-field="line.product_uom_id"/>
                                 </td>
-                                <td class="text-right">
+                                <td style="text-align: right; padding: 10px 8px; vertical-align: middle;">
                                     <span t-field="line.price_unit"/>
                                 </td>
-                                <td class="text-right">
+                                <td style="text-align: right; padding: 10px 8px; vertical-align: middle;">
                                     <span t-field="line.price_subtotal"/>
                                 </td>
                             </tr>
@@ -421,3 +387,6 @@
 
     </template>
 </odoo>
+
+
+

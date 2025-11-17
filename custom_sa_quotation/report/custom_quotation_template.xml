@@ -68,7 +68,7 @@
      style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
 
     <!-- Company Names in One Row -->
-    <table style="width: 100%; border-collapse: collapse;border:none; margin-bottom:0px;">
+    <table style="width: 100%; border-collapse: collapse;border:none;">
         <tr>
             <td style="width: 50%; padding: 5px 20px 2px 0px; text-align: left; vertical-align: middle; border:none;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white">
                 <div style="color: #8B1538; font-size: 18px; font-weight: bold; text-transform: uppercase;margin-top:7px;">
@@ -86,7 +86,7 @@
 
 
     <!-- Details and Logo Row -->
-    <table style="width: 100%; border-collapse: collapse;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white; margin-top:0px;">
+    <table style="width: 100%; border-collapse: collapse;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white;">
         <tr>
             <!-- Left Column: English Info -->
             <td style="width: 40%; text-align: left; font-size: 16px; color: #000; vertical-align: middle; padding: 2px 0px; border:none;">

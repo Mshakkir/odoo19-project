@@ -71,6 +71,11 @@ class SaleOrder(models.Model):
                 'custom_net_total': net_total,
             })
 
+            delivery_period = fields.Char(
+                string="Delivery Period",
+                help="Example: 3–4 Weeks, 2–3 Days, 1 Week"
+            )
+
     @api.onchange('discount_amount', 'freight_amount')
     def _onchange_discount_freight(self):
         """

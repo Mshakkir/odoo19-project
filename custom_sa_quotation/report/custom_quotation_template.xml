@@ -71,13 +71,13 @@
     <table style="width: 100%; border-collapse: collapse;border:none; margin-bottom:0px;">
         <tr>
             <td style="width: 50%; padding: 5px 20px 2px 0px; text-align: left; vertical-align: middle; border:none;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white">
-                <div style="color: #8B1538; font-size: 18px; font-weight: bold; text-transform: uppercase;">
+                <div style="color: #8B1538; font-size: 18px; font-weight: bold; text-transform: uppercase;margin-top:7px;">
                     SAMEER SHARAF AL OTAIBI TRADING COMPANY
                 </div>
             </td>
             <td style="width: 50%; padding: 5px 0px 2px 20px; text-align: right; vertical-align: middle; border:none;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white">
-                <div style="color: #8B1538; font-size: 18px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;"
-                     class="arabic-word">
+                <div style="color: #8B1538; font-size: 18px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;margin-top:7px;"
+                     class="arabic-word" >
                     شركة سمير شرف العتيبي التجارية
                 </div>
             </td>

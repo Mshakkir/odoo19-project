@@ -360,7 +360,7 @@
                                 <td style="text-align:center; width:35px;">
                                     <t t-esc="l[0]"/>
                                 </td>
-                                <td style="text-align:left;">
+                                <td style="text-align:left;width:300px;">
                                     <t t-if="l[1].product_id.default_code">
                                         <span t-esc="l[1].product_id.default_code"/>
                                         -

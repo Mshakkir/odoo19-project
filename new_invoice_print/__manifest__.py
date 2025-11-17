@@ -1,5 +1,5 @@
 {
-    'name': 'Custom Invoice',
+    'name': 'New Invoice Print',
     'version': '19.0.1.0.0',
     'category': 'Accounting',
     'summary': 'Custom Saudi Invoice Template with ZATCA QR Code',

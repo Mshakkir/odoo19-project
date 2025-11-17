@@ -141,7 +141,7 @@
                 </t>
                 <t t-call="web.external_layout">
                     <!-- ===== INVOICE TITLE ===== -->
-                    <div style="padding-top:55px;">
+                    <div style="padding-top:50px;">
                         <div style="background-color:#d3d3d3; color:black; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
                             <t t-if="o.move_type in ('out_invoice','out_refund')">
                                 Tax Invoice /
@@ -345,14 +345,12 @@
                                 </th>
                                 <th>VAT
                                     <br/>
-                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">القيمة
-                                        الضريبة
+                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">القيمة الضريبة
                                     </span>
                                 </th>
                                 <th>Total Price
                                     <br/>
-                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">القيمة
-                                        الإجمالية
+                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">القيمة الإجمالية
                                     </span>
                                 </th>
                             </tr>

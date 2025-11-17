@@ -296,7 +296,7 @@
                                 </td>
 
                                 <td style="padding: 5px 8px; text-align: center;">
-                                    <t t-esc="line.product_id.delivery_period or '2-3 Weeks'"/>
+                                    <t t-esc="delivery_period or '-'"/>
                                 </td>
 
 

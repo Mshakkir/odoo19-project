@@ -138,14 +138,13 @@
                                                 <t t-esc="o.partner_id.vat or 'N/A'"/>
                                             </td>
 
-                                            <!-- Right column: Shipping address -->
-                                            <td style="padding:6px 10px; vertical-align:top;">
-                                                <strong>
-                                                    <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                                        <span style="white-space:pre-line;" t-esc="o.shipping_to"/>
-                                                    </t>
-                                                </strong>
+                                                                                        <!-- Right column: Shipping To (only for out_invoice) -->
+                                            <td style="padding:4px 8px; font-weight:bold; width:50%;">
+                                                <t t-if="o.move_type in ('out_invoice','out_refund') and o.shipping_to">
+                                                    Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160; عنوان الشحن
+                                                </t>
                                             </td>
+
                                         </tr>
                                     </table>
                                     <!-- ===== INVOICE INFO ===== -->

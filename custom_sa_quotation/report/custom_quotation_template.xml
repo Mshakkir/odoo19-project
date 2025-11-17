@@ -84,8 +84,7 @@
         </tr>
     </table>
 
-    <!-- Red Line -->
-    <div style="width: 100%; height: 3px; background-color: #8B1538; margin: 0px 0px 10px 0px;"></div>
+
 
     <!-- Details and Logo Row -->
     <table style="width: 100%; border-collapse: collapse;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white">
@@ -99,10 +98,10 @@
             </td>
 
             <!-- Center Column: Company Logo -->
-            <td style="width: 10%; text-align: center; vertical-align: middle; padding: 0px 10px; border:none;">
+            <td style="width: 34%; text-align: center; vertical-align: middle; padding: 0px 10px; border:none;">
                 <t t-if="o.company_id.logo">
                     <img t-att-src="image_data_uri(o.company_id.logo)"
-                         style="max-height: 180px; max-width: 100%; object-fit: contain; display: block; margin: 0 auto;"/>
+                         style="max-height: 140px; max-width: 100%; object-fit: contain; display: block; margin: 0 auto;"/>
                 </t>
             </td>
 
@@ -115,6 +114,7 @@
             </td>
         </tr>
     </table>
+    <div style="width: 100%; height: 3px; background-color: #8B1538; margin: 0px 0px 10px 0px;"></div>
 
 </div>
                     </div>

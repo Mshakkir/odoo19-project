@@ -308,47 +308,47 @@
        style="border-collapse:collapse; font-size:13px; text-align:center;">
     <thead style="background-color:#d9d9d9; color:#080808; font-size:14px;">
         <tr>
-            <th style="padding: 12px 8px;">S.N
+            <th>S.N
                 <br/>
                 <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">م</span>
             </th>
-            <th style="padding: 12px 8px;">Item / Description
+            <th >Item / Description
                 <br/>
                 <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">الصنف /
                     الوصف
                 </span>
             </th>
-            <th style="padding: 12px 8px;">QTY
+            <th>QTY
                 <br/>
                 <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">الكمية
                 </span>
             </th>
-            <th style="padding: 12px 8px;">Unit
+            <th>Unit
                 <br/>
                 <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">الوحدة
                 </span>
             </th>
-            <th style="padding: 12px 8px;">S.Rate
+            <th>S.Rate
                 <br/>
                 <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">سعر الوحدة
                 </span>
             </th>
-            <th style="padding: 12px 8px;">Amount
+            <th>Amount
                 <br/>
                 <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">المبلغ
                 </span>
             </th>
-            <th style="padding: 12px 8px;">VAT%
+            <th>VAT%
                 <br/>
                 <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">الضريبة
                 </span>
             </th>
-            <th style="padding: 12px 8px;">VAT
+            <th>VAT
                 <br/>
                 <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">القيمة الضريبة
                 </span>
             </th>
-            <th style="padding: 12px 8px;">Total Price
+            <th>Total Price
                 <br/>
                 <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">القيمة الإجمالية
                 </span>

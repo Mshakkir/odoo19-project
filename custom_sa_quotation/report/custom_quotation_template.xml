@@ -64,7 +64,7 @@
                         <!--                            </table>-->
 
 <div class="header"
-     style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;height:300px;">
+     style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;height:100px;">
 
     <!-- Company Names in One Row -->
     <table style="width: 100%; border-collapse: collapse;border:none; margin-bottom:0px;">

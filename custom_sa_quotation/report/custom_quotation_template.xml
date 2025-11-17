@@ -89,7 +89,7 @@
         <tr>
             <!-- Left Column: English Info -->
             <td style="width: 40%; text-align: left; font-size: 16px; color: #000; vertical-align: middle; padding: -5px 0px; border:2px solid green;">
-                <div style="line-height: 1.7; font-weight: 600; margin-top: -5px;">
+                <div style="line-height: 1.7; font-weight: 600; margin-top: 0px;padding-top:1px;">
                     C.R. 4030216154
                     <br/>
                     VAT Regd: 311299944700003

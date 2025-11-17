@@ -302,7 +302,7 @@
                                 </td>
 
                                 <td style="padding: 5px 8px; text-align: center;">
-                                    <t t-esc="line.delivery_period or '-'"/>
+                                    <t t-esc="o.delivery_period or '2-3 Weeks'"/>
                                 </td>
 
 
@@ -324,7 +324,7 @@
                                 </td>
 
                                 <!-- VAT Amount - FIXED -->
-                                <td style="padding: 5px 8px; text-align:center;">
+                                <td style="padding: 5px 8px; text-align:right;">
                                     <span t-esc="'%.2f' % line.price_tax"/>
                                 </td>
 

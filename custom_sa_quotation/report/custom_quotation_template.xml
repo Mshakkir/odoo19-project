@@ -69,12 +69,12 @@
     <!-- Company Names in One Row -->
     <table style="width: 100%; border-collapse: collapse;border:2px solid green; margin-bottom:0px;">
         <tr>
-            <td style="width: 50%; padding: 15px 20px 0px 0px; text-align: left; vertical-align: middle; border:2px solid green;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white">
+            <td style="width: 50%; padding: 5px 20px 0px 0px; text-align: left; vertical-align: middle; border:2px solid green;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white">
                 <div style="color: #8B1538; font-size: 17px; font-weight: bold; text-transform: uppercase;">
                     SAMEER SHARAF AL OTAIBI TRADING COMPANY
                 </div>
             </td>
-            <td style="width: 50%; padding: 15px 0px 0px 20px; text-align: right; vertical-align: middle; border:2px solid green;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white">
+            <td style="width: 50%; padding: 5px 0px 0px 20px; text-align: right; vertical-align: middle; border:2px solid green;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white">
                 <div style="color: #8B1538; font-size: 18px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif; margin-bottom: 0px;"
                      class="arabic-word">
                     شركة سمير شرف العتيبي التجارية
@@ -88,7 +88,7 @@
     <table style="width: 100%; border-collapse: collapse;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white; margin-top:0px;">
         <tr>
             <!-- Left Column: English Info -->
-            <td style="width: 40%; text-align: left; font-size: 16px; color: #000; vertical-align: middle; padding: 0px 0px; border:2px solid green;">
+            <td style="width: 40%; text-align: left; font-size: 16px; color: #000; vertical-align: middle; padding: -5px 0px; border:2px solid green;">
                 <div style="line-height: 1.7; font-weight: 600; margin-top: 0px;">
                     C.R. 4030216154
                     <br/>

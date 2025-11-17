@@ -495,61 +495,56 @@
                                 </t>
                             </td>
                             <!-- Right: Totals -->
-                            <td style="width: 40%; border:white;">
-                                <table style="width:100%; border:1px solid #000; border-collapse:collapse;">
-                                    <tr style="padding:4px;">
-                                        <td style="padding-left:5px;">Subtotal</td>
-                                        <td style="text-align:right;">
-                                            <span t-field="o.amount_untaxed"/>
-                                            SAR
-                                        </td>
-                                    </tr>
-                                    <tr style="padding:4px;">
-                                        <td style="padding-left:5px;">Discount</td>
-                                        <td style="text-align:right;">
-                                           -
-                                            SAR
-                                        </td>
-                                    </tr>
-                                    <tr style="padding:4px;">
-                                        <td style="padding-left:5px;">Freight</td>
-                                        <td style="text-align:right;">
-                                            -
-                                            SAR
-                                        </td>
-                                    </tr>
-                                    <tr style="padding:4px;">
-                                        <td>
-                                            <strong style="padding-left:5px;">Gross Total</strong>
-                                        </td>
-                                        <td style="text-align:right;">
-                                            <t t-set="gross_total"
-                                               t-value="o.amount_untaxed - (o.discount_amount or 0.0) + (o.freight_amount or 0.0)"/>
-                                            <t t-esc="gross_total"/>
-                                            SAR
-                                        </td>
-                                    </tr>
-                                    <tr style="padding:4px;">
-                                        <td style="padding-left:5px;">VAT (15%)</td>
-                                        <td style="text-align:right;">
-                                            <t t-set="vat_amount" t-value="gross_total * 0.15"/>
-                                            <t t-esc="vat_amount"/>
-                                            SAR
-                                        </td>
-                                    </tr>
-                                    <tr style="background-color:#D3D3D3;padding:6px;">
-                                        <td>
-                                            <strong style="padding-left:5px;">Net Total</strong>
-                                        </td>
-                                        <td style="text-align:right;">
-                                            <strong>
-                                                <t t-esc="gross_total + vat_amount"/>
-                                                SAR
-                                            </strong>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
+<td style="width: 40%; border:white;">
+    <table style="width:100%; border:1px solid #000; border-collapse:collapse; font-size:13px;">
+
+        <!-- Subtotal -->
+        <tr>
+            <td style="padding:5px;">Subtotal</td>
+            <td style="text-align:right; padding:5px;">
+                <span t-field="o.amount_untaxed"/> SAR
+            </td>
+        </tr>
+
+        <!-- Discount (Static or change if needed) -->
+        <tr>
+            <td style="padding:5px;">Discount</td>
+            <td style="text-align:right; padding:5px;">- SAR</td>
+        </tr>
+
+        <!-- Freight (Static or update if needed) -->
+        <tr>
+            <td style="padding:5px;">Freight</td>
+            <td style="text-align:right; padding:5px;">- SAR</td>
+        </tr>
+
+        <!-- Gross Total (same as Subtotal unless discount/freight added) -->
+        <tr>
+            <td style="padding:5px;"><strong>Gross Total</strong></td>
+            <td style="text-align:right; padding:5px;">
+                <strong><span t-field="o.amount_untaxed"/> SAR</strong>
+            </td>
+        </tr>
+
+        <!-- VAT Section -->
+        <tr>
+            <td style="padding:5px;">VAT (15%)</td>
+            <td style="text-align:right; padding:5px;">
+                <span t-field="o.amount_tax"/> SAR
+            </td>
+        </tr>
+
+        <!-- Net Total -->
+        <tr style="background-color:#D3D3D3;">
+            <td style="padding:6px;"><strong>Net Total</strong></td>
+            <td style="text-align:right; padding:6px;">
+                <strong><span t-field="o.amount_total"/> SAR</strong>
+            </td>
+        </tr>
+
+    </table>
+</td>
+
                         </tr>
                     </table>
 

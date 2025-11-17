@@ -98,7 +98,7 @@
 
                                             <!-- Right column: Shipping To (only for out_invoice) -->
                                             <td style="padding:4px 8px; font-weight:bold; width:50%;">
-                                                <t t-if="o.move_type in ('out_invoice','out_refund') and o.shipping_to">
+                                                <t t-if="o.move_type in ('out_invoice','out_refund')">
                                                     Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160; عنوان الشحن
                                                 </t>
                                             </td>

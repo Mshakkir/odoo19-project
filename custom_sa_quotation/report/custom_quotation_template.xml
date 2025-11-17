@@ -64,20 +64,19 @@
 <!--                            </table>-->
 
 
-<!--                        </div>-->
 <div class="header"
      style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
 
     <!-- Company Names in One Row -->
     <table style="width: 100%; border-collapse: collapse;border:none; margin-bottom: 0px;">
         <tr>
-            <td style="width: 50%; padding: 5px 20px 5px 0px; text-align: left; vertical-align: middle; border:none;">
-                <div style="color: #8B1538; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+            <td style="width: 50%; padding: 8px 20px 8px 0px; text-align: left; vertical-align: middle; border:none;">
+                <div style="color: #8B1538; font-size: 18px; font-weight: bold; text-transform: uppercase;">
                     SAMEER SHARAF AL OTAIBI TRADING COMPANY
                 </div>
             </td>
-            <td style="width: 50%; padding: 5px 0px 5px 20px; text-align: right; vertical-align: middle; border:none;">
-                <div style="color: #8B1538; font-size: 16px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;"
+            <td style="width: 50%; padding: 8px 0px 8px 20px; text-align: right; vertical-align: middle; border:none;">
+                <div style="color: #8B1538; font-size: 18px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;"
                      class="arabic-word">
                     شركة سمير شرف العتيبي التجارية
                 </div>
@@ -86,32 +85,38 @@
     </table>
 
     <!-- Red Line -->
-    <div style="width: 100%; height: 2px; background-color: #8B1538; margin: 0px 0px 8px 0px;"></div>
+    <div style="width: 100%; height: 3px; background-color: #8B1538; margin: 0px 0px 10px 0px;"></div>
 
     <!-- Details and Logo Row -->
     <table style="width: 100%; border-collapse: collapse;">
         <tr>
             <!-- Left Column: English Info -->
-            <td style="width: 40%; text-align: left; font-size: 14px; color: #333; vertical-align: top; padding: 0px; border:none;">
-                <div style="line-height: 1.6; font-weight: 500;">
+            <td style="width: 45%; text-align: left; font-size: 13px; color: #000; vertical-align: top; padding: 5px 0px; border:none;">
+                <div style="line-height: 1.7; font-weight: 600;">
                     C.R. 4030216154<br/>
-                    VAT Regd: 311299944700003
+                    VAT Regd: 311299944700003<br/>
+                    Al Fayha  7655 - Jeddah 22244-3108<br/>
+                    Saudi Arabia - Mobile : 0540831118<br/>
+                    Email: ssaoe.jeddah@gmail.com
                 </div>
             </td>
 
             <!-- Center Column: Company Logo -->
-            <td style="width: 20%; text-align: center; vertical-align: top; padding: 0px; border:none;">
+            <td style="width: 10%; text-align: center; vertical-align: middle; padding: 0px 10px; border:none;">
                 <t t-if="o.company_id.logo">
                     <img t-att-src="image_data_uri(o.company_id.logo)"
-                         style="max-height: 100px; max-width: 100%; object-fit: contain; display: block; margin: 0 auto;"/>
+                         style="max-height: 90px; max-width: 100%; object-fit: contain; display: block; margin: 0 auto;"/>
                 </t>
             </td>
 
             <!-- Right Column: Arabic Info -->
-            <td style="width: 40%; text-align: right; font-size: 14px; color: #333; vertical-align: top; padding: 0px; border:none;">
-                <div style="line-height: 1.6; font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+            <td style="width: 45%; text-align: right; font-size: 13px; color: #000; vertical-align: top; padding: 5px 0px; border:none;">
+                <div style="line-height: 1.7; font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
                     س.ت: ٤٠٣٠٢١٦١٥٤<br/>
-                    الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
+                    رقم ضريبة القيمة المضافة: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣<br/>
+                    الفيـحـاء  ٧٦٥٥ - جـدة ٢٢٢٤٤-٣١٠٨<br/>
+                    المملكة العربية السعودية - جـوال: ٠٥٤٠٨٣١١١٨<br/>
+                    Email: ssaoe.jeddah@gmail.com
                 </div>
             </td>
         </tr>

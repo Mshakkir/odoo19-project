@@ -89,7 +89,7 @@
     <table style="width: 100%; border-collapse: collapse;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white">
         <tr>
             <!-- Left Column: English Info -->
-            <td style="width: 45%; text-align: left; font-size: 16px; color: #000; vertical-align: top; padding: 5px 0px; border:none;">
+            <td style="width: 40%; text-align: left; font-size: 16px; color: #000; vertical-align: middle; padding: 5px 0px; border:none;">
                 <div style="line-height: 1.7; font-weight: 600;">
                     C.R. 4030216154
                     <br/>
@@ -99,7 +99,7 @@
             </td>
 
             <!-- Center Column: Company Logo -->
-         <td style="width: 20%; text-align: center; vertical-align: middle;
+            <td style="width: 20%; text-align: center; vertical-align: middle;
 padding: 0px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 0px solid white;border-left: 0px solid white;">
                 <t t-if="o.company_id.logo">
                     <img t-att-src="image_data_uri(o.company_id.logo)"
@@ -108,7 +108,7 @@ padding: 0px 10px; border-top: 1px solid white;border-right: 0px solid white; bo
             </td>
 
             <!-- Right Column: Arabic Info -->
-            <td style="width: 45%; text-align: right; font-size: 18px; color: #000; vertical-align: top; padding: 5px 0px; border:none;">
+            <td style="width: 40%; text-align: right; font-size: 18px; color: #000; vertical-align: middle; padding: 5px 0px; border:none;">
                 <div style="line-height: 1.7; font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
                     س.ت: ٤٠٣٠٢١٦١٥٤
                     <br/>

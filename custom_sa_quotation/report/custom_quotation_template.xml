@@ -64,63 +64,63 @@
                         <!--                            </table>-->
 
 
-                        <div class="header"
-                             style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
+<div class="header"
+     style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
 
-                            <!-- Company Names in One Row -->
-                            <table style="width: 100%; border-collapse: collapse;border:none; margin-bottom: 0px;">
-                                <tr>
-                                    <td style="width: 50%; padding: 8px 20px 8px 0px; text-align: left; vertical-align: middle; border:none;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white">
-                                        <div style="color: #8B1538; font-size: 18px; font-weight: bold; text-transform: uppercase;">
-                                            SAMEER SHARAF AL OTAIBI TRADING COMPANY
-                                        </div>
-                                    </td>
-                                    <td style="width: 50%; padding: 8px 0px 8px 20px; text-align: right; vertical-align: middle; border:none;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white">
-                                        <div style="color: #8B1538; font-size: 18px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;"
-                                             class="arabic-word">
-                                            شركة سمير شرف العتيبي التجارية
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
+    <!-- Company Names in One Row -->
+    <table style="width: 100%; border-collapse: collapse;border:none; margin-bottom: 0px;">
+        <tr>
+            <td style="width: 50%; padding: 8px 20px 8px 0px; text-align: left; vertical-align: middle; border:none;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white">
+                <div style="color: #8B1538; font-size: 18px; font-weight: bold; text-transform: uppercase;">
+                    SAMEER SHARAF AL OTAIBI TRADING COMPANY
+                </div>
+            </td>
+            <td style="width: 50%; padding: 8px 0px 8px 20px; text-align: right; vertical-align: middle; border:none;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white">
+                <div style="color: #8B1538; font-size: 18px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;"
+                     class="arabic-word">
+                    شركة سمير شرف العتيبي التجارية
+                </div>
+            </td>
+        </tr>
+    </table>
 
 
-                            <!-- Details and Logo Row -->
-                            <table style="width: 100%; border-collapse: collapse;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white">
-                                <tr>
-                                    <!-- Left Column: English Info -->
-                                    <td style="width: 45%; text-align: left; font-size: 16px; color: #000; vertical-align: top; padding: 5px 0px; border:none;">
-                                        <div style="line-height: 1.7; font-weight: 600;">
-                                            C.R. 4030216154
-                                            <br/>
-                                            VAT Regd: 311299944700003
-                                            <br/>
-                                        </div>
-                                    </td>
+    <!-- Details and Logo Row -->
+    <table style="width: 100%; border-collapse: collapse;border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white">
+        <tr>
+            <!-- Left Column: English Info -->
+            <td style="width: 45%; text-align: left; font-size: 16px; color: #000; vertical-align: top; padding: 5px 0px; border:none;">
+                <div style="line-height: 1.7; font-weight: 600;">
+                    C.R. 4030216154
+                    <br/>
+                    VAT Regd: 311299944700003
+                    <br/>
+                </div>
+            </td>
 
-                                    <!-- Center Column: Company Logo -->
-                                     <td style="width: 34%; text-align: center; vertical-align: top;
+            <!-- Center Column: Company Logo -->
+            <td style="width: 10%; text-align: center; vertical-align: middle;
 padding: 0px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 0px solid white;border-left: 0px solid white;">
-                                        <t t-if="o.company_id.logo">
-                                            <img t-att-src="image_data_uri(o.company_id.logo)"
-                                                 style="max-height: 130px; max-width: 100%; object-fit: contain; display: block; margin: 0 auto;padding-top:8px;"/>
-                                        </t>
-                                    </td>
+                <t t-if="o.company_id.logo">
+                    <img t-att-src="image_data_uri(o.company_id.logo)"
+                         style="max-height: 80px; max-width: 100%; object-fit: contain; display: block; margin: 0 auto;padding-top:0px;"/>
+                </t>
+            </td>
 
-                                    <!-- Right Column: Arabic Info -->
-                                    <td style="width: 45%; text-align: right; font-size: 18px; color: #000; vertical-align: top; padding: 5px 0px; border:none;">
-                                        <div style="line-height: 1.7; font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
-                                            س.ت: ٤٠٣٠٢١٦١٥٤
-                                            <br/>
-                                            رقم ضريبة القيمة المضافة: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
-                                            <br/>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                            <div style="width: 100%; height: 3px; background-color: #8B1538; margin: 0px 0px 10px 0px;"></div>
+            <!-- Right Column: Arabic Info -->
+            <td style="width: 45%; text-align: right; font-size: 18px; color: #000; vertical-align: top; padding: 5px 0px; border:none;">
+                <div style="line-height: 1.7; font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                    س.ت: ٤٠٣٠٢١٦١٥٤
+                    <br/>
+                    رقم ضريبة القيمة المضافة: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
+                    <br/>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div style="width: 100%; height: 3px; background-color: #8B1538; margin: 0px 0px 10px 0px;"></div>
 
-                        </div>
+</div>
                     </div>
                 </t>
 

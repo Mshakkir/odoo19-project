@@ -402,7 +402,7 @@
 
                     <!-- =====total section===== -->
                     <table width="100%"
-                           style="margin-top:200px; font-size:13px; border:1px solid #ccc; border-collapse:collapse;">
+                           style="font-size:13px; border:1px solid #ccc; border-collapse:collapse;">
                         <tr>
                             <!-- Delivered & Received (only for sales invoice) -->
                             <t t-if="o.move_type in ('out_invoice','out_refund')">

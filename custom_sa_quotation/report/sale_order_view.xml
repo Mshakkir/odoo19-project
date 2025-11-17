@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
 
             <!-- Add inside Other Info > Delivery section -->
-            <xpath expr="//field[@name='payment_id']"  position="after">
+            <xpath expr="//field[@name='payment_term_id']"  position="after">
                 <field name="delivery_period"/>
             </xpath>
 

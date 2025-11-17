@@ -227,60 +227,66 @@
                            style="border-collapse: collapse; font-size: 11px; margin-top: 10px; border-color: #000; line-height: 1.2;"
                            cellpadding="0" cellspacing="0">
 
-                        <thead style="background-color: #9e9d9d;">
+                        <thead style="background-color: #9e9d9d;padding:6px 10px;">
                             <tr>
-                                <th style="width: 3%; text-align: center; padding: 3px 4px; font-size: 11px;">
-                                    SN
+                                <th style="width: 2%; text-align: center; padding: 5px 8px;">SN
                                     <br/>
-                                    <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl; font-size: 10px;">م</span>
+                                    <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">م</span>
                                 </th>
 
-                                <th style="width: 30%; text-align: center; padding: 3px 4px; font-size: 11px;">
+                                <th style="width: 15%; text-align: center; padding: 5px 8px;">
                                     Item Description
                                     <br/>
-                                    <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl; font-size: 10px;">المنتج الوصف</span>
+                                    <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">المنتج
+                                        الوصف
+                                    </span>
                                 </th>
 
-                                <th style="width: 8%; text-align: center; padding: 3px 4px; font-size: 11px;">
+                                <th style="width: 3%; text-align: center; padding: 5px 8px;">
                                     Delivery Time
                                     <br/>
-                                    <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl; font-size: 10px;">مدة</span>
+                                    <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">مدة</span>
                                 </th>
 
-                                <th style="width: 6%; text-align: center; padding: 3px 4px; font-size: 11px;">
+                                <th style="width: 3%; text-align: center; padding: 5px 8px;">
                                     QTY
                                     <br/>
-                                    <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl; font-size: 10px;">الكمية</span>
+                                    <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">الكمية</span>
                                 </th>
 
-                                <th style="width: 6%; text-align: center; padding: 3px 4px; font-size: 11px;">
+                                <th style="width: 3%; text-align: center; padding: 5px 8px;">
                                     U/M
                                     <br/>
-                                    <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl; font-size: 10px;">وحدة</span>
+                                    <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">وحدة</span>
                                 </th>
 
-                                <th style="width: 10%; text-align: center; padding: 3px 4px; font-size: 11px;">
+                                <th style="width: 4%; text-align: center; padding: 5px 8px;">
                                     Unit Price
                                     <br/>
-                                    <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl; font-size: 10px;">سعر الوحدة</span>
+                                    <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">سعر الوحدة
+                                    </span>
                                 </th>
 
-                                <th style="width: 7%; text-align: center; padding: 3px 4px; font-size: 11px;">
+                                <th style="width: 3%; text-align: center; padding: 5px 8px;">
                                     VAT %
                                     <br/>
-                                    <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl; font-size: 10px;">ضريبة %</span>
+                                    <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">ضريبة %
+                                    </span>
                                 </th>
 
-                                <th style="width: 12%; text-align: center; padding: 3px 4px; font-size: 11px;">
+                                <th style="width: 5%; text-align: center; padding: 5px 8px;">
                                     VAT Amount
                                     <br/>
-                                    <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl; font-size: 10px;">مبلغ الضريبة</span>
+                                    <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;font-size:5px;">مبلغ
+                                        الضريبة
+                                    </span>
                                 </th>
 
-                                <th style="width: 12%; text-align: center; padding: 3px 4px; font-size: 11px;">
+                                <th style="width: 4%; text-align: center; padding: 5px 8px;">
                                     Line Total
                                     <br/>
-                                    <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl; font-size: 10px;">مجموع الخط</span>
+                                    <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">مجموع الخط
+                                    </span>
                                 </th>
                             </tr>
                         </thead>
@@ -296,7 +302,7 @@
                                 </td>
 
                                 <td style="padding: 5px 8px; text-align: center;">
-                                    <t t-esc="delivery_period or '-'"/>
+                                    <t t-esc="o.delivery_period or '2-3 Weeks'"/>
                                 </td>
 
 

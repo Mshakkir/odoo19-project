@@ -456,7 +456,7 @@
 
                                 <!-- VAT Percentage -->
                                 <td style="padding: 5px 8px; text-align:center;">
-                                    <t t-esc="line.tax_id.amount"/>%
+                                    <t t-esc="line.tax_ids and line.tax_ids[0].amount or 0"/>%
                                 </td>
 
                                 <!-- VAT Amount -->

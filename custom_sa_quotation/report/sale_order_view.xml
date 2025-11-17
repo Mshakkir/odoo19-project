@@ -10,17 +10,9 @@
             <xpath expr="//field[@name='payment_term_id']" position="after">
                 <field name="delivery_period"/>
             </xpath>
-        </field>
-    </record>
 
-    <!-- Add delivery_period field to Sale Order Lines (in the tree view inside order form) -->
-    <record id="view_order_line_tree_delivery_period" model="ir.ui.view">
-        <field name="name">sale.order.line.tree.delivery.period</field>
-        <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_form"/>
-        <field name="arch" type="xml">
-            <!-- Add delivery_period column in order lines -->
-            <xpath expr="//field[@name='order_line']/tree/field[@name='product_uom']" position="after">
+            <!-- Add delivery_period column in order lines tree -->
+            <xpath expr="//field[@name='order_line']//field[@name='product_uom']" position="after">
                 <field name="delivery_period" optional="show"/>
             </xpath>
         </field>

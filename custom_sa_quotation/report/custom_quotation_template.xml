@@ -227,7 +227,7 @@
                             <t t-if="o.partner_shipping_id and o.partner_shipping_id.id != o.partner_id.id">
                                 <td style="padding:6px 10px; vertical-align:top; width:33%;">
                                     <t>
-                                        Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160; عنوان الشحن
+                                        <strong> Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160; عنوان الشحن</strong><br/>
                                     </t>
                                     <strong>
                                         <t t-esc="o.partner_shipping_id.name"/>

@@ -786,7 +786,7 @@
 
                             <!-- ===== ITEMS TABLE WITH REPEATING HEADER ===== -->
                             <table width="100%" border="1" style="border-collapse:collapse; font-size:13px; text-align:center;">
-                                <thead style="background-color:#d9d9d9; color:#080808; font-size:14px; display: table-header-group;">
+                                <thead style="background-color:#d9d9d9; color:#080808; font-size:14px; display:">
                                     <tr>
                                         <th style="padding:8px;">S.N<br/><span style="font-family:'Tajawal';font-weight:550;font-size:12px;">م</span></th>
                                         <th style="padding:8px;">Item / Description<br/><span style="font-family:'Tajawal';font-weight:550;font-size:12px;">الصنف / الوصف</span></th>

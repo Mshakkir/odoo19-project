@@ -66,7 +66,7 @@
                         </div>
                     </div>
                     <div class="footer"
-                         style=" font-size:13px; background:#fff;width:848px;margin-top:10px;padding-top:10px;">
+                         style=" font-size:13px; background:#fff;width:852px;margin-top:10px;padding-top:10px;">
 
 
                         <!-- ===== Bank Details ===== -->
@@ -128,7 +128,7 @@
                                     Email: ssaoe.dammam@gmail.com
                                 </td>
 
-                                <td style="width:33%; padding:4px;border-right: 1px solid black;">
+                                <td style="width:33%; padding:4px;border-left: 1px solid black;">
                                     <strong>Dammam</strong>
                                     Sameer Sharaf Al Otaibi Trading Company
                                     8515, Qutaibah bin Muslim ST,
@@ -142,11 +142,6 @@
                             </tr>
                         </table>
 
-                        <!-- ===== Footer Logos ===== -->
-                        <div style="text-align:center; margin-top:8px;">
-                            <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/footer_companies_names.jpg'"
-                                 style="max-width:100%; height:auto;"/>
-                        </div>
                     </div>
                 </t>
                 <t t-call="web.external_layout">

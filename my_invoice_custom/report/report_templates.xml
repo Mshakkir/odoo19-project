@@ -530,8 +530,6 @@
 
 
 
-
-
 <odoo>
     <template id="custom_invoice_report" inherit_id="l10n_sa.l10n_sa_report_invoice_document">
 
@@ -539,35 +537,35 @@
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
             <t t-foreach="docs" t-as="o">
                 <div class="page">
-                    <style>
-                        /* Page break control */
-                        table.invoice-items tr {
-                            page-break-inside: avoid !important;
-                            page-break-after: auto !important;
-                        }
-
-                        table.invoice-items tbody tr {
-                            page-break-inside: avoid !important;
-                        }
-
-                        .totals-section {
-                            page-break-inside: avoid !important;
-                        }
-
-                        .header {
-                            page-break-after: avoid !important;
-                        }
-
-                        @media print {
-                            table.invoice-items tr {
-                                page-break-inside: avoid;
-                            }
-
-                            .totals-section {
-                                page-break-inside: avoid;
-                            }
-                        }
-                    </style>
+<!--                    <style>-->
+<!--                        /* Page break control */-->
+<!--                        table.invoice-items tr {-->
+<!--                            page-break-inside: avoid !important;-->
+<!--                            page-break-after: auto !important;-->
+<!--                        }-->
+<!--                        -->
+<!--                        table.invoice-items tbody tr {-->
+<!--                            page-break-inside: avoid !important;-->
+<!--                        }-->
+<!--                        -->
+<!--                        .totals-section {-->
+<!--                            page-break-inside: avoid !important;-->
+<!--                        }-->
+<!--                        -->
+<!--                        .header {-->
+<!--                            page-break-after: avoid !important;-->
+<!--                        }-->
+<!--                        -->
+<!--                        @media print {-->
+<!--                            table.invoice-items tr {-->
+<!--                                page-break-inside: avoid;-->
+<!--                            }-->
+<!--                            -->
+<!--                            .totals-section {-->
+<!--                                page-break-inside: avoid;-->
+<!--                            }-->
+<!--                        }-->
+<!--                    </style>-->
 
                     <!-- ===== CUSTOM HEADER ===== -->
                     <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
@@ -632,17 +630,20 @@
                     <div style="border:1px solid #999; margin-bottom:10px; font-size:12px;">
                         <table style="width:100%; border-collapse:collapse;">
                             <tr style="background-color:#d3d3d3;">
-                                <td style="padding:4px 8px; font-weight:bold; width:50%; border-right:1px solid #999;">
+                                <td style="padding:4px 8px; font-weight:bold; width:50%; border-right:1px solid #999; text-align:left;">
                                     <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                        Sold To &#160;&#160;&#160;&#160;&#160;&#160;&#160; اسم العميل
+                                        <span style="display:inline-block; float:left;">Sold To</span>
+                                        <span style="display:inline-block; float:right; font-family:'Tajawal',sans-serif; direction:rtl;">اسم العميل</span>
                                     </t>
                                     <t t-elif="o.move_type in ('in_invoice','in_refund')">
-                                        Supplier &#160;&#160;&#160;&#160;&#160;&#160;&#160;المورد
+                                        <span style="display:inline-block; float:left;">Supplier</span>
+                                        <span style="display:inline-block; float:right; font-family:'Tajawal',sans-serif; direction:rtl;">المورد</span>
                                     </t>
                                 </td>
-                                <td style="padding:4px 8px; font-weight:bold; width:50%;">
+                                <td style="padding:4px 8px; font-weight:bold; width:50%; text-align:left;">
                                     <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                        Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160; عنوان الشحن
+                                        <span style="display:inline-block; float:left;">Shipping To</span>
+                                        <span style="display:inline-block; float:right; font-family:'Tajawal',sans-serif; direction:rtl;">عنوان الشحن</span>
                                     </t>
                                 </td>
                             </tr>
@@ -678,13 +679,13 @@
                         <!-- ===== INVOICE INFO ===== -->
                         <table style="width:100%; border-top:1px solid #999; background-color:white; font-weight:bold;">
                             <tr>
-                                <td style="padding:4px 8px;">
-                                    Inv #: <span t-esc="o.name"/> &#160;&#160;
-                                    <span style="font-family:'Tajawal';font-weight:900;">رقم الفاتورة</span>
+                                <td style="padding:4px 8px; text-align:left;">
+                                    <span style="display:inline-block; float:left;">Inv #: <span t-esc="o.name"/></span>
+                                    <span style="display:inline-block; float:right; font-family:'Tajawal',sans-serif; direction:rtl;">رقم الفاتورة</span>
                                 </td>
-                                <td style="padding:4px 8px;">
-                                    Date: <span t-esc="o.invoice_date.strftime('%d/%b/%Y') if o.invoice_date else ''"/> &#160;&#160;
-                                    <span style="font-family:'Tajawal';font-weight:900;">التاريخ</span>
+                                <td style="padding:4px 8px; text-align:left;">
+                                    <span style="display:inline-block; float:left;">Date: <span t-esc="o.invoice_date.strftime('%d/%b/%Y') if o.invoice_date else ''"/></span>
+                                    <span style="display:inline-block; float:right; font-family:'Tajawal',sans-serif; direction:rtl;">التاريخ</span>
                                 </td>
                                 <td style="padding:4px 8px;">
                                     <strong>AWB No:</strong>
@@ -891,4 +892,3 @@
         </xpath>
     </template>
 </odoo>
-

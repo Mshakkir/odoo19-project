@@ -62,7 +62,10 @@
 
                         </div>
                     </div>
-                     <t t-if="o_last">
+
+
+                </t>
+                 <t t-if="o_last">
                             <div style="font-size:13px; background:#fff; width:848px; margin-top:50px; padding-top:10px; page-break-inside: avoid;">
 
                                 <!-- ===== Bank Details ===== -->
@@ -145,8 +148,6 @@
                             </div>
                         </t>
 
-
-                </t>
 
                 <t t-foreach="docs" t-as="o">
                     <t t-call="web.external_layout">

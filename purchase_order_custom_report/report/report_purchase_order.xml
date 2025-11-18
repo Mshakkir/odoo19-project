@@ -317,28 +317,7 @@
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="o">
 
-                    <head>
-                        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-                        <style type="text/css">
-                            @font-face {
-                                font-family: 'Tajawal';
-                                src: url('/custom_sa_quotation/static/src/fonts/Tajawal-Black.ttf') format('truetype');
-                                font-weight: 900;
-                                font-style: normal;
-                            }
-                            body, * {
-                                font-family: 'Tajawal', sans-serif !important;
-                            }
-                            .arabic-word {
-                                font-family: 'Tajawal', sans-serif;
-                                font-weight: 900;
-                                direction: rtl;
-                            }
-                        </style>
-                    </head>
-
                     <!-- MAIN BORDER WRAPPER -->
-                    <div style="border: 3px solid black; padding: 15px; border-radius: 5px;">
 
                         <!-- HEADER SECTION -->
                         <div class="page">
@@ -396,7 +375,7 @@
                             </div>
 
                             <!-- TITLE BLOCK (Placed after header only) -->
-                            <div style="padding-top:35px;">
+                            <div style="padding-top:50px;">
                                 <div style="background-color:#ddd; color:black; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
                                     Purchase Order /
                                     <span class="arabic-word">أمر شراء</span>
@@ -551,7 +530,6 @@
                             </table>
 
                         </t> <!-- END external_layout -->
-                    </div> <!-- END main border -->
 
                 </t>
             </t>

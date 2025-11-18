@@ -350,12 +350,12 @@
                                         <span t-esc="o.payment_term_id.name"/>
                                         <br/>
                                     </p>
-                                </t>
-                                <t t-if="o.incoterm_location">
+
+
                                     <p>
                                         <strong>Incoterm Location:</strong>
-<!--                                        <span t-esc="o.incoterm_location.name"/>-->
-                                        <span t-esc="getattr(o.incoterm_location, 'name', o.incoterm_location)"/>
+                                        <span t-esc="o.incoterm_location"/>
+
 
                                         <br/>
                                     </p>

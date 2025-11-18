@@ -355,9 +355,7 @@
 
                         <!-- ===== FOOTER - Only show on last document ===== -->
                         <t t-if="o_last">
-                            <p style="page-break-after: always;"></p>
-                            <div style=" font-size:13px; background:#fff;width:848px;margin-top:100px;padding-top:10px;">
-
+                            <div style="font-size:13px; background:#fff; width:848px; margin-top:20px; padding-top:10px; page-break-inside: avoid;">
 
                                 <!-- ===== Bank Details ===== -->
                                 <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">

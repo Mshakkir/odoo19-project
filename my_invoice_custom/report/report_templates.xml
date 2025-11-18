@@ -165,92 +165,85 @@
                         <table style="width:100%; border-collapse:collapse;">
                             <tr style="background-color:#d3d3d3;">
                                 <!-- Left: Sold To / Supplier -->
-                                <td style="padding:4px 8px; font-weight:bold; width:50%; border-right:1px solid #999;">
-                                    <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                        Sold To &#160;&#160;&#160;&#160;&#160;&#160;&#160; اسم العميل
-                                    </t>
-                                    <t t-elif="o.move_type in ('in_invoice','in_refund')">
-                                        Supplier &#160;&#160;&#160;&#160;&#160;&#160;&#160; المورد
+                                <td style="padding:4px 8px; font-weight:bold; border-right:1px solid #999;">
+                                    <t t-attf-style="width:{{ '50%' if o.partner_shipping_id else '100%' }};">
+                                        <t t-if="o.move_type in ('out_invoice','out_refund')">
+                                            Sold To &#160;&#160;&#160;&#160;&#160;&#160;&#160; اسم العميل
+                                        </t>
+                                        <t t-elif="o.move_type in ('in_invoice','in_refund')">
+                                            Supplier &#160;&#160;&#160;&#160;&#160;&#160;&#160; المورد
+                                        </t>
                                     </t>
                                 </td>
-
-                                <!-- Shipping To header ALWAYS visible -->
-                                <td style="padding:4px 8px; font-weight:bold; width:50%;">
+                                <!-- Shipping To header - ONLY if shipping address exists -->
+                                <td t-if="o.partner_shipping_id" style="padding:4px 8px; font-weight:bold; width:50%;">
                                     <t t-if="o.move_type in ('out_invoice','out_refund')">
                                         Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160; عنوان الشحن
                                     </t>
                                 </td>
                             </tr>
-
                             <tr>
                                 <!-- Left: Customer Details -->
                                 <td style="padding:6px 10px; vertical-align:top; border-right:1px solid #999;">
-                                    <strong>
-                                        <t t-esc="o.partner_id.name"/>
-                                    </strong>
-                                    <br/>
-
-                                    <t t-if="o.partner_id.street">
-                                        <t t-esc="o.partner_id.street"/>
-                                        <br/>
-                                    </t>
-                                    <t t-if="o.partner_id.street2">
-                                        <t t-esc="o.partner_id.street2"/>
-                                        <br/>
-                                    </t>
-
-                                    <t t-if="o.partner_id.city or o.partner_id.state_id or o.partner_id.zip">
-                                        <t t-if="o.partner_id.city" t-esc="o.partner_id.city"/>
-                                        <t t-if="o.partner_id.state_id">,
-                                            <t t-esc="o.partner_id.state_id.name"/>
-                                        </t>
-                                        <t t-if="o.partner_id.zip">-
-                                            <t t-esc="o.partner_id.zip"/>
-                                        </t>
-                                        <br/>
-                                    </t>
-
-                                    <t t-if="o.partner_id.country_id">
-                                        <t t-esc="o.partner_id.country_id.name"/>
-                                        <br/>
-                                    </t>
-
-                                    <br/>
-                                    <strong>VAT NO :</strong>
-                                    <t t-esc="o.partner_id.vat or 'N/A'"/>
-                                </td>
-
-                                <!-- Right: Shipping Address Column (ONLY if shipping exists) -->
-                                <td style="padding:6px 10px; vertical-align:top; width:50%;">
-                                    <t t-if="o.partner_shipping_id">
+                                    <t t-attf-style="width:{{ '50%' if o.partner_shipping_id else '100%' }};">
                                         <strong>
-                                            <t t-esc="o.partner_shipping_id.name"/>
+                                            <t t-esc="o.partner_id.name"/>
                                         </strong>
                                         <br/>
-
-                                        <t t-if="o.partner_shipping_id.street">
-                                            <t t-esc="o.partner_shipping_id.street"/>
+                                        <t t-if="o.partner_id.street">
+                                            <t t-esc="o.partner_id.street"/>
                                             <br/>
                                         </t>
-                                        <t t-if="o.partner_shipping_id.street2">
-                                            <t t-esc="o.partner_shipping_id.street2"/>
+                                        <t t-if="o.partner_id.street2">
+                                            <t t-esc="o.partner_id.street2"/>
                                             <br/>
                                         </t>
-
-                                        <t t-if="o.partner_shipping_id.city or o.partner_shipping_id.state_id or o.partner_shipping_id.zip">
-                                            <t t-if="o.partner_shipping_id.city" t-esc="o.partner_shipping_id.city"/>
-                                            <t t-if="o.partner_shipping_id.state_id">,
-                                                <t t-esc="o.partner_shipping_id.state_id.name"/>
+                                        <t t-if="o.partner_id.city or o.partner_id.state_id or o.partner_id.zip">
+                                            <t t-if="o.partner_id.city" t-esc="o.partner_id.city"/>
+                                            <t t-if="o.partner_id.state_id">,
+                                                <t t-esc="o.partner_id.state_id.name"/>
                                             </t>
-                                            <t t-if="o.partner_shipping_id.zip">-
-                                                <t t-esc="o.partner_shipping_id.zip"/>
+                                            <t t-if="o.partner_id.zip">-
+                                                <t t-esc="o.partner_id.zip"/>
                                             </t>
                                             <br/>
                                         </t>
-
-                                        <t t-if="o.partner_shipping_id.country_id">
-                                            <t t-esc="o.partner_shipping_id.country_id.name"/>
+                                        <t t-if="o.partner_id.country_id">
+                                            <t t-esc="o.partner_id.country_id.name"/>
+                                            <br/>
                                         </t>
+                                        <br/>
+                                        <strong>VAT NO :</strong>
+                                        <t t-esc="o.partner_id.vat or 'N/A'"/>
+                                    </t>
+                                </td>
+                                <!-- Right: Shipping Address Column - ONLY if shipping address exists -->
+                                <td t-if="o.partner_shipping_id"
+                                    style="padding:6px 10px; vertical-align:top; width:50%;">
+                                    <strong>
+                                        <t t-esc="o.partner_shipping_id.name"/>
+                                    </strong>
+                                    <br/>
+                                    <t t-if="o.partner_shipping_id.street">
+                                        <t t-esc="o.partner_shipping_id.street"/>
+                                        <br/>
+                                    </t>
+                                    <t t-if="o.partner_shipping_id.street2">
+                                        <t t-esc="o.partner_shipping_id.street2"/>
+                                        <br/>
+                                    </t>
+                                    <t t-if="o.partner_shipping_id.city or o.partner_shipping_id.state_id or o.partner_shipping_id.zip">
+                                        <t t-if="o.partner_shipping_id.city" t-esc="o.partner_shipping_id.city"/>
+                                        <t t-if="o.partner_shipping_id.state_id">,
+                                            <t t-esc="o.partner_shipping_id.state_id.name"/>
+                                        </t>
+                                        <t t-if="o.partner_shipping_id.zip">-
+                                            <t t-esc="o.partner_shipping_id.zip"/>
+                                        </t>
+                                        <br/>
+                                    </t>
+                                    <t t-if="o.partner_shipping_id.country_id">
+                                        <t t-esc="o.partner_shipping_id.country_id.name"/>
                                     </t>
                                 </td>
                             </tr>

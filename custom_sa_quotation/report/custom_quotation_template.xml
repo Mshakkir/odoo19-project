@@ -66,7 +66,7 @@
 
                 </t>
 
-                <div  class="footer" style=" font-size:13px; background:#fff;width:700px;margin-left:2px;">
+                <div  class="footer" style=" font-size:13px; background:#fff;width:850px;margin-left:2px;">
 
 
                     <!-- ===== Bank Details ===== -->
@@ -152,7 +152,7 @@
                 <t t-call="web.external_layout">
 
                     <!-- ===== Dynamic Title Section ===== -->
-                    <div style="padding-top:2px;">
+                    <div style="padding-top:0px;">
                         <div style=" background-color:#d3d3d3; color:black; padding:8px ; text-align:center; margin-bottom:10px ; font-weight:bold; font-size:16px;">
                             <!-- Dynamic title based on state -->
                             <t t-if="o.state in ('draft', 'sent')">

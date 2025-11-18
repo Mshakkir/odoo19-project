@@ -152,7 +152,7 @@
                 <t t-call="web.external_layout">
 
                     <!-- ===== Dynamic Title Section ===== -->
-                    <div style="padding-top:15px;">
+                    <div style="padding-top:25px;">
                         <div style=" background-color:#d3d3d3; color:black; padding:8px ; text-align:center; margin-bottom:10px ; font-weight:bold; font-size:16px;">
                             <!-- Dynamic title based on state -->
                             <t t-if="o.state in ('draft', 'sent')">
@@ -274,7 +274,7 @@
                                     </span>
                                 </th>
 
-                                <th style="width: 5%; text-align: center; padding: 5px 8px;">
+                                <th style="width: 5%; text-align: center; padding: 3px 6px;">
                                     VAT Amount
                                     <br/>
                                     <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;font-size:5px;">مبلغ
@@ -314,7 +314,7 @@
                                     <span t-field="line.product_uom_id"/>
                                 </td>
 
-                                <td style="padding: 5px 8px; text-align:right;">
+                                <td style="padding: 5px 8px; text-align:center;">
                                     <span t-field="line.price_unit"/>
                                 </td>
 
@@ -324,12 +324,12 @@
                                 </td>
 
                                 <!-- VAT Amount - FIXED -->
-                                <td style="padding: 5px 8px; text-align:right;">
+                                <td style="padding: 3px 6px; text-align:center;">
                                     <span t-esc="'%.2f' % line.price_tax"/>
                                 </td>
 
                                 <!-- Subtotal -->
-                                <td style="padding: 5px 8px; text-align:right;">
+                                <td style="padding: 3px 6px; text-align:right;">
                                     <span t-field="line.price_subtotal"/>
                                 </td>
                             </tr>

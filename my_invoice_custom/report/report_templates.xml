@@ -676,16 +676,12 @@
                     </table>
 
                     <!-- ===== Footer Logos ===== -->
-                    <div style="text-align:center; margin-top:8px;">
-                        <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/footer_companies_names.jpg'"
-                             style="max-width:100%; height:auto;"/>
-                    </div>
                 </div>
             </t>
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
 
-                    <div style="padding-top:45px;">
+                    <div style="padding-top:15px;">
                         <div style="background-color:#d3d3d3; color:black; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
                             <t t-if="o.move_type in ('out_invoice','out_refund')">
                                 Tax Invoice /

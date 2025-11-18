@@ -152,7 +152,7 @@
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
 
-                    <div style="padding-top:45px;">
+                    <div style="padding-top:35px;">
                         <div style=" background-color:#d3d3d3; color:black; padding:8px ; text-align:center; margin-bottom:10px ; font-weight:bold; font-size:16px;">
                             Delivery Note /
                             <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
@@ -216,8 +216,8 @@
                     </table>
 
                     <!-- ===== products ===== -->
-                    <table width="100%" style="border-collapse:collapse; margin-top:15px; font-size:16px;"
-                           border="2">
+<!--                    <table width="100%" style="border-collapse:collapse; margin-top:15px; font-size:16px;"-->
+<!--                           border="2">-->
 <!--                        <thead style="background-color: #9e9d9d; padding:10px;">-->
 <!--                            <tr>-->
 <!--                                <th style="text-align:center; padding:10px; color:#080808;">SN-->
@@ -246,68 +246,92 @@
 <!--                                </th>-->
 <!--                            </tr>-->
 <!--                        </thead>-->
-                        <table width="100%" style="border-collapse:collapse; margin-top:15px; font-size:16px;" border="2">
-    <thead style="background-color:#9e9d9d;">
+<!--                        <tbody>-->
+<!--                            <tr t-foreach="enumerate(o.move_ids)" t-as="line">-->
+<!--                                &lt;!&ndash; SN &ndash;&gt;-->
+<!--                                <td style="text-align:center;">-->
+<!--                                    <t t-esc="line[0] + 1"/>-->
+<!--                                </td>-->
+
+<!--                                &lt;!&ndash; Product &ndash;&gt;-->
+<!--                                <td style="text-align:center">-->
+<!--                                    <span t-field="line[1].product_id.default_code"/>-->
+<!--                                    - -->
+<!--                                    <span t-field="line[1].product_id.name"/>-->
+<!--                                </td>-->
+
+<!--                                &lt;!&ndash; Quantity &ndash;&gt;-->
+<!--                                <td style="text-align:center;">-->
+<!--                                    <span t-field="line[1].product_uom_qty"/>-->
+<!--                                </td>-->
+
+<!--                                &lt;!&ndash; Unit &ndash;&gt;-->
+<!--                                <td style="text-align:center;">-->
+<!--                                    <span t-field="line[1].product_uom.name"/>-->
+<!--                                </td>-->
+<!--                            </tr>-->
+
+<!--                        </tbody>-->
+
+<!--                    </table>-->
+                    <table width="100%" style="border-collapse:collapse; margin-top:15px; font-size:16px;"
+       border="2">
+    <thead style="background-color: #9e9d9d;">
         <tr>
-            <th style="text-align:center; padding:4px 6px; color:#080808;">
-                SN <br/>
-                <span style="font-family:'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+            <th style="text-align:center; padding:4px 8px; color:#080808;">SN
+                <br/>
+                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
                     الرقم
                 </span>
             </th>
-
-            <th style="text-align:center; padding:4px 6px; color:#080808;">
-                Product <br/>
-                <span style="font-family:'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+            <th style="text-align:center; padding:4px 8px; color:#080808;">Product
+                <br/>
+                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
                     المنتج
                 </span>
             </th>
-
-            <th style="text-align:center; padding:4px 6px; color:#080808;">
-                Quantity <br/>
-                <span style="font-family:'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+            <th style="text-align:center; padding:4px 8px; color:#080808;">Quantity
+                <br/>
+                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
                     الكمية
                 </span>
             </th>
-
-            <th style="text-align:center; padding:4px 6px; color:#080808;">
-                Unit <br/>
-                <span style="font-family:'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+            <th style="text-align:center; padding:4px 8px; color:#080808;">Unit
+                <br/>
+                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
                     الوحدة
                 </span>
             </th>
         </tr>
     </thead>
+    <tbody>
+        <tr t-foreach="enumerate(o.move_ids)" t-as="line">
+            <!-- SN -->
+            <td style="text-align:center; padding:6px 8px;">
+                <t t-esc="line[0] + 1"/>
+            </td>
+
+            <!-- Product -->
+            <td style="text-align:center; padding:6px 8px;">
+                <span t-field="line[1].product_id.default_code"/>
+                -
+                <span t-field="line[1].product_id.name"/>
+            </td>
+
+            <!-- Quantity -->
+            <td style="text-align:center; padding:6px 8px;">
+                <span t-field="line[1].product_uom_qty"/>
+            </td>
+
+            <!-- Unit -->
+            <td style="text-align:center; padding:6px 8px;">
+                <span t-field="line[1].product_uom.name"/>
+            </td>
+        </tr>
+
+    </tbody>
+
 </table>
-
-                        <tbody>
-                            <tr t-foreach="enumerate(o.move_ids)" t-as="line">
-                                <!-- SN -->
-                                <td style="text-align:center;">
-                                    <t t-esc="line[0] + 1"/>
-                                </td>
-
-                                <!-- Product -->
-                                <td style="text-align:center">
-                                    <span t-field="line[1].product_id.default_code"/>
-                                    -
-                                    <span t-field="line[1].product_id.name"/>
-                                </td>
-
-                                <!-- Quantity -->
-                                <td style="text-align:center;">
-                                    <span t-field="line[1].product_uom_qty"/>
-                                </td>
-
-                                <!-- Unit -->
-                                <td style="text-align:center;">
-                                    <span t-field="line[1].product_uom.name"/>
-                                </td>
-                            </tr>
-
-                        </tbody>
-
-                    </table>
 
                     <!-- ===== signature Table ===== -->
                       <table width="100%" border="1"

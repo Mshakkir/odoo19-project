@@ -355,8 +355,10 @@
 
 
                     </t>
+                </t>
 
-                    <!-- ===== FOOTER - Only on Last Page ===== -->
+                <!-- ===== FOOTER - Only on Last Page ===== -->
+                <t t-foreach="docs" t-as="o">
                     <t t-if="o_last">
                         <div class="footer"
                              style=" font-size:13px; background:#fff;width:848px;margin-top:10px;padding-top:10px;">

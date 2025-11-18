@@ -61,11 +61,7 @@
                             </table>
 
                         </div>
-                    </div>
-
-
-                </t>
-                 <t t-if="o_last">
+                         <t t-if="o_last">
                             <div style="font-size:13px; background:#fff; width:848px; margin-top:50px; padding-top:10px; page-break-inside: avoid;">
 
                                 <!-- ===== Bank Details ===== -->
@@ -147,6 +143,11 @@
                                 </div>
                             </div>
                         </t>
+
+                    </div>
+
+
+                </t>
 
 
                 <t t-foreach="docs" t-as="o">

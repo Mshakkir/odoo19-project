@@ -165,7 +165,6 @@
                         <table style="width:100%; border-collapse:collapse;">
                             <tr style="background-color:#d3d3d3;">
                                 <!-- Left: Sold To / Supplier -->
-                                <!-- Header Row -->
                                 <td style="padding:4px 8px; font-weight:bold; width:50%; border-right:1px solid #999;">
                                     <t t-if="o.move_type in ('out_invoice','out_refund')">
                                         Sold To &#160;&#160;&#160;&#160;&#160;&#160;&#160; اسم العميل
@@ -181,7 +180,6 @@
                                         Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160; عنوان الشحن
                                     </t>
                                 </td>
-
                             </tr>
 
                             <tr>
@@ -196,7 +194,6 @@
                                         <t t-esc="o.partner_id.street"/>
                                         <br/>
                                     </t>
-
                                     <t t-if="o.partner_id.street2">
                                         <t t-esc="o.partner_id.street2"/>
                                         <br/>
@@ -223,7 +220,7 @@
                                     <t t-esc="o.partner_id.vat or 'N/A'"/>
                                 </td>
 
-                                <!-- Shipping Address Column -->
+                                <!-- Right: Shipping Address Column (ONLY if shipping exists) -->
                                 <td style="padding:6px 10px; vertical-align:top; width:50%;">
                                     <t t-if="o.partner_shipping_id">
                                         <strong>
@@ -235,7 +232,6 @@
                                             <t t-esc="o.partner_shipping_id.street"/>
                                             <br/>
                                         </t>
-
                                         <t t-if="o.partner_shipping_id.street2">
                                             <t t-esc="o.partner_shipping_id.street2"/>
                                             <br/>
@@ -257,7 +253,6 @@
                                         </t>
                                     </t>
                                 </td>
-
                             </tr>
                         </table>
 

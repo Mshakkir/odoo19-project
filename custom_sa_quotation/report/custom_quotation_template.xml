@@ -3,12 +3,13 @@
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="o">
-                    <div class="page">
-                        <div class="header"
-                             style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
+                    <t t-if="o_first">
+                        <div class="page">
+                            <div class="header"
+                                 style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
 
-                            <!-- Company Names in One Row -->
-                            <table style="width: 100%; border-collapse: collapse;border:none">
+                                <!-- Company Names in One Row -->
+                                <table style="width: 100%; border-collapse: collapse;border:none">
                                 <tr>
                                     <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white;padding-left:0px;">
                                         <div style="color: #8B1538; font-size: 16px; font-weight: bold; text-transform: uppercase;">

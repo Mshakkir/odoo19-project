@@ -224,7 +224,7 @@
                             <!-- Shipping To header - ONLY if shipping address exists AND is different from partner -->
                             <t t-if="o.partner_shipping_id and o.partner_shipping_id.id != o.partner_id.id">
                                 <td style="padding:4px 8px; font-weight:bold; width:50%;">
-                                    <t t-if="o.move_type in ('out_invoice','out_refund')">
+                                    <t>
                                         Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160; عنوان الشحن
                                     </t>
                                 </td>

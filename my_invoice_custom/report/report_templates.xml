@@ -173,8 +173,8 @@
                                         Supplier &#160;&#160;&#160;&#160;&#160;&#160;&#160; المورد
                                     </t>
                                 </td>
-                                <!-- Shipping To header - ONLY if shipping address exists -->
-                                <t t-if="o.partner_shipping_id">
+                                <!-- Shipping To header - ONLY if shipping address exists AND is different from partner -->
+                                <t t-if="o.partner_shipping_id and o.partner_shipping_id.id != o.partner_id.id">
                                     <td style="padding:4px 8px; font-weight:bold; width:50%;">
                                         <t t-if="o.move_type in ('out_invoice','out_refund')">
                                             Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160; عنوان الشحن
@@ -215,8 +215,8 @@
                                     <strong>VAT NO :</strong>
                                     <t t-esc="o.partner_id.vat or 'N/A'"/>
                                 </td>
-                                <!-- Right: Shipping Address Column - ONLY if shipping address exists -->
-                                <t t-if="o.partner_shipping_id">
+                                <!-- Right: Shipping Address Column - ONLY if shipping address exists AND is different -->
+                                <t t-if="o.partner_shipping_id and o.partner_shipping_id.id != o.partner_id.id">
                                     <td style="padding:6px 10px; vertical-align:top; width:50%;">
                                         <strong>
                                             <t t-esc="o.partner_shipping_id.name"/>
@@ -246,8 +246,7 @@
                                     </td>
                                 </t>
                             </tr>
-                        </table>
-                        <!-- ===== INVOICE INFO ===== -->
+                        </table>                        <!-- ===== INVOICE INFO ===== -->
                         <table style="width:100%; border-top:1px solid #999; background-color:white; font-weight:bold;">
                             <tr>
                                 <td style="padding:4px 8px;">

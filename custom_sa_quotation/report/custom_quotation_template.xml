@@ -351,13 +351,15 @@
                                         <br/>
                                     </p>
                                 </t>
-                                <t t-if="o.incoterm_location and hasattr(o.incoterm_location, 'name')">
-                                    <span t-esc="o.incoterm_location.name"/>
-                                </t>
-                                <t t-elif="o.incoterm_location">
-                                    <span t-esc="o.incoterm_location"/>
-                                </t>
+                                <t t-if="o.incoterm_location">
+                                    <p>
+                                        <strong>Incoterm Location:</strong>
+<!--                                        <span t-esc="o.incoterm_location.name"/>-->
+                                        <span t-esc="getattr(o.incoterm_location, 'name', o.incoterm_location)"/>
 
+                                        <br/>
+                                    </p>
+                                </t>
                                 <t t-if="o.note">
                                     <div class="mt-4"
                                          style="font-size: 13px; margin-top: 10px; padding-left:3px;">

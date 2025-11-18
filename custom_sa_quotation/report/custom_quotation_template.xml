@@ -346,7 +346,9 @@
                                 <t t-if="o.payment_term_id">
                                     <p>
                                         <strong>Payment Terms:</strong>
-                                        <span t-esc="o.payment_term_id.name"/>
+                                        <span t-esc="o.payment_term_id.name"/><br/>
+                                        <strong>Incoterm Location</strong>
+                                        <span t-esc="o.incoterm_location.name"/>
                                     </p>
                                 </t>
                                 <t t-if="o.note">

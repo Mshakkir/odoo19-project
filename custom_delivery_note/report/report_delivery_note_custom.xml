@@ -274,31 +274,34 @@
 <!--                        </tbody>-->
 
 <!--                    </table>-->
-                    <table width="100%" style="border-collapse:collapse; margin-top:15px; font-size:16px;"
-       border="2">
+                   <table width="100%" style="border-collapse:collapse; margin-top:15px; font-size:14px;" border="2">
     <thead style="background-color: #9e9d9d;">
         <tr>
-            <th style="text-align:center; padding:4px 8px; color:#080808;">SN
+            <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3;">
+                SN
                 <br/>
-                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; font-size:13px;">
                     الرقم
                 </span>
             </th>
-            <th style="text-align:center; padding:4px 8px; color:#080808;">Product
+            <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3;">
+                Product
                 <br/>
-                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; font-size:13px;">
                     المنتج
                 </span>
             </th>
-            <th style="text-align:center; padding:4px 8px; color:#080808;">Quantity
+            <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3;">
+                Quantity
                 <br/>
-                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; font-size:13px;">
                     الكمية
                 </span>
             </th>
-            <th style="text-align:center; padding:4px 8px; color:#080808;">Unit
+            <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3;">
+                Unit
                 <br/>
-                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; font-size:13px;">
                     الوحدة
                 </span>
             </th>
@@ -307,32 +310,29 @@
     <tbody>
         <tr t-foreach="enumerate(o.move_ids)" t-as="line">
             <!-- SN -->
-            <td style="text-align:center; padding:6px 8px;">
+            <td style="text-align:center; padding:6px 4px;">
                 <t t-esc="line[0] + 1"/>
             </td>
 
             <!-- Product -->
-            <td style="text-align:center; padding:6px 8px;">
+            <td style="text-align:center; padding:6px 4px;">
                 <span t-field="line[1].product_id.default_code"/>
                 -
                 <span t-field="line[1].product_id.name"/>
             </td>
 
             <!-- Quantity -->
-            <td style="text-align:center; padding:6px 8px;">
+            <td style="text-align:center; padding:6px 4px;">
                 <span t-field="line[1].product_uom_qty"/>
             </td>
 
             <!-- Unit -->
-            <td style="text-align:center; padding:6px 8px;">
+            <td style="text-align:center; padding:6px 4px;">
                 <span t-field="line[1].product_uom.name"/>
             </td>
         </tr>
-
     </tbody>
-
 </table>
-
                     <!-- ===== signature Table ===== -->
                       <table width="100%" border="1"
                                    style="border-collapse: collapse; font-size: 14px; margin-top: 15px;"

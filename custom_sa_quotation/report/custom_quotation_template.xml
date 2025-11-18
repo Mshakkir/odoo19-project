@@ -42,7 +42,7 @@
                         padding: 5px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">
                                         <t t-if="o.company_id.logo">
                                             <img t-att-src="image_data_uri(o.company_id.logo)"
-                                                 style="max-height: 140px; max-width: 100%; object-fit: contain; display: block; margin: -23px auto;padding-top:8px;padding-top:5px;"/>
+                                                 style="max-height: 140px; max-width: 100%; object-fit: contain; display: block; margin: -30px auto;padding-top:8px;padding-top:5px;"/>
 
                                         </t>
                                     </td>
@@ -66,7 +66,7 @@
 
                 </t>
 
-                <div class="footer" style=" font-size:13px; background:#fff;width:840px;margin-left:1px;">
+                <div class="footer" style=" font-size:13px; background:#fff;width:845px;margin-top:10px;">
 
 
                     <!-- ===== Bank Details ===== -->

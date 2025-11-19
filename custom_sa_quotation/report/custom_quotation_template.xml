@@ -473,8 +473,8 @@
                         </tr>
                     </table>
 
-                     <t t-if="o_last">-->
-                                    <div style="font-size:13px; background:#fff; width:848px; margin-top:270px; padding-top:10px; page-break-inside: avoid;">
+                     <t t-if="o_last">
+                                    <div style="font-size:13px; background:#fff; width:848px; margin-top:200px; padding-top:10px; page-break-inside: avoid;">
 
                                         <!-- ===== Bank Details ===== -->
                                         <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">

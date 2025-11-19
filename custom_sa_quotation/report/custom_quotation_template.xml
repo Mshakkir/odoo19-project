@@ -378,7 +378,7 @@
 
                     <!-- ===== Totals and Notes Section ===== -->
                     <table width="100%" style="font-size: 13px; margin-top: 10px;">
-                          <td style="width: 60%;padding-left:3px; ">
+                          <td style="width: 60%;padding-left:3px; background-color:white;">
                                 <t t-if="o.payment_term_id">
                                     <p>
                                         <strong>Payment Terms:</strong>
@@ -408,7 +408,7 @@
                         <tr>
                             <!-- Left: Notes -->
                             <!-- Right: Totals -->
-                            <td style="width: 40%; border:white;">
+                            <td style="width: 40%; border:white;margin-left:600px;">
                                 <table style="width:100%; border:1px solid #000; border-collapse:collapse; font-size:13px;">
 
                                     <!-- Subtotal -->

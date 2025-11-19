@@ -472,12 +472,11 @@
 
 <!--                        </tr>-->
 <!--                    </table>-->
-
-                    <table width="100%" style="font-size: 13px; margin-top: 10px;">
+<table width="100%" style="font-size: 13px; margin-top: 10px;">
     <tr>
         <!-- Right: Totals -->
-        <td style="width: 40%; border:white;">
-            <table style="width:100%; border:1px solid #000; border-collapse:collapse; font-size:13px;">
+        <td style="text-align: right; border:white;">
+            <table style="width:40%; margin-left:auto; border:1px solid #000; border-collapse:collapse; font-size:13px;">
 
                 <!-- Subtotal -->
                 <tr>

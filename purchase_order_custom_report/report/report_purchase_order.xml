@@ -352,7 +352,7 @@
 
 
                             <td style="width:33%; padding:4px;border-right: 1px solid black;">
-                                <strong>jeddah</strong>
+                                <strong>jeddah:</strong>
                                 Jeddah, 7655 Al Fayha
                                 Al Fayha Dist. JEDDAH 22244-3108
                                 Saudi Arabia
@@ -363,7 +363,7 @@
                             </td>
 
                             <td style="width:33%; padding:4px;">
-                                <strong>Baladiya</strong>
+                                <strong>Baladiya:</strong>
                                 Sookul Anwar, Al Baladeah, Aziziyah,
                                 Jeddah 31303
                                 Tel: 0535081008
@@ -372,7 +372,7 @@
                             </td>
 
                             <td style="width:33%; padding:4px;border-left: 1px solid black;">
-                                <strong>Dammam</strong>
+                                <strong>Dammam:</strong>
                                 8515, Qutaibah bin Muslim ST,
                                 Al Souq, Dammam 4525-32242
                                 Saudi Arabia
@@ -551,12 +551,12 @@
 
                                         <td style="padding:12px 8px; border:1px solid #000; line-height:16px; vertical-align:middle;">
                                             <span t-field="line.price_unit"
-                                                  t-options='{"widget":"monetary", "display_currency":o.currency_id}'/>
+                                                  t-options='{"widget":"float", "precision": 2}'/>
                                         </td>
 
                                         <td style="padding:12px 8px; border:1px solid #000; line-height:16px; vertical-align:middle;">
                                             <span t-field="line.price_subtotal"
-                                                  t-options='{"widget":"monetary", "display_currency":o.currency_id}'/>
+                                                  t-options='{"widget":"float", "precision": 2}'/>
                                         </td>
 
                                     </tr>

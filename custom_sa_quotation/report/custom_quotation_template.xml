@@ -474,38 +474,21 @@
 <!--                    </table>-->
                     <!-- ===== Totals and Notes Section ===== -->
 <!-- ===== Totals and Notes Section ===== -->
+<!-- ===== Totals and Notes Section ===== -->
 <table width="100%" style="font-size: 13px; margin-top: 10px; border-collapse: collapse;">
     <tr>
-        <!-- Full Width: Terms and Conditions -->
-        <td colspan="2" style="padding-left: 3px; padding-bottom: 15px; border: none;">
+        <!-- Left: Terms and Conditions -->
+        <td style="width: 60%; padding-left: 3px; padding-right: 15px; vertical-align: top; border: none;">
             <div style="border: none;">
-                <p style="margin-bottom: 8px;">
+                <p style="margin-bottom: 10px; margin-top: 0;">
                     <strong>Offer Terms and Conditions:</strong>
                 </p>
                 <t t-if="o.note">
-                    <div style="font-size: 13px; white-space: pre-line;">
-                        <p t-field="o.note" style="margin: 0; line-height: 1.6;"/>
+                    <div style="font-size: 13px; line-height: 1.6;">
+                        <span t-field="o.note"/>
                     </div>
                 </t>
             </div>
-        </td>
-    </tr>
-
-    <tr>
-        <!-- Left: Payment Terms and Incoterm (Optional) -->
-        <td style="width: 60%; padding-left: 3px; vertical-align: top; border: none;">
-            <t t-if="o.payment_term_id">
-                <p style="margin: 5px 0;">
-                    <strong>Payment Terms:</strong>
-                    <span t-esc="o.payment_term_id.name"/>
-                </p>
-            </t>
-            <t t-if="o.incoterm_location">
-                <p style="margin: 5px 0;">
-                    <strong>Incoterm Location:</strong>
-                    <span t-esc="o.incoterm_location"/>
-                </p>
-            </t>
         </td>
 
         <!-- Right: Totals Table -->
@@ -515,42 +498,48 @@
                 <tr>
                     <td style="padding: 5px; border: 1px solid #000;">Subtotal</td>
                     <td style="text-align: right; padding: 5px; border: 1px solid #000;">
-                        <span t-field="o.amount_untaxed"/>
                         SAR
+                    </td>
+                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">
+                        <span t-field="o.amount_untaxed"/>
                     </td>
                 </tr>
 
                 <!-- Discount -->
                 <tr>
                     <td style="padding: 5px; border: 1px solid #000;">Discount</td>
-                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">- SAR</td>
+                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">SAR</td>
+                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">-</td>
                 </tr>
 
                 <!-- Freight -->
                 <tr>
                     <td style="padding: 5px; border: 1px solid #000;">Freight</td>
-                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">- SAR</td>
+                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">SAR</td>
+                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">-</td>
                 </tr>
 
                 <!-- Gross Total -->
                 <tr>
                     <td style="padding: 5px; border: 1px solid #000;">
-                        <strong>Gross Total</strong>
+                        <strong>GrossTotal</strong>
+                    </td>
+                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">
+                        <strong>SAR</strong>
                     </td>
                     <td style="text-align: right; padding: 5px; border: 1px solid #000;">
                         <strong>
                             <span t-field="o.amount_untaxed"/>
-                            SAR
                         </strong>
                     </td>
                 </tr>
 
                 <!-- VAT Section -->
                 <tr>
-                    <td style="padding: 5px; border: 1px solid #000;">VAT (15%)</td>
+                    <td style="padding: 5px; border: 1px solid #000;">VAT</td>
+                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">SAR</td>
                     <td style="text-align: right; padding: 5px; border: 1px solid #000;">
                         <span t-field="o.amount_tax"/>
-                        SAR
                     </td>
                 </tr>
 
@@ -560,9 +549,11 @@
                         <strong>Net Total</strong>
                     </td>
                     <td style="text-align: right; padding: 6px; border: 1px solid #000;">
+                        <strong>SAR</strong>
+                    </td>
+                    <td style="text-align: right; padding: 6px; border: 1px solid #000;">
                         <strong>
                             <span t-field="o.amount_total"/>
-                            SAR
                         </strong>
                     </td>
                 </tr>

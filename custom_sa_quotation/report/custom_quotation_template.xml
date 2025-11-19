@@ -537,6 +537,14 @@
 <div class="mt-4" style="font-size: 13px; margin-top: 10px; padding-left:3px; text-align: left; width: 100%;">
     <p style="margin-top:-200px;">
         <strong>Offer Terms and Conditions:</strong>
+
+                         <t t-if="o.payment_term_id">
+                                    <p>
+                                        <strong>Payment Terms:</strong>
+                                        <span t-esc="o.payment_term_id.name"/>
+                                        <br/>
+                                    </p>
+                         </t>
     </p>
     <p t-field="o.note"/>
 </div>

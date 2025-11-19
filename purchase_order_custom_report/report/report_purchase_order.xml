@@ -242,9 +242,6 @@
 <!--</odoo>-->
 
 
-
-
-
 <odoo>
     <template id="custom_purchaseorder_report_clean" inherit_id="purchase.report_purchaseorder_document">
 
@@ -286,8 +283,8 @@
                             }
                         </style>
                     </head>
-                        <div class="page">
-                            <div class="header"
+                    <div class="page">
+                        <div class="header"
                              style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
 
                             <!-- Company Names in One Row -->
@@ -333,7 +330,8 @@
                                     <!-- Right Column: Arabic Info -->
                                     <td style="width: 33%; text-align: right; font-size: 15px; color: #333; vertical-align: top;
                         direction: rtl; padding: 0px 10px 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">
-                                        <div style="line-height: 1.3;font-weight:900; padding-right:0px; margin-top:0px; text-align: right; direction: rtl;" class="arabic-word">
+                                        <div style="line-height: 1.3;font-weight:900; padding-right:0px; margin-top:0px; text-align: right; direction: rtl;"
+                                             class="arabic-word">
                                             س.ت: ٤٠٣٠٢١٦١٥٤
                                             <br/>
                                             الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
@@ -345,18 +343,16 @@
 
                         </div>
                     </div>
-                    </t>
+                </t>
 
                 <div class="footer"
-                     style=" font-size:13px; background:#fff;width:848px;margin-top:10px;padding-top:10px;">
+                     style=" font-size:13px; background:#fff;width:845px;margin-top:10px;padding-top:10px;">
                     <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                         <tr>
 
 
                             <td style="width:33%; padding:4px;border-right: 1px solid black;">
                                 <strong>jeddah</strong>
-                                Sameer Sharaf Al Otaibi Trading Company
-                                شركة سمير شرف العتيبي التجارية
                                 Jeddah, 7655 Al Fayha
                                 Al Fayha Dist. JEDDAH 22244-3108
                                 Saudi Arabia
@@ -368,8 +364,6 @@
 
                             <td style="width:33%; padding:4px;">
                                 <strong>Baladiya</strong>
-                                Sameer Sharaf Al Otaibi Trading Company
-                                شركة سمير شرف العتيبي التجارية
                                 Sookul Anwar, Al Baladeah, Aziziyah,
                                 Jeddah 31303
                                 Tel: 0535081008
@@ -377,9 +371,8 @@
                                 Email: ssaoe.dammam@gmail.com
                             </td>
 
-                            <td style="width:33%; padding:4px;border-right: 1px solid black;">
+                            <td style="width:33%; padding:4px;border-left: 1px solid black;">
                                 <strong>Dammam</strong>
-                                Sameer Sharaf Al Otaibi Trading Company
                                 8515, Qutaibah bin Muslim ST,
                                 Al Souq, Dammam 4525-32242
                                 Saudi Arabia
@@ -391,199 +384,201 @@
                         </tr>
                     </table>
                 </div>
-                 </t>
-            <body>
-            <t t-foreach="docs" t-as="o">
-                <t t-call="web.external_layout">
-                    <div style="background:#ddd; padding:10px; text-align:center; margin-bottom:15px; font-weight:bold; font-size:16px;">
-                                Purchase Order /
-                                <span class="ar" style="font-size:18px;">أمر شراء</span>
-                            </div>
-
-                            <!-- VENDOR & SHIPPING DETAILS -->
-                            <table style="margin-top:8px; font-size:13px;">
-                                <tr>
-                                    <td style="width:50%; vertical-align:top; border:1px solid #575656; padding:8px;">
-                                        <div style="font-weight:bold; margin-bottom:5px;">
-                                            Vendor &amp; Address /
-                                            <span class="ar">البائع والعنوان</span>
-                                        </div>
-                                        <div>
-                                            <span t-esc="o.partner_id.name"/>
-                                        </div>
-                                        <div>
-                                            <span t-esc="o.partner_id.contact_address"/>
-                                        </div>
-                                    </td>
-
-                                    <td style="width:50%; vertical-align:top; border:1px solid #575656; padding:8px;">
-                                        <div style="font-weight:bold; margin-bottom:5px;">
-                                            Ship To Address /
-                                            <span class="ar">عنوان الشحن</span>
-                                        </div>
-                                        <div>
-                                            <span t-esc="o.company_id.partner_id.contact_address"/>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- PO DETAILS -->
-                            <table style="margin-top:8px; font-size:12px;">
-                                <tr>
-                                    <td style="border:1px solid #575656; padding:8px; width:33%;">
-                                        <strong>PO Number:</strong>
-                                        <span t-esc="o.name"/>
-                                        <br/>
-                                        <span class="ar" style="font-size:11px;">:رقم أمر الشراء</span>
-                                    </td>
-                                    <td style="border:1px solid #575656; padding:8px; width:33%;">
-                                        <strong>Vendor Reference:</strong>
-                                        <span t-esc="o.partner_ref or '-'"/>
-                                        <br/>
-                                        <span class="ar" style="font-size:11px;  line-height:12px; display:block;text-align:left;">:مرجع البائع</span>
-                                    </td>
-                                    <td style="border:1px solid #575656; padding:8px; width:34%;">
-                                        <strong>Order Date:</strong>
-                                        <span t-esc="o.date_order.strftime('%d-%b-%Y')"/>
-                                        <br/>
-                                        <span class="ar" style="font-size:11px;">:تاريخ الطلب</span>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- ITEMS TABLE -->
-                            <table style="margin-top:10px; font-size:12px; text-align:center; border:1px solid #000;">
-                                <thead style="background-color:#d9d9d9; color:#080808; font-weight:bold;">
-                                    <tr>
-                                        <th style="padding:10px; border:1px solid #000; width:5%;">
-                                            S.N
-                                            <br/>
-                                            <span class="ar" style="font-size:11px; font-weight:700;">م</span>
-                                        </th>
-                                        <th style="padding:10px; border:1px solid #000; width:35%;">
-                                            Item / Description
-                                            <br/>
-                                            <span class="ar"
-                                                  style="font-size:11px; font-weight:700; line-height:12px; display:block;">
-                                                الصنف والوصف
-                                            </span>
-                                        </th>
-
-
-                                        <th style="padding:10px; border:1px solid #000; width:12%;">
-                                            Delivery
-                                            <br/>
-                                            <span class="ar" style="font-size:11px; font-weight:700;">التوصيل</span>
-                                        </th>
-
-                                        <th style="padding:10px; border:1px solid #000; width:8%;">
-                                            QTY
-                                            <br/>
-                                            <span class="ar" style="font-size:11px; font-weight:700;">الكمية</span>
-                                        </th>
-
-                                        <th style="padding:10px; border:1px solid #000; width:10%;">
-                                            Unit
-                                            <br/>
-                                            <span class="ar" style="font-size:11px; font-weight:700;">الوحدة</span>
-                                        </th>
-
-                                        <th style="padding:10px; border:1px solid #000; width:15%;">
-                                            Unit Price
-                                            <br/>
-                                            <span class="ar" style="font-size:11px; font-weight:700;">سعر الوحدة</span>
-                                        </th>
-
-                                        <th style="padding:10px; border:1px solid #000; width:15%;">
-                                            Total Price
-                                            <br/>
-                                            <span class="ar" style="font-size:11px; font-weight:700;">السعر الإجمالي
-                                            </span>
-                                        </th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    <t t-set="i" t-value="0"/>
-                                    <t t-foreach="o.order_line" t-as="line">
-                                        <t t-set="i" t-value="i + 1"/>
-                                        <tr>
-                                            <td style="padding:10px; border:1px solid #000;">
-                                                <span t-esc="i"/>
-                                            </td>
-                                            <td style="padding:10px; border:1px solid #000; text-align:left;">
-                                                <span t-esc="line.name"/>
-                                            </td>
-                                            <td style="padding:10px; border:1px solid #000;">
-                                                <span t-esc="line.date_planned and line.date_planned.strftime('%d-%b-%Y') or '-'"/>
-                                            </td>
-                                            <td style="padding:10px; border:1px solid #000;">
-                                                <span t-esc="line.product_qty"/>
-                                            </td>
-                                            <td style="padding:10px; border:1px solid #000;">
-                                                <span t-esc="line.product_uom_id.name"/>
-                                            </td>
-                                            <td style="padding:10px; border:1px solid #000;">
-                                                <span t-field="line.price_unit"
-                                                      t-options='{"widget":"monetary", "display_currency":o.currency_id}'/>
-                                            </td>
-                                            <td style="padding:10px; border:1px solid #000;">
-                                                <span t-field="line.price_subtotal"
-                                                      t-options='{"widget":"monetary", "display_currency":o.currency_id}'/>
-                                            </td>
-                                        </tr>
-                                    </t>
-                                </tbody>
-                            </table>
-
-                            <!-- TOTALS -->
-                            <table style="width:45%; margin-top:20px; float:right; font-size:13px;">
-                                <tr>
-                                    <td style="padding:10px; border:1px solid #000; width:60%;">
-                                        <strong>Subtotal</strong>
-                                        /
-                                        <span class="ar" style="font-size:12px;">المجموع الفرعي</span>
-                                    </td>
-                                    <td style="padding:10px; border:1px solid #000; text-align:right; width:40%;">
-                                        <span t-field="o.amount_untaxed"
-                                              t-options='{"widget":"monetary", "display_currency":o.currency_id}'/>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td style="padding:10px; border:1px solid #000;">
-                                        <strong>VAT</strong>
-                                        /
-                                        <span class="ar" style="font-size:12px;">ضريبة القيمة المضافة</span>
-                                    </td>
-                                    <td style="padding:10px; border:1px solid #000; text-align:right;">
-                                        <span t-field="o.amount_tax"
-                                              t-options='{"widget":"monetary", "display_currency":o.currency_id}'/>
-                                    </td>
-                                </tr>
-
-                                <tr style="background:#eee;">
-                                    <td style="padding:12px; border:1px solid #000;">
-                                        <strong>Net Total</strong>
-                                        /
-                                        <span class="ar" style="font-size:12px;">الإجمالي الصافي</span>
-                                    </td>
-                                    <td style="padding:12px; border:1px solid #000; text-align:right;">
-                                        <strong>
-                                            <span t-field="o.amount_total"
-                                                  t-options='{"widget":"monetary", "display_currency":o.currency_id}'/>
-                                        </strong>
-                                    </td>
-                                </tr>
-                            </table>
-                     <!-- Clear float -->
-                            <div style="clear:both; height:20px;"></div>
-
-
-
-                </t>
             </t>
+            <body>
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div style="background:#ddd; padding:10px; text-align:center; margin-bottom:15px; font-weight:bold; font-size:16px;">
+                            Purchase Order /
+                            <span class="ar" style="font-size:18px;">أمر شراء</span>
+                        </div>
+
+                        <!-- VENDOR & SHIPPING DETAILS -->
+                        <table style="margin-top:8px; font-size:13px;">
+                            <tr>
+                                <td style="width:50%; vertical-align:top; border:1px solid #575656; padding:8px;">
+                                    <div style="font-weight:bold; margin-bottom:5px;">
+                                        Vendor &amp; Address /
+                                        <span class="ar">البائع والعنوان</span>
+                                    </div>
+                                    <div>
+                                        <span t-esc="o.partner_id.name"/>
+                                    </div>
+                                    <div>
+                                        <span t-esc="o.partner_id.contact_address"/>
+                                    </div>
+                                </td>
+
+                                <td style="width:50%; vertical-align:top; border:1px solid #575656; padding:8px;">
+                                    <div style="font-weight:bold; margin-bottom:5px;">
+                                        Ship To Address /
+                                        <span class="ar">عنوان الشحن</span>
+                                    </div>
+                                    <div>
+                                        <span t-esc="o.company_id.partner_id.contact_address"/>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- PO DETAILS -->
+                        <table style="margin-top:8px; font-size:12px; width:100%; border-collapse:collapse;">
+                            <tr>
+                                <td style="border:1px solid #575656; padding:8px; width:33%;">
+                                    <strong>PO Number:</strong>
+                                    <span t-esc="o.name"/>
+                                    <br/>
+                                    <span class="ar" style="font-size:11px;">رقم أمر الشراء:</span>
+                                </td>
+
+                                <td style="border:1px solid #575656; padding:8px; width:33%;">
+                                    <strong>Vendor Reference:</strong>
+                                    <span t-esc="o.partner_ref or '-'"/>
+                                    <br/>
+                                    <span class="ar" style="font-size:11px; line-height:12px; display:block;">مرجع البائع:
+                                    </span>
+                                </td>
+
+                                <td style="border:1px solid #575656; padding:8px; width:34%;">
+                                    <strong>Order Date:</strong>
+                                    <span t-esc="o.date_order.strftime('%d-%b-%Y')"/>
+                                    <br/>
+                                    <span class="ar" style="font-size:11px;">تاريخ الطلب:</span>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- ITEMS TABLE -->
+                        <table style="margin-top:10px; font-size:12px; text-align:center; border:1px solid #000;">
+                            <thead style="background-color:#d9d9d9; color:#080808; font-weight:bold;">
+                                <tr>
+                                    <th style="padding:10px; border:1px solid #000;font-weight:bold width:5%;">
+                                        S.N
+                                        <br/>
+                                        <span class="ar" style="font-size:11px; font-weight:500;">م</span>
+                                    </th>
+                                    <th style="padding:10px; border:1px solid #000;font-weight:bold width:35%;">
+                                        Item / Description
+                                        <br/>
+                                        <span class="ar"
+                                              style="font-size:11px; font-weight:500; line-height:12px; display:block;">
+                                            الصنف والوصف
+                                        </span>
+                                    </th>
+
+
+                                    <th style="padding:10px; border:1px solid #000;font-weight:bold width:12%;">
+                                        Delivery
+                                        <br/>
+                                        <span class="ar" style="font-size:11px; font-weight:500;">التوصيل</span>
+                                    </th>
+
+                                    <th style="padding:10px; border:1px solid #000;font-weight:bold width:8%;">
+                                        QTY
+                                        <br/>
+                                        <span class="ar" style="font-size:11px; font-weight:500;">الكمية</span>
+                                    </th>
+
+                                    <th style="padding:10px; border:1px solid #000;font-weight:bold width:10%;">
+                                        Unit
+                                        <br/>
+                                        <span class="ar" style="font-size:11px; font-weight:500;">الوحدة</span>
+                                    </th>
+
+                                    <th style="padding:10px; border:1px solid #000;font-weight:bold width:15%;">
+                                        Unit Price
+                                        <br/>
+                                        <span class="ar" style="font-size:11px; font-weight:500;">سعر الوحدة</span>
+                                    </th>
+
+                                    <th style="padding:10px; border:1px solid #000;font-weight:bold; width:15%;">
+                                        Total Price
+                                        <br/>
+                                        <span class="ar" style="font-size:11px; font-weight:500;">السعر الإجمالي
+                                        </span>
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <t t-set="i" t-value="0"/>
+                                <t t-foreach="o.order_line" t-as="line">
+                                    <t t-set="i" t-value="i + 1"/>
+                                    <tr>
+                                        <td style="padding:10px; border:1px solid #000;">
+                                            <span t-esc="i"/>
+                                        </td>
+                                        <td style="padding:10px; border:1px solid #000; text-align:left;">
+                                            <span t-esc="line.name"/>
+                                        </td>
+                                        <td style="padding:10px; border:1px solid #000;">
+                                            <span t-esc="line.date_planned and line.date_planned.strftime('%d-%b-%Y') or '-'"/>
+                                        </td>
+                                        <td style="padding:10px; border:1px solid #000;">
+                                            <span t-esc="line.product_qty"/>
+                                        </td>
+                                        <td style="padding:10px; border:1px solid #000;">
+                                            <span t-esc="line.product_uom_id.name"/>
+                                        </td>
+                                        <td style="padding:10px; border:1px solid #000;">
+                                            <span t-field="line.price_unit"
+                                                  t-options='{"widget":"monetary", "display_currency":o.currency_id}'/>
+                                        </td>
+                                        <td style="padding:10px; border:1px solid #000;">
+                                            <span t-field="line.price_subtotal"
+                                                  t-options='{"widget":"monetary", "display_currency":o.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <!-- TOTALS -->
+                        <table style="width:45%; margin-top:20px; float:right; font-size:13px;">
+                            <tr>
+                                <td style="padding:10px; border:1px solid #000; width:60%;">
+                                    <strong>Subtotal</strong>
+                                    /
+                                    <span class="ar" style="font-size:12px;">المجموع الفرعي</span>
+                                </td>
+                                <td style="padding:10px; border:1px solid #000; text-align:right; width:40%;">
+                                    <span t-field="o.amount_untaxed"
+                                          t-options='{"widget":"monetary", "display_currency":o.currency_id}'/>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="padding:10px; border:1px solid #000;">
+                                    <strong>VAT</strong>
+                                    /
+                                    <span class="ar" style="font-size:12px;">ضريبة القيمة المضافة</span>
+                                </td>
+                                <td style="padding:10px; border:1px solid #000; text-align:right;">
+                                    <span t-field="o.amount_tax"
+                                          t-options='{"widget":"monetary", "display_currency":o.currency_id}'/>
+                                </td>
+                            </tr>
+
+                            <tr style="background:#eee;">
+                                <td style="padding:12px; border:1px solid #000;">
+                                    <strong>Net Total</strong>
+                                    /
+                                    <span class="ar" style="font-size:12px;">الإجمالي الصافي</span>
+                                </td>
+                                <td style="padding:12px; border:1px solid #000; text-align:right;">
+                                    <strong>
+                                        <span t-field="o.amount_total"
+                                              t-options='{"widget":"monetary", "display_currency":o.currency_id}'/>
+                                    </strong>
+                                </td>
+                            </tr>
+                        </table>
+                        <!-- Clear float -->
+                        <div style="clear:both; height:20px;"></div>
+
+
+                    </t>
+                </t>
             </body>
         </xpath>
 

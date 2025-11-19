@@ -82,22 +82,22 @@
                             <table style="margin-top:8px; font-size:12px;">
                                 <tr>
                                     <td style="border:1px solid #575656; padding:8px; width:33%;">
-                                        <strong>PO Number</strong>
+                                        <strong>PO Number:</strong>
                                         <span t-esc="o.name"/>
                                         <br/>
-                                        <span class="ar" style="font-size:11px;">رقم أمر الشراء</span>
+                                        <span class="ar" style="font-size:11px;">:رقم أمر الشراء</span>
                                     </td>
                                     <td style="border:1px solid #575656; padding:8px; width:33%;">
-                                        <strong>Vendor Reference</strong>
+                                        <strong>Vendor Reference:</strong>
                                         <span t-esc="o.partner_ref or '-'"/>
                                         <br/>
-                                        <span class="ar" style="font-size:11px;  line-height:12px; display:block;">>مرجع البائع</span>
+                                        <span class="ar" style="font-size:11px;  line-height:12px; display:block;">:مرجع البائع</span>
                                     </td>
                                     <td style="border:1px solid #575656; padding:8px; width:34%;">
-                                        <strong>Order Date</strong>
+                                        <strong>Order Date:</strong>
                                         <span t-esc="o.date_order.strftime('%d-%b-%Y')"/>
                                         <br/>
-                                        <span class="ar" style="font-size:11px;">تاريخ الطلب</span>
+                                        <span class="ar" style="font-size:11px;">:تاريخ الطلب</span>
                                     </td>
                                 </tr>
                             </table>

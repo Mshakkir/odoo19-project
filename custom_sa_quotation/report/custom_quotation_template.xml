@@ -143,6 +143,10 @@
                     </table>
 
                     <!-- ===== Footer Logos ===== -->
+                    <div style="text-align:center; margin-top:8px;">
+                        <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/footer_companies_names.jpg'"
+                             style="max-width:100%; height:auto;"/>
+                    </div>
                 </div>
             </t>
             <t t-foreach="docs" t-as="o">
@@ -372,102 +376,211 @@
                     </table>
 
 
+<!--                    &lt;!&ndash; ===== Totals and Notes Section ===== &ndash;&gt;-->
+<!--                    <table width="100%" style="font-size: 13px; margin-top: 10px;">-->
+<!--                        <tr>-->
+<!--                            &lt;!&ndash; Left: Notes &ndash;&gt;-->
+<!--                            <td style="width: 60%;padding-left:3px; ">-->
+<!--                                <t t-if="o.payment_term_id">-->
+<!--                                    <p>-->
+<!--                                        <strong>Payment Terms:</strong>-->
+<!--                                        <span t-esc="o.payment_term_id.name"/>-->
+<!--                                        <br/>-->
+<!--                                    </p>-->
+
+
+<!--                                    <p>-->
+<!--                                        <strong>Incoterm Location:</strong>-->
+<!--                                        <span t-esc="o.incoterm_location"/>-->
+
+
+<!--                                        <br/>-->
+<!--                                    </p>-->
+<!--                                </t>-->
+<!--                                <t t-if="o.note">-->
+<!--                                    <div class="mt-4"-->
+<!--                                         style="font-size: 13px; margin-top: 10px; padding-left:3px;">-->
+<!--                                        <p>-->
+<!--                                            <strong>Offer Terms and Conditions:</strong>-->
+<!--                                        </p>-->
+<!--                                        <p t-field="o.note"/>-->
+<!--                                    </div>-->
+<!--                                </t>-->
+<!--                            </td>-->
+<!--                            &lt;!&ndash; Right: Totals &ndash;&gt;-->
+<!--                            <td style="width: 40%; border:white;">-->
+<!--                                <table style="width:100%; border:1px solid #000; border-collapse:collapse; font-size:13px;">-->
+
+<!--                                    &lt;!&ndash; Subtotal &ndash;&gt;-->
+<!--                                    <tr>-->
+<!--                                        <td style="padding:5px;">Subtotal</td>-->
+<!--                                        <td style="text-align:right; padding:5px;">-->
+<!--                                            <span t-field="o.amount_untaxed"/>-->
+<!--                                            SAR-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+
+<!--                                    &lt;!&ndash; Discount (Static or change if needed) &ndash;&gt;-->
+<!--                                    <tr>-->
+<!--                                        <td style="padding:5px;">Discount</td>-->
+<!--                                        <td style="text-align:right; padding:5px;">- SAR</td>-->
+<!--                                    </tr>-->
+
+<!--                                    &lt;!&ndash; Freight (Static or update if needed) &ndash;&gt;-->
+<!--                                    <tr>-->
+<!--                                        <td style="padding:5px;">Freight</td>-->
+<!--                                        <td style="text-align:right; padding:5px;">- SAR</td>-->
+<!--                                    </tr>-->
+
+<!--                                    &lt;!&ndash; Gross Total (same as Subtotal unless discount/freight added) &ndash;&gt;-->
+<!--                                    <tr>-->
+<!--                                        <td style="padding:5px;">-->
+<!--                                            <strong>Gross Total</strong>-->
+<!--                                        </td>-->
+<!--                                        <td style="text-align:right; padding:5px;">-->
+<!--                                            <strong>-->
+<!--                                                <span t-field="o.amount_untaxed"/>-->
+<!--                                                SAR-->
+<!--                                            </strong>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+
+<!--                                    &lt;!&ndash; VAT Section &ndash;&gt;-->
+<!--                                    <tr>-->
+<!--                                        <td style="padding:5px;">VAT (15%)</td>-->
+<!--                                        <td style="text-align:right; padding:5px;">-->
+<!--                                            <span t-field="o.amount_tax"/>-->
+<!--                                            SAR-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+
+<!--                                    &lt;!&ndash; Net Total &ndash;&gt;-->
+<!--                                    <tr style="background-color:#D3D3D3;">-->
+<!--                                        <td style="padding:6px;">-->
+<!--                                            <strong>Net Total</strong>-->
+<!--                                        </td>-->
+<!--                                        <td style="text-align:right; padding:6px;">-->
+<!--                                            <strong>-->
+<!--                                                <span t-field="o.amount_total"/>-->
+<!--                                                SAR-->
+<!--                                            </strong>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+
+<!--                                </table>-->
+<!--                            </td>-->
+
+<!--                        </tr>-->
+<!--                    </table>-->
                     <!-- ===== Totals and Notes Section ===== -->
-                    <table width="100%" style="font-size: 13px; margin-top: 10px;">
-                        <tr>
-                            <!-- Left: Notes -->
-                            <td style="width: 60%;padding-left:3px; ">
-                                <t t-if="o.payment_term_id">
-                                    <p>
-                                        <strong>Payment Terms:</strong>
-                                        <span t-esc="o.payment_term_id.name"/>
-                                        <br/>
-                                    </p>
+<table width="100%" style="font-size: 13px; margin-top: 10px;">
+    <tr>
+        <!-- Left: Notes -->
+        <td style="width: 60%; padding-left:3px; vertical-align: top;">
+            <t t-if="o.note">
+                <div style="font-size: 13px; margin-top: 10px; padding-left:3px;">
+                    <p>
+                        <strong>Offer Terms and Conditions:</strong>
+                    </p>
+                    <p t-field="o.note"/>
+                </div>
+            </t>
+        </td>
 
+        <!-- Right: Totals with Arabic Header -->
+        <td style="width: 40%; vertical-align: top;">
+            <!-- Arabic Header -->
+            <div style="text-align: right; margin-bottom: 5px; font-weight: bold; font-size: 14px;">
+                تفاصيل الحساب المصرفي
+            </div>
 
-                                    <p>
-                                        <strong>Incoterm Location:</strong>
-                                        <span t-esc="o.incoterm_location"/>
+            <!-- Totals Table -->
+            <table style="width:100%; border:1px solid #000; border-collapse:collapse; font-size:13px;">
+                <!-- Subtotal -->
+                <tr>
+                    <td style="padding:5px; border-bottom: 1px solid #000;">Subtotal</td>
+                    <td style="text-align:center; padding:5px; border-bottom: 1px solid #000; border-left: 1px solid #000;">SAR</td>
+                    <td style="text-align:right; padding:5px; border-bottom: 1px solid #000; border-left: 1px solid #000;">
+                        <span t-field="o.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                    </td>
+                </tr>
 
+                <!-- Discount -->
+                <tr>
+                    <td style="padding:5px; border-bottom: 1px solid #000;">Discount</td>
+                    <td style="text-align:center; padding:5px; border-bottom: 1px solid #000; border-left: 1px solid #000;">SAR</td>
+                    <td style="text-align:right; padding:5px; border-bottom: 1px solid #000; border-left: 1px solid #000;">-</td>
+                </tr>
 
-                                        <br/>
-                                    </p>
-                                </t>
-                                <t t-if="o.note">
-                                    <div class="mt-4"
-                                         style="font-size: 13px; margin-top: 10px; padding-left:3px;">
-                                        <p>
-                                            <strong>Offer Terms and Conditions:</strong>
-                                        </p>
-                                        <p t-field="o.note"/>
-                                    </div>
-                                </t>
-                            </td>
-                            <!-- Right: Totals -->
-                            <td style="width: 40%; border:white;">
-                                <table style="width:100%; border:1px solid #000; border-collapse:collapse; font-size:13px;">
+                <!-- Freight -->
+                <tr>
+                    <td style="padding:5px; border-bottom: 1px solid #000;">Freight</td>
+                    <td style="text-align:center; padding:5px; border-bottom: 1px solid #000; border-left: 1px solid #000;">SAR</td>
+                    <td style="text-align:right; padding:5px; border-bottom: 1px solid #000; border-left: 1px solid #000;">-</td>
+                </tr>
 
-                                    <!-- Subtotal -->
-                                    <tr>
-                                        <td style="padding:5px;">Subtotal</td>
-                                        <td style="text-align:right; padding:5px;">
-                                            <span t-field="o.amount_untaxed"/>
-                                            SAR
-                                        </td>
-                                    </tr>
+                <!-- Gross Total -->
+                <tr>
+                    <td style="padding:5px; border-bottom: 1px solid #000;">
+                        <strong>GrossTotal</strong>
+                    </td>
+                    <td style="text-align:center; padding:5px; border-bottom: 1px solid #000; border-left: 1px solid #000;">
+                        <strong>SAR</strong>
+                    </td>
+                    <td style="text-align:right; padding:5px; border-bottom: 1px solid #000; border-left: 1px solid #000;">
+                        <strong>
+                            <span t-field="o.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                        </strong>
+                    </td>
+                </tr>
 
-                                    <!-- Discount (Static or change if needed) -->
-                                    <tr>
-                                        <td style="padding:5px;">Discount</td>
-                                        <td style="text-align:right; padding:5px;">- SAR</td>
-                                    </tr>
+                <!-- VAT -->
+                <tr>
+                    <td style="padding:5px; border-bottom: 1px solid #000;">VAT</td>
+                    <td style="text-align:center; padding:5px; border-bottom: 1px solid #000; border-left: 1px solid #000;">SAR</td>
+                    <td style="text-align:right; padding:5px; border-bottom: 1px solid #000; border-left: 1px solid #000;">
+                        <span t-field="o.amount_tax" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                    </td>
+                </tr>
 
-                                    <!-- Freight (Static or update if needed) -->
-                                    <tr>
-                                        <td style="padding:5px;">Freight</td>
-                                        <td style="text-align:right; padding:5px;">- SAR</td>
-                                    </tr>
+                <!-- Net Total -->
+                <tr style="background-color:#D3D3D3;">
+                    <td style="padding:6px;">
+                        <strong>Net Total</strong>
+                    </td>
+                    <td style="text-align:center; padding:6px; border-left: 1px solid #000;">
+                        <strong>SAR</strong>
+                    </td>
+                    <td style="text-align:right; padding:6px; border-left: 1px solid #000;">
+                        <strong>
+                            <span t-field="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                        </strong>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
 
-                                    <!-- Gross Total (same as Subtotal unless discount/freight added) -->
-                                    <tr>
-                                        <td style="padding:5px;">
-                                            <strong>Gross Total</strong>
-                                        </td>
-                                        <td style="text-align:right; padding:5px;">
-                                            <strong>
-                                                <span t-field="o.amount_untaxed"/>
-                                                SAR
-                                            </strong>
-                                        </td>
-                                    </tr>
-
-                                    <!-- VAT Section -->
-                                    <tr>
-                                        <td style="padding:5px;">VAT (15%)</td>
-                                        <td style="text-align:right; padding:5px;">
-                                            <span t-field="o.amount_tax"/>
-                                            SAR
-                                        </td>
-                                    </tr>
-
-                                    <!-- Net Total -->
-                                    <tr style="background-color:#D3D3D3;">
-                                        <td style="padding:6px;">
-                                            <strong>Net Total</strong>
-                                        </td>
-                                        <td style="text-align:right; padding:6px;">
-                                            <strong>
-                                                <span t-field="o.amount_total"/>
-                                                SAR
-                                            </strong>
-                                        </td>
-                                    </tr>
-
-                                </table>
-                            </td>
-
-                        </tr>
-                    </table>
+<!-- Payment Terms and Incoterm Location (After the totals table) -->
+<table width="100%" style="font-size: 13px; margin-top: 15px;">
+    <tr>
+        <td style="padding-left:3px;">
+            <t t-if="o.payment_term_id">
+                <p style="margin: 5px 0;">
+                    <strong>Payment Terms:</strong>
+                    <span t-esc="o.payment_term_id.name"/>
+                </p>
+            </t>
+            <t t-if="o.incoterm_location">
+                <p style="margin: 5px 0;">
+                    <strong>Incoterm Location:</strong>
+                    <span t-esc="o.incoterm_location"/>
+                </p>
+            </t>
+        </td>
+    </tr>
+</table>
                 </t>
             </t>
         </xpath>

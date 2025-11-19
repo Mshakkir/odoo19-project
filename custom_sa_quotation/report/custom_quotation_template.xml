@@ -263,7 +263,7 @@
 
 <!--                    product lines -->
                     <table width="100%" border="1"
-                           style="border-collapse: collapse; font-size: 11px; margin-top: 10px; border-color: #000; line-height: 1.2;"
+                           style="border-collapse: collapse; font-size: 11px; margin-top: 10px; border-color: #000;"
                            cellpadding="0" cellspacing="0">
 
                         <thead style="background-color: #9e9d9d; padding:6px 10px;">
@@ -332,39 +332,39 @@
 
                         <tbody style="text-align: center;">
                             <tr t-foreach="o.order_line" t-as="line">
-                                <td style="padding: 7px 11px;">
+                                <td style="padding: 9px 13px;">
                                     <t t-esc="line_index + 1"/>
                                 </td>
 
-                                <td style="padding: 7px 11px; text-align:left;">
+                                <td style="padding: 9px 13px; text-align:left;">
                                     <span t-field="line.name"/>
                                 </td>
 
-                                <td style="padding: 7px 11px; text-align:center;">
+                                <td style="padding: 9px 13px; text-align:center;">
                                     <t t-esc="o.delivery_period or '-'"/>
                                 </td>
 
-                                <td style="padding: 7px 11px;">
+                                <td style="padding: 9px 13px;">
                                     <span t-field="line.product_uom_qty"/>
                                 </td>
 
-                                <td style="padding: 7px 11px;">
+                                <td style="padding: 9px 13px;">
                                     <span t-field="line.product_uom_id"/>
                                 </td>
 
-                                <td style="padding: 7px 11px; text-align:center;">
+                                <td style="padding: 9px 13px;text-align:center;">
                                     <span t-field="line.price_unit"/>
                                 </td>
 
-                                <td style="padding: 7px 11px; text-align:center;">
+                                <td style="padding: 9px 13px; text-align:center;">
                                     <t t-esc="line.tax_ids and line.tax_ids[0].amount or 0"/>%
                                 </td>
 
-                                <td style="padding: 7px 11px; text-align:center;">
+                                <td style="padding: 9px 13px; text-align:center;">
                                     <span t-esc="'%.2f' % line.price_tax"/>
                                 </td>
 
-                                <td style="padding: 7px 11px; text-align:right;">
+                                <td style="padding: 9px 13px; text-align:right;">
                                     <span t-field="line.price_subtotal"/>
                                 </td>
                             </tr>

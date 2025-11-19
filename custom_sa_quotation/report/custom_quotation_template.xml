@@ -474,7 +474,7 @@
                     </table>
 
                      <t t-if="o_last">
-                                    <div style="font-size:13px; background:#fff; width:848px; margin-bottom:0px; padding-top:10px; page-break-inside: avoid;margin-top:0px;">
+                                    <div style="font-size:13px; background:#fff; width:848px; margin-bottom:0px; padding-top:10px; margin-top:150px;">
 
                                         <!-- ===== Bank Details ===== -->
                                         <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">

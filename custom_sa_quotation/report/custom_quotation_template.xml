@@ -545,6 +545,20 @@
                                         <br/>
                                     </p>
                          </t>
+                                            <p>
+                                        <strong>Incoterm Location:</strong>
+                                        <span t-esc="o.incoterm_location"/>
+
+
+                                        <br/>
+                                    </p>
+                                                    <p>
+                                        <strong>Incoterm:</strong>
+                                        <span t-esc="o.incoterm.name"/>
+
+
+                                        <br/>
+                                    </p>
     </p>
     <p t-field="o.note"/>
 </div>

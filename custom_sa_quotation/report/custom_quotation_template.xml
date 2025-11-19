@@ -332,39 +332,39 @@
 
                         <tbody style="text-align: center;">
                             <tr t-foreach="o.order_line" t-as="line">
-                                <td style="padding: 9px 13px;">
+                                <td style="padding: 8px 12px;">
                                     <t t-esc="line_index + 1"/>
                                 </td>
 
-                                <td style="padding: 9px 13px; text-align:left;">
+                                <td style="padding: 8px 12px; text-align:left;">
                                     <span t-field="line.name"/>
                                 </td>
 
-                                <td style="padding: 9px 13px; text-align:center;">
+                                <td style="padding: 8px 12px; text-align:center;">
                                     <t t-esc="o.delivery_period or '-'"/>
                                 </td>
 
-                                <td style="padding: 9px 13px;">
+                                <td style="padding: 8px 12px;">
                                     <span t-field="line.product_uom_qty"/>
                                 </td>
 
-                                <td style="padding: 9px 13px;">
+                                <td style="padding: 8px 12px;">
                                     <span t-field="line.product_uom_id"/>
                                 </td>
 
-                                <td style="padding: 9px 13px;text-align:center;">
+                                <td style="padding: 8px 12px;text-align:center;">
                                     <span t-field="line.price_unit"/>
                                 </td>
 
-                                <td style="padding: 9px 13px; text-align:center;">
+                                <td style="padding: 8px 12px; text-align:center;">
                                     <t t-esc="line.tax_ids and line.tax_ids[0].amount or 0"/>%
                                 </td>
 
-                                <td style="padding: 9px 13px; text-align:center;">
+                                <td style="padding: 8px 12px; text-align:center;">
                                     <span t-esc="'%.2f' % line.price_tax"/>
                                 </td>
 
-                                <td style="padding: 9px 13px; text-align:right;">
+                                <td style="padding: 8px 12px;text-align:right;">
                                     <span t-field="line.price_subtotal"/>
                                 </td>
                             </tr>

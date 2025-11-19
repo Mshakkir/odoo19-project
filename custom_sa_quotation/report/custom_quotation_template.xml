@@ -475,92 +475,97 @@
                     <!-- ===== Totals and Notes Section ===== -->
 <!-- ===== Totals and Notes Section ===== -->
 <!-- ===== Totals and Notes Section ===== -->
-<table width="100%" style="font-size: 13px; margin-top: 10px; border-collapse: collapse;">
-    <tr>
-        <!-- Left: Terms and Conditions -->
-        <td style="width: 60%; padding-left: 3px; padding-right: 15px; vertical-align: top; border: none;">
-            <div style="border: none;">
+<!-- ===== Totals and Notes Section ===== -->
+<div style="width: 100%; font-size: 13px; margin-top: 10px;">
+    <table width="100%" style="border-collapse: collapse; border: none;">
+        <tr>
+            <!-- Left: Terms and Conditions Header -->
+            <td style="width: 60%; padding-left: 3px; padding-right: 15px; vertical-align: top; border: none;">
                 <p style="margin-bottom: 10px; margin-top: 0;">
                     <strong>Offer Terms and Conditions:</strong>
                 </p>
+            </td>
+
+            <!-- Right: Totals Table -->
+            <td style="width: 40%; vertical-align: top; border: none;" rowspan="2">
+                <table style="width: 100%; border: 1px solid #000; border-collapse: collapse; font-size: 13px;">
+                    <!-- Subtotal -->
+                    <tr>
+                        <td style="padding: 5px; border: 1px solid #000;">Subtotal</td>
+                        <td style="text-align: right; padding: 5px; border: 1px solid #000;">SAR</td>
+                        <td style="text-align: right; padding: 5px; border: 1px solid #000;">
+                            <span t-field="o.amount_untaxed"/>
+                        </td>
+                    </tr>
+
+                    <!-- Discount -->
+                    <tr>
+                        <td style="padding: 5px; border: 1px solid #000;">Discount</td>
+                        <td style="text-align: right; padding: 5px; border: 1px solid #000;">SAR</td>
+                        <td style="text-align: right; padding: 5px; border: 1px solid #000;">-</td>
+                    </tr>
+
+                    <!-- Freight -->
+                    <tr>
+                        <td style="padding: 5px; border: 1px solid #000;">Freight</td>
+                        <td style="text-align: right; padding: 5px; border: 1px solid #000;">SAR</td>
+                        <td style="text-align: right; padding: 5px; border: 1px solid #000;">-</td>
+                    </tr>
+
+                    <!-- Gross Total -->
+                    <tr>
+                        <td style="padding: 5px; border: 1px solid #000;">
+                            <strong>GrossTotal</strong>
+                        </td>
+                        <td style="text-align: right; padding: 5px; border: 1px solid #000;">
+                            <strong>SAR</strong>
+                        </td>
+                        <td style="text-align: right; padding: 5px; border: 1px solid #000;">
+                            <strong>
+                                <span t-field="o.amount_untaxed"/>
+                            </strong>
+                        </td>
+                    </tr>
+
+                    <!-- VAT Section -->
+                    <tr>
+                        <td style="padding: 5px; border: 1px solid #000;">VAT</td>
+                        <td style="text-align: right; padding: 5px; border: 1px solid #000;">SAR</td>
+                        <td style="text-align: right; padding: 5px; border: 1px solid #000;">
+                            <span t-field="o.amount_tax"/>
+                        </td>
+                    </tr>
+
+                    <!-- Net Total -->
+                    <tr style="background-color: #D3D3D3;">
+                        <td style="padding: 6px; border: 1px solid #000;">
+                            <strong>Net Total</strong>
+                        </td>
+                        <td style="text-align: right; padding: 6px; border: 1px solid #000;">
+                            <strong>SAR</strong>
+                        </td>
+                        <td style="text-align: right; padding: 6px; border: 1px solid #000;">
+                            <strong>
+                                <span t-field="o.amount_total"/>
+                            </strong>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <tr>
+            <!-- Terms and Conditions Content - flows naturally -->
+            <td style="width: 60%; padding-left: 3px; padding-right: 15px; vertical-align: top; border: none;">
                 <t t-if="o.note">
                     <div style="font-size: 13px; line-height: 1.6;">
                         <span t-field="o.note"/>
                     </div>
                 </t>
-            </div>
-        </td>
-
-        <!-- Right: Totals Table -->
-        <td style="width: 40%; vertical-align: top; border: none;">
-            <table style="width: 100%; border: 1px solid #000; border-collapse: collapse; font-size: 13px;">
-                <!-- Subtotal -->
-                <tr>
-                    <td style="padding: 5px; border: 1px solid #000;">Subtotal</td>
-                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">
-                        SAR
-                    </td>
-                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">
-                        <span t-field="o.amount_untaxed"/>
-                    </td>
-                </tr>
-
-                <!-- Discount -->
-                <tr>
-                    <td style="padding: 5px; border: 1px solid #000;">Discount</td>
-                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">SAR</td>
-                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">-</td>
-                </tr>
-
-                <!-- Freight -->
-                <tr>
-                    <td style="padding: 5px; border: 1px solid #000;">Freight</td>
-                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">SAR</td>
-                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">-</td>
-                </tr>
-
-                <!-- Gross Total -->
-                <tr>
-                    <td style="padding: 5px; border: 1px solid #000;">
-                        <strong>GrossTotal</strong>
-                    </td>
-                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">
-                        <strong>SAR</strong>
-                    </td>
-                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">
-                        <strong>
-                            <span t-field="o.amount_untaxed"/>
-                        </strong>
-                    </td>
-                </tr>
-
-                <!-- VAT Section -->
-                <tr>
-                    <td style="padding: 5px; border: 1px solid #000;">VAT</td>
-                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">SAR</td>
-                    <td style="text-align: right; padding: 5px; border: 1px solid #000;">
-                        <span t-field="o.amount_tax"/>
-                    </td>
-                </tr>
-
-                <!-- Net Total -->
-                <tr style="background-color: #D3D3D3;">
-                    <td style="padding: 6px; border: 1px solid #000;">
-                        <strong>Net Total</strong>
-                    </td>
-                    <td style="text-align: right; padding: 6px; border: 1px solid #000;">
-                        <strong>SAR</strong>
-                    </td>
-                    <td style="text-align: right; padding: 6px; border: 1px solid #000;">
-                        <strong>
-                            <span t-field="o.amount_total"/>
-                        </strong>
-                    </td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-</table>
+            </td>
+        </tr>
+    </table>
+</div>
                 </t>
             </t>
         </xpath>

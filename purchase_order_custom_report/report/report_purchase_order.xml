@@ -478,14 +478,14 @@
                 /* Arabic Regular */
                 @font-face {
                     font-family: 'NotoNaskhArabic';
-                    src: url('/your_module_name/static/src/fonts/NotoNaskhArabic-Regular.ttf') format('truetype');
+                    src: url('/purchase_order_custom_report/static/src/fonts/NotoNaskhArabic-Regular.ttf') format('truetype');
                     font-weight: normal;
                 }
 
                 /* Arabic Bold */
                 @font-face {
                     font-family: 'NotoNaskhArabic';
-                    src: url('/your_module_name/static/src/fonts/NotoNaskhArabic-Bold.ttf') format('truetype');
+                    src: url('/purchase_order_custom_report/static/src/fonts/NotoNaskhArabic-Bold.ttf') format('truetype');
                     font-weight: bold;
                 }
 

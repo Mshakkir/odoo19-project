@@ -533,6 +533,13 @@
 
     </table>
 </div>
+                    <div class="mt-4"
+                         style="font-size: 13px; margin-top: 10px; padding-left:3px;">
+                        <p>
+                            <strong>Offer Terms and Conditions:</strong>
+                        </p>
+                        <p t-field="o.note"/>
+                    </div>
                 </t>
             </t>
         </xpath>

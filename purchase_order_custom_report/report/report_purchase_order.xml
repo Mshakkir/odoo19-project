@@ -435,7 +435,8 @@
                                     <strong>Vendor Reference:</strong>
                                     <span t-esc="o.partner_ref or '-'"/>
                                     <br/>
-                                    <span class="ar" style="font-size:11px; line-height:12px; display:block;">مرجع البائع:
+                                    <span class="ar" style="font-size:11px; line-height:12px; display:block;">مرجع
+                                        البائع:
                                     </span>
                                 </td>
 
@@ -505,32 +506,41 @@
                                 <t t-foreach="o.order_line" t-as="line">
                                     <t t-set="i" t-value="i + 1"/>
                                     <tr>
-                                        <td style="padding:10px; border:1px solid #000;">
+
+                                        <td style="padding:12px 8px; border:1px solid #000; line-height:16px; vertical-align:middle;">
                                             <span t-esc="i"/>
                                         </td>
-                                        <td style="padding:10px; border:1px solid #000; text-align:left;">
+
+                                        <td style="padding:12px 8px; border:1px solid #000; text-align:left; line-height:16px; vertical-align:middle;">
                                             <span t-esc="line.name"/>
                                         </td>
-                                        <td style="padding:10px; border:1px solid #000;">
+
+                                        <td style="padding:12px 8px; border:1px solid #000; line-height:16px; vertical-align:middle;">
                                             <span t-esc="line.date_planned and line.date_planned.strftime('%d-%b-%Y') or '-'"/>
                                         </td>
-                                        <td style="padding:10px; border:1px solid #000;">
+
+                                        <td style="padding:12px 8px; border:1px solid #000; line-height:16px; vertical-align:middle;">
                                             <span t-esc="line.product_qty"/>
                                         </td>
-                                        <td style="padding:10px; border:1px solid #000;">
+
+                                        <td style="padding:12px 8px; border:1px solid #000; line-height:16px; vertical-align:middle;">
                                             <span t-esc="line.product_uom_id.name"/>
                                         </td>
-                                        <td style="padding:10px; border:1px solid #000;">
+
+                                        <td style="padding:12px 8px; border:1px solid #000; line-height:16px; vertical-align:middle;">
                                             <span t-field="line.price_unit"
                                                   t-options='{"widget":"monetary", "display_currency":o.currency_id}'/>
                                         </td>
-                                        <td style="padding:10px; border:1px solid #000;">
+
+                                        <td style="padding:12px 8px; border:1px solid #000; line-height:16px; vertical-align:middle;">
                                             <span t-field="line.price_subtotal"
                                                   t-options='{"widget":"monetary", "display_currency":o.currency_id}'/>
                                         </td>
+
                                     </tr>
                                 </t>
                             </tbody>
+
                         </table>
 
                         <!-- TOTALS -->

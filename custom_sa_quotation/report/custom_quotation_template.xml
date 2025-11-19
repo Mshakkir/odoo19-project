@@ -67,7 +67,7 @@
                 </t>
 
                 <div class="footer"
-                     style=" font-size:13px; background:#fff;width:855px;margin-top:10px;padding-top:10px;">
+                     style=" font-size:13px; background:#fff;width:854px;margin-top:10px;padding-top:10px;">
 
 
                     <!-- ===== Bank Details ===== -->
@@ -109,7 +109,7 @@
 
 
                             <td style="width:33%; padding:4px;border-right: 1px solid black;">
-                                <strong>jeddah</strong>
+                                <strong>jeddah:</strong>
                                 Jeddah, 7655 Al Fayha
                                 Al Fayha Dist. JEDDAH 22244-3108
                                 Saudi Arabia
@@ -129,7 +129,7 @@
                             </td>
 
                             <td style="width:33%; padding:4px;border-right: 1px solid black;">
-                                <strong>Dammam"</strong>
+                                <strong>Dammam:</strong>
                                 8515, Qutaibah bin Muslim ST,
                                 Al Souq, Dammam 4525-32242
                                 Saudi Arabia
@@ -268,7 +268,7 @@
 
                         <thead style="background-color: #9e9d9d; padding:6px 10px;">
                             <tr>
-                                <th style="width: 2%; text-align: center; padding: 6px 10px;">SN
+                                <th style="width: 1%; text-align: center; padding: 6px 10px;">SN
                                     <br/>
                                     <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">م</span>
                                 </th>
@@ -281,7 +281,7 @@
                                     </span>
                                 </th>
 
-                                <th style="width: 3%; text-align: center; padding: 6px 10px;">
+                                <th style="width: 2%; text-align: center; padding: 6px 10px;">
                                     Delivery Time
                                     <br/>
                                     <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">مدة</span>
@@ -299,7 +299,7 @@
                                     <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">وحدة</span>
                                 </th>
 
-                                <th style="width: 4%; text-align: center; padding: 6px 10px;">
+                                <th style="width: 3%; text-align: center; padding: 6px 10px;">
                                     Unit Price
                                     <br/>
                                     <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">سعر الوحدة
@@ -321,7 +321,7 @@
                                     </span>
                                 </th>
 
-                                <th style="width: 4%; text-align: center; padding: 6px 10px;">
+                                <th style="width: 3%; text-align: center; padding: 6px 10px;">
                                     Line Total
                                     <br/>
                                     <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">مجموع الخط

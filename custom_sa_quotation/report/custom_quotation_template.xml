@@ -377,39 +377,39 @@
 
 
                     <!-- ===== Totals and Notes Section ===== -->
-                    <table width="100%" style="font-size: 13px; margin-top: 10px;">
-                          <td style="width: 60%;padding-left:3px; background-color:white;">
-                                <t t-if="o.payment_term_id">
-                                    <p>
-                                        <strong>Payment Terms:</strong>
-                                        <span t-esc="o.payment_term_id.name"/>
-                                        <br/>
-                                    </p>
+                    <table width="40%" style="font-size: 13px; margin-top: 10px;">
+<!--                          <td style="width: 60%;padding-left:3px; background-color:white;">-->
+<!--                                <t t-if="o.payment_term_id">-->
+<!--                                    <p>-->
+<!--                                        <strong>Payment Terms:</strong>-->
+<!--                                        <span t-esc="o.payment_term_id.name"/>-->
+<!--                                        <br/>-->
+<!--                                    </p>-->
 
 
-                                    <p>
-                                        <strong>Incoterm Location:</strong>
-                                        <span t-esc="o.incoterm_location"/>
+<!--                                    <p>-->
+<!--                                        <strong>Incoterm Location:</strong>-->
+<!--                                        <span t-esc="o.incoterm_location"/>-->
 
 
-                                        <br/>
-                                    </p>
-                                </t>
-                                <t t-if="o.note">
-                                    <div class="mt-4"
-                                         style="font-size: 13px; margin-top: 10px; padding-left:3px;">
-                                        <p>
-                                            <strong>Offer Terms and Conditions:</strong>
-                                        </p>
-                                        <p t-field="o.note"/>
-                                    </div>
-                                </t>
-                            </td>
+<!--                                        <br/>-->
+<!--                                    </p>-->
+<!--                                </t>-->
+<!--                                <t t-if="o.note">-->
+<!--                                    <div class="mt-4"-->
+<!--                                         style="font-size: 13px; margin-top: 10px; padding-left:3px;">-->
+<!--                                        <p>-->
+<!--                                            <strong>Offer Terms and Conditions:</strong>-->
+<!--                                        </p>-->
+<!--                                        <p t-field="o.note"/>-->
+<!--                                    </div>-->
+<!--                                </t>-->
+<!--                            </td>-->
                         <tr>
                             <!-- Left: Notes -->
                             <!-- Right: Totals -->
-                            <td style="width: 40%; border:white;margin-left:600px;">
-                                <table style="width:100%; border:1px solid #000; border-collapse:collapse; font-size:13px;">
+                            <td style="width: 40%; border:white;">
+                                <table style="width:40%; border:1px solid #000; border-collapse:collapse; font-size:13px;">
 
                                     <!-- Subtotal -->
                                     <tr>

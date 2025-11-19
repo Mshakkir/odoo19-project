@@ -409,7 +409,7 @@
                             <!-- Left: Notes -->
                             <!-- Right: Totals -->
 
-                                <table style="width:100%; border:1px solid #000; border-collapse:collapse; font-size:13px;margin-left:600px;">
+                                <table style="width:40%; border:1px solid #000; border-collapse:collapse; font-size:13px;margin-left:600px;">
 
                                     <!-- Subtotal -->
                                     <tr>

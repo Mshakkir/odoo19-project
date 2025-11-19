@@ -151,7 +151,7 @@
                 <t t-call="web.external_layout">
 
                     <!-- ===== Dynamic Title Section ===== -->
-                    <div style="padding-top:5px;">
+                    <div style="padding-top:-10px;">
                         <div style=" background-color:#d3d3d3; color:black; padding:8px ; text-align:center; margin-bottom:10px ; font-weight:bold; font-size:16px;">
                             <!-- Dynamic title based on state -->
                             <t t-if="o.state in ('draft', 'sent')">
@@ -381,54 +381,54 @@
 
     <thead style="background-color: #9e9d9d; padding:6px 10px;">
         <tr>
-            <th style="width: 2%; text-align: center; padding: 8px 12px;">SN
+            <th style="width: 2%; text-align: center; padding: 6px 10px;">SN
                 <br/>
                 <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">م</span>
             </th>
 
-            <th style="width: 15%; text-align: center; padding: 8px 12px;">
+            <th style="width: 15%; text-align: center; padding: 6px 10px;">
                 Item Description
                 <br/>
                 <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">المنتج الوصف</span>
             </th>
 
-            <th style="width: 3%; text-align: center; padding: 8px 12px;">
+            <th style="width: 3%; text-align: center; padding: 6px 10px;">
                 Delivery Time
                 <br/>
                 <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">مدة</span>
             </th>
 
-            <th style="width: 3%; text-align: center; padding: 8px 12px;">
+            <th style="width: 3%; text-align: center; padding: 6px 10px;">
                 QTY
                 <br/>
                 <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">الكمية</span>
             </th>
 
-            <th style="width: 3%; text-align: center; padding: 8px 12px;">
+            <th style="width: 3%; text-align: center; padding: 6px 10px;">
                 U/M
                 <br/>
                 <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">وحدة</span>
             </th>
 
-            <th style="width: 4%; text-align: center; padding: 8px 12px;">
+            <th style="width: 4%; text-align: center; padding: 6px 10px;">
                 Unit Price
                 <br/>
                 <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">سعر الوحدة</span>
             </th>
 
-            <th style="width: 3%; text-align: center; padding: 8px 12px;">
+            <th style="width: 3%; text-align: center; padding: 6px 10px;">
                 VAT %
                 <br/>
                 <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">ضريبة %</span>
             </th>
 
-            <th style="width: 3%; text-align: center; padding: 8px 12px;">
+            <th style="width: 3%; text-align: center; padding: 6px 10px;">
                 VAT Amount
                 <br/>
                 <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl; font-size:10px;">مبلغ الضريبة</span>
             </th>
 
-            <th style="width: 4%; text-align: center; padding: 8px 12px;">
+            <th style="width: 4%; text-align: center; padding: 6px 10px;">
                 Line Total
                 <br/>
                 <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">مجموع الخط</span>
@@ -438,39 +438,39 @@
 
     <tbody style="text-align: center;">
         <tr t-foreach="o.order_line" t-as="line">
-            <td style="padding: 8px 12px;">
+            <td style="padding: 7px 11px;">
                 <t t-esc="line_index + 1"/>
             </td>
 
-            <td style="padding: 8px 12px; text-align:left;">
+            <td style="padding: 7px 11px; text-align:left;">
                 <span t-field="line.name"/>
             </td>
 
-            <td style="padding: 8px 12px; text-align:center;">
+            <td style="padding: 7px 11px; text-align:center;">
                 <t t-esc="o.delivery_period or '-'"/>
             </td>
 
-            <td style="padding: 8px 12px;">
+            <td style="padding: 7px 11px;">
                 <span t-field="line.product_uom_qty"/>
             </td>
 
-            <td style="padding: 8px 12px;">
+            <td style="padding: 7px 11px;">
                 <span t-field="line.product_uom_id"/>
             </td>
 
-            <td style="padding: 8px 12px; text-align:center;">
+            <td style="padding: 7px 11px; text-align:center;">
                 <span t-field="line.price_unit"/>
             </td>
 
-            <td style="padding: 8px 12px; text-align:center;">
+            <td style="padding: 7px 11px; text-align:center;">
                 <t t-esc="line.tax_ids and line.tax_ids[0].amount or 0"/>%
             </td>
 
-            <td style="padding: 8px 12px; text-align:center;">
+            <td style="padding: 7px 11px; text-align:center;">
                 <span t-esc="'%.2f' % line.price_tax"/>
             </td>
 
-            <td style="padding: 8px 12px; text-align:right;">
+            <td style="padding: 7px 11px; text-align:right;">
                 <span t-field="line.price_subtotal"/>
             </td>
         </tr>

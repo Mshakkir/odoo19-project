@@ -475,32 +475,25 @@
         <xpath expr="//t[@t-call='web.external_layout']" position="before">
 
             <style>
-                /* Arabic Regular */
-                @font-face {
-                    font-family: 'NotoNaskhArabic';
-                    src: url('/purchase_order_custom_report/static/src/fonts/NotoNaskhArabic-Regular.ttf') format('truetype');
-                    font-weight: normal;
-                    font-style: normal;
-                }
-
-                /* Arabic Bold */
-                @font-face {
-                    font-family: 'NotoNaskhArabic';
-                    src: url('/purchase_order_custom_report/static/src/fonts/NotoNaskhArabic-Bold.ttf') format('truetype');
-                    font-weight: bold;
-                    font-style: normal;
-                }
+                /* Import Google Fonts for Arabic - Works with wkhtmltopdf */
+                @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&amp;display=swap');
 
                 /* Apply Arabic font to specific elements */
                 .ar {
-                    font-family: 'NotoNaskhArabic', Arial, sans-serif !important;
+                    font-family: 'Noto Naskh Arabic', Arial, sans-serif !important;
                     direction: rtl;
                     unicode-bidi: embed;
                 }
 
-                /* Don't force Arabic font globally - let it apply where needed */
+                /* Default font for English */
                 body, table, div, span, td, th {
-                    font-family: Arial, sans-serif;
+                    font-family: Arial, 'Noto Naskh Arabic', sans-serif;
+                }
+
+                /* Ensure proper rendering */
+                * {
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
                 }
             </style>
 

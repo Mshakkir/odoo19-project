@@ -327,7 +327,7 @@
                         <div style="background:#ddd; padding:8px; text-align:center; margin-bottom:15px;
                                     font-weight:bold; font-size:16px;">
                             Purchase Order /
-                            <span style="font-family: 'Tajawal'; font-weight:900; direction:rtl;">
+                            <span style="color: #8B1538; font-size: 17px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;">
                                 أمر شراء
                             </span>
                         </div>
@@ -367,37 +367,69 @@
                         </table>
 
                         <!-- ITEMS TABLE -->
-                        <table style="width:100%; border-collapse:collapse; margin-top:12px;">
-                            <tr style="background:#ddd;">
-                                <th style="border:1px solid #000; padding:5px;">SN</th>
-                                <th style="border:1px solid #000; padding:5px;">Item Description</th>
-                                <th style="border:1px solid #000; padding:5px;">Delivery</th>
-                                <th style="border:1px solid #000; padding:5px;">QTY</th>
-                                <th style="border:1px solid #000; padding:5px;">U/M</th>
-                                <th style="border:1px solid #000; padding:5px;">Unit Price</th>
-                                <th style="border:1px solid #000; padding:5px;">Line Total</th>
+                        <table width="100%" border="1"
+                           style="border-collapse:collapse; font-size:13px; text-align:center;">
+                        <thead style="background-color:#d9d9d9; color:#080808; font-size:14px;">
+                            <tr>
+                                <th>S.N
+                                    <br/>
+                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">م</span>
+                                </th>
+                                <th>Item / Description
+                                    <br/>
+                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">الصنف /
+                                        الوصف
+                                    </span>
+                                </th>
+                            <th>Delivery
+                                    <br/>
+                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">توصيل
+                                    </span>
+                                </th>
+                                <th>QTY
+                                    <br/>
+                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">الكمية
+                                    </span>
+                                </th>
+                                <th>Unit
+                                    <br/>
+                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">الوحدة
+                                    </span>
+                                </th>
+                            <th>S.Rate
+                                    <br/>
+                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">سعر الوحدة
+                                    </span>
+                                </th>
+                            <th>Total Price
+                                    <br/>
+                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">القيمة الإجمالية
+                                    </span>
+                                </th>
                             </tr>
-
+                        </thead>
+                            <tbody>
                             <t t-set="i" t-value="0"/>
                             <t t-foreach="o.order_line" t-as="line">
                                 <t t-set="i" t-value="i + 1"/>
                                 <tr>
-                                    <td style="border:1px solid #000; padding:5px;" t-esc="i"/>
-                                    <td style="border:1px solid #000; padding:5px;" t-esc="line.name"/>
-                                    <td style="border:1px solid #000; padding:5px;"
+                                    <td style="border:1px solid #000; padding: 10px 8px;" t-esc="i"/>
+                                    <td style="border:1px solid #000; padding: 10px 8px;" t-esc="line.name"/>
+                                    <td style="border:1px solid #000; padding: 10px 8px;"
                                         t-esc="line.date_planned and line.date_planned.strftime('%d-%b-%Y')"/>
-                                    <td style="border:1px solid #000; padding:5px;" t-esc="line.product_qty"/>
-                                    <td style="border:1px solid #000; padding:5px;" t-esc="line.product_uom_id.name"/>
-                                    <td style="border:1px solid #000; padding:5px;">
+                                    <td style="border:1px solid #000; padding: 10px 8px;" t-esc="line.product_qty"/>
+                                    <td style="border:1px solid #000; padding: 10px 8px;" t-esc="line.product_uom_id.name"/>
+                                    <td style="border:1px solid #000; padding: 10px 8px;">
                                         <span t-field="line.price_unit"
                                               t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                     </td>
-                                    <td style="border:1px solid #000; padding:5px;">
+                                    <td style="border:1px solid #000; padding: 10px 8px;">
                                         <span t-field="line.price_subtotal"
                                               t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                     </td>
                                 </tr>
                             </t>
+                            </tbody>
                         </table>
 
                         <!-- TOTALS -->

@@ -453,12 +453,12 @@
                         <table style="margin-top:10px; font-size:12px; text-align:center; border:1px solid #000;">
                             <thead style="background-color:#d9d9d9; color:#080808; font-weight:bold;">
                                 <tr>
-                                    <th style="padding:10px; border:1px solid #000;font-weight:bold width:5%;">
+                                    <th style="padding:10px; border:1px solid #000;font-weight:bold; width:5%;">
                                         S.N
                                         <br/>
                                         <span class="ar" style="font-size:11px; font-weight:500;">م</span>
                                     </th>
-                                    <th style="padding:10px; border:1px solid #000;font-weight:bold width:35%;">
+                                    <th style="padding:10px; border:1px solid #000;font-weight:bold; width:35%;">
                                         Item / Description
                                         <br/>
                                         <span class="ar"
@@ -467,26 +467,25 @@
                                         </span>
                                     </th>
 
-
-                                    <th style="padding:10px; border:1px solid #000;font-weight:bold width:12%;">
+                                    <th style="padding:10px; border:1px solid #000;font-weight:bold; width:12%;">
                                         Delivery
                                         <br/>
                                         <span class="ar" style="font-size:11px; font-weight:500;">التوصيل</span>
                                     </th>
 
-                                    <th style="padding:10px; border:1px solid #000;font-weight:bold width:8%;">
+                                    <th style="padding:10px; border:1px solid #000;font-weight:bold; width:8%;">
                                         QTY
                                         <br/>
                                         <span class="ar" style="font-size:11px; font-weight:500;">الكمية</span>
                                     </th>
 
-                                    <th style="padding:10px; border:1px solid #000;font-weight:bold width:10%;">
+                                    <th style="padding:10px; border:1px solid #000;font-weight:bold; width:10%;">
                                         Unit
                                         <br/>
                                         <span class="ar" style="font-size:11px; font-weight:500;">الوحدة</span>
                                     </th>
 
-                                    <th style="padding:10px; border:1px solid #000;font-weight:bold width:15%;">
+                                    <th style="padding:10px; border:1px solid #000;font-weight:bold; width:15%;">
                                         Unit Price
                                         <br/>
                                         <span class="ar" style="font-size:11px; font-weight:500;">سعر الوحدة</span>
@@ -532,7 +531,7 @@
                                                   t-options='{"widget":"monetary", "display_currency":o.currency_id}'/>
                                         </td>
 
-                                        <td style="padding:12px 8px; border:1px solid #000; line-height:16px; vertical-align:middle;">
+                                        <td style="padding:10px 6px; border:1px solid #000; line-height:16px; vertical-align:middle;">
                                             <span t-field="line.price_subtotal"
                                                   t-options='{"widget":"monetary", "display_currency":o.currency_id}'/>
                                         </td>

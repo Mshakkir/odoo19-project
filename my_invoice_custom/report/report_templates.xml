@@ -536,6 +536,7 @@
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="o">
+                    <t t-if="o.move_type in ('out_invoice','out_refund')">
                     <div class="page">
                         <div class="header"
                              style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
@@ -595,10 +596,9 @@
 
                         </div>
                     </div>
-
-
                 </t>
-
+                     </t>
+<t t-if="o.move_type in ('out_invoice','out_refund')">
                 <div class="footer"
                      style=" font-size:13px; background:#fff;width:848px;margin-top:10px;padding-top:10px;">
 
@@ -675,8 +675,9 @@
                         </tr>
                     </table>
 
-                    <!-- ===== Footer Logos ===== -->
+
                 </div>
+     </t>
             </t>
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">

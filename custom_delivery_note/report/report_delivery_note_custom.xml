@@ -183,7 +183,7 @@
                                 <span t-else="">-</span>
                             </td>
                             <td style="padding: 4px;">
-                                <span t-field="o.commitment_date"/>
+                                <span t-field="o.date_deadline"/>
                             </td>
                         </tr>
                     </table>

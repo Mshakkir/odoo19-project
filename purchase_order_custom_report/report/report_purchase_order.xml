@@ -449,75 +449,23 @@
                                         <span class="ar">عنوان الشحن</span>
                                     </div>
 
-                                    <!-- If Deliver To (dest_address_id) is selected -->
+                                    <!-- Always show Deliver To name ONLY -->
                                     <t t-if="o.dest_address_id">
                                         <strong>
                                             <t t-esc="o.dest_address_id.name"/>
                                         </strong>
                                         <br/>
-
-                                        <t t-if="o.dest_address_id.street">
-                                            <t t-esc="o.dest_address_id.street"/>
-                                            <br/>
-                                        </t>
-
-                                        <t t-if="o.dest_address_id.street2">
-                                            <t t-esc="o.dest_address_id.street2"/>
-                                            <br/>
-                                        </t>
-
-                                        <t t-if="o.dest_address_id.city or o.dest_address_id.state_id or o.dest_address_id.zip">
-                                            <t t-if="o.dest_address_id.city" t-esc="o.dest_address_id.city"/>
-                                            <t t-if="o.dest_address_id.state_id">,
-                                                <t t-esc="o.dest_address_id.state_id.name"/>
-                                            </t>
-                                            <t t-if="o.dest_address_id.zip">-
-                                                <t t-esc="o.dest_address_id.zip"/>
-                                            </t>
-                                            <br/>
-                                        </t>
-
-                                        <t t-if="o.dest_address_id.country_id">
-                                            <t t-esc="o.dest_address_id.country_id.name"/>
-                                            <br/>
-                                        </t>
                                     </t>
 
-                                    <!-- If NOT found (fallback to company address) -->
+                                    <!-- If NO Deliver To selected → show nothing or show company name (optional) -->
 <!--                                    <t t-if="not o.dest_address_id">-->
 <!--                                        <strong>-->
 <!--                                            <t t-esc="o.company_id.partner_id.name"/>-->
 <!--                                        </strong>-->
 <!--                                        <br/>-->
-
-<!--                                        <t t-if="o.company_id.partner_id.street">-->
-<!--                                            <t t-esc="o.company_id.partner_id.street"/>-->
-<!--                                            <br/>-->
-<!--                                        </t>-->
-
-<!--                                        <t t-if="o.company_id.partner_id.street2">-->
-<!--                                            <t t-esc="o.company_id.partner_id.street2"/>-->
-<!--                                            <br/>-->
-<!--                                        </t>-->
-
-<!--                                        <t t-if="o.company_id.partner_id.city or o.company_id.partner_id.state_id or o.company_id.partner_id.zip">-->
-<!--                                            <t t-if="o.company_id.partner_id.city"-->
-<!--                                               t-esc="o.company_id.partner_id.city"/>-->
-<!--                                            <t t-if="o.company_id.partner_id.state_id">,-->
-<!--                                                <t t-esc="o.company_id.partner_id.state_id.name"/>-->
-<!--                                            </t>-->
-<!--                                            <t t-if="o.company_id.partner_id.zip">- -->
-<!--                                                <t t-esc="o.company_id.partner_id.zip"/>-->
-<!--                                            </t>-->
-<!--                                            <br/>-->
-<!--                                        </t>-->
-
-<!--                                        <t t-if="o.company_id.partner_id.country_id">-->
-<!--                                            <t t-esc="o.company_id.partner_id.country_id.name"/>-->
-<!--                                            <br/>-->
-<!--                                        </t>-->
 <!--                                    </t>-->
                                 </td>
+
                             </tr>
                         </table>
 

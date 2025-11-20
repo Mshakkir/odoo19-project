@@ -206,7 +206,7 @@
                     <strong><span t-field="o.partner_id.name"/></strong><br/>
                     <span t-field="o.partner_id.contact_address" style="font-size: 11px;"/><br/>
                     <strong>VAT No:</strong><br/>
-                    <span t-field="doc.partner_id.vat"/>
+                    <span t-field="o.partner_id.vat"/>
                 </td>
             </tr>
         </table>

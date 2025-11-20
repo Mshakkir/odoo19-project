@@ -237,7 +237,7 @@
             </tr>
             <!-- Row 4: P.O Number Data -->
             <tr>
-                <td style="padding: 6px; border: 1px solid #000; vertical-align: middle; text-align: center; font-weight: bold;">
+                <td style="padding: 6px; border: 1px solid #000; vertical-align: middle; text-align: center; font-weight: bold;margin-bottom:7px;">
                     <span t-if="o.sale_id" t-field="o.sale_id.client_order_ref"/>
                     <span t-else="">-</span>
                 </td>

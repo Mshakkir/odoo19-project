@@ -449,23 +449,17 @@
                                         <span class="ar">عنوان الشحن</span>
                                     </div>
 
-                                    <!-- Always show Deliver To name ONLY -->
-                                    <t t-if="o.dest_address_id">
+                                    <!-- Get Warehouse of the PO -->
+                                    <t t-set="wh" t-value="o.picking_type_id.warehouse_id"/>
+
+                                    <!-- Only show warehouse name -->
+                                    <t t-if="wh">
                                         <strong>
-                                            <t t-esc="o.dest_address_id.name"/>
+                                            <t t-esc="wh.partner_id.name"/>
                                         </strong>
                                         <br/>
                                     </t>
-
-                                    <!-- If NO Deliver To selected → show nothing or show company name (optional) -->
-<!--                                    <t t-if="not o.dest_address_id">-->
-<!--                                        <strong>-->
-<!--                                            <t t-esc="o.company_id.partner_id.name"/>-->
-<!--                                        </strong>-->
-<!--                                        <br/>-->
-<!--                                    </t>-->
                                 </td>
-
                             </tr>
                         </table>
 

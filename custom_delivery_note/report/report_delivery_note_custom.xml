@@ -283,7 +283,7 @@
                     <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 5px; border: 0;">
                         <tr>
                             <!-- LEFT SIDE -->
-                            <td style="width: 100%; vertical-align: top; padding-right: 10px; border: 0;">
+                            <td style="width: 100%; vertical-align: top; padding-right: 0px; border: 0;">
                                 <table width="100%" border="1"
                                        style="border-collapse: collapse; font-size: 11px; border: 1px solid #000;"
                                        cellpadding="0" cellspacing="0">
@@ -297,7 +297,7 @@
                                         </td>
                                     </tr>
 
-                                    <tr style="height: auto;">
+                                    <tr style="height: 40px;;">
                                         <td style="padding: 4px; border: 1px solid #000; line-height: 1.3;">
                                             <strong>
                                                 <span t-field="o.partner_id.name"/>

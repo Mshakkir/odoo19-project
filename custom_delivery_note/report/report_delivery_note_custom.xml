@@ -202,7 +202,7 @@
             </tr>
             <!-- Data Row -->
             <tr>
-                <td style="padding: 8px; border: 1px solid #000; vertical-align: top; line-height: 1.7; min-height: 80px;">
+                <td style="padding: 8px; border: 1px solid #000; vertical-align: top; line-height: 1.6; min-height: 80px;">
                     <strong><span t-field="o.partner_id.name"/></strong><br/>
                     <span t-field="o.partner_id.contact_address" style="font-size: 11px;"/><br/>
                     <strong>VAT No:</strong>

@@ -279,7 +279,6 @@
                     <!--        </td>-->
                     <!--    </tr>-->
                     <!--</table>-->
-
 <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 5px; border: 0;">
     <tr>
         <!-- LEFT SIDE -->
@@ -298,47 +297,40 @@
                     </td>
                 </tr>
 
-                <!-- Customer Name -->
+                <!-- Customer Information - All in one cell -->
                 <tr>
-                    <td style="padding: 4px; border: 1px solid #000;">
-                        <b>Name:</b> <span t-field="o.partner_id.name"/>
-                    </td>
-                </tr>
+                    <td style="padding: 8px; border: 1px solid #000; line-height: 1.6;">
+                        <!-- Customer Name -->
+                        <div style="margin-bottom: 4px;">
+                            <span t-field="o.partner_id.name"/>
+                        </div>
 
-                <!-- Street Address -->
-                <tr t-if="o.partner_id.street">
-                    <td style="padding: 4px; border: 1px solid #000;">
-                        <span t-field="o.partner_id.street"/>
-                    </td>
-                </tr>
+                        <!-- Street Address -->
+                        <div t-if="o.partner_id.street" style="margin-bottom: 4px;">
+                            <span t-field="o.partner_id.street"/>
+                        </div>
 
-                <!-- Street 2 Address -->
-                <tr t-if="o.partner_id.street2">
-                    <td style="padding: 4px; border: 1px solid #000;">
-                        <span t-field="o.partner_id.street2"/>
-                    </td>
-                </tr>
+                        <!-- Street 2 Address -->
+                        <div t-if="o.partner_id.street2" style="margin-bottom: 4px;">
+                            <span t-field="o.partner_id.street2"/>
+                        </div>
 
-                <!-- City, State, Zip -->
-                <tr t-if="o.partner_id.city or o.partner_id.state_id or o.partner_id.zip">
-                    <td style="padding: 4px; border: 1px solid #000;">
-                        <t t-esc="o.partner_id.city"/>
-                        <t t-if="o.partner_id.state_id">, <t t-esc="o.partner_id.state_id.name"/></t>
-                        <t t-if="o.partner_id.zip"> - <t t-esc="o.partner_id.zip"/></t>
-                    </td>
-                </tr>
+                        <!-- City, State, Zip -->
+                        <div t-if="o.partner_id.city or o.partner_id.state_id or o.partner_id.zip" style="margin-bottom: 4px;">
+                            <t t-esc="o.partner_id.city"/>
+                            <t t-if="o.partner_id.state_id">, <t t-esc="o.partner_id.state_id.name"/></t>
+                            <t t-if="o.partner_id.zip"> - <t t-esc="o.partner_id.zip"/></t>
+                        </div>
 
-                <!-- Country -->
-                <tr t-if="o.partner_id.country_id">
-                    <td style="padding: 4px; border: 1px solid #000;">
-                        <span t-field="o.partner_id.country_id.name"/>
-                    </td>
-                </tr>
+                        <!-- Country -->
+                        <div t-if="o.partner_id.country_id" style="margin-bottom: 8px;">
+                            <span t-field="o.partner_id.country_id.name"/>
+                        </div>
 
-                <!-- VAT Number -->
-                <tr>
-                    <td style="padding: 4px; border: 1px solid #000;">
-                        <b>VAT NO:</b> <span t-field="o.partner_id.vat"/>
+                        <!-- VAT Number -->
+                        <div>
+                            <b>VAT NO:</b> <span t-field="o.partner_id.vat"/>
+                        </div>
                     </td>
                 </tr>
 
@@ -346,7 +338,6 @@
         </td>
     </tr>
 </table>
-
                             <!-- RIGHT SIDE -->
 
                     <!-- BOTTOM TABLE -->

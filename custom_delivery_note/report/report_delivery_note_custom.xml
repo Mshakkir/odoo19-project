@@ -189,21 +189,22 @@
 <!--                    </table>-->
 <!-- Container for top two tables side by side -->
 <!-- Container for top two tables side by side -->
-<div style="display: table; width: 100%; margin-top: 10px;">
+<!-- Container for top two tables side by side -->
+<div style="width: 100%; margin-top: 10px; display: flex; gap: 10px;">
 
     <!-- Table 1: LEFT SIDE - Sold To (2 rows, 1 column) - FIXED HEIGHT -->
-    <div style="display: table-cell; width: 70%; vertical-align: top; padding-right: 5px;">
-        <table width="100%" border="1" style="border-collapse: collapse; font-size: 12px; border: 1px solid #000; height: 120px;" cellpadding="0" cellspacing="0">
+    <div style="width: 70%;">
+        <table width="100%" border="1" style="border-collapse: collapse; font-size: 12px; border: 1px solid #000; table-layout: fixed;" cellpadding="0" cellspacing="0">
             <!-- Header Row -->
-            <tr style="background-color: #d3d3d3;">
-                <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle; height: 35px;">
+            <tr style="background-color: #d3d3d3; height: 40px;">
+                <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle;">
                     Sold To /
                     <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">اسم العميل</span>
                 </td>
             </tr>
             <!-- Data Row -->
-            <tr>
-                <td style="padding: 8px; border: 1px solid #000; vertical-align: top; line-height: 1.4; height: 85px;">
+            <tr style="height: 120px;">
+                <td style="padding: 8px; border: 1px solid #000; vertical-align: top; line-height: 1.5;">
                     <strong><span t-field="o.partner_id.name"/></strong><br/>
                     <span t-field="o.partner_id.contact_address" style="font-size: 11px;"/>
                 </td>
@@ -212,31 +213,31 @@
     </div>
 
     <!-- Table 2: RIGHT SIDE - AWB NO and P.O No (4 rows, 1 column) - FIXED HEIGHT -->
-    <div style="display: table-cell; width: 30%; vertical-align: top; padding-left: 5px;">
-        <table width="100%" border="1" style="border-collapse: collapse; font-size: 12px; border: 1px solid #000; height: 120px;" cellpadding="0" cellspacing="0">
+    <div style="width: 30%;">
+        <table width="100%" border="1" style="border-collapse: collapse; font-size: 12px; border: 1px solid #000; table-layout: fixed;" cellpadding="0" cellspacing="0">
             <!-- Row 1: AWB NO Header -->
-            <tr style="background-color: #d3d3d3;">
-                <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle; height: 35px;">
+            <tr style="background-color: #d3d3d3; height: 40px;">
+                <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle;">
                     AWB NO /
                     <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">رقم الشحنة</span>
                 </td>
             </tr>
             <!-- Row 2: AWB Number Data -->
-            <tr>
-                <td style="padding: 8px; border: 1px solid #000; vertical-align: middle; text-align: center; font-weight: bold; font-size: 14px; height: 25px;">
+            <tr style="height: 40px;">
+                <td style="padding: 8px; border: 1px solid #000; vertical-align: middle; text-align: center; font-weight: bold; font-size: 14px;">
                     <span t-field="o.awb_number"/>
                 </td>
             </tr>
             <!-- Row 3: P.O No Header -->
-            <tr style="background-color: #d3d3d3;">
-                <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle; height: 35px;">
+            <tr style="background-color: #d3d3d3; height: 40px;">
+                <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle;">
                     P.O No /
                     <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">رقم الطلب</span>
                 </td>
             </tr>
             <!-- Row 4: P.O Number Data -->
-            <tr>
-                <td style="padding: 8px; border: 1px solid #000; vertical-align: middle; text-align: center; font-weight: bold; height: 25px;">
+            <tr style="height: 40px;">
+                <td style="padding: 8px; border: 1px solid #000; vertical-align: middle; text-align: center; font-weight: bold;">
                     <span t-if="o.sale_id" t-field="o.sale_id.client_order_ref"/>
                     <span t-else="">-</span>
                 </td>
@@ -247,31 +248,31 @@
 </div>
 
 <!-- Table 3: BELOW FULL WIDTH - Delivery Details (2 rows, 3 columns) -->
-<table width="100%" border="1" style="border-collapse: collapse; font-size: 12px; margin-top: 10px; border: 1px solid #000;" cellpadding="0" cellspacing="0">
+<table width="100%" border="1" style="border-collapse: collapse; font-size: 12px; margin-top: 10px; border: 1px solid #000; table-layout: fixed;" cellpadding="0" cellspacing="0">
     <!-- Header Row -->
-    <tr style="background-color: #d3d3d3;">
-        <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle; width: 33.33%; height: 35px;">
+    <tr style="background-color: #d3d3d3; height: 40px;">
+        <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle; width: 33.33%;">
             Delivery Note No. /
             <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">رقم الفاتورة</span>
         </td>
-        <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle; width: 33.33%; height: 35px;">
+        <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle; width: 33.33%;">
             Date /
             <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">تاريخ الفاتورة</span>
         </td>
-        <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle; width: 33.34%; height: 35px;">
+        <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle; width: 33.34%;">
             Delivery Date /
             <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">تاريخ التسليم</span>
         </td>
     </tr>
     <!-- Data Row -->
-    <tr>
-        <td style="padding: 8px; border: 1px solid #000; vertical-align: middle; height: 40px;">
+    <tr style="height: 45px;">
+        <td style="padding: 8px; border: 1px solid #000; vertical-align: middle;">
             <span t-field="o.name"/>
         </td>
-        <td style="padding: 8px; border: 1px solid #000; vertical-align: middle; height: 40px;">
+        <td style="padding: 8px; border: 1px solid #000; vertical-align: middle;">
             <span t-field="o.scheduled_date" t-options="{'widget': 'date'}"/>
         </td>
-        <td style="padding: 8px; border: 1px solid #000; vertical-align: middle; height: 40px;">
+        <td style="padding: 8px; border: 1px solid #000; vertical-align: middle;">
             <span t-if="o.date_deadline" t-field="o.date_deadline" t-options="{'widget': 'date'}"/>
             <span t-else="">-</span>
         </td>

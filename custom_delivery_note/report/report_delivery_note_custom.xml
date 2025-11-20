@@ -297,15 +297,38 @@
                                         </td>
                                     </tr>
 
-                                    <tr style="height: 40px;;">
-                                        <td style="padding: 4px; border: 1px solid #000; line-height: 1.3;">
-                                            <strong>
-                                                <span t-field="o.partner_id.name"/>
-                                            </strong>
-                                            <br/>
-                                            <span t-field="o.partner_id.res_partner" style="font-size: 10px;"/>
-                                        </td>
-                                    </tr>
+                <tr>
+    <td><b>Sold To:</b></td>
+</tr>
+
+<tr>
+    <td><span t-field="o.partner_id.name"/></td>
+</tr>
+
+<tr t-if="o.partner_id.street">
+    <td><span t-field="o.partner_id.street"/></td>
+</tr>
+
+<tr t-if="o.partner_id.street2">
+    <td><span t-field="o.partner_id.street2"/></td>
+</tr>
+
+<tr t-if="o.partner_id.city or o.partner_id.state_id or o.partner_id.zip">
+    <td>
+        <t t-esc="o.partner_id.city"/>
+        <t t-if="o.partner_id.state_id">, <t t-esc="o.partner_id.state_id.name"/></t>
+        <t t-if="o.partner_id.zip"> - <t t-esc="o.partner_id.zip"/></t>
+    </td>
+</tr>
+
+<tr t-if="o.partner_id.country_id">
+    <td><span t-field="o.partner_id.country_id.name"/></td>
+</tr>
+
+<tr>
+    <td><b>VAT :</b> <span t-field="o.partner_id.vat"/></td>
+</tr>
+
 
                                 </table>
                             </td>

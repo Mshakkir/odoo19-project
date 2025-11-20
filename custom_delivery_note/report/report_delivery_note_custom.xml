@@ -202,7 +202,7 @@
             </tr>
             <!-- Data Row -->
             <tr>
-                <td style="padding: 8px; border: 1px solid #000; vertical-align: top; line-height: 1.10; min-height: 80px;">
+                <td style="padding: 8px; border: 1px solid #000; vertical-align: top; line-height: 1.8; min-height: 80px;">
                     <strong><span t-field="o.partner_id.name"/></strong><br/>
                     <span t-field="o.partner_id.contact_address" style="font-size: 11px;"/><br/>
                     <strong>VAT No:</strong>
@@ -217,7 +217,7 @@
         <table width="100%" border="1" style="border-collapse: collapse; font-size: 12px; border: 1px solid #000;" cellpadding="0" cellspacing="0">
             <!-- Row 1: AWB NO Header -->
             <tr style="background-color: #d3d3d3;">
-                <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle;">
+                <td style="padding: 4px 6px; font-weight: bold; border: 1px solid #000; vertical-align: middle;">
                     AWB NO /
                     <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">رقم الشحنة</span>
                 </td>
@@ -230,7 +230,7 @@
             </tr>
             <!-- Row 3: P.O No Header -->
             <tr style="background-color: #d3d3d3;">
-                <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle;">
+                <td style="padding: 4px 6px; font-weight: bold; border: 1px solid #000; vertical-align: middle;">
                     P.O No /
                     <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">رقم الطلب</span>
                 </td>

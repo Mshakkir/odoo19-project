@@ -20,6 +20,7 @@
         'security/ir.model.access.csv',
         'views/sale_order_views.xml',
         'views/account_move_views.xml',
+        'views/stock_picking_view.xml',
     ],
     'installable': True,
     'application': False,

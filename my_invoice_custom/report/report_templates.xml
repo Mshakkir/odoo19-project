@@ -1,12 +1,9 @@
-<!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 <!--    <template id="custom_invoice_report" inherit_id="l10n_sa.l10n_sa_report_invoice_document">-->
 <!--        <xpath expr="//t[@t-call='web.external_layout']" position="replace">-->
 <!--            <t t-call="web.html_container">-->
-
-<!--                &lt;!&ndash; Loop through invoices &ndash;&gt;-->
 <!--                <t t-foreach="docs" t-as="o">-->
-<!--                    &lt;!&ndash; ===== HEADER ===== &ndash;&gt;-->
+<!--                    <t t-if="o.move_type in ('out_invoice','out_refund')">-->
 <!--                    <div class="page">-->
 <!--                        <div class="header"-->
 <!--                             style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">-->
@@ -63,90 +60,96 @@
 <!--                                    </td>-->
 <!--                                </tr>-->
 <!--                            </table>-->
+
 <!--                        </div>-->
 <!--                    </div>-->
-<!--                    <div class="footer"-->
-<!--                         style=" font-size:13px; background:#fff;width:852px;margin-top:10px;padding-top:10px;">-->
-
-
-<!--                        &lt;!&ndash; ===== Bank Details ===== &ndash;&gt;-->
-<!--                        <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">-->
-<!--                            <tr>-->
-<!--                                <td style="padding:2px; text-align:left;width:50%;">-->
-<!--                                    <br/>-->
-<!--                                    Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.-->
-<!--                                    <br/>-->
-<!--                                    بنك الراجحي – شركة سمير شرف العتيبي للتجارة-->
-<!--                                    <br/>-->
-<!--                                    Account Number:رقم الحساب:123000010006080143917-->
-<!--                                    <br/>-->
-<!--                                    IBAN: SA7880000123608010143917 :رقم الحساب الدولي-->
-<!--                                </td>-->
-
-
-<!--                                &lt;!&ndash; English Column &ndash;&gt;-->
-<!--                                <td style="padding:2px; text-align:right;width:50%;">-->
-<!--                                    <br/>-->
-<!--                                    SNB - Saudi National Bank/البنك الأهلي السعودي-->
-<!--                                    <br/>-->
-<!--                                    Account Number at SNB: 13200000678707 :رقم الحساب-->
-<!--                                    <br/>-->
-<!--                                    International Account Number (IBAN): SA2110000013200000678707 :رقم الحساب الدولي-->
-<!--                                    (IBAN)-->
-<!--                                </td>-->
-<!--                            </tr>-->
-
-<!--                        </table>-->
-
-
-<!--                        &lt;!&ndash; ===== Branch Details ===== &ndash;&gt;-->
-<!--                        <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">-->
-<!--                            <tr>-->
-
-
-<!--                                <td style="width:33%; padding:4px;border-right: 1px solid black;">-->
-<!--                                    <strong>jeddah</strong>-->
-<!--                                    Sameer Sharaf Al Otaibi Trading Company-->
-<!--                                    شركة سمير شرف العتيبي التجارية-->
-<!--                                    Jeddah, 7655 Al Fayha-->
-<!--                                    Al Fayha Dist. JEDDAH 22244-3108-->
-<!--                                    Saudi Arabia-->
-<!--                                    <br/>-->
-<!--                                    Tel:-->
-<!--                                    <br/>-->
-<!--                                    Email:-->
-<!--                                </td>-->
-
-<!--                                <td style="width:33%; padding:4px;">-->
-<!--                                    <strong>Baladiya</strong>-->
-<!--                                    Sameer Sharaf Al Otaibi Trading Company-->
-<!--                                    شركة سمير شرف العتيبي التجارية-->
-<!--                                    Sookul Anwar, Al Baladeah, Aziziyah,-->
-<!--                                    Jeddah 31303-->
-<!--                                    Tel: 0535081008-->
-<!--                                    <br/>-->
-<!--                                    Email: ssaoe.dammam@gmail.com-->
-<!--                                </td>-->
-
-<!--                                <td style="width:33%; padding:4px;border-left: 1px solid black;">-->
-<!--                                    <strong>Dammam</strong>-->
-<!--                                    Sameer Sharaf Al Otaibi Trading Company-->
-<!--                                    8515, Qutaibah bin Muslim ST,-->
-<!--                                    Al Souq, Dammam 4525-32242-->
-<!--                                    Saudi Arabia-->
-<!--                                    <br/>-->
-<!--                                    Tel/Mobile: 0535081008-->
-<!--                                    <br/>-->
-<!--                                    Email: ssaoe.dammam@gmail.com-->
-<!--                                </td>-->
-<!--                            </tr>-->
-<!--                        </table>-->
-
-<!--                    </div>-->
 <!--                </t>-->
+<!--                     </t>-->
+<!--<t t-if="o.move_type in ('out_invoice','out_refund')">-->
+<!--                <div class="footer"-->
+<!--                     style=" font-size:13px; background:#fff;width:848px;margin-top:10px;padding-top:10px;">-->
+
+
+<!--                    &lt;!&ndash; ===== Bank Details ===== &ndash;&gt;-->
+<!--                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">-->
+<!--                        <tr>-->
+<!--                            <td style="padding:1px; text-align:left;width:50%;">-->
+<!--                                <br/>-->
+<!--                                Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.-->
+<!--                                <br/>-->
+<!--                                بنك الراجحي – شركة سمير شرف العتيبي للتجارة-->
+<!--                                <br/>-->
+<!--                                Account Number:رقم الحساب:123000010006080143917-->
+<!--                                <br/>-->
+<!--                                IBAN: SA7880000123608010143917 :رقم الحساب الدولي-->
+<!--                            </td>-->
+
+
+<!--                            &lt;!&ndash; English Column &ndash;&gt;-->
+<!--                            <td style="padding:1px; text-align:right;width:50%;">-->
+<!--                                <br/>-->
+<!--                                SNB - Saudi National Bank/البنك الأهلي السعودي-->
+<!--                                <br/>-->
+<!--                                Account Number at SNB: 13200000678707 :رقم الحساب-->
+<!--                                <br/>-->
+<!--                                International Account Number (IBAN): SA2110000013200000678707 :رقم الحساب الدولي (IBAN)-->
+<!--                            </td>-->
+<!--                        </tr>-->
+
+<!--                    </table>-->
+
+
+<!--                    &lt;!&ndash; ===== Branch Details ===== &ndash;&gt;-->
+<!--                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">-->
+<!--                        <tr>-->
+
+
+<!--                            <td style="width:33%; padding:4px;border-right: 1px solid black;">-->
+<!--                                <strong>jeddah</strong>-->
+<!--                                Sameer Sharaf Al Otaibi Trading Company-->
+<!--                                شركة سمير شرف العتيبي التجارية-->
+<!--                                Jeddah, 7655 Al Fayha-->
+<!--                                Al Fayha Dist. JEDDAH 22244-3108-->
+<!--                                Saudi Arabia-->
+<!--                                <br/>-->
+<!--                                Tel:-->
+<!--                                <br/>-->
+<!--                                Email:-->
+<!--                            </td>-->
+
+<!--                            <td style="width:33%; padding:4px;">-->
+<!--                                <strong>Baladiya</strong>-->
+<!--                                Sameer Sharaf Al Otaibi Trading Company-->
+<!--                                شركة سمير شرف العتيبي التجارية-->
+<!--                                Sookul Anwar, Al Baladeah, Aziziyah,-->
+<!--                                Jeddah 31303-->
+<!--                                Tel: 0535081008-->
+<!--                                <br/>-->
+<!--                                Email: ssaoe.dammam@gmail.com-->
+<!--                            </td>-->
+
+<!--                            <td style="width:33%; padding:4px;border-right: 1px solid black;">-->
+<!--                                <strong>Dammam</strong>-->
+<!--                                Sameer Sharaf Al Otaibi Trading Company-->
+<!--                                8515, Qutaibah bin Muslim ST,-->
+<!--                                Al Souq, Dammam 4525-32242-->
+<!--                                Saudi Arabia-->
+<!--                                <br/>-->
+<!--                                Tel/Mobile: 0535081008-->
+<!--                                <br/>-->
+<!--                                Email: ssaoe.dammam@gmail.com-->
+<!--                            </td>-->
+<!--                        </tr>-->
+<!--                    </table>-->
+
+
+<!--                </div>-->
+<!--     </t>-->
+<!--            </t>-->
+<!--            <t t-foreach="docs" t-as="o">-->
 <!--                <t t-call="web.external_layout">-->
-<!--                    &lt;!&ndash; ===== INVOICE TITLE ===== &ndash;&gt;-->
-<!--                    <div style="padding-top:45px;">-->
+
+<!--                    <div style="padding-top:5px;">-->
 <!--                        <div style="background-color:#d3d3d3; color:black; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">-->
 <!--                            <t t-if="o.move_type in ('out_invoice','out_refund')">-->
 <!--                                Tax Invoice /-->
@@ -160,7 +163,10 @@
 <!--                        </div>-->
 <!--                    </div>-->
 
-<!--                    &lt;!&ndash; ===== CUSTOMER INFO ===== &ndash;&gt;-->
+
+
+<!--                    &lt;!&ndash; ===== Dynamic Title Section ===== &ndash;&gt;-->
+
 <!--                    <div style="border:1px solid #999; margin-bottom:10px; font-size:12px;">-->
 <!--                        <table style="width:100%; border-collapse:collapse;">-->
 <!--                            <tr style="background-color:#d3d3d3;">-->
@@ -299,8 +305,8 @@
 <!--                        </table>-->
 <!--                    </div>-->
 
-<!--                    &lt;!&ndash; ===== CALCULATIONS ===== &ndash;&gt;-->
-<!--                    <t t-set="total_discount_amount"-->
+<!--                    &lt;!&ndash; =====  ===== &ndash;&gt;-->
+<!--                                        <t t-set="total_discount_amount"-->
 <!--                       t-value="sum(line.quantity * line.price_unit * (line.discount or 0.0)/100.0 for line in o.invoice_line_ids)"/>-->
 <!--                    <t t-set="subtotal_before_discount"-->
 <!--                       t-value="sum(line.quantity * line.price_unit for line in o.invoice_line_ids)"/>-->
@@ -358,7 +364,7 @@
 <!--                                </th>-->
 <!--                            </tr>-->
 <!--                        </thead>-->
-<!--                        <tbody>-->
+<!--                     <tbody>-->
 <!--                            <tr t-foreach="enumerate(o.invoice_line_ids, start=1)" t-as="l">-->
 <!--                                <td style="text-align:center; width:35px; padding: 10px 8px;">-->
 <!--                                    <t t-esc="l[0]"/>-->
@@ -403,7 +409,7 @@
 <!--                    </table>-->
 
 
-<!--                    &lt;!&ndash; =====total section===== &ndash;&gt;-->
+<!--                    &lt;!&ndash; ===== signature Table ===== &ndash;&gt;-->
 <!--                    <table width="100%"-->
 <!--                           style="margin-top:10px; font-size:13px; border:1px solid #ccc; border-collapse:collapse;">-->
 <!--                        <tr>-->
@@ -523,9 +529,11 @@
 <!--                            </td>-->
 <!--                        </tr>-->
 <!--                    </table>-->
+
 <!--                </t>-->
 <!--            </t>-->
 <!--        </xpath>-->
+
 <!--    </template>-->
 <!--</odoo>-->
 
@@ -597,6 +605,9 @@
                         </div>
                     </div>
                 </t>
+                   <t t-if="o.move_type in ('in_invoice','in_refund')">
+                <!-- empty on purpose -->
+            </t>
                      </t>
 <t t-if="o.move_type in ('out_invoice','out_refund')">
                 <div class="footer"
@@ -674,13 +685,15 @@
                             </td>
                         </tr>
                     </table>
-
-
                 </div>
-     </t>
+</t>
+                <t t-if="o.move_type in ('in_invoice','in_refund')">
+                    <!-- empty -->
+                </t>
+
             </t>
             <t t-foreach="docs" t-as="o">
-                <t t-call="web.external_layout">
+                <t t-call="web.minimal_layout">
 
                     <div style="padding-top:5px;">
                         <div style="background-color:#d3d3d3; color:black; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
@@ -1062,11 +1075,6 @@
                             </td>
                         </tr>
                     </table>
-
-
-
-                    <!-- ===== Totals and Notes Section ===== -->
-
 
                 </t>
             </t>

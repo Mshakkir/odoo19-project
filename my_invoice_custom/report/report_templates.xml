@@ -548,7 +548,7 @@
 
 <odoo>
     <template id="custom_invoice_report" inherit_id="l10n_sa.l10n_sa_report_invoice_document">
-        <xpath expr="//t[@t-call='web.external_layout']" position="replace">
+        <xpath expr="//t[@t-call='l10n_sa.external_layout']" position="replace">
             <t t-foreach="docs" t-as="o">
 
                 <!-- SALES INVOICE: Custom Header & Footer -->

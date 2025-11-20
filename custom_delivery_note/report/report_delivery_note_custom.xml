@@ -204,14 +204,16 @@
             <tr>
                 <td style="padding: 8px; border: 1px solid #000; vertical-align: top; line-height: 1.4; min-height: 80px;">
                     <strong><span t-field="o.partner_id.name"/></strong><br/>
-                    <span t-field="o.partner_id.contact_address" style="font-size: 11px;"/>
+                    <span t-field="o.partner_id.contact_address" style="font-size: 11px;"/><br/>
+                    <strong>VAT No:</strong><br/>
+                    <span t-field="doc.partner_id.vat"/>
                 </td>
             </tr>
         </table>
     </div>
 
     <!-- Table 2: RIGHT SIDE - AWB NO and P.O No (4 rows, 1 column) -->
-    <div style="display: table-cell; width: 30%; vertical-align: top; padding-left: 5px;">
+    <div style="display: table-cell; width: 30%; vertical-align: top; padding-left: 2px;">
         <table width="100%" border="1" style="border-collapse: collapse; font-size: 12px; border: 1px solid #000;" cellpadding="0" cellspacing="0">
             <!-- Row 1: AWB NO Header -->
             <tr style="background-color: #d3d3d3;">
@@ -246,7 +248,7 @@
 </div>
 
 <!-- Table 3: BELOW FULL WIDTH - Delivery Details (2 rows, 3 columns) -->
-<table width="100%" border="1" style="border-collapse: collapse; font-size: 12px; margin-top: 10px; border: 1px solid #000;" cellpadding="0" cellspacing="0">
+<table width="100%" border="1" style="border-collapse: collapse; font-size: 12px; margin-top: 5px; border: 1px solid #000;" cellpadding="0" cellspacing="0">
     <!-- Header Row -->
     <tr style="background-color: #d3d3d3;">
         <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle; width: 33.33%;">

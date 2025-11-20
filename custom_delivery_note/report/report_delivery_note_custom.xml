@@ -2,22 +2,6 @@
     <template id="custom_delivery_note" inherit_id="stock.report_delivery_document">
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
             <t t-call="web.html_container">
-
-                <!-- ================= FONT SETUP FOR NOTO NASKH ARABIC ================= -->
-                <style>
-                    @font-face {
-                        font-family: 'NotoNaskhArabic';
-                        src: url('/custom_delivery_note/static/src/fonts/NotoNaskhArabic-Regular.ttf') format('truetype');
-                        font-weight: normal;
-                        font-style: normal;
-                    }
-                    .arabic-font {
-                        font-family: 'NotoNaskhArabic', sans-serif !important;
-                        direction: rtl !important;
-                    }
-                </style>
-                <!-- ===================================================================== -->
-
                 <t t-foreach="docs" t-as="o">
                     <div class="page">
                         <div class="header"
@@ -26,13 +10,14 @@
                             <!-- Company Names in One Row -->
                             <table style="width: 100%; border-collapse: collapse;border:none">
                                 <tr>
-                                    <td style="width: 50%; padding: 10px 20px; text-align: left;">
+                                    <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white;padding-left:0px;">
                                         <div style="color: #8B1538; font-size: 16px; font-weight: bold; text-transform: uppercase;">
                                             SAMEER SHARAF AL OTAIBI TRADING COMPANY
                                         </div>
                                     </td>
-                                    <td style="width: 50%; padding: 10px 20px; text-align: right;">
-                                        <div class="arabic-font" style="color: #8B1538; font-size: 17px; font-weight: 900;">
+                                    <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white;padding-right:0px;">
+                                        <div style="color: #8B1538; font-size: 17px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;"
+                                             class="arabic-word">
                                             شركة سمير شرف العتيبي التجارية
                                         </div>
                                     </td>
@@ -42,33 +27,34 @@
                             <!-- Details and Logo Row -->
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tr>
-                                    <!-- English Column -->
+                                    <!-- Left Column: English Info -->
                                     <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: top;
-                                        border-bottom: 2px solid #8B1538;">
-                                        <div style="line-height: 1.3; font-weight: 500;">
+                        border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;padding-top:0px;padding-left:0px;">
+                                        <div style="line-height: 1.3; font-weight: 500;padding-left:0px;padding-top:0px;margin-top:0px;">
                                             C.R. 4030216154
                                             <br/>
                                             VAT Regd: 311299944700003
                                         </div>
                                     </td>
 
-                                    <!-- Logo -->
+                                    <!-- Center Column: Company Logo -->
                                     <td style="width: 34%; text-align: center; vertical-align: top;
-                                        padding: 5px 10px; border-bottom: 2px solid #8B1538;">
+                        padding: 5px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">
                                         <t t-if="o.company_id.logo">
                                             <img t-att-src="image_data_uri(o.company_id.logo)"
-                                                 style="max-height: 140px; max-width: 100%; object-fit: contain; margin-top:5px;"/>
+                                                 style="max-height: 140px; max-width: 100%; object-fit: contain; display: block; margin: -23px auto;padding-top:8px;padding-top:5px;"/>
+
                                         </t>
                                     </td>
 
-                                    <!-- Arabic Column -->
-                                    <td class="arabic-font"
-                                        style="width: 33%; text-align: right; font-size: 15px; color: #333; vertical-align: top;
-                                        border-bottom: 2px solid #8B1538;">
-                                        <div style="line-height: 1.3; font-weight:900;">
+                                    <!-- Right Column: Arabic Info -->
+                                    <td style="width: 33%; text-align: right; font-size: 15px; color: #333; vertical-align: top;
+                        direction: rtl; padding: 0px 10px 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">
+                                        <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight:900; padding-right:0px; margin-top:0px; text-align: right; direction: rtl;">
                                             س.ت: ٤٠٣٠٢١٦١٥٤
                                             <br/>
                                             الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
+                                            <br/>
                                         </div>
                                     </td>
                                 </tr>
@@ -77,147 +63,263 @@
                         </div>
                     </div>
 
+
                 </t>
 
-                <!-- FOOTER -->
                 <div class="footer"
-                     style=" font-size:13px; background:#fff;width:848px;margin-top:10px;padding-top:10px;">
-
-                    <!-- BANK DETAILS -->
-                    <table width="100%" style="border-collapse: collapse; font-size:10px;">
+                     style=" font-size:13px; background:#fff;width:854px;margin-top:10px;padding-top:10px;">
+                    <!-- ===== Bank Details ===== -->
+                    <!-- ===== Branch Details ===== -->
+                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                         <tr>
-                            <td style="padding:1px; width:50%;">
+                            <td style="width:33%; padding:4px;border-right: 1px solid black;">
+                                <strong>jeddah:</strong>
+                                Jeddah, 7655 Al Fayha
+                                Al Fayha Dist. JEDDAH 22244-3108
+                                Saudi Arabia
                                 <br/>
-                                Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.
+                                Tel:
                                 <br/>
-                                <span class="arabic-font">بنك الراجحي – شركة سمير شرف العتيبي للتجارة</span>
-                                <br/>
-                                Account Number:رقم الحساب:123000010006080143917
-                                <br/>
-                                IBAN: SA7880000123608010143917 :رقم الحساب الدولي
+                                Email:
                             </td>
 
-                            <td style="padding:1px; text-align:right;width:50%;">
+                            <td style="width:33%; padding:4px;">
+                                <strong>Baladiya:</strong>
+                                Sookul Anwar, Al Baladeah, Aziziyah,
+                                Jeddah 31303
+                                Tel: 0535081008
                                 <br/>
-                                SNB - Saudi National Bank /
-                                <span class="arabic-font">البنك الأهلي السعودي</span>
+                                Email: ssaoe.dammam@gmail.com
+                            </td>
+
+                            <td style="width:33%; padding:4px;border-right: 1px solid black;">
+                                <strong>Dammam:</strong>
+                                8515, Qutaibah bin Muslim ST,
+                                Al Souq, Dammam 4525-32242
+                                Saudi Arabia
                                 <br/>
-                                Account Number at SNB: 13200000678707 :رقم الحساب
+                                Tel/Mobile: 0535081008
                                 <br/>
-                                International Account Number (IBAN): SA2110000013200000678707 :رقم الحساب الدولي
+                                Email: ssaoe.dammam@gmail.com
                             </td>
                         </tr>
                     </table>
 
+                    <!-- ===== Footer Logos ===== -->
+                    <div style="text-align:center; margin-top:8px;">
+                        <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/footer_companies_names.jpg'"
+                             style="max-width:100%; height:auto;"/>
+                    </div>
                 </div>
-
             </t>
-
-            <!-- PAGE 2 CONTENT -->
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
 
-                    <!-- Title -->
                     <div style="padding-top:10px;">
-                        <div style="background-color:#d3d3d3; color:black; padding:8px ; text-align:center;
-                            font-weight:bold; font-size:16px;">
+                        <div style=" background-color:#d3d3d3; color:black; padding:8px ; text-align:center; margin-bottom:10px ; font-weight:bold; font-size:16px;">
                             Delivery Note /
-                            <span class="arabic-font">مذكرة التسليم</span>
+                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                مذكرة التسليم
+                            </span>
                         </div>
                     </div>
 
-                    <!-- Customer Info -->
+                    <!-- ===== Dynamic Title Section ===== -->
                     <table width="100%" border="1"
-                           style="border-collapse: collapse; font-size: 13px;" cellpadding="5">
+                           style="border-collapse: collapse; font-size: 13px;margin-top:10px;" cellpadding="5">
                         <tr style="background-color: #d3d3d3;">
-                            <td colspan="2" style="font-weight: bold;">
-                                Sold To / <span class="arabic-font">اسم العميل</span>
+                            <td colspan="2" style="padding: 4px; font-weight: bold;">Sold To /
+                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                    اسم العميل
+                                </span>
                             </td>
-                            <td style="font-weight: bold;">
-                                VAT NO / <span class="arabic-font">الرقم الضريبي</span>
+                            <td style="padding: 4px; font-weight: bold;">AWB NO /
+                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                    رقم الشحنة
+                                </span>
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="2"><span t-field="o.partner_id.name"/></td>
-                            <td><span t-field="o.partner_id.vat"/></td>
+                            <td colspan="2" style="padding: 4px;">
+                                <span t-field="o.partner_id.name"/>
+                                <span t-field="o.partner_id.contact_address"/>
+                            </td>
+                            <td style="padding: 4px;">
+                                <span t-field="o.awb_number"/>
+                            </td>
                         </tr>
+                        <tr style="background-color: #d3d3d3;">
+                            <td style="padding: 4px; font-weight: bold;">Delivery Note No. /
+                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                    رقم الفاتورة
+                                </span>
+                            </td>
+                            <td style="padding: 4px; font-weight: bold;">Date /
+                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                    تاريخ الفاتورة
+                                </span>
+                            </td>
+                            <td style="padding: 4px; font-weight: bold;">P.O No /
+                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                    رقم الطلب
+                                </span>
+                            </td>
 
-                        <tr style="background-color: #d3d3d3;">
-                            <td><b>Delivery Note No.</b> / <span class="arabic-font">رقم الفاتورة</span></td>
-                            <td><b>Date</b> / <span class="arabic-font">تاريخ الفاتورة</span></td>
-                            <td><b>P.O No</b> / <span class="arabic-font">رقم الطلب</span></td>
+                            <td style="padding: 4px; font-weight: bold;">Delivery Date /
+                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                    تاريخ التسليم
+                                </span>
+                            </td>
                         </tr>
                         <tr>
-                            <td><span t-field="o.name"/></td>
-                            <td><span t-field="o.scheduled_date"/></td>
-                            <td>
+                            <td style="padding: 4px;">
+                                <span t-field="o.name"/>
+                            </td>
+                            <td style="padding: 4px;">
+                                <span t-field="o.scheduled_date"/>
+                            </td>
+                            <td style="padding: 4px;">
                                 <span t-if="o.sale_id" t-field="o.sale_id.client_order_ref"/>
                                 <span t-else="">-</span>
                             </td>
+                            <td style="padding: 4px;">
+                                <span t-field="o.commitment_date"/>
+                            </td>
                         </tr>
                     </table>
 
-                    <!-- PRODUCT TABLE -->
+                    <!-- ===== products ===== -->
+
                     <table width="100%" style="border-collapse:collapse; margin-top:15px; font-size:14px;" border="2">
                         <thead style="background-color: #9e9d9d;">
-                        <tr>
-                            <th>SN / <span class="arabic-font">الرقم</span></th>
-                            <th>Product / <span class="arabic-font">المنتج</span></th>
-                            <th>Quantity / <span class="arabic-font">الكمية</span></th>
-                            <th>Unit / <span class="arabic-font">الوحدة</span></th>
-                        </tr>
+                            <tr>
+                                <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3;">
+                                    SN/
+                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; font-size:13px;">
+                                        الرقم
+                                    </span>
+                                </th>
+                                <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3;">
+                                    Product/
+                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; font-size:13px;">
+                                        المنتج
+                                    </span>
+                                </th>
+                                <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3;">
+                                    Quantity/
+                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; font-size:13px;">
+                                        الكمية
+                                    </span>
+                                </th>
+                                <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3;">
+                                    Unit/
+                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; font-size:13px;">
+                                        الوحدة
+                                    </span>
+                                </th>
+                            </tr>
                         </thead>
-
                         <tbody>
-                        <tr t-foreach="enumerate(o.move_ids)" t-as="line">
-                            <td style="text-align:center;"><t t-esc="line[0] + 1"/></td>
-                            <td style="text-align:center;">
-                                <span t-field="line[1].product_id.default_code"/> -
-                                <span t-field="line[1].product_id.name"/>
-                            </td>
-                            <td style="text-align:center;"><span t-field="line[1].product_uom_qty"/></td>
-                            <td style="text-align:center;"><span t-field="line[1].product_uom.name"/></td>
-                        </tr>
+                            <tr t-foreach="enumerate(o.move_ids)" t-as="line">
+                                <!-- SN -->
+                                <td style="text-align:center; padding:6px 4px;">
+                                    <t t-esc="line[0] + 1"/>
+                                </td>
+
+                                <!-- Product -->
+                                <td style="text-align:left; padding:6px 4px;">
+                                    <span t-field="line[1].product_id.default_code"/>
+                                    -
+                                    <span t-field="line[1].product_id.name"/>
+                                </td>
+
+                                <!-- Quantity -->
+                                <td style="text-align:left; padding:6px 4px;">
+                                    <span t-field="line[1].product_uom_qty"/>
+                                </td>
+
+                                <!-- Unit -->
+                                <td style="text-align:left; padding:6px 4px;">
+                                    <span t-field="line[1].product_uom.name"/>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
-
-                    <!-- SIGNATURE TABLE (unchanged except Arabic font) -->
+                    <!-- ===== signature Table ===== -->
                     <table width="100%" border="1"
                            style="border-collapse: collapse; font-size: 14px; margin-top: 15px;"
                            cellpadding="5">
-
+                        <!-- Row 1 -->
                         <tr>
-                            <td width="33%">
+                            <td width="33%" style="padding-left:3px;">
                                 <strong>Delivered by :</strong>
                                 Administrator
-                                <br/><span class="arabic-font">سلمت بواسطة</span>
+                                <br/>
+                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                    سلمت بواسطة
+                                </span>
                             </td>
-                            <td width="33%">
+                            <td width="33%" style="padding-left:3px;">
                                 <strong>Received By :</strong>
-                                <br/><span class="arabic-font">المستلم</span>
+                                <br/>
+                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                    المستلم
+                                </span>
                             </td>
                             <td width="34%" rowspan="3">
-                                <strong>/ Total Qty : </strong>
-                                <span class="arabic-font">إجمالي الكمية</span>
-                                <br/>
+                                <strong style="padding-left:6px;padding-top:6px;">
+                                     Total Qty:/
+                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
+                                        إجمالي الكمية:
+                                    </span>
+                                </strong>
                                 <span t-esc="sum(line.product_uom_qty for line in o.move_ids)"/>
+                            </td>
+
+                        </tr>
+
+                        <!-- Row 2 -->
+                        <tr>
+                            <td style="padding-left:3px;">
+                                <strong>Name :</strong>
+                                Administrator
+                                <br/>
+                                <span>الاسم</span>
+                            </td>
+                            <td style="padding-left:3px;">
+                                <strong>Name :</strong>
+                                <br/>
+                                <span>الاسم</span>
                             </td>
                         </tr>
 
+                        <!-- Row 3 -->
                         <tr>
-                            <td><strong>Name :</strong> Administrator<br/><span class="arabic-font">الاسم</span></td>
-                            <td><strong>Name :</strong><br/><span class="arabic-font">الاسم</span></td>
-                        </tr>
-
-                        <tr>
-                            <td><strong>Signature :</strong><br/><span class="arabic-font">التوقيع</span></td>
-                            <td>
-                                <strong>Signature :</strong><br/><span class="arabic-font">التوقيع</span><br/><br/>
-                                <strong>Date :</strong><br/><span class="arabic-font">التاريخ</span><br/>
-                                <strong>ID NO :</strong><br/><span class="arabic-font">رقم الهوية</span>
+                            <td style="padding-left:3px;">
+                                <strong>Signature :</strong>
+                                <br/>
+                                <span>التوقيع</span>
+                            </td>
+                            <td style="padding-left:3px;">
+                                <strong>Signature :</strong>
+                                <br/>
+                                <span>التوقيع</span>
+                                <br/>
+                                <br/>
+                                <strong>Date :</strong>
+                                <br/>
+                                <span>التاريخ</span>
+                                <br/>
+                                <strong>ID NO :</strong>
+                                <br/>
+                                <span>رقم الهوية</span>
                             </td>
                         </tr>
                     </table>
+
+
+                    <!-- ===== Totals and Notes Section ===== -->
+
 
                 </t>
             </t>
@@ -225,371 +327,6 @@
 
     </template>
 </odoo>
-
-
-
-
-
-
-
-
-
-<!--<odoo>-->
-<!--    <template id="custom_delivery_note" inherit_id="stock.report_delivery_document">-->
-<!--        <xpath expr="//t[@t-call='web.external_layout']" position="replace">-->
-<!--            <t t-call="web.html_container">-->
-<!--                <t t-foreach="docs" t-as="o">-->
-<!--                    <div class="page">-->
-<!--                        <div class="header"-->
-<!--                             style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">-->
-
-<!--                            &lt;!&ndash; Company Names in One Row &ndash;&gt;-->
-<!--                            <table style="width: 100%; border-collapse: collapse;border:none">-->
-<!--                                <tr>-->
-<!--                                    <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white;padding-left:0px;">-->
-<!--                                        <div style="color: #8B1538; font-size: 16px; font-weight: bold; text-transform: uppercase;">-->
-<!--                                            SAMEER SHARAF AL OTAIBI TRADING COMPANY-->
-<!--                                        </div>-->
-<!--                                    </td>-->
-<!--                                    <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white;padding-right:0px;">-->
-<!--                                        <div style="color: #8B1538; font-size: 17px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;"-->
-<!--                                             class="arabic-word">-->
-<!--                                            شركة سمير شرف العتيبي التجارية-->
-<!--                                        </div>-->
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                            </table>-->
-
-<!--                            &lt;!&ndash; Details and Logo Row &ndash;&gt;-->
-<!--                            <table style="width: 100%; border-collapse: collapse;">-->
-<!--                                <tr>-->
-<!--                                    &lt;!&ndash; Left Column: English Info &ndash;&gt;-->
-<!--                                    <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: top;-->
-<!--                        border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;padding-top:0px;padding-left:0px;">-->
-<!--                                        <div style="line-height: 1.3; font-weight: 500;padding-left:0px;padding-top:0px;margin-top:0px;">-->
-<!--                                            C.R. 4030216154-->
-<!--                                            <br/>-->
-<!--                                            VAT Regd: 311299944700003-->
-<!--                                        </div>-->
-<!--                                    </td>-->
-
-<!--                                    &lt;!&ndash; Center Column: Company Logo &ndash;&gt;-->
-<!--                                    <td style="width: 34%; text-align: center; vertical-align: top;-->
-<!--                        padding: 5px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">-->
-<!--                                        <t t-if="o.company_id.logo">-->
-<!--                                            <img t-att-src="image_data_uri(o.company_id.logo)"-->
-<!--                                                 style="max-height: 140px; max-width: 100%; object-fit: contain; display: block; margin: -23px auto;padding-top:8px;padding-top:5px;"/>-->
-
-<!--                                        </t>-->
-<!--                                    </td>-->
-
-<!--                                    &lt;!&ndash; Right Column: Arabic Info &ndash;&gt;-->
-<!--                                    <td style="width: 33%; text-align: right; font-size: 15px; color: #333; vertical-align: top;-->
-<!--                        direction: rtl; padding: 0px 10px 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">-->
-<!--                                        <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight:900; padding-right:0px; margin-top:0px; text-align: right; direction: rtl;">-->
-<!--                                            س.ت: ٤٠٣٠٢١٦١٥٤-->
-<!--                                            <br/>-->
-<!--                                            الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣-->
-<!--                                            <br/>-->
-<!--                                        </div>-->
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                            </table>-->
-
-<!--                        </div>-->
-<!--                    </div>-->
-
-
-<!--                </t>-->
-
-<!--                <div class="footer"-->
-<!--                     style=" font-size:13px; background:#fff;width:848px;margin-top:10px;padding-top:10px;">-->
-
-
-<!--                    &lt;!&ndash; ===== Bank Details ===== &ndash;&gt;-->
-<!--                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">-->
-<!--                        <tr>-->
-<!--                            <td style="padding:1px; text-align:left;width:50%;">-->
-<!--                                <br/>-->
-<!--                                Alrajhi Bank – Sameer Sharaf Al-Otibi Trading Co.-->
-<!--                                <br/>-->
-<!--                                بنك الراجحي – شركة سمير شرف العتيبي للتجارة-->
-<!--                                <br/>-->
-<!--                                Account Number:رقم الحساب:123000010006080143917-->
-<!--                                <br/>-->
-<!--                                IBAN: SA7880000123608010143917 :رقم الحساب الدولي-->
-<!--                            </td>-->
-
-
-<!--                            &lt;!&ndash; English Column &ndash;&gt;-->
-<!--                            <td style="padding:1px; text-align:right;width:50%;">-->
-<!--                                <br/>-->
-<!--                                SNB - Saudi National Bank/البنك الأهلي السعودي-->
-<!--                                <br/>-->
-<!--                                Account Number at SNB: 13200000678707 :رقم الحساب-->
-<!--                                <br/>-->
-<!--                                International Account Number (IBAN): SA2110000013200000678707 :رقم الحساب الدولي (IBAN)-->
-<!--                            </td>-->
-<!--                        </tr>-->
-
-<!--                    </table>-->
-
-
-<!--                    &lt;!&ndash; ===== Branch Details ===== &ndash;&gt;-->
-<!--                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">-->
-<!--                        <tr>-->
-
-
-<!--                            <td style="width:33%; padding:4px;border-right: 1px solid black;">-->
-<!--                                <strong>jeddah</strong>-->
-<!--                                Sameer Sharaf Al Otaibi Trading Company-->
-<!--                                شركة سمير شرف العتيبي التجارية-->
-<!--                                Jeddah, 7655 Al Fayha-->
-<!--                                Al Fayha Dist. JEDDAH 22244-3108-->
-<!--                                Saudi Arabia-->
-<!--                                <br/>-->
-<!--                                Tel:-->
-<!--                                <br/>-->
-<!--                                Email:-->
-<!--                            </td>-->
-
-<!--                            <td style="width:33%; padding:4px;">-->
-<!--                                <strong>Baladiya</strong>-->
-<!--                                Sameer Sharaf Al Otaibi Trading Company-->
-<!--                                شركة سمير شرف العتيبي التجارية-->
-<!--                                Sookul Anwar, Al Baladeah, Aziziyah,-->
-<!--                                Jeddah 31303-->
-<!--                                Tel: 0535081008-->
-<!--                                <br/>-->
-<!--                                Email: ssaoe.dammam@gmail.com-->
-<!--                            </td>-->
-
-<!--                            <td style="width:33%; padding:4px;border-right: 1px solid black;">-->
-<!--                                <strong>Dammam</strong>-->
-<!--                                Sameer Sharaf Al Otaibi Trading Company-->
-<!--                                8515, Qutaibah bin Muslim ST,-->
-<!--                                Al Souq, Dammam 4525-32242-->
-<!--                                Saudi Arabia-->
-<!--                                <br/>-->
-<!--                                Tel/Mobile: 0535081008-->
-<!--                                <br/>-->
-<!--                                Email: ssaoe.dammam@gmail.com-->
-<!--                            </td>-->
-<!--                        </tr>-->
-<!--                    </table>-->
-
-<!--                    &lt;!&ndash; ===== Footer Logos ===== &ndash;&gt;-->
-<!--                    <div style="text-align:center; margin-top:8px;">-->
-<!--                        <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/footer_companies_names.jpg'"-->
-<!--                             style="max-width:100%; height:auto;"/>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </t>-->
-<!--            <t t-foreach="docs" t-as="o">-->
-<!--                <t t-call="web.external_layout">-->
-
-<!--                    <div style="padding-top:10px;">-->
-<!--                        <div style=" background-color:#d3d3d3; color:black; padding:8px ; text-align:center; margin-bottom:10px ; font-weight:bold; font-size:16px;">-->
-<!--                            Delivery Note /-->
-<!--                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-<!--                                مذكرة التسليم-->
-<!--                            </span>-->
-<!--                        </div>-->
-<!--                    </div>-->
-
-<!--                    &lt;!&ndash; ===== Dynamic Title Section ===== &ndash;&gt;-->
-<!--                    <table width="100%" border="1"-->
-<!--                           style="border-collapse: collapse; font-size: 13px;margin-top:10px;" cellpadding="5">-->
-<!--                        <tr style="background-color: #d3d3d3;">-->
-<!--                            <td colspan="2" style="padding: 4px; font-weight: bold;">Sold To /-->
-<!--                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-<!--                                    اسم العميل-->
-<!--                                </span>-->
-<!--                            </td>-->
-<!--                            <td style="padding: 4px; font-weight: bold;">VAT NO /-->
-<!--                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-<!--                                    الرقم الضريبي-->
-<!--                                </span>-->
-<!--                            </td>-->
-<!--                        </tr>-->
-<!--                        <tr>-->
-<!--                            <td colspan="2" style="padding: 4px;">-->
-<!--                                <span t-field="o.partner_id.name"/>-->
-<!--                            </td>-->
-<!--                            <td style="padding: 4px;">-->
-<!--                                <span t-field="o.partner_id.vat"/>-->
-<!--                            </td>-->
-<!--                        </tr>-->
-<!--                        <tr style="background-color: #d3d3d3;">-->
-<!--                            <td style="padding: 4px; font-weight: bold;">Delivery Note No. /-->
-<!--                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-<!--                                    رقم الفاتورة-->
-<!--                                </span>-->
-<!--                            </td>-->
-<!--                            <td style="padding: 4px; font-weight: bold;">Date /-->
-<!--                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-<!--                                    تاريخ الفاتورة-->
-<!--                                </span>-->
-<!--                            </td>-->
-<!--                            <td style="padding: 4px; font-weight: bold;">P.O No /-->
-<!--                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-<!--                                    رقم الطلب-->
-<!--                                </span>-->
-<!--                            </td>-->
-<!--                        </tr>-->
-<!--                        <tr>-->
-<!--                            <td style="padding: 4px;">-->
-<!--                                <span t-field="o.name"/>-->
-<!--                            </td>-->
-<!--                            <td style="padding: 4px;">-->
-<!--                                <span t-field="o.scheduled_date"/>-->
-<!--                            </td>-->
-<!--                            <td style="padding: 4px;">-->
-<!--                                <span t-if="o.sale_id" t-field="o.sale_id.client_order_ref"/>-->
-<!--                                <span t-else="">-</span>-->
-<!--                            </td>-->
-<!--                        </tr>-->
-<!--                    </table>-->
-
-<!--                    &lt;!&ndash; ===== products ===== &ndash;&gt;-->
-
-<!--                    <table width="100%" style="border-collapse:collapse; margin-top:15px; font-size:14px;" border="2">-->
-<!--                        <thead style="background-color: #9e9d9d;">-->
-<!--                            <tr>-->
-<!--                                <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3;">-->
-<!--                                    SN/-->
-<!--                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; font-size:13px;">-->
-<!--                                        الرقم-->
-<!--                                    </span>-->
-<!--                                </th>-->
-<!--                                <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3;">-->
-<!--                                    Product/-->
-<!--                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; font-size:13px;">-->
-<!--                                        المنتج-->
-<!--                                    </span>-->
-<!--                                </th>-->
-<!--                                <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3;">-->
-<!--                                    Quantity/-->
-<!--                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; font-size:13px;">-->
-<!--                                        الكمية-->
-<!--                                    </span>-->
-<!--                                </th>-->
-<!--                                <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3;">-->
-<!--                                    Unit/-->
-<!--                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; font-size:13px;">-->
-<!--                                        الوحدة-->
-<!--                                    </span>-->
-<!--                                </th>-->
-<!--                            </tr>-->
-<!--                        </thead>-->
-<!--                        <tbody>-->
-<!--                            <tr t-foreach="enumerate(o.move_ids)" t-as="line">-->
-<!--                                &lt;!&ndash; SN &ndash;&gt;-->
-<!--                                <td style="text-align:center; padding:6px 4px;">-->
-<!--                                    <t t-esc="line[0] + 1"/>-->
-<!--                                </td>-->
-
-<!--                                &lt;!&ndash; Product &ndash;&gt;-->
-<!--                                <td style="text-align:center; padding:6px 4px;">-->
-<!--                                    <span t-field="line[1].product_id.default_code"/>-->
-<!--                                    - -->
-<!--                                    <span t-field="line[1].product_id.name"/>-->
-<!--                                </td>-->
-
-<!--                                &lt;!&ndash; Quantity &ndash;&gt;-->
-<!--                                <td style="text-align:center; padding:6px 4px;">-->
-<!--                                    <span t-field="line[1].product_uom_qty"/>-->
-<!--                                </td>-->
-
-<!--                                &lt;!&ndash; Unit &ndash;&gt;-->
-<!--                                <td style="text-align:center; padding:6px 4px;">-->
-<!--                                    <span t-field="line[1].product_uom.name"/>-->
-<!--                                </td>-->
-<!--                            </tr>-->
-<!--                        </tbody>-->
-<!--                    </table>-->
-<!--                    &lt;!&ndash; ===== signature Table ===== &ndash;&gt;-->
-<!--                    <table width="100%" border="1"-->
-<!--                           style="border-collapse: collapse; font-size: 14px; margin-top: 15px;"-->
-<!--                           cellpadding="5">-->
-<!--                        &lt;!&ndash; Row 1 &ndash;&gt;-->
-<!--                        <tr>-->
-<!--                            <td width="33%" style="padding-left:3px;">-->
-<!--                                <strong>Delivered by :</strong>-->
-<!--                                Administrator-->
-<!--                                <br/>-->
-<!--                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-<!--                                    سلمت بواسطة-->
-<!--                                </span>-->
-<!--                            </td>-->
-<!--                            <td width="33%" style="padding-left:3px;">-->
-<!--                                <strong>Received By :</strong>-->
-<!--                                <br/>-->
-<!--                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-<!--                                    المستلم-->
-<!--                                </span>-->
-<!--                            </td>-->
-<!--                            <td width="34%" rowspan="3">-->
-<!--                                <strong style="padding-left:3px;">-->
-<!--                                    / Total Qty :-->
-<!--                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-<!--                                        إجمالي الكمية-->
-<!--                                    </span>-->
-<!--                                </strong>-->
-<!--                                <span t-esc="sum(line.product_uom_qty for line in o.move_ids)"/>-->
-<!--                            </td>-->
-
-<!--                        </tr>-->
-
-<!--                        &lt;!&ndash; Row 2 &ndash;&gt;-->
-<!--                        <tr>-->
-<!--                            <td style="padding-left:3px;">-->
-<!--                                <strong>Name :</strong>-->
-<!--                                Administrator-->
-<!--                                <br/>-->
-<!--                                <span>الاسم</span>-->
-<!--                            </td>-->
-<!--                            <td style="padding-left:3px;">-->
-<!--                                <strong>Name :</strong>-->
-<!--                                <br/>-->
-<!--                                <span>الاسم</span>-->
-<!--                            </td>-->
-<!--                        </tr>-->
-
-<!--                        &lt;!&ndash; Row 3 &ndash;&gt;-->
-<!--                        <tr>-->
-<!--                            <td style="padding-left:3px;">-->
-<!--                                <strong>Signature :</strong>-->
-<!--                                <br/>-->
-<!--                                <span>التوقيع</span>-->
-<!--                            </td>-->
-<!--                            <td style="padding-left:3px;">-->
-<!--                                <strong>Signature :</strong>-->
-<!--                                <br/>-->
-<!--                                <span>التوقيع</span>-->
-<!--                                <br/>-->
-<!--                                <br/>-->
-<!--                                <strong>Date :</strong>-->
-<!--                                <br/>-->
-<!--                                <span>التاريخ</span>-->
-<!--                                <br/>-->
-<!--                                <strong>ID NO :</strong>-->
-<!--                                <br/>-->
-<!--                                <span>رقم الهوية</span>-->
-<!--                            </td>-->
-<!--                        </tr>-->
-<!--                    </table>-->
-
-
-<!--                    &lt;!&ndash; ===== Totals and Notes Section ===== &ndash;&gt;-->
-
-
-<!--                </t>-->
-<!--            </t>-->
-<!--        </xpath>-->
-
-<!--    </template>-->
-<!--</odoo>-->
 
 
         <!--<odoo>-->

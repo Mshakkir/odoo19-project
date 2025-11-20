@@ -437,9 +437,16 @@
                                         Ship To Address /
                                         <span class="ar">عنوان الشحن</span>
                                     </div>
-                                    <div>
-                                        <span t-esc="o.company_id.partner_id.contact_address"/>
-                                    </div>
+
+                                    <!-- If Deliver To (dest_address_id) is set -->
+                                    <t t-if="o.dest_address_id">
+                                        <div>
+                                            <span t-esc="o.dest_address_id.name"/>
+                                            <br/>
+                                            <span t-esc="o.dest_address_id.contact_address"/>
+                                        </div>
+                                    </t>
+
                                 </td>
                             </tr>
                         </table>

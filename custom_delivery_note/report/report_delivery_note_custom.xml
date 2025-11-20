@@ -280,37 +280,72 @@
                     <!--    </tr>-->
                     <!--</table>-->
 
-                    <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 5px; border: 0;">
-                        <tr>
-                            <!-- LEFT SIDE -->
-                            <td style="width: 100%; vertical-align: top; padding-right: 0px; border: 0;">
-                                <table width="100%" border="1"
-                                       style="border-collapse: collapse; font-size: 11px; border: 1px solid #000;"
-                                       cellpadding="0" cellspacing="0">
+<table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 5px; border: 0;">
+    <tr>
+        <!-- LEFT SIDE -->
+        <td style="width: 100%; vertical-align: top; padding-right: 0px; border: 0;">
+            <table width="100%" border="1"
+                   style="border-collapse: collapse; font-size: 11px; border: 1px solid #000;"
+                   cellpadding="0" cellspacing="0">
 
-                                    <tr style="background-color: #d3d3d3; height: 28px;">
-                                        <td style="padding: 4px; font-weight: bold; border: 1px solid #000;">
-                                            Sold To /
-                                            <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
-                                                اسم العميل
-                                            </span>
-                                        </td>
-                                    </tr>
+                <!-- Header Row -->
+                <tr style="background-color: #d3d3d3; height: 28px;">
+                    <td style="padding: 4px; font-weight: bold; border: 1px solid #000;">
+                        Sold To /
+                        <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
+                            اسم العميل
+                        </span>
+                    </td>
+                </tr>
 
-                                    <tr style="height: 40px;;">
-                                        <td style="padding: 4px; border: 1px solid #000; line-height: 1.3;">
-                                            <strong>
-                                                <span t-field="o.partner_id.name"/>
-                                            </strong>
-                                            <br/>
-                                            <span t-field="o.partner_id.contact_address" style="font-size: 10px;"/>
-                                        </td>
-                                    </tr>
+                <!-- Customer Name -->
+                <tr>
+                    <td style="padding: 4px; border: 1px solid #000;">
+                        <b>Name:</b> <span t-field="o.partner_id.name"/>
+                    </td>
+                </tr>
 
-                                </table>
-                            </td>
-                        </tr>
-                    </table>
+                <!-- Street Address -->
+                <tr t-if="o.partner_id.street">
+                    <td style="padding: 4px; border: 1px solid #000;">
+                        <span t-field="o.partner_id.street"/>
+                    </td>
+                </tr>
+
+                <!-- Street 2 Address -->
+                <tr t-if="o.partner_id.street2">
+                    <td style="padding: 4px; border: 1px solid #000;">
+                        <span t-field="o.partner_id.street2"/>
+                    </td>
+                </tr>
+
+                <!-- City, State, Zip -->
+                <tr t-if="o.partner_id.city or o.partner_id.state_id or o.partner_id.zip">
+                    <td style="padding: 4px; border: 1px solid #000;">
+                        <t t-esc="o.partner_id.city"/>
+                        <t t-if="o.partner_id.state_id">, <t t-esc="o.partner_id.state_id.name"/></t>
+                        <t t-if="o.partner_id.zip"> - <t t-esc="o.partner_id.zip"/></t>
+                    </td>
+                </tr>
+
+                <!-- Country -->
+                <tr t-if="o.partner_id.country_id">
+                    <td style="padding: 4px; border: 1px solid #000;">
+                        <span t-field="o.partner_id.country_id.name"/>
+                    </td>
+                </tr>
+
+                <!-- VAT Number -->
+                <tr>
+                    <td style="padding: 4px; border: 1px solid #000;">
+                        <b>VAT NO:</b> <span t-field="o.partner_id.vat"/>
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+</table>
 
                             <!-- RIGHT SIDE -->
 

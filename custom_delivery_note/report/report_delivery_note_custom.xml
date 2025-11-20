@@ -297,45 +297,34 @@
                                         </td>
                                     </tr>
 
-                                   <tr>
-        <td t-field="o.partner_id.name"></td>
-    </tr>
 
-    <!-- Street -->
-    <tr t-if="o.partner_id.street">
-        <td t-field="o.partner_id.street"></td>
-    </tr>
+                                    <tr>
+                                        <td>
+                                            <span t-field="o.partner_id.name"/>
+                                        </td>
+                                    </tr>
 
-    <!-- Street2 -->
-    <tr t-if="o.partner_id.street2">
-        <td t-field="o.partner_id.street2"></td>
-    </tr>
+                                    <tr t-if="o.partner_id.street">
+                                        <td>
+                                            <span t-field="o.partner_id.street"/>
+                                        </td>
+                                    </tr>
 
-    <!-- City, State, Zip -->
-    <tr t-if="o.partner_id.city or o.partner_id.state_id or o.partner_id.zip">
-        <td>
-            <t t-esc="o.partner_id.city"/>
-            <t t-if="o.partner_id.state_id">, <t t-esc="o.partner_id.state_id.name"/></t>
-            <t t-if="o.partner_id.zip"> - <t t-esc="o.partner_id.zip"/></t>
-        </td>
-    </tr>
+                                    <tr>
+                                        <td>
+                                            <b>VAT No:</b>
+                                            <span t-field="o.partner_id.vat"/>
+                                        </td>
+                                    </tr>
 
-    <!-- Country -->
-    <tr t-if="o.partner_id.country_id">
-        <td t-field="o.partner_id.country_id.name"></td>
-    </tr>
 
-    <!-- VAT -->
-    <tr>
-        <td><b>VAT No:</b> <span t-field="o.partner_id.vat"/></td>
-    </tr>
 
                                 </table>
                             </td>
                         </tr>
                     </table>
 
-                            <!-- RIGHT SIDE -->
+                    <!-- RIGHT SIDE -->
 
                     <!-- BOTTOM TABLE -->
                     <table width="100%" border="1"
@@ -347,7 +336,8 @@
                                 Delivery Note No. /
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">رقم
                                     الفاتورة
-                                </span><br/>
+                                </span>
+                                <br/>
                                 <span t-field="o.name"/>
                             </td>
 
@@ -355,7 +345,8 @@
                                 Date /
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
                                     تاريخ الفاتورة
-                                </span><br/>
+                                </span>
+                                <br/>
                                 <span t-field="o.scheduled_date" t-options="{'widget': 'date'}"/>
                             </td>
 
@@ -363,7 +354,8 @@
                                 Delivery Date /
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
                                     تاريخ التسليم
-                                </span><br/>
+                                </span>
+                                <br/>
                                 <span t-if="o.date_deadline" t-field="o.date_deadline" t-options="{'widget': 'date'}"/>
                             </td>
 
@@ -371,14 +363,16 @@
                                 AWB NO /
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">رقم
                                     الشحنة
-                                </span><br/>
+                                </span>
+                                <br/>
                                 <span t-field="o.awb_number"/>
                             </td>
                             <td style="padding: 4px; font-weight: bold; border: 1px solid #000;">
                                 P.O No /
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
                                     رقم الطلب
-                                </span><br/>
+                                </span>
+                                <br/>
                                 <span t-if="o.sale_id" t-field="o.sale_id.client_order_ref"/>
                             </td>
                         </tr>

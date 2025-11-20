@@ -297,34 +297,22 @@
                                         </td>
                                     </tr>
 
-
-                                    <tr>
-                                        <td>
-                                            <span t-field="o.partner_id.name"/>
+                                    <tr style="height: 40px;;">
+                                        <td style="padding: 4px; border: 1px solid #000; line-height: 1.3;">
+                                            <strong>
+                                                <span t-field="o.partner_id.name"/>
+                                            </strong>
+                                            <br/>
+                                            <span t-field="o.partner_id.res_partner" style="font-size: 10px;"/>
                                         </td>
                                     </tr>
-
-                                    <tr t-if="o.partner_id.street">
-                                        <td>
-                                            <span t-field="o.partner_id.street"/>
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>
-                                            <b>VAT No:</b>
-                                            <span t-field="o.partner_id.vat"/>
-                                        </td>
-                                    </tr>
-
-
 
                                 </table>
                             </td>
                         </tr>
                     </table>
 
-                    <!-- RIGHT SIDE -->
+                            <!-- RIGHT SIDE -->
 
                     <!-- BOTTOM TABLE -->
                     <table width="100%" border="1"
@@ -336,8 +324,7 @@
                                 Delivery Note No. /
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">رقم
                                     الفاتورة
-                                </span>
-                                <br/>
+                                </span><br/>
                                 <span t-field="o.name"/>
                             </td>
 
@@ -345,8 +332,7 @@
                                 Date /
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
                                     تاريخ الفاتورة
-                                </span>
-                                <br/>
+                                </span><br/>
                                 <span t-field="o.scheduled_date" t-options="{'widget': 'date'}"/>
                             </td>
 
@@ -354,8 +340,7 @@
                                 Delivery Date /
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
                                     تاريخ التسليم
-                                </span>
-                                <br/>
+                                </span><br/>
                                 <span t-if="o.date_deadline" t-field="o.date_deadline" t-options="{'widget': 'date'}"/>
                             </td>
 
@@ -363,16 +348,14 @@
                                 AWB NO /
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">رقم
                                     الشحنة
-                                </span>
-                                <br/>
+                                </span><br/>
                                 <span t-field="o.awb_number"/>
                             </td>
                             <td style="padding: 4px; font-weight: bold; border: 1px solid #000;">
                                 P.O No /
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
                                     رقم الطلب
-                                </span>
-                                <br/>
+                                </span><br/>
                                 <span t-if="o.sale_id" t-field="o.sale_id.client_order_ref"/>
                             </td>
                         </tr>

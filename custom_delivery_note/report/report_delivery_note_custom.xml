@@ -297,40 +297,38 @@
                                         </td>
                                     </tr>
 
-                                    <tr style="height: 40px;;">
-                                        <td style="padding: 4px; border: 1px solid #000; line-height: 1.3;">
-                                         <strong>
-                                        <t t-esc="o.partner_id.name"/>
-                                    </strong>
-                                    <br/>
-                                    <t t-if="o.partner_id.street">
-                                        <t t-esc="o.partner_id.street"/>
-                                        <br/>
-                                    </t>
-                                    <t t-if="o.partner_id.street2">
-                                        <t t-esc="o.partner_id.street2"/>
-                                        <br/>
-                                    </t>
-                                    <t t-if="o.partner_id.city or o.partner_id.state_id or o.partner_id.zip">
-                                        <t t-if="o.partner_id.city" t-esc="o.partner_id.city"/>
-                                        <t t-if="o.partner_id.state_id">,
-                                            <t t-esc="o.partner_id.state_id.name"/>
-                                        </t>
-                                        <t t-if="o.partner_id.zip">-
-                                            <t t-esc="o.partner_id.zip"/>
-                                        </t>
-                                        <br/>
-                                    </t>
-                                    <t t-if="o.partner_id.country_id">
-                                        <t t-esc="o.partner_id.country_id.name"/>
-                                        <br/>
-                                    </t>
-                                    <br/>
-                                    <strong>VAT NO :</strong>
-                                    <t t-esc="o.partner_id.vat or 'N/A'"/>
+                                   <tr>
+        <td t-field="o.partner_id.name"></td>
+    </tr>
 
-                                        </td>
-                                    </tr>
+    <!-- Street -->
+    <tr t-if="o.partner_id.street">
+        <td t-field="o.partner_id.street"></td>
+    </tr>
+
+    <!-- Street2 -->
+    <tr t-if="o.partner_id.street2">
+        <td t-field="o.partner_id.street2"></td>
+    </tr>
+
+    <!-- City, State, Zip -->
+    <tr t-if="o.partner_id.city or o.partner_id.state_id or o.partner_id.zip">
+        <td>
+            <t t-esc="o.partner_id.city"/>
+            <t t-if="o.partner_id.state_id">, <t t-esc="o.partner_id.state_id.name"/></t>
+            <t t-if="o.partner_id.zip"> - <t t-esc="o.partner_id.zip"/></t>
+        </td>
+    </tr>
+
+    <!-- Country -->
+    <tr t-if="o.partner_id.country_id">
+        <td t-field="o.partner_id.country_id.name"></td>
+    </tr>
+
+    <!-- VAT -->
+    <tr>
+        <td><b>VAT No:</b> <span t-field="o.partner_id.vat"/></td>
+    </tr>
 
                                 </table>
                             </td>

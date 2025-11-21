@@ -3,6 +3,39 @@
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="o">
+                    <head>
+                        <meta charset="UTF-8"/>
+                        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+                        <style type="text/css">
+                            /* Import Google Noto Arabic Font */
+                            @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&amp;display=swap');
+
+                            @page {
+                            margin: 20mm;
+                            }
+
+                            body {
+                            font-family: 'DejaVu Sans', Arial, sans-serif;
+                            }
+
+                            .ar {
+                            font-family: 'Noto Naskh Arabic', 'DejaVu Sans', Arial, sans-serif !important;
+                            direction: rtl;
+                            unicode-bidi: bidi-override;
+                            font-weight: 700;
+                            display: inline-block;
+                            }
+
+                            table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            }
+
+                            * {
+                            box-sizing: border-box;
+                            }
+                        </style>
+                    </head>
 
                     <div class="page">
                         <div class="header"
@@ -18,7 +51,7 @@
                                     </td>
                                     <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white;padding-right:0px;">
                                         <div style="color: #8B1538; font-size: 17px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;"
-                                             class="arabic-word">
+                                             class="ar">
                                             شركة سمير شرف العتيبي التجارية
                                         </div>
                                     </td>
@@ -51,7 +84,8 @@
                                     <!-- Right Column: Arabic Info -->
                                     <td style="width: 33%; text-align: right; font-size: 15px; color: #333; vertical-align: top;
                         direction: rtl; padding: 0px 10px 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">
-                                        <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight:900; padding-right:0px; margin-top:0px; text-align: right; direction: rtl;">
+                                        <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight:900; padding-right:0px; margin-top:0px; text-align: right; direction: rtl;"
+                                             class="ar">
                                             س.ت: ٤٠٣٠٢١٦١٥٤
                                             <br/>
                                             الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
@@ -73,7 +107,7 @@
                     <!-- ===== Bank Details ===== -->
                     <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                         <tr>
-                            <td style="padding:2px; text-align:left;width:50%;">
+                            <td class="ar" style="padding:2px; text-align:left;width:50%;">
                                 Sameer Sharaf Al Otaibi Trading Company
                                 <br/>
                                 شركة سمير شرف العتيبي التجارية
@@ -87,7 +121,7 @@
 
 
                             <!-- English Column -->
-                            <td style="padding:2px; text-align:right;width:50%;">
+                            <td class="ar" style="padding:2px; text-align:right;width:50%;">
                                 Sameer Sharaf Al Otaibi Trading Company
                                 <br/>
                                 شركة سمير شرف العتيبي التجارية
@@ -154,11 +188,13 @@
                         <div style="background-color:#d3d3d3; color:black; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
                             <t t-if="o.move_type in ('out_invoice','out_refund')">
                                 Tax Invoice /
-                                <span style="font-family:'Tajawal',sans-serif;font-weight:900;">فاتورة ضريبية</span>
+                                <span  style="font-weight:900; "
+                                       class="ar">فاتورة ضريبية</span>
                             </t>
                             <t t-elif="o.move_type in ('in_invoice','in_refund')">
                                 Purchase Invoice /
-                                <span style="font-family:'Tajawal',sans-serif;font-weight:900;">فاتورة مشتريات
+                                <span style="font-family:'Tajawal',sans-serif;font-weight:900;"
+                                class="ar">فاتورة مشتريات
                                 </span>
                             </t>
                         </div>
@@ -172,7 +208,8 @@
                         <table style="width:100%; border-collapse:collapse;">
                             <tr style="background-color:#d3d3d3;">
                                 <!-- Left: Sold To / Supplier -->
-                                <td style="padding:4px 8px; font-weight:bold; border-right:1px solid #999;">
+                                <td style="padding:4px 8px; font-weight:bold; border-right:1px solid #999;"
+                                    class="ar">
                                     <t t-if="o.move_type in ('out_invoice','out_refund')">
                                         Sold To &#160;&#160;&#160;&#160;&#160;&#160;&#160; اسم العميل
                                     </t>
@@ -182,7 +219,8 @@
                                 </td>
                                 <!-- Shipping To header - ONLY if shipping address exists AND is different from partner -->
                                 <t t-if="o.partner_shipping_id and o.partner_shipping_id.id != o.partner_id.id">
-                                    <td style="padding:4px 8px; font-weight:bold; width:50%;">
+                                    <td style="padding:4px 8px; font-weight:bold; width:50%;"
+                                    class="ar">
                                         <t t-if="o.move_type in ('out_invoice','out_refund')">
                                             Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160; عنوان الشحن
                                         </t>
@@ -260,13 +298,13 @@
                                     Inv #:
                                     <span t-esc="o.name"/>
                                     &#160;&#160;
-                                    <span style="font-family:'Tajawal';font-weight:900;">رقم الفاتورة</span>
+                                    <span style="font-weight:900;" class="ar">رقم الفاتورة</span>
                                 </td>
                                 <td style="padding:4px 8px;">
                                     Date:
                                     <span t-esc="o.invoice_date.strftime('%d/%b/%Y') if o.invoice_date else ''"/>
                                     &#160;&#160;
-                                    <span style="font-family:'Tajawal';font-weight:900;">التاريخ</span>
+                                    <span style="font-weight:900;" class="ar">التاريخ</span>
                                 </td>
                                 <!-- ===== AWB FIELD ADDED HERE ===== -->
                                 <td style="padding:4px 8px;">
@@ -320,47 +358,47 @@
                             <tr>
                                 <th>S.N
                                     <br/>
-                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">م</span>
+                                    <span style="font-weight:550;font-size:12px;" class="ar">م</span>
                                 </th>
                                 <th>Item / Description
                                     <br/>
-                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">الصنف /
+                                    <span style="font-weight:550;font-size:12px;" class="ar">الصنف /
                                         الوصف
                                     </span>
                                 </th>
                                 <th>QTY
                                     <br/>
-                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">الكمية
+                                    <span style="font-weight:550;font-size:12px;" class="ar">الكمية
                                     </span>
                                 </th>
                                 <th>Unit
                                     <br/>
-                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">الوحدة
+                                    <span style="font-weight:550;font-size:12px;" class="ar">الوحدة
                                     </span>
                                 </th>
                                 <th>S.Rate
                                     <br/>
-                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">سعر الوحدة
+                                    <span style="font-weight:550;font-size:12px;" class="ar">سعر الوحدة
                                     </span>
                                 </th>
                                 <th>Amount
                                     <br/>
-                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">المبلغ
+                                    <span style="font-weight:550;font-size:12px;" class="ar">المبلغ
                                     </span>
                                 </th>
                                 <th>VAT%
                                     <br/>
-                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">الضريبة
+                                    <span style="font-weight:550;font-size:12px;" class="ar">الضريبة
                                     </span>
                                 </th>
                                 <th>VAT
                                     <br/>
-                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">القيمة الضريبة
+                                    <span style="font-weight:550;font-size:12px;" class="ar">القيمة الضريبة
                                     </span>
                                 </th>
                                 <th>Total Price
                                     <br/>
-                                    <span style="font-family:'Tajawal';font-weight:550;font-size:12px;">القيمة الإجمالية
+                                    <span style="font-weight:550;font-size:12px;" class="ar">القيمة الإجمالية
                                     </span>
                                 </th>
                             </tr>
@@ -419,12 +457,12 @@
                                 <td width="30%" style="border:1px solid #ccc; padding:8px; vertical-align:top;">
                                     <strong>Delivered By</strong>
                                     <br/>
-                                    <span style="font-family:'Tajawal';font-weight:900;">سلمت بواسطة</span>
+                                    <span style="font-weight:900;" class="ar">سلمت بواسطة</span>
                                     <div style="height:20px;"></div>
                                     <hr style="border:none; border-top:1px dashed #aaa; margin:5px 0;"/>
                                     <strong>Received By</strong>
                                     <br/>
-                                    <span style="font-family:'Tajawal';font-weight:900;">المستلم</span>
+                                    <span style="font-weight:900;" class="ar">المستلم</span>
                                     <div style="height:20px;"></div>
                                 </td>
                             </t>
@@ -517,10 +555,10 @@
                             <td colspan="4"
                                 style="border: 1px solid #ccc; padding: 10px; background: #fafafa; font-weight: bold; text-align: center;">
                                 <!-- Arabic Amount in Words -->
-                                <div style="direction: rtl; line-height:1.5; font-family: 'Tajawal', sans-serif; font-weight:900; font-size: 13px;">
+                                <div style="direction: rtl; line-height:1.5; font-weight:900; font-size: 13px;" class="ar">
                                     فقط
-                                    <span style="line-height:1.5; font-family: 'Tajawal', sans-serif; font-weight:900;"
-                                          t-esc="o.amount_to_text_arabic(o.amount_total)"/>
+                                    <span style="line-height:1.5; font-weight:900;"
+                                          t-esc="o.amount_to_text_arabic(o.amount_total)" class="ar"/>
                                 </div>
                                 <!-- English Amount in Words -->
                                 <div style="direction: ltr; margin-top: 5px; font-size: 12px;">

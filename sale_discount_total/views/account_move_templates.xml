@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--Inherited Template for invoice document-->
+    <template id="report_invoice_customized"
+              inherit_id="account.report_invoice_document">
+        <!-- Replace discount display format -->
+        <xpath expr="//span[@t-field='line.discount']" position="replace">
+            <span t-esc="'%.2f' % line.discount"/>
+        </xpath>
+
+        <!-- Add discount row after subtotal -->
+        <xpath expr="//tr[hasclass('is-subtotal')]" position="after">
+            <tr>
+                <td>Discount</td>
+                <td class="text-end">
+                    <span t-field="o.amount_discount"
+                          t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                </td>
+            </tr>
+        </xpath>
+    </template>
+</odoo>

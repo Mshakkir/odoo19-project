@@ -124,215 +124,71 @@
                         </div>
                     </div>
 
-                    <!-- ===== Dynamic Title Section ===== -->
-                    <!--                    <table width="100%" border="1"-->
-                    <!--                           style="border-collapse: collapse; font-size: 13px;margin-top:10px;" cellpadding="5">-->
-                    <!--                        <tr style="background-color: #d3d3d3;">-->
-                    <!--                            <td colspan="2" style="padding: 4px; font-weight: bold;">Sold To /-->
-                    <!--                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-                    <!--                                    اسم العميل-->
-                    <!--                                </span>-->
-                    <!--                            </td>-->
-                    <!--                            <td style="padding: 4px; font-weight: bold;">AWB NO /-->
-                    <!--                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-                    <!--                                    رقم الشحنة-->
-                    <!--                                </span>-->
-                    <!--                            </td>-->
-                    <!--                        </tr>-->
-                    <!--                        <tr>-->
-                    <!--                            <td colspan="2" style="padding: 4px;">-->
-                    <!--                                <span t-field="o.partner_id.name"/>-->
-                    <!--                                <span t-field="o.partner_id.contact_address"/>-->
-                    <!--                            </td>-->
-                    <!--                            <td style="padding: 4px;">-->
-                    <!--                                <span t-field="o.awb_number"/>-->
-                    <!--                            </td>-->
-                    <!--                        </tr>-->
-                    <!--                        <tr style="background-color: #d3d3d3;">-->
-                    <!--                            <td style="padding: 4px; font-weight: bold;">Delivery Note No. /-->
-                    <!--                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-                    <!--                                    رقم الفاتورة-->
-                    <!--                                </span>-->
-                    <!--                            </td>-->
-                    <!--                            <td style="padding: 4px; font-weight: bold;">Date /-->
-                    <!--                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-                    <!--                                    تاريخ الفاتورة-->
-                    <!--                                </span>-->
-                    <!--                            </td>-->
-                    <!--                            <td style="padding: 4px; font-weight: bold;">P.O No /-->
-                    <!--                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-                    <!--                                    رقم الطلب-->
-                    <!--                                </span>-->
-                    <!--                            </td>-->
 
-                    <!--                            <td style="padding: 4px; font-weight: bold;">Delivery Date /-->
-                    <!--                                <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-                    <!--                                    تاريخ التسليم-->
-                    <!--                                </span>-->
-                    <!--                            </td>-->
-                    <!--                        </tr>-->
-                    <!--                        <tr>-->
-                    <!--                            <td style="padding: 4px;">-->
-                    <!--                                <span t-field="o.name"/>-->
-                    <!--                            </td>-->
-                    <!--                            <td style="padding: 4px;">-->
-                    <!--                                <span t-field="o.scheduled_date"/>-->
-                    <!--                            </td>-->
-                    <!--                            <td style="padding: 4px;">-->
-                    <!--                                <span t-if="o.sale_id" t-field="o.sale_id.client_order_ref"/>-->
-                    <!--                                <span t-else="">-</span>-->
-                    <!--                            </td>-->
-                    <!--                            <td style="padding: 4px;">-->
-                    <!--                                <span t-field="o.date_deadline"/>-->
-                    <!--                            </td>-->
-                    <!--                        </tr>-->
-                    <!--                    </table>-->
-                    <!-- Container for top two tables side by side -->
-                    <!-- Container for top two tables side by side -->
-                    <!-- Container for top two tables side by side -->
-                    <!-- Container for top two tables side by side using table display -->
-                    <!--<table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 10px; border: 0;">-->
-                    <!--    <tr>-->
-                    <!--        &lt;!&ndash; Table 1: LEFT SIDE - Sold To (70% width) &ndash;&gt;-->
-                    <!--        <td style="width: 70%; vertical-align: top; padding-right: 10px; border: 0;">-->
-                    <!--            <table width="100%" border="1" style="border-collapse: collapse; font-size: 12px; border: 1px solid #000;" cellpadding="0" cellspacing="0">-->
-                    <!--                &lt;!&ndash; Header Row &ndash;&gt;-->
-                    <!--                <tr style="background-color: #d3d3d3; height: 40px;">-->
-                    <!--                    <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle;">-->
-                    <!--                        Sold To /-->
-                    <!--                        <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">اسم العميل</span>-->
-                    <!--                    </td>-->
-                    <!--                </tr>-->
-                    <!--                &lt;!&ndash; Data Row &ndash;&gt;-->
-                    <!--                <tr style="height: 120px;">-->
-                    <!--                    <td style="padding: 8px; border: 1px solid #000; vertical-align: top; line-height: 1.5;">-->
-                    <!--                        <strong><span t-field="o.partner_id.name"/></strong><br/>-->
-                    <!--                        <span t-field="o.partner_id.contact_address" style="font-size: 11px;"/>-->
-                    <!--                    </td>-->
-                    <!--                </tr>-->
-                    <!--            </table>-->
-                    <!--        </td>-->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 5px; border: 0;">
+                        <tr>
+                            <td style="width: 100%; vertical-align: top; padding-right: 0px; border: 0;">
+                                <table width="100%" border="1"
+                                       style="border-collapse: collapse; font-size: 11px; border: 1px solid #000;"
+                                       cellpadding="0" cellspacing="0">
 
-                    <!--        &lt;!&ndash; Table 2: RIGHT SIDE - AWB NO and P.O No (30% width) &ndash;&gt;-->
-                    <!--        <td style="width: 30%; vertical-align: top; border: 0;">-->
-                    <!--            <table width="100%" border="1" style="border-collapse: collapse; font-size: 12px; border: 1px solid #000;" cellpadding="0" cellspacing="0">-->
-                    <!--                &lt;!&ndash; Row 1: AWB NO Header &ndash;&gt;-->
-                    <!--                <tr style="background-color: #d3d3d3; height: 40px;">-->
-                    <!--                    <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle;">-->
-                    <!--                        AWB NO /-->
-                    <!--                        <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">رقم الشحنة</span>-->
-                    <!--                    </td>-->
-                    <!--                </tr>-->
-                    <!--                &lt;!&ndash; Row 2: AWB Number Data &ndash;&gt;-->
-                    <!--                <tr style="height: 40px;">-->
-                    <!--                    <td style="padding: 8px; border: 1px solid #000; vertical-align: middle; text-align: center; font-weight: bold; font-size: 14px;">-->
-                    <!--                        <span t-field="o.awb_number"/>-->
-                    <!--                    </td>-->
-                    <!--                </tr>-->
-                    <!--                &lt;!&ndash; Row 3: P.O No Header &ndash;&gt;-->
-                    <!--                <tr style="background-color: #d3d3d3; height: 40px;">-->
-                    <!--                    <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle;">-->
-                    <!--                        P.O No /-->
-                    <!--                        <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">رقم الطلب</span>-->
-                    <!--                    </td>-->
-                    <!--                </tr>-->
-                    <!--                &lt;!&ndash; Row 4: P.O Number Data &ndash;&gt;-->
-                    <!--                <tr style="height: 40px;">-->
-                    <!--                    <td style="padding: 8px; border: 1px solid #000; vertical-align: middle; text-align: center; font-weight: bold;">-->
-                    <!--                        <span t-if="o.sale_id" t-field="o.sale_id.client_order_ref"/>-->
-                    <!--                        <span t-else="">-</span>-->
-                    <!--                    </td>-->
-                    <!--                </tr>-->
-                    <!--            </table>-->
-                    <!--        </td>-->
-                    <!--    </tr>-->
-                    <!--</table>-->
+                                    <!-- Header Row -->
+                                    <tr style="background-color: #d3d3d3; height: 28px;">
+                                        <td style="padding: 4px; font-weight: bold; border: 1px solid #000;">
+                                            Sold To /
+                                            <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
+                                                اسم العميل
+                                            </span>
+                                        </td>
+                                    </tr>
 
-                    <!--&lt;!&ndash; Table 3: BELOW FULL WIDTH - Delivery Details (2 rows, 3 columns) &ndash;&gt;-->
-                    <!--<table width="100%" border="1" style="border-collapse: collapse; font-size: 12px; margin-top: 10px; border: 1px solid #000;" cellpadding="0" cellspacing="0">-->
-                    <!--    &lt;!&ndash; Header Row &ndash;&gt;-->
-                    <!--    <tr style="background-color: #d3d3d3; height: 40px;">-->
-                    <!--        <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle; width: 33.33%;">-->
-                    <!--            Delivery Note No. /-->
-                    <!--            <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">رقم الفاتورة</span>-->
-                    <!--        </td>-->
-                    <!--        <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle; width: 33.33%;">-->
-                    <!--            Date /-->
-                    <!--            <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">تاريخ الفاتورة</span>-->
-                    <!--        </td>-->
-                    <!--        <td style="padding: 6px 8px; font-weight: bold; border: 1px solid #000; vertical-align: middle; width: 33.34%;">-->
-                    <!--            Delivery Date /-->
-                    <!--            <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">تاريخ التسليم</span>-->
-                    <!--        </td>-->
-                    <!--    </tr>-->
-                    <!--    &lt;!&ndash; Data Row &ndash;&gt;-->
-                    <!--    <tr style="height: 45px;">-->
-                    <!--        <td style="padding: 8px; border: 1px solid #000; vertical-align: middle;">-->
-                    <!--            <span t-field="o.name"/>-->
-                    <!--        </td>-->
-                    <!--        <td style="padding: 8px; border: 1px solid #000; vertical-align: middle;">-->
-                    <!--            <span t-field="o.scheduled_date" t-options="{'widget': 'date'}"/>-->
-                    <!--        </td>-->
-                    <!--        <td style="padding: 8px; border: 1px solid #000; vertical-align: middle;">-->
-                    <!--            <span t-if="o.date_deadline" t-field="o.date_deadline" t-options="{'widget': 'date'}"/>-->
-                    <!--            <span t-else="">-</span>-->
-                    <!--        </td>-->
-                    <!--    </tr>-->
-                    <!--</table>-->
+                                    <!-- Customer Information Block -->
+                                    <tr>
+                                        <td style="padding: 8px; border: 1px solid #000; vertical-align: top;">
+                                            <!-- Name -->
+                                            <strong>
+                                                <span t-field="o.partner_id.name"/>
+                                            </strong>
+                                            <br/>
 
-                                              <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 5px; border: 0;">
-    <tr>
-        <td style="width: 100%; vertical-align: top; padding-right: 0px; border: 0;">
-            <table width="100%" border="1"
-                   style="border-collapse: collapse; font-size: 11px; border: 1px solid #000;"
-                   cellpadding="0" cellspacing="0">
+                                            <!-- Address Lines -->
+                                            <t t-if="o.partner_id.street">
+                                                <span t-field="o.partner_id.street"/>
+                                                <br/>
+                                            </t>
 
-                <!-- Header Row -->
-                <tr style="background-color: #d3d3d3; height: 28px;">
-                    <td style="padding: 4px; font-weight: bold; border: 1px solid #000;">
-                        Sold To /
-                        <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
-                            اسم العميل
-                        </span>
-                    </td>
-                </tr>
+                                            <t t-if="o.partner_id.street2">
+                                                <span t-field="o.partner_id.street2"/>
+                                                <br/>
+                                            </t>
 
-                <!-- Customer Information Block -->
-                <tr>
-                    <td style="padding: 8px; border: 1px solid #000; vertical-align: top;">
-                        <!-- Name -->
-                        <strong><span t-field="o.partner_id.name"/></strong><br/>
+                                            <t t-if="o.partner_id.city or o.partner_id.state_id or o.partner_id.zip">
+                                                <span t-if="o.partner_id.city" t-field="o.partner_id.city"/>
+                                                <span t-if="o.partner_id.state_id">,
+                                                    <span t-field="o.partner_id.state_id.name"/>
+                                                </span>
+                                                <span t-if="o.partner_id.zip">-
+                                                    <span t-field="o.partner_id.zip"/>
+                                                </span>
+                                                <br/>
+                                            </t>
 
-                        <!-- Address Lines -->
-                        <t t-if="o.partner_id.street">
-                            <span t-field="o.partner_id.street"/><br/>
-                        </t>
+                                            <t t-if="o.partner_id.country_id">
+                                                <span t-field="o.partner_id.country_id.name"/>
+                                                <br/>
+                                            </t>
 
-                        <t t-if="o.partner_id.street2">
-                            <span t-field="o.partner_id.street2"/><br/>
-                        </t>
+                                            <br/>
+                                            <!-- VAT -->
+                                            <strong>VAT NO:</strong>
+                                            <span t-field="o.partner_id.vat"/>
+                                        </td>
+                                    </tr>
 
-                        <t t-if="o.partner_id.city or o.partner_id.state_id or o.partner_id.zip">
-                            <span t-if="o.partner_id.city" t-field="o.partner_id.city"/>
-                            <span t-if="o.partner_id.state_id">, <span t-field="o.partner_id.state_id.name"/></span>
-                            <span t-if="o.partner_id.zip"> - <span t-field="o.partner_id.zip"/></span>
-                            <br/>
-                        </t>
-
-                        <t t-if="o.partner_id.country_id">
-                            <span t-field="o.partner_id.country_id.name"/><br/>
-                        </t>
-
-                        <br/>
-                        <!-- VAT -->
-                        <strong>VAT NO: </strong><span t-field="o.partner_id.vat"/>
-                    </td>
-                </tr>
-
-            </table>
-        </td>
-    </tr>
-</table>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
 
                     <!-- BOTTOM TABLE -->
                     <table width="100%" border="1"
@@ -344,7 +200,8 @@
                                 Delivery Note No. /
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">رقم
                                     الفاتورة
-                                </span><br/>
+                                </span>
+                                <br/>
                                 <span t-field="o.name"/>
                             </td>
 
@@ -352,7 +209,8 @@
                                 Date /
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
                                     تاريخ الفاتورة
-                                </span><br/>
+                                </span>
+                                <br/>
                                 <span t-field="o.scheduled_date" t-options="{'widget': 'date'}"/>
                             </td>
 
@@ -360,7 +218,8 @@
                                 Delivery Date /
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
                                     تاريخ التسليم
-                                </span><br/>
+                                </span>
+                                <br/>
                                 <span t-if="o.date_deadline" t-field="o.date_deadline" t-options="{'widget': 'date'}"/>
                             </td>
 
@@ -368,14 +227,16 @@
                                 AWB NO /
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">رقم
                                     الشحنة
-                                </span><br/>
+                                </span>
+                                <br/>
                                 <span t-field="o.awb_number"/>
                             </td>
                             <td style="padding: 4px; font-weight: bold; border: 1px solid #000;">
                                 P.O No /
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
                                     رقم الطلب
-                                </span><br/>
+                                </span>
+                                <br/>
                                 <span t-if="o.sale_id" t-field="o.sale_id.client_order_ref"/>
                             </td>
                         </tr>

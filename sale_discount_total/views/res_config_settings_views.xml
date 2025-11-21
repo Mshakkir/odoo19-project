@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--Inherited view form of res config settings-->
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sale.discount.total</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="10"/>
+        <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Add discount approval settings in pricing section -->
+            <xpath expr="//block[@id='pricing_setting_container']" position="inside">
+                <setting id="discount_sale_order_lines"
+                         string="Sale Discount Approval"
+                         help="Managers must approve sale orders with discount exceeding limit">
+                    <field name="so_order_approval"/>
+                    <div class="content-group" invisible="not so_order_approval">
+                        <div class="row mt16">
+                            <label for="so_double_validation_limit"
+                                   class="col-lg-3 o_light_label"/>
+                            <field name="so_double_validation_limit"
+                                   class="oe_inline"/>
+                            <span class="ms-1">%</span>
+                        </div>
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -55,19 +55,18 @@ class SaleOrder(models.Model):
                     amount_discount += (line.product_uom_qty * line.price_unit * line.discount) / 100
             order.amount_discount = amount_discount
 
-    @api.depends('order_line.margin', 'amount_untaxed', 'amount_total')
+    @api.depends('amount_untaxed', 'amount_total')
     def _compute_margin_test(self):
         """Compute margin if sale_margin is installed"""
-        if self.env['ir.module.module'].sudo().search(
-                [('name', '=', 'sale_margin'), ('state', '=', 'installed')]):
-            for record in self:
-                # Check if margin field exists
-                if hasattr(record, 'margin'):
-                    record.margin_test = record.margin
-                else:
-                    record.margin_test = 0.0
-        else:
-            for record in self:
+        sale_margin_installed = self.env['ir.module.module'].sudo().search(
+            [('name', '=', 'sale_margin'), ('state', '=', 'installed')], limit=1
+        )
+
+        for record in self:
+            if sale_margin_installed and hasattr(record, 'margin'):
+                # If sale_margin is installed, use its margin field
+                record.margin_test = record.margin
+            else:
                 record.margin_test = 0.0
 
     def action_confirm(self):

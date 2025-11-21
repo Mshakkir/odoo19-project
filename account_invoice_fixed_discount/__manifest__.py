@@ -11,12 +11,12 @@
     "license": "AGPL-3",
     "application": False,
     "installable": True,
-    "depends": ["account", "sale"],
+    "depends": ["account", "sale_management"],
     "excludes": ["account_invoice_triple_discount"],
     "data": [
         "security/res_groups.xml",
         "views/account_move_view.xml",
-        # "views/sale_order_view.xml",
+        "views/sale_order_view.xml",
         "reports/report_account_invoice.xml",
     ],
 }

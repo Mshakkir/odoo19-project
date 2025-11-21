@@ -4,19 +4,15 @@
     <template id="report_invoice_customized"
               inherit_id="account.report_invoice_document">
 
-        <!-- Add discount row in the totals section -->
-        <xpath expr="//div[@id='total']" position="inside">
-            <t t-if="o.amount_discount">
-                <div class="row">
-                    <div class="col-6">
-                        <strong>Discount:</strong>
-                    </div>
-                    <div class="col-6 text-end">
-                        <span t-field="o.amount_discount"
-                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                    </div>
-                </div>
-            </t>
+        <!-- Add discount row before tax totals in the totals table -->
+        <xpath expr="//div[@id='total']//table[@class='o_total_table table table-borderless avoid-page-break-inside']//t[@t-if='o.tax_totals']" position="before">
+            <tr t-if="o.amount_discount" class="border-black o_subtotal">
+                <td><strong>Discount</strong></td>
+                <td class="text-end">
+                    <span t-field="o.amount_discount"
+                          t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                </td>
+            </tr>
         </xpath>
     </template>
 </odoo>

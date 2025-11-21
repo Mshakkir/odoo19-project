@@ -29,8 +29,8 @@ class ResConfigSettings(models.TransientModel):
 
     so_order_approval = fields.Boolean(
         string="Sale Discount Approval",
-        compute='_compute_sale_order_approval',
-        inverse='_inverse_sale_order_approval',
+        compute='_compute_so_order_approval',
+        inverse='_inverse_so_order_approval',
         help="Activate/disable sale order approval.")
     so_double_validation = fields.Selection(
         related='company_id.so_double_validation',
@@ -42,16 +42,16 @@ class ResConfigSettings(models.TransientModel):
         help="Minimum discount percentage for which a double validation is "
              "required.")
 
-    def _compute_sale_order_approval(self):
+    def _compute_so_order_approval(self):
         """Compute the approval checkbox based on double validation setting"""
         for record in self:
-            record.sale_order_approval = (
+            record.so_order_approval = (
                 record.company_id.so_double_validation == 'two_step'
             )
 
-    def _inverse_sale_order_approval(self):
+    def _inverse_so_order_approval(self):
         """Set double validation based on approval checkbox"""
         for record in self:
             record.company_id.so_double_validation = (
-                'two_step' if record.sale_order_approval else 'one_step'
+                'two_step' if record.so_order_approval else 'one_step'
             )

@@ -18,7 +18,6 @@ class SaleOrderLine(models.Model):
         ),
     )
 
-    # Override _get_sale_order_line_multiline_description_sale to ensure field is computed
     def _get_protected_fields(self):
         """Add discount_fixed to protected fields."""
         return super()._get_protected_fields() + ['discount_fixed']
@@ -29,26 +28,20 @@ class SaleOrderLine(models.Model):
         lines_with_fixed_discount = self.env["sale.order.line"]
 
         for line in self:
-            if float_is_zero(
-                    line.discount_fixed, precision_rounding=line.currency_id.rounding
-            ):
+            if float_is_zero(line.discount_fixed, precision_rounding=line.currency_id.rounding):
                 continue
 
             lines_with_fixed_discount |= line
 
             # Calculate price with fixed discount
-            subtotal_before_discount = line.product_uom_qty * line.price_unit
+            subtotal_before = line.product_uom_qty * line.price_unit
 
-            if line.product_uom_qty and not float_is_zero(
-                    line.product_uom_qty, precision_rounding=line.currency_id.rounding
-            ):
-                # Apply fixed discount to total
-                subtotal_after_discount = subtotal_before_discount - line.discount_fixed
-                effective_price_unit = subtotal_after_discount / line.product_uom_qty
+            if line.product_uom_qty:
+                subtotal_after = subtotal_before - line.discount_fixed
+                effective_price_unit = subtotal_after / line.product_uom_qty
             else:
                 effective_price_unit = line.price_unit
 
-            # Calculate tax
             tax_results = line.tax_id.compute_all(
                 effective_price_unit,
                 line.currency_id,
@@ -63,12 +56,13 @@ class SaleOrderLine(models.Model):
                 'price_subtotal': tax_results['total_excluded'],
             })
 
-        # Process lines without fixed discount normally
-        return super(SaleOrderLine, self - lines_with_fixed_discount)._compute_amount()
+        # Compute remaining lines normally
+        remaining_lines = self - lines_with_fixed_discount
+        if remaining_lines:
+            super(SaleOrderLine, remaining_lines)._compute_amount()
 
     @api.onchange("discount_fixed", "price_unit", "product_uom_qty")
     def _onchange_discount_fixed(self):
-        """Compute the percentage discount based on the fixed total discount."""
         if self.env.context.get("ignore_discount_onchange"):
             return
         self = self.with_context(ignore_discount_onchange=True)
@@ -76,31 +70,25 @@ class SaleOrderLine(models.Model):
 
     @api.onchange("discount")
     def _onchange_discount(self):
-        """Reset fixed discount when percentage discount is changed."""
         if self.env.context.get("ignore_discount_onchange"):
             return
         self = self.with_context(ignore_discount_onchange=True)
         self.discount_fixed = 0.0
 
     def _get_discount_from_fixed_discount(self):
-        """Calculate the discount percentage from the fixed total discount amount."""
         self.ensure_one()
         currency = self.currency_id or self.company_id.currency_id
 
         if float_is_zero(self.discount_fixed, precision_rounding=currency.rounding):
             return 0.0
 
-        # Calculate total before discount
         subtotal = self.product_uom_qty * self.price_unit
-
         if float_is_zero(subtotal, precision_rounding=currency.rounding):
             return 0.0
 
-        # Calculate percentage: (fixed_discount / subtotal) * 100
         return (self.discount_fixed / subtotal) * 100
 
     def _prepare_invoice_line(self, **optional_values):
-        """Transfer fixed discount to invoice line."""
         res = super()._prepare_invoice_line(**optional_values)
         res["discount_fixed"] = self.discount_fixed
         return res

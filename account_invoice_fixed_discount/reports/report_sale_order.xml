@@ -1,33 +1,68 @@
-<!-- Copyright 2017 ForgeFlow S.L.
-     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<!--&lt;!&ndash; Copyright 2017 ForgeFlow S.L.-->
+<!--     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). &ndash;&gt;-->
+<!--<odoo>-->
+<!--    <template id="report_saleorder_document" inherit_id="sale.report_saleorder_document">-->
+<!--        <xpath expr="//t[@t-set='display_discount']" position="after">-->
+<!--            <t-->
+<!--                t-set="display_discount_fixed"-->
+<!--                t-value="any([l.discount_fixed for l in doc.order_line])"-->
+<!--            />-->
+<!--        </xpath>-->
+<!--        <xpath expr="//th[@name='th_discount']/span" position="attributes">-->
+<!--            <attribute name="t-if">not display_discount_fixed</attribute>-->
+<!--        </xpath>-->
+
+<!--        <xpath expr="//th[@t-if='display_discount']/span" position="before">-->
+<!--            <t t-if="display_discount_fixed">-->
+<!--                <span>Discount Amount (%)</span>-->
+<!--            </t>-->
+<!--        </xpath>-->
+
+<!--        <span t-field="line.discount" position="before">-->
+<!--            <t t-if="display_discount_fixed">-->
+<!--                <span class="text-nowrap" t-field="line.discount_fixed" />-->
+<!--                <span class="text-nowrap"> (or</span>-->
+<!--            </t>-->
+<!--        </span>-->
+<!--        <span t-field="line.discount" position="after">-->
+<!--            <t t-if="display_discount_fixed">-->
+<!--                <span class="text-nowrap"> %)</span>-->
+<!--            </t>-->
+<!--        </span>-->
+<!--    </template>-->
+<!--</odoo>-->
+
 <odoo>
     <template id="report_saleorder_document" inherit_id="sale.report_saleorder_document">
-        <xpath expr="//t[@t-set='display_discount']" position="after">
-            <t
-                t-set="display_discount_fixed"
-                t-value="any([l.discount_fixed for l in doc.order_line])"
-            />
-        </xpath>
-        <xpath expr="//th[@name='th_discount']/span" position="attributes">
-            <attribute name="t-if">not display_discount_fixed</attribute>
+
+        <!-- Add a flag: Does any order line have a fixed discount? -->
+        <xpath expr="//table[@class='table table-sm o_main_table']" position="before">
+            <t t-set="has_fixed_discount"
+               t-value="any(l.discount_fixed for l in doc.order_line)" />
         </xpath>
 
-        <xpath expr="//th[@t-if='display_discount']/span" position="before">
-            <t t-if="display_discount_fixed">
-                <span>Discount Amount (%)</span>
-            </t>
+        <!-- Replace the header of discount column -->
+        <xpath expr="//th[contains(@class,'oe_discount')]" position="replace">
+            <th class="oe_discount">
+                <span t-if="not has_fixed_discount">Discount (%)</span>
+                <span t-if="has_fixed_discount">Discount (Fixed)</span>
+            </th>
         </xpath>
 
-        <span t-field="line.discount" position="before">
-            <t t-if="display_discount_fixed">
-                <span class="text-nowrap" t-field="line.discount_fixed" />
-                <span class="text-nowrap"> (or</span>
-            </t>
-        </span>
-        <span t-field="line.discount" position="after">
-            <t t-if="display_discount_fixed">
-                <span class="text-nowrap"> %)</span>
-            </t>
-        </span>
+        <!-- Replace discount value in table rows -->
+        <xpath expr="//td[contains(@class,'oe_discount')]" position="replace">
+            <td class="oe_discount text-right">
+                <!-- Show fixed discount if exists -->
+                <t t-if="line.discount_fixed">
+                    <span t-esc="line.discount_fixed"/>
+                </t>
+
+                <!-- Otherwise show normal % discount -->
+                <t t-if="not line.discount_fixed">
+                    <span t-field="line.discount"/>
+                </t>
+            </td>
+        </xpath>
+
     </template>
 </odoo>

@@ -48,3 +48,4 @@ class SaleOrder(models.Model):
             for picking in self.picking_ids:
                 picking.awb_number = self.awb_number
         return result
+

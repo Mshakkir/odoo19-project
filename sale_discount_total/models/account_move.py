@@ -87,5 +87,37 @@ class AccountMoveLine(models.Model):
     """This class inherits "account.move.line" model and adds discount field"""
     _inherit = "account.move.line"
 
-    discount = fields.Float(string='Discount (%)', digits=(16, 20), default=0.0,
-                            help="Give the discount needed")
+    discount = fields.Float(
+        string='Discount (%)',
+        digits=(16, 20),
+        default=0.0,
+        help="Give the discount needed")
+
+    discount_amount = fields.Monetary(
+        string='Discount Amount',
+        currency_field='currency_id',
+        help="Fixed discount amount for this line.",
+        compute='_compute_discount_amount',
+        store=True,
+        readonly=False)
+
+    @api.depends('quantity', 'price_unit', 'discount')
+    def _compute_discount_amount(self):
+        """Compute discount amount from percentage"""
+        for line in self:
+            if line.display_type not in ('line_section', 'line_note'):
+                line_total = line.quantity * line.price_unit
+                line.discount_amount = line_total * (line.discount / 100.0)
+            else:
+                line.discount_amount = 0.0
+
+    @api.onchange('discount_amount')
+    def _onchange_discount_amount(self):
+        """When discount amount changes, update the percentage"""
+        for line in self:
+            if line.display_type not in ('line_section', 'line_note'):
+                line_total = line.quantity * line.price_unit
+                if line_total > 0:
+                    line.discount = (line.discount_amount / line_total) * 100.0
+                else:
+                    line.discount = 0.0

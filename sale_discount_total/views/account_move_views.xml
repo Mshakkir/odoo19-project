@@ -12,6 +12,14 @@
                 <attribute name="digits">[16, 2]</attribute>
             </xpath>
 
+            <!-- Add discount_amount field after discount percentage -->
+            <xpath expr="//field[@name='invoice_line_ids']//field[@name='discount']"
+                   position="after">
+                <field name="discount_amount"
+                       optional="show"
+                       widget="monetary"/>
+            </xpath>
+
             <!-- Add amount_discount field after tax_totals -->
             <xpath expr="//field[@name='tax_totals']" position="after">
                 <field name="amount_discount" readonly="1"/>

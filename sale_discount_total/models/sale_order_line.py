@@ -19,21 +19,51 @@
 #    If not, see <http://www.gnu.org/licenses/>.
 #
 #############################################################################
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class SaleOrderLine(models.Model):
     """This class inherits "sale.order.line" and adds fields discount,
-     total_discount """
+     discount_amount """
     _inherit = "sale.order.line"
 
     discount = fields.Float(
         string='Discount (%)',
         digits=(16, 20),
         default=0.0,
-        help="Discount needed.")
+        help="Discount percentage.")
+
+    discount_amount = fields.Monetary(
+        string='Discount Amount',
+        currency_field='currency_id',
+        help="Fixed discount amount for this line.",
+        compute='_compute_discount_amount',
+        store=True,
+        readonly=False)
+
     total_discount = fields.Float(
         string="Total Discount",
         default=0.0,
         store=True,
         help="Total discount can be specified here.")
+
+    @api.depends('product_uom_qty', 'price_unit', 'discount')
+    def _compute_discount_amount(self):
+        """Compute discount amount from percentage"""
+        for line in self:
+            if line.display_type not in ('line_section', 'line_note'):
+                line_total = line.product_uom_qty * line.price_unit
+                line.discount_amount = line_total * (line.discount / 100.0)
+            else:
+                line.discount_amount = 0.0
+
+    @api.onchange('discount_amount')
+    def _onchange_discount_amount(self):
+        """When discount amount changes, update the percentage"""
+        for line in self:
+            if line.display_type not in ('line_section', 'line_note'):
+                line_total = line.product_uom_qty * line.price_unit
+                if line_total > 0:
+                    line.discount = (line.discount_amount / line_total) * 100.0
+                else:
+                    line.discount = 0.0

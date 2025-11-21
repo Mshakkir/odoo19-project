@@ -18,7 +18,7 @@ class SaleOrderLine(models.Model):
         ),
     )
 
-    @api.depends("product_uom_qty", "discount", "price_unit", "tax_id", "discount_fixed")
+    @api.depends("product_uom_qty", "discount", "price_unit", "tax_ids", "discount_fixed")
     def _compute_amount(self):
         """Compute the amounts of the SO line with fixed discount support."""
         done_lines = self.env["sale.order.line"]
@@ -44,8 +44,8 @@ class SaleOrderLine(models.Model):
             else:
                 effective_price_unit = line.price_unit
 
-            if line.tax_id:
-                taxes = line.tax_id.compute_all(
+            if line.tax_ids:
+                taxes = line.tax_ids.compute_all(
                     effective_price_unit,
                     line.order_id.currency_id,
                     line.product_uom_qty,

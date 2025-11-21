@@ -1,16 +1,14 @@
 <odoo>
-
     <record id="view_order_line_tree_discount_fixed" model="ir.ui.view">
         <field name="name">sale.order.line.tree.discount.fixed</field>
         <field name="model">sale.order.line</field>
         <field name="inherit_id" ref="sale.view_order_line_tree"/>
         <field name="arch" type="xml">
-            <field name="price_unit" position="after">
-                <field name="discount_fixed"
-                       groups="account_invoice_fixed_discount.group_fixed_discount"
-                       optional="show"/>
-            </field>
+
+            <xpath expr="//field[@name='product_uom_qty']" position="after">
+                <field name="discount_fixed"/>
+            </xpath>
+
         </field>
     </record>
-
 </odoo>

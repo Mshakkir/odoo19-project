@@ -8,10 +8,10 @@
             <span t-esc="'%.2f' % line.discount"/>
         </xpath>
 
-        <!-- Add discount row after subtotal -->
-        <xpath expr="//tr[hasclass('is-subtotal')]" position="after">
-            <tr>
-                <td>Discount</td>
+        <!-- Add discount row in totals table -->
+        <xpath expr="//t[@t-set='tax_totals']/t[@t-call='account.document_tax_totals']" position="before">
+            <tr class="border-black">
+                <td><strong>Discount</strong></td>
                 <td class="text-end">
                     <span t-field="o.amount_discount"
                           t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>

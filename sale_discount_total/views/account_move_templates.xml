@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!--Inherited Template for invoice document-->
-    <template id="report_invoice_customized"
-              inherit_id="account.report_invoice_document">
+    <!--Inherited Template for sale order report-->
+    <template id="report_saleorder_customized"
+              inherit_id="sale.report_saleorder_document">
         <!-- Replace discount display format -->
         <xpath expr="//span[@t-field='line.discount']" position="replace">
             <span t-esc="'%.2f' % line.discount"/>
         </xpath>
 
-        <!-- Add discount row in totals table -->
-        <xpath expr="//t[@t-set='tax_totals']/t[@t-call='account.document_tax_totals']" position="before">
-            <tr class="border-black">
-                <td><strong>Discount</strong></td>
+        <!-- Add total discount row in totals table -->
+        <xpath expr="//div[@id='total']//table" position="inside">
+            <tr>
+                <td><strong>Total Discount</strong></td>
                 <td class="text-end">
-                    <span t-field="o.amount_discount"
-                          t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                    <span t-field="doc.amount_discount"
+                          t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'/>
                 </td>
             </tr>
         </xpath>

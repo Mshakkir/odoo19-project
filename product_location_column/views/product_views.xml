@@ -1,35 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- File: product_location_column/views/product_views.xml -->
 <odoo>
 
     <!-- Add location column to product.template tree view -->
     <record id="product_template_tree_view_location" model="ir.ui.view">
         <field name="name">product.template.tree.location</field>
         <field name="model">product.template</field>
-        <field name="inherit_id" ref="stock.product_template_tree_view"/>
+
+        <!-- FIXED: Correct CE tree view ID -->
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+
         <field name="priority">100</field>
         <field name="arch" type="xml">
+
+            <!-- FIXED: qty_available exists in this view -->
             <xpath expr="//field[@name='qty_available']" position="after">
                 <field name="stock_location_names"
                        string="Warehouse Location"
                        optional="show"/>
             </xpath>
+
         </field>
     </record>
+
 
     <!-- Add location column to product.product tree view -->
     <record id="product_product_tree_view_location" model="ir.ui.view">
         <field name="name">product.product.tree.location</field>
         <field name="model">product.product</field>
-        <field name="inherit_id" ref="stock.product_product_tree_view"/>
+
+        <!-- FIXED: Correct CE tree view ID -->
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+
         <field name="priority">100</field>
         <field name="arch" type="xml">
+
+            <!-- Sometimes qty_available is not in this view → try list_price -->
             <xpath expr="//field[@name='qty_available']" position="after">
                 <field name="stock_location_names"
                        string="Warehouse Location"
                        optional="show"/>
             </xpath>
+
         </field>
     </record>
 
 </odoo>
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--&lt;!&ndash; File: product_location_column/views/product_views.xml &ndash;&gt;-->
+<!--<odoo>-->
+
+<!--    &lt;!&ndash; Add location column to product.template tree view &ndash;&gt;-->
+<!--    <record id="product_template_tree_view_location" model="ir.ui.view">-->
+<!--        <field name="name">product.template.tree.location</field>-->
+<!--        <field name="model">product.template</field>-->
+<!--        <field name="inherit_id" ref="stock.product_template_tree_view"/>-->
+<!--        <field name="priority">100</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//field[@name='qty_available']" position="after">-->
+<!--                <field name="stock_location_names"-->
+<!--                       string="Warehouse Location"-->
+<!--                       optional="show"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Add location column to product.product tree view &ndash;&gt;-->
+<!--    <record id="product_product_tree_view_location" model="ir.ui.view">-->
+<!--        <field name="name">product.product.tree.location</field>-->
+<!--        <field name="model">product.product</field>-->
+<!--        <field name="inherit_id" ref="stock.product_product_tree_view"/>-->
+<!--        <field name="priority">100</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//field[@name='qty_available']" position="after">-->
+<!--                <field name="stock_location_names"-->
+<!--                       string="Warehouse Location"-->
+<!--                       optional="show"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--</odoo>-->

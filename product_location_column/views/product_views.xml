@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<!--<odoo>-->
 
-    <!-- Add warehouse quantity columns to product.template tree view -->
-    <record id="product_template_tree_view_location" model="ir.ui.view">
-        <field name="name">product.template.tree.location</field>
-        <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_tree_view"/>
-        <field name="priority">100</field>
+<!--    &lt;!&ndash; Add warehouse quantity columns to product.template tree view &ndash;&gt;-->
+<!--    <record id="product_template_tree_view_location" model="ir.ui.view">-->
+<!--        <field name="name">product.template.tree.location</field>-->
+<!--        <field name="model">product.template</field>-->
+<!--        <field name="inherit_id" ref="product.product_template_tree_view"/>-->
+<!--        <field name="priority">100</field>-->
 
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='qty_available']" position="after">
-                <field name="qty_wh_stock" string="WH/Stock" optional="show"/>
-                <field name="qty_dw_stock" string="DW/Stock" optional="show"/>
-                <field name="qty_balad_stock" string="Balad/Stock" optional="show"/>
-            </xpath>
-        </field>
-    </record>
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//field[@name='qty_available']" position="after">-->
+<!--                <field name="qty_wh_stock" string="WH/Stock" optional="show"/>-->
+<!--                <field name="qty_dw_stock" string="DW/Stock" optional="show"/>-->
+<!--                <field name="qty_balad_stock" string="Balad/Stock" optional="show"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
 
 
-    <!-- Add warehouse quantity columns to product.product tree view -->
-    <record id="product_product_tree_view_location" model="ir.ui.view">
-        <field name="name">product.product.tree.location</field>
-        <field name="model">product.product</field>
-        <field name="inherit_id" ref="product.product_product_tree_view"/>
-        <field name="priority">100</field>
+<!--    &lt;!&ndash; Add warehouse quantity columns to product.product tree view &ndash;&gt;-->
+<!--    <record id="product_product_tree_view_location" model="ir.ui.view">-->
+<!--        <field name="name">product.product.tree.location</field>-->
+<!--        <field name="model">product.product</field>-->
+<!--        <field name="inherit_id" ref="product.product_product_tree_view"/>-->
+<!--        <field name="priority">100</field>-->
 
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='qty_available']" position="after">
-                <field name="qty_wh_stock" string="WH/Stock" optional="show"/>
-                <field name="qty_dw_stock" string="DW/Stock" optional="show"/>
-                <field name="qty_balad_stock" string="Balad/Stock" optional="show"/>
-            </xpath>
-        </field>
-    </record>
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//field[@name='qty_available']" position="after">-->
+<!--                <field name="qty_wh_stock" string="WH/Stock" optional="show"/>-->
+<!--                <field name="qty_dw_stock" string="DW/Stock" optional="show"/>-->
+<!--                <field name="qty_balad_stock" string="Balad/Stock" optional="show"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
 
-</odoo>
+<!--</odoo>-->
 
 
 
@@ -44,50 +44,50 @@
 
 
 <!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
+<odoo>
 
-<!--    &lt;!&ndash; Add location column to product.template tree view &ndash;&gt;-->
-<!--    <record id="product_template_tree_view_location" model="ir.ui.view">-->
-<!--        <field name="name">product.template.tree.location</field>-->
-<!--        <field name="model">product.template</field>-->
+    <!-- Add location column to product.template tree view -->
+    <record id="product_template_tree_view_location" model="ir.ui.view">
+        <field name="name">product.template.tree.location</field>
+        <field name="model">product.template</field>
 
-<!--        &lt;!&ndash; FIXED: Correct CE tree view ID &ndash;&gt;-->
-<!--        <field name="inherit_id" ref="product.product_template_tree_view"/>-->
+        <!-- FIXED: Correct CE tree view ID -->
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
 
-<!--        <field name="priority">100</field>-->
-<!--        <field name="arch" type="xml">-->
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
 
-<!--            &lt;!&ndash; FIXED: qty_available exists in this view &ndash;&gt;-->
-<!--            <xpath expr="//field[@name='qty_available']" position="after">-->
-<!--                <field name="stock_location_names"-->
-<!--                       string="Warehouse Location"-->
-<!--                       optional="show"/>-->
-<!--            </xpath>-->
+            <!-- FIXED: qty_available exists in this view -->
+            <xpath expr="//field[@name='qty_available']" position="after">
+                <field name="stock_location_names"
+                       string="Warehouse Location"
+                       optional="show"/>
+            </xpath>
 
-<!--        </field>-->
-<!--    </record>-->
+        </field>
+    </record>
 
 
-<!--    &lt;!&ndash; Add location column to product.product tree view &ndash;&gt;-->
-<!--    <record id="product_product_tree_view_location" model="ir.ui.view">-->
-<!--        <field name="name">product.product.tree.location</field>-->
-<!--        <field name="model">product.product</field>-->
+    <!-- Add location column to product.product tree view -->
+    <record id="product_product_tree_view_location" model="ir.ui.view">
+        <field name="name">product.product.tree.location</field>
+        <field name="model">product.product</field>
 
-<!--        &lt;!&ndash; FIXED: Correct CE tree view ID &ndash;&gt;-->
-<!--        <field name="inherit_id" ref="product.product_normal_form_view"/>-->
+        <!-- FIXED: Correct CE tree view ID -->
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
 
-<!--        <field name="priority">100</field>-->
-<!--        <field name="arch" type="xml">-->
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
 
-<!--            &lt;!&ndash; Sometimes qty_available is not in this view → try list_price &ndash;&gt;-->
-<!--            <xpath expr="//field[@name='qty_available']" position="after">-->
-<!--                <field name="stock_location_names"-->
-<!--                       string="Warehouse Location"-->
-<!--                       optional="show"/>-->
-<!--            </xpath>-->
+            <!-- Sometimes qty_available is not in this view → try list_price -->
+            <xpath expr="//field[@name='qty_available']" position="after">
+                <field name="stock_location_names"
+                       string="Warehouse Location"
+                       optional="show"/>
+            </xpath>
 
-<!--        </field>-->
-<!--    </record>-->
+        </field>
+    </record>
 
-<!--</odoo>-->
+</odoo>
 

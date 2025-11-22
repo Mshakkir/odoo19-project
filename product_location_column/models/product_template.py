@@ -1,36 +1,3 @@
-from odoo import models, fields, api
-
-class ProductTemplate(models.Model):
-    _inherit = 'product.template'
-
-    qty_wh_stock = fields.Float(string="WH Stock", compute="_compute_warehouse_quantities")
-    qty_dw_stock = fields.Float(string="DW Stock", compute="_compute_warehouse_quantities")
-    qty_balad_stock = fields.Float(string="Balad Stock", compute="_compute_warehouse_quantities")
-
-    @api.depends('qty_available')
-    def _compute_warehouse_quantities(self):
-        WH_LOC = self.env.ref('stock.stock_location_stock')
-        DW_LOC = self.env.ref('stock.stock_location_stock')   # Replace with DW location ID
-        BALAD_LOC = self.env.ref('stock.stock_location_stock')  # Replace with Balad location ID
-
-        for rec in self:
-            rec.qty_wh_stock = rec.with_context(location=WH_LOC.id).qty_available
-            rec.qty_dw_stock = rec.with_context(location=DW_LOC.id).qty_available
-            rec.qty_balad_stock = rec.with_context(location=BALAD_LOC.id).qty_available
-
-
-class ProductProduct(models.Model):
-    _inherit = 'product.product'
-
-    qty_wh_stock = fields.Float(related="product_tmpl_id.qty_wh_stock", store=False)
-    qty_dw_stock = fields.Float(related="product_tmpl_id.qty_dw_stock", store=False)
-    qty_balad_stock = fields.Float(related="product_tmpl_id.qty_balad_stock", store=False)
-
-
-
-
-
-
 # # File: product_location_column/models/product_template.py
 #
 # from odoo import models, fields, api
@@ -134,6 +101,7 @@ class ProductProduct(models.Model):
 #                     product.qty_dw_stock += quant.quantity
 #                 elif 'Balad/Stock' in location_name or location_name.startswith('Balad/'):
 #                     product.qty_balad_stock += quant.quantity
+#
 
 
 
@@ -142,81 +110,80 @@ class ProductProduct(models.Model):
 
 
 
+File: product_location_column/models/product_template.py
 
-# File: product_location_column/models/product_template.py
+from odoo import models, fields, api
 
-# from odoo import models, fields, api
-#
-#
-# class ProductTemplate(models.Model):
-#     _inherit = 'product.template'
-#
-#     stock_location_ids = fields.Many2many(
-#         comodel_name='stock.location',
-#         string='Stock Locations',
-#         compute='_compute_stock_locations',
-#         store=False,
-#     )
-#
-#     stock_location_names = fields.Char(
-#         string='Warehouse Locations',
-#         compute='_compute_stock_locations',
-#         store=False,
-#     )
-#
-#     @api.depends('qty_available')
-#     def _compute_stock_locations(self):
-#         for product in self:
-#             # Get all quants for this product with positive quantity
-#             quants = self.env['stock.quant'].search([
-#                 ('product_id', 'in', product.product_variant_ids.ids),
-#                 ('quantity', '>', 0),
-#                 ('location_id.usage', '=', 'internal'),
-#             ])
-#
-#             locations = quants.mapped('location_id')
-#             product.stock_location_ids = locations
-#
-#             if locations:
-#                 product.stock_location_names = ', '.join(
-#                     locations.mapped('complete_name')
-#                 )
-#             else:
-#                 product.stock_location_names = 'No Stock'
-#
-#
-# class ProductProduct(models.Model):
-#     _inherit = 'product.product'
-#
-#     stock_location_ids = fields.Many2many(
-#         comodel_name='stock.location',
-#         string='Stock Locations',
-#         compute='_compute_stock_locations_variant',
-#         store=False,
-#     )
-#
-#     stock_location_names = fields.Char(
-#         string='Warehouse Locations',
-#         compute='_compute_stock_locations_variant',
-#         store=False,
-#     )
-#
-#     @api.depends('qty_available')
-#     def _compute_stock_locations_variant(self):
-#         for product in self:
-#             # Get all quants for this product variant with positive quantity
-#             quants = self.env['stock.quant'].search([
-#                 ('product_id', '=', product.id),
-#                 ('quantity', '>', 0),
-#                 ('location_id.usage', '=', 'internal'),
-#             ])
-#
-#             locations = quants.mapped('location_id')
-#             product.stock_location_ids = locations
-#
-#             if locations:
-#                 product.stock_location_names = ', '.join(
-#                     locations.mapped('complete_name')
-#                 )
-#             else:
-#                 product.stock_location_names = 'No Stock'
+
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
+
+    stock_location_ids = fields.Many2many(
+        comodel_name='stock.location',
+        string='Stock Locations',
+        compute='_compute_stock_locations',
+        store=False,
+    )
+
+    stock_location_names = fields.Char(
+        string='Warehouse Locations',
+        compute='_compute_stock_locations',
+        store=False,
+    )
+
+    @api.depends('qty_available')
+    def _compute_stock_locations(self):
+        for product in self:
+            # Get all quants for this product with positive quantity
+            quants = self.env['stock.quant'].search([
+                ('product_id', 'in', product.product_variant_ids.ids),
+                ('quantity', '>', 0),
+                ('location_id.usage', '=', 'internal'),
+            ])
+
+            locations = quants.mapped('location_id')
+            product.stock_location_ids = locations
+
+            if locations:
+                product.stock_location_names = ', '.join(
+                    locations.mapped('complete_name')
+                )
+            else:
+                product.stock_location_names = 'No Stock'
+
+
+class ProductProduct(models.Model):
+    _inherit = 'product.product'
+
+    stock_location_ids = fields.Many2many(
+        comodel_name='stock.location',
+        string='Stock Locations',
+        compute='_compute_stock_locations_variant',
+        store=False,
+    )
+
+    stock_location_names = fields.Char(
+        string='Warehouse Locations',
+        compute='_compute_stock_locations_variant',
+        store=False,
+    )
+
+    @api.depends('qty_available')
+    def _compute_stock_locations_variant(self):
+        for product in self:
+            # Get all quants for this product variant with positive quantity
+            quants = self.env['stock.quant'].search([
+                ('product_id', '=', product.id),
+                ('quantity', '>', 0),
+                ('location_id.usage', '=', 'internal'),
+            ])
+
+            locations = quants.mapped('location_id')
+            product.stock_location_ids = locations
+
+            if locations:
+                product.stock_location_names = ', '.join(
+                    locations.mapped('complete_name')
+                )
+            else:
+                product.stock_location_names = 'No Stock'

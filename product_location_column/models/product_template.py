@@ -6,98 +6,95 @@ from odoo import models, fields, api
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
-    # Quantity fields for each warehouse
     qty_wh_stock = fields.Float(
         string='WH/Stock',
         compute='_compute_warehouse_quantities',
         digits='Product Unit of Measure',
-        store=False,
     )
 
     qty_dw_stock = fields.Float(
         string='DW/Stock',
         compute='_compute_warehouse_quantities',
         digits='Product Unit of Measure',
-        store=False,
     )
 
     qty_balad_stock = fields.Float(
         string='Balad/Stock',
         compute='_compute_warehouse_quantities',
         digits='Product Unit of Measure',
-        store=False,
     )
 
-    @api.depends('qty_available')
+    @api.depends('product_variant_ids', 'product_variant_ids.stock_quant_ids')
     def _compute_warehouse_quantities(self):
         for product in self:
-            product.qty_wh_stock = 0.0
-            product.qty_dw_stock = 0.0
-            product.qty_balad_stock = 0.0
+            qty_wh = 0.0
+            qty_dw = 0.0
+            qty_balad = 0.0
 
-            # Get all quants for this product
-            quants = self.env['stock.quant'].search([
-                ('product_id', 'in', product.product_variant_ids.ids),
-                ('location_id.usage', '=', 'internal'),
-            ])
+            if product.product_variant_ids:
+                quants = self.env['stock.quant'].sudo().search([
+                    ('product_id', 'in', product.product_variant_ids.ids),
+                    ('location_id.usage', '=', 'internal'),
+                ])
 
-            for quant in quants:
-                location_name = quant.location_id.complete_name or ''
+                for quant in quants:
+                    loc_name = quant.location_id.complete_name or ''
 
-                # Check which warehouse this location belongs to
-                if 'WH/Stock' in location_name or location_name.startswith('WH/'):
-                    product.qty_wh_stock += quant.quantity
-                elif 'DW/Stock' in location_name or location_name.startswith('DW/'):
-                    product.qty_dw_stock += quant.quantity
-                elif 'Balad/Stock' in location_name or location_name.startswith('Balad/'):
-                    product.qty_balad_stock += quant.quantity
+                    if 'WH/' in loc_name:
+                        qty_wh += quant.quantity
+                    elif 'DW/' in loc_name:
+                        qty_dw += quant.quantity
+                    elif 'Balad/' in loc_name:
+                        qty_balad += quant.quantity
+
+            product.qty_wh_stock = qty_wh
+            product.qty_dw_stock = qty_dw
+            product.qty_balad_stock = qty_balad
 
 
 class ProductProduct(models.Model):
     _inherit = 'product.product'
 
-    # Quantity fields for each warehouse
     qty_wh_stock = fields.Float(
         string='WH/Stock',
         compute='_compute_warehouse_quantities_variant',
         digits='Product Unit of Measure',
-        store=False,
     )
 
     qty_dw_stock = fields.Float(
         string='DW/Stock',
         compute='_compute_warehouse_quantities_variant',
         digits='Product Unit of Measure',
-        store=False,
     )
 
     qty_balad_stock = fields.Float(
         string='Balad/Stock',
         compute='_compute_warehouse_quantities_variant',
         digits='Product Unit of Measure',
-        store=False,
     )
 
-    @api.depends('qty_available')
+    @api.depends('stock_quant_ids')
     def _compute_warehouse_quantities_variant(self):
         for product in self:
-            product.qty_wh_stock = 0.0
-            product.qty_dw_stock = 0.0
-            product.qty_balad_stock = 0.0
+            qty_wh = 0.0
+            qty_dw = 0.0
+            qty_balad = 0.0
 
-            # Get all quants for this product variant
-            quants = self.env['stock.quant'].search([
+            quants = self.env['stock.quant'].sudo().search([
                 ('product_id', '=', product.id),
                 ('location_id.usage', '=', 'internal'),
             ])
 
             for quant in quants:
-                location_name = quant.location_id.complete_name or ''
+                loc_name = quant.location_id.complete_name or ''
 
-                # Check which warehouse this location belongs to
-                if 'WH/Stock' in location_name or location_name.startswith('WH/'):
-                    product.qty_wh_stock += quant.quantity
-                elif 'DW/Stock' in location_name or location_name.startswith('DW/'):
-                    product.qty_dw_stock += quant.quantity
-                elif 'Balad/Stock' in location_name or location_name.startswith('Balad/'):
-                    product.qty_balad_stock += quant.quantity
+                if 'WH/' in loc_name:
+                    qty_wh += quant.quantity
+                elif 'DW/' in loc_name:
+                    qty_dw += quant.quantity
+                elif 'Balad/' in loc_name:
+                    qty_balad += quant.quantity
+
+            product.qty_wh_stock = qty_wh
+            product.qty_dw_stock = qty_dw
+            product.qty_balad_stock = qty_balad

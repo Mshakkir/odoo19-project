@@ -110,7 +110,7 @@
 
 
 
-File: product_location_column/models/product_template.py
+# File: product_location_column/models/product_template.py
 
 from odoo import models, fields, api
 

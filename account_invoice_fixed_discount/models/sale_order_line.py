@@ -18,7 +18,7 @@ class SaleOrderLine(models.Model):
         ),
     )
 
-    @api.depends("product_uom_qty", "discount", "price_unit", "tax_ids", "discount_fixed")
+    @api.depends("product_uom_qty", "discount", "price_unit", "tax_id", "discount_fixed")
     def _compute_amount(self):
         """Compute the amounts of the SO line with fixed discount support."""
         done_lines = self.env["sale.order.line"]
@@ -44,8 +44,8 @@ class SaleOrderLine(models.Model):
             else:
                 effective_price_unit = line.price_unit
 
-            if line.tax_ids:
-                taxes = line.tax_ids.compute_all(
+            if line.tax_id:
+                taxes = line.tax_id.compute_all(
                     effective_price_unit,
                     line.order_id.currency_id,
                     line.product_uom_qty,
@@ -64,18 +64,13 @@ class SaleOrderLine(models.Model):
 
         return super(SaleOrderLine, self - done_lines)._compute_amount()
 
-    # @api.onchange("discount_fixed", "price_unit", "product_uom_qty")
-    # def _onchange_discount_fixed(self):
-    #     """Compute the percentage discount based on the fixed total discount."""
-    #     if self.env.context.get("ignore_discount_onchange"):
-    #         return
-    #     self = self.with_context(ignore_discount_onchange=True)
-    #     self.discount = self._get_discount_from_fixed_discount()
-    @api.onchange('discount_fixed')
+    @api.onchange("discount_fixed", "price_unit", "product_uom_qty")
     def _onchange_discount_fixed(self):
-        if self.discount_fixed:
-            self.discount = (self.discount_fixed / self.price_unit) * 100
-            # Do NOT set discount_fixed = 0
+        """Compute the percentage discount based on the fixed total discount."""
+        if self.env.context.get("ignore_discount_onchange"):
+            return
+        self = self.with_context(ignore_discount_onchange=True)
+        self.discount = self._get_discount_from_fixed_discount()
 
     @api.onchange("discount")
     def _onchange_discount(self):

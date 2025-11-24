@@ -103,3 +103,11 @@ class AccountMoveLine(models.Model):
 
         # Calculate percentage: (fixed_discount / subtotal) * 100
         return (self.discount_fixed / subtotal) * 100
+
+    @api.onchange('discount_fixed', 'price_unit', 'product_uom_qty')
+    def _onchange_discount_fixed(self):
+        """Compute the percentage discount based on the fixed total discount."""
+        if self.env.context.get("ignore_discount_onchange"):
+            return
+        self = self.with_context(ignore_discount_onchange=True)
+        self.discount = self._get_discount_from_fixed_discount()

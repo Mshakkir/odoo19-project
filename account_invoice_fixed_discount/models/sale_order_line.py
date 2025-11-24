@@ -64,26 +64,20 @@ class SaleOrderLine(models.Model):
 
         return super(SaleOrderLine, self - done_lines)._compute_amount()
 
-    # @api.onchange("discount_fixed", "price_unit", "product_uom_qty")
-    # def _onchange_discount_fixed(self):
-    #     """Compute the percentage discount based on the fixed total discount."""
-    #     if self.env.context.get("ignore_discount_onchange"):
-    #         return
-    #     self = self.with_context(ignore_discount_onchange=True)
-    #     self.discount = self._get_discount_from_fixed_discount()
-    @api.onchange('discount_fixed')
+    @api.onchange('discount_fixed', 'price_unit', 'product_uom_qty')
     def _onchange_discount_fixed(self):
-        if self.discount_fixed:
-            self.discount = (self.discount_fixed / self.price_unit) * 100
-            # Do NOT set discount_fixed = 0
+        """Auto-calculate and display the percentage discount when fixed discount is entered."""
+        if self.discount_fixed and not float_is_zero(
+            self.discount_fixed,
+            precision_rounding=self.currency_id.rounding if self.currency_id else 0.01
+        ):
+            # Calculate the percentage discount for display purposes
+            calculated_discount = self._get_discount_from_fixed_discount()
+            # Update discount percentage WITHOUT clearing discount_fixed
+            self.discount = calculated_discount
 
-    @api.onchange("discount")
-    def _onchange_discount(self):
-        """Reset fixed discount when percentage discount is changed."""
-        if self.env.context.get("ignore_discount_onchange"):
-            return
-        self = self.with_context(ignore_discount_onchange=True)
-        self.discount_fixed = 0.0
+    # REMOVED: _onchange_discount method - this was clearing discount_fixed!
+    # Now both fields can coexist with their values
 
     def _get_discount_from_fixed_discount(self):
         """Calculate the discount percentage from the fixed total discount amount."""

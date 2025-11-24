@@ -387,6 +387,7 @@
                             <!-- Discount (Static or change if needed) -->
                             <tr>
                                 <td style="padding:5px;">Discount</td>
+                                <span t-field="o.discount_fixed"/>
                                 <td style="text-align:right; padding:5px;">- SAR</td>
                             </tr>
 

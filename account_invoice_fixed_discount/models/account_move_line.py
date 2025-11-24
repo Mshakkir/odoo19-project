@@ -66,33 +66,17 @@ class AccountMoveLine(models.Model):
         # Compute the regular totals for regular lines.
         return super(AccountMoveLine, self - done_lines)._compute_totals()
 
-    @api.onchange('discount_fixed')
+    @api.onchange('discount_fixed', 'price_unit', 'quantity')
     def _onchange_discount_fixed(self):
-        """Compute the percentage discount based on the fixed total discount."""
-        if self.env.context.get("ignore_discount_onchange"):
-            return
-
-        if self.discount_fixed:
-            # Calculate the percentage discount
+        """Auto-calculate and display the percentage discount when fixed discount is entered."""
+        if self.discount_fixed and not float_is_zero(
+            self.discount_fixed,
+            precision_rounding=self.currency_id.rounding
+        ):
+            # Calculate the percentage discount for display purposes
             calculated_discount = self._get_discount_from_fixed_discount()
-            # Set discount with context to prevent triggering _onchange_discount
-            self.with_context(ignore_discount_onchange=True).discount = calculated_discount
-        else:
-            # If fixed discount is cleared, clear the percentage discount too
-            self.with_context(ignore_discount_onchange=True).discount = 0.0
-
-    @api.onchange("discount")
-    def _onchange_discount(self):
-        """Reset fixed discount when percentage discount is changed."""
-        if self.env.context.get("ignore_discount_onchange"):
-            return
-
-        # Only reset fixed discount if discount percentage is being manually changed
-        if self.discount:
-            self.with_context(ignore_discount_onchange=True).discount_fixed = 0.0
-        else:
-            # If discount is cleared, also clear fixed discount
-            self.with_context(ignore_discount_onchange=True).discount_fixed = 0.0
+            # Update discount percentage WITHOUT clearing discount_fixed
+            self.discount = calculated_discount
 
     def _get_discount_from_fixed_discount(self):
         """Calculate the discount percentage from the fixed total discount amount."""

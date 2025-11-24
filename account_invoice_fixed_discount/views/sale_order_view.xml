@@ -48,14 +48,17 @@
 
             <!-- Fixed discount in lines (correct) -->
             <xpath expr="//field[@name='order_line']/list/field[@name='discount']" position="before">
-                <field name="discount_fixed" groups="account_invoice_fixed_discount.group_fixed_discount" optional="show"/>
+                <field name="discount_fixed" groups="account_invoice_fixed_discount.group_fixed_discount"
+                       optional="show"/>
             </xpath>
 
-            <!-- GLOBAL DISCOUNT FIX -->
-            <xpath expr="//field[@name='amount_tax']" position="after">
-                <field name="global_discount_amount"/>
-                <field name="amount_after_discount" readonly="1"/>
+            <xpath expr="//field[@name='order_line']" position="after">
+                <group>
+                    <field name="global_discount_amount"/>
+                    <field name="amount_after_discount" readonly="1"/>
+                </group>
             </xpath>
+
 
         </field>
     </record>

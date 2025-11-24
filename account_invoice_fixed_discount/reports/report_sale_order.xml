@@ -1,21 +1,38 @@
-<!-- Copyright 2017 ForgeFlow S.L.
-     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
 <odoo>
-    <record id="view_order_form" model="ir.ui.view">
-        <field name="name">sale.order.form - fixed_discount</field>
-        <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_form" />
-        <field name="arch" type="xml">
-            <xpath
-                expr="//field[@name='order_line']/list/field[@name='discount']"
-                position="before"
-            >
-                <field
-                    name="discount_fixed"
-                    groups="account_invoice_fixed_discount.group_fixed_discount"
-                    optional="show"
-                />
-            </xpath>
-        </field>
-    </record>
+    <template id="report_saleorder_document" inherit_id="sale.report_saleorder_document">
+
+        <!-- Add display_discount_fixed variable -->
+        <xpath expr="//t[@t-set='display_discount']" position="after">
+            <t t-set="display_discount_fixed"
+               t-value="any([l.discount_fixed for l in doc.order_line])" />
+        </xpath>
+
+        <!-- Hide original discount column when fixed discount exists -->
+        <xpath expr="//th[@name='th_discount']/span" position="attributes">
+            <attribute name="t-if">not display_discount_fixed</attribute>
+        </xpath>
+
+        <!-- Add new column header -->
+        <xpath expr="//th[@name='th_discount']" position="after">
+            <th t-if="display_discount_fixed">
+                <span>Discount Amount (%)</span>
+            </th>
+        </xpath>
+
+        <!-- Add fixed discount value BEFORE normal discount -->
+        <xpath expr="//span[@t-field='line.discount']" position="before">
+            <t t-if="display_discount_fixed">
+                <span class="text-nowrap" t-field="line.discount_fixed"/>
+                <span class="text-nowrap"> (or </span>
+            </t>
+        </xpath>
+
+        <!-- Add closing bracket AFTER normal discount -->
+        <xpath expr="//span[@t-field='line.discount']" position="after">
+            <t t-if="display_discount_fixed">
+                <span class="text-nowrap"> %)</span>
+            </t>
+        </xpath>
+
+    </template>
 </odoo>

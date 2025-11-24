@@ -60,7 +60,7 @@ class SaleOrderLine(models.Model):
                     line.price_total = subtotal_after_discount
                     line.price_subtotal = subtotal_after_discount
             else:
-                # Use standard Odoo computation
+                # Use standard Odoo computation for lines without fixed discount
                 super(SaleOrderLine, line)._compute_amount()
 
     @api.onchange('discount_fixed', 'price_unit', 'product_uom_qty')
@@ -74,8 +74,6 @@ class SaleOrderLine(models.Model):
             calculated_discount = self._get_discount_from_fixed_discount()
             # Update discount percentage WITHOUT clearing discount_fixed
             self.discount = calculated_discount
-            # Trigger amount recalculation
-            self._compute_amount()
 
     def _get_discount_from_fixed_discount(self):
         """Calculate the discount percentage from the fixed total discount amount."""

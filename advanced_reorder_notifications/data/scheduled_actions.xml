@@ -10,10 +10,7 @@
             <field name="code">model.check_all_reorder_rules()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">hours</field>
-            <field name="numbercall">-1</field>
             <field name="active" eval="True"/>
-            <field name="doall" eval="False"/>
-            <field name="priority">5</field>
         </record>
 
         <!-- Scheduled Action: Check Reorder Rules Every 15 Minutes (for critical monitoring) -->
@@ -24,10 +21,7 @@
             <field name="code">model.check_all_reorder_rules()</field>
             <field name="interval_number">15</field>
             <field name="interval_type">minutes</field>
-            <field name="numbercall">-1</field>
             <field name="active" eval="False"/>
-            <field name="doall" eval="False"/>
-            <field name="priority">10</field>
         </record>
 
         <!-- Scheduled Action: Daily Summary Report at 9 AM -->
@@ -38,11 +32,7 @@
             <field name="code">model.send_daily_summary()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
             <field name="active" eval="True"/>
-            <field name="doall" eval="False"/>
-            <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).replace(hour=9, minute=0, second=0)"/>
-            <field name="priority">5</field>
         </record>
 
     </data>

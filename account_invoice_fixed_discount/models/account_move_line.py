@@ -111,6 +111,9 @@
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
+# Copyright 2017 ForgeFlow S.L.
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+
 from odoo import api, fields, models
 from odoo.tools.float_utils import float_is_zero
 
@@ -178,33 +181,18 @@ class AccountMoveLine(models.Model):
 
     @api.onchange('discount_fixed', 'price_unit', 'quantity')
     def _onchange_discount_fixed(self):
-        """Compute the percentage discount based on the fixed total discount."""
-        # Skip if we're already processing a discount change
-        if self.env.context.get("skip_discount_sync"):
-            return
-
+        """Auto-calculate and display the percentage discount when fixed discount is entered."""
         if self.discount_fixed and not float_is_zero(
-                self.discount_fixed,
-                precision_rounding=self.currency_id.rounding
+            self.discount_fixed,
+            precision_rounding=self.currency_id.rounding
         ):
-            # Calculate and update the percentage discount for display
-            self.discount = self._get_discount_from_fixed_discount()
+            # Calculate the percentage discount for display purposes
+            calculated_discount = self._get_discount_from_fixed_discount()
+            # Update discount percentage WITHOUT clearing discount_fixed
+            self.discount = calculated_discount
 
-    @api.onchange("discount")
-    def _onchange_discount(self):
-        """Reset fixed discount when percentage discount is manually changed."""
-        # Skip if we're already processing a discount change
-        if self.env.context.get("skip_discount_sync"):
-            return
-
-        # Only clear fixed discount if user is manually entering percentage
-        # Check if discount_fixed exists and has a value
-        if hasattr(self, 'discount_fixed') and self.discount_fixed and not float_is_zero(
-                self.discount_fixed,
-                precision_rounding=self.currency_id.rounding
-        ):
-            # User changed percentage, so clear fixed discount
-            self.discount_fixed = 0.0
+    # REMOVED: _onchange_discount method - this was clearing discount_fixed!
+    # Now both fields can coexist with their values
 
     def _get_discount_from_fixed_discount(self):
         """Calculate the discount percentage from the fixed total discount amount."""
@@ -222,31 +210,3 @@ class AccountMoveLine(models.Model):
 
         # Calculate percentage: (fixed_discount / subtotal) * 100
         return (self.discount_fixed / subtotal) * 100
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        """Ensure discount is synced on creation."""
-        for vals in vals_list:
-            if 'discount_fixed' in vals and vals.get('discount_fixed'):
-                # Calculate discount percentage from fixed amount
-                price_unit = vals.get('price_unit', 0)
-                qty = vals.get('quantity', 0)
-                discount_fixed = vals['discount_fixed']
-
-                if price_unit and qty:
-                    subtotal = qty * price_unit
-                    if subtotal:
-                        vals['discount'] = (discount_fixed / subtotal) * 100
-
-        return super().create(vals_list)
-
-    def write(self, vals):
-        """Ensure discount is synced on write."""
-        # If discount_fixed is being updated, calculate the percentage
-        if 'discount_fixed' in vals and vals.get('discount_fixed'):
-            for line in self:
-                subtotal = line.quantity * line.price_unit
-                if subtotal:
-                    vals['discount'] = (vals['discount_fixed'] / subtotal) * 100
-
-        return super().write(vals)

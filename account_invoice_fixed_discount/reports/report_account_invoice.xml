@@ -64,25 +64,25 @@
             </t>
         </span>
 
-        <!-- Add discount summary BEFORE the tax totals table -->
-        <xpath expr="//table[@class='table table-sm']" position="before">
+        <!-- Add discount summary in the totals div -->
+        <xpath expr="//div[@id='total']" position="inside">
             <t t-if="o.amount_total_discount &gt; 0">
-                <table class="table table-sm" style="margin-bottom: 0;">
-                    <tr>
-                        <td class="text-end"><strong>Amount Before Discount:</strong></td>
-                        <td class="text-end">
-                            <span t-field="o.amount_before_discount"
-                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                        </td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid black;">
-                        <td class="text-end"><strong>Total Discount:</strong></td>
-                        <td class="text-end">
-                            <span t-field="o.amount_total_discount"
-                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                        </td>
-                    </tr>
-                </table>
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Amount Before Discount:</strong>
+                    </div>
+                    <div class="col-6 text-end">
+                        <span t-field="o.amount_before_discount"/>
+                    </div>
+                </div>
+                <div class="row" style="border-bottom: 1px solid black; padding-bottom: 5px; margin-bottom: 5px;">
+                    <div class="col-6">
+                        <strong>Total Discount:</strong>
+                    </div>
+                    <div class="col-6 text-end">
+                        <span t-field="o.amount_total_discount"/>
+                    </div>
+                </div>
             </t>
         </xpath>
     </template>

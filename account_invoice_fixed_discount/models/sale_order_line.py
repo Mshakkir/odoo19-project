@@ -107,11 +107,3 @@ class SaleOrderLine(models.Model):
         res = super()._prepare_invoice_line(**optional_values)
         res["discount_fixed"] = self.discount_fixed
         return res
-
-    @api.onchange('discount_fixed', 'price_unit', 'product_uom_qty')
-    def _onchange_discount_fixed(self):
-        """Compute the percentage discount based on the fixed total discount."""
-        if self.env.context.get("ignore_discount_onchange"):
-            return
-        self = self.with_context(ignore_discount_onchange=True)
-        self.discount = self._get_discount_from_fixed_discount()

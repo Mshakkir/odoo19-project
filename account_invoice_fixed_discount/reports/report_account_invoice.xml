@@ -1,3 +1,37 @@
+<!--&lt;!&ndash; Copyright 2017 ForgeFlow S.L.-->
+<!--     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). &ndash;&gt;-->
+<!--<odoo>-->
+<!--    <template id="report_invoice_document" inherit_id="account.report_invoice_document">-->
+<!--        <xpath expr="//t[@t-set='display_discount']" position="after">-->
+<!--            <t-->
+<!--                t-set="display_discount_fixed"-->
+<!--                t-value="any([l.discount_fixed for l in o.invoice_line_ids])"-->
+<!--            />-->
+<!--        </xpath>-->
+<!--        <xpath expr="//th[@name='th_discount']/span" position="attributes">-->
+<!--            <attribute name="t-if">not display_discount_fixed</attribute>-->
+<!--        </xpath>-->
+
+<!--        <xpath expr="//th[@t-if='display_discount']/span" position="before">-->
+<!--            <t t-if="display_discount_fixed">-->
+<!--                <span>Discount Amount (%)</span>-->
+<!--            </t>-->
+<!--        </xpath>-->
+
+<!--        <span t-field="line.discount" position="before">-->
+<!--            <t t-if="display_discount_fixed">-->
+<!--                <span class="text-nowrap" t-field="line.discount_fixed" />-->
+<!--                <span class="text-nowrap"> (or</span>-->
+<!--            </t>-->
+<!--        </span>-->
+<!--        <span t-field="line.discount" position="after">-->
+<!--            <t t-if="display_discount_fixed">-->
+<!--                <span class="text-nowrap"> %)</span>-->
+<!--            </t>-->
+<!--        </span>-->
+<!--    </template>-->
+<!--</odoo>-->
+
 <!-- Copyright 2017 ForgeFlow S.L.
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
 <odoo>
@@ -29,5 +63,27 @@
                 <span class="text-nowrap"> %)</span>
             </t>
         </span>
+
+        <!-- Add discount summary BEFORE the tax totals table -->
+        <xpath expr="//table[@class='table table-sm']" position="before">
+            <t t-if="o.amount_total_discount &gt; 0">
+                <table class="table table-sm" style="margin-bottom: 0;">
+                    <tr>
+                        <td class="text-end"><strong>Amount Before Discount:</strong></td>
+                        <td class="text-end">
+                            <span t-field="o.amount_before_discount"
+                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid black;">
+                        <td class="text-end"><strong>Total Discount:</strong></td>
+                        <td class="text-end">
+                            <span t-field="o.amount_total_discount"
+                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                        </td>
+                    </tr>
+                </table>
+            </t>
+        </xpath>
     </template>
 </odoo>

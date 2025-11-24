@@ -32,14 +32,7 @@
 
 <!-- Copyright 2017 ForgeFlow S.L.
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
-<!-- Copyright 2017 ForgeFlow S.L.
-     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
-<!-- Copyright 2017 ForgeFlow S.L.
-     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
-<!-- Copyright 2017 ForgeFlow S.L.
-     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
 <odoo>
-    <!-- Add discount_fixed field to invoice lines -->
     <record id="view_move_form" model="ir.ui.view">
         <field name="name">account.move.form - fixed_discount</field>
         <field name="model">account.move</field>
@@ -66,25 +59,5 @@
             </xpath>
         </field>
     </record>
-
-    <!-- Add discount totals in invoice -->
-    <record id="view_move_form_discount_totals" model="ir.ui.view">
-        <field name="name">account.move.form - discount_totals</field>
-        <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_move_form" />
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='amount_untaxed']" position="before">
-                <field name="amount_before_discount"
-                       widget="monetary"
-                       options="{'currency_field': 'currency_id'}"
-                       groups="account_invoice_fixed_discount.group_fixed_discount"
-                       invisible="amount_total_discount == 0"/>
-                <field name="amount_total_discount"
-                       widget="monetary"
-                       options="{'currency_field': 'currency_id'}"
-                       groups="account_invoice_fixed_discount.group_fixed_discount"
-                       invisible="amount_total_discount == 0"/>
-            </xpath>
-        </field>
-    </record>
 </odoo>
+

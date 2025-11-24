@@ -1,36 +1,42 @@
-<!--&lt;!&ndash; Copyright 2017 ForgeFlow S.L.-->
-<!--     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). &ndash;&gt;-->
 <!--<odoo>-->
-<!--    <template id="report_saleorder_document" inherit_id="sale.report_saleorder_document">-->
+<!--    <template id="report_saleorder_document" inherit_id="sale_stock.report_saleorder_document_inherit_sale_stock">-->
+
+<!--        &lt;!&ndash; Add display_discount_fixed variable &ndash;&gt;-->
 <!--        <xpath expr="//t[@t-set='display_discount']" position="after">-->
-<!--            <t-->
-<!--                t-set="display_discount_fixed"-->
-<!--                t-value="any([l.discount_fixed for l in doc.order_line])"-->
-<!--            />-->
+<!--            <t t-set="display_discount_fixed"-->
+<!--               t-value="any([l.discount_fixed for l in doc.order_line])" />-->
 <!--        </xpath>-->
+
+<!--        &lt;!&ndash; Hide original discount column when fixed discount exists &ndash;&gt;-->
 <!--        <xpath expr="//th[@name='th_discount']/span" position="attributes">-->
 <!--            <attribute name="t-if">not display_discount_fixed</attribute>-->
 <!--        </xpath>-->
 
-<!--        <xpath expr="//th[@t-if='display_discount']/span" position="before">-->
-<!--            <t t-if="display_discount_fixed">-->
+<!--        &lt;!&ndash; Add new column header &ndash;&gt;-->
+<!--        <xpath expr="//th[@name='th_discount']" position="after">-->
+<!--            <th t-if="display_discount_fixed">-->
 <!--                <span>Discount Amount (%)</span>-->
+<!--            </th>-->
+<!--        </xpath>-->
+
+<!--        &lt;!&ndash; Add fixed discount value BEFORE normal discount &ndash;&gt;-->
+<!--        <xpath expr="//span[@t-field='line.discount']" position="before">-->
+<!--            <t t-if="display_discount_fixed">-->
+<!--                <span class="text-nowrap" t-field="line.discount_fixed"/>-->
+<!--                <span class="text-nowrap"> (or </span>-->
 <!--            </t>-->
 <!--        </xpath>-->
 
-<!--        <span t-field="line.discount" position="before">-->
-<!--            <t t-if="display_discount_fixed">-->
-<!--                <span class="text-nowrap" t-field="line.discount_fixed" />-->
-<!--                <span class="text-nowrap"> (or</span>-->
-<!--            </t>-->
-<!--        </span>-->
-<!--        <span t-field="line.discount" position="after">-->
+<!--        &lt;!&ndash; Add closing bracket AFTER normal discount &ndash;&gt;-->
+<!--        <xpath expr="//span[@t-field='line.discount']" position="after">-->
 <!--            <t t-if="display_discount_fixed">-->
 <!--                <span class="text-nowrap"> %)</span>-->
 <!--            </t>-->
-<!--        </span>-->
+<!--        </xpath>-->
+
 <!--    </template>-->
 <!--</odoo>-->
+
 
 <odoo>
     <template id="report_saleorder_document" inherit_id="sale_stock.report_saleorder_document_inherit_sale_stock">
@@ -65,6 +71,28 @@
         <xpath expr="//span[@t-field='line.discount']" position="after">
             <t t-if="display_discount_fixed">
                 <span class="text-nowrap"> %)</span>
+            </t>
+        </xpath>
+
+        <!-- Add discount summary BEFORE the tax totals table -->
+        <xpath expr="//table[@class='table table-sm']" position="before">
+            <t t-if="doc.amount_total_discount &gt; 0">
+                <table class="table table-sm" style="margin-bottom: 0;">
+                    <tr>
+                        <td class="text-end"><strong>Amount Before Discount:</strong></td>
+                        <td class="text-end">
+                            <span t-field="doc.amount_before_discount"
+                                  t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid black;">
+                        <td class="text-end"><strong>Total Discount:</strong></td>
+                        <td class="text-end">
+                            <span t-field="doc.amount_total_discount"
+                                  t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                        </td>
+                    </tr>
+                </table>
             </t>
         </xpath>
 

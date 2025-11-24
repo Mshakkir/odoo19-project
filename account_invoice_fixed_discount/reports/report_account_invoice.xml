@@ -4,8 +4,8 @@
     <template id="report_invoice_document" inherit_id="account.report_invoice_document">
         <xpath expr="//t[@t-set='display_discount']" position="after">
             <t
-                    t-set="display_discount_fixed"
-                    t-value="any([l.discount_fixed for l in o.invoice_line_ids])"
+                t-set="display_discount_fixed"
+                t-value="any([l.discount_fixed for l in o.invoice_line_ids])"
             />
         </xpath>
         <xpath expr="//th[@name='th_discount']/span" position="attributes">
@@ -20,27 +20,14 @@
 
         <span t-field="line.discount" position="before">
             <t t-if="display_discount_fixed">
-                <span class="text-nowrap" t-field="line.discount_fixed"/>
-                <span class="text-nowrap">(or</span>
+                <span class="text-nowrap" t-field="line.discount_fixed" />
+                <span class="text-nowrap"> (or</span>
             </t>
         </span>
         <span t-field="line.discount" position="after">
             <t t-if="display_discount_fixed">
-                <span class="text-nowrap">%)</span>
+                <span class="text-nowrap"> %)</span>
             </t>
         </span>
-
-        <t t-if="o.global_discount_amount">
-            <tr>
-                <td colspan="4"/>
-                <td>
-                    <strong>Global Discount</strong>
-                </td>
-                <td class="text-right">
-                    <span t-field="o.global_discount_amount"/>
-                </td>
-            </tr>
-        </t>
-
     </template>
 </odoo>

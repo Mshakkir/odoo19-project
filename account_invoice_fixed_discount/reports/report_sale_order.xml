@@ -38,7 +38,7 @@
         <!-- Add display_discount_fixed variable -->
         <xpath expr="//t[@t-set='display_discount']" position="after">
             <t t-set="display_discount_fixed"
-               t-value="any([l.discount_fixed for l in doc.order_line])"/>
+               t-value="any([l.discount_fixed for l in doc.order_line])" />
         </xpath>
 
         <!-- Hide original discount column when fixed discount exists -->
@@ -57,29 +57,16 @@
         <xpath expr="//span[@t-field='line.discount']" position="before">
             <t t-if="display_discount_fixed">
                 <span class="text-nowrap" t-field="line.discount_fixed"/>
-                <span class="text-nowrap">(or</span>
+                <span class="text-nowrap"> (or </span>
             </t>
         </xpath>
 
         <!-- Add closing bracket AFTER normal discount -->
         <xpath expr="//span[@t-field='line.discount']" position="after">
             <t t-if="display_discount_fixed">
-                <span class="text-nowrap">%)</span>
+                <span class="text-nowrap"> %)</span>
             </t>
         </xpath>
-
-        <t t-if="o.global_discount_amount">
-            <tr>
-                <td colspan="4"/>
-                <td>
-                    <strong>Global Discount</strong>
-                </td>
-                <td class="text-right">
-                    <span t-field="o.global_discount_amount"/>
-                </td>
-            </tr>
-        </t>
-
 
     </template>
 </odoo>

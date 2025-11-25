@@ -385,11 +385,20 @@
                             </tr>
 
                             <!-- Discount (Static or change if needed) -->
-                            <tr>
-                                <td style="padding:5px;">Discount</td>
-                                <span t-field="o.discount_fixed"/>
-                                <td style="text-align:right; padding:5px;">- SAR</td>
-                            </tr>
+<!--                            <tr>-->
+<!--                                <td style="padding:5px;">Discount</td>-->
+<!--                                <td style="text-align:right; padding:5px;">- SAR</td>-->
+<!--                            </tr>-->
+
+                                              <t t-if="total_discount_amount > 0">
+                                        <tr>
+                                            <td style="padding:4px 6px;">Total Discount:</td>
+                                            <td style="text-align:right; padding:4px 6px;">
+                                                <span t-esc="total_discount_amount"
+                                                      t-options='{"widget":"float","precision":2}'/>
+                                            </td>
+                                        </tr>
+                                    </t>
 
                             <!-- Freight (Static or update if needed) -->
                             <tr>

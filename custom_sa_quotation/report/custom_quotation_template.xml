@@ -372,81 +372,183 @@
                     </table>
 
 
-                    <div style="width: 100%; text-align: left; margin-top: 10px;">
-                        <table style="width:40%; margin-left:auto; border:1px solid #000; border-collapse:collapse; font-size:13px;">
+<!--                    <div style="width: 100%; text-align: left; margin-top: 10px;">-->
+<!--                        <table style="width:40%; margin-left:auto; border:1px solid #000; border-collapse:collapse; font-size:13px;">-->
 
-                            <!-- Subtotal -->
-                            <tr>
-                                <td style="padding:5px;">Subtotal</td>
-                                <td style="text-align:right; padding:5px;">
-                                    <span t-field="o.amount_untaxed"/>
-                                    SAR
-                                </td>
-                            </tr>
+<!--                            &lt;!&ndash; Subtotal &ndash;&gt;-->
+<!--                            <tr>-->
+<!--                                <td style="padding:5px;">Subtotal</td>-->
+<!--                                <td style="text-align:right; padding:5px;">-->
+<!--                                    <span t-field="o.amount_untaxed"/>-->
+<!--                                    SAR-->
+<!--                                </td>-->
+<!--                            </tr>-->
 
-                            <!-- Discount (Static or change if needed) -->
+<!--                             Discount (Static or change if needed)-->
 <!--                            <tr>-->
 <!--                                <td style="padding:5px;">Discount</td>-->
 <!--                                <td style="text-align:right; padding:5px;">- SAR</td>-->
 <!--                            </tr>-->
 
-                  <t t-if="(total_discount_amount or 0) > 0">
-    <tr>
-        <td style="padding:4px 6px;">Total Discount:</td>
-        <td style="text-align:right; padding:4px 6px;">
-            <span t-esc="(total_discount_amount or 0)"
-                  t-options='{"widget":"float","precision":2}'/>
-        </td>
-    </tr>
-</t>
 
-                            <!-- Freight (Static or update if needed) -->
-                            <tr>
-                                <td style="padding:5px;">Freight</td>
-                                <td style="text-align:right; padding:5px;">- SAR</td>
-                            </tr>
+<!--                            &lt;!&ndash; Freight (Static or update if needed) &ndash;&gt;-->
+<!--                            <tr>-->
+<!--                                <td style="padding:5px;">Freight</td>-->
+<!--                                <td style="text-align:right; padding:5px;">- SAR</td>-->
+<!--                            </tr>-->
 
-                            <!-- Gross Total (same as Subtotal unless discount/freight added) -->
-                            <tr>
-                                <td style="padding:5px;">
-                                    <strong>Gross Total</strong>
-                                </td>
-                                <td style="text-align:right; padding:5px;">
-                                    <strong>
-                                        <span t-field="o.amount_untaxed"/>
-                                        SAR
-                                    </strong>
-                                </td>
-                            </tr>
+<!--                            &lt;!&ndash; Gross Total (same as Subtotal unless discount/freight added) &ndash;&gt;-->
+<!--                            <tr>-->
+<!--                                <td style="padding:5px;">-->
+<!--                                    <strong>Gross Total</strong>-->
+<!--                                </td>-->
+<!--                                <td style="text-align:right; padding:5px;">-->
+<!--                                    <strong>-->
+<!--                                        <span t-field="o.amount_untaxed"/>-->
+<!--                                        SAR-->
+<!--                                    </strong>-->
+<!--                                </td>-->
+<!--                            </tr>-->
 
-                            <!-- VAT Section -->
-                            <tr>
-                                <td style="padding:5px;">VAT (15%)</td>
-                                <td style="text-align:right; padding:5px;">
-                                    <span t-field="o.amount_tax"/>
-                                    SAR
-                                </td>
-                            </tr>
+<!--                            &lt;!&ndash; VAT Section &ndash;&gt;-->
+<!--                            <tr>-->
+<!--                                <td style="padding:5px;">VAT (15%)</td>-->
+<!--                                <td style="text-align:right; padding:5px;">-->
+<!--                                    <span t-field="o.amount_tax"/>-->
+<!--                                    SAR-->
+<!--                                </td>-->
+<!--                            </tr>-->
 
-                            <!-- Net Total -->
-                            <tr style="background-color:#D3D3D3;">
-                                <td style="padding:6px;">
-                                    <strong>Net Total</strong>
-                                </td>
-                                <td style="text-align:right; padding:6px;">
-                                    <strong>
-                                        <span t-field="o.amount_total"/>
-                                        SAR
-                                    </strong>
-                                </td>
-                            </tr>
+<!--                            &lt;!&ndash; Net Total &ndash;&gt;-->
+<!--                            <tr style="background-color:#D3D3D3;">-->
+<!--                                <td style="padding:6px;">-->
+<!--                                    <strong>Net Total</strong>-->
+<!--                                </td>-->
+<!--                                <td style="text-align:right; padding:6px;">-->
+<!--                                    <strong>-->
+<!--                                        <span t-field="o.amount_total"/>-->
+<!--                                        SAR-->
+<!--                                    </strong>-->
+<!--                                </td>-->
+<!--                            </tr>-->
 
-                        </table>
-                    </div>
+<!--                        </table>-->
+<!--                    </div>-->
+
+                    <!-- Replace the totals section (around line 430-490) with this enhanced version -->
+
+<div style="width: 100%; text-align: left; margin-top: 10px;">
+    <table style="width:40%; margin-left:auto; border:1px solid #000; border-collapse:collapse; font-size:13px;">
+
+        <!-- Subtotal (Before Any Discounts) -->
+        <tr>
+            <td style="padding:5px;">Subtotal (Before Discount)</td>
+            <td style="text-align:right; padding:5px;">
+                <!-- Calculate total before discounts -->
+                <t t-set="total_before_discount" t-value="sum(line.product_uom_qty * line.price_unit for line in o.order_line)"/>
+                <span t-esc="'%.2f' % total_before_discount"/>
+                SAR
+            </td>
+        </tr>
+
+        <!-- Global Discount (if exists) -->
+        <tr t-if="o.global_discount_fixed and o.global_discount_fixed > 0">
+            <td style="padding:5px;">
+                <strong>Global Discount</strong>
+            </td>
+            <td style="text-align:right; padding:5px;">
+                <strong style="color: #d9534f;">
+                    - <span t-esc="'%.2f' % o.global_discount_fixed"/> SAR
+                </strong>
+            </td>
+        </tr>
+
+        <!-- Line-level Fixed Discounts Total (if exists) -->
+        <t t-set="total_line_discounts" t-value="sum(line.discount_fixed for line in o.order_line if line.discount_fixed)"/>
+        <tr t-if="total_line_discounts and total_line_discounts > 0">
+            <td style="padding:5px;">
+                Line Discounts (Total)
+            </td>
+            <td style="text-align:right; padding:5px;">
+                <span style="color: #d9534f;">
+                    - <span t-esc="'%.2f' % total_line_discounts"/> SAR
+                </span>
+            </td>
+        </tr>
+
+        <!-- Subtotal After Discounts -->
+        <tr>
+            <td style="padding:5px;">Subtotal (After Discount)</td>
+            <td style="text-align:right; padding:5px;">
+                <span t-field="o.amount_untaxed"/>
+                SAR
+            </td>
+        </tr>
+
+        <!-- Freight (Static or update if needed) -->
+        <tr>
+            <td style="padding:5px;">Freight</td>
+            <td style="text-align:right; padding:5px;">- SAR</td>
+        </tr>
+
+        <!-- Gross Total (same as Subtotal after discount unless freight added) -->
+        <tr>
+            <td style="padding:5px;">
+                <strong>Gross Total</strong>
+            </td>
+            <td style="text-align:right; padding:5px;">
+                <strong>
+                    <span t-field="o.amount_untaxed"/>
+                    SAR
+                </strong>
+            </td>
+        </tr>
+
+        <!-- VAT Section -->
+        <tr>
+            <td style="padding:5px;">VAT (15%)</td>
+            <td style="text-align:right; padding:5px;">
+                <span t-field="o.amount_tax"/>
+                SAR
+            </td>
+        </tr>
+
+        <!-- Net Total -->
+        <tr style="background-color:#D3D3D3;">
+            <td style="padding:6px;">
+                <strong>Net Total</strong>
+            </td>
+            <td style="text-align:right; padding:6px;">
+                <strong>
+                    <span t-field="o.amount_total"/>
+                    SAR
+                </strong>
+            </td>
+        </tr>
+
+    </table>
+</div>
+
+<!-- Optional: Add discount details section if you want to show breakdown -->
+<div t-if="o.global_discount_fixed or any(line.discount_fixed for line in o.order_line)"
+     style="margin-top: 10px; padding: 10px; background-color: #f9f9f9; border: 1px solid #ddd; font-size: 11px;">
+    <strong>Discount Details:</strong>
+    <br/>
+    <t t-if="o.global_discount_fixed and o.global_discount_fixed > 0">
+        • Global Order Discount: <span t-esc="'%.2f' % o.global_discount_fixed"/> SAR (Applied proportionally to all lines)
+        <br/>
+    </t>
+    <t t-if="any(line.discount_fixed for line in o.order_line)">
+        • Line-level discounts applied to individual items
+        <br/>
+    </t>
+    <t t-set="total_all_discounts" t-value="(o.global_discount_fixed or 0) + sum(line.discount_fixed for line in o.order_line if line.discount_fixed)"/>
+    <strong>Total Discount Amount: <span t-esc="'%.2f' % total_all_discounts"/> SAR</strong>
+</div>
 
                     <div class="mt-4"
                          style="font-size: 13px; margin-top: 10px; padding-left:3px; text-align: left; width: 100%;">
-                        <p style="margin-top:-200px;">
+                        <p style="margin-top:-190px;">
                             <strong>Offer Terms and Conditions:</strong>
 
                             <t t-if="o.payment_term_id">
@@ -479,6 +581,69 @@
 
     </template>
 </odoo>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         <!--the footer only last page display code-->

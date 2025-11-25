@@ -158,5 +158,5 @@ class SaleOrderLine(models.Model):
     def _onchange_is_global_discount_line(self):
         """Ensure discount lines never have taxes or analytics"""
         if self.is_global_discount_line:
-            self.tax_id = [(5, 0, 0)]
+            self.tax_ids = [(5, 0, 0)]
             self.analytic_distribution = False

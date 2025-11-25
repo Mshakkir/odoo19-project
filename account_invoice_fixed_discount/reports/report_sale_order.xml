@@ -108,22 +108,4 @@
         </xpath>
 
     </template>
-
-    <!-- Add global discount to sale order report - using the main table as anchor -->
-    <template id="report_saleorder_global_discount" inherit_id="sale.report_saleorder_document">
-        <!-- Add after the main order lines table -->
-        <xpath expr="//table[hasclass('o_main_table')]" position="after">
-            <div t-if="doc.global_discount_fixed" class="clearfix mb-3">
-                <div class="row">
-                    <div class="col-6 text-end">
-                        <strong>Global Discount:</strong>
-                    </div>
-                    <div class="col-6 text-end">
-                        <span t-field="doc.global_discount_fixed"
-                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
-                    </div>
-                </div>
-            </div>
-        </xpath>
-    </template>
 </odoo>

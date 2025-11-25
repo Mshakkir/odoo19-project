@@ -109,19 +109,17 @@
 
     </template>
 
-    <!-- Add global discount to sale order report -->
+    <!-- Add global discount to sale order report - using div name="so_total_summary" as anchor -->
     <template id="report_saleorder_global_discount" inherit_id="sale.report_saleorder_document">
-        <!-- Add before the total table -->
-        <xpath expr="//table[@class='o_total_table table table-borderless']" position="before">
-            <div t-if="doc.global_discount_fixed" class="clearfix mb-2">
-                <div class="row">
-                    <div class="col-6 text-end">
-                        <strong>Global Discount:</strong>
-                    </div>
-                    <div class="col-6 text-end">
-                        <span t-field="doc.global_discount_fixed"
-                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
-                    </div>
+        <!-- Add after the order lines table, using the clearfix div as anchor -->
+        <xpath expr="//div[@name='so_total_summary']" position="inside">
+            <div t-if="doc.global_discount_fixed" class="row mb-2">
+                <div class="col-6 text-end">
+                    <strong>Global Discount:</strong>
+                </div>
+                <div class="col-6 text-end">
+                    <span t-field="doc.global_discount_fixed"
+                          t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                 </div>
             </div>
         </xpath>

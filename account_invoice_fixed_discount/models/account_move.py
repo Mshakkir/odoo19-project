@@ -46,3 +46,26 @@ class AccountMove(models.Model):
                 # Calculate proportional discount for this line
                 line_proportion = line_subtotal / total_before_discount
                 line.discount_fixed = self.global_discount_fixed * line_proportion
+
+    def write(self, vals):
+        """Ensure global discount is applied when saving."""
+        res = super().write(vals)
+
+        # If global_discount_fixed is being updated, trigger the distribution
+        if 'global_discount_fixed' in vals:
+            for move in self:
+                if move.state != 'posted':  # Only apply if not posted
+                    move._onchange_global_discount_fixed()
+
+        return res
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Ensure global discount is applied when creating."""
+        moves = super().create(vals_list)
+
+        for move in moves:
+            if move.global_discount_fixed and move.state != 'posted':
+                move._onchange_global_discount_fixed()
+
+        return moves

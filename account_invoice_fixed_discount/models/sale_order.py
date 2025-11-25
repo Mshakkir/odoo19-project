@@ -1,5 +1,7 @@
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+# Copyright 2017 ForgeFlow S.L.
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
 from odoo import api, fields, models
 from odoo.tools.float_utils import float_is_zero
@@ -44,6 +46,28 @@ class SaleOrder(models.Model):
                 # Calculate proportional discount for this line
                 line_proportion = line_subtotal / total_before_discount
                 line.discount_fixed = self.global_discount_fixed * line_proportion
+
+    def write(self, vals):
+        """Ensure global discount is applied when saving."""
+        res = super().write(vals)
+
+        # If global_discount_fixed is being updated, trigger the distribution
+        if 'global_discount_fixed' in vals:
+            for order in self:
+                order._onchange_global_discount_fixed()
+
+        return res
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Ensure global discount is applied when creating."""
+        orders = super().create(vals_list)
+
+        for order in orders:
+            if order.global_discount_fixed:
+                order._onchange_global_discount_fixed()
+
+        return orders
 
     def _prepare_invoice(self):
         """Pass the global discount to the invoice."""

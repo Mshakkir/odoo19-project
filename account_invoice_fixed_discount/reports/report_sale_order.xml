@@ -111,9 +111,9 @@
 
     <!-- Add global discount to sale order report -->
     <template id="report_saleorder_global_discount" inherit_id="sale.report_saleorder_document">
-        <!-- Add after the order lines table, before totals -->
-        <xpath expr="//div[@id='total']" position="before">
-            <div t-if="doc.global_discount_fixed" class="clearfix mb-3">
+        <!-- Add before the total table -->
+        <xpath expr="//table[@class='o_total_table table table-borderless']" position="before">
+            <div t-if="doc.global_discount_fixed" class="clearfix mb-2">
                 <div class="row">
                     <div class="col-6 text-end">
                         <strong>Global Discount:</strong>

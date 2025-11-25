@@ -440,16 +440,18 @@
 <div style="width: 100%; text-align: left; margin-top: 10px;">
     <table style="width:40%; margin-left:auto; border:1px solid #000; border-collapse:collapse; font-size:13px;">
 
-        <!-- Subtotal (This already includes line-level fixed discounts) -->
+        <!-- Subtotal (Before Any Discounts) -->
         <tr>
-            <td style="padding:5px;">Subtotal</td>
+            <td style="padding:5px;">Subtotal (Before Discount)</td>
             <td style="text-align:right; padding:5px;">
-                <span t-field="o.amount_untaxed"/>
+                <!-- Calculate total before discounts -->
+                <t t-set="total_before_discount" t-value="sum(line.product_uom_qty * line.price_unit for line in o.order_line)"/>
+                <span t-esc="'%.2f' % total_before_discount"/>
                 SAR
             </td>
         </tr>
 
-        <!-- Global Discount (Separate from lines) -->
+        <!-- Global Discount (if exists) -->
         <tr t-if="o.global_discount_fixed and o.global_discount_fixed > 0">
             <td style="padding:5px;">
                 <strong>Global Discount</strong>
@@ -461,51 +463,87 @@
             </td>
         </tr>
 
-        <!-- Freight -->
+        <!-- Line-level Fixed Discounts Total (if exists) -->
+        <t t-set="total_line_discounts" t-value="sum(line.discount_fixed for line in o.order_line if line.discount_fixed)"/>
+        <tr t-if="total_line_discounts and total_line_discounts > 0">
+            <td style="padding:5px;">
+                Line Discounts (Total)
+            </td>
+            <td style="text-align:right; padding:5px;">
+                <span style="color: #d9534f;">
+                    - <span t-esc="'%.2f' % total_line_discounts"/> SAR
+                </span>
+            </td>
+        </tr>
+
+        <!-- Subtotal After Discounts -->
+        <tr>
+            <td style="padding:5px;">Subtotal (After Discount)</td>
+            <td style="text-align:right; padding:5px;">
+                <span t-field="o.amount_untaxed"/>
+                SAR
+            </td>
+        </tr>
+
+        <!-- Freight (Static or update if needed) -->
         <tr>
             <td style="padding:5px;">Freight</td>
             <td style="text-align:right; padding:5px;">- SAR</td>
         </tr>
 
-        <!-- Gross Total (Subtotal - Global Discount) -->
+        <!-- Gross Total (same as Subtotal after discount unless freight added) -->
         <tr>
             <td style="padding:5px;">
                 <strong>Gross Total</strong>
             </td>
             <td style="text-align:right; padding:5px;">
                 <strong>
-                    <t t-set="gross_total" t-value="o.amount_untaxed - (o.global_discount_fixed or 0)"/>
-                    <span t-esc="'%.2f' % gross_total"/>
+                    <span t-field="o.amount_untaxed"/>
                     SAR
                 </strong>
             </td>
         </tr>
 
-        <!-- VAT (15% on Gross Total after global discount) -->
+        <!-- VAT Section -->
         <tr>
             <td style="padding:5px;">VAT (15%)</td>
             <td style="text-align:right; padding:5px;">
-                <t t-set="vat_amount" t-value="(o.amount_untaxed - (o.global_discount_fixed or 0)) * 0.15"/>
-                <span t-esc="'%.2f' % vat_amount"/>
+                <span t-field="o.amount_tax"/>
                 SAR
             </td>
         </tr>
 
-        <!-- Net Total (Gross Total + VAT) -->
+        <!-- Net Total -->
         <tr style="background-color:#D3D3D3;">
             <td style="padding:6px;">
                 <strong>Net Total</strong>
             </td>
             <td style="text-align:right; padding:6px;">
                 <strong>
-                    <t t-set="net_total" t-value="(o.amount_untaxed - (o.global_discount_fixed or 0)) * 1.15"/>
-                    <span t-esc="'%.2f' % net_total"/>
+                    <span t-field="o.amount_total"/>
                     SAR
                 </strong>
             </td>
         </tr>
 
     </table>
+</div>
+
+<!-- Optional: Add discount details section if you want to show breakdown -->
+<div t-if="o.global_discount_fixed or any(line.discount_fixed for line in o.order_line)"
+     style="margin-top: 10px; padding: 10px; background-color: #f9f9f9; border: 1px solid #ddd; font-size: 11px;">
+    <strong>Discount Details:</strong>
+    <br/>
+    <t t-if="o.global_discount_fixed and o.global_discount_fixed > 0">
+        • Global Order Discount: <span t-esc="'%.2f' % o.global_discount_fixed"/> SAR (Applied proportionally to all lines)
+        <br/>
+    </t>
+    <t t-if="any(line.discount_fixed for line in o.order_line)">
+        • Line-level discounts applied to individual items
+        <br/>
+    </t>
+    <t t-set="total_all_discounts" t-value="(o.global_discount_fixed or 0) + sum(line.discount_fixed for line in o.order_line if line.discount_fixed)"/>
+    <strong>Total Discount Amount: <span t-esc="'%.2f' % total_all_discounts"/> SAR</strong>
 </div>
 
                     <div class="mt-4"

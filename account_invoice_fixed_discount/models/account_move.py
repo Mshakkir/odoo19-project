@@ -107,26 +107,26 @@ class AccountMove(models.Model):
     @api.onchange('global_discount_fixed')
     def _onchange_global_discount_fixed(self):
         """Add or update a global discount line in the invoice."""
-        # Find existing global discount line
         discount_line = self.invoice_line_ids.filtered(lambda l: l.is_global_discount_line)
-
         currency = self.currency_id or self.company_id.currency_id
 
         if float_is_zero(self.global_discount_fixed, precision_rounding=currency.rounding):
-            # Remove discount line if discount is zero
             if discount_line:
                 self.invoice_line_ids = [(3, discount_line.id)]
             return
 
-        # Get discount product
         discount_product = self.env.ref('account_invoice_fixed_discount.product_global_discount',
                                         raise_if_not_found=False)
-
         if not discount_product:
             return
 
-        # Get income account
-        account = discount_product.property_account_income_id or discount_product.categ_id.property_account_income_categ_id
+        # Get the dedicated discount account or fallback
+        account = discount_product.property_account_income_id
+        if not account:
+            account = self.env['account.account'].search([
+                ('code', '=', '4100'),
+                ('company_id', '=', self.company_id.id)
+            ], limit=1)
         if not account:
             account = self.env['account.account'].search([
                 ('account_type', '=', 'income'),
@@ -137,19 +137,23 @@ class AccountMove(models.Model):
             'product_id': discount_product.id,
             'name': 'Global Discount',
             'quantity': 1,
-            'price_unit': -self.global_discount_fixed,  # Negative amount for discount
+            'price_unit': -self.global_discount_fixed,
             'account_id': account.id,
             'is_global_discount_line': True,
-            'sequence': 9999,  # Put at the end
+            'sequence': 9999,
+            # CRITICAL: Clear taxes and analytic distribution
+            'tax_ids': [(5, 0, 0)],  # Remove all taxes
+            'analytic_distribution': False,  # No analytic distribution
+            'exclude_from_invoice_tab': False,
         }
 
         if discount_line:
-            # Update existing line
             discount_line.write({
                 'price_unit': -self.global_discount_fixed,
+                'tax_ids': [(5, 0, 0)],
+                'analytic_distribution': False,
             })
         else:
-            # Create new line
             self.invoice_line_ids = [(0, 0, discount_values)]
 
 
@@ -161,3 +165,10 @@ class AccountMoveLine(models.Model):
         default=False,
         help="Identifies this line as the global discount line"
     )
+
+    @api.onchange('is_global_discount_line')
+    def _onchange_is_global_discount_line(self):
+        """Ensure discount lines never have taxes or analytics"""
+        if self.is_global_discount_line:
+            self.tax_ids = [(5, 0, 0)]
+            self.analytic_distribution = False

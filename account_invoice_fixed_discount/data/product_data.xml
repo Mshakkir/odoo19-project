@@ -11,6 +11,45 @@
             <field name="purchase_ok" eval="False"/>
             <field name="invoice_policy">order</field>
             <field name="description">Global discount line - automatically created</field>
+
+            <!-- CRITICAL: Set taxes to empty to prevent tax calculation -->
+            <field name="taxes_id" eval="[(5, 0, 0)]"/>
+            <field name="supplier_taxes_id" eval="[(5, 0, 0)]"/>
+        </record>
+
+        <!-- Optional: Create a dedicated discount account -->
+        <record id="account_sales_discount" model="account.account">
+            <field name="name">Sales Discounts</field>
+            <field name="code">4100</field>
+            <field name="account_type">income</field>
+            <field name="reconcile" eval="False"/>
+            <field name="note">Contra-revenue account for sales discounts</field>
+        </record>
+
+        <!-- Link the account to the product -->
+        <record id="product_global_discount" model="product.product">
+            <field name="property_account_income_id" ref="account_sales_discount"/>
         </record>
     </data>
 </odoo>
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <data noupdate="1">-->
+<!--        &lt;!&ndash; Global Discount Product &ndash;&gt;-->
+<!--        <record id="product_global_discount" model="product.product">-->
+<!--            <field name="name">Global Discount</field>-->
+<!--            <field name="type">service</field>-->
+<!--            <field name="list_price">0.0</field>-->
+<!--            <field name="standard_price">0.0</field>-->
+<!--            <field name="sale_ok" eval="False"/>-->
+<!--            <field name="purchase_ok" eval="False"/>-->
+<!--            <field name="invoice_policy">order</field>-->
+<!--            <field name="description">Global discount line - automatically created</field>-->
+<!--        </record>-->
+<!--    </data>-->
+<!--</odoo>-->

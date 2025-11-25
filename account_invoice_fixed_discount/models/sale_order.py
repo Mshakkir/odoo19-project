@@ -83,9 +83,6 @@
 #
 
 
-# Copyright 2017 ForgeFlow S.L.
-# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
-
 from odoo import api, fields, models
 from odoo.tools.float_utils import float_is_zero
 
@@ -103,17 +100,20 @@ class SaleOrder(models.Model):
 
     @api.onchange('global_discount_fixed')
     def _onchange_global_discount_fixed(self):
-        """Add or update a global discount line in the order."""
         discount_line = self.order_line.filtered(lambda l: l.is_global_discount_line)
         currency = self.currency_id or self.company_id.currency_id
 
+        # Remove discount line if global discount becomes zero
         if float_is_zero(self.global_discount_fixed, precision_rounding=currency.rounding):
             if discount_line:
                 self.order_line = [(3, discount_line.id)]
             return
 
-        discount_product = self.env.ref('account_invoice_fixed_discount.product_global_discount',
-                                        raise_if_not_found=False)
+        # Discount product
+        discount_product = self.env.ref(
+            'account_invoice_fixed_discount.product_global_discount',
+            raise_if_not_found=False
+        )
         if not discount_product:
             return
 
@@ -124,22 +124,21 @@ class SaleOrder(models.Model):
             'price_unit': -self.global_discount_fixed,
             'is_global_discount_line': True,
             'sequence': 9999,
-            # CRITICAL: Clear taxes and analytic distribution
-            'tax_id': [(5, 0, 0)],  # Remove all taxes
-            'analytic_distribution': False,  # No analytic distribution
+            # FIXED: Correct many2many field for taxes
+            'tax_ids': [(5, 0, 0)],
+            'analytic_distribution': False,
         }
 
         if discount_line:
             discount_line.write({
                 'price_unit': -self.global_discount_fixed,
-                'tax_id': [(5, 0, 0)],
+                'tax_ids': [(5, 0, 0)],
                 'analytic_distribution': False,
             })
         else:
             self.order_line = [(0, 0, discount_values)]
 
     def _prepare_invoice(self):
-        """Pass the global discount to the invoice."""
         res = super()._prepare_invoice()
         res['global_discount_fixed'] = self.global_discount_fixed
         return res
@@ -156,7 +155,6 @@ class SaleOrderLine(models.Model):
 
     @api.onchange('is_global_discount_line')
     def _onchange_is_global_discount_line(self):
-        """Ensure discount lines never have taxes or analytics"""
         if self.is_global_discount_line:
             self.tax_ids = [(5, 0, 0)]
             self.analytic_distribution = False

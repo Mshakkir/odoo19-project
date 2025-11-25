@@ -13,8 +13,8 @@
             <field name="description">Global discount line - automatically created</field>
 
             <!-- FIXED -->
-            <field name="taxes_ids" eval="[(5, 0, 0)]"/>
-            <field name="supplier_taxes_ids" eval="[(5, 0, 0)]"/>
+            <field name="taxes_id" eval="[(5, 0, 0)]"/>
+            <field name="supplier_taxes_id" eval="[(5, 0, 0)]"/>
         </record>
 
     </data>

@@ -124,7 +124,6 @@ class SaleOrder(models.Model):
             'price_unit': -self.global_discount_fixed,
             'is_global_discount_line': True,
             'sequence': 9999,
-            # FIXED: Correct many2many field for taxes
             'tax_ids': [(5, 0, 0)],
             'analytic_distribution': False,
         }
@@ -147,14 +146,11 @@ class SaleOrder(models.Model):
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
-    is_global_discount_line = fields.Boolean(
-        string="Is Global Discount Line",
-        default=False,
-        help="Identifies this line as the global discount line"
-    )
+    is_global_discount_line = fields.Boolean(default=False)
 
     @api.onchange('is_global_discount_line')
     def _onchange_is_global_discount_line(self):
         if self.is_global_discount_line:
             self.tax_ids = [(5, 0, 0)]
             self.analytic_distribution = False
+

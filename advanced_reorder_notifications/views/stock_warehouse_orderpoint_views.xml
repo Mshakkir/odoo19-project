@@ -5,12 +5,15 @@
         <field name="model">stock.warehouse.orderpoint</field>
         <field name="inherit_id" ref="stock.view_warehouse_orderpoint_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//group[@name='general']" position="after">
-                <group string="Notification Settings">
-                    <field name="notify_on_reorder"/>
-                    <field name="notification_sent" readonly="1"/>
-                    <field name="last_notification_date" readonly="1"/>
-                </group>
+            <!-- Add notification checkbox after product_id field -->
+            <xpath expr="//field[@name='product_id']" position="after">
+                <field name="notify_on_reorder" string="Enable Notifications"/>
+            </xpath>
+
+            <!-- Add notification status fields (hidden) after product_max_qty -->
+            <xpath expr="//field[@name='product_max_qty']" position="after">
+                <field name="notification_sent" invisible="1"/>
+                <field name="last_notification_date" invisible="1"/>
             </xpath>
         </field>
     </record>

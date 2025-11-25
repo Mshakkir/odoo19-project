@@ -67,16 +67,18 @@
 
     <!-- Add global discount to invoice report -->
     <template id="report_invoice_global_discount" inherit_id="account.report_invoice_document">
-        <xpath expr="//div[@id='total']/div[@class='row']" position="before">
-            <div class="row" t-if="o.global_discount_fixed">
-                <div class="col-6 text-end">
-                    <strong>Global Discount:</strong>
+        <xpath expr="//t[@t-set='tax_totals']" position="before">
+            <t t-if="o.global_discount_fixed">
+                <div class="row">
+                    <div class="col-6 text-end">
+                        <strong>Global Discount:</strong>
+                    </div>
+                    <div class="col-6 text-end">
+                        <span t-field="o.global_discount_fixed"
+                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                    </div>
                 </div>
-                <div class="col-6 text-end">
-                    <span t-field="o.global_discount_fixed"
-                          t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
-                </div>
-            </div>
+            </t>
         </xpath>
     </template>
 </odoo>

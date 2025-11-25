@@ -28,10 +28,10 @@ class AccountMove(models.Model):
         if float_is_zero(self.global_discount_fixed, precision_rounding=currency.rounding):
             # Clear individual line discounts if global discount is removed
             for line in self.invoice_line_ids.filtered(lambda l: not l.display_type):
-                if line.discount_fixed > 0:
-                    line.discount_fixed = 0.0
-                    # Trigger recomputation
-                    line._onchange_discount_fixed()
+                line.discount_fixed = 0.0
+                line.discount = 0.0
+                # Trigger recomputation to reset amounts
+                line._compute_totals()
             return
 
         # Calculate total before any discount (only for product lines)

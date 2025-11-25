@@ -27,10 +27,10 @@ class SaleOrder(models.Model):
         if float_is_zero(self.global_discount_fixed, precision_rounding=currency.rounding):
             # Clear individual line discounts if global discount is removed
             for line in self.order_line:
-                if line.discount_fixed > 0:
-                    line.discount_fixed = 0.0
-                    # Trigger recomputation
-                    line._onchange_discount_fixed()
+                line.discount_fixed = 0.0
+                line.discount = 0.0
+                # Trigger recomputation to reset amounts
+                line._compute_amount()
             return
 
         # Calculate total before any discount

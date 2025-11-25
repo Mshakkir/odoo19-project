@@ -30,6 +30,8 @@ class AccountMove(models.Model):
             for line in self.invoice_line_ids.filtered(lambda l: not l.display_type):
                 if line.discount_fixed > 0:
                     line.discount_fixed = 0.0
+                    # Trigger recomputation
+                    line._onchange_discount_fixed()
             return
 
         # Calculate total before any discount (only for product lines)
@@ -46,6 +48,8 @@ class AccountMove(models.Model):
                 # Calculate proportional discount for this line
                 line_proportion = line_subtotal / total_before_discount
                 line.discount_fixed = self.global_discount_fixed * line_proportion
+                # Trigger the onchange to update discount percentage and amounts
+                line._onchange_discount_fixed()
 
     def write(self, vals):
         """Ensure global discount is applied when saving."""
@@ -56,6 +60,9 @@ class AccountMove(models.Model):
             for move in self:
                 if move.state != 'posted':  # Only apply if not posted
                     move._onchange_global_discount_fixed()
+                    # Force recalculation of invoice totals
+                    product_lines = move.invoice_line_ids.filtered(lambda l: not l.display_type)
+                    product_lines._compute_totals()
 
         return res
 
@@ -67,5 +74,8 @@ class AccountMove(models.Model):
         for move in moves:
             if move.global_discount_fixed and move.state != 'posted':
                 move._onchange_global_discount_fixed()
+                # Force recalculation of invoice totals
+                product_lines = move.invoice_line_ids.filtered(lambda l: not l.display_type)
+                product_lines._compute_totals()
 
         return moves

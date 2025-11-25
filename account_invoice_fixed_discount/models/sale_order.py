@@ -1,7 +1,5 @@
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
-# Copyright 2017 ForgeFlow S.L.
-# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
 from odoo import api, fields, models
 from odoo.tools.float_utils import float_is_zero
@@ -31,6 +29,8 @@ class SaleOrder(models.Model):
             for line in self.order_line:
                 if line.discount_fixed > 0:
                     line.discount_fixed = 0.0
+                    # Trigger recomputation
+                    line._onchange_discount_fixed()
             return
 
         # Calculate total before any discount
@@ -46,6 +46,8 @@ class SaleOrder(models.Model):
                 # Calculate proportional discount for this line
                 line_proportion = line_subtotal / total_before_discount
                 line.discount_fixed = self.global_discount_fixed * line_proportion
+                # Trigger the onchange to update discount percentage and amounts
+                line._onchange_discount_fixed()
 
     def write(self, vals):
         """Ensure global discount is applied when saving."""
@@ -55,6 +57,8 @@ class SaleOrder(models.Model):
         if 'global_discount_fixed' in vals:
             for order in self:
                 order._onchange_global_discount_fixed()
+                # Force recalculation of order totals
+                order.order_line._compute_amount()
 
         return res
 
@@ -66,6 +70,8 @@ class SaleOrder(models.Model):
         for order in orders:
             if order.global_discount_fixed:
                 order._onchange_global_discount_fixed()
+                # Force recalculation of order totals
+                order.order_line._compute_amount()
 
         return orders
 

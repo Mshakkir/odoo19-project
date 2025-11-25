@@ -80,8 +80,3 @@ class SaleOrder(models.Model):
         res = super()._prepare_invoice()
         res['global_discount_fixed'] = self.global_discount_fixed
         return res
-
-
-
-
-

@@ -79,5 +79,3 @@ class AccountMove(models.Model):
                 product_lines._compute_totals()
 
         return moves
-
-

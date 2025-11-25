@@ -19,6 +19,7 @@
     'data': [
         'security/ir.model.access.csv',
         'data/scheduled_actions.xml',
+        'views/stock_warehouse_orderpoint_views.xml',
     ],
     'installable': True,
     'application': False,

@@ -111,8 +111,9 @@
 
     <!-- Add global discount to sale order report -->
     <template id="report_saleorder_global_discount" inherit_id="sale.report_saleorder_document">
-        <xpath expr="//t[@t-set='tax_totals_after_lines']" position="before">
-            <t t-if="doc.global_discount_fixed">
+        <!-- Add after the order lines table, before totals -->
+        <xpath expr="//div[@id='total']" position="before">
+            <div t-if="doc.global_discount_fixed" class="clearfix mb-3">
                 <div class="row">
                     <div class="col-6 text-end">
                         <strong>Global Discount:</strong>
@@ -122,7 +123,7 @@
                               t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                     </div>
                 </div>
-            </t>
+            </div>
         </xpath>
     </template>
 </odoo>

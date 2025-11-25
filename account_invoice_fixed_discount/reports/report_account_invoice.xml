@@ -34,6 +34,8 @@
 
 <!-- Copyright 2017 ForgeFlow S.L.
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<!-- Copyright 2017 ForgeFlow S.L.
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
 <odoo>
     <template id="report_invoice_document" inherit_id="account.report_invoice_document">
         <xpath expr="//t[@t-set='display_discount']" position="after">
@@ -63,12 +65,10 @@
                 <span class="text-nowrap"> %)</span>
             </t>
         </span>
-    </template>
 
-    <!-- Add global discount to invoice report -->
-    <template id="report_invoice_global_discount" inherit_id="account.report_invoice_document">
-        <xpath expr="//t[@t-set='tax_totals']" position="before">
-            <t t-if="o.global_discount_fixed">
+        <!-- Add global discount information before the tax totals table -->
+        <xpath expr="//table[@class='o_total_table table table-borderless avoid-page-break-inside']" position="before">
+            <div t-if="o.global_discount_fixed" class="clearfix mb-2">
                 <div class="row">
                     <div class="col-6 text-end">
                         <strong>Global Discount:</strong>
@@ -78,7 +78,7 @@
                               t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
                     </div>
                 </div>
-            </t>
+            </div>
         </xpath>
     </template>
 </odoo>

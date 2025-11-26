@@ -316,7 +316,6 @@
 #
 #         return res
 
-
 from odoo import api, fields, models
 import logging
 
@@ -348,19 +347,32 @@ class AccountMove(models.Model):
         currency_field='currency_id'
     )
 
-    @api.depends('invoice_line_ids.price_subtotal', 'global_discount_fixed')
+    @api.depends('invoice_line_ids.price_subtotal', 'invoice_line_ids.discount', 'global_discount_fixed')
     def _compute_amounts_with_discount(self):
         """Calculate amounts before and after global discount."""
         for move in self:
             if move.is_invoice():
-                # Calculate amount without discount (based on original price_unit without line discount)
-                amount_undiscounted = sum(
-                    line.quantity * line.price_unit
-                    for line in move.invoice_line_ids
-                    if not line.display_type
-                )
+                # Calculate amount without ANY discount (original price_unit * quantity)
+                amount_undiscounted = 0.0
+                amount_with_line_discount = 0.0
+
+                for line in move.invoice_line_ids:
+                    if not line.display_type:
+                        # Original amount without any discount
+                        line_total = line.quantity * line.price_unit
+                        amount_undiscounted += line_total
+
+                        # Amount after line discount (this is price_subtotal)
+                        amount_with_line_discount += line.price_subtotal
+
                 move.amount_undiscounted = amount_undiscounted
-                move.amount_after_discount = amount_undiscounted - move.global_discount_fixed
+
+                # If there's a global discount, amount_after_discount shows the line total after discount
+                # Otherwise it shows the same as undiscounted
+                if move.global_discount_fixed > 0:
+                    move.amount_after_discount = amount_undiscounted - move.global_discount_fixed
+                else:
+                    move.amount_after_discount = amount_with_line_discount
             else:
                 move.amount_undiscounted = 0.0
                 move.amount_after_discount = 0.0
@@ -403,36 +415,50 @@ class AccountMove(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        """Override create to apply discount to lines on creation."""
-        moves = super().create(vals_list)
+        """Override create to apply discount to lines BEFORE creation."""
 
-        for move in moves:
-            if move.is_invoice() and move.global_discount_fixed and move.global_discount_fixed > 0:
-                _logger.info(f"=== INVOICE CREATED with discount: {move.global_discount_fixed} ===")
+        # First, process the discount in vals_list BEFORE calling super
+        for vals in vals_list:
+            if vals.get('move_type') in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund'):
+                global_discount = vals.get('global_discount_fixed', 0.0)
 
-                # Apply discount to lines
-                if move.invoice_line_ids:
-                    total_before_discount = sum(
-                        line.quantity * line.price_unit
-                        for line in move.invoice_line_ids
-                        if not line.display_type
-                    )
+                if global_discount and global_discount > 0 and vals.get('invoice_line_ids'):
+                    _logger.info(f"=== APPLYING DISCOUNT BEFORE CREATE: {global_discount} ===")
+
+                    # Calculate total before discount from invoice_line_ids commands
+                    total_before_discount = 0.0
+                    line_commands = vals['invoice_line_ids']
+
+                    for command in line_commands:
+                        # command format: (0, 0, {values}) for create
+                        if command[0] == 0 and command[2]:
+                            line_vals = command[2]
+                            if not line_vals.get('display_type'):
+                                quantity = line_vals.get('quantity', 0)
+                                price_unit = line_vals.get('price_unit', 0)
+                                total_before_discount += quantity * price_unit
 
                     if total_before_discount > 0:
-                        for line in move.invoice_line_ids:
-                            if not line.display_type:
-                                line_subtotal = line.quantity * line.price_unit
-                                if line_subtotal > 0:
-                                    line_proportion = line_subtotal / total_before_discount
-                                    line_discount_amount = move.global_discount_fixed * line_proportion
+                        # Apply discount to each line
+                        for command in line_commands:
+                            if command[0] == 0 and command[2]:
+                                line_vals = command[2]
+                                if not line_vals.get('display_type'):
+                                    quantity = line_vals.get('quantity', 0)
+                                    price_unit = line_vals.get('price_unit', 0)
+                                    line_subtotal = quantity * price_unit
 
-                                    if line.price_unit > 0:
-                                        discount_pct = (line_discount_amount / (line.quantity * line.price_unit)) * 100
-                                        line.discount = min(discount_pct, 100)
+                                    if line_subtotal > 0:
+                                        line_proportion = line_subtotal / total_before_discount
+                                        line_discount_amount = global_discount * line_proportion
 
-                        _logger.info(f"Discount applied to lines, recomputing...")
-                        # Recompute the move to update all amounts
-                        move._recompute_dynamic_lines(recompute_all_taxes=True)
+                                        if price_unit > 0:
+                                            discount_pct = (line_discount_amount / (quantity * price_unit)) * 100
+                                            line_vals['discount'] = min(discount_pct, 100)
+                                            _logger.info(f"Applied {discount_pct:.2f}% discount to line")
+
+        # Now create the moves with discounts already in place
+        moves = super().create(vals_list)
 
         return moves
 

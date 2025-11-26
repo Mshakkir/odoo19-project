@@ -1,27 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add Button to Reordering Rules Form -->
+
     <record id="view_warehouse_orderpoint_form_inherit" model="ir.ui.view">
         <field name="name">stock.warehouse.orderpoint.form.inherit</field>
         <field name="model">stock.warehouse.orderpoint</field>
         <field name="inherit_id" ref="stock.view_warehouse_orderpoint_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//form" position="inside">
-                <header>
-                    <button name="action_send_notification_now"
-                            string="Send Notification to Discuss"
-                            type="object"
-                            class="btn-primary"
-                            groups="stock.group_stock_user"/>
-                </header>
+
+            <!-- Insert button INSIDE the sheet -->
+            <xpath expr="//sheet" position="inside">
+                <button name="action_send_notification_now"
+                        string="Send Notification to Discuss"
+                        type="object"
+                        class="btn-primary"
+                        groups="stock.group_stock_user"/>
             </xpath>
+
+            <!-- Insert last_notification_date -->
             <xpath expr="//field[@name='product_max_qty']" position="after">
                 <field name="last_notification_date" readonly="1"/>
             </xpath>
+
         </field>
     </record>
 
-    <!-- Menu Item to Open Reorder Notifications -->
+    <!-- Action -->
     <record id="action_reorder_notifications_discuss" model="ir.actions.client">
         <field name="name">Reorder Notifications</field>
         <field name="tag">mail.action_discuss</field>
@@ -35,7 +38,7 @@
               sequence="5"
               groups="stock.group_stock_user"/>
 
-    <!-- Scheduled Action (Cron) -->
+    <!-- Cron -->
     <record id="ir_cron_check_reorder_notifications" model="ir.cron">
         <field name="name">Check Reordering Rules and Send Notifications</field>
         <field name="model_id" ref="stock.model_stock_warehouse_orderpoint"/>
@@ -43,67 +46,7 @@
         <field name="code">model.check_and_send_reorder_notifications()</field>
         <field name="interval_number">4</field>
         <field name="interval_type">hours</field>
-        <field name="numbercall">-1</field>
         <field name="active">True</field>
-        <field name="doall">False</field>
     </record>
 
 </odoo>
-
-
-
-
-
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-
-<!--    <record id="view_warehouse_orderpoint_form_inherit" model="ir.ui.view">-->
-<!--        <field name="name">stock.warehouse.orderpoint.form.inherit</field>-->
-<!--        <field name="model">stock.warehouse.orderpoint</field>-->
-<!--        <field name="inherit_id" ref="stock.view_warehouse_orderpoint_form"/>-->
-<!--        <field name="arch" type="xml">-->
-
-<!--            &lt;!&ndash; Insert button INSIDE the sheet &ndash;&gt;-->
-<!--            <xpath expr="//sheet" position="inside">-->
-<!--                <button name="action_send_notification_now"-->
-<!--                        string="Send Notification to Discuss"-->
-<!--                        type="object"-->
-<!--                        class="btn-primary"-->
-<!--                        groups="stock.group_stock_user"/>-->
-<!--            </xpath>-->
-
-<!--            &lt;!&ndash; Insert last_notification_date &ndash;&gt;-->
-<!--            <xpath expr="//field[@name='product_max_qty']" position="after">-->
-<!--                <field name="last_notification_date" readonly="1"/>-->
-<!--            </xpath>-->
-
-<!--        </field>-->
-<!--    </record>-->
-
-<!--    &lt;!&ndash; Action &ndash;&gt;-->
-<!--    <record id="action_reorder_notifications_discuss" model="ir.actions.client">-->
-<!--        <field name="name">Reorder Notifications</field>-->
-<!--        <field name="tag">mail.action_discuss</field>-->
-<!--        <field name="target">current</field>-->
-<!--    </record>-->
-
-<!--    <menuitem id="menu_reorder_notifications_discuss"-->
-<!--              name="Reorder Notifications"-->
-<!--              parent="stock.menu_stock_warehouse_mgmt"-->
-<!--              action="action_reorder_notifications_discuss"-->
-<!--              sequence="5"-->
-<!--              groups="stock.group_stock_user"/>-->
-
-<!--    &lt;!&ndash; Cron &ndash;&gt;-->
-<!--    <record id="ir_cron_check_reorder_notifications" model="ir.cron">-->
-<!--        <field name="name">Check Reordering Rules and Send Notifications</field>-->
-<!--        <field name="model_id" ref="stock.model_stock_warehouse_orderpoint"/>-->
-<!--        <field name="state">code</field>-->
-<!--        <field name="code">model.check_and_send_reorder_notifications()</field>-->
-<!--        <field name="interval_number">4</field>-->
-<!--        <field name="interval_type">hours</field>-->
-<!--        <field name="active">True</field>-->
-<!--    </record>-->
-
-<!--</odoo>-->

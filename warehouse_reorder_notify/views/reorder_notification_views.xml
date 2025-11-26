@@ -1,16 +1,16 @@
 <odoo>
-    <record id="view_reorder_notification_list" model="ir.ui.view">
-        <field name="name">reorder.notification.list</field>
+    <record id="view_reorder_notification_tree" model="ir.ui.view">
+        <field name="name">reorder.notification.tree</field>
         <field name="model">reorder.notification</field>
         <field name="arch" type="xml">
-            <list>
+            <tree>
                 <field name="product_id"/>
                 <field name="warehouse_id"/>
                 <field name="qty_on_hand"/>
                 <field name="min_qty"/>
-                <field name="max_qty"/>
-                <field name="message"/>
-            </list>
+                <field name="state"/>
+                <field name="create_date"/>
+            </tree>
         </field>
     </record>
 
@@ -18,17 +18,14 @@
         <field name="name">reorder.notification.form</field>
         <field name="model">reorder.notification</field>
         <field name="arch" type="xml">
-            <form>
-                <sheet>
-                    <group>
-                        <field name="product_id"/>
-                        <field name="warehouse_id"/>
-                        <field name="qty_on_hand"/>
-                        <field name="min_qty"/>
-                        <field name="max_qty"/>
-                        <field name="message"/>
-                    </group>
-                </sheet>
+            <form string="Reorder Notification">
+                <group>
+                    <field name="product_id"/>
+                    <field name="warehouse_id"/>
+                    <field name="qty_on_hand"/>
+                    <field name="min_qty"/>
+                    <field name="state"/>
+                </group>
             </form>
         </field>
     </record>

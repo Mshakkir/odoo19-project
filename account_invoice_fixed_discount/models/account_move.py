@@ -172,6 +172,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
 # in jayarajkpkp@gmail cloude ai last answer
+# currently successfully used code
 
 # from odoo import api, fields, models
 # import logging

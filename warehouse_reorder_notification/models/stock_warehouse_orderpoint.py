@@ -27,53 +27,107 @@ class StockWarehouseOrderpoint(models.Model):
             })
         return bot_partner
 
+    # def _send_notification_to_discuss(self, notification_data):
+    #     """Send notification message to Discuss"""
+    #     # Check if discuss.channel model exists (Odoo 19+)
+    #     if 'discuss.channel' in self.env:
+    #         DiscussChannel = self.env['discuss.channel']
+    #         channel_type_field = 'channel_type'
+    #     else:
+    #         return  # Skip if discuss module not installed
+    #
+    #     bot_partner = self._get_reorder_bot_partner()
+    #
+    #     # Get all active users
+    #     all_users = self.env['res.users'].search([('active', '=', True)])
+    #
+    #     # Filter users who have stock user or manager access
+    #     warehouse_users = all_users.filtered(
+    #         lambda u: u.has_group('stock.group_stock_user') or u.has_group('stock.group_stock_manager')
+    #     )
+    #
+    #     for user in warehouse_users:
+    #         # Check if user has access to this warehouse
+    #         if not self._check_user_warehouse_access(user, notification_data['warehouse_id']):
+    #             continue
+    #
+    #         # Find or create direct message channel with user
+    #         channel = DiscussChannel.sudo().search([
+    #             (channel_type_field, '=', 'chat'),
+    #             ('channel_partner_ids', 'in', [user.partner_id.id, bot_partner.id]),
+    #         ], limit=1)
+    #
+    #         if not channel:
+    #             channel = DiscussChannel.sudo().create({
+    #                 'name': f'ReorderBot, {user.partner_id.name}',
+    #                 channel_type_field: 'chat',
+    #                 'channel_partner_ids': [(6, 0, [user.partner_id.id, bot_partner.id])],
+    #             })
+    #
+    #         # Format message
+    #         message_body = self._format_notification_message(notification_data)
+    #
+    #         # Post message
+    #         channel.sudo().message_post(
+    #             body=message_body,
+    #             author_id=bot_partner.id,
+    #             message_type='comment',
+    #             subtype_xmlid='mail.mt_comment',
+    #         )
     def _send_notification_to_discuss(self, notification_data):
-        """Send notification message to Discuss"""
-        # Check if discuss.channel model exists (Odoo 19+)
-        if 'discuss.channel' in self.env:
-            DiscussChannel = self.env['discuss.channel']
-            channel_type_field = 'channel_type'
-        else:
-            return  # Skip if discuss module not installed
+        """Send alerts to a warehouse-specific channel."""
 
-        bot_partner = self._get_reorder_bot_partner()
+        DiscussChannel = self.env['discuss.channel']
 
-        # Get all active users
+        warehouse = self.env['stock.warehouse'].browse(notification_data['warehouse_id'])
+
+        # Channel name = per warehouse
+        channel_name = f"Reorder Alerts – {warehouse.name}"
+
+        # Try to find existing warehouse channel
+        channel = DiscussChannel.sudo().search([
+            ('name', '=', channel_name),
+            ('channel_type', '=', 'channel'),
+        ], limit=1)
+
+        # Create channel if not exist
+        if not channel:
+            channel = DiscussChannel.sudo().create({
+                'name': channel_name,
+                'channel_type': 'channel',
+            })
+
+        # Collect warehouse users
         all_users = self.env['res.users'].search([('active', '=', True)])
 
-        # Filter users who have stock user or manager access
         warehouse_users = all_users.filtered(
-            lambda u: u.has_group('stock.group_stock_user') or u.has_group('stock.group_stock_manager')
+            lambda u: (
+                              u.has_group('stock.group_stock_user') or
+                              u.has_group('stock.group_stock_manager')
+                      )
+                      and self._check_user_warehouse_access(u, warehouse.id)
         )
 
+        # Add Admin always
+        admin_user = self.env.ref("base.user_admin")
+        warehouse_users |= admin_user  # include admin
+
+        # Add all allowed users to channel
         for user in warehouse_users:
-            # Check if user has access to this warehouse
-            if not self._check_user_warehouse_access(user, notification_data['warehouse_id']):
-                continue
+            channel.write({
+                "channel_partner_ids": [(4, user.partner_id.id)]
+            })
 
-            # Find or create direct message channel with user
-            channel = DiscussChannel.sudo().search([
-                (channel_type_field, '=', 'chat'),
-                ('channel_partner_ids', 'in', [user.partner_id.id, bot_partner.id]),
-            ], limit=1)
+        # Format alert
+        message_body = self._format_notification_message(notification_data)
 
-            if not channel:
-                channel = DiscussChannel.sudo().create({
-                    'name': f'ReorderBot, {user.partner_id.name}',
-                    channel_type_field: 'chat',
-                    'channel_partner_ids': [(6, 0, [user.partner_id.id, bot_partner.id])],
-                })
-
-            # Format message
-            message_body = self._format_notification_message(notification_data)
-
-            # Post message
-            channel.sudo().message_post(
-                body=message_body,
-                author_id=bot_partner.id,
-                message_type='comment',
-                subtype_xmlid='mail.mt_comment',
-            )
+        # Post message silently (no popup, no OdooBot)
+        channel.sudo().message_post(
+            body=message_body,
+            message_type='comment',
+            subtype_xmlid='mail.mt_comment',
+            notify=False,
+        )
 
     def _check_user_warehouse_access(self, user, warehouse_id):
         """Check if user has access to warehouse"""

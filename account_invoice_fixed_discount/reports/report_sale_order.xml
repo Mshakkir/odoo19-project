@@ -71,6 +71,9 @@
 <!--    </template>-->
 <!--</odoo>-->
 
+
+
+
 <!--<odoo>-->
 <!--    <template id="report_saleorder_document" inherit_id="sale_stock.report_saleorder_document_inherit_sale_stock">-->
 
@@ -110,49 +113,58 @@
 <!--    </template>-->
 <!--</odoo>-->
 
-<template id="report_saleorder_document_custom_discount">
-    <t t-call="web.external_layout">
-        <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
-        <div class="page">
-            <!-- Your existing report content -->
 
-            <!-- Totals Section -->
-            <div class="row mt32 mb32">
-                <div class="col-4 ml-auto">
+<odoo>
+    <template id="report_saleorder_document" inherit_id="sale.report_saleorder_document">
+
+        <!-- Remove discount columns from product lines -->
+        <xpath expr="//th[@name='th_discount']" position="attributes">
+            <attribute name="invisible">1</attribute>
+        </xpath>
+
+        <xpath expr="//td[@name='td_discount']" position="attributes">
+            <attribute name="invisible">1</attribute>
+        </xpath>
+
+        <!-- Modify the totals section to show discount separately -->
+        <xpath expr="//div[@id='total']/div[@class='row']" position="replace">
+            <div class="row">
+                <div class="col-6">
                     <table class="table table-sm">
                         <tr>
-                            <td><strong>Untaxed Amount</strong></td>
-                            <td class="text-right">
-                                <span t-field="doc.amount_untaxed_before_discount"/>
+                            <td><strong>Untaxed Amount:</strong></td>
+                            <td class="text-end">
+                                <span t-field="doc.amount_undiscounted"/>
                             </td>
                         </tr>
-                        <tr t-if="doc.amount_discount > 0">
-                            <td><strong>Discount</strong></td>
-                            <td class="text-right">
-                                <span t-field="doc.amount_discount"/>
+                        <tr t-if="doc.global_discount_fixed &gt; 0">
+                            <td><strong>Discount:</strong></td>
+                            <td class="text-end">
+                                <span t-field="doc.global_discount_fixed"/>
                             </td>
                         </tr>
-                        <tr t-if="doc.amount_discount > 0">
-                            <td><strong>Untaxed Amount (After Discount)</strong></td>
-                            <td class="text-right">
-                                <span t-field="doc.amount_untaxed_after_discount"/>
+                        <tr t-if="doc.global_discount_fixed &gt; 0" class="border-top">
+                            <td><strong>Untaxed Amount (After Discount):</strong></td>
+                            <td class="text-end">
+                                <span t-field="doc.amount_after_discount"/>
                             </td>
                         </tr>
                         <tr>
-                            <td><strong>VAT Taxes</strong></td>
-                            <td class="text-right">
+                            <td><strong>VAT Taxes:</strong></td>
+                            <td class="text-end">
                                 <span t-field="doc.amount_tax"/>
                             </td>
                         </tr>
-                        <tr class="border-black">
-                            <td><strong>Total</strong></td>
-                            <td class="text-right">
+                        <tr class="border-top border-dark">
+                            <td><strong>Total:</strong></td>
+                            <td class="text-end">
                                 <span t-field="doc.amount_total"/>
                             </td>
                         </tr>
                     </table>
                 </div>
             </div>
-        </div>
-    </t>
-</template>
+        </xpath>
+
+    </template>
+</odoo>

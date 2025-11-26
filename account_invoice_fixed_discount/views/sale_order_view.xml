@@ -1,4 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!--&lt;!&ndash; Copyright 2017 ForgeFlow S.L.-->
+<!--     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). &ndash;&gt;-->
+<!--<odoo>-->
+<!--    <record id="view_order_form" model="ir.ui.view">-->
+<!--        <field name="name">sale.order.form - fixed_discount</field>-->
+<!--        <field name="model">sale.order</field>-->
+<!--        <field name="inherit_id" ref="sale.view_order_form" />-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath-->
+<!--                expr="//field[@name='order_line']/list/field[@name='discount']"-->
+<!--                position="before"-->
+<!--            >-->
+<!--                <field-->
+<!--                    name="discount_fixed"-->
+<!--                    groups="account_invoice_fixed_discount.group_fixed_discount"-->
+<!--                    optional="show"-->
+<!--                />-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+<!--</odoo>-->
+
+
+
+<!-- Copyright 2017 ForgeFlow S.L.
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
 <!--<odoo>-->
 <!--    <record id="view_order_form" model="ir.ui.view">-->
 <!--        <field name="name">sale.order.form - fixed_discount</field>-->
@@ -35,50 +60,48 @@
 
 
 <odoo>
-    <record id="view_order_form_global_discount_fixed" model="ir.ui.view">
-        <field name="name">sale.order.form.global.discount.fixed</field>
+    <record id="view_order_form" model="ir.ui.view">
+        <field name="name">sale.order.form - fixed_discount</field>
         <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="inherit_id" ref="sale.view_order_form" />
         <field name="arch" type="xml">
 
-            <!-- Add Global Discount field -->
-            <xpath expr="//field[@name='order_line']" position="after">
-                <group>
-                    <group string="Global Discount (Fixed Amount)">
-                        <field name="global_discount_fixed"
-                               widget="monetary"/>
-                    </group>
-                    <group></group>
-                </group>
+            <!-- Remove the discount_fixed column from order lines since we don't want it there -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='discount']" position="attributes">
+                <attribute name="optional">hide</attribute>
             </xpath>
 
-            <!-- Add custom totals display using div instead of replacing fields -->
-            <xpath expr="//div[@name='button_box']" position="after">
-                <div class="oe_right oe_form_sheet_width" invisible="state not in ['draft', 'sent']">
-                    <group class="oe_subtotal_footer oe_right" invisible="global_discount_fixed == 0">
-                        <field name="amount_untaxed_before_discount"
+            <!-- Replace the entire totals section -->
+            <xpath expr="//group[@name='sale_total']" position="replace">
+                <group name="sale_total" colspan="2" col="2">
+                    <group class="oe_subtotal_footer oe_right" colspan="2">
+                        <field name="amount_undiscounted" widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               string="Untaxed Amount"/>
+
+                        <field name="global_discount_fixed"
+                               groups="account_invoice_fixed_discount.group_fixed_discount"
                                widget="monetary"
-                               string="Subtotal"/>
-                        <field name="amount_discount"
-                               widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
                                string="Discount"
-                               class="text-danger"/>
-                        <div class="oe_subtotal_footer_separator">
-                            <field name="amount_untaxed_after_discount"
-                                   widget="monetary"
-                                   string="Untaxed Amount"/>
-                        </div>
-                        <field name="amount_tax"
+                               class="oe_subtotal_footer_separator"/>
+
+                        <field name="amount_after_discount"
                                widget="monetary"
-                               string="Taxes"/>
-                        <div class="oe_subtotal_footer_separator">
-                            <field name="amount_total"
-                                   widget="monetary"
-                                   class="oe_subtotal_footer_total"
-                                   string="Total"/>
-                        </div>
+                               options="{'currency_field': 'currency_id'}"
+                               string="Untaxed Amount (After Discount)"
+                               class="oe_subtotal_footer_separator"/>
+
+                        <field name="amount_tax" widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               string="VAT Taxes"/>
+
+                        <field name="amount_total" widget="monetary"
+                               options="{'currency_field': 'currency_id'}"
+                               class="oe_subtotal_footer_separator"
+                               string="Total"/>
                     </group>
-                </div>
+                </group>
             </xpath>
 
         </field>

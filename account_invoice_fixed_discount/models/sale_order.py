@@ -81,77 +81,69 @@
 #         res['global_discount_fixed'] = self.global_discount_fixed
 #         return res
 
-from odoo import models, fields, api
+# Copyright 2017 ForgeFlow S.L.
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+
+from odoo import api, fields, models
 
 
 class SaleOrder(models.Model):
-    _inherit = 'sale.order'
+    _inherit = "sale.order"
 
     global_discount_fixed = fields.Monetary(
-        string='Global Discount (Fixed)',
-        currency_field='currency_id',
+        string="Global Discount (Fixed)",
         default=0.0,
-        help="Fixed discount amount applied to the entire order"
+        currency_field="currency_id",
+        help="Apply a fixed discount to the entire order. This will be shown as a separate line in totals.",
+        tracking=True,
     )
 
-    amount_untaxed_before_discount = fields.Monetary(
-        string='Untaxed Amount (Before Discount)',
-        compute='_compute_discount_amounts',
+    # Add computed fields for display
+    amount_undiscounted = fields.Monetary(
+        string='Amount Undiscounted',
+        compute='_compute_amounts_with_discount',
         store=True,
         currency_field='currency_id'
     )
 
-    amount_discount = fields.Monetary(
-        string='Discount Amount',
-        compute='_compute_discount_amounts',
+    amount_after_discount = fields.Monetary(
+        string='Amount After Discount',
+        compute='_compute_amounts_with_discount',
         store=True,
         currency_field='currency_id'
     )
 
-    amount_untaxed_after_discount = fields.Monetary(
-        string='Untaxed Amount (After Discount)',
-        compute='_compute_discount_amounts',
-        store=True,
-        currency_field='currency_id'
-    )
-
-    @api.depends('order_line.price_subtotal', 'order_line.price_total', 'global_discount_fixed')
-    def _compute_discount_amounts(self):
+    @api.depends('order_line.price_subtotal', 'global_discount_fixed')
+    def _compute_amounts_with_discount(self):
+        """Calculate amounts before and after global discount."""
         for order in self:
-            # Get sum of all line subtotals (before discount)
-            amount_untaxed = sum(line.price_subtotal for line in order.order_line)
-            amount_tax = sum(line.price_tax for line in order.order_line)
-
-            # Store amounts
-            order.amount_untaxed_before_discount = amount_untaxed
-            order.amount_discount = order.global_discount_fixed or 0.0
-
-            # Calculate after discount
-            amount_after_discount = amount_untaxed - order.amount_discount
-            order.amount_untaxed_after_discount = amount_after_discount
+            amount_undiscounted = sum(order.order_line.mapped('price_subtotal'))
+            order.amount_undiscounted = amount_undiscounted
+            order.amount_after_discount = amount_undiscounted - order.global_discount_fixed
 
     @api.depends('order_line.price_total', 'global_discount_fixed')
-    def _compute_amounts(self):
-        """Override the compute method to apply discount"""
-        super()._compute_amounts()
+    def _compute_amount_total(self):
+        """Override to include global discount in total calculation."""
         for order in self:
-            if order.global_discount_fixed:
-                # Recalculate amounts with discount
-                amount_untaxed = sum(line.price_subtotal for line in order.order_line)
-                amount_tax = sum(line.price_tax for line in order.order_line)
+            amount_untaxed = sum(order.order_line.mapped('price_subtotal'))
+            amount_tax = sum(order.order_line.mapped('price_tax'))
 
-                # Apply discount to untaxed amount
-                discount = order.global_discount_fixed
-                amount_untaxed_discounted = amount_untaxed - discount
+            # Apply global discount to untaxed amount
+            amount_untaxed_after_discount = amount_untaxed - order.global_discount_fixed
 
-                # Adjust tax proportionally
-                if amount_untaxed > 0:
-                    tax_ratio = amount_untaxed_discounted / amount_untaxed
-                    amount_tax = amount_tax * tax_ratio
+            # Recalculate tax based on discounted amount
+            if amount_untaxed > 0:
+                tax_ratio = amount_untaxed_after_discount / amount_untaxed
+                amount_tax = amount_tax * tax_ratio
 
-                # Update order amounts
-                order.update({
-                    'amount_untaxed': amount_untaxed_discounted,
-                    'amount_tax': amount_tax,
-                    'amount_total': amount_untaxed_discounted + amount_tax,
-                })
+            order.update({
+                'amount_untaxed': amount_untaxed,
+                'amount_tax': amount_tax,
+                'amount_total': amount_untaxed_after_discount + amount_tax,
+            })
+
+    def _prepare_invoice(self):
+        """Pass the global discount to the invoice."""
+        res = super()._prepare_invoice()
+        res['global_discount_fixed'] = self.global_discount_fixed
+        return res

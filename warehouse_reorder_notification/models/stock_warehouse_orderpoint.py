@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from datetime import datetime, timedelta
 
 
@@ -10,78 +10,129 @@ class StockWarehouseOrderpoint(models.Model):
         help='Last time a notification was sent for this reordering rule'
     )
 
-    def _send_notification_to_warehouse_channel(self, notification_data):
-        """Send notification to warehouse-specific channel"""
+    notification_count = fields.Integer(
+        string='Notifications Sent',
+        default=0,
+        help='Number of notifications sent for this rule'
+    )
+
+    def _send_system_notification(self, notification_data):
+        """Send notification to Odoo notification center (bell icon)"""
         self.ensure_one()
 
-        # Check if discuss.channel exists
-        if 'discuss.channel' not in self.env:
-            return False
-
         warehouse = self.warehouse_id
-        if not warehouse:
+        if not warehouse or not warehouse.enable_reorder_notifications:
             return False
 
-        # Get or create channel
-        channel = warehouse._get_or_create_notification_channel()
+        # Get users to notify
+        users_to_notify = warehouse._get_notification_users()
 
-        if not channel:
+        if not users_to_notify:
             return False
 
-        # Format message
-        message_body = self._format_notification_message(notification_data)
+        # Create notification title
+        notification_icon = '🔴' if notification_data['notification_type'] == 'below_min' else '🟡'
+        title = f"{notification_icon} Reorder Alert: {notification_data['product_name']}"
 
-        # Post message to channel
-        channel.sudo().message_post(
-            body=message_body,
-            message_type='comment',
-            subtype_xmlid='mail.mt_comment',
-        )
+        # Create notification message
+        message = self._format_notification_message_simple(notification_data)
+
+        # Send notification to each user
+        for user in users_to_notify:
+            # Create activity or send inbox notification
+            self.env['mail.activity'].sudo().create({
+                'res_id': self.id,
+                'res_model_id': self.env['ir.model']._get('stock.warehouse.orderpoint').id,
+                'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id,
+                'summary': title,
+                'note': message,
+                'user_id': user.id,
+                'date_deadline': fields.Date.today(),
+            })
+
+        # Also send as system notification (appears in bell icon)
+        self._notify_users_system(users_to_notify, notification_data, title)
 
         return True
 
-    def _format_notification_message(self, data):
-        """Format notification message for channel"""
-        notification_icon = '🔴' if data['notification_type'] == 'below_min' else '🟡'
+    def _notify_users_system(self, users, notification_data, title):
+        """Send notification to bell icon"""
+        # Create a simple notification message
+        notification_icon = '🔴' if notification_data['notification_type'] == 'below_min' else '🟡'
+
+        message_html = f"""
+            <div class="o_mail_notification">
+                <strong>{title}</strong><br/>
+                <span>Warehouse: {notification_data['warehouse_name']}</span><br/>
+                <span>Current Qty: {notification_data['qty_available']:.2f} {notification_data['product_uom']}</span><br/>
+                <span>Min Qty: {notification_data['product_min_qty']:.2f} {notification_data['product_uom']}</span><br/>
+                <span style="color: {'#dc3545' if notification_data['notification_type'] == 'below_min' else '#ffc107'};">
+                    {notification_data['message']}
+                </span>
+            </div>
+        """
+
+        # Send notification via bus
+        notifications = []
+        for user in users:
+            notifications.append([
+                user.partner_id,
+                'mail.activity',
+                {
+                    'type': 'activity',
+                    'title': title,
+                    'message': message_html,
+                    'res_id': self.id,
+                    'res_model': 'stock.warehouse.orderpoint',
+                }
+            ])
+
+        if notifications:
+            self.env['bus.bus']._sendmany(notifications)
+
+    def _format_notification_message_simple(self, data):
+        """Format simple notification message"""
         notification_color = '#dc3545' if data['notification_type'] == 'below_min' else '#ffc107'
 
         message = f"""
-        <div style="padding: 15px; border-left: 5px solid {notification_color}; background-color: #f8f9fa; margin: 10px 0; border-radius: 4px;">
-            <h4 style="margin: 0 0 15px 0; color: {notification_color};">{notification_icon} REORDER ALERT</h4>
+        <div style="padding: 10px; border-left: 4px solid {notification_color}; background-color: #f8f9fa;">
+            <h4 style="margin: 0 0 10px 0; color: {notification_color};">
+                {'🔴 URGENT REORDER ALERT' if data['notification_type'] == 'below_min' else '🟡 REORDER WARNING'}
+            </h4>
 
-            <table style="width: 100%; border-collapse: collapse;">
+            <table style="width: 100%; font-size: 13px;">
                 <tr>
-                    <td style="padding: 5px; font-weight: bold; width: 40%;">Product:</td>
-                    <td style="padding: 5px;">{data['product_code'] and '[' + data['product_code'] + '] ' or ''}{data['product_name']}</td>
+                    <td style="padding: 3px; font-weight: bold;">Product:</td>
+                    <td style="padding: 3px;">{data['product_code'] and '[' + data['product_code'] + '] ' or ''}{data['product_name']}</td>
                 </tr>
                 <tr>
-                    <td style="padding: 5px; font-weight: bold;">Warehouse:</td>
-                    <td style="padding: 5px;">{data['warehouse_name']}</td>
+                    <td style="padding: 3px; font-weight: bold;">Warehouse:</td>
+                    <td style="padding: 3px;">{data['warehouse_name']}</td>
                 </tr>
                 <tr>
-                    <td style="padding: 5px; font-weight: bold;">Location:</td>
-                    <td style="padding: 5px;">{data['location_name']}</td>
+                    <td style="padding: 3px; font-weight: bold;">Location:</td>
+                    <td style="padding: 3px;">{data['location_name']}</td>
                 </tr>
-                <tr style="background-color: #e9ecef;">
-                    <td style="padding: 5px; font-weight: bold;">Current Quantity:</td>
-                    <td style="padding: 5px; font-weight: bold; color: {notification_color};">{data['qty_available']:.2f} {data['product_uom']}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 5px; font-weight: bold;">Min Quantity:</td>
-                    <td style="padding: 5px;">{data['product_min_qty']:.2f} {data['product_uom']}</td>
+                <tr style="background-color: #fff;">
+                    <td style="padding: 3px; font-weight: bold;">Current Qty:</td>
+                    <td style="padding: 3px; font-weight: bold; color: {notification_color};">{data['qty_available']:.2f} {data['product_uom']}</td>
                 </tr>
                 <tr>
-                    <td style="padding: 5px; font-weight: bold;">Max Quantity:</td>
-                    <td style="padding: 5px;">{data['product_max_qty']:.2f} {data['product_uom']}</td>
+                    <td style="padding: 3px; font-weight: bold;">Min Qty:</td>
+                    <td style="padding: 3px;">{data['product_min_qty']:.2f} {data['product_uom']}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 3px; font-weight: bold;">Max Qty:</td>
+                    <td style="padding: 3px;">{data['product_max_qty']:.2f} {data['product_uom']}</td>
                 </tr>
             </table>
 
-            <div style="margin-top: 15px; padding: 10px; background-color: {'#f8d7da' if data['notification_type'] == 'below_min' else '#fff3cd'}; border-radius: 4px;">
-                <strong style="color: {notification_color};">{data['message']}</strong>
+            <div style="margin-top: 10px; padding: 8px; background-color: {'#f8d7da' if data['notification_type'] == 'below_min' else '#fff3cd'}; border-radius: 3px;">
+                <strong>{data['message']}</strong>
             </div>
 
-            <div style="margin-top: 10px; font-size: 12px; color: #6c757d; text-align: right;">
-                ⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+            <div style="margin-top: 8px; font-size: 11px; color: #6c757d;">
+                {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
             </div>
         </div>
         """
@@ -90,11 +141,7 @@ class StockWarehouseOrderpoint(models.Model):
     @api.model
     def check_and_send_reorder_notifications(self):
         """Check all reordering rules and send notifications (Called by cron)"""
-        # Skip if discuss.channel not available
-        if 'discuss.channel' not in self.env:
-            return
-
-        orderpoints = self.search([])
+        orderpoints = self.search([('warehouse_id.enable_reorder_notifications', '=', True)])
         notifications_sent = 0
 
         for orderpoint in orderpoints:
@@ -122,13 +169,13 @@ class StockWarehouseOrderpoint(models.Model):
                 if qty_available < orderpoint.product_min_qty:
                     notification_type = 'below_min'
                     shortage = orderpoint.product_min_qty - qty_available
-                    message = f"⚠️ URGENT: Stock is below minimum! Shortage: {shortage:.2f} {product.uom_id.name}"
+                    message = f"⚠️ URGENT: Stock below minimum! Shortage: {shortage:.2f} {product.uom_id.name}"
 
                 # Check if above maximum
                 elif qty_available > orderpoint.product_max_qty:
                     notification_type = 'above_max'
                     excess = qty_available - orderpoint.product_max_qty
-                    message = f"⚠️ WARNING: Stock is above maximum! Excess: {excess:.2f} {product.uom_id.name}"
+                    message = f"⚠️ WARNING: Stock above maximum! Excess: {excess:.2f} {product.uom_id.name}"
 
                 # Send notification if needed
                 if notification_type:
@@ -147,8 +194,11 @@ class StockWarehouseOrderpoint(models.Model):
                         'message': message,
                     }
 
-                    if orderpoint._send_notification_to_warehouse_channel(notification_data):
-                        orderpoint.last_notification_date = fields.Datetime.now()
+                    if orderpoint._send_system_notification(notification_data):
+                        orderpoint.write({
+                            'last_notification_date': fields.Datetime.now(),
+                            'notification_count': orderpoint.notification_count + 1,
+                        })
                         notifications_sent += 1
 
             except Exception as e:
@@ -167,9 +217,21 @@ class StockWarehouseOrderpoint(models.Model):
                     'type': 'ir.actions.client',
                     'tag': 'display_notification',
                     'params': {
-                        'title': 'Error',
-                        'message': 'No warehouse defined for this reordering rule.',
+                        'title': _('Error'),
+                        'message': _('No warehouse defined for this reordering rule.'),
                         'type': 'warning',
+                        'sticky': False,
+                    }
+                }
+
+            if not self.warehouse_id.enable_reorder_notifications:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': _('Disabled'),
+                        'message': _('Notifications are disabled for this warehouse.'),
+                        'type': 'info',
                         'sticky': False,
                     }
                 }
@@ -184,11 +246,11 @@ class StockWarehouseOrderpoint(models.Model):
             if qty_available < self.product_min_qty:
                 notification_type = 'below_min'
                 shortage = self.product_min_qty - qty_available
-                message = f"⚠️ URGENT: Stock is below minimum! Shortage: {shortage:.2f} {product.uom_id.name}"
+                message = f"⚠️ URGENT: Stock below minimum! Shortage: {shortage:.2f} {product.uom_id.name}"
             elif qty_available > self.product_max_qty:
                 notification_type = 'above_max'
                 excess = qty_available - self.product_max_qty
-                message = f"⚠️ WARNING: Stock is above maximum! Excess: {excess:.2f} {product.uom_id.name}"
+                message = f"⚠️ WARNING: Stock above maximum! Excess: {excess:.2f} {product.uom_id.name}"
 
             if notification_type:
                 notification_data = {
@@ -206,15 +268,21 @@ class StockWarehouseOrderpoint(models.Model):
                     'message': message,
                 }
 
-                if self._send_notification_to_warehouse_channel(notification_data):
-                    self.last_notification_date = fields.Datetime.now()
+                if self._send_system_notification(notification_data):
+                    self.write({
+                        'last_notification_date': fields.Datetime.now(),
+                        'notification_count': self.notification_count + 1,
+                    })
+
+                    users_count = len(self.warehouse_id._get_notification_users())
 
                     return {
                         'type': 'ir.actions.client',
                         'tag': 'display_notification',
                         'params': {
-                            'title': '✅ Notification Sent',
-                            'message': f'Reorder notification sent to {self.warehouse_id.name} channel.',
+                            'title': _('✅ Notification Sent'),
+                            'message': _('Reorder notification sent to %s user(s) for %s warehouse.') % (users_count,
+                                                                                                         self.warehouse_id.name),
                             'type': 'success',
                             'sticky': False,
                         }
@@ -224,8 +292,8 @@ class StockWarehouseOrderpoint(models.Model):
                         'type': 'ir.actions.client',
                         'tag': 'display_notification',
                         'params': {
-                            'title': 'Error',
-                            'message': 'Could not send notification. Channel may not exist.',
+                            'title': _('Error'),
+                            'message': _('Could not send notification. Check configuration.'),
                             'type': 'danger',
                             'sticky': False,
                         }
@@ -235,8 +303,9 @@ class StockWarehouseOrderpoint(models.Model):
                     'type': 'ir.actions.client',
                     'tag': 'display_notification',
                     'params': {
-                        'title': 'No Alert Needed',
-                        'message': 'Current quantity is within min/max range.',
+                        'title': _('No Alert Needed'),
+                        'message': _('Current quantity (%.2f %s) is within min/max range.') % (qty_available,
+                                                                                               product.uom_id.name),
                         'type': 'info',
                         'sticky': False,
                     }
@@ -247,9 +316,24 @@ class StockWarehouseOrderpoint(models.Model):
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'title': 'Error',
-                    'message': f'Error sending notification: {str(e)}',
+                    'title': _('Error'),
+                    'message': _('Error sending notification: %s') % str(e),
                     'type': 'danger',
                     'sticky': False,
                 }
             }
+
+    def action_view_notifications(self):
+        """View all notifications/activities for this orderpoint"""
+        self.ensure_one()
+        return {
+            'name': _('Reorder Notifications'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'mail.activity',
+            'view_mode': 'tree,form',
+            'domain': [
+                ('res_id', '=', self.id),
+                ('res_model', '=', 'stock.warehouse.orderpoint')
+            ],
+            'context': {'default_res_id': self.id, 'default_res_model': 'stock.warehouse.orderpoint'},
+        }

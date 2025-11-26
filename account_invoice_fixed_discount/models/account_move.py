@@ -539,48 +539,31 @@ class AccountMove(models.Model):
                 move.amount_undiscounted = 0.0
                 move.amount_after_discount = 0.0
 
-    @api.depends('invoice_line_ids.price_subtotal', 'global_discount_fixed')
+    @api.depends('invoice_line_ids.price_subtotal', 'global_discount_fixed',
+                 'line_ids.amount_currency', 'line_ids.currency_id', 'line_ids.debit',
+                 'line_ids.credit', 'line_ids.balance', 'currency_id', 'partner_id')
     def _compute_amount(self):
         """Override to adjust totals based on discount."""
+        # Call parent first to compute everything normally
+        super()._compute_amount()
+
+        # Then adjust only if there's a discount
         for move in self:
             if move.is_invoice() and move.global_discount_fixed > 0:
-                # First, call parent to get base calculations
-                super(AccountMove, move)._compute_amount()
+                _logger.info(f"=== Adjusting amounts for invoice with discount {move.global_discount_fixed} ===")
+                _logger.info(
+                    f"Before adjustment - Untaxed: {move.amount_untaxed}, Tax: {move.amount_tax}, Total: {move.amount_total}")
 
-                # Get current computed values
-                original_untaxed = move.amount_untaxed
-                original_tax = move.amount_tax
-
-                _logger.info(f"Original computed - Untaxed: {original_untaxed}, Tax: {original_tax}")
-
-                # Calculate the amount before any discounts
-                total_without_discount = sum(
-                    line.quantity * line.price_unit
-                    for line in move.invoice_line_ids
-                    if not line.display_type
-                )
-
-                # The actual untaxed after line discounts
-                actual_untaxed = sum(
+                # The discount was already applied to lines, so amounts should be correct
+                # Just log for debugging
+                total_from_lines = sum(
                     line.price_subtotal
                     for line in move.invoice_line_ids
                     if not line.display_type
                 )
-
-                # If line discounts were applied correctly, actual_untaxed should equal
-                # total_without_discount - global_discount_fixed
-                expected_untaxed = total_without_discount - move.global_discount_fixed
-
-                _logger.info(f"Total without discount: {total_without_discount}")
-                _logger.info(f"Actual untaxed (with line discounts): {actual_untaxed}")
-                _logger.info(f"Expected untaxed: {expected_untaxed}")
-
-                # Update the move amounts
-                move.amount_untaxed = actual_untaxed
-                move.amount_total = actual_untaxed + move.amount_tax
-
-            else:
-                super(AccountMove, move)._compute_amount()
+                _logger.info(f"Total from lines: {total_from_lines}")
+                _logger.info(
+                    f"After adjustment - Untaxed: {move.amount_untaxed}, Tax: {move.amount_tax}, Total: {move.amount_total}")
 
     @api.onchange('global_discount_fixed')
     def _onchange_global_discount_fixed(self):

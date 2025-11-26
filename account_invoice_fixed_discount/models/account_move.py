@@ -520,67 +520,60 @@ class AccountMove(models.Model):
     )
 
     # NOTE: do NOT add an @api.depends decorator here — keep Odoo core's dependencies intact.
-    def _compute_amount(self):
-        """Extend account.move amount compute to consider global_discount_fixed on invoices.
 
-        We call the original compute (super) first so all core computations (amount_untaxed, amount_tax, amount_total)
-        are calculated as Odoo expects. Then we adjust those computed amounts if a global discount exists.
-        """
-        # Let core compute amounts first
-        super(AccountMove, self)._compute_amount()
 
-        for move in self:
-            # Apply only to invoice / refund move types where invoice lines exist
-            if move.move_type not in ('out_invoice', 'in_invoice', 'out_refund', 'in_refund'):
-                continue
+@api.depends(
+    'invoice_line_ids.price_subtotal',
+    'invoice_line_ids.price_total',
+    'global_discount_fixed',
+)
+def _compute_amount(self):
+    """
+    Extend account.move amount compute to consider global_discount_fixed.
 
-            # Consider only real invoice lines (not display_type)
-            invoice_lines = move.invoice_line_ids.filtered(lambda l: not l.display_type)
-            # use amounts computed by core as the reliable baseline
-            amount_untaxed = sum(invoice_lines.mapped('price_subtotal'))
-            amount_tax = sum(invoice_lines.mapped('price_tax')) if invoice_lines else 0.0
+    First call super() to let Odoo compute its normal totals.
+    Then apply the fixed global discount on the invoice.
+    """
+    # Let core compute amounts first
+    super(AccountMove, self)._compute_amount()
 
-            _logger.debug("AccountMove baseline amounts: untaxed=%s tax=%s", amount_untaxed, amount_tax)
+    for move in self:
+        # Apply only to invoices / vendor bills / refunds
+        if move.move_type not in ('out_invoice', 'in_invoice', 'out_refund', 'in_refund'):
+            continue
 
-            if move.global_discount_fixed and move.global_discount_fixed > 0:
-                amount_untaxed_after = amount_untaxed - move.global_discount_fixed
-                if amount_untaxed_after < 0:
-                    amount_untaxed_after = 0.0
+        # Only real invoice lines, ignore section/note lines
+        invoice_lines = move.invoice_line_ids.filtered(lambda l: not l.display_type)
 
-                if amount_untaxed > 0:
-                    discount_ratio = amount_untaxed_after / amount_untaxed
-                    amount_tax_after = amount_tax * discount_ratio
-                else:
-                    amount_tax_after = 0.0
+        amount_untaxed = sum(invoice_lines.mapped('price_subtotal'))
+        amount_tax = sum(invoice_lines.mapped('price_total')) - amount_untaxed
 
-                amount_total_after = amount_untaxed_after + amount_tax_after
+        # Use currency rounder
+        round_func = getattr(move.currency_id, 'round', lambda x: round(x, 2))
 
-                _logger.info(
-                    "Applied invoice global discount: %s. Untaxed %s -> %s, Tax %s -> %s, Total -> %s",
-                    move.global_discount_fixed,
-                    amount_untaxed, amount_untaxed_after,
-                    amount_tax, amount_tax_after,
-                    amount_total_after,
-                )
+        # If discount exists, apply discount logic
+        if move.global_discount_fixed and move.global_discount_fixed > 0:
+            # New untaxed after discount
+            amount_untaxed_after = amount_untaxed - move.global_discount_fixed
+            if amount_untaxed_after < 0:
+                amount_untaxed_after = 0.0
 
-                # Assign adjusted values back to computed fields
-                # Use currency rounding helper if available
-                try:
-                    round_func = move.currency_id.round
-                except Exception:
-                    # fallback
-                    round_func = lambda x: float(round(x, 2))
-
-                move.amount_untaxed = round_func(amount_untaxed_after)
-                move.amount_tax = round_func(amount_tax_after)
-                move.amount_total = round_func(amount_total_after)
+            # Tax must also be reduced proportionally
+            if amount_untaxed > 0:
+                discount_ratio = amount_untaxed_after / amount_untaxed
+                amount_tax_after = amount_tax * discount_ratio
             else:
-                # no discount -> leave values as computed by super(); we reassign to be safe
-                try:
-                    round_func = move.currency_id.round
-                except Exception:
-                    round_func = lambda x: float(round(x, 2))
+                amount_tax_after = 0.0
 
-                move.amount_untaxed = round_func(amount_untaxed)
-                move.amount_tax = round_func(amount_tax)
-                move.amount_total = round_func(amount_untaxed + amount_tax)
+            amount_total_after = amount_untaxed_after + amount_tax_after
+
+            # Save values
+            move.amount_untaxed = round_func(amount_untaxed_after)
+            move.amount_tax = round_func(amount_tax_after)
+            move.amount_total = round_func(amount_total_after)
+
+        else:
+            # No discount → keep original values (reassign for safety)
+            move.amount_untaxed = round_func(amount_untaxed)
+            move.amount_tax = round_func(amount_tax)
+            move.amount_total = round_func(amount_untaxed + amount_tax)

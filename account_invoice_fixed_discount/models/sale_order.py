@@ -177,97 +177,6 @@
 
 
 # correctly working in sale order and quotation
-# from odoo import api, fields, models
-# import logging
-#
-# _logger = logging.getLogger(__name__)
-#
-#
-# class SaleOrder(models.Model):
-#     _inherit = "sale.order"
-#
-#     global_discount_fixed = fields.Monetary(
-#         string="Global Discount (Fixed)",
-#         default=0.0,
-#         currency_field="currency_id",
-#         tracking=True,
-#     )
-#
-#     amount_undiscounted = fields.Monetary(
-#         string='Amount Undiscounted',
-#         compute='_compute_amounts_with_discount',
-#         store=True,
-#         currency_field='currency_id'
-#     )
-#
-#     amount_after_discount = fields.Monetary(
-#         string='Amount After Discount',
-#         compute='_compute_amounts_with_discount',
-#         store=True,
-#         currency_field='currency_id'
-#     )
-#
-#     @api.depends('order_line.price_subtotal', 'global_discount_fixed')
-#     def _compute_amounts_with_discount(self):
-#         """Calculate amounts before and after global discount."""
-#         for order in self:
-#             amount_undiscounted = sum(order.order_line.mapped('price_subtotal'))
-#             order.amount_undiscounted = amount_undiscounted
-#             order.amount_after_discount = amount_undiscounted - order.global_discount_fixed
-#             _logger.info(f"=== SALE ORDER DISCOUNT DEBUG ===")
-#             _logger.info(
-#                 f"Untaxed: {amount_undiscounted}, Discount: {order.global_discount_fixed}, After: {order.amount_after_discount}")
-#
-#     @api.depends('order_line.price_total', 'order_line.price_subtotal', 'global_discount_fixed')
-#     def _compute_amounts(self):
-#         """Override the main compute amounts method."""
-#         _logger.info("=== SALE ORDER _compute_amounts called ===")
-#
-#         for order in self:
-#             order_lines = order.order_line.filtered(lambda x: not x.display_type)
-#
-#             # Calculate base amounts from lines
-#             amount_untaxed = sum(order_lines.mapped('price_subtotal'))
-#             amount_tax = sum(order_lines.mapped('price_tax'))
-#
-#             _logger.info(f"Original - Untaxed: {amount_untaxed}, Tax: {amount_tax}")
-#
-#             # Apply discount
-#             if order.global_discount_fixed > 0:
-#                 amount_untaxed_after_discount = amount_untaxed - order.global_discount_fixed
-#
-#                 # Recalculate tax proportionally
-#                 if amount_untaxed > 0:
-#                     discount_ratio = amount_untaxed_after_discount / amount_untaxed
-#                     amount_tax = amount_tax * discount_ratio
-#
-#                 _logger.info(
-#                     f"After Discount - Untaxed: {amount_untaxed_after_discount}, Tax: {amount_tax}, Total: {amount_untaxed_after_discount + amount_tax}")
-#
-#                 order.update({
-#                     'amount_untaxed': amount_untaxed_after_discount,
-#                     'amount_tax': amount_tax,
-#                     'amount_total': amount_untaxed_after_discount + amount_tax,
-#                 })
-#             else:
-#                 order.update({
-#                     'amount_untaxed': amount_untaxed,
-#                     'amount_tax': amount_tax,
-#                     'amount_total': amount_untaxed + amount_tax,
-#                 })
-#
-#     def _prepare_invoice(self):
-#         """Pass the global discount to the invoice."""
-#         invoice_vals = super()._prepare_invoice()
-#
-#         # Add the global discount
-#         invoice_vals['global_discount_fixed'] = self.global_discount_fixed
-#
-#         _logger.info(f"=== PREPARING INVOICE ===")
-#         _logger.info(f"Passing discount to invoice: {self.global_discount_fixed}")
-#
-#         return invoice_vals
-
 from odoo import api, fields, models
 import logging
 
@@ -298,22 +207,16 @@ class SaleOrder(models.Model):
         currency_field='currency_id'
     )
 
-    @api.depends('order_line.price_subtotal', 'order_line.discount', 'global_discount_fixed')
+    @api.depends('order_line.price_subtotal', 'global_discount_fixed')
     def _compute_amounts_with_discount(self):
         """Calculate amounts before and after global discount."""
         for order in self:
-            # Calculate undiscounted amount (without line discounts)
-            amount_undiscounted = sum(
-                line.product_uom_qty * line.price_unit
-                for line in order.order_line
-                if not line.display_type
-            )
+            amount_undiscounted = sum(order.order_line.mapped('price_subtotal'))
             order.amount_undiscounted = amount_undiscounted
             order.amount_after_discount = amount_undiscounted - order.global_discount_fixed
-
             _logger.info(f"=== SALE ORDER DISCOUNT DEBUG ===")
             _logger.info(
-                f"Undiscounted: {amount_undiscounted}, Discount: {order.global_discount_fixed}, After: {order.amount_after_discount}")
+                f"Untaxed: {amount_undiscounted}, Discount: {order.global_discount_fixed}, After: {order.amount_after_discount}")
 
     @api.depends('order_line.price_total', 'order_line.price_subtotal', 'global_discount_fixed')
     def _compute_amounts(self):
@@ -353,39 +256,6 @@ class SaleOrder(models.Model):
                     'amount_total': amount_untaxed + amount_tax,
                 })
 
-    @api.onchange('global_discount_fixed')
-    def _onchange_global_discount_fixed(self):
-        """Apply discount proportionally to order lines when discount changes."""
-        if not self.order_line:
-            return
-
-        _logger.info(f"=== ONCHANGE DISCOUNT: {self.global_discount_fixed} ===")
-
-        if self.global_discount_fixed and self.global_discount_fixed > 0:
-            # Calculate total before discount
-            total_before_discount = sum(
-                line.product_uom_qty * line.price_unit
-                for line in self.order_line
-                if not line.display_type
-            )
-
-            if total_before_discount > 0:
-                # Distribute discount proportionally to each line
-                for line in self.order_line:
-                    if not line.display_type:
-                        line_subtotal = line.product_uom_qty * line.price_unit
-                        if line_subtotal > 0 and line.price_unit > 0:
-                            line_proportion = line_subtotal / total_before_discount
-                            line_discount_amount = self.global_discount_fixed * line_proportion
-                            discount_pct = (line_discount_amount / line_subtotal) * 100
-                            line.discount = min(discount_pct, 100)
-                            _logger.info(f"Line discount set to: {line.discount}%")
-        else:
-            # Clear discounts if global discount is removed
-            for line in self.order_line:
-                if not line.display_type:
-                    line.discount = 0.0
-
     def _prepare_invoice(self):
         """Pass the global discount to the invoice."""
         invoice_vals = super()._prepare_invoice()
@@ -394,37 +264,7 @@ class SaleOrder(models.Model):
         invoice_vals['global_discount_fixed'] = self.global_discount_fixed
 
         _logger.info(f"=== PREPARING INVOICE ===")
-        _logger.info(f"Sale Order discount: {self.global_discount_fixed}")
-        _logger.info(
-            f"Sale Order lines have discounts applied: {[line.discount for line in self.order_line if not line.display_type]}")
+        _logger.info(f"Passing discount to invoice: {self.global_discount_fixed}")
 
         return invoice_vals
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        """Override create to apply discount to lines on creation."""
-        orders = super().create(vals_list)
-
-        for order in orders:
-            if order.global_discount_fixed and order.global_discount_fixed > 0:
-                _logger.info(f"=== SALE ORDER CREATED with discount: {order.global_discount_fixed} ===")
-                order._onchange_global_discount_fixed()
-
-        return orders
-
-    def write(self, vals):
-        """Override write to recompute when discount changes."""
-        if 'global_discount_fixed' in vals:
-            for order in self:
-                _logger.info(
-                    f"=== SALE ORDER: Discount changing from {order.global_discount_fixed} to {vals['global_discount_fixed']} ===")
-
-        res = super().write(vals)
-
-        # After write, apply the discount if it changed
-        if 'global_discount_fixed' in vals:
-            for order in self:
-                if order.state in ('draft', 'sent'):
-                    order._onchange_global_discount_fixed()
-
-        return res

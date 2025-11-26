@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--<odoo>-->
 <!--    <record id="view_order_form" model="ir.ui.view">-->
 <!--        <field name="name">sale.order.form - fixed_discount</field>-->
@@ -31,7 +32,7 @@
 <!--        </field>-->
 <!--    </record>-->
 <!--</odoo>-->
-<?xml version="1.0" encoding="utf-8"?>
+
 <odoo>
     <record id="view_order_form_global_discount_fixed" model="ir.ui.view">
         <field name="name">sale.order.form.global.discount.fixed</field>

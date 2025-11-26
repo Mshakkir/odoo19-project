@@ -90,6 +90,91 @@
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
+# from odoo import api, fields, models
+# import logging
+#
+# _logger = logging.getLogger(__name__)
+#
+#
+# class SaleOrder(models.Model):
+#     _inherit = "sale.order"
+#
+#     global_discount_fixed = fields.Monetary(
+#         string="Global Discount (Fixed)",
+#         default=0.0,
+#         currency_field="currency_id",
+#         tracking=True,
+#     )
+#
+#     amount_undiscounted = fields.Monetary(
+#         string='Amount Undiscounted',
+#         compute='_compute_amounts_with_discount',
+#         store=True,
+#         currency_field='currency_id'
+#     )
+#
+#     amount_after_discount = fields.Monetary(
+#         string='Amount After Discount',
+#         compute='_compute_amounts_with_discount',
+#         store=True,
+#         currency_field='currency_id'
+#     )
+#
+#     @api.depends('order_line.price_subtotal', 'global_discount_fixed')
+#     def _compute_amounts_with_discount(self):
+#         """Calculate amounts before and after global discount."""
+#         for order in self:
+#             amount_undiscounted = sum(order.order_line.mapped('price_subtotal'))
+#             order.amount_undiscounted = amount_undiscounted
+#             order.amount_after_discount = amount_undiscounted - order.global_discount_fixed
+#             _logger.info(f"=== DISCOUNT DEBUG ===")
+#             _logger.info(
+#                 f"Untaxed: {amount_undiscounted}, Discount: {order.global_discount_fixed}, After: {order.amount_after_discount}")
+#
+#     @api.depends('order_line.price_total', 'order_line.price_subtotal', 'global_discount_fixed')
+#     def _compute_amounts(self):
+#         """Override the main compute amounts method."""
+#         _logger.info("=== _compute_amounts called ===")
+#
+#         for order in self:
+#             order_lines = order.order_line.filtered(lambda x: not x.display_type)
+#
+#             # Calculate base amounts from lines
+#             amount_untaxed = sum(order_lines.mapped('price_subtotal'))
+#             amount_tax = sum(order_lines.mapped('price_tax'))
+#
+#             _logger.info(f"Original - Untaxed: {amount_untaxed}, Tax: {amount_tax}")
+#
+#             # Apply discount
+#             if order.global_discount_fixed > 0:
+#                 amount_untaxed_after_discount = amount_untaxed - order.global_discount_fixed
+#
+#                 # Recalculate tax proportionally
+#                 if amount_untaxed > 0:
+#                     discount_ratio = amount_untaxed_after_discount / amount_untaxed
+#                     amount_tax = amount_tax * discount_ratio
+#
+#                 _logger.info(
+#                     f"After Discount - Untaxed: {amount_untaxed_after_discount}, Tax: {amount_tax}, Total: {amount_untaxed_after_discount + amount_tax}")
+#
+#                 order.update({
+#                     'amount_untaxed': amount_untaxed_after_discount,
+#                     'amount_tax': amount_tax,
+#                     'amount_total': amount_untaxed_after_discount + amount_tax,
+#                 })
+#             else:
+#                 order.update({
+#                     'amount_untaxed': amount_untaxed,
+#                     'amount_tax': amount_tax,
+#                     'amount_total': amount_untaxed + amount_tax,
+#                 })
+#
+#     def _prepare_invoice(self):
+#         """Pass the global discount to the invoice."""
+#         res = super()._prepare_invoice()
+#         res['global_discount_fixed'] = self.global_discount_fixed
+#         return res
+
 from odoo import api, fields, models
 import logging
 
@@ -127,14 +212,14 @@ class SaleOrder(models.Model):
             amount_undiscounted = sum(order.order_line.mapped('price_subtotal'))
             order.amount_undiscounted = amount_undiscounted
             order.amount_after_discount = amount_undiscounted - order.global_discount_fixed
-            _logger.info(f"=== DISCOUNT DEBUG ===")
+            _logger.info(f"=== SALE ORDER DISCOUNT DEBUG ===")
             _logger.info(
                 f"Untaxed: {amount_undiscounted}, Discount: {order.global_discount_fixed}, After: {order.amount_after_discount}")
 
     @api.depends('order_line.price_total', 'order_line.price_subtotal', 'global_discount_fixed')
     def _compute_amounts(self):
         """Override the main compute amounts method."""
-        _logger.info("=== _compute_amounts called ===")
+        _logger.info("=== SALE ORDER _compute_amounts called ===")
 
         for order in self:
             order_lines = order.order_line.filtered(lambda x: not x.display_type)
@@ -171,6 +256,12 @@ class SaleOrder(models.Model):
 
     def _prepare_invoice(self):
         """Pass the global discount to the invoice."""
-        res = super()._prepare_invoice()
-        res['global_discount_fixed'] = self.global_discount_fixed
-        return res
+        invoice_vals = super()._prepare_invoice()
+
+        # Add the global discount
+        invoice_vals['global_discount_fixed'] = self.global_discount_fixed
+
+        _logger.info(f"=== PREPARING INVOICE ===")
+        _logger.info(f"Passing discount to invoice: {self.global_discount_fixed}")
+
+        return invoice_vals

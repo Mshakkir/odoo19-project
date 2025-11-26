@@ -121,59 +121,45 @@
 <odoo>
     <template id="report_saleorder_document" inherit_id="sale_stock.report_saleorder_document_inherit_sale_stock">
 
-        <!-- Remove discount column from product lines if it exists -->
-        <xpath expr="//th[@name='th_discount']" position="attributes">
-            <attribute name="invisible">1</attribute>
-        </xpath>
-
-        <xpath expr="//td[@name='td_discount']" position="attributes">
-            <attribute name="invisible">1</attribute>
-        </xpath>
-
-        <!-- Add custom discount breakdown section before notes -->
-        <xpath expr="//p[@t-field='doc.note']" position="before">
+        <!-- Add custom discount breakdown section at the end of the document -->
+        <xpath expr="//div[hasclass('page')]" position="inside">
 
             <!-- Only show this section if there's a global discount -->
             <t t-if="doc.global_discount_fixed and doc.global_discount_fixed &gt; 0">
-                <div class="row mt-4 mb-4" style="page-break-inside: avoid;">
+                <div class="row mt-4" style="page-break-inside: avoid;">
                     <div class="col-6 offset-6">
-                        <div style="border: 2px solid #dee2e6; padding: 15px; background-color: #f8f9fa;">
-                            <h5 class="mb-3">Order Summary</h5>
+                        <div style="border: 2px solid #000; padding: 15px; background-color: #f8f9fa;">
+                            <h5 class="mb-3 text-center">Order Summary with Discount</h5>
                             <table class="table table-sm mb-0">
                                 <tr>
                                     <td><strong>Untaxed Amount:</strong></td>
                                     <td class="text-end">
-                                        <span t-field="doc.amount_undiscounted"
-                                              t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                        <span t-field="doc.amount_undiscounted"/>
                                     </td>
                                 </tr>
-                                <tr style="border-top: 1px solid #dee2e6;">
+                                <tr style="border-top: 1px solid #000;">
                                     <td><strong>Discount:</strong></td>
                                     <td class="text-end text-danger">
-                                        - <span t-field="doc.global_discount_fixed"
-                                                t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                        - <span t-field="doc.global_discount_fixed"/>
                                     </td>
                                 </tr>
                                 <tr style="border-top: 1px solid #000;">
                                     <td><strong>Untaxed Amount (After Discount):</strong></td>
                                     <td class="text-end">
-                                        <span t-field="doc.amount_after_discount"
-                                              t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                        <span t-field="doc.amount_after_discount"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><strong>VAT Taxes:</strong></td>
                                     <td class="text-end">
-                                        <span t-field="doc.amount_tax"
-                                              t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                        <span t-field="doc.amount_tax"/>
                                     </td>
                                 </tr>
-                                <tr style="border-top: 2px solid #000; background-color: #fff;">
-                                    <td><strong style="font-size: 1.1em;">TOTAL:</strong></td>
+                                <tr style="border-top: 2px solid #000; background-color: #e9ecef;">
+                                    <td><strong style="font-size: 1.2em;">TOTAL:</strong></td>
                                     <td class="text-end">
-                                        <strong style="font-size: 1.1em;">
-                                            <span t-field="doc.amount_total"
-                                                  t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                        <strong style="font-size: 1.2em;">
+                                            <span t-field="doc.amount_total"/>
                                         </strong>
                                     </td>
                                 </tr>

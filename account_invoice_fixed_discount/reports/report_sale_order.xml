@@ -117,53 +117,64 @@
 <odoo>
     <template id="report_saleorder_document" inherit_id="sale.report_saleorder_document">
 
-        <!-- Remove discount columns from product lines -->
-        <xpath expr="//th[@name='th_discount']" position="attributes">
+        <!-- Hide the discount column header if it exists -->
+        <xpath expr="//thead//th[contains(@class, 'text-end') and contains(., 'Disc.')]" position="attributes">
             <attribute name="invisible">1</attribute>
         </xpath>
 
-        <xpath expr="//td[@name='td_discount']" position="attributes">
+        <!-- Hide discount values in table body -->
+        <xpath expr="//tbody//td[span[@t-field='line.discount']]" position="attributes">
             <attribute name="invisible">1</attribute>
         </xpath>
 
-        <!-- Modify the totals section to show discount separately -->
-        <xpath expr="//div[@id='total']/div[@class='row']" position="replace">
-            <div class="row">
-                <div class="col-6">
-                    <table class="table table-sm">
-                        <tr>
-                            <td><strong>Untaxed Amount:</strong></td>
-                            <td class="text-end">
-                                <span t-field="doc.amount_undiscounted"/>
-                            </td>
-                        </tr>
-                        <tr t-if="doc.global_discount_fixed &gt; 0">
-                            <td><strong>Discount:</strong></td>
-                            <td class="text-end">
-                                <span t-field="doc.global_discount_fixed"/>
-                            </td>
-                        </tr>
-                        <tr t-if="doc.global_discount_fixed &gt; 0" class="border-top">
-                            <td><strong>Untaxed Amount (After Discount):</strong></td>
-                            <td class="text-end">
-                                <span t-field="doc.amount_after_discount"/>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>VAT Taxes:</strong></td>
-                            <td class="text-end">
-                                <span t-field="doc.amount_tax"/>
-                            </td>
-                        </tr>
-                        <tr class="border-top border-dark">
-                            <td><strong>Total:</strong></td>
-                            <td class="text-end">
-                                <span t-field="doc.amount_total"/>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
+        <!-- Replace the totals table to show discount separately -->
+        <xpath expr="//div[@id='total']//table[@class='table table-sm']" position="replace">
+            <table class="table table-sm" style="page-break-inside: avoid;">
+                <!-- Subtotal without discount -->
+                <tr>
+                    <td><strong>Untaxed Amount:</strong></td>
+                    <td class="text-end">
+                        <span t-esc="doc.amount_undiscounted"
+                              t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                    </td>
+                </tr>
+
+                <!-- Global Discount (if exists) -->
+                <tr t-if="doc.global_discount_fixed &gt; 0" style="border-top: 1px solid #dee2e6;">
+                    <td><strong>Discount:</strong></td>
+                    <td class="text-end">
+                        <span t-esc="doc.global_discount_fixed"
+                              t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                    </td>
+                </tr>
+
+                <!-- Subtotal after discount -->
+                <tr t-if="doc.global_discount_fixed &gt; 0" style="border-bottom: 1px solid #dee2e6;">
+                    <td><strong>Untaxed Amount (After Discount):</strong></td>
+                    <td class="text-end">
+                        <span t-esc="doc.amount_after_discount"
+                              t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                    </td>
+                </tr>
+
+                <!-- Taxes -->
+                <tr t-if="doc.amount_tax" style="border-top: 1px solid #dee2e6;">
+                    <td><strong>VAT Taxes:</strong></td>
+                    <td class="text-end">
+                        <span t-esc="doc.amount_tax"
+                              t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                    </td>
+                </tr>
+
+                <!-- Total -->
+                <tr class="border-black" style="border-top: 2px solid #000 !important;">
+                    <td><strong>Total:</strong></td>
+                    <td class="text-end">
+                        <span t-esc="doc.amount_total"
+                              t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                    </td>
+                </tr>
+            </table>
         </xpath>
 
     </template>

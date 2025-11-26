@@ -38,25 +38,13 @@ class StockWarehouseOrderpoint(models.Model):
 
         bot_partner = self._get_reorder_bot_partner()
 
-        # Get warehouse users and managers
-        stock_user_group = self.env.ref('stock.group_stock_user', raise_if_not_found=False)
-        stock_manager_group = self.env.ref('stock.group_stock_manager', raise_if_not_found=False)
+        # Get all active users
+        all_users = self.env['res.users'].search([('active', '=', True)])
 
-        domain = []
-        if stock_user_group and stock_manager_group:
-            domain = [
-                '|',
-                ('groups_id', 'in', [stock_user_group.id]),
-                ('groups_id', 'in', [stock_manager_group.id]),
-            ]
-        elif stock_user_group:
-            domain = [('groups_id', 'in', [stock_user_group.id])]
-        elif stock_manager_group:
-            domain = [('groups_id', 'in', [stock_manager_group.id])]
-        else:
-            return  # No groups found
-
-        warehouse_users = self.env['res.users'].search(domain)
+        # Filter users who have stock user or manager access
+        warehouse_users = all_users.filtered(
+            lambda u: u.has_group('stock.group_stock_user') or u.has_group('stock.group_stock_manager')
+        )
 
         for user in warehouse_users:
             # Check if user has access to this warehouse

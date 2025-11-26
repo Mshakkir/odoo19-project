@@ -1,0 +1,32 @@
+<odoo>
+    <record id="view_reorder_notification_tree" model="ir.ui.view">
+        <field name="name">reorder.notification.tree</field>
+        <field name="model">reorder.notification</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="product_id"/>
+                <field name="warehouse_id"/>
+                <field name="qty_on_hand"/>
+                <field name="min_qty"/>
+                <field name="state"/>
+                <field name="create_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_reorder_notification_form" model="ir.ui.view">
+        <field name="name">reorder.notification.form</field>
+        <field name="model">reorder.notification</field>
+        <field name="arch" type="xml">
+            <form string="Reorder Notification">
+                <group>
+                    <field name="product_id"/>
+                    <field name="warehouse_id"/>
+                    <field name="qty_on_hand"/>
+                    <field name="min_qty"/>
+                    <field name="state"/>
+                </group>
+            </form>
+        </field>
+    </record>
+</odoo>

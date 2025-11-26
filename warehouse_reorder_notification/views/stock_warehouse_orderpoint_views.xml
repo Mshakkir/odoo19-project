@@ -43,24 +43,24 @@
         <field name="inherit_id" ref="stock.view_warehouse_orderpoint_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add buttons in header -->
-            <xpath expr="//header" position="inside">
-                <button name="action_send_notification_now"
-                        string="Send Notification"
-                        type="object"
-                        class="btn-primary"
-                        icon="fa-bell"
-                        groups="stock.group_stock_user"/>
-                <button name="action_view_notifications"
-                        string="View All Notifications"
-                        type="object"
-                        class="btn-secondary"
-                        icon="fa-list"
-                        groups="stock.group_stock_user"
-                        invisible="notification_count == 0"/>
+            <!-- Add buttons at the top of the form -->
+            <xpath expr="//form" position="inside">
+                <header>
+                    <button name="action_send_notification_now"
+                            string="Send Notification"
+                            type="object"
+                            class="btn-primary"
+                            groups="stock.group_stock_user"/>
+                    <button name="action_view_notifications"
+                            string="View Notifications"
+                            type="object"
+                            class="btn-secondary"
+                            groups="stock.group_stock_user"
+                            invisible="notification_count == 0"/>
+                </header>
             </xpath>
 
-            <!-- Add notification fields -->
+            <!-- Add notification fields in the form -->
             <xpath expr="//field[@name='product_max_qty']" position="after">
                 <field name="last_notification_date" readonly="1"/>
                 <field name="notification_count" readonly="1"/>

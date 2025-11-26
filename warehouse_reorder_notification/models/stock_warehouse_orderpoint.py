@@ -29,7 +29,13 @@ class StockWarehouseOrderpoint(models.Model):
 
     def _send_notification_to_discuss(self, notification_data):
         """Send notification message to Discuss"""
-        mail_channel = self.env['mail.channel']
+        # Check if discuss.channel model exists (Odoo 19+)
+        if 'discuss.channel' in self.env:
+            DiscussChannel = self.env['discuss.channel']
+            channel_type_field = 'channel_type'
+        else:
+            return  # Skip if discuss module not installed
+
         bot_partner = self._get_reorder_bot_partner()
 
         # Get warehouse users and managers
@@ -45,15 +51,15 @@ class StockWarehouseOrderpoint(models.Model):
                 continue
 
             # Find or create direct message channel with user
-            channel = mail_channel.sudo().search([
-                ('channel_type', '=', 'chat'),
+            channel = DiscussChannel.sudo().search([
+                (channel_type_field, '=', 'chat'),
                 ('channel_partner_ids', 'in', [user.partner_id.id, bot_partner.id]),
             ], limit=1)
 
             if not channel:
-                channel = mail_channel.sudo().create({
+                channel = DiscussChannel.sudo().create({
                     'name': f'ReorderBot, {user.partner_id.name}',
-                    'channel_type': 'chat',
+                    channel_type_field: 'chat',
                     'channel_partner_ids': [(6, 0, [user.partner_id.id, bot_partner.id])],
                 })
 
@@ -102,89 +108,131 @@ class StockWarehouseOrderpoint(models.Model):
     @api.model
     def check_and_send_reorder_notifications(self):
         """Check all reordering rules and send notifications (Called by cron)"""
+        # Skip if discuss.channel not available
+        if 'discuss.channel' not in self.env:
+            return
+
         orderpoints = self.search([])
 
         for orderpoint in orderpoints:
-            # Skip if notification was sent in last 4 hours
-            if orderpoint.last_notification_date:
-                time_diff = datetime.now() - orderpoint.last_notification_date
-                if time_diff < timedelta(hours=4):
-                    continue
+            try:
+                # Skip if notification was sent in last 4 hours
+                if orderpoint.last_notification_date:
+                    time_diff = datetime.now() - orderpoint.last_notification_date
+                    if time_diff < timedelta(hours=4):
+                        continue
 
-            product = orderpoint.product_id
-            location = orderpoint.location_id
+                product = orderpoint.product_id
+                location = orderpoint.location_id
 
-            # Get on-hand quantity
-            qty_available = product.with_context(location=location.id).qty_available
+                # Get on-hand quantity
+                qty_available = product.with_context(location=location.id).qty_available
 
-            notification_type = False
-            message = ""
+                notification_type = False
+                message = ""
 
-            # Check if below minimum
-            if qty_available < orderpoint.product_min_qty:
-                notification_type = 'below_min'
-                shortage = orderpoint.product_min_qty - qty_available
-                message = f"⚠️ Below minimum! Shortage: {shortage:.2f} {product.uom_id.name}"
+                # Check if below minimum
+                if qty_available < orderpoint.product_min_qty:
+                    notification_type = 'below_min'
+                    shortage = orderpoint.product_min_qty - qty_available
+                    message = f"⚠️ Below minimum! Shortage: {shortage:.2f} {product.uom_id.name}"
 
-            # Check if above maximum
-            elif qty_available > orderpoint.product_max_qty:
-                notification_type = 'above_max'
-                excess = qty_available - orderpoint.product_max_qty
-                message = f"⚠️ Above maximum! Excess: {excess:.2f} {product.uom_id.name}"
+                # Check if above maximum
+                elif qty_available > orderpoint.product_max_qty:
+                    notification_type = 'above_max'
+                    excess = qty_available - orderpoint.product_max_qty
+                    message = f"⚠️ Above maximum! Excess: {excess:.2f} {product.uom_id.name}"
 
-            # Send notification if needed
-            if notification_type:
-                notification_data = {
-                    'product_id': product.id,
-                    'product_name': product.name,
-                    'product_code': product.default_code or '',
-                    'warehouse_id': orderpoint.warehouse_id.id,
-                    'warehouse_name': orderpoint.warehouse_id.name,
-                    'location_name': location.complete_name,
-                    'qty_available': qty_available,
-                    'product_min_qty': orderpoint.product_min_qty,
-                    'product_max_qty': orderpoint.product_max_qty,
-                    'product_uom': product.uom_id.name,
-                    'notification_type': notification_type,
-                    'message': message,
-                }
+                # Send notification if needed
+                if notification_type:
+                    notification_data = {
+                        'product_id': product.id,
+                        'product_name': product.name,
+                        'product_code': product.default_code or '',
+                        'warehouse_id': orderpoint.warehouse_id.id,
+                        'warehouse_name': orderpoint.warehouse_id.name,
+                        'location_name': location.complete_name,
+                        'qty_available': qty_available,
+                        'product_min_qty': orderpoint.product_min_qty,
+                        'product_max_qty': orderpoint.product_max_qty,
+                        'product_uom': product.uom_id.name,
+                        'notification_type': notification_type,
+                        'message': message,
+                    }
 
-                orderpoint._send_notification_to_discuss(notification_data)
-                orderpoint.last_notification_date = fields.Datetime.now()
+                    orderpoint._send_notification_to_discuss(notification_data)
+                    orderpoint.last_notification_date = fields.Datetime.now()
+            except Exception as e:
+                # Log error but continue processing other orderpoints
+                continue
 
     def action_send_notification_now(self):
         """Manual button to send notification immediately"""
         for orderpoint in self:
-            product = orderpoint.product_id
-            location = orderpoint.location_id
-            qty_available = product.with_context(location=location.id).qty_available
+            try:
+                product = orderpoint.product_id
+                location = orderpoint.location_id
+                qty_available = product.with_context(location=location.id).qty_available
 
-            notification_type = False
-            message = ""
+                notification_type = False
+                message = ""
 
-            if qty_available < orderpoint.product_min_qty:
-                notification_type = 'below_min'
-                shortage = orderpoint.product_min_qty - qty_available
-                message = f"⚠️ Below minimum! Shortage: {shortage:.2f} {product.uom_id.name}"
-            elif qty_available > orderpoint.product_max_qty:
-                notification_type = 'above_max'
-                excess = qty_available - orderpoint.product_max_qty
-                message = f"⚠️ Above maximum! Excess: {excess:.2f} {product.uom_id.name}"
+                if qty_available < orderpoint.product_min_qty:
+                    notification_type = 'below_min'
+                    shortage = orderpoint.product_min_qty - qty_available
+                    message = f"⚠️ Below minimum! Shortage: {shortage:.2f} {product.uom_id.name}"
+                elif qty_available > orderpoint.product_max_qty:
+                    notification_type = 'above_max'
+                    excess = qty_available - orderpoint.product_max_qty
+                    message = f"⚠️ Above maximum! Excess: {excess:.2f} {product.uom_id.name}"
 
-            if notification_type:
-                notification_data = {
-                    'product_id': product.id,
-                    'product_name': product.name,
-                    'product_code': product.default_code or '',
-                    'warehouse_id': orderpoint.warehouse_id.id,
-                    'warehouse_name': orderpoint.warehouse_id.name,
-                    'location_name': location.complete_name,
-                    'qty_available': qty_available,
-                    'product_min_qty': orderpoint.product_min_qty,
-                    'product_max_qty': orderpoint.product_max_qty,
-                    'product_uom': product.uom_id.name,
-                    'notification_type': notification_type,
-                    'message': message,
+                if notification_type:
+                    notification_data = {
+                        'product_id': product.id,
+                        'product_name': product.name,
+                        'product_code': product.default_code or '',
+                        'warehouse_id': orderpoint.warehouse_id.id,
+                        'warehouse_name': orderpoint.warehouse_id.name,
+                        'location_name': location.complete_name,
+                        'qty_available': qty_available,
+                        'product_min_qty': orderpoint.product_min_qty,
+                        'product_max_qty': orderpoint.product_max_qty,
+                        'product_uom': product.uom_id.name,
+                        'notification_type': notification_type,
+                        'message': message,
+                    }
+                    orderpoint._send_notification_to_discuss(notification_data)
+                    orderpoint.last_notification_date = fields.Datetime.now()
+
+                    return {
+                        'type': 'ir.actions.client',
+                        'tag': 'display_notification',
+                        'params': {
+                            'title': 'Notification Sent',
+                            'message': 'Reorder notification has been sent to warehouse users in Discuss.',
+                            'type': 'success',
+                            'sticky': False,
+                        }
+                    }
+                else:
+                    return {
+                        'type': 'ir.actions.client',
+                        'tag': 'display_notification',
+                        'params': {
+                            'title': 'No Alert',
+                            'message': 'Current quantity is within min/max range. No notification needed.',
+                            'type': 'info',
+                            'sticky': False,
+                        }
+                    }
+            except Exception as e:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': 'Error',
+                        'message': f'Error sending notification: {str(e)}',
+                        'type': 'danger',
+                        'sticky': False,
+                    }
                 }
-                orderpoint._send_notification_to_discuss(notification_data)
-                orderpoint.last_notification_date = fields.Datetime.now()

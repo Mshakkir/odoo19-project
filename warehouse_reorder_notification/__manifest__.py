@@ -13,7 +13,7 @@
     'depends': ['stock', 'mail'],
     'data': [
         'security/ir.model.access.csv',
-        'data/mail_channel_data.xml',
+        'data/reorder_bot_data.xml',
         'views/menuitem_views.xml',
     ],
     'installable': True,

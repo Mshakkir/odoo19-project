@@ -8,8 +8,5 @@
             <field name="active">True</field>
             <field name="is_company">False</field>
         </record>
-
-        <!-- Send Initial Welcome Message -->
-        <function model="stock.warehouse.orderpoint" name="check_and_send_reorder_notifications"/>
     </data>
 </odoo>

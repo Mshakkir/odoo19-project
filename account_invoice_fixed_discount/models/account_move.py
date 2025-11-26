@@ -343,6 +343,164 @@
 #         return res
 
 
+# from odoo import api, fields, models
+# import logging
+#
+# _logger = logging.getLogger(__name__)
+#
+#
+# class AccountMove(models.Model):
+#     _inherit = "account.move"
+#
+#     global_discount_fixed = fields.Monetary(
+#         string="Global Discount (Fixed)",
+#         default=0.0,
+#         currency_field="currency_id",
+#         tracking=True,
+#         readonly=False,
+#     )
+
+    # amount_undiscounted = fields.Monetary(
+    #     string='Amount Undiscounted',
+    #     compute='_compute_amounts_with_discount',
+    #     store=True,
+    #     currency_field='currency_id'
+    # )
+    #
+    # amount_after_discount = fields.Monetary(
+    #     string='Amount After Discount',
+    #     compute='_compute_amounts_with_discount',
+    #     store=True,
+    #     currency_field='currency_id'
+    # )
+    #
+    # @api.depends('invoice_line_ids.quantity', 'invoice_line_ids.price_unit', 'invoice_line_ids.price_subtotal',
+    #              'global_discount_fixed')
+    # def _compute_amounts_with_discount(self):
+    #     """Calculate amounts before and after global discount for display."""
+    #     for move in self:
+    #         if move.is_invoice():
+    #             # Calculate ORIGINAL amount WITHOUT any discounts
+    #             amount_undiscounted = sum(
+    #                 line.quantity * line.price_unit
+    #                 for line in move.invoice_line_ids
+    #                 if not line.display_type
+    #             )
+    #             # Calculate amount after line discounts but before global discount
+    #             amount_with_line_discounts = sum(
+    #                 line.price_subtotal
+    #                 for line in move.invoice_line_ids
+    #                 if not line.display_type
+    #             )
+    #
+    #             move.amount_undiscounted = amount_undiscounted
+    #             # After discount should be the actual subtotal (which already has discounts applied)
+    #             move.amount_after_discount = amount_with_line_discounts
+    #
+    #             _logger.info(
+    #                 f"Amounts - Original: {amount_undiscounted}, After line discounts: {amount_with_line_discounts}, Global discount: {move.global_discount_fixed}")
+    #         else:
+    #             move.amount_undiscounted = 0.0
+    #             move.amount_after_discount = 0.0
+    #
+    # @api.onchange('global_discount_fixed')
+    # def _onchange_global_discount_fixed(self):
+    #     """Apply discount proportionally to invoice lines."""
+    #     if not self.is_invoice() or not self.invoice_line_ids:
+    #         return
+    #
+    #     if self.global_discount_fixed and self.global_discount_fixed > 0:
+    #         total_before_discount = sum(
+    #             line.quantity * line.price_unit
+    #             for line in self.invoice_line_ids
+    #             if not line.display_type
+    #         )
+    #
+    #         if total_before_discount > 0:
+    #             for line in self.invoice_line_ids:
+    #                 if not line.display_type:
+    #                     line_subtotal = line.quantity * line.price_unit
+    #                     if line_subtotal > 0:
+    #                         line_proportion = line_subtotal / total_before_discount
+    #                         line_discount_amount = self.global_discount_fixed * line_proportion
+    #
+    #                         if line.price_unit > 0:
+    #                             discount_pct = (line_discount_amount / (line.quantity * line.price_unit)) * 100
+    #                             line.discount = min(discount_pct, 100)
+    #     else:
+    #         for line in self.invoice_line_ids:
+    #             if not line.display_type:
+    #                 line.discount = 0.0
+    #
+    # @api.model_create_multi
+    # def create(self, vals_list):
+    #     """Override create to apply discount to lines on creation."""
+    #     moves = super().create(vals_list)
+    #
+    #     for move in moves:
+    #         if move.is_invoice() and move.global_discount_fixed and move.global_discount_fixed > 0:
+    #             _logger.info(f"=== INVOICE CREATED with discount: {move.global_discount_fixed} ===")
+    #
+    #             has_existing_discounts = any(
+    #                 line.discount > 0
+    #                 for line in move.invoice_line_ids
+    #                 if not line.display_type
+    #             )
+    #
+    #             if has_existing_discounts:
+    #                 _logger.info("Lines already have discounts from sale order")
+    #             else:
+    #                 _logger.info("Applying global discount to lines")
+    #                 if move.invoice_line_ids:
+    #                     total_before_discount = sum(
+    #                         line.quantity * line.price_unit
+    #                         for line in move.invoice_line_ids
+    #                         if not line.display_type
+    #                     )
+    #
+    #                     if total_before_discount > 0:
+    #                         for line in move.invoice_line_ids:
+    #                             if not line.display_type:
+    #                                 line_subtotal = line.quantity * line.price_unit
+    #                                 if line_subtotal > 0:
+    #                                     line_proportion = line_subtotal / total_before_discount
+    #                                     line_discount_amount = move.global_discount_fixed * line_proportion
+    #
+    #                                     if line.price_unit > 0:
+    #                                         discount_pct = (line_discount_amount / (
+    #                                                     line.quantity * line.price_unit)) * 100
+    #                                         line.discount = min(discount_pct, 100)
+    #
+    #                         move._recompute_dynamic_lines(recompute_all_taxes=True)
+    #
+    #     return moves
+    #
+    # def write(self, vals):
+    #     """Override write to recompute when discount changes."""
+    #     if 'global_discount_fixed' in vals:
+    #         for move in self:
+    #             if move.is_invoice() and vals['global_discount_fixed'] != move.global_discount_fixed:
+    #                 _logger.info(
+    #                     f"=== DISCOUNT CHANGED from {move.global_discount_fixed} to {vals['global_discount_fixed']} ===")
+    #
+    #     res = super().write(vals)
+    #
+    #     if 'global_discount_fixed' in vals:
+    #         for move in self:
+    #             if move.is_invoice() and move.state == 'draft':
+    #                 if vals['global_discount_fixed'] > 0:
+    #                     move._onchange_global_discount_fixed()
+    #                     move._recompute_dynamic_lines(recompute_all_taxes=True)
+    #                 else:
+    #                     for line in move.invoice_line_ids:
+    #                         if not line.display_type:
+    #                             line.discount = 0.0
+    #                     move._recompute_dynamic_lines(recompute_all_taxes=True)
+    #
+    #     return res
+
+
+# -*- coding: utf-8 -*-
 from odoo import api, fields, models
 import logging
 
@@ -360,141 +518,52 @@ class AccountMove(models.Model):
         readonly=False,
     )
 
-    amount_undiscounted = fields.Monetary(
-        string='Amount Undiscounted',
-        compute='_compute_amounts_with_discount',
-        store=True,
-        currency_field='currency_id'
-    )
-
-    amount_after_discount = fields.Monetary(
-        string='Amount After Discount',
-        compute='_compute_amounts_with_discount',
-        store=True,
-        currency_field='currency_id'
-    )
-
-    @api.depends('invoice_line_ids.quantity', 'invoice_line_ids.price_unit', 'invoice_line_ids.price_subtotal',
-                 'global_discount_fixed')
-    def _compute_amounts_with_discount(self):
-        """Calculate amounts before and after global discount for display."""
+    @api.depends('invoice_line_ids.price_subtotal', 'invoice_line_ids.price_tax', 'global_discount_fixed')
+    def _compute_amount(self):
+        """Extend account.move amount compute to consider global_discount_fixed on invoices."""
         for move in self:
-            if move.is_invoice():
-                # Calculate ORIGINAL amount WITHOUT any discounts
-                amount_undiscounted = sum(
-                    line.quantity * line.price_unit
-                    for line in move.invoice_line_ids
-                    if not line.display_type
-                )
-                # Calculate amount after line discounts but before global discount
-                amount_with_line_discounts = sum(
-                    line.price_subtotal
-                    for line in move.invoice_line_ids
-                    if not line.display_type
-                )
+            # Call original behaviour (to ensure other fields are set by core)
+            super(AccountMove, move)._compute_amount()
 
-                move.amount_undiscounted = amount_undiscounted
-                # After discount should be the actual subtotal (which already has discounts applied)
-                move.amount_after_discount = amount_with_line_discounts
+            # Only apply for customer/vendor invoices/credit notes (postable moves that have lines)
+            if move.move_type in ('out_invoice', 'in_invoice', 'out_refund', 'in_refund'):
+                # compute base amounts from invoice lines (exclude display lines)
+                invoice_lines = move.invoice_line_ids.filtered(lambda l: not l.display_type)
+                amount_untaxed = sum(invoice_lines.mapped('price_subtotal'))
+                amount_tax = sum(invoice_lines.mapped('price_tax'))
 
-                _logger.info(
-                    f"Amounts - Original: {amount_undiscounted}, After line discounts: {amount_with_line_discounts}, Global discount: {move.global_discount_fixed}")
-            else:
-                move.amount_undiscounted = 0.0
-                move.amount_after_discount = 0.0
+                _logger.debug("AccountMove original amounts: untaxed=%s tax=%s", amount_untaxed, amount_tax)
 
-    @api.onchange('global_discount_fixed')
-    def _onchange_global_discount_fixed(self):
-        """Apply discount proportionally to invoice lines."""
-        if not self.is_invoice() or not self.invoice_line_ids:
-            return
+                # If a global discount exists, reduce untaxed and proportionally reduce taxes
+                if move.global_discount_fixed and move.global_discount_fixed > 0:
+                    amount_untaxed_after = amount_untaxed - move.global_discount_fixed
+                    # avoid negative
+                    if amount_untaxed_after < 0:
+                        amount_untaxed_after = 0.0
 
-        if self.global_discount_fixed and self.global_discount_fixed > 0:
-            total_before_discount = sum(
-                line.quantity * line.price_unit
-                for line in self.invoice_line_ids
-                if not line.display_type
-            )
-
-            if total_before_discount > 0:
-                for line in self.invoice_line_ids:
-                    if not line.display_type:
-                        line_subtotal = line.quantity * line.price_unit
-                        if line_subtotal > 0:
-                            line_proportion = line_subtotal / total_before_discount
-                            line_discount_amount = self.global_discount_fixed * line_proportion
-
-                            if line.price_unit > 0:
-                                discount_pct = (line_discount_amount / (line.quantity * line.price_unit)) * 100
-                                line.discount = min(discount_pct, 100)
-        else:
-            for line in self.invoice_line_ids:
-                if not line.display_type:
-                    line.discount = 0.0
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        """Override create to apply discount to lines on creation."""
-        moves = super().create(vals_list)
-
-        for move in moves:
-            if move.is_invoice() and move.global_discount_fixed and move.global_discount_fixed > 0:
-                _logger.info(f"=== INVOICE CREATED with discount: {move.global_discount_fixed} ===")
-
-                has_existing_discounts = any(
-                    line.discount > 0
-                    for line in move.invoice_line_ids
-                    if not line.display_type
-                )
-
-                if has_existing_discounts:
-                    _logger.info("Lines already have discounts from sale order")
-                else:
-                    _logger.info("Applying global discount to lines")
-                    if move.invoice_line_ids:
-                        total_before_discount = sum(
-                            line.quantity * line.price_unit
-                            for line in move.invoice_line_ids
-                            if not line.display_type
-                        )
-
-                        if total_before_discount > 0:
-                            for line in move.invoice_line_ids:
-                                if not line.display_type:
-                                    line_subtotal = line.quantity * line.price_unit
-                                    if line_subtotal > 0:
-                                        line_proportion = line_subtotal / total_before_discount
-                                        line_discount_amount = move.global_discount_fixed * line_proportion
-
-                                        if line.price_unit > 0:
-                                            discount_pct = (line_discount_amount / (
-                                                        line.quantity * line.price_unit)) * 100
-                                            line.discount = min(discount_pct, 100)
-
-                            move._recompute_dynamic_lines(recompute_all_taxes=True)
-
-        return moves
-
-    def write(self, vals):
-        """Override write to recompute when discount changes."""
-        if 'global_discount_fixed' in vals:
-            for move in self:
-                if move.is_invoice() and vals['global_discount_fixed'] != move.global_discount_fixed:
-                    _logger.info(
-                        f"=== DISCOUNT CHANGED from {move.global_discount_fixed} to {vals['global_discount_fixed']} ===")
-
-        res = super().write(vals)
-
-        if 'global_discount_fixed' in vals:
-            for move in self:
-                if move.is_invoice() and move.state == 'draft':
-                    if vals['global_discount_fixed'] > 0:
-                        move._onchange_global_discount_fixed()
-                        move._recompute_dynamic_lines(recompute_all_taxes=True)
+                    if amount_untaxed > 0:
+                        discount_ratio = amount_untaxed_after / amount_untaxed
+                        amount_tax_after = amount_tax * discount_ratio
                     else:
-                        for line in move.invoice_line_ids:
-                            if not line.display_type:
-                                line.discount = 0.0
-                        move._recompute_dynamic_lines(recompute_all_taxes=True)
+                        amount_tax_after = 0.0
 
-        return res
+                    amount_total_after = amount_untaxed_after + amount_tax_after
+
+                    _logger.info(
+                        "Applied invoice global discount: %s. Untaxed %s -> %s, Tax %s -> %s, Total -> %s",
+                        move.global_discount_fixed,
+                        amount_untaxed, amount_untaxed_after,
+                        amount_tax, amount_tax_after,
+                        amount_total_after,
+                    )
+
+                    # Write computed fields back to move (use write to keep ORM consistency)
+                    move.amount_untaxed = move._get_currency_rounding(amount_untaxed_after)
+                    move.amount_tax = move._get_currency_rounding(amount_tax_after)
+                    move.amount_total = move._get_currency_rounding(amount_total_after)
+                else:
+                    # no discount -> ensure fields remain as computed by super
+                    # (super already set them, but to be explicit:)
+                    move.amount_untaxed = move._get_currency_rounding(amount_untaxed)
+                    move.amount_tax = move._get_currency_rounding(amount_tax)
+                    move.amount_total = move._get_currency_rounding(amount_untaxed + amount_tax)

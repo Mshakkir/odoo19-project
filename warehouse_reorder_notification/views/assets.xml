@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <template id="assets_backend" inherit_id="web.assets_backend">
-        <xpath expr="." position="inside">
-            <script type="text/javascript" src="/warehouse_reorder_notification/static/src/js/reorder_notification_dashboard.js"/>
-        </xpath>
-    </template>
-</odoo>

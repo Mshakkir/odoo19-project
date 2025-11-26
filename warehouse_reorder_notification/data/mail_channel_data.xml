@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- ReorderBot Partner -->
+        <record id="partner_reorder_bot" model="res.partner">
+            <field name="name">ReorderBot</field>
+            <field name="email">reorderbot@yourcompany.com</field>
+            <field name="active">True</field>
+            <field name="is_company">False</field>
+        </record>
+
+        <!-- Send Initial Welcome Message -->
+        <function model="stock.warehouse.orderpoint" name="check_and_send_reorder_notifications"/>
+    </data>
+</odoo>

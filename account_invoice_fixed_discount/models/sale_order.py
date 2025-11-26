@@ -84,6 +84,9 @@
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
+# Copyright 2017 ForgeFlow S.L.
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+
 from odoo import api, fields, models
 
 
@@ -98,7 +101,6 @@ class SaleOrder(models.Model):
         tracking=True,
     )
 
-    # Add computed fields for display
     amount_undiscounted = fields.Monetary(
         string='Amount Undiscounted',
         compute='_compute_amounts_with_discount',
@@ -121,9 +123,9 @@ class SaleOrder(models.Model):
             order.amount_undiscounted = amount_undiscounted
             order.amount_after_discount = amount_undiscounted - order.global_discount_fixed
 
-    @api.depends('order_line.price_total', 'global_discount_fixed')
+    @api.depends('order_line.price_total', 'order_line.price_subtotal', 'global_discount_fixed')
     def _compute_amount_total(self):
-        """Override to include global discount in total calculation."""
+        """Override to recalculate tax based on discounted amount."""
         for order in self:
             amount_untaxed = sum(order.order_line.mapped('price_subtotal'))
             amount_tax = sum(order.order_line.mapped('price_tax'))
@@ -131,13 +133,15 @@ class SaleOrder(models.Model):
             # Apply global discount to untaxed amount
             amount_untaxed_after_discount = amount_untaxed - order.global_discount_fixed
 
-            # Recalculate tax based on discounted amount
-            if amount_untaxed > 0:
-                tax_ratio = amount_untaxed_after_discount / amount_untaxed
-                amount_tax = amount_tax * tax_ratio
+            # Recalculate tax proportionally based on discounted amount
+            if amount_untaxed > 0 and order.global_discount_fixed > 0:
+                # Calculate the ratio of discounted amount to original amount
+                discount_ratio = amount_untaxed_after_discount / amount_untaxed
+                # Apply the same ratio to tax
+                amount_tax = amount_tax * discount_ratio
 
             order.update({
-                'amount_untaxed': amount_untaxed,
+                'amount_untaxed': amount_untaxed_after_discount,
                 'amount_tax': amount_tax,
                 'amount_total': amount_untaxed_after_discount + amount_tax,
             })

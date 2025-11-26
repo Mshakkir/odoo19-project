@@ -162,6 +162,9 @@
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
+# Copyright 2017 ForgeFlow S.L.
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+
 from odoo import api, fields, models
 import logging
 
@@ -205,54 +208,80 @@ class AccountMove(models.Model):
                 move.amount_undiscounted = 0.0
                 move.amount_after_discount = 0.0
 
-    @api.depends('invoice_line_ids.price_total', 'invoice_line_ids.price_subtotal', 'global_discount_fixed')
-    def _compute_amounts(self):
+    @api.depends(
+        'line_ids.matched_debit_ids.debit_move_id.move_id.payment_id.is_matched',
+        'line_ids.matched_debit_ids.debit_move_id.move_id.line_ids.amount_residual',
+        'line_ids.matched_debit_ids.debit_move_id.move_id.line_ids.amount_residual_currency',
+        'line_ids.matched_credit_ids.credit_move_id.move_id.payment_id.is_matched',
+        'line_ids.matched_credit_ids.credit_move_id.move_id.line_ids.amount_residual',
+        'line_ids.matched_credit_ids.credit_move_id.move_id.line_ids.amount_residual_currency',
+        'line_ids.balance',
+        'line_ids.currency_id',
+        'line_ids.amount_currency',
+        'line_ids.amount_residual',
+        'line_ids.amount_residual_currency',
+        'line_ids.payment_id.state',
+        'line_ids.full_reconcile_id',
+        'global_discount_fixed'
+    )
+    def _compute_amount(self):
         """Override to apply global discount and recalculate taxes."""
         for move in self:
-            if move.is_invoice():
-                # Get invoice lines
-                invoice_lines = move.invoice_line_ids.filtered(lambda x: not x.display_type)
+            if move.is_invoice() and move.global_discount_fixed and move.global_discount_fixed > 0:
 
-                # Calculate original amounts
-                amount_untaxed = sum(invoice_lines.mapped('price_subtotal'))
-                amount_tax = sum(invoice_lines.mapped('price_tax'))
+                # Get all lines
+                total_untaxed = 0.0
+                total_tax = 0.0
+
+                # Calculate from line_ids (the journal entries)
+                for line in move.line_ids:
+                    if line.display_type == 'product':
+                        # This is a product line
+                        total_untaxed += line.price_subtotal
+                    elif line.display_type == 'tax':
+                        # This is a tax line
+                        total_tax += abs(line.balance)
 
                 _logger.info(f"=== INVOICE COMPUTE ===")
                 _logger.info(
-                    f"Original - Untaxed: {amount_untaxed}, Tax: {amount_tax}, Discount: {move.global_discount_fixed}")
+                    f"Original - Untaxed: {total_untaxed}, Tax: {total_tax}, Discount: {move.global_discount_fixed}")
 
-                # Apply global discount
-                if move.global_discount_fixed and move.global_discount_fixed > 0:
-                    # Subtract discount from untaxed amount
-                    amount_untaxed_after_discount = amount_untaxed - move.global_discount_fixed
+                if total_untaxed > 0:
+                    # Apply discount
+                    amount_untaxed_after_discount = total_untaxed - move.global_discount_fixed
 
                     # Recalculate tax proportionally
-                    if amount_untaxed > 0:
-                        discount_ratio = amount_untaxed_after_discount / amount_untaxed
-                        amount_tax = amount_tax * discount_ratio
+                    discount_ratio = amount_untaxed_after_discount / total_untaxed
+                    total_tax = total_tax * discount_ratio
 
-                    _logger.info(
-                        f"After Discount - Untaxed: {amount_untaxed_after_discount}, Tax: {amount_tax}, Total: {amount_untaxed_after_discount + amount_tax}")
+                    _logger.info(f"After Discount - Untaxed: {amount_untaxed_after_discount}, Tax: {total_tax}")
 
-                    # Update amounts
+                    # Update move amounts
                     move.amount_untaxed = amount_untaxed_after_discount
-                    move.amount_tax = amount_tax
-                    move.amount_total = amount_untaxed_after_discount + amount_tax
+                    move.amount_tax = total_tax
+                    move.amount_total = amount_untaxed_after_discount + total_tax
+                    move.amount_residual = move.amount_total - move.amount_paid
+                    move.amount_untaxed_signed = amount_untaxed_after_discount * (
+                        -1 if move.move_type in ('in_invoice', 'out_refund') else 1
+                    )
+                    move.amount_total_signed = move.amount_total * (
+                        -1 if move.move_type in ('in_invoice', 'out_refund') else 1
+                    )
+                    move.amount_total_in_currency_signed = move.amount_total * move.direction_sign
+                    move.amount_residual_signed = move.amount_residual * move.direction_sign
                 else:
-                    # No discount, use original amounts
-                    move.amount_untaxed = amount_untaxed
-                    move.amount_tax = amount_tax
-                    move.amount_total = amount_untaxed + amount_tax
+                    # Call parent if no untaxed amount
+                    super(AccountMove, move)._compute_amount()
             else:
-                # Not an invoice, call parent
-                super(AccountMove, move)._compute_amounts()
+                # No discount or not an invoice - use parent computation
+                super(AccountMove, move)._compute_amount()
 
     @api.onchange('global_discount_fixed')
     def _onchange_global_discount_fixed(self):
         """Trigger recomputation when discount changes."""
         if self.is_invoice():
             # Force recomputation of amounts
-            self._compute_amounts()
+            self._compute_amount()
             self._compute_amounts_with_discount()
 
     @api.model_create_multi
@@ -263,8 +292,8 @@ class AccountMove(models.Model):
         for move in moves:
             if move.is_invoice() and move.global_discount_fixed and move.global_discount_fixed > 0:
                 _logger.info(f"=== INVOICE CREATED with discount: {move.global_discount_fixed} ===")
-                # Force recomputation
-                move._compute_amounts()
+                # Trigger recomputation after all lines are created
+                move._compute_amount()
                 move._compute_amounts_with_discount()
 
         return moves
@@ -277,7 +306,7 @@ class AccountMove(models.Model):
             for move in self:
                 if move.is_invoice():
                     _logger.info(f"=== INVOICE UPDATED with discount: {move.global_discount_fixed} ===")
-                    move._compute_amounts()
+                    move._compute_amount()
                     move._compute_amounts_with_discount()
 
         return res

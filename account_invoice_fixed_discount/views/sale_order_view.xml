@@ -31,40 +31,46 @@
 <!--        </field>-->
 <!--    </record>-->
 <!--</odoo>-->
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<record id="view_order_form_global_discount_fixed" model="ir.ui.view">
-    <field name="name">sale.order.form.global.discount.fixed</field>
-    <field name="model">sale.order</field>
-    <field name="inherit_id" ref="sale.view_order_form"/>
-    <field name="arch" type="xml">
+    <record id="view_order_form_global_discount_fixed" model="ir.ui.view">
+        <field name="name">sale.order.form.global.discount.fixed</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
 
-        <!-- Add discount field in the order lines section -->
-        <xpath expr="//field[@name='order_line']" position="after">
-            <group>
+            <!-- Add Global Discount field below order lines -->
+            <xpath expr="//notebook[@name='order_lines']" position="after">
                 <group>
-                    <field name="global_discount_fixed"
-                           widget="monetary"
-                           options="{'currency_field': 'currency_id'}"/>
+                    <group string="Global Discount">
+                        <field name="global_discount_fixed"
+                               widget="monetary"
+                               options="{'currency_field': 'currency_id'}"/>
+                    </group>
+                    <group></group>
                 </group>
-            </group>
-        </xpath>
+            </xpath>
 
-        <!-- Modify the totals section -->
-        <xpath expr="//field[@name='amount_untaxed']" position="replace">
-            <field name="amount_untaxed_before_discount"
-                   widget="monetary"
-                   options="{'currency_field': 'currency_id'}"/>
-            <field name="amount_discount"
-                   widget="monetary"
-                   options="{'currency_field': 'currency_id'}"
-                   attrs="{'invisible': [('amount_discount', '=', 0)]}"/>
-            <field name="amount_untaxed_after_discount"
-                   widget="monetary"
-                   options="{'currency_field': 'currency_id'}"
-                   string="Untaxed Amount (After Discount)"/>
-        </xpath>
+            <!-- Modify totals section - Find the group containing monetary fields -->
+            <xpath expr="//group[@name='note_group']//field[@name='amount_total']" position="before">
+                <field name="amount_untaxed_before_discount"
+                       widget="monetary"
+                       options="{'currency_field': 'currency_id'}"
+                       string="Untaxed Amount"
+                       invisible="global_discount_fixed == 0"/>
+                <field name="amount_discount"
+                       widget="monetary"
+                       options="{'currency_field': 'currency_id'}"
+                       string="Discount"
+                       invisible="global_discount_fixed == 0"
+                       class="oe_subtotal_footer_separator"/>
+                <field name="amount_untaxed_after_discount"
+                       widget="monetary"
+                       options="{'currency_field': 'currency_id'}"
+                       string="Untaxed Amount (After Discount)"
+                       invisible="global_discount_fixed == 0"/>
+            </xpath>
 
-    </field>
-</record>
-
+        </field>
+    </record>
 </odoo>

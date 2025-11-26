@@ -24,7 +24,7 @@ below the minimum defined threshold. Includes:
     ],
 
     'data': [
-        'views/menu_items.xml',
+        # 'views/menu_items.xml',
         'views/reorder_notification_views.xml',
         'data/cron_reorder_check.xml',
     ],

@@ -374,18 +374,31 @@ class AccountMove(models.Model):
         currency_field='currency_id'
     )
 
-    @api.depends('invoice_line_ids.price_subtotal', 'global_discount_fixed')
+    @api.depends('invoice_line_ids.quantity', 'invoice_line_ids.price_unit', 'invoice_line_ids.price_subtotal',
+                 'global_discount_fixed')
     def _compute_amounts_with_discount(self):
         """Calculate amounts before and after global discount for display."""
         for move in self:
             if move.is_invoice():
+                # Calculate ORIGINAL amount WITHOUT any discounts
                 amount_undiscounted = sum(
+                    line.quantity * line.price_unit
+                    for line in move.invoice_line_ids
+                    if not line.display_type
+                )
+                # Calculate amount after line discounts but before global discount
+                amount_with_line_discounts = sum(
                     line.price_subtotal
                     for line in move.invoice_line_ids
                     if not line.display_type
                 )
+
                 move.amount_undiscounted = amount_undiscounted
-                move.amount_after_discount = amount_undiscounted - move.global_discount_fixed
+                # After discount should be the actual subtotal (which already has discounts applied)
+                move.amount_after_discount = amount_with_line_discounts
+
+                _logger.info(
+                    f"Amounts - Original: {amount_undiscounted}, After line discounts: {amount_with_line_discounts}, Global discount: {move.global_discount_fixed}")
             else:
                 move.amount_undiscounted = 0.0
                 move.amount_after_discount = 0.0
@@ -454,7 +467,8 @@ class AccountMove(models.Model):
                                         line_discount_amount = move.global_discount_fixed * line_proportion
 
                                         if line.price_unit > 0:
-                                            discount_pct = (line_discount_amount / (line.quantity * line.price_unit)) * 100
+                                            discount_pct = (line_discount_amount / (
+                                                        line.quantity * line.price_unit)) * 100
                                             line.discount = min(discount_pct, 100)
 
                             move._recompute_dynamic_lines(recompute_all_taxes=True)
@@ -466,7 +480,8 @@ class AccountMove(models.Model):
         if 'global_discount_fixed' in vals:
             for move in self:
                 if move.is_invoice() and vals['global_discount_fixed'] != move.global_discount_fixed:
-                    _logger.info(f"=== DISCOUNT CHANGED from {move.global_discount_fixed} to {vals['global_discount_fixed']} ===")
+                    _logger.info(
+                        f"=== DISCOUNT CHANGED from {move.global_discount_fixed} to {vals['global_discount_fixed']} ===")
 
         res = super().write(vals)
 

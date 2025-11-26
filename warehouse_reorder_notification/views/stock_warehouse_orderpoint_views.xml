@@ -17,13 +17,7 @@
                     </group>
 
                     <group string="Notification Recipients" invisible="not enable_reorder_notifications">
-                        <field name="notification_user_ids" widget="many2many_tags" nolabel="1">
-                            <tree>
-                                <field name="name"/>
-                                <field name="login"/>
-                                <field name="email"/>
-                            </tree>
-                        </field>
+                        <field name="notification_user_ids" widget="many2many_tags" nolabel="1"/>
                     </group>
 
                     <div class="alert alert-info" role="alert" invisible="not enable_reorder_notifications">

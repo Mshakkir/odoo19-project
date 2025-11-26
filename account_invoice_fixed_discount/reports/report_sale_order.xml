@@ -1,3 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
 <!--&lt;!&ndash;&lt;!&ndash; Copyright 2017 ForgeFlow S.L.&ndash;&gt;-->
 <!--&lt;!&ndash;     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). &ndash;&gt;&ndash;&gt;-->
 <!--&lt;!&ndash;<odoo>&ndash;&gt;-->
@@ -114,76 +117,72 @@
 <!--</odoo>-->
 
 
+
 <odoo>
-    <!-- Inherit from the base sale report -->
-    <template id="report_saleorder_document_discount" inherit_id="sale.report_saleorder_document">
+    <template id="report_saleorder_document" inherit_id="sale_stock.report_saleorder_document_inherit_sale_stock">
 
-        <!-- Find and replace the entire total section -->
-        <xpath expr="//div[@id='total']" position="replace">
-            <div id="total" class="row" name="total">
-                <div t-attf-class="#{'col-6' if report_type != 'html' else 'col-sm-7 col-md-6'} ms-auto">
-                    <table class="table table-sm" style="page-break-inside: avoid;">
+        <!-- Remove discount column from product lines if it exists -->
+        <xpath expr="//th[@name='th_discount']" position="attributes">
+            <attribute name="invisible">1</attribute>
+        </xpath>
 
-                        <!-- Untaxed Amount (before discount) -->
-                        <tr>
-                            <td><strong>Untaxed Amount:</strong></td>
-                            <td class="text-end">
-                                <span t-field="doc.amount_undiscounted"/>
-                            </td>
-                        </tr>
+        <xpath expr="//td[@name='td_discount']" position="attributes">
+            <attribute name="invisible">1</attribute>
+        </xpath>
 
-                        <!-- Show discount if present -->
-                        <t t-if="doc.global_discount_fixed &gt; 0">
-                            <tr style="border-top: 1px solid black;">
-                                <td><strong>Discount:</strong></td>
-                                <td class="text-end">
-                                    <span t-field="doc.global_discount_fixed"/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>Untaxed Amount (After Discount):</strong></td>
-                                <td class="text-end">
-                                    <span t-field="doc.amount_after_discount"/>
-                                </td>
-                            </tr>
-                        </t>
+        <!-- Add custom discount breakdown section before notes -->
+        <xpath expr="//p[@t-field='doc.note']" position="before">
 
-                        <!-- Taxes -->
-                        <t t-set="tax_totals" t-value="doc.tax_totals"/>
-                        <t t-if="tax_totals">
-                            <t t-foreach="tax_totals['subtotals']" t-as="subtotal">
-                                <t t-set="subtotal_to_show" t-value="subtotal['name']"/>
-                                <t t-foreach="tax_totals['groups_by_subtotal'][subtotal_to_show]" t-as="amount_by_group">
-                                    <tr style="border-top: 1px solid #dee2e6;">
-                                        <t t-if="len(tax_totals['groups_by_subtotal'][subtotal_to_show]) == 1">
-                                            <td><span t-esc="amount_by_group['tax_group_name']"/></td>
-                                        </t>
-                                        <t t-else="">
-                                            <td>
-                                                <span t-esc="amount_by_group['tax_group_name']"/>
-                                                <span class="text-nowrap"> on
-                                                    <t t-esc="amount_by_group['formatted_tax_group_base_amount']"/>
-                                                </span>
-                                            </td>
-                                        </t>
-                                        <td class="text-end">
-                                            <span t-esc="amount_by_group['formatted_tax_group_amount']"/>
-                                        </td>
-                                    </tr>
-                                </t>
-                            </t>
-                        </t>
-
-                        <!-- Total -->
-                        <tr class="border-black o_total" style="border-top: 2px solid black !important;">
-                            <td><strong>Total:</strong></td>
-                            <td class="text-end">
-                                <span t-field="doc.amount_total"/>
-                            </td>
-                        </tr>
-                    </table>
+            <!-- Only show this section if there's a global discount -->
+            <t t-if="doc.global_discount_fixed and doc.global_discount_fixed &gt; 0">
+                <div class="row mt-4 mb-4" style="page-break-inside: avoid;">
+                    <div class="col-6 offset-6">
+                        <div style="border: 2px solid #dee2e6; padding: 15px; background-color: #f8f9fa;">
+                            <h5 class="mb-3">Order Summary</h5>
+                            <table class="table table-sm mb-0">
+                                <tr>
+                                    <td><strong>Untaxed Amount:</strong></td>
+                                    <td class="text-end">
+                                        <span t-field="doc.amount_undiscounted"
+                                              t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr style="border-top: 1px solid #dee2e6;">
+                                    <td><strong>Discount:</strong></td>
+                                    <td class="text-end text-danger">
+                                        - <span t-field="doc.global_discount_fixed"
+                                                t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr style="border-top: 1px solid #000;">
+                                    <td><strong>Untaxed Amount (After Discount):</strong></td>
+                                    <td class="text-end">
+                                        <span t-field="doc.amount_after_discount"
+                                              t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>VAT Taxes:</strong></td>
+                                    <td class="text-end">
+                                        <span t-field="doc.amount_tax"
+                                              t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr style="border-top: 2px solid #000; background-color: #fff;">
+                                    <td><strong style="font-size: 1.1em;">TOTAL:</strong></td>
+                                    <td class="text-end">
+                                        <strong style="font-size: 1.1em;">
+                                            <span t-field="doc.amount_total"
+                                                  t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </t>
+
         </xpath>
 
     </template>

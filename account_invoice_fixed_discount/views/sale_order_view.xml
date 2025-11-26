@@ -33,6 +33,7 @@
 <!--    </record>-->
 <!--</odoo>-->
 
+
 <odoo>
     <record id="view_order_form_global_discount_fixed" model="ir.ui.view">
         <field name="name">sale.order.form.global.discount.fixed</field>
@@ -40,36 +41,44 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add Global Discount field below order lines -->
-            <xpath expr="//notebook[@name='order_lines']" position="after">
+            <!-- Add Global Discount field -->
+            <xpath expr="//field[@name='order_line']" position="after">
                 <group>
-                    <group string="Global Discount">
+                    <group string="Global Discount (Fixed Amount)">
                         <field name="global_discount_fixed"
-                               widget="monetary"
-                               options="{'currency_field': 'currency_id'}"/>
+                               widget="monetary"/>
                     </group>
                     <group></group>
                 </group>
             </xpath>
 
-            <!-- Modify totals section - Find the group containing monetary fields -->
-            <xpath expr="//group[@name='note_group']//field[@name='amount_total']" position="before">
-                <field name="amount_untaxed_before_discount"
-                       widget="monetary"
-                       options="{'currency_field': 'currency_id'}"
-                       string="Untaxed Amount"
-                       invisible="global_discount_fixed == 0"/>
-                <field name="amount_discount"
-                       widget="monetary"
-                       options="{'currency_field': 'currency_id'}"
-                       string="Discount"
-                       invisible="global_discount_fixed == 0"
-                       class="oe_subtotal_footer_separator"/>
-                <field name="amount_untaxed_after_discount"
-                       widget="monetary"
-                       options="{'currency_field': 'currency_id'}"
-                       string="Untaxed Amount (After Discount)"
-                       invisible="global_discount_fixed == 0"/>
+            <!-- Add custom totals display using div instead of replacing fields -->
+            <xpath expr="//div[@name='button_box']" position="after">
+                <div class="oe_right oe_form_sheet_width" invisible="state not in ['draft', 'sent']">
+                    <group class="oe_subtotal_footer oe_right" invisible="global_discount_fixed == 0">
+                        <field name="amount_untaxed_before_discount"
+                               widget="monetary"
+                               string="Subtotal"/>
+                        <field name="amount_discount"
+                               widget="monetary"
+                               string="Discount"
+                               class="text-danger"/>
+                        <div class="oe_subtotal_footer_separator">
+                            <field name="amount_untaxed_after_discount"
+                                   widget="monetary"
+                                   string="Untaxed Amount"/>
+                        </div>
+                        <field name="amount_tax"
+                               widget="monetary"
+                               string="Taxes"/>
+                        <div class="oe_subtotal_footer_separator">
+                            <field name="amount_total"
+                                   widget="monetary"
+                                   class="oe_subtotal_footer_total"
+                                   string="Total"/>
+                        </div>
+                    </group>
+                </div>
             </xpath>
 
         </field>

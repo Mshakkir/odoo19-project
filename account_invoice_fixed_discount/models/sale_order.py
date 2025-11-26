@@ -90,63 +90,68 @@ class SaleOrder(models.Model):
     global_discount_fixed = fields.Monetary(
         string='Global Discount (Fixed)',
         currency_field='currency_id',
-        default=0.0
+        default=0.0,
+        help="Fixed discount amount applied to the entire order"
     )
 
     amount_untaxed_before_discount = fields.Monetary(
         string='Untaxed Amount (Before Discount)',
-        compute='_compute_amounts_with_discount',
+        compute='_compute_discount_amounts',
         store=True,
         currency_field='currency_id'
     )
 
     amount_discount = fields.Monetary(
-        string='Discount',
-        compute='_compute_amounts_with_discount',
+        string='Discount Amount',
+        compute='_compute_discount_amounts',
         store=True,
         currency_field='currency_id'
     )
 
     amount_untaxed_after_discount = fields.Monetary(
         string='Untaxed Amount (After Discount)',
-        compute='_compute_amounts_with_discount',
+        compute='_compute_discount_amounts',
         store=True,
         currency_field='currency_id'
     )
 
-    @api.depends('order_line.price_subtotal', 'global_discount_fixed')
-    def _compute_amounts_with_discount(self):
+    @api.depends('order_line.price_subtotal', 'order_line.price_total', 'global_discount_fixed')
+    def _compute_discount_amounts(self):
         for order in self:
-            # Calculate untaxed amount before discount (sum of all lines)
-            amount_untaxed = sum(order.order_line.mapped('price_subtotal'))
+            # Get sum of all line subtotals (before discount)
+            amount_untaxed = sum(line.price_subtotal for line in order.order_line)
+            amount_tax = sum(line.price_tax for line in order.order_line)
 
-            # Store the discount
-            discount = order.global_discount_fixed or 0.0
-
-            # Calculate untaxed amount after discount
-            amount_after_discount = amount_untaxed - discount
-
+            # Store amounts
             order.amount_untaxed_before_discount = amount_untaxed
-            order.amount_discount = discount
+            order.amount_discount = order.global_discount_fixed or 0.0
+
+            # Calculate after discount
+            amount_after_discount = amount_untaxed - order.amount_discount
             order.amount_untaxed_after_discount = amount_after_discount
 
-            # Update the standard amount_untaxed to reflect discount
-            order.amount_untaxed = amount_after_discount
-
     @api.depends('order_line.price_total', 'global_discount_fixed')
-    def _compute_amount_total(self):
-        """Override to include global discount in total calculation"""
+    def _compute_amounts(self):
+        """Override the compute method to apply discount"""
+        super()._compute_amounts()
         for order in self:
-            amount_untaxed = sum(order.order_line.mapped('price_subtotal'))
-            amount_tax = sum(order.order_line.mapped('price_tax'))
-
-            # Apply discount before tax
-            amount_untaxed_after_discount = amount_untaxed - (order.global_discount_fixed or 0.0)
-
-            # Recalculate tax on discounted amount
             if order.global_discount_fixed:
-                # Proportionally reduce tax
-                tax_ratio = amount_untaxed_after_discount / amount_untaxed if amount_untaxed else 0
-                amount_tax = amount_tax * tax_ratio
+                # Recalculate amounts with discount
+                amount_untaxed = sum(line.price_subtotal for line in order.order_line)
+                amount_tax = sum(line.price_tax for line in order.order_line)
 
-            order.amount_total = amount_untaxed_after_discount + amount_tax
+                # Apply discount to untaxed amount
+                discount = order.global_discount_fixed
+                amount_untaxed_discounted = amount_untaxed - discount
+
+                # Adjust tax proportionally
+                if amount_untaxed > 0:
+                    tax_ratio = amount_untaxed_discounted / amount_untaxed
+                    amount_tax = amount_tax * tax_ratio
+
+                # Update order amounts
+                order.update({
+                    'amount_untaxed': amount_untaxed_discounted,
+                    'amount_tax': amount_tax,
+                    'amount_total': amount_untaxed_discounted + amount_tax,
+                })

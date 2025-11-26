@@ -391,36 +391,21 @@ class AccountMove(models.Model):
                 move.amount_after_discount = 0.0
 
     @api.depends(
-        'line_ids.matched_debit_ids.debit_move_id.move_id.payment_id.is_matched',
-        'line_ids.matched_debit_ids.debit_move_id.move_id.line_ids.amount_residual',
-        'line_ids.matched_debit_ids.debit_move_id.move_id.line_ids.amount_residual_currency',
-        'line_ids.matched_credit_ids.credit_move_id.move_id.payment_id.is_matched',
-        'line_ids.matched_credit_ids.credit_move_id.move_id.line_ids.amount_residual',
-        'line_ids.matched_credit_ids.credit_move_id.move_id.line_ids.amount_residual_currency',
-        'line_ids.balance',
-        'line_ids.currency_id',
-        'line_ids.amount_currency',
-        'line_ids.amount_residual',
-        'line_ids.amount_residual_currency',
-        'line_ids.payment_id.state',
-        'line_ids.full_reconcile_id',
+        'invoice_line_ids.price_subtotal',
+        'invoice_line_ids.price_tax',
+        'invoice_line_ids.price_total',
         'global_discount_fixed',
+        'currency_id',
     )
     def _compute_amount(self):
         """Override to apply global discount to invoice totals."""
+        # First call the parent method to compute base amounts
+        super()._compute_amount()
+
+        # Then apply our discount adjustments
         for move in self:
-            if move.is_invoice():
-                # Get the original amounts from lines
-                total_untaxed = 0.0
-                total_tax = 0.0
-
-                for line in move.line_ids:
-                    if line.display_type == 'product':
-                        total_untaxed += line.balance
-                    elif line.display_type == 'tax':
-                        total_tax += line.balance
-
-                # For invoices, calculate from invoice_line_ids
+            if move.is_invoice() and move.global_discount_fixed > 0:
+                # Get the base amounts already computed
                 invoice_lines = move.invoice_line_ids.filtered(lambda l: not l.display_type)
                 amount_untaxed = sum(invoice_lines.mapped('price_subtotal'))
                 amount_tax = sum(invoice_lines.mapped('price_tax'))
@@ -428,28 +413,19 @@ class AccountMove(models.Model):
                 _logger.info(f"Original amounts - Untaxed: {amount_untaxed}, Tax: {amount_tax}")
 
                 # Apply global discount
-                if move.global_discount_fixed > 0:
-                    amount_untaxed_after = amount_untaxed - move.global_discount_fixed
+                amount_untaxed_after = amount_untaxed - move.global_discount_fixed
 
-                    # Adjust tax proportionally
-                    if amount_untaxed > 0:
-                        discount_ratio = amount_untaxed_after / amount_untaxed
-                        amount_tax = amount_tax * discount_ratio
+                # Adjust tax proportionally
+                if amount_untaxed > 0:
+                    discount_ratio = amount_untaxed_after / amount_untaxed
+                    amount_tax = amount_tax * discount_ratio
 
-                    _logger.info(f"After discount - Untaxed: {amount_untaxed_after}, Tax: {amount_tax}")
+                _logger.info(f"After discount - Untaxed: {amount_untaxed_after}, Tax: {amount_tax}")
 
-                    move.amount_untaxed = amount_untaxed_after
-                    move.amount_tax = amount_tax
-                    move.amount_total = amount_untaxed_after + amount_tax
-                    move.amount_residual = move.amount_total - move.amount_paid
-                else:
-                    move.amount_untaxed = amount_untaxed
-                    move.amount_tax = amount_tax
-                    move.amount_total = amount_untaxed + amount_tax
-                    move.amount_residual = move.amount_total - move.amount_paid
-            else:
-                # For non-invoice moves, use the standard computation
-                super(AccountMove, move)._compute_amount()
+                # Update the computed fields
+                move.amount_untaxed = amount_untaxed_after
+                move.amount_tax = amount_tax
+                move.amount_total = amount_untaxed_after + amount_tax
 
     @api.onchange('global_discount_fixed')
     def _onchange_global_discount_fixed(self):

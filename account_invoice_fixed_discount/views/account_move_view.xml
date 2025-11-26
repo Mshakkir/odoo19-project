@@ -85,9 +85,6 @@
 
 
 
-
-
-<!--current using account move view .xml code-->
 <!--<odoo>-->
 <!--    <record id="view_move_form" model="ir.ui.view">-->
 <!--        <field name="name">account.move.form - fixed_discount</field>-->
@@ -95,9 +92,9 @@
 <!--        <field name="inherit_id" ref="account.view_move_form" />-->
 <!--        <field name="arch" type="xml">-->
 
-<!--            &lt;!&ndash; Add global discount field after invoice lines &ndash;&gt;-->
+<!--            &lt;!&ndash; Add global discount field and breakdown after invoice lines &ndash;&gt;-->
 <!--            <xpath expr="//field[@name='invoice_line_ids']" position="after">-->
-<!--                <group>-->
+<!--                <group name="discount_group" invisible="not global_discount_fixed or global_discount_fixed == 0">-->
 <!--                    <group>-->
 <!--                        <field-->
 <!--                            name="global_discount_fixed"-->
@@ -110,12 +107,12 @@
 <!--                        <field name="amount_undiscounted"-->
 <!--                               widget="monetary"-->
 <!--                               string="Amount Before Discount"-->
-<!--                               invisible="not global_discount_fixed or global_discount_fixed == 0"/>-->
+<!--                               readonly="1"/>-->
 
 <!--                        <field name="amount_after_discount"-->
 <!--                               widget="monetary"-->
 <!--                               string="Amount After Discount"-->
-<!--                               invisible="not global_discount_fixed or global_discount_fixed == 0"/>-->
+<!--                               readonly="1"/>-->
 <!--                    </group>-->
 <!--                </group>-->
 <!--            </xpath>-->
@@ -127,7 +124,6 @@
 
 
 
-
 <odoo>
     <record id="view_move_form" model="ir.ui.view">
         <field name="name">account.move.form - fixed_discount</field>
@@ -135,9 +131,9 @@
         <field name="inherit_id" ref="account.view_move_form" />
         <field name="arch" type="xml">
 
-            <!-- Add global discount field and breakdown after invoice lines -->
+            <!-- Add global discount field after invoice lines -->
             <xpath expr="//field[@name='invoice_line_ids']" position="after">
-                <group name="discount_group" invisible="not global_discount_fixed or global_discount_fixed == 0">
+                <group>
                     <group>
                         <field
                             name="global_discount_fixed"
@@ -146,18 +142,46 @@
                             readonly="state != 'draft'"
                         />
                     </group>
-                    <group>
-                        <field name="amount_undiscounted"
-                               widget="monetary"
-                               string="Amount Before Discount"
-                               readonly="1"/>
-
-                        <field name="amount_after_discount"
-                               widget="monetary"
-                               string="Amount After Discount"
-                               readonly="1"/>
-                    </group>
                 </group>
+            </xpath>
+
+            <!-- Modify the totals section on the right side -->
+            <!-- First, we need to find where amount_untaxed is and add our fields before it -->
+            <xpath expr="//field[@name='amount_untaxed']" position="before">
+                <!-- Show original untaxed amount if discount exists -->
+                <field name="amount_undiscounted"
+                       widget="monetary"
+                       options="{'currency_field': 'currency_id'}"
+                       string="Untaxed Amount"
+                       invisible="not global_discount_fixed or global_discount_fixed == 0"
+                       readonly="1"/>
+            </xpath>
+
+            <!-- Add discount field after the original untaxed amount -->
+            <xpath expr="//field[@name='amount_untaxed']" position="after">
+                <!-- Show the discount -->
+                <field name="global_discount_fixed"
+                       groups="account_invoice_fixed_discount.group_fixed_discount"
+                       widget="monetary"
+                       options="{'currency_field': 'currency_id'}"
+                       string="Discount"
+                       class="oe_subtotal_footer_separator"
+                       invisible="not global_discount_fixed or global_discount_fixed == 0"
+                       readonly="state != 'draft'"/>
+
+                <!-- Show amount after discount -->
+                <field name="amount_after_discount"
+                       widget="monetary"
+                       options="{'currency_field': 'currency_id'}"
+                       string="Untaxed Amount (After Discount)"
+                       class="oe_subtotal_footer_separator"
+                       invisible="not global_discount_fixed or global_discount_fixed == 0"
+                       readonly="1"/>
+            </xpath>
+
+            <!-- Hide the default amount_untaxed when discount is present -->
+            <xpath expr="//field[@name='amount_untaxed']" position="attributes">
+                <attribute name="invisible">global_discount_fixed and global_discount_fixed &gt; 0</attribute>
             </xpath>
 
         </field>

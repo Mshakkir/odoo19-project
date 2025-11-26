@@ -390,43 +390,6 @@ class AccountMove(models.Model):
                 move.amount_undiscounted = 0.0
                 move.amount_after_discount = 0.0
 
-    @api.depends(
-        'invoice_line_ids.price_subtotal',
-        'invoice_line_ids.price_tax',
-        'invoice_line_ids.price_total',
-        'global_discount_fixed',
-        'currency_id',
-    )
-    def _compute_amount(self):
-        """Override to apply global discount to invoice totals."""
-        # First call the parent method to compute base amounts
-        super()._compute_amount()
-
-        # Then apply our discount adjustments
-        for move in self:
-            if move.is_invoice() and move.global_discount_fixed > 0:
-                # Get the base amounts already computed
-                invoice_lines = move.invoice_line_ids.filtered(lambda l: not l.display_type)
-                amount_untaxed = sum(invoice_lines.mapped('price_subtotal'))
-                amount_tax = sum(invoice_lines.mapped('price_tax'))
-
-                _logger.info(f"Original amounts - Untaxed: {amount_untaxed}, Tax: {amount_tax}")
-
-                # Apply global discount
-                amount_untaxed_after = amount_untaxed - move.global_discount_fixed
-
-                # Adjust tax proportionally
-                if amount_untaxed > 0:
-                    discount_ratio = amount_untaxed_after / amount_untaxed
-                    amount_tax = amount_tax * discount_ratio
-
-                _logger.info(f"After discount - Untaxed: {amount_untaxed_after}, Tax: {amount_tax}")
-
-                # Update the computed fields
-                move.amount_untaxed = amount_untaxed_after
-                move.amount_tax = amount_tax
-                move.amount_total = amount_untaxed_after + amount_tax
-
     @api.onchange('global_discount_fixed')
     def _onchange_global_discount_fixed(self):
         """Apply discount proportionally to invoice lines."""
@@ -473,7 +436,6 @@ class AccountMove(models.Model):
 
                 if has_existing_discounts:
                     _logger.info("Lines already have discounts from sale order")
-                    move._compute_amounts_with_discount()
                 else:
                     _logger.info("Applying global discount to lines")
                     if move.invoice_line_ids:
@@ -492,8 +454,7 @@ class AccountMove(models.Model):
                                         line_discount_amount = move.global_discount_fixed * line_proportion
 
                                         if line.price_unit > 0:
-                                            discount_pct = (line_discount_amount / (
-                                                        line.quantity * line.price_unit)) * 100
+                                            discount_pct = (line_discount_amount / (line.quantity * line.price_unit)) * 100
                                             line.discount = min(discount_pct, 100)
 
                             move._recompute_dynamic_lines(recompute_all_taxes=True)
@@ -505,8 +466,7 @@ class AccountMove(models.Model):
         if 'global_discount_fixed' in vals:
             for move in self:
                 if move.is_invoice() and vals['global_discount_fixed'] != move.global_discount_fixed:
-                    _logger.info(
-                        f"=== DISCOUNT CHANGED from {move.global_discount_fixed} to {vals['global_discount_fixed']} ===")
+                    _logger.info(f"=== DISCOUNT CHANGED from {move.global_discount_fixed} to {vals['global_discount_fixed']} ===")
 
         res = super().write(vals)
 

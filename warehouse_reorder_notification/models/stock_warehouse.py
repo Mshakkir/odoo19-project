@@ -32,12 +32,28 @@ class StockWarehouse(models.Model):
             return self.notification_user_ids
 
         # Otherwise, return all inventory users in the same company
-        return self.env['res.users'].search([
-            ('active', '=', True),
-            '|',
-            ('groups_id', 'in', self.env.ref('stock.group_stock_user').id),
-            ('groups_id', 'in', self.env.ref('stock.group_stock_manager').id),
-            '|',
-            ('company_id', '=', self.company_id.id),
-            ('company_id', '=', False),
-        ])
+        stock_user_group = self.env.ref('stock.group_stock_user', raise_if_not_found=False)
+        stock_manager_group = self.env.ref('stock.group_stock_manager', raise_if_not_found=False)
+
+        if not stock_user_group and not stock_manager_group:
+            return self.env['res.users']
+
+        domain = [('active', '=', True)]
+
+        # Add group conditions
+        group_ids = []
+        if stock_user_group:
+            group_ids.append(stock_user_group.id)
+        if stock_manager_group:
+            group_ids.append(stock_manager_group.id)
+
+        if group_ids:
+            domain.append(('groups_id', 'in', group_ids))
+
+        # Add company condition
+        if self.company_id:
+            domain.append('|')
+            domain.append(('company_id', '=', self.company_id.id))
+            domain.append(('company_id', '=', False))
+
+        return self.env['res.users'].search(domain)

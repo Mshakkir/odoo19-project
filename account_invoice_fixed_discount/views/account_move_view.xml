@@ -87,6 +87,7 @@
 
 
 
+
 <odoo>
     <record id="view_move_form" model="ir.ui.view">
         <field name="name">account.move.form - fixed_discount</field>
@@ -105,32 +106,18 @@
                             readonly="state != 'draft'"
                         />
                     </group>
+                    <group>
+                        <field name="amount_undiscounted"
+                               widget="monetary"
+                               string="Amount Before Discount"
+                               invisible="not global_discount_fixed or global_discount_fixed == 0"/>
+
+                        <field name="amount_after_discount"
+                               widget="monetary"
+                               string="Amount After Discount"
+                               invisible="not global_discount_fixed or global_discount_fixed == 0"/>
+                    </group>
                 </group>
-            </xpath>
-
-            <!-- Add custom totals section showing discount breakdown -->
-            <xpath expr="//field[@name='amount_total']" position="before">
-                <field name="amount_undiscounted"
-                       widget="monetary"
-                       options="{'currency_field': 'currency_id'}"
-                       string="Untaxed Amount"
-                       invisible="not global_discount_fixed or global_discount_fixed == 0"/>
-
-                <field name="global_discount_fixed"
-                       groups="account_invoice_fixed_discount.group_fixed_discount"
-                       widget="monetary"
-                       options="{'currency_field': 'currency_id'}"
-                       string="Discount"
-                       class="oe_subtotal_footer_separator"
-                       invisible="not global_discount_fixed or global_discount_fixed == 0"
-                       readonly="state != 'draft'"/>
-
-                <field name="amount_after_discount"
-                       widget="monetary"
-                       options="{'currency_field': 'currency_id'}"
-                       string="Untaxed Amount (After Discount)"
-                       class="oe_subtotal_footer_separator"
-                       invisible="not global_discount_fixed or global_discount_fixed == 0"/>
             </xpath>
 
         </field>

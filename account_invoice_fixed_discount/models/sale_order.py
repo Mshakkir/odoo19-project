@@ -87,6 +87,9 @@
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
+# Copyright 2017 ForgeFlow S.L.
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+
 from odoo import api, fields, models
 
 
@@ -123,6 +126,45 @@ class SaleOrder(models.Model):
             order.amount_undiscounted = amount_undiscounted
             order.amount_after_discount = amount_undiscounted - order.global_discount_fixed
 
+    def _compute_tax_totals(self):
+        """Override to apply global discount to tax calculation."""
+        for order in self:
+            if order.global_discount_fixed and order.global_discount_fixed > 0:
+                # Get the original tax totals
+                super(SaleOrder, order)._compute_tax_totals()
+
+                # Get amounts
+                amount_untaxed = sum(order.order_line.mapped('price_subtotal'))
+
+                if amount_untaxed > 0:
+                    # Calculate discount ratio
+                    amount_after_discount = amount_untaxed - order.global_discount_fixed
+                    discount_ratio = amount_after_discount / amount_untaxed
+
+                    # Adjust tax totals
+                    if order.tax_totals:
+                        # Update amount_untaxed
+                        order.tax_totals['amount_untaxed'] = amount_after_discount
+
+                        # Update tax amounts proportionally
+                        for subtotal in order.tax_totals.get('subtotals', []):
+                            if 'amount' in subtotal:
+                                subtotal['amount'] = subtotal['amount'] * discount_ratio
+
+                        for group_key in order.tax_totals.get('groups_by_subtotal', {}):
+                            for tax_group in order.tax_totals['groups_by_subtotal'][group_key]:
+                                if 'tax_group_amount' in tax_group:
+                                    tax_group['tax_group_amount'] = tax_group['tax_group_amount'] * discount_ratio
+                                if 'tax_group_base_amount' in tax_group:
+                                    tax_group['tax_group_base_amount'] = tax_group[
+                                                                             'tax_group_base_amount'] * discount_ratio
+
+                        # Update total
+                        amount_tax_adjusted = sum(order.order_line.mapped('price_tax')) * discount_ratio
+                        order.tax_totals['amount_total'] = amount_after_discount + amount_tax_adjusted
+            else:
+                super(SaleOrder, order)._compute_tax_totals()
+
     @api.depends('order_line.price_total', 'order_line.price_subtotal', 'global_discount_fixed')
     def _compute_amount_total(self):
         """Override to recalculate tax based on discounted amount."""
@@ -135,9 +177,7 @@ class SaleOrder(models.Model):
 
             # Recalculate tax proportionally based on discounted amount
             if amount_untaxed > 0 and order.global_discount_fixed > 0:
-                # Calculate the ratio of discounted amount to original amount
                 discount_ratio = amount_untaxed_after_discount / amount_untaxed
-                # Apply the same ratio to tax
                 amount_tax = amount_tax * discount_ratio
 
             order.update({

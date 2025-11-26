@@ -1,82 +1,152 @@
-# Copyright 2017 ForgeFlow S.L.
-# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+# # Copyright 2017 ForgeFlow S.L.
+# # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+#
+# from odoo import api, fields, models
+# from odoo.tools.float_utils import float_is_zero
+#
+#
+# class SaleOrder(models.Model):
+#     _inherit = "sale.order"
+#
+#     global_discount_fixed = fields.Monetary(
+#         string="Global Discount (Fixed)",
+#         default=0.0,
+#         currency_field="currency_id",
+#         help="Apply a fixed discount to the entire order. This will be distributed proportionally across all order lines.",
+#         tracking=True,
+#     )
+#
+#     @api.onchange('global_discount_fixed')
+#     def _onchange_global_discount_fixed(self):
+#         """Distribute the global discount proportionally across all order lines."""
+#         if not self.order_line:
+#             return
+#
+#         currency = self.currency_id or self.company_id.currency_id
+#
+#         if float_is_zero(self.global_discount_fixed, precision_rounding=currency.rounding):
+#             # Clear individual line discounts if global discount is removed
+#             for line in self.order_line:
+#                 line.discount_fixed = 0.0
+#                 line.discount = 0.0
+#                 # Trigger recomputation to reset amounts
+#                 line._compute_amount()
+#             return
+#
+#         # Calculate total before any discount
+#         total_before_discount = sum(line.product_uom_qty * line.price_unit for line in self.order_line)
+#
+#         if float_is_zero(total_before_discount, precision_rounding=currency.rounding):
+#             return
+#
+#         # Distribute global discount proportionally
+#         for line in self.order_line:
+#             line_subtotal = line.product_uom_qty * line.price_unit
+#             if not float_is_zero(line_subtotal, precision_rounding=currency.rounding):
+#                 # Calculate proportional discount for this line
+#                 line_proportion = line_subtotal / total_before_discount
+#                 line.discount_fixed = self.global_discount_fixed * line_proportion
+#                 # Trigger the onchange to update discount percentage and amounts
+#                 line._onchange_discount_fixed()
+#
+#     def write(self, vals):
+#         """Ensure global discount is applied when saving."""
+#         res = super().write(vals)
+#
+#         # If global_discount_fixed is being updated, trigger the distribution
+#         if 'global_discount_fixed' in vals:
+#             for order in self:
+#                 order._onchange_global_discount_fixed()
+#                 # Force recalculation of order totals
+#                 order.order_line._compute_amount()
+#
+#         return res
+#
+#     @api.model_create_multi
+#     def create(self, vals_list):
+#         """Ensure global discount is applied when creating."""
+#         orders = super().create(vals_list)
+#
+#         for order in orders:
+#             if order.global_discount_fixed:
+#                 order._onchange_global_discount_fixed()
+#                 # Force recalculation of order totals
+#                 order.order_line._compute_amount()
+#
+#         return orders
+#
+#     def _prepare_invoice(self):
+#         """Pass the global discount to the invoice."""
+#         res = super()._prepare_invoice()
+#         res['global_discount_fixed'] = self.global_discount_fixed
+#         return res
 
-from odoo import api, fields, models
-from odoo.tools.float_utils import float_is_zero
+from odoo import models, fields, api
 
 
 class SaleOrder(models.Model):
-    _inherit = "sale.order"
+    _inherit = 'sale.order'
 
     global_discount_fixed = fields.Monetary(
-        string="Global Discount (Fixed)",
-        default=0.0,
-        currency_field="currency_id",
-        help="Apply a fixed discount to the entire order. This will be distributed proportionally across all order lines.",
-        tracking=True,
+        string='Global Discount (Fixed)',
+        currency_field='currency_id',
+        default=0.0
     )
 
-    @api.onchange('global_discount_fixed')
-    def _onchange_global_discount_fixed(self):
-        """Distribute the global discount proportionally across all order lines."""
-        if not self.order_line:
-            return
+    amount_untaxed_before_discount = fields.Monetary(
+        string='Untaxed Amount (Before Discount)',
+        compute='_compute_amounts_with_discount',
+        store=True,
+        currency_field='currency_id'
+    )
 
-        currency = self.currency_id or self.company_id.currency_id
+    amount_discount = fields.Monetary(
+        string='Discount',
+        compute='_compute_amounts_with_discount',
+        store=True,
+        currency_field='currency_id'
+    )
 
-        if float_is_zero(self.global_discount_fixed, precision_rounding=currency.rounding):
-            # Clear individual line discounts if global discount is removed
-            for line in self.order_line:
-                line.discount_fixed = 0.0
-                line.discount = 0.0
-                # Trigger recomputation to reset amounts
-                line._compute_amount()
-            return
+    amount_untaxed_after_discount = fields.Monetary(
+        string='Untaxed Amount (After Discount)',
+        compute='_compute_amounts_with_discount',
+        store=True,
+        currency_field='currency_id'
+    )
 
-        # Calculate total before any discount
-        total_before_discount = sum(line.product_uom_qty * line.price_unit for line in self.order_line)
+    @api.depends('order_line.price_subtotal', 'global_discount_fixed')
+    def _compute_amounts_with_discount(self):
+        for order in self:
+            # Calculate untaxed amount before discount (sum of all lines)
+            amount_untaxed = sum(order.order_line.mapped('price_subtotal'))
 
-        if float_is_zero(total_before_discount, precision_rounding=currency.rounding):
-            return
+            # Store the discount
+            discount = order.global_discount_fixed or 0.0
 
-        # Distribute global discount proportionally
-        for line in self.order_line:
-            line_subtotal = line.product_uom_qty * line.price_unit
-            if not float_is_zero(line_subtotal, precision_rounding=currency.rounding):
-                # Calculate proportional discount for this line
-                line_proportion = line_subtotal / total_before_discount
-                line.discount_fixed = self.global_discount_fixed * line_proportion
-                # Trigger the onchange to update discount percentage and amounts
-                line._onchange_discount_fixed()
+            # Calculate untaxed amount after discount
+            amount_after_discount = amount_untaxed - discount
 
-    def write(self, vals):
-        """Ensure global discount is applied when saving."""
-        res = super().write(vals)
+            order.amount_untaxed_before_discount = amount_untaxed
+            order.amount_discount = discount
+            order.amount_untaxed_after_discount = amount_after_discount
 
-        # If global_discount_fixed is being updated, trigger the distribution
-        if 'global_discount_fixed' in vals:
-            for order in self:
-                order._onchange_global_discount_fixed()
-                # Force recalculation of order totals
-                order.order_line._compute_amount()
+            # Update the standard amount_untaxed to reflect discount
+            order.amount_untaxed = amount_after_discount
 
-        return res
+    @api.depends('order_line.price_total', 'global_discount_fixed')
+    def _compute_amount_total(self):
+        """Override to include global discount in total calculation"""
+        for order in self:
+            amount_untaxed = sum(order.order_line.mapped('price_subtotal'))
+            amount_tax = sum(order.order_line.mapped('price_tax'))
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        """Ensure global discount is applied when creating."""
-        orders = super().create(vals_list)
+            # Apply discount before tax
+            amount_untaxed_after_discount = amount_untaxed - (order.global_discount_fixed or 0.0)
 
-        for order in orders:
+            # Recalculate tax on discounted amount
             if order.global_discount_fixed:
-                order._onchange_global_discount_fixed()
-                # Force recalculation of order totals
-                order.order_line._compute_amount()
+                # Proportionally reduce tax
+                tax_ratio = amount_untaxed_after_discount / amount_untaxed if amount_untaxed else 0
+                amount_tax = amount_tax * tax_ratio
 
-        return orders
-
-    def _prepare_invoice(self):
-        """Pass the global discount to the invoice."""
-        res = super()._prepare_invoice()
-        res['global_discount_fixed'] = self.global_discount_fixed
-        return res
+            order.amount_total = amount_untaxed_after_discount + amount_tax

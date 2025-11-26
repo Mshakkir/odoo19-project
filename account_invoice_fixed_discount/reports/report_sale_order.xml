@@ -71,41 +71,88 @@
 <!--    </template>-->
 <!--</odoo>-->
 
-<odoo>
-    <template id="report_saleorder_document" inherit_id="sale_stock.report_saleorder_document_inherit_sale_stock">
+<!--<odoo>-->
+<!--    <template id="report_saleorder_document" inherit_id="sale_stock.report_saleorder_document_inherit_sale_stock">-->
 
-        <!-- Add display_discount_fixed variable -->
-        <xpath expr="//t[@t-set='display_discount']" position="after">
-            <t t-set="display_discount_fixed"
-               t-value="any([l.discount_fixed for l in doc.order_line])" />
-        </xpath>
+<!--        &lt;!&ndash; Add display_discount_fixed variable &ndash;&gt;-->
+<!--        <xpath expr="//t[@t-set='display_discount']" position="after">-->
+<!--            <t t-set="display_discount_fixed"-->
+<!--               t-value="any([l.discount_fixed for l in doc.order_line])" />-->
+<!--        </xpath>-->
 
-        <!-- Hide original discount column when fixed discount exists -->
-        <xpath expr="//th[@name='th_discount']/span" position="attributes">
-            <attribute name="t-if">not display_discount_fixed</attribute>
-        </xpath>
+<!--        &lt;!&ndash; Hide original discount column when fixed discount exists &ndash;&gt;-->
+<!--        <xpath expr="//th[@name='th_discount']/span" position="attributes">-->
+<!--            <attribute name="t-if">not display_discount_fixed</attribute>-->
+<!--        </xpath>-->
 
-        <!-- Add new column header -->
-        <xpath expr="//th[@name='th_discount']" position="after">
-            <th t-if="display_discount_fixed">
-                <span>Discount Amount (%)</span>
-            </th>
-        </xpath>
+<!--        &lt;!&ndash; Add new column header &ndash;&gt;-->
+<!--        <xpath expr="//th[@name='th_discount']" position="after">-->
+<!--            <th t-if="display_discount_fixed">-->
+<!--                <span>Discount Amount (%)</span>-->
+<!--            </th>-->
+<!--        </xpath>-->
 
-        <!-- Add fixed discount value BEFORE normal discount -->
-        <xpath expr="//span[@t-field='line.discount']" position="before">
-            <t t-if="display_discount_fixed">
-                <span class="text-nowrap" t-field="line.discount_fixed"/>
-                <span class="text-nowrap"> (or </span>
-            </t>
-        </xpath>
+<!--        &lt;!&ndash; Add fixed discount value BEFORE normal discount &ndash;&gt;-->
+<!--        <xpath expr="//span[@t-field='line.discount']" position="before">-->
+<!--            <t t-if="display_discount_fixed">-->
+<!--                <span class="text-nowrap" t-field="line.discount_fixed"/>-->
+<!--                <span class="text-nowrap"> (or </span>-->
+<!--            </t>-->
+<!--        </xpath>-->
 
-        <!-- Add closing bracket AFTER normal discount -->
-        <xpath expr="//span[@t-field='line.discount']" position="after">
-            <t t-if="display_discount_fixed">
-                <span class="text-nowrap"> %)</span>
-            </t>
-        </xpath>
+<!--        &lt;!&ndash; Add closing bracket AFTER normal discount &ndash;&gt;-->
+<!--        <xpath expr="//span[@t-field='line.discount']" position="after">-->
+<!--            <t t-if="display_discount_fixed">-->
+<!--                <span class="text-nowrap"> %)</span>-->
+<!--            </t>-->
+<!--        </xpath>-->
 
-    </template>
-</odoo>
+<!--    </template>-->
+<!--</odoo>-->
+
+<template id="report_saleorder_document_custom_discount">
+    <t t-call="web.external_layout">
+        <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+        <div class="page">
+            <!-- Your existing report content -->
+
+            <!-- Totals Section -->
+            <div class="row mt32 mb32">
+                <div class="col-4 ml-auto">
+                    <table class="table table-sm">
+                        <tr>
+                            <td><strong>Untaxed Amount</strong></td>
+                            <td class="text-right">
+                                <span t-field="doc.amount_untaxed_before_discount"/>
+                            </td>
+                        </tr>
+                        <tr t-if="doc.amount_discount > 0">
+                            <td><strong>Discount</strong></td>
+                            <td class="text-right">
+                                <span t-field="doc.amount_discount"/>
+                            </td>
+                        </tr>
+                        <tr t-if="doc.amount_discount > 0">
+                            <td><strong>Untaxed Amount (After Discount)</strong></td>
+                            <td class="text-right">
+                                <span t-field="doc.amount_untaxed_after_discount"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>VAT Taxes</strong></td>
+                            <td class="text-right">
+                                <span t-field="doc.amount_tax"/>
+                            </td>
+                        </tr>
+                        <tr class="border-black">
+                            <td><strong>Total</strong></td>
+                            <td class="text-right">
+                                <span t-field="doc.amount_total"/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </t>
+</template>

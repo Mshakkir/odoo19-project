@@ -86,6 +86,7 @@
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
+# Simpler version - distributes discount to lines
 from odoo import api, fields, models
 import logging
 
@@ -99,9 +100,8 @@ class AccountMove(models.Model):
         string="Global Discount (Fixed)",
         default=0.0,
         currency_field="currency_id",
-        help="Apply a fixed discount to the entire invoice. This will be shown as a separate line in totals.",
         tracking=True,
-        readonly=False,  # We handle readonly in the view based on state
+        readonly=False,
     )
 
     amount_undiscounted = fields.Monetary(
@@ -118,77 +118,43 @@ class AccountMove(models.Model):
         currency_field='currency_id'
     )
 
-    @api.depends('line_ids.price_subtotal', 'global_discount_fixed')
+    @api.depends('invoice_line_ids.price_subtotal', 'global_discount_fixed')
     def _compute_amounts_with_discount(self):
-        """Calculate amounts before and after global discount."""
         for move in self:
-            # Only for invoices and credit notes
             if move.is_invoice():
-                invoice_lines = move.line_ids.filtered(
-                    lambda line: line.display_type == 'product'
-                )
-                amount_undiscounted = sum(invoice_lines.mapped('price_subtotal'))
+                amount_undiscounted = sum(move.invoice_line_ids.mapped('price_subtotal'))
                 move.amount_undiscounted = amount_undiscounted
                 move.amount_after_discount = amount_undiscounted - move.global_discount_fixed
             else:
                 move.amount_undiscounted = 0.0
                 move.amount_after_discount = 0.0
 
-    @api.depends(
-        'line_ids.price_subtotal',
-        'line_ids.tax_base_amount',
-        'line_ids.tax_line_id',
-        'line_ids.price_total',
-        'partner_id',
-        'currency_id',
-        'global_discount_fixed'
-    )
-    def _compute_amount(self):
-        """Override to apply global discount and recalculate taxes."""
-        for move in self:
-            if move.is_invoice():
-                # Get invoice lines (excluding tax lines and display lines)
-                invoice_lines = move.line_ids.filtered(
-                    lambda line: line.display_type == 'product'
-                )
+    @api.onchange('global_discount_fixed')
+    def _onchange_global_discount_fixed(self):
+        """Distribute discount to invoice lines."""
+        if not self.invoice_line_ids or not self.is_invoice():
+            return
 
-                # Get tax lines
-                tax_lines = move.line_ids.filtered(
-                    lambda line: line.display_type == 'tax'
-                )
+        if self.global_discount_fixed and self.global_discount_fixed > 0:
+            # Calculate total before discount
+            total_before_discount = sum(
+                line.quantity * line.price_unit
+                for line in self.invoice_line_ids
+            )
 
-                # Calculate original amounts
-                amount_untaxed = sum(invoice_lines.mapped('price_subtotal'))
-                amount_tax = sum(tax_lines.mapped('price_subtotal'))
+            if total_before_discount > 0:
+                # Distribute proportionally
+                for line in self.invoice_line_ids:
+                    line_subtotal = line.quantity * line.price_unit
+                    if line_subtotal > 0:
+                        line_proportion = line_subtotal / total_before_discount
+                        line_discount = self.global_discount_fixed * line_proportion
 
-                _logger.info(f"=== INVOICE COMPUTE ===")
-                _logger.info(f"Original - Untaxed: {amount_untaxed}, Tax: {amount_tax}")
-
-                # Apply global discount
-                if move.global_discount_fixed and move.global_discount_fixed > 0:
-                    # Subtract discount from untaxed amount
-                    amount_untaxed_after_discount = amount_untaxed - move.global_discount_fixed
-
-                    # Recalculate tax proportionally
-                    if amount_untaxed > 0:
-                        discount_ratio = amount_untaxed_after_discount / amount_untaxed
-                        amount_tax = amount_tax * discount_ratio
-
-                    _logger.info(f"After Discount - Untaxed: {amount_untaxed_after_discount}, Tax: {amount_tax}")
-
-                    # Calculate total
-                    sign = move.direction_sign
-                    move.amount_untaxed = amount_untaxed_after_discount * sign
-                    move.amount_tax = amount_tax * sign
-                    move.amount_total = move.amount_untaxed + move.amount_tax
-                    move.amount_residual = move.amount_total - move.amount_paid
-                    move.amount_untaxed_signed = amount_untaxed_after_discount * (
-                        -1 if move.move_type in ['in_invoice', 'out_refund'] else 1)
-                    move.amount_total_signed = move.amount_total * (
-                        -1 if move.move_type in ['in_invoice', 'out_refund'] else 1)
-                else:
-                    # No discount, use parent computation
-                    super(AccountMove, move)._compute_amount()
-            else:
-                # Not an invoice, use parent computation
-                super(AccountMove, move)._compute_amount()
+                        # Calculate discount percentage
+                        if line.price_unit > 0:
+                            discount_pct = (line_discount / (line.quantity * line.price_unit)) * 100
+                            line.discount = discount_pct
+        else:
+            # Clear discounts
+            for line in self.invoice_line_ids:
+                line.discount = 0.0

@@ -38,22 +38,23 @@ class StockWarehouse(models.Model):
         if not stock_user_group and not stock_manager_group:
             return self.env['res.users']
 
-        domain = [('active', '=', True)]
+        # Search for users with inventory access
+        all_users = self.env['res.users'].search([('active', '=', True)])
 
-        # Add group conditions
-        group_ids = []
-        if stock_user_group:
-            group_ids.append(stock_user_group.id)
-        if stock_manager_group:
-            group_ids.append(stock_manager_group.id)
+        inventory_users = self.env['res.users']
+        for user in all_users:
+            # Check if user has stock groups
+            user_groups = user.groups_id.ids
+            has_stock_access = False
 
-        if group_ids:
-            domain.append(('groups_id', 'in', group_ids))
+            if stock_user_group and stock_user_group.id in user_groups:
+                has_stock_access = True
+            if stock_manager_group and stock_manager_group.id in user_groups:
+                has_stock_access = True
 
-        # Add company condition
-        if self.company_id:
-            domain.append('|')
-            domain.append(('company_id', '=', self.company_id.id))
-            domain.append(('company_id', '=', False))
+            # Check company match
+            if has_stock_access:
+                if not self.company_id or user.company_id == self.company_id or not user.company_id:
+                    inventory_users |= user
 
-        return self.env['res.users'].search(domain)
+        return inventory_users

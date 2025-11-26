@@ -86,6 +86,7 @@
 
 
 
+
 <odoo>
     <record id="view_move_form" model="ir.ui.view">
         <field name="name">account.move.form - fixed_discount</field>
@@ -101,36 +102,35 @@
                             name="global_discount_fixed"
                             groups="account_invoice_fixed_discount.group_fixed_discount"
                             widget="monetary"
-                            attrs="{'readonly': [('state', '!=', 'draft')]}"
+                            readonly="state != 'draft'"
                         />
                     </group>
                 </group>
             </xpath>
 
-            <!-- Replace the totals section to show discount separately -->
-            <xpath expr="//group[@name='sale_info_group']" position="after">
-                <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
-                    <field name="amount_undiscounted"
-                           widget="monetary"
-                           options="{'currency_field': 'currency_id'}"
-                           string="Untaxed Amount"
-                           invisible="not global_discount_fixed"/>
+            <!-- Add custom totals section showing discount breakdown -->
+            <xpath expr="//field[@name='amount_total']" position="before">
+                <field name="amount_undiscounted"
+                       widget="monetary"
+                       options="{'currency_field': 'currency_id'}"
+                       string="Untaxed Amount"
+                       invisible="not global_discount_fixed or global_discount_fixed == 0"/>
 
-                    <field name="global_discount_fixed"
-                           groups="account_invoice_fixed_discount.group_fixed_discount"
-                           widget="monetary"
-                           options="{'currency_field': 'currency_id'}"
-                           string="Discount"
-                           class="oe_subtotal_footer_separator"
-                           invisible="not global_discount_fixed"/>
+                <field name="global_discount_fixed"
+                       groups="account_invoice_fixed_discount.group_fixed_discount"
+                       widget="monetary"
+                       options="{'currency_field': 'currency_id'}"
+                       string="Discount"
+                       class="oe_subtotal_footer_separator"
+                       invisible="not global_discount_fixed or global_discount_fixed == 0"
+                       readonly="state != 'draft'"/>
 
-                    <field name="amount_after_discount"
-                           widget="monetary"
-                           options="{'currency_field': 'currency_id'}"
-                           string="Untaxed Amount (After Discount)"
-                           class="oe_subtotal_footer_separator"
-                           invisible="not global_discount_fixed"/>
-                </group>
+                <field name="amount_after_discount"
+                       widget="monetary"
+                       options="{'currency_field': 'currency_id'}"
+                       string="Untaxed Amount (After Discount)"
+                       class="oe_subtotal_footer_separator"
+                       invisible="not global_discount_fixed or global_discount_fixed == 0"/>
             </xpath>
 
         </field>

@@ -83,6 +83,9 @@
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
+# Copyright 2017 ForgeFlow S.L.
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+
 from odoo import api, fields, models
 import logging
 
@@ -98,7 +101,7 @@ class AccountMove(models.Model):
         currency_field="currency_id",
         help="Apply a fixed discount to the entire invoice. This will be shown as a separate line in totals.",
         tracking=True,
-        states={'posted': [('readonly', True)]},
+        readonly=False,  # We handle readonly in the view based on state
     )
 
     amount_undiscounted = fields.Monetary(

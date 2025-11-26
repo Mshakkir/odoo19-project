@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add Button to Reordering Rules Form -->
+
+    <!-- Inherit Reordering Rules Form View -->
     <record id="view_warehouse_orderpoint_form_inherit" model="ir.ui.view">
         <field name="name">stock.warehouse.orderpoint.form.inherit</field>
         <field name="model">stock.warehouse.orderpoint</field>
         <field name="inherit_id" ref="stock.view_warehouse_orderpoint_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//form" position="inside">
-                <header>
-                    <button name="action_send_notification_now"
-                            string="Send Notification to Discuss"
-                            type="object"
-                            class="btn-primary"
-                            groups="stock.group_stock_user"/>
-                </header>
+
+            <!-- Insert button inside existing header -->
+            <xpath expr="//header" position="inside">
+                <button name="action_send_notification_now"
+                        string="Send Notification to Discuss"
+                        type="object"
+                        class="btn-primary"
+                        groups="stock.group_stock_user"/>
             </xpath>
+
+            <!-- Add last_notification_date field -->
             <xpath expr="//field[@name='product_max_qty']" position="after">
                 <field name="last_notification_date" readonly="1"/>
             </xpath>
+
         </field>
     </record>
 

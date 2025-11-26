@@ -4,8 +4,8 @@ from odoo import models, api
 class ResUsers(models.Model):
     _inherit = 'res.users'
 
-    def action_open_reorder_notifications(self):
-        """Open Discuss with ReorderBot conversation"""
+    def action_open_my_warehouse_channels(self):
+        """Open Discuss showing user's warehouse notification channels"""
         self.ensure_one()
 
         # Check if discuss.channel exists
@@ -15,35 +15,43 @@ class ResUsers(models.Model):
                 'tag': 'display_notification',
                 'params': {
                     'title': 'Discuss Not Available',
-                    'message': 'The Discuss app is not installed or available.',
+                    'message': 'The Discuss app is not installed.',
                     'type': 'warning',
                     'sticky': False,
                 }
             }
 
-        # Get ReorderBot partner
-        bot_partner = self.env.ref('warehouse_reorder_notification.partner_reorder_bot', raise_if_not_found=False)
-        if not bot_partner:
-            bot_partner = self.env['stock.warehouse.orderpoint']._get_reorder_bot_partner()
+        # Find warehouses where user is a notification user
+        warehouses = self.env['stock.warehouse'].search([
+            ('notification_user_ids', 'in', [self.id])
+        ])
 
-        # Find or create channel
-        DiscussChannel = self.env['discuss.channel']
-        channel = DiscussChannel.search([
-            ('channel_type', '=', 'chat'),
-            ('channel_partner_ids', 'in', [self.partner_id.id, bot_partner.id]),
-        ], limit=1)
+        if not warehouses:
+            # If no specific warehouses, find channels user is member of
+            channels = self.env['discuss.channel'].search([
+                ('name', 'ilike', 'Reorder Notifications'),
+                ('channel_partner_ids', 'in', [self.partner_id.id])
+            ])
+        else:
+            channels = warehouses.mapped('notification_channel_id')
 
-        if not channel:
-            channel = DiscussChannel.sudo().create({
-                'name': f'ReorderBot, {self.partner_id.name}',
-                'channel_type': 'chat',
-                'channel_partner_ids': [(6, 0, [self.partner_id.id, bot_partner.id])],
-            })
-
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'mail.action_discuss',
-            'params': {
-                'default_active_id': f'discuss.channel_{channel.id}',
-            },
-        }
+        if channels:
+            # Open first channel
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'mail.action_discuss',
+                'params': {
+                    'default_active_id': f'discuss.channel_{channels[0].id}',
+                },
+            }
+        else:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'No Channels',
+                    'message': 'You are not subscribed to any warehouse notification channels.',
+                    'type': 'info',
+                    'sticky': False,
+                }
+            }

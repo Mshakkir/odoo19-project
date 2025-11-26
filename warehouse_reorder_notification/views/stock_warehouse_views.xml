@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Warehouse Form View - Add notification settings -->
+    <record id="view_warehouse_form_inherit_notification" model="ir.ui.view">
+        <field name="name">stock.warehouse.form.inherit.notification</field>
+        <field name="model">stock.warehouse</field>
+        <field name="inherit_id" ref="stock.view_warehouse"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//sheet" position="inside">
+                <notebook>
+                    <page string="Reorder Notifications" groups="stock.group_stock_manager">
+                        <group>
+                            <group>
+                                <field name="notification_channel_id" readonly="1"/>
+                                <button name="action_open_notification_channel"
+                                        string="Open Notification Channel"
+                                        type="object"
+                                        class="btn-primary"
+                                        icon="fa-comments"
+                                        invisible="not notification_channel_id"/>
+                            </group>
+                            <group>
+                                <button name="action_update_channel_members"
+                                        string="Update Channel Members"
+                                        type="object"
+                                        class="btn-secondary"
+                                        icon="fa-refresh"/>
+                            </group>
+                        </group>
+
+                        <group string="Notification Recipients">
+                            <field name="notification_user_ids" widget="many2many_tags">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="login"/>
+                                </tree>
+                            </field>
+                        </group>
+
+                        <div class="alert alert-info" role="alert">
+                            <strong>Info:</strong> Users listed above will receive reorder notifications in the warehouse channel.
+                            If no users are specified, all inventory users will receive notifications.
+                        </div>
+                    </page>
+                </notebook>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

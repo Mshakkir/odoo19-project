@@ -1,9 +1,6 @@
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
-# Copyright 2017 ForgeFlow S.L.
-# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
-
 from odoo import api, fields, models, Command
 from odoo.tools.float_utils import float_is_zero
 
@@ -95,8 +92,8 @@ class AccountMove(models.Model):
 
         # Always ensure taxes are cleared on the product
         discount_product.write({
-            'taxes_id': [Command.clear()],
-            'supplier_taxes_id': [Command.clear()],
+            'tax_ids': [Command.clear()],
+            'supplier_tax_ids': [Command.clear()],
         })
 
         return discount_product
@@ -127,21 +124,19 @@ class AccountMove(models.Model):
 class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
 
-    @api.depends('product_id', 'product_uom_id')
-    def _compute_tax_ids(self):
+    @api.onchange('product_id')
+    def _onchange_product_id(self):
         """Override to ensure Global Discount product never gets taxes."""
-        super()._compute_tax_ids()
+        res = super()._onchange_product_id()
 
-        # Get the global discount product
+        # Check if this is the global discount product
         discount_product = self.env.ref(
             'account_invoice_fixed_discount.product_global_discount',
             raise_if_not_found=False
         )
 
-        if discount_product:
-            # Clear taxes on any line using the global discount product
-            discount_lines = self.filtered(
-                lambda l: l.product_id and l.product_id.id == discount_product.id
-            )
-            if discount_lines:
-                discount_lines.tax_ids = False
+        if discount_product and self.product_id and self.product_id.id == discount_product.id:
+            # Force clear all taxes for global discount line
+            self.tax_ids = [(5, 0, 0)]  # Clear all taxes
+
+        return res

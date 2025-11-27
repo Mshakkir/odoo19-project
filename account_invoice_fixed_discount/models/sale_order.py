@@ -21,10 +21,9 @@ class SaleOrder(models.Model):
         """Add or update a discount line for the global discount."""
         currency = self.currency_id or self.company_id.currency_id
 
-        # Find existing discount line
-        discount_product = self._get_global_discount_product()
+        # Find existing discount line by checking for the specific default_code
         discount_line = self.order_line.filtered(
-            lambda l: l.product_id and l.product_id.id == discount_product.id
+            lambda l: l.product_id and l.product_id.default_code == 'GLOBAL_DISCOUNT'
         )
 
         if float_is_zero(self.global_discount_fixed, precision_rounding=currency.rounding):
@@ -33,14 +32,17 @@ class SaleOrder(models.Model):
                 self.order_line -= discount_line
             return
 
+        # Get or create the discount product
+        discount_product = self._get_global_discount_product()
+
         if discount_line:
-            # Update existing line
-            discount_line.write({
-                'price_unit': -abs(self.global_discount_fixed),
-                'product_uom_qty': 1.0,
-            })
+            # Update existing line - clear taxes explicitly
+            discount_line.product_id = discount_product.id  # Reset product
+            discount_line.price_unit = -abs(self.global_discount_fixed)
+            discount_line.product_uom_qty = 1.0
+            discount_line.tax_id = False  # Force clear taxes
         else:
-            # Create new discount line without any taxes
+            # Create new line
             self.order_line = [Command.create({
                 'product_id': discount_product.id,
                 'name': 'Global Discount',
@@ -49,45 +51,37 @@ class SaleOrder(models.Model):
                 'sequence': 9999,
             })]
 
+            # Immediately find and clear taxes on new line
+            new_line = self.order_line.filtered(
+                lambda l: l.product_id and l.product_id.default_code == 'GLOBAL_DISCOUNT'
+            )
+            if new_line:
+                new_line.tax_id = False
+
     def _get_global_discount_product(self):
         """Get or create a product for global discount lines."""
-        # Try to get existing product
-        IrModelData = self.env['ir.model.data']
-        product_xmlid = 'account_invoice_fixed_discount.product_global_discount'
+        # Search by default_code
+        discount_product = self.env['product.product'].search([
+            ('default_code', '=', 'GLOBAL_DISCOUNT')
+        ], limit=1)
 
-        try:
-            discount_product = self.env.ref(product_xmlid, raise_if_not_found=True)
-        except:
-            # Search by default_code if xml_id doesn't exist
-            discount_product = self.env['product.product'].search([
-                ('default_code', '=', 'GLOBAL_DISCOUNT')
-            ], limit=1)
-
-            if not discount_product:
-                # Create the discount product
-                discount_product = self.env['product.product'].create({
-                    'name': 'Global Discount',
-                    'type': 'service',
-                    'invoice_policy': 'order',
-                    'list_price': 0.0,
-                    'default_code': 'GLOBAL_DISCOUNT',
-                    'sale_ok': False,
-                    'purchase_ok': False,
-                })
-
-                # Create external identifier
-                IrModelData.create({
-                    'name': 'product_global_discount',
-                    'module': 'account_invoice_fixed_discount',
-                    'model': 'product.product',
-                    'res_id': discount_product.id,
-                })
-
-        # Always ensure taxes are cleared on the product
-        discount_product.write({
-            'taxes_id': [Command.clear()],
-            'supplier_taxes_id': [Command.clear()],
-        })
+        if discount_product:
+            # Ensure product has no taxes
+            discount_product.tax_ids = False
+            discount_product.supplier_tax_ids = False
+        else:
+            # Create the discount product
+            discount_product = self.env['product.product'].create({
+                'name': 'Global Discount',
+                'type': 'service',
+                'invoice_policy': 'order',
+                'list_price': 0.0,
+                'default_code': 'GLOBAL_DISCOUNT',
+                'sale_ok': False,
+                'purchase_ok': False,
+                'tax_ids': False,
+                'supplier_tax_ids': False,
+            })
 
         return discount_product
 
@@ -117,26 +111,3 @@ class SaleOrder(models.Model):
         res = super()._prepare_invoice()
         res['global_discount_fixed'] = self.global_discount_fixed
         return res
-
-
-class SaleOrderLine(models.Model):
-    _inherit = "sale.order.line"
-
-    @api.depends('product_id', 'product_uom', 'product_uom_qty')
-    def _compute_tax_id(self):
-        """Override to ensure Global Discount product never gets taxes."""
-        super()._compute_tax_id()
-
-        # Get the global discount product
-        discount_product = self.env.ref(
-            'account_invoice_fixed_discount.product_global_discount',
-            raise_if_not_found=False
-        )
-
-        if discount_product:
-            # Clear taxes on any line using the global discount product
-            discount_lines = self.filtered(
-                lambda l: l.product_id and l.product_id.id == discount_product.id
-            )
-            if discount_lines:
-                discount_lines.tax_id = False

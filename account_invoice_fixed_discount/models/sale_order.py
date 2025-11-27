@@ -67,10 +67,12 @@ class SaleOrder(models.Model):
 
         if discount_product:
             # Ensure product has no taxes
-            discount_product.tax_ids = False
-            discount_product.supplier_tax_ids = False
+            if discount_product.taxes_id:
+                discount_product.taxes_id = False
+            if discount_product.supplier_taxes_id:
+                discount_product.supplier_taxes_id = False
         else:
-            # Create the discount product
+            # Create the discount product with no taxes
             discount_product = self.env['product.product'].create({
                 'name': 'Global Discount',
                 'type': 'service',
@@ -79,9 +81,10 @@ class SaleOrder(models.Model):
                 'default_code': 'GLOBAL_DISCOUNT',
                 'sale_ok': False,
                 'purchase_ok': False,
-                'tax_ids': False,
-                'supplier_tax_ids': False,
             })
+            # Clear taxes after creation
+            discount_product.taxes_id = False
+            discount_product.supplier_taxes_id = False
 
         return discount_product
 

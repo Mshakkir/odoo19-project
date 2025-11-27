@@ -61,9 +61,6 @@ class SaleOrder(models.Model):
             # Add line using Command.create
             self.order_line = [(0, 0, vals)]
 
-            # Force recompute to get the new line
-            self._recompute_dynamic_lines()
-
             # Now find and clear taxes on the newly created line
             new_discount_line = self.order_line.filtered(
                 lambda l: l.product_id and l.product_id.id == discount_product.id and l.sequence == 9999

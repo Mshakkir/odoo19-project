@@ -605,8 +605,8 @@ class AccountMove(models.Model):
                     check_move_validity=False,
                     dynamic_unlink=True
                 ).unlink()
-                # Recompute taxes after removing discount
-                self._recompute_tax_lines()
+                # Trigger recomputation in Odoo 19
+                self._recompute_dynamic_lines()
             return
 
         discount_account = self._get_discount_account()
@@ -651,8 +651,8 @@ class AccountMove(models.Model):
                 'invoice_line_ids': [(0, 0, line_vals)]
             })
 
-        # Force recomputation of tax lines
-        self._recompute_tax_lines()
+        # Force recomputation of tax lines in Odoo 19
+        self._recompute_dynamic_lines()
 
     @api.model_create_multi
     def create(self, vals_list):

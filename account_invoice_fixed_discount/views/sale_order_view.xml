@@ -5,8 +5,11 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
 
-            <xpath expr="//field[@name='amount_untaxed']" position="before">
-                <field name="global_discount_fixed"/>
+            <!-- Insert Global Discount Field Under Order Lines -->
+            <xpath expr="//sheet//div[contains(@class,'o_notebook')]" position="before">
+                <group>
+                    <field name="global_discount_fixed"/>
+                </group>
             </xpath>
 
         </field>

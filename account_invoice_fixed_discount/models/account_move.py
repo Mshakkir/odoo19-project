@@ -552,24 +552,17 @@ class AccountMove(models.Model):
                 move.amount_undiscounted = 0.0
                 move.amount_after_discount = 0.0
 
-    def _recompute_dynamic_lines(self, recompute_all_taxes=False, recompute_tax_base_amount=False):
-        """Override to apply global discount proportionally to invoice lines."""
-        res = super()._recompute_dynamic_lines(
-            recompute_all_taxes=recompute_all_taxes,
-            recompute_tax_base_amount=recompute_tax_base_amount
-        )
-
-        for move in self:
-            if move.is_invoice() and move.global_discount_fixed and move.global_discount_fixed > 0:
-                move._apply_global_discount_to_lines()
-
-        return res
-
     def _apply_global_discount_to_lines(self):
         """Apply global discount proportionally to all invoice lines before tax calculation."""
         self.ensure_one()
 
         if not self.global_discount_fixed or self.global_discount_fixed <= 0:
+            # Reset all line discounts if no global discount
+            taxable_lines = self.invoice_line_ids.filtered(
+                lambda l: not l.display_type and 'Global Discount' not in (l.name or '')
+            )
+            if taxable_lines:
+                taxable_lines.with_context(check_move_validity=False).write({'discount': 0.0})
             return
 
         # Get all non-display invoice lines (exclude sections, notes, etc.)
@@ -610,25 +603,11 @@ class AccountMove(models.Model):
             if move.is_invoice() and move.global_discount_fixed and move.global_discount_fixed > 0:
                 _logger.info(f"Invoice created with discount: {move.global_discount_fixed}")
                 move._apply_global_discount_to_lines()
-                # Recompute taxes after applying discount
-                move.with_context(check_move_validity=False)._recompute_dynamic_lines(
-                    recompute_all_taxes=True
-                )
 
         return moves
 
     def write(self, vals):
         """Recompute when discount changes."""
-        # First, reset all line discounts if discount is being changed
-        if 'global_discount_fixed' in vals:
-            for move in self:
-                if move.is_invoice():
-                    # Reset line discounts first
-                    taxable_lines = move.invoice_line_ids.filtered(
-                        lambda l: not l.display_type and 'Global Discount' not in (l.name or '')
-                    )
-                    taxable_lines.with_context(check_move_validity=False).write({'discount': 0.0})
-
         res = super().write(vals)
 
         if 'global_discount_fixed' in vals:
@@ -636,9 +615,5 @@ class AccountMove(models.Model):
                 if move.is_invoice():
                     _logger.info(f"Invoice discount changed to: {move.global_discount_fixed}")
                     move._apply_global_discount_to_lines()
-                    # Recompute taxes after applying discount
-                    move.with_context(check_move_validity=False)._recompute_dynamic_lines(
-                        recompute_all_taxes=True
-                    )
 
         return res

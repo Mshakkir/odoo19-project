@@ -43,8 +43,8 @@
         <field name="inherit_id" ref="stock.view_warehouse_orderpoint_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add buttons inside the sheet -->
-            <xpath expr="//sheet" position="inside">
+            <!-- Add buttons at the top of the form -->
+            <xpath expr="//form" position="inside">
                 <div class="oe_button_box" name="button_box">
                     <button name="action_send_notification_now"
                             string="Send Notification"
@@ -72,24 +72,6 @@
         </field>
     </record>
 
-    <!-- Inherit existing search view and add filter to default -->
-    <record id="stock_reorder_report_search_inherit" model="ir.ui.view">
-        <field name="name">stock.warehouse.orderpoint.reorder.search.inherit</field>
-        <field name="model">stock.warehouse.orderpoint</field>
-        <field name="inherit_id" ref="stock.stock_reorder_report_search"/>
-        <field name="arch" type="xml">
-            <!-- Make "To Reorder" filter active by default -->
-            <xpath expr="//filter[@name='filter_to_reorder']" position="attributes">
-                <attribute name="default_focus">1</attribute>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- Update the main reorder action to show filtered view by default -->
-    <record id="stock.action_orderpoint_replenish" model="ir.actions.act_window">
-        <field name="context">{'search_default_filter_to_reorder': 1, 'search_default_filter_not_snoozed': 1}</field>
-    </record>
-
     <!-- Scheduled Action - Check reorder rules every 4 hours -->
     <record id="ir_cron_check_reorder_notifications" model="ir.cron">
         <field name="name">Warehouse: Check Reordering Rules and Send Notifications</field>
@@ -98,12 +80,11 @@
         <field name="code">model.check_and_send_reorder_notifications()</field>
         <field name="interval_number">4</field>
         <field name="interval_type">hours</field>
+        <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
     </record>
 
 </odoo>
-
-
 
 
 

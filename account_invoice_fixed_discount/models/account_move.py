@@ -572,7 +572,7 @@ class AccountMove(models.Model):
         if not self.global_discount_fixed or self.global_discount_fixed <= 0:
             # Remove discount line if discount is 0
             discount_line = self.line_ids.filtered(
-                lambda l: l.exclude_from_invoice_tab and l.name and 'Global Discount' in l.name
+                lambda l: l.name and 'Global Discount' in l.name and not l.display_type
             )
             if discount_line:
                 discount_line.with_context(check_move_validity=False).unlink()
@@ -583,9 +583,9 @@ class AccountMove(models.Model):
             _logger.warning(f"No discount account configured for invoice {self.name}")
             return
 
-        # Find existing discount line
+        # Find existing discount line by name
         discount_line = self.line_ids.filtered(
-            lambda l: l.exclude_from_invoice_tab and l.name and 'Global Discount' in l.name
+            lambda l: l.name and 'Global Discount' in l.name and not l.display_type
         )
 
         # Calculate discount amount with proper sign
@@ -605,7 +605,6 @@ class AccountMove(models.Model):
             'currency_id': self.currency_id.id,
             'amount_currency': balance,
             'balance': balance,
-            'exclude_from_invoice_tab': True,
             'display_type': False,
         }
 

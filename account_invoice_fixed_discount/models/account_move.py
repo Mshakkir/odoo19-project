@@ -502,6 +502,7 @@
 
 # -*- coding: utf-8 -*-
 # -*- coding: utf-8 -*-
+# models/account_move.py
 from odoo import api, fields, models
 import logging
 
@@ -517,6 +518,7 @@ class AccountMove(models.Model):
         currency_field="currency_id",
         tracking=True,
         readonly=False,
+        states={'posted': [('readonly', True)]},
     )
 
     amount_undiscounted = fields.Monetary(
@@ -538,11 +540,9 @@ class AccountMove(models.Model):
         """Calculate amounts before and after global discount."""
         for move in self:
             if move.is_invoice():
-                # Calculate the ORIGINAL amount before any discounts
                 amount_undiscounted = 0.0
                 for line in move.invoice_line_ids:
-                    if not line.display_type and 'Global Discount' not in (line.name or ''):
-                        # Calculate original amount WITHOUT line-level discount
+                    if not line.display_type:
                         original_line_amount = line.quantity * line.price_unit
                         amount_undiscounted += original_line_amount
 
@@ -553,67 +553,61 @@ class AccountMove(models.Model):
                 move.amount_after_discount = 0.0
 
     def _apply_global_discount_to_lines(self):
-        """Apply global discount proportionally to all invoice lines before tax calculation."""
+        """Apply global discount proportionally to all invoice lines."""
         self.ensure_one()
 
-        if not self.global_discount_fixed or self.global_discount_fixed <= 0:
-            # Reset all line discounts if no global discount
-            taxable_lines = self.invoice_line_ids.filtered(
-                lambda l: not l.display_type and 'Global Discount' not in (l.name or '')
-            )
-            if taxable_lines:
-                taxable_lines.with_context(check_move_validity=False).write({'discount': 0.0})
-            return
-
-        # Get all non-display invoice lines (exclude sections, notes, etc.)
+        # Get all taxable lines
         taxable_lines = self.invoice_line_ids.filtered(
-            lambda l: not l.display_type and 'Global Discount' not in (l.name or '')
+            lambda l: not l.display_type
         )
 
         if not taxable_lines:
             return
 
-        # Calculate total amount of taxable lines
+        # If no discount, reset all line discounts
+        if not self.global_discount_fixed or self.global_discount_fixed <= 0:
+            for line in taxable_lines:
+                if line.discount > 0:
+                    line.discount = 0.0
+            return
+
+        # Calculate total amount
         total_amount = sum(line.quantity * line.price_unit for line in taxable_lines)
 
         if total_amount <= 0:
             return
 
-        # Apply discount proportionally to each line using the discount field
+        # Apply discount proportionally
         for line in taxable_lines:
             line_amount = line.quantity * line.price_unit
-            # Calculate what percentage this line represents
             line_proportion = line_amount / total_amount
-            # Calculate the discount amount for this line
             line_discount_amount = self.global_discount_fixed * line_proportion
-            # Convert to percentage discount
             line_discount_percent = (line_discount_amount / line_amount * 100) if line_amount else 0
+            line.discount = line_discount_percent
 
-            # Apply the discount percentage to the line
-            line.with_context(check_move_validity=False).write({
-                'discount': line_discount_percent
-            })
+    @api.onchange('global_discount_fixed')
+    def _onchange_global_discount_fixed(self):
+        """Apply discount when field changes in UI."""
+        if self.is_invoice():
+            self._apply_global_discount_to_lines()
 
     @api.model_create_multi
     def create(self, vals_list):
         """Apply discount when creating invoice."""
         moves = super().create(vals_list)
-
         for move in moves:
             if move.is_invoice() and move.global_discount_fixed and move.global_discount_fixed > 0:
-                _logger.info(f"Invoice created with discount: {move.global_discount_fixed}")
                 move._apply_global_discount_to_lines()
-
         return moves
 
     def write(self, vals):
-        """Recompute when discount changes."""
+        """Apply discount when updating invoice."""
         res = super().write(vals)
-
         if 'global_discount_fixed' in vals:
             for move in self:
                 if move.is_invoice():
-                    _logger.info(f"Invoice discount changed to: {move.global_discount_fixed}")
                     move._apply_global_discount_to_lines()
-
         return res
+
+
+

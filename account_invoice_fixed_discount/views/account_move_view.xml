@@ -174,38 +174,29 @@
 
 
 
+
 <odoo>
-    <record id="view_move_form" model="ir.ui.view">
-        <field name="name">account.move.form - fixed_discount</field>
+    <record id="view_move_form_inherit_global_discount" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.global.discount</field>
         <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_move_form" />
+        <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
-
-            <!-- Add global discount field after invoice lines -->
-            <xpath expr="//field[@name='invoice_line_ids']" position="after">
-                <group>
-                    <group string="Discount">
-                        <field
-                            name="global_discount_fixed"
-                            groups="account_invoice_fixed_discount.group_fixed_discount"
-                            widget="monetary"
-                            readonly="state != 'draft'"
-                        />
-                    </group>
-                    <group string="Discount Breakdown" invisible="not global_discount_fixed or global_discount_fixed == 0">
-                        <field name="amount_undiscounted"
-                               widget="monetary"
-                               string="Amount Before Discount"
-                               readonly="1"/>
-
-                        <field name="amount_after_discount"
-                               widget="monetary"
-                               string="Amount After Discount"
-                               readonly="1"/>
-                    </group>
-                </group>
+            <!-- Add the global discount field in the totals section -->
+            <xpath expr="//field[@name='amount_untaxed']" position="before">
+                <field name="global_discount_fixed"
+                       widget="monetary"
+                       options="{'currency_field': 'currency_id'}"
+                       attrs="{'invisible': [('move_type', 'not in', ['out_invoice', 'out_refund', 'in_invoice', 'in_refund'])]}"/>
             </xpath>
 
+            <!-- Optional: Add computed fields to show original and discounted amounts -->
+            <xpath expr="//field[@name='amount_untaxed']" position="after">
+                <field name="amount_undiscounted"
+                       widget="monetary"
+                       options="{'currency_field': 'currency_id'}"
+                       attrs="{'invisible': ['|', ('global_discount_fixed', '=', 0), ('move_type', 'not in', ['out_invoice', 'out_refund', 'in_invoice', 'in_refund'])]}"/>
+            </xpath>
         </field>
     </record>
 </odoo>
+

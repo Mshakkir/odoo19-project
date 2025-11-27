@@ -4,6 +4,9 @@
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
+# Copyright 2017 ForgeFlow S.L.
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+
 from odoo import api, fields, models
 from odoo.tools.float_utils import float_is_zero
 
@@ -57,7 +60,7 @@ class SaleOrder(models.Model):
                 'name': 'Global Discount',
                 'product_uom_qty': 1.0,
                 'price_unit': -abs(self.global_discount_fixed),
-                'tax_id': [(6, 0, [])],  # No taxes on discount line
+                'tax_id': [(5, 0, 0)],  # No taxes on discount line
                 'sequence': 9999,  # Put it at the end
             })]
 

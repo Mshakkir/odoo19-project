@@ -78,8 +78,8 @@ class AccountMove(models.Model):
                 'invoice_policy': 'order',
                 'list_price': 0.0,
                 'default_code': 'GLOBAL_DISCOUNT',
-                'taxes_id': [(5, 0, 0)],  # Clear all customer taxes
-                'supplier_taxes_id': [(5, 0, 0)],  # Clear all vendor taxes
+                'taxes_id': False,  # Clear all customer taxes
+                'supplier_taxes_id': False,  # Clear all vendor taxes
             })
 
             # Create external identifier for future reference
@@ -89,6 +89,12 @@ class AccountMove(models.Model):
                 'model': 'product.product',
                 'res_id': discount_product.id,
             })
+        else:
+            # Ensure the product has no taxes
+            if discount_product.taxes_id:
+                discount_product.taxes_id = False
+            if discount_product.supplier_taxes_id:
+                discount_product.supplier_taxes_id = False
 
         return discount_product
 

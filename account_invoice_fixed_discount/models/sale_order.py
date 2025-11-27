@@ -39,11 +39,15 @@ class SaleOrder(models.Model):
             # Update existing line
             discount_line.price_unit = -abs(self.global_discount_fixed)
             discount_line.product_uom_qty = 1.0
-            # Clear taxes - check which field exists
-            if hasattr(discount_line, 'tax_ids'):
-                discount_line.tax_ids = [(5, 0, 0)]
-            elif hasattr(discount_line, 'tax_id'):
-                discount_line.tax_id = [(5, 0, 0)]
+            # Clear taxes - try both approaches
+            try:
+                discount_line.tax_ids = False
+            except:
+                pass
+            try:
+                discount_line.tax_id = False
+            except:
+                pass
         else:
             # Create new discount line at the end without setting taxes initially
             vals = {
@@ -57,16 +61,23 @@ class SaleOrder(models.Model):
             # Add line using Command.create
             self.order_line = [(0, 0, vals)]
 
+            # Force recompute to get the new line
+            self._recompute_dynamic_lines()
+
             # Now find and clear taxes on the newly created line
             new_discount_line = self.order_line.filtered(
-                lambda l: l.product_id and l.product_id.id == discount_product.id
+                lambda l: l.product_id and l.product_id.id == discount_product.id and l.sequence == 9999
             )
             if new_discount_line:
-                # Clear taxes after creation - check which field exists
-                if hasattr(new_discount_line, 'tax_ids'):
-                    new_discount_line.tax_ids = [(5, 0, 0)]
-                elif hasattr(new_discount_line, 'tax_id'):
-                    new_discount_line.tax_id = [(5, 0, 0)]
+                # Clear taxes after creation - try both field names
+                try:
+                    new_discount_line.tax_ids = False
+                except:
+                    pass
+                try:
+                    new_discount_line.tax_id = False
+                except:
+                    pass
 
     def _get_global_discount_product(self):
         """Get or create a product for global discount lines."""
@@ -83,8 +94,8 @@ class SaleOrder(models.Model):
                 'invoice_policy': 'order',
                 'list_price': 0.0,
                 'default_code': 'GLOBAL_DISCOUNT',
-                'taxes_id': [(5, 0, 0)],  # Clear all customer taxes
-                'supplier_taxes_id': [(5, 0, 0)],  # Clear all vendor taxes
+                'taxes_id': False,  # Clear all customer taxes
+                'supplier_taxes_id': False,  # Clear all vendor taxes
             })
 
             # Create external identifier for future reference
@@ -94,6 +105,12 @@ class SaleOrder(models.Model):
                 'model': 'product.product',
                 'res_id': discount_product.id,
             })
+        else:
+            # Ensure the product has no taxes
+            if discount_product.taxes_id:
+                discount_product.taxes_id = False
+            if discount_product.supplier_taxes_id:
+                discount_product.supplier_taxes_id = False
 
         return discount_product
 

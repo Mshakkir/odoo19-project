@@ -9,21 +9,46 @@ class StockWarehouseOrderpoint(models.Model):
         string='Last Notification Date',
         help='Last time a notification was sent for this reordering rule'
     )
+
     notification_count = fields.Integer(
         string='Notifications Sent',
         default=0,
         help='Number of notifications sent for this rule'
     )
 
+    @api.model
+    def search(self, args, offset=0, limit=None, order=None, count=False):
+        """Override search to filter orderpoints by user's assigned warehouses"""
+        # If user is stock manager (admin), show all orderpoints
+        if self.env.user.has_group('stock.group_stock_manager'):
+            return super().search(args, offset=offset, limit=limit, order=order, count=count)
+
+        # For regular users, filter by assigned warehouses only
+        user_warehouses = self.env['stock.warehouse'].search([
+            ('notification_user_ids', 'in', [self.env.user.id])
+        ])
+
+        if user_warehouses:
+            # Add warehouse filter to existing domain
+            warehouse_domain = [('warehouse_id', 'in', user_warehouses.ids)]
+            args = args + warehouse_domain
+        else:
+            # User not assigned to any warehouse - show nothing
+            args = args + [('id', '=', False)]
+
+        return super().search(args, offset=offset, limit=limit, order=order, count=count)
+
     def _send_system_notification(self, notification_data):
         """Send notification to Odoo notification center (bell icon)"""
         self.ensure_one()
         warehouse = self.warehouse_id
+
         if not warehouse or not warehouse.enable_reorder_notifications:
             return False
 
         # Get users to notify - ONLY for THIS warehouse
         users_to_notify = warehouse.sudo()._get_notification_users()
+
         if not users_to_notify:
             return False
 
@@ -70,6 +95,7 @@ class StockWarehouseOrderpoint(models.Model):
     def _format_notification_message_simple(self, data):
         """Format simple notification message"""
         notification_color = '#dc3545' if data['notification_type'] == 'below_min' else '#ffc107'
+
         message = f"""
         <div style="padding: 10px; border-left: 4px solid {notification_color}; background-color: #f8f9fa;">
             <h4 style="margin: 0 0 10px 0; color: {notification_color};">
@@ -127,6 +153,7 @@ class StockWarehouseOrderpoint(models.Model):
         for warehouse in warehouses:
             # Get users for THIS specific warehouse
             warehouse_users = warehouse.sudo()._get_notification_users()
+
             if not warehouse_users:
                 continue
 
@@ -158,7 +185,6 @@ class StockWarehouseOrderpoint(models.Model):
                         notification_type = 'below_min'
                         shortage = orderpoint.product_min_qty - qty_available
                         message = f"⚠️ URGENT: Stock below minimum! Shortage: {shortage:.2f} {product.uom_id.name}"
-
                     # Check if above maximum
                     elif qty_available > orderpoint.product_max_qty:
                         notification_type = 'above_max'
@@ -261,6 +287,7 @@ class StockWarehouseOrderpoint(models.Model):
                         'last_notification_date': fields.Datetime.now(),
                         'notification_count': self.notification_count + 1,
                     })
+
                     users_count = len(self.warehouse_id._get_notification_users())
                     return {
                         'type': 'ir.actions.client',

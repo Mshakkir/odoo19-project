@@ -16,64 +16,6 @@ class StockWarehouseOrderpoint(models.Model):
         help='Number of notifications sent for this rule'
     )
 
-    needs_reorder = fields.Boolean(
-        string='Needs Reorder',
-        compute='_compute_needs_reorder',
-        search='_search_needs_reorder',
-        help='Product is below minimum or above maximum'
-    )
-
-    qty_on_hand = fields.Float(
-        string='Quantity On Hand',
-        compute='_compute_qty_on_hand',
-        help='Current quantity available'
-    )
-
-    @api.depends('product_id', 'location_id')
-    def _compute_qty_on_hand(self):
-        """Compute current on-hand quantity"""
-        for rec in self:
-            if rec.product_id and rec.location_id:
-                rec.qty_on_hand = rec.product_id.with_context(
-                    location=rec.location_id.id
-                ).qty_available
-            else:
-                rec.qty_on_hand = 0.0
-
-    @api.depends('qty_on_hand', 'product_min_qty', 'product_max_qty')
-    def _compute_needs_reorder(self):
-        """Check if product needs reordering"""
-        for rec in self:
-            rec.needs_reorder = (
-                    rec.qty_on_hand < rec.product_min_qty or
-                    rec.qty_on_hand > rec.product_max_qty
-            )
-
-    def _search_needs_reorder(self, operator, value):
-        """Search for products that need reordering"""
-        # Get all orderpoints
-        orderpoints = self.search([])
-
-        # Filter those that need reorder
-        needs_reorder_ids = []
-        for orderpoint in orderpoints:
-            product = orderpoint.product_id
-            location = orderpoint.location_id
-
-            if product and location:
-                qty_available = product.with_context(location=location.id).qty_available
-
-                needs_reorder = (
-                        qty_available < orderpoint.product_min_qty or
-                        qty_available > orderpoint.product_max_qty
-                )
-
-                if (operator == '=' and needs_reorder == value) or \
-                        (operator == '!=' and needs_reorder != value):
-                    needs_reorder_ids.append(orderpoint.id)
-
-        return [('id', 'in', needs_reorder_ids)]
-
     def _send_system_notification(self, notification_data):
         """Send notification to Odoo notification center (bell icon)"""
         self.ensure_one()

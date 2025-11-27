@@ -519,46 +519,73 @@ class AccountMove(models.Model):
         readonly=False,
     )
 
-    # NOTE: do NOT add an @api.depends decorator here — keep Odoo core's dependencies intact.
+    amount_undiscounted = fields.Monetary(
+        string='Amount Undiscounted',
+        compute='_compute_amounts_with_discount',
+        store=True,
+        currency_field='currency_id'
+    )
 
+    amount_after_discount = fields.Monetary(
+        string='Amount After Discount',
+        compute='_compute_amounts_with_discount',
+        store=True,
+        currency_field='currency_id'
+    )
 
-@api.depends(
-    'invoice_line_ids.price_subtotal',
-    'invoice_line_ids.price_total',
-    'global_discount_fixed',
-)
-def _compute_amount(self):
-    """
-    Extend account.move amount compute to consider global_discount_fixed.
+    @api.depends('invoice_line_ids.price_subtotal', 'invoice_line_ids.discount', 'global_discount_fixed')
+    def _compute_amounts_with_discount(self):
+        """Calculate amounts before and after global discount."""
+        for move in self:
+            if move.is_invoice():
+                # Calculate the ORIGINAL amount before any discounts
+                amount_undiscounted = 0.0
+                for line in move.invoice_line_ids:
+                    if not line.display_type:
+                        # Calculate original amount WITHOUT discount
+                        original_line_amount = line.quantity * line.price_unit
+                        amount_undiscounted += original_line_amount
 
-    First call super() to let Odoo compute its normal totals.
-    Then apply the fixed global discount on the invoice.
-    """
-    # Let core compute amounts first
-    super(AccountMove, self)._compute_amount()
+                move.amount_undiscounted = amount_undiscounted
+                move.amount_after_discount = amount_undiscounted - (move.global_discount_fixed or 0.0)
+            else:
+                move.amount_undiscounted = 0.0
+                move.amount_after_discount = 0.0
 
-    for move in self:
-        # Apply only to invoices / vendor bills / refunds
-        if move.move_type not in ('out_invoice', 'in_invoice', 'out_refund', 'in_refund'):
-            continue
+    # THIS METHOD MUST BE INDENTED INSIDE THE CLASS! ✅
+    def _compute_amount(self):
+        """
+        Override to apply global discount to invoice totals.
+        Call super() first, then adjust for discount.
+        """
+        # Let Odoo compute the standard amounts first
+        super(AccountMove, self)._compute_amount()
 
-        # Only real invoice lines, ignore section/note lines
-        invoice_lines = move.invoice_line_ids.filtered(lambda l: not l.display_type)
+        for move in self:
+            # Only process invoices/bills/refunds
+            if move.move_type not in ('out_invoice', 'in_invoice', 'out_refund', 'in_refund'):
+                continue
 
-        amount_untaxed = sum(invoice_lines.mapped('price_subtotal'))
-        amount_tax = sum(invoice_lines.mapped('price_total')) - amount_untaxed
+            # Only if there's a discount
+            if not move.global_discount_fixed or move.global_discount_fixed <= 0:
+                continue
 
-        # Use currency rounder
-        round_func = getattr(move.currency_id, 'round', lambda x: round(x, 2))
+            # Get invoice lines (excluding section/note lines)
+            invoice_lines = move.invoice_line_ids.filtered(lambda l: not l.display_type)
 
-        # If discount exists, apply discount logic
-        if move.global_discount_fixed and move.global_discount_fixed > 0:
-            # New untaxed after discount
+            # Calculate amounts from lines
+            amount_untaxed = sum(invoice_lines.mapped('price_subtotal'))
+            amount_tax = sum(invoice_lines.mapped('price_total')) - amount_untaxed
+
+            _logger.info(
+                f"Invoice {move.name}: Original untaxed={amount_untaxed}, tax={amount_tax}, discount={move.global_discount_fixed}")
+
+            # Apply discount
             amount_untaxed_after = amount_untaxed - move.global_discount_fixed
             if amount_untaxed_after < 0:
                 amount_untaxed_after = 0.0
 
-            # Tax must also be reduced proportionally
+            # Recalculate tax proportionally
             if amount_untaxed > 0:
                 discount_ratio = amount_untaxed_after / amount_untaxed
                 amount_tax_after = amount_tax * discount_ratio
@@ -567,13 +594,48 @@ def _compute_amount(self):
 
             amount_total_after = amount_untaxed_after + amount_tax_after
 
-            # Save values
-            move.amount_untaxed = round_func(amount_untaxed_after)
-            move.amount_tax = round_func(amount_tax_after)
-            move.amount_total = round_func(amount_total_after)
+            _logger.info(
+                f"After discount: untaxed={amount_untaxed_after}, tax={amount_tax_after}, total={amount_total_after}")
 
-        else:
-            # No discount → keep original values (reassign for safety)
-            move.amount_untaxed = round_func(amount_untaxed)
-            move.amount_tax = round_func(amount_tax)
-            move.amount_total = round_func(amount_untaxed + amount_tax)
+            # Update the move with new amounts
+            # Use currency rounding
+            currency = move.currency_id or move.company_id.currency_id
+
+            move.amount_untaxed = currency.round(amount_untaxed_after)
+            move.amount_tax = currency.round(amount_tax_after)
+            move.amount_total = currency.round(amount_total_after)
+            move.amount_residual = move.amount_total - move.amount_paid
+
+            # Update signed amounts for reporting
+            sign = -1 if move.move_type in ('in_invoice', 'out_refund') else 1
+            move.amount_untaxed_signed = move.amount_untaxed * sign
+            move.amount_total_signed = move.amount_total * sign
+            move.amount_residual_signed = move.amount_residual * move.direction_sign
+            move.amount_total_in_currency_signed = move.amount_total * move.direction_sign
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Apply discount when creating invoice."""
+        moves = super().create(vals_list)
+
+        for move in moves:
+            if move.is_invoice() and move.global_discount_fixed and move.global_discount_fixed > 0:
+                _logger.info(f"Invoice created with discount: {move.global_discount_fixed}")
+                # Force recomputation
+                move._compute_amount()
+                move._compute_amounts_with_discount()
+
+        return moves
+
+    def write(self, vals):
+        """Recompute when discount changes."""
+        res = super().write(vals)
+
+        if 'global_discount_fixed' in vals:
+            for move in self:
+                if move.is_invoice():
+                    _logger.info(f"Invoice discount changed to: {move.global_discount_fixed}")
+                    move._compute_amount()
+                    move._compute_amounts_with_discount()
+
+        return res

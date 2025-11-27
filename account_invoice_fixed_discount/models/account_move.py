@@ -533,6 +533,17 @@ class AccountMove(models.Model):
         currency_field='currency_id'
     )
 
+    # Override to exclude discount lines from invoice tab
+    invoice_line_ids = fields.One2many(
+        'account.move.line',
+        'move_id',
+        string='Invoice lines',
+        copy=False,
+        readonly=False,
+        domain=[('display_type', 'in', ('product', 'line_section', 'line_note'))],
+        states={'posted': [('readonly', True)]},
+    )
+
     @api.depends('invoice_line_ids.price_subtotal', 'invoice_line_ids.discount', 'global_discount_fixed')
     def _compute_amounts_with_discount(self):
         """Calculate amounts before and after global discount."""
@@ -569,9 +580,10 @@ class AccountMove(models.Model):
         if not self.is_invoice():
             return
 
-        # Find existing discount line in ALL lines (not just invoice_line_ids)
+        # Find existing discount line - look for lines NOT in invoice_line_ids
         discount_line = self.line_ids.filtered(
-            lambda l: l.name and 'Global Discount:' in l.name and l.id not in self.invoice_line_ids.ids
+            lambda l: l.name and 'Global Discount:' in l.name
+                      and l.display_type not in ('product', 'line_section', 'line_note')
         )
 
         if not self.global_discount_fixed or self.global_discount_fixed <= 0:
@@ -586,8 +598,6 @@ class AccountMove(models.Model):
             return
 
         # Calculate discount amount with proper sign
-        # For customer invoices: debit discount account, credit receivable (reduces total)
-        # For vendor bills: credit discount account, debit payable (reduces total)
         if self.move_type in ('out_invoice', 'in_refund'):
             # Customer invoice: discount is a debit
             debit = self.global_discount_fixed
@@ -599,23 +609,21 @@ class AccountMove(models.Model):
 
         line_vals = {
             'name': f'Global Discount: {self.global_discount_fixed}',
+            'display_type': 'payment_term',  # Use a type not shown in invoice lines
             'account_id': discount_account.id,
             'partner_id': self.partner_id.id,
             'debit': debit,
             'credit': credit,
-            'exclude_from_invoice_tab': True,  # Critical: exclude from invoice tab
         }
 
         if discount_line:
             # Update existing line
             discount_line.with_context(check_move_validity=False).write(line_vals)
         else:
-            # Create new line directly in line_ids (not invoice_line_ids)
+            # Create new line
             line_vals['move_id'] = self.id
-            # Use direct SQL or ORM to create line without triggering invoice_line_ids
             self.env['account.move.line'].with_context(
                 check_move_validity=False,
-                skip_invoice_sync=True
             ).create(line_vals)
 
     def _get_discount_account(self):

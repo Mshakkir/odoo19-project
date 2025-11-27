@@ -20,90 +20,38 @@
 <!--    </record>-->
 <!--</odoo>-->
 
-
-
 <!-- Copyright 2017 ForgeFlow S.L.
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
-<!--<odoo>-->
-<!--    <record id="view_order_form" model="ir.ui.view">-->
-<!--        <field name="name">sale.order.form - fixed_discount</field>-->
-<!--        <field name="model">sale.order</field>-->
-<!--        <field name="inherit_id" ref="sale.view_order_form" />-->
-<!--        <field name="arch" type="xml">-->
-<!--            &lt;!&ndash; Add fixed discount column to order lines &ndash;&gt;-->
-<!--            <xpath-->
-<!--                expr="//field[@name='order_line']/list/field[@name='discount']"-->
-<!--                position="before"-->
-<!--            >-->
-<!--                <field-->
-<!--                    name="discount_fixed"-->
-<!--                    groups="account_invoice_fixed_discount.group_fixed_discount"-->
-<!--                    optional="show"-->
-<!--                />-->
-<!--            </xpath>-->
-
-<!--            &lt;!&ndash; Add global discount field after order lines &ndash;&gt;-->
-<!--            <xpath expr="//field[@name='order_line']" position="after">-->
-<!--                <group>-->
-<!--                    <group>-->
-<!--                        <field-->
-<!--                            name="global_discount_fixed"-->
-<!--                            groups="account_invoice_fixed_discount.group_fixed_discount"-->
-<!--                            widget="monetary"-->
-<!--                        />-->
-<!--                    </group>-->
-<!--                </group>-->
-<!--            </xpath>-->
-<!--        </field>-->
-<!--    </record>-->
-<!--</odoo>-->
-
-
 <odoo>
     <record id="view_order_form" model="ir.ui.view">
         <field name="name">sale.order.form - fixed_discount</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form" />
         <field name="arch" type="xml">
-
-            <!-- Remove the discount_fixed column from order lines since we don't want it there -->
-            <xpath expr="//field[@name='order_line']/list/field[@name='discount']" position="attributes">
-                <attribute name="optional">hide</attribute>
+            <!-- Add fixed discount column to order lines -->
+            <xpath
+                expr="//field[@name='order_line']/list/field[@name='discount']"
+                position="before"
+            >
+                <field
+                    name="discount_fixed"
+                    groups="account_invoice_fixed_discount.group_fixed_discount"
+                    optional="show"
+                />
             </xpath>
 
-            <!-- Replace the entire totals section -->
-            <xpath expr="//group[@name='sale_total']" position="replace">
-                <group name="sale_total" colspan="2" col="2">
-                    <group class="oe_subtotal_footer oe_right" colspan="2">
-                        <field name="amount_undiscounted" widget="monetary"
-                               options="{'currency_field': 'currency_id'}"
-                               string="Untaxed Amount"/>
-
-                        <field name="global_discount_fixed"
-                               groups="account_invoice_fixed_discount.group_fixed_discount"
-                               widget="monetary"
-                               options="{'currency_field': 'currency_id'}"
-                               string="Discount"
-                               class="oe_subtotal_footer_separator"/>
-
-                        <field name="amount_after_discount"
-                               widget="monetary"
-                               options="{'currency_field': 'currency_id'}"
-                               string="Untaxed Amount (After Discount)"
-                               class="oe_subtotal_footer_separator"/>
-
-                        <field name="amount_tax" widget="monetary"
-                               options="{'currency_field': 'currency_id'}"
-                               string="VAT Taxes"/>
-
-                        <field name="amount_total" widget="monetary"
-                               options="{'currency_field': 'currency_id'}"
-                               class="oe_subtotal_footer_separator"
-                               string="Total"/>
+            <!-- Add global discount field after order lines -->
+            <xpath expr="//field[@name='order_line']" position="after">
+                <group>
+                    <group>
+                        <field
+                            name="global_discount_fixed"
+                            groups="account_invoice_fixed_discount.group_fixed_discount"
+                            widget="monetary"
+                        />
                     </group>
                 </group>
             </xpath>
-
         </field>
     </record>
 </odoo>

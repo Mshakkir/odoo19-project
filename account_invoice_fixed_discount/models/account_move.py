@@ -542,7 +542,7 @@ class AccountMove(models.Model):
                 amount_undiscounted = 0.0
                 for line in move.invoice_line_ids:
                     if not line.display_type:
-                        # Calculate original amount WITHOUT discount
+                        # Calculate original amount WITHOUT line-level discount
                         original_line_amount = line.quantity * line.price_unit
                         amount_undiscounted += original_line_amount
 
@@ -552,66 +552,111 @@ class AccountMove(models.Model):
                 move.amount_undiscounted = 0.0
                 move.amount_after_discount = 0.0
 
-    # THIS METHOD MUST BE INDENTED INSIDE THE CLASS! ✅
-    def _compute_amount(self):
+    def _recompute_dynamic_lines(self, recompute_all_taxes=False, recompute_tax_base_amount=False):
         """
-        Override to apply global discount to invoice totals.
-        Call super() first, then adjust for discount.
+        Override to apply global discount to invoice lines and journal entries.
+        This ensures the journal entry remains balanced.
         """
-        # Let Odoo compute the standard amounts first
-        super(AccountMove, self)._compute_amount()
+        # Call super to let Odoo compute standard amounts and journal lines
+        res = super()._recompute_dynamic_lines(
+            recompute_all_taxes=recompute_all_taxes,
+            recompute_tax_base_amount=recompute_tax_base_amount
+        )
 
         for move in self:
-            # Only process invoices/bills/refunds
-            if move.move_type not in ('out_invoice', 'in_invoice', 'out_refund', 'in_refund'):
+            # Only process invoices/bills with discount
+            if not move.is_invoice():
                 continue
 
-            # Only if there's a discount
             if not move.global_discount_fixed or move.global_discount_fixed <= 0:
                 continue
 
-            # Get invoice lines (excluding section/note lines)
-            invoice_lines = move.invoice_line_ids.filtered(lambda l: not l.display_type)
+            # Create or update discount line
+            self._apply_global_discount(move)
 
-            # Calculate amounts from lines
-            amount_untaxed = sum(invoice_lines.mapped('price_subtotal'))
-            amount_tax = sum(invoice_lines.mapped('price_total')) - amount_untaxed
+        return res
 
-            _logger.info(
-                f"Invoice {move.name}: Original untaxed={amount_untaxed}, tax={amount_tax}, discount={move.global_discount_fixed}")
+    def _apply_global_discount(self, move):
+        """Apply global discount by creating a discount line."""
+        discount_account = self._get_discount_account(move)
 
-            # Apply discount
-            amount_untaxed_after = amount_untaxed - move.global_discount_fixed
-            if amount_untaxed_after < 0:
-                amount_untaxed_after = 0.0
+        if not discount_account:
+            _logger.warning(f"No discount account configured for invoice {move.name}")
+            return
 
-            # Recalculate tax proportionally
-            if amount_untaxed > 0:
-                discount_ratio = amount_untaxed_after / amount_untaxed
-                amount_tax_after = amount_tax * discount_ratio
-            else:
-                amount_tax_after = 0.0
+        # Find existing discount line
+        discount_line = move.line_ids.filtered(
+            lambda l: l.account_id == discount_account and l.exclude_from_invoice_tab
+        )
 
-            amount_total_after = amount_untaxed_after + amount_tax_after
+        # Determine the sign based on move type
+        # For customer invoices: discount reduces receivable (credit)
+        # For vendor bills: discount reduces payable (debit)
+        sign = 1 if move.move_type in ('out_invoice', 'out_refund') else -1
+        discount_amount = move.global_discount_fixed * sign
 
-            _logger.info(
-                f"After discount: untaxed={amount_untaxed_after}, tax={amount_tax_after}, total={amount_total_after}")
+        if discount_line:
+            # Update existing line
+            discount_line.with_context(check_move_validity=False).write({
+                'debit': discount_amount if discount_amount > 0 else 0.0,
+                'credit': -discount_amount if discount_amount < 0 else 0.0,
+                'amount_currency': discount_amount if move.currency_id != move.company_currency_id else 0.0,
+            })
+        else:
+            # Create new discount line
+            line_vals = {
+                'move_id': move.id,
+                'account_id': discount_account.id,
+                'name': f'Global Discount: {move.global_discount_fixed}',
+                'debit': discount_amount if discount_amount > 0 else 0.0,
+                'credit': -discount_amount if discount_amount < 0 else 0.0,
+                'amount_currency': discount_amount if move.currency_id != move.company_currency_id else 0.0,
+                'currency_id': move.currency_id.id if move.currency_id != move.company_currency_id else False,
+                'exclude_from_invoice_tab': True,
+                'partner_id': move.partner_id.id,
+            }
 
-            # Update the move with new amounts
-            # Use currency rounding
-            currency = move.currency_id or move.company_id.currency_id
+            move.with_context(check_move_validity=False).write({
+                'line_ids': [(0, 0, line_vals)]
+            })
 
-            move.amount_untaxed = currency.round(amount_untaxed_after)
-            move.amount_tax = currency.round(amount_tax_after)
-            move.amount_total = currency.round(amount_total_after)
-            move.amount_residual = move.amount_total - move.amount_paid
+        # Recompute totals
+        move._compute_amount()
 
-            # Update signed amounts for reporting
-            sign = -1 if move.move_type in ('in_invoice', 'out_refund') else 1
-            move.amount_untaxed_signed = move.amount_untaxed * sign
-            move.amount_total_signed = move.amount_total * sign
-            move.amount_residual_signed = move.amount_residual * move.direction_sign
-            move.amount_total_in_currency_signed = move.amount_total * move.direction_sign
+    def _get_discount_account(self, move):
+        """Get the appropriate discount account based on invoice type."""
+        # Get from company settings or use expense/income account
+        company = move.company_id
+
+        if move.move_type in ('out_invoice', 'out_refund'):
+            # Sales discount - use sales discount account or fallback
+            # You can add a field to res.company for this
+            account = self.env['account.account'].search([
+                ('company_id', '=', company.id),
+                ('code', '=like', '4090%'),  # Typical sales discount account
+            ], limit=1)
+
+            if not account:
+                # Fallback to generic expense account
+                account = self.env['account.account'].search([
+                    ('company_id', '=', company.id),
+                    ('account_type', '=', 'expense'),
+                ], limit=1)
+        else:
+            # Purchase discount - use purchase discount account
+            account = self.env['account.account'].search([
+                ('company_id', '=', company.id),
+                ('code', '=like', '7090%'),  # Typical purchase discount account
+            ], limit=1)
+
+            if not account:
+                # Fallback to generic income account
+                account = self.env['account.account'].search([
+                    ('company_id', '=', company.id),
+                    ('account_type', '=', 'income'),
+                ], limit=1)
+
+        return account
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -622,8 +667,7 @@ class AccountMove(models.Model):
             if move.is_invoice() and move.global_discount_fixed and move.global_discount_fixed > 0:
                 _logger.info(f"Invoice created with discount: {move.global_discount_fixed}")
                 # Force recomputation
-                move._compute_amount()
-                move._compute_amounts_with_discount()
+                move._recompute_dynamic_lines()
 
         return moves
 
@@ -635,7 +679,6 @@ class AccountMove(models.Model):
             for move in self:
                 if move.is_invoice():
                     _logger.info(f"Invoice discount changed to: {move.global_discount_fixed}")
-                    move._compute_amount()
-                    move._compute_amounts_with_discount()
+                    move._recompute_dynamic_lines()
 
         return res

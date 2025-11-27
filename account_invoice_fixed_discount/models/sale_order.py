@@ -40,7 +40,6 @@ class SaleOrder(models.Model):
             discount_line.product_id = discount_product.id  # Reset product
             discount_line.price_unit = -abs(self.global_discount_fixed)
             discount_line.product_uom_qty = 1.0
-            discount_line.tax_id = False  # Force clear taxes
         else:
             # Create new line
             self.order_line = [Command.create({
@@ -50,13 +49,6 @@ class SaleOrder(models.Model):
                 'price_unit': -abs(self.global_discount_fixed),
                 'sequence': 9999,
             })]
-
-            # Immediately find and clear taxes on new line
-            new_line = self.order_line.filtered(
-                lambda l: l.product_id and l.product_id.default_code == 'GLOBAL_DISCOUNT'
-            )
-            if new_line:
-                new_line.tax_id = False
 
     def _get_global_discount_product(self):
         """Get or create a product for global discount lines."""

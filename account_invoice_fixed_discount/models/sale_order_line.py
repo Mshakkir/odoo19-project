@@ -9,7 +9,7 @@ class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
     discount_fixed = fields.Monetary(
-        string="Discount (Fixed)",
+        string="Disc(Fixed)",
         default=0.0,
         currency_field="currency_id",
         help=(
@@ -20,7 +20,7 @@ class SaleOrderLine(models.Model):
 
     # NEW FIELD: Amount before any discount
     price_subtotal_before_discount = fields.Monetary(
-        string="Amount (Before Discount)",
+        string="Amount(Before Disc)",
         compute="_compute_amount_before_discount",
         store=True,
         currency_field="currency_id",

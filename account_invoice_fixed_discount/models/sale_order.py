@@ -52,7 +52,6 @@ class SaleOrder(models.Model):
                 'product_uom_qty': 1.0,
                 'price_unit': -abs(self.global_discount_fixed),
                 'sequence': 9999,
-                'product_uom': discount_product.uom_id.id,
             }
 
             # Add line using Command.create

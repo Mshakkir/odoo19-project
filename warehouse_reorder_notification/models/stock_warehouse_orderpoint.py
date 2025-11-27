@@ -57,10 +57,6 @@ class StockWarehouseOrderpoint(models.Model):
 
         return True
 
-    def _notify_users_system(self, users, notification_data, title):
-        """Send notification to bell icon - REMOVED, using mail.message instead"""
-        pass
-
     def _format_notification_message_simple(self, data):
         """Format simple notification message"""
         notification_color = '#dc3545' if data['notification_type'] == 'below_min' else '#ffc107'
@@ -295,20 +291,23 @@ class StockWarehouseOrderpoint(models.Model):
             }
 
     def action_view_notifications(self):
-        """View all notifications/activities for this orderpoint"""
+        """View all mail messages/notifications for this orderpoint"""
         self.ensure_one()
         return {
             'name': _('Reorder Notifications'),
             'type': 'ir.actions.act_window',
-            'res_model': 'mail.activity',
-            'view_mode': 'tree,form',
+            'res_model': 'mail.message',
+            'view_mode': 'list,form',
             'domain': [
+                ('model', '=', 'stock.warehouse.orderpoint'),
                 ('res_id', '=', self.id),
-                ('res_model', '=', 'stock.warehouse.orderpoint')
+                ('message_type', '=', 'notification')
             ],
-            'context': {'default_res_id': self.id, 'default_res_model': 'stock.warehouse.orderpoint'},
+            'context': {
+                'default_model': 'stock.warehouse.orderpoint',
+                'default_res_id': self.id,
+            },
         }
-
 
 
 

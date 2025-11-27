@@ -1,6 +1,9 @@
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
+# Copyright 2017 ForgeFlow S.L.
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+
 from odoo import api, fields, models
 from odoo.tools.float_utils import float_is_zero
 
@@ -42,23 +45,22 @@ class AccountMove(models.Model):
 
         if discount_line:
             # Update existing line
-            discount_line.write({
-                'price_unit': -abs(self.global_discount_fixed),
-                'quantity': 1.0,
-            })
+            discount_line.price_unit = -abs(self.global_discount_fixed)
+            discount_line.quantity = 1.0
         else:
             # Create new discount line at the end
             # Get the last sequence number
             max_sequence = max([line.sequence for line in self.invoice_line_ids if line.sequence], default=10)
 
-            self.invoice_line_ids = [(0, 0, {
+            line_vals = {
                 'product_id': discount_product.id,
                 'name': 'Global Discount',
                 'quantity': 1.0,
                 'price_unit': -abs(self.global_discount_fixed),
-                'tax_ids': [(6, 0, [])],  # No taxes on discount line
                 'sequence': max_sequence + 10,  # Put it at the end
-            })]
+            }
+
+            self.invoice_line_ids = [(0, 0, line_vals)]
 
     def _get_global_discount_product(self):
         """Get or create a product for global discount lines."""
@@ -74,8 +76,6 @@ class AccountMove(models.Model):
                 'type': 'service',
                 'invoice_policy': 'order',
                 'list_price': 0.0,
-                'taxes_id': [(5, 0, 0)],  # No taxes
-                'supplier_taxes_id': [(5, 0, 0)],
                 'default_code': 'GLOBAL_DISCOUNT',
             })
 

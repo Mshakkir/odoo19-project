@@ -7,6 +7,9 @@
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
+# Copyright 2017 ForgeFlow S.L.
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+
 from odoo import api, fields, models
 from odoo.tools.float_utils import float_is_zero
 
@@ -29,14 +32,8 @@ class SaleOrder(models.Model):
 
         # Find existing discount line
         discount_line = self.order_line.filtered(
-            lambda l: l.display_type == 'line_section' and l.name and 'Global Discount' in l.name
+            lambda l: l.product_id and l.product_id.id == self._get_global_discount_product().id
         )
-
-        # If no discount line exists but we're using a different approach, look for product-based discount line
-        if not discount_line:
-            discount_line = self.order_line.filtered(
-                lambda l: l.product_id and l.product_id.id == self._get_global_discount_product().id
-            )
 
         if float_is_zero(self.global_discount_fixed, precision_rounding=currency.rounding):
             # Remove discount line if global discount is zero
@@ -49,20 +46,20 @@ class SaleOrder(models.Model):
 
         if discount_line:
             # Update existing line
-            discount_line.write({
-                'price_unit': -abs(self.global_discount_fixed),
-                'product_uom_qty': 1.0,
-            })
+            discount_line.price_unit = -abs(self.global_discount_fixed)
+            discount_line.product_uom_qty = 1.0
         else:
             # Create new discount line at the end
-            self.order_line = [(0, 0, {
+            # Don't set tax_id in the values dict - let it be handled by onchange
+            line_vals = {
                 'product_id': discount_product.id,
                 'name': 'Global Discount',
                 'product_uom_qty': 1.0,
                 'price_unit': -abs(self.global_discount_fixed),
-                'tax_id': [(5, 0, 0)],  # No taxes on discount line
                 'sequence': 9999,  # Put it at the end
-            })]
+            }
+
+            self.order_line = [(0, 0, line_vals)]
 
     def _get_global_discount_product(self):
         """Get or create a product for global discount lines."""
@@ -78,8 +75,6 @@ class SaleOrder(models.Model):
                 'type': 'service',
                 'invoice_policy': 'order',
                 'list_price': 0.0,
-                'taxes_id': [(5, 0, 0)],  # No taxes
-                'supplier_taxes_id': [(5, 0, 0)],
                 'default_code': 'GLOBAL_DISCOUNT',
             })
 

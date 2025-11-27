@@ -605,6 +605,8 @@ class AccountMove(models.Model):
                     check_move_validity=False,
                     dynamic_unlink=True
                 ).unlink()
+                # Recompute taxes after removing discount
+                self._recompute_tax_lines()
             return
 
         discount_account = self._get_discount_account()
@@ -649,6 +651,9 @@ class AccountMove(models.Model):
                 'invoice_line_ids': [(0, 0, line_vals)]
             })
 
+        # Force recomputation of tax lines
+        self._recompute_tax_lines()
+
     @api.model_create_multi
     def create(self, vals_list):
         """Apply discount when creating invoice."""
@@ -667,8 +672,10 @@ class AccountMove(models.Model):
 
         if 'global_discount_fixed' in vals:
             for move in self:
-                if move.is_invoice():
+                if move.is_invoice() and move.state == 'draft':
                     _logger.info(f"Invoice discount changed to: {move.global_discount_fixed}")
                     move._ensure_discount_invoice_line()
+                    # Force a full recomputation
+                    move.with_context(check_move_validity=False)._onchange_invoice_line_ids()
 
         return res

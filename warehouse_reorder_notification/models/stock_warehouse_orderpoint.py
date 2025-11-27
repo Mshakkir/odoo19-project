@@ -16,65 +16,6 @@ class StockWarehouseOrderpoint(models.Model):
         help='Number of notifications sent for this rule'
     )
 
-    @api.model
-    def _search(self, domain, offset=0, limit=None, order=None, count=False, access_rights_uid=None, active_test=True):
-        """Override _search to filter orderpoints by user's assigned warehouses"""
-        # Call super first with ALL parameters
-        result = super()._search(
-            domain,
-            offset=offset,
-            limit=limit,
-            order=order,
-            count=count,
-            access_rights_uid=access_rights_uid,
-            active_test=active_test
-        )
-
-        # If counting, we need to apply filter differently
-        if count:
-            # Get the IDs that match the domain first
-            ids = super()._search(
-                domain,
-                offset=0,
-                limit=None,
-                order=order,
-                count=False,
-                access_rights_uid=access_rights_uid,
-                active_test=active_test
-            )
-            orderpoints = self.browse(ids)
-            filtered_ids = self._apply_warehouse_filter(orderpoints).ids
-            return len(filtered_ids)
-
-        # For normal search, filter the results
-        orderpoints = self.browse(result)
-        filtered_orderpoints = self._apply_warehouse_filter(orderpoints)
-
-        return filtered_orderpoints.ids
-
-    def _apply_warehouse_filter(self, orderpoints):
-        """Apply warehouse filter based on user permissions"""
-        # If user is stock manager (admin), show all orderpoints
-        if self.env.user.has_group('stock.group_stock_manager'):
-            return orderpoints
-
-        # For regular users, filter by assigned warehouses only
-        # Get warehouses where current user is in notification_user_ids
-        self.env.cr.execute("""
-            SELECT warehouse_id
-            FROM warehouse_notification_users_rel
-            WHERE user_id = %s
-        """, (self.env.user.id,))
-
-        warehouse_ids = [row[0] for row in self.env.cr.fetchall()]
-
-        if warehouse_ids:
-            # Return only orderpoints for assigned warehouses
-            return orderpoints.filtered(lambda op: op.warehouse_id.id in warehouse_ids)
-        else:
-            # User not assigned to any warehouse - show nothing
-            return self.env['stock.warehouse.orderpoint']
-
     def _send_system_notification(self, notification_data):
         """Send notification to Odoo notification center (bell icon)"""
         self.ensure_one()

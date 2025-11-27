@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2017 ForgeFlow S.L.
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <data noupdate="1">
+        <!-- Global Discount Product -->
+        <record id="product_global_discount" model="product.product">
+            <field name="name">Global Discount</field>
+            <field name="type">service</field>
+            <field name="invoice_policy">order</field>
+            <field name="list_price">0.0</field>
+            <field name="default_code">GLOBAL_DISCOUNT</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="sale_ok">False</field>
+            <field name="purchase_ok">False</field>
+        </record>
+    </data>
+</odoo>

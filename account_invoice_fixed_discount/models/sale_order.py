@@ -39,22 +39,35 @@ class SaleOrder(models.Model):
             # Update existing line
             discount_line.price_unit = -abs(self.global_discount_fixed)
             discount_line.product_uom_qty = 1.0
-            # Clear taxes
-            discount_line.tax_id = [(5, 0, 0)]
+            # Clear taxes - check which field exists
+            if hasattr(discount_line, 'tax_ids'):
+                discount_line.tax_ids = [(5, 0, 0)]
+            elif hasattr(discount_line, 'tax_id'):
+                discount_line.tax_id = [(5, 0, 0)]
         else:
-            # Create new discount line at the end
-            # Use create in new mode
+            # Create new discount line at the end without setting taxes initially
             vals = {
                 'product_id': discount_product.id,
                 'name': 'Global Discount',
                 'product_uom_qty': 1.0,
                 'price_unit': -abs(self.global_discount_fixed),
                 'sequence': 9999,
-                'tax_id': [(5, 0, 0)],  # Explicitly clear taxes
                 'product_uom': discount_product.uom_id.id,
             }
 
+            # Add line using Command.create
             self.order_line = [(0, 0, vals)]
+
+            # Now find and clear taxes on the newly created line
+            new_discount_line = self.order_line.filtered(
+                lambda l: l.product_id and l.product_id.id == discount_product.id
+            )
+            if new_discount_line:
+                # Clear taxes after creation - check which field exists
+                if hasattr(new_discount_line, 'tax_ids'):
+                    new_discount_line.tax_ids = [(5, 0, 0)]
+                elif hasattr(new_discount_line, 'tax_id'):
+                    new_discount_line.tax_id = [(5, 0, 0)]
 
     def _get_global_discount_product(self):
         """Get or create a product for global discount lines."""

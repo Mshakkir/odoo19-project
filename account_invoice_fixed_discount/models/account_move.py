@@ -541,7 +541,7 @@ class AccountMove(models.Model):
                 # Calculate the ORIGINAL amount before any discounts
                 amount_undiscounted = 0.0
                 for line in move.invoice_line_ids:
-                    if not line.display_type:
+                    if not line.display_type and 'Global Discount' not in (line.name or ''):
                         # Calculate original amount WITHOUT line-level discount
                         original_line_amount = line.quantity * line.price_unit
                         amount_undiscounted += original_line_amount
@@ -552,111 +552,9 @@ class AccountMove(models.Model):
                 move.amount_undiscounted = 0.0
                 move.amount_after_discount = 0.0
 
-    @api.depends('line_ids.balance', 'line_ids.amount_currency', 'global_discount_fixed')
-    def _compute_amount(self):
-        """Override to apply global discount."""
-        # Call super first
-        super()._compute_amount()
-
-        # Then apply discount by modifying amounts
-        for move in self:
-            if not move.is_invoice():
-                continue
-
-            if not move.global_discount_fixed or move.global_discount_fixed <= 0:
-                continue
-
-            # Simply reduce the amounts by discount
-            discount = move.global_discount_fixed
-
-            # Get the amounts before discount
-            original_untaxed = sum(move.invoice_line_ids.filtered(
-                lambda l: not l.display_type
-            ).mapped('price_subtotal'))
-
-            original_tax = sum(move.line_ids.filtered(
-                lambda l: l.tax_line_id
-            ).mapped('balance')) * (-1 if move.move_type in ('out_invoice', 'out_refund') else 1)
-
-            # Apply discount proportionally
-            if original_untaxed > 0:
-                discount_ratio = max(0, (original_untaxed - discount) / original_untaxed)
-                new_untaxed = original_untaxed - discount
-                new_tax = original_tax * discount_ratio
-            else:
-                new_untaxed = 0
-                new_tax = 0
-
-            new_total = new_untaxed + new_tax
-
-            # Update the move amounts
-            move.amount_untaxed = new_untaxed
-            move.amount_tax = new_tax
-            move.amount_total = new_total
-            move.amount_residual = new_total - move.amount_paid
-
-            # Update signed amounts
-            sign = -1 if move.move_type in ('in_invoice', 'out_refund') else 1
-            move.amount_untaxed_signed = new_untaxed * sign
-            move.amount_total_signed = new_total * sign
-            move.amount_residual_signed = move.amount_residual * sign
-            move.amount_total_in_currency_signed = new_total * sign
-
-            _logger.info(f"Applied discount of {discount} to {move.name}. New total: {new_total}")
-
-    def _sync_dynamic_lines(self, container):
-        """Override to add discount line to journal entries."""
-        # Call parent to sync invoice lines to journal entries
-        res = super()._sync_dynamic_lines(container)
-
-        # Add discount line if needed
-        for move in container['records']:
-            if move.global_discount_fixed and move.global_discount_fixed > 0:
-                move._add_discount_line_to_journal(container)
-
-        return res
-
-    def _add_discount_line_to_journal(self, container):
-        """Add the discount line to journal entries."""
-        self.ensure_one()
-
-        discount_account = self._get_discount_account()
-        if not discount_account:
-            return
-
-        # Find if discount line already exists
-        existing_discount = None
-        for line_data in container.get('to_write', []):
-            if 'name' in line_data[1] and 'Global Discount:' in str(line_data[1].get('name', '')):
-                existing_discount = line_data
-                break
-
-        # Calculate the discount line values
-        if self.move_type in ('out_invoice', 'in_refund'):
-            debit = self.global_discount_fixed
-            credit = 0.0
-        else:
-            debit = 0.0
-            credit = self.global_discount_fixed
-
-        line_vals = {
-            'name': f'Global Discount: {self.global_discount_fixed}',
-            'debit': debit,
-            'credit': credit,
-            'amount_currency': debit - credit,
-            'account_id': discount_account.id,
-            'move_id': self.id,
-            'partner_id': self.partner_id.id,
-            'display_type': 'payment_term',
-        }
-
-        if existing_discount:
-            existing_discount[1].update(line_vals)
-        else:
-            container.setdefault('to_create', []).append(line_vals)
-
     def _get_discount_account(self):
         """Get the appropriate discount account based on invoice type."""
+        self.ensure_one()
         company = self.company_id
 
         # Try to get from company settings first
@@ -687,6 +585,56 @@ class AccountMove(models.Model):
 
         return account
 
+    def _ensure_discount_invoice_line(self):
+        """Ensure discount line exists in invoice_line_ids as a negative line."""
+        self.ensure_one()
+
+        if not self.is_invoice():
+            return
+
+        # Find existing discount line in invoice lines
+        discount_line = self.invoice_line_ids.filtered(
+            lambda l: l.name and 'Global Discount:' in l.name
+        )
+
+        if not self.global_discount_fixed or self.global_discount_fixed <= 0:
+            # Remove discount line if discount is 0
+            if discount_line:
+                # Use unlink with proper context
+                discount_line.with_context(
+                    check_move_validity=False,
+                    dynamic_unlink=True
+                ).unlink()
+            return
+
+        discount_account = self._get_discount_account()
+        if not discount_account:
+            _logger.warning(f"No discount account configured for invoice {self.name}")
+            return
+
+        # Prepare discount line values as a negative invoice line
+        line_vals = {
+            'name': f'Global Discount: {self.global_discount_fixed}',
+            'account_id': discount_account.id,
+            'quantity': 1,
+            'price_unit': -self.global_discount_fixed,  # Negative amount
+            'display_type': 'product',
+        }
+
+        if discount_line:
+            # Update existing line
+            discount_line.with_context(
+                check_move_validity=False
+            ).write(line_vals)
+        else:
+            # Create new discount line in invoice_line_ids
+            line_vals['move_id'] = self.id
+            self.with_context(
+                check_move_validity=False
+            ).write({
+                'invoice_line_ids': [(0, 0, line_vals)]
+            })
+
     @api.model_create_multi
     def create(self, vals_list):
         """Apply discount when creating invoice."""
@@ -695,8 +643,7 @@ class AccountMove(models.Model):
         for move in moves:
             if move.is_invoice() and move.global_discount_fixed and move.global_discount_fixed > 0:
                 _logger.info(f"Invoice created with discount: {move.global_discount_fixed}")
-                # Trigger recomputation
-                move.invalidate_recordset(['amount_total', 'amount_untaxed', 'amount_tax'])
+                move._ensure_discount_invoice_line()
 
         return moves
 
@@ -708,13 +655,6 @@ class AccountMove(models.Model):
             for move in self:
                 if move.is_invoice():
                     _logger.info(f"Invoice discount changed to: {move.global_discount_fixed}")
-                    # Trigger recomputation
-                    move.invalidate_recordset(['amount_total', 'amount_untaxed', 'amount_tax'])
+                    move._ensure_discount_invoice_line()
 
         return res
-
-    def _inverse_amount_total(self):
-        """Override to prevent issues when amount_total is set directly."""
-        for move in self:
-            if not move.global_discount_fixed or move.global_discount_fixed <= 0:
-                super(AccountMove, move)._inverse_amount_total()

@@ -43,21 +43,18 @@ class SaleOrder(models.Model):
             discount_line.tax_id = [(5, 0, 0)]
         else:
             # Create new discount line at the end
-            new_line = self.env['sale.order.line'].new({
-                'order_id': self.id,
+            # Use create in new mode
+            vals = {
                 'product_id': discount_product.id,
+                'name': 'Global Discount',
                 'product_uom_qty': 1.0,
                 'price_unit': -abs(self.global_discount_fixed),
                 'sequence': 9999,
-            })
-            # Let product onchange populate fields
-            new_line.product_id_change()
-            # Then clear taxes explicitly
-            new_line.tax_id = [(5, 0, 0)]
-            new_line.name = 'Global Discount'
+                'tax_id': [(5, 0, 0)],  # Explicitly clear taxes
+                'product_uom': discount_product.uom_id.id,
+            }
 
-            # Convert to proper format and add
-            self.order_line += new_line
+            self.order_line = [(0, 0, vals)]
 
     def _get_global_discount_product(self):
         """Get or create a product for global discount lines."""

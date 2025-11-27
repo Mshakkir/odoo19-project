@@ -51,21 +51,17 @@ class AccountMove(models.Model):
             # Get the last sequence number
             max_sequence = max([line.sequence for line in self.invoice_line_ids if line.sequence], default=10)
 
-            new_line = self.env['account.move.line'].new({
-                'move_id': self.id,
+            vals = {
                 'product_id': discount_product.id,
+                'name': 'Global Discount',
                 'quantity': 1.0,
                 'price_unit': -abs(self.global_discount_fixed),
                 'sequence': max_sequence + 10,
-            })
-            # Let product onchange populate fields
-            new_line._onchange_product_id()
-            # Then clear taxes explicitly
-            new_line.tax_ids = [(5, 0, 0)]
-            new_line.name = 'Global Discount'
+                'tax_ids': [(5, 0, 0)],  # Explicitly clear taxes
+                'product_uom_id': discount_product.uom_id.id,
+            }
 
-            # Convert to proper format and add
-            self.invoice_line_ids += new_line
+            self.invoice_line_ids = [(0, 0, vals)]
 
     def _get_global_discount_product(self):
         """Get or create a product for global discount lines."""

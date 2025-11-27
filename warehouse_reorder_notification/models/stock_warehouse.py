@@ -32,29 +32,26 @@ class StockWarehouse(models.Model):
             return self.notification_user_ids
 
         # Otherwise, return all inventory users in the same company
-        stock_user_group = self.env.ref('stock.group_stock_user', raise_if_not_found=False)
-        stock_manager_group = self.env.ref('stock.group_stock_manager', raise_if_not_found=False)
+        try:
+            # Search for users with inventory access
+            all_users = self.env['res.users'].search([('active', '=', True)])
 
-        if not stock_user_group and not stock_manager_group:
+            inventory_users = self.env['res.users']
+            for user in all_users:
+                # Check if user has stock groups using has_group method
+                has_stock_access = False
+
+                if user.has_group('stock.group_stock_user'):
+                    has_stock_access = True
+                if user.has_group('stock.group_stock_manager'):
+                    has_stock_access = True
+
+                # Check company match
+                if has_stock_access:
+                    if not self.company_id or user.company_id == self.company_id or not user.company_id:
+                        inventory_users |= user
+
+            return inventory_users
+        except Exception as e:
+            # If error occurs, return empty recordset
             return self.env['res.users']
-
-        # Search for users with inventory access
-        all_users = self.env['res.users'].search([('active', '=', True)])
-
-        inventory_users = self.env['res.users']
-        for user in all_users:
-            # Check if user has stock groups
-            user_groups = user.groups_id.ids
-            has_stock_access = False
-
-            if stock_user_group and stock_user_group.id in user_groups:
-                has_stock_access = True
-            if stock_manager_group and stock_manager_group.id in user_groups:
-                has_stock_access = True
-
-            # Check company match
-            if has_stock_access:
-                if not self.company_id or user.company_id == self.company_id or not user.company_id:
-                    inventory_users |= user
-
-        return inventory_users

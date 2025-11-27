@@ -1,15 +1,6 @@
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
-# Copyright 2017 ForgeFlow S.L.
-# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
-
-# Copyright 2017 ForgeFlow S.L.
-# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
-
-# Copyright 2017 ForgeFlow S.L.
-# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
-
 from odoo import api, fields, models
 from odoo.tools.float_utils import float_is_zero
 
@@ -48,18 +39,25 @@ class SaleOrder(models.Model):
             # Update existing line
             discount_line.price_unit = -abs(self.global_discount_fixed)
             discount_line.product_uom_qty = 1.0
+            # Clear taxes
+            discount_line.tax_id = [(5, 0, 0)]
         else:
             # Create new discount line at the end
-            # Don't set tax_id in the values dict - let it be handled by onchange
-            line_vals = {
+            new_line = self.env['sale.order.line'].new({
+                'order_id': self.id,
                 'product_id': discount_product.id,
-                'name': 'Global Discount',
                 'product_uom_qty': 1.0,
                 'price_unit': -abs(self.global_discount_fixed),
-                'sequence': 9999,  # Put it at the end
-            }
+                'sequence': 9999,
+            })
+            # Let product onchange populate fields
+            new_line.product_id_change()
+            # Then clear taxes explicitly
+            new_line.tax_id = [(5, 0, 0)]
+            new_line.name = 'Global Discount'
 
-            self.order_line = [(0, 0, line_vals)]
+            # Convert to proper format and add
+            self.order_line += new_line
 
     def _get_global_discount_product(self):
         """Get or create a product for global discount lines."""
@@ -76,6 +74,8 @@ class SaleOrder(models.Model):
                 'invoice_policy': 'order',
                 'list_price': 0.0,
                 'default_code': 'GLOBAL_DISCOUNT',
+                'taxes_id': [(5, 0, 0)],  # Clear all customer taxes
+                'supplier_taxes_id': [(5, 0, 0)],  # Clear all vendor taxes
             })
 
             # Create external identifier for future reference

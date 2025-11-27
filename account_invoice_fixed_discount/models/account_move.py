@@ -1,9 +1,6 @@
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
-# Copyright 2017 ForgeFlow S.L.
-# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
-
 from odoo import api, fields, models
 from odoo.tools.float_utils import float_is_zero
 
@@ -47,20 +44,28 @@ class AccountMove(models.Model):
             # Update existing line
             discount_line.price_unit = -abs(self.global_discount_fixed)
             discount_line.quantity = 1.0
+            # Clear taxes
+            discount_line.tax_ids = [(5, 0, 0)]
         else:
             # Create new discount line at the end
             # Get the last sequence number
             max_sequence = max([line.sequence for line in self.invoice_line_ids if line.sequence], default=10)
 
-            line_vals = {
+            new_line = self.env['account.move.line'].new({
+                'move_id': self.id,
                 'product_id': discount_product.id,
-                'name': 'Global Discount',
                 'quantity': 1.0,
                 'price_unit': -abs(self.global_discount_fixed),
-                'sequence': max_sequence + 10,  # Put it at the end
-            }
+                'sequence': max_sequence + 10,
+            })
+            # Let product onchange populate fields
+            new_line._onchange_product_id()
+            # Then clear taxes explicitly
+            new_line.tax_ids = [(5, 0, 0)]
+            new_line.name = 'Global Discount'
 
-            self.invoice_line_ids = [(0, 0, line_vals)]
+            # Convert to proper format and add
+            self.invoice_line_ids += new_line
 
     def _get_global_discount_product(self):
         """Get or create a product for global discount lines."""
@@ -77,6 +82,8 @@ class AccountMove(models.Model):
                 'invoice_policy': 'order',
                 'list_price': 0.0,
                 'default_code': 'GLOBAL_DISCOUNT',
+                'taxes_id': [(5, 0, 0)],  # Clear all customer taxes
+                'supplier_taxes_id': [(5, 0, 0)],  # Clear all vendor taxes
             })
 
             # Create external identifier for future reference

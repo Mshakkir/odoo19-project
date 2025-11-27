@@ -16,6 +16,64 @@ class StockWarehouseOrderpoint(models.Model):
         help='Number of notifications sent for this rule'
     )
 
+    needs_reorder = fields.Boolean(
+        string='Needs Reorder',
+        compute='_compute_needs_reorder',
+        search='_search_needs_reorder',
+        help='Product is below minimum or above maximum'
+    )
+
+    qty_on_hand = fields.Float(
+        string='Quantity On Hand',
+        compute='_compute_qty_on_hand',
+        help='Current quantity available'
+    )
+
+    @api.depends('product_id', 'location_id')
+    def _compute_qty_on_hand(self):
+        """Compute current on-hand quantity"""
+        for rec in self:
+            if rec.product_id and rec.location_id:
+                rec.qty_on_hand = rec.product_id.with_context(
+                    location=rec.location_id.id
+                ).qty_available
+            else:
+                rec.qty_on_hand = 0.0
+
+    @api.depends('qty_on_hand', 'product_min_qty', 'product_max_qty')
+    def _compute_needs_reorder(self):
+        """Check if product needs reordering"""
+        for rec in self:
+            rec.needs_reorder = (
+                    rec.qty_on_hand < rec.product_min_qty or
+                    rec.qty_on_hand > rec.product_max_qty
+            )
+
+    def _search_needs_reorder(self, operator, value):
+        """Search for products that need reordering"""
+        # Get all orderpoints
+        orderpoints = self.search([])
+
+        # Filter those that need reorder
+        needs_reorder_ids = []
+        for orderpoint in orderpoints:
+            product = orderpoint.product_id
+            location = orderpoint.location_id
+
+            if product and location:
+                qty_available = product.with_context(location=location.id).qty_available
+
+                needs_reorder = (
+                        qty_available < orderpoint.product_min_qty or
+                        qty_available > orderpoint.product_max_qty
+                )
+
+                if (operator == '=' and needs_reorder == value) or \
+                        (operator == '!=' and needs_reorder != value):
+                    needs_reorder_ids.append(orderpoint.id)
+
+        return [('id', 'in', needs_reorder_ids)]
+
     def _send_system_notification(self, notification_data):
         """Send notification to Odoo notification center (bell icon)"""
         self.ensure_one()
@@ -25,7 +83,7 @@ class StockWarehouseOrderpoint(models.Model):
             return False
 
         # Get users to notify
-        users_to_notify = warehouse._get_notification_users()
+        users_to_notify = warehouse.sudo()._get_notification_users()
 
         if not users_to_notify:
             return False
@@ -37,58 +95,29 @@ class StockWarehouseOrderpoint(models.Model):
         # Create notification message
         message = self._format_notification_message_simple(notification_data)
 
-        # Send notification to each user
+        # Send notification to each user using sudo
         for user in users_to_notify:
-            # Create activity or send inbox notification
-            self.env['mail.activity'].sudo().create({
-                'res_id': self.id,
-                'res_model_id': self.env['ir.model']._get('stock.warehouse.orderpoint').id,
-                'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id,
-                'summary': title,
-                'note': message,
-                'user_id': user.id,
-                'date_deadline': fields.Date.today(),
-            })
-
-        # Also send as system notification (appears in bell icon)
-        self._notify_users_system(users_to_notify, notification_data, title)
+            try:
+                # Send message to user's inbox (appears in bell icon)
+                self.env['mail.message'].sudo().create({
+                    'subject': title,
+                    'body': message,
+                    'message_type': 'notification',
+                    'subtype_id': self.env.ref('mail.mt_note').id,
+                    'model': self._name,
+                    'res_id': self.id,
+                    'needaction': True,
+                    'needaction_partner_ids': [(4, user.partner_id.id)],
+                    'partner_ids': [(4, user.partner_id.id)],
+                })
+            except Exception as e:
+                continue
 
         return True
 
     def _notify_users_system(self, users, notification_data, title):
-        """Send notification to bell icon"""
-        # Create a simple notification message
-        notification_icon = '🔴' if notification_data['notification_type'] == 'below_min' else '🟡'
-
-        message_html = f"""
-            <div class="o_mail_notification">
-                <strong>{title}</strong><br/>
-                <span>Warehouse: {notification_data['warehouse_name']}</span><br/>
-                <span>Current Qty: {notification_data['qty_available']:.2f} {notification_data['product_uom']}</span><br/>
-                <span>Min Qty: {notification_data['product_min_qty']:.2f} {notification_data['product_uom']}</span><br/>
-                <span style="color: {'#dc3545' if notification_data['notification_type'] == 'below_min' else '#ffc107'};">
-                    {notification_data['message']}
-                </span>
-            </div>
-        """
-
-        # Send notification via bus
-        notifications = []
-        for user in users:
-            notifications.append([
-                user.partner_id,
-                'mail.activity',
-                {
-                    'type': 'activity',
-                    'title': title,
-                    'message': message_html,
-                    'res_id': self.id,
-                    'res_model': 'stock.warehouse.orderpoint',
-                }
-            ])
-
-        if notifications:
-            self.env['bus.bus']._sendmany(notifications)
+        """Send notification to bell icon - REMOVED, using mail.message instead"""
+        pass
 
     def _format_notification_message_simple(self, data):
         """Format simple notification message"""

@@ -68,24 +68,6 @@ class StockWarehouse(models.Model):
             # If error occurs, return empty recordset
             return self.env['res.users']
 
-    @api.model
-    def get_user_assigned_warehouses(self, user_id=None):
-        """Get warehouses assigned to a specific user"""
-        if user_id is None:
-            user_id = self.env.user.id
-
-        # Check if user is stock manager (admin) - they see all warehouses
-        if self.env.user.has_group('stock.group_stock_manager'):
-            return self.search([])
-
-        # For regular users, return only warehouses they're assigned to
-        warehouses = self.search([
-            ('notification_user_ids', 'in', [user_id])
-        ])
-
-        return warehouses
-
-
 
 
 

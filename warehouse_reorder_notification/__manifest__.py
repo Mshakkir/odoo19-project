@@ -13,6 +13,7 @@
     'depends': ['stock', 'mail'],
     'data': [
         'security/ir.model.access.csv',
+        'security/stock_warehouse_orderpoint_security.xml',
         'views/stock_warehouse_orderpoint_views.xml',
     ],
     'installable': True,

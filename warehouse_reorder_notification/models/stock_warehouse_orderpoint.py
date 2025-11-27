@@ -17,26 +17,49 @@ class StockWarehouseOrderpoint(models.Model):
     )
 
     @api.model
-    def search(self, args, offset=0, limit=None, order=None, count=False):
-        """Override search to filter orderpoints by user's assigned warehouses"""
+    def _search(self, domain, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
+        """Override _search to filter orderpoints by user's assigned warehouses"""
+        # Call super first
+        result = super()._search(domain, offset=offset, limit=limit, order=order, count=count,
+                                 access_rights_uid=access_rights_uid)
+
+        # If counting, we need to apply filter differently
+        if count:
+            # Get the IDs that match the domain first
+            ids = super()._search(domain, offset=0, limit=None, order=order, count=False,
+                                  access_rights_uid=access_rights_uid)
+            orderpoints = self.browse(ids)
+            filtered_ids = self._apply_warehouse_filter(orderpoints).ids
+            return len(filtered_ids)
+
+        # For normal search, filter the results
+        orderpoints = self.browse(result)
+        filtered_orderpoints = self._apply_warehouse_filter(orderpoints)
+
+        return filtered_orderpoints.ids
+
+    def _apply_warehouse_filter(self, orderpoints):
+        """Apply warehouse filter based on user permissions"""
         # If user is stock manager (admin), show all orderpoints
         if self.env.user.has_group('stock.group_stock_manager'):
-            return super().search(args, offset=offset, limit=limit, order=order, count=count)
+            return orderpoints
 
         # For regular users, filter by assigned warehouses only
-        user_warehouses = self.env['stock.warehouse'].search([
-            ('notification_user_ids', 'in', [self.env.user.id])
-        ])
+        # Get warehouses where current user is in notification_user_ids
+        self.env.cr.execute("""
+            SELECT warehouse_id
+            FROM warehouse_notification_users_rel
+            WHERE user_id = %s
+        """, (self.env.user.id,))
 
-        if user_warehouses:
-            # Add warehouse filter to existing domain
-            warehouse_domain = [('warehouse_id', 'in', user_warehouses.ids)]
-            args = args + warehouse_domain
+        warehouse_ids = [row[0] for row in self.env.cr.fetchall()]
+
+        if warehouse_ids:
+            # Return only orderpoints for assigned warehouses
+            return orderpoints.filtered(lambda op: op.warehouse_id.id in warehouse_ids)
         else:
             # User not assigned to any warehouse - show nothing
-            args = args + [('id', '=', False)]
-
-        return super().search(args, offset=offset, limit=limit, order=order, count=count)
+            return self.env['stock.warehouse.orderpoint']
 
     def _send_system_notification(self, notification_data):
         """Send notification to Odoo notification center (bell icon)"""
@@ -143,7 +166,7 @@ class StockWarehouseOrderpoint(models.Model):
         FIXED: Now processes warehouse by warehouse to ensure proper user targeting
         """
         # Get all warehouses with notifications enabled
-        warehouses = self.env['stock.warehouse'].search([
+        warehouses = self.env['stock.warehouse'].sudo().search([
             ('enable_reorder_notifications', '=', True)
         ])
 
@@ -157,8 +180,8 @@ class StockWarehouseOrderpoint(models.Model):
             if not warehouse_users:
                 continue
 
-            # Get orderpoints ONLY for this warehouse
-            orderpoints = self.search([
+            # Get orderpoints ONLY for this warehouse - use sudo to bypass access rules
+            orderpoints = self.sudo().search([
                 ('warehouse_id', '=', warehouse.id),
                 ('warehouse_id.enable_reorder_notifications', '=', True)
             ])
@@ -350,7 +373,6 @@ class StockWarehouseOrderpoint(models.Model):
             ],
             'context': {'default_res_id': self.id, 'default_res_model': 'stock.warehouse.orderpoint'},
         }
-
 
 
 

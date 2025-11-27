@@ -16,7 +16,7 @@ class StockWarehouseOrderpoint(models.Model):
         help='Number of notifications sent for this rule'
     )
 
-    @api.model
+    # @api.model
     def search(self, args, offset=0, limit=None, order=None):
         """Safe filter: hide orderpoints not belonging to user's warehouses."""
         # First perform normal Odoo search

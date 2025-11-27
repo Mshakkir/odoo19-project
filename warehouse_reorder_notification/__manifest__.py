@@ -12,8 +12,8 @@
     'website': 'https://www.yourcompany.com',
     'depends': ['stock', 'mail'],
     'data': [
-        'security/ir.model.access.csv',
         'security/stock_warehouse_orderpoint_security.xml',
+        'security/ir.model.access.csv',
         'views/stock_warehouse_orderpoint_views.xml',
     ],
     'installable': True,

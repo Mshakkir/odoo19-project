@@ -14,11 +14,11 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
-        <!-- Record Rule: Regular users see ONLY their assigned warehouse orderpoints -->
+        <!-- Record Rule: Regular Stock Users - Only Assigned Warehouse Orderpoints -->
         <record id="stock_warehouse_orderpoint_user_rule" model="ir.rule">
-            <field name="name">Stock User: Assigned Warehouse Orderpoints Only</field>
+            <field name="name">Stock User: Only Assigned Warehouse Orderpoints</field>
             <field name="model_id" ref="stock.model_stock_warehouse_orderpoint"/>
-            <field name="domain_force">['|', ('warehouse_id.notification_user_ids', '=', False), ('warehouse_id.notification_user_ids', 'in', [user.id])]</field>
+            <field name="domain_force">[('warehouse_id.notification_user_ids', 'in', [user.id])]</field>
             <field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>

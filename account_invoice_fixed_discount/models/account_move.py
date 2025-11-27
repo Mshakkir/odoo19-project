@@ -586,7 +586,7 @@ class AccountMove(models.Model):
         return account
 
     def _ensure_discount_invoice_line(self):
-        """Ensure discount line exists in invoice_line_ids as a negative line."""
+        """Ensure discount line exists in invoice_line_ids as a negative line WITHOUT taxes."""
         self.ensure_one()
 
         if not self.is_invoice():
@@ -605,8 +605,6 @@ class AccountMove(models.Model):
                     check_move_validity=False,
                     dynamic_unlink=True
                 ).unlink()
-                # Trigger recomputation in Odoo 19
-                self._recompute_dynamic_lines()
             return
 
         discount_account = self._get_discount_account()
@@ -614,27 +612,14 @@ class AccountMove(models.Model):
             _logger.warning(f"No discount account configured for invoice {self.name}")
             return
 
-        # Get taxes from existing invoice lines (use the most common tax)
-        tax_ids = []
-        regular_lines = self.invoice_line_ids.filtered(
-            lambda l: not l.display_type and 'Global Discount' not in (l.name or '')
-        )
-
-        if regular_lines:
-            # Get the most commonly used tax from invoice lines
-            all_taxes = regular_lines.mapped('tax_ids')
-            if all_taxes:
-                # Use the first tax found (you can make this smarter if needed)
-                tax_ids = regular_lines[0].tax_ids.ids
-
-        # Prepare discount line values as a negative invoice line
+        # Prepare discount line values as a negative invoice line WITHOUT taxes
         line_vals = {
             'name': f'Global Discount: {self.global_discount_fixed}',
             'account_id': discount_account.id,
             'quantity': 1,
             'price_unit': -self.global_discount_fixed,  # Negative amount
-            'tax_ids': [(6, 0, tax_ids)],  # Apply the same taxes
             'display_type': 'product',
+            'tax_ids': [(5, 0, 0)],  # Remove all taxes from discount line
         }
 
         if discount_line:
@@ -650,9 +635,6 @@ class AccountMove(models.Model):
             ).write({
                 'invoice_line_ids': [(0, 0, line_vals)]
             })
-
-        # Force recomputation of tax lines in Odoo 19
-        self._recompute_dynamic_lines()
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -672,10 +654,8 @@ class AccountMove(models.Model):
 
         if 'global_discount_fixed' in vals:
             for move in self:
-                if move.is_invoice() and move.state == 'draft':
+                if move.is_invoice():
                     _logger.info(f"Invoice discount changed to: {move.global_discount_fixed}")
                     move._ensure_discount_invoice_line()
-                    # Force a full recomputation
-                    move.with_context(check_move_validity=False)._onchange_invoice_line_ids()
 
         return res

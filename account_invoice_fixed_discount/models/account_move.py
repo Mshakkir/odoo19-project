@@ -612,12 +612,26 @@ class AccountMove(models.Model):
             _logger.warning(f"No discount account configured for invoice {self.name}")
             return
 
+        # Get taxes from existing invoice lines (use the most common tax)
+        tax_ids = []
+        regular_lines = self.invoice_line_ids.filtered(
+            lambda l: not l.display_type and 'Global Discount' not in (l.name or '')
+        )
+
+        if regular_lines:
+            # Get the most commonly used tax from invoice lines
+            all_taxes = regular_lines.mapped('tax_ids')
+            if all_taxes:
+                # Use the first tax found (you can make this smarter if needed)
+                tax_ids = regular_lines[0].tax_ids.ids
+
         # Prepare discount line values as a negative invoice line
         line_vals = {
             'name': f'Global Discount: {self.global_discount_fixed}',
             'account_id': discount_account.id,
             'quantity': 1,
             'price_unit': -self.global_discount_fixed,  # Negative amount
+            'tax_ids': [(6, 0, tax_ids)],  # Apply the same taxes
             'display_type': 'product',
         }
 

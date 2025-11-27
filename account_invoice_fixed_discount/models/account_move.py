@@ -631,16 +631,13 @@ class AccountMove(models.Model):
 
             # Fallback: search for typical sales discount account
             account = self.env['account.account'].search([
-                ('company_id', '=', company.id),
                 ('code', '=like', '409%'),
             ], limit=1)
 
             if not account:
                 # Last resort: use a generic expense account
                 account = self.env['account.account'].search([
-                    ('company_id', '=', company.id),
                     ('account_type', '=', 'expense'),
-                    ('reconcile', '=', False),
                 ], limit=1)
         else:
             # Purchase discount
@@ -649,16 +646,13 @@ class AccountMove(models.Model):
 
             # Fallback: search for typical purchase discount account
             account = self.env['account.account'].search([
-                ('company_id', '=', company.id),
                 ('code', '=like', '709%'),
             ], limit=1)
 
             if not account:
                 # Last resort: use a generic income account
                 account = self.env['account.account'].search([
-                    ('company_id', '=', company.id),
                     ('account_type', '=', 'income_other'),
-                    ('reconcile', '=', False),
                 ], limit=1)
 
         return account

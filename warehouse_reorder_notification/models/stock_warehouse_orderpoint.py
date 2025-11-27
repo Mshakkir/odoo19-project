@@ -17,26 +17,28 @@ class StockWarehouseOrderpoint(models.Model):
     )
 
     @api.model
-    def _search(self, domain, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
-        """Override _search to filter orderpoints by user's assigned warehouses"""
-        # Call super first
-        result = super()._search(domain, offset=offset, limit=limit, order=order, count=count,
-                                 access_rights_uid=access_rights_uid)
+    def search(self, args, offset=0, limit=None, order=None):
+        """Safe filter: hide orderpoints not belonging to user's warehouses."""
+        # First perform normal Odoo search
+        records = super().search(args, offset=offset, limit=limit, order=order)
 
-        # If counting, we need to apply filter differently
-        if count:
-            # Get the IDs that match the domain first
-            ids = super()._search(domain, offset=0, limit=None, order=order, count=False,
-                                  access_rights_uid=access_rights_uid)
-            orderpoints = self.browse(ids)
-            filtered_ids = self._apply_warehouse_filter(orderpoints).ids
-            return len(filtered_ids)
+        # Admin / stock manager → see all
+        if self.env.user.has_group('stock.group_stock_manager'):
+            return records
 
-        # For normal search, filter the results
-        orderpoints = self.browse(result)
-        filtered_orderpoints = self._apply_warehouse_filter(orderpoints)
+        # Get allowed warehouses
+        self.env.cr.execute("""
+            SELECT warehouse_id
+            FROM warehouse_notification_users_rel
+            WHERE user_id = %s
+        """, (self.env.user.id,))
+        allowed_wh_ids = [row[0] for row in self.env.cr.fetchall()]
 
-        return filtered_orderpoints.ids
+        if not allowed_wh_ids:
+            return self.env['stock.warehouse.orderpoint']  # no access
+
+        # Filter results
+        return records.filtered(lambda op: op.warehouse_id.id in allowed_wh_ids)
 
     def _apply_warehouse_filter(self, orderpoints):
         """Apply warehouse filter based on user permissions"""

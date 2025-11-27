@@ -14,7 +14,7 @@
             <field name="sale_ok">False</field>
             <field name="purchase_ok">False</field>
             <field name="tax_ids" eval="[(5, 0, 0)]"/>
-            <field name="supplier_taxes_id" eval="[(5, 0, 0)]"/>
+            <field name="supplier_tax_ids" eval="[(5, 0, 0)]"/>
         </record>
     </data>
 </odoo>

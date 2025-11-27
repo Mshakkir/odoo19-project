@@ -554,26 +554,28 @@ class AccountMove(models.Model):
 
     def _compute_amount(self):
         """Override to apply global discount by adding a discount line."""
+        # Call super first to let Odoo compute standard amounts
+        super()._compute_amount()
+
+        # Then apply discount adjustments
         for move in self:
-            # Apply discount BEFORE computing amounts
             if move.is_invoice() and move.global_discount_fixed and move.global_discount_fixed > 0:
                 move._ensure_discount_line()
 
-        # Now call super to compute all amounts with the discount line included
-        super()._compute_amount()
-
     def _ensure_discount_line(self):
-        """Ensure discount line exists and is up to date."""
+        """Ensure discount line exists and is up to date in journal entries only."""
         self.ensure_one()
 
         if not self.is_invoice():
             return
 
+        # Find existing discount line in ALL lines (not just invoice_line_ids)
+        discount_line = self.line_ids.filtered(
+            lambda l: l.name and 'Global Discount:' in l.name and l.id not in self.invoice_line_ids.ids
+        )
+
         if not self.global_discount_fixed or self.global_discount_fixed <= 0:
             # Remove discount line if discount is 0
-            discount_line = self.line_ids.filtered(
-                lambda l: l.name and 'Global Discount:' in l.name
-            )
             if discount_line:
                 discount_line.with_context(check_move_validity=False).unlink()
             return
@@ -583,39 +585,38 @@ class AccountMove(models.Model):
             _logger.warning(f"No discount account configured for invoice {self.name}")
             return
 
-        # Find existing discount line by name
-        discount_line = self.line_ids.filtered(
-            lambda l: l.name and 'Global Discount:' in l.name
-        )
-
         # Calculate discount amount with proper sign
-        # For out_invoice/in_refund: discount reduces the amount (negative to receivable side)
-        # For in_invoice/out_refund: discount increases the amount (positive to payable side)
+        # For customer invoices: debit discount account, credit receivable (reduces total)
+        # For vendor bills: credit discount account, debit payable (reduces total)
         if self.move_type in ('out_invoice', 'in_refund'):
-            # Customer invoice: discount line should be debit (reduces receivable)
-            balance = self.global_discount_fixed
+            # Customer invoice: discount is a debit
+            debit = self.global_discount_fixed
+            credit = 0.0
         else:
-            # Vendor bill: discount line should be credit (reduces payable)
-            balance = -self.global_discount_fixed
+            # Vendor bill: discount is a credit
+            debit = 0.0
+            credit = self.global_discount_fixed
 
         line_vals = {
             'name': f'Global Discount: {self.global_discount_fixed}',
             'account_id': discount_account.id,
             'partner_id': self.partner_id.id,
-            'currency_id': self.currency_id.id,
-            'amount_currency': balance,
-            'balance': balance,
+            'debit': debit,
+            'credit': credit,
+            'exclude_from_invoice_tab': True,  # Critical: exclude from invoice tab
         }
 
         if discount_line:
             # Update existing line
             discount_line.with_context(check_move_validity=False).write(line_vals)
         else:
-            # Create new line
+            # Create new line directly in line_ids (not invoice_line_ids)
             line_vals['move_id'] = self.id
-            self.with_context(check_move_validity=False).write({
-                'line_ids': [(0, 0, line_vals)]
-            })
+            # Use direct SQL or ORM to create line without triggering invoice_line_ids
+            self.env['account.move.line'].with_context(
+                check_move_validity=False,
+                skip_invoice_sync=True
+            ).create(line_vals)
 
     def _get_discount_account(self):
         """Get the appropriate discount account based on invoice type."""

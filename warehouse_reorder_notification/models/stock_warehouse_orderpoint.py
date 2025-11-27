@@ -17,17 +17,31 @@ class StockWarehouseOrderpoint(models.Model):
     )
 
     @api.model
-    def _search(self, domain, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
+    def _search(self, domain, offset=0, limit=None, order=None, count=False, access_rights_uid=None, active_test=True):
         """Override _search to filter orderpoints by user's assigned warehouses"""
-        # Call super first
-        result = super()._search(domain, offset=offset, limit=limit, order=order, count=count,
-                                 access_rights_uid=access_rights_uid)
+        # Call super first with ALL parameters
+        result = super()._search(
+            domain,
+            offset=offset,
+            limit=limit,
+            order=order,
+            count=count,
+            access_rights_uid=access_rights_uid,
+            active_test=active_test
+        )
 
         # If counting, we need to apply filter differently
         if count:
             # Get the IDs that match the domain first
-            ids = super()._search(domain, offset=0, limit=None, order=order, count=False,
-                                  access_rights_uid=access_rights_uid)
+            ids = super()._search(
+                domain,
+                offset=0,
+                limit=None,
+                order=order,
+                count=False,
+                access_rights_uid=access_rights_uid,
+                active_test=active_test
+            )
             orderpoints = self.browse(ids)
             filtered_ids = self._apply_warehouse_filter(orderpoints).ids
             return len(filtered_ids)
@@ -373,7 +387,6 @@ class StockWarehouseOrderpoint(models.Model):
             ],
             'context': {'default_res_id': self.id, 'default_res_model': 'stock.warehouse.orderpoint'},
         }
-
 
 
 

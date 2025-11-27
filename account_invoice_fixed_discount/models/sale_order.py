@@ -21,33 +21,35 @@ class SaleOrder(models.Model):
         """Create or update global discount line."""
         currency = self.currency_id or self.company_id.currency_id
 
+        # Find existing discount line
         discount_line = self.order_line.filtered(
             lambda l: l.product_id and l.product_id.default_code == "GLOBAL_DISCOUNT"
         )
 
+        # If discount is 0 → remove discount line
         if float_is_zero(self.global_discount_fixed, precision_rounding=currency.rounding):
             if discount_line:
                 self.order_line -= discount_line
             return
 
+        # Get or create discount product
         discount_product = self._get_global_discount_product()
 
+        # Prepare command-safe values (IMPORTANT FIX)
+        discount_vals = {
+            "product_id": discount_product.id,
+            "name": "Global Discount",
+            "product_uom_qty": 1.0,
+            "price_unit": -abs(self.global_discount_fixed),
+            "tax_ids": [Command.clear()],        # << FIXED HERE
+            "sequence": 9999,
+        }
+
+        # Update existing discount line
         if discount_line:
-            discount_line.write({
-                "product_id": discount_product.id,
-                "price_unit": -abs(self.global_discount_fixed),
-                "product_uom_qty": 1.0,
-                "tax_id": [Command.clear()],
-            })
+            discount_line.write(discount_vals)
         else:
-            self.order_line = [Command.create({
-                "product_id": discount_product.id,
-                "name": "Global Discount",
-                "product_uom_qty": 1.0,
-                "price_unit": -abs(self.global_discount_fixed),
-                "tax_id": [Command.clear()],
-                "sequence": 9999,
-            })]
+            self.order_line = [Command.create(discount_vals)]
 
     def _get_global_discount_product(self):
         """Get/Create the global discount product (no taxes)."""
@@ -66,8 +68,9 @@ class SaleOrder(models.Model):
                 "purchase_ok": False,
             })
 
-        product.taxes_id = False
-        product.supplier_taxes_id = False
+        # Remove taxes correctly
+        product.taxes_id = [(5, 0, 0)]           # Remove all customer taxes
+        product.supplier_taxes_id = [(5, 0, 0)]  # Remove all vendor taxes
         return product
 
     def write(self, vals):

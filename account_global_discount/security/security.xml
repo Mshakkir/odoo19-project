@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright 2019 Tecnativa - David Vidal
-     Copyright 2025 - Odoo 19 CE Conversion
-     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
-<odoo>
-    <!-- No additional security groups needed - uses base_global_discount.group_global_discount -->
-</odoo>

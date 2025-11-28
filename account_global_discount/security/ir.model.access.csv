@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_account_invoice_global_discount_user,account.invoice.global.discount.user,model_account_invoice_global_discount,account.group_account_invoice,1,0,0,0
+access_account_invoice_global_discount_manager,account.invoice.global.discount.manager,model_account_invoice_global_discount,account.group_account_manager,1,1,1,1
+access_account_invoice_global_discount_accountant,account.invoice.global.discount.accountant,model_account_invoice_global_discount,account.group_account_user,1,1,1,1

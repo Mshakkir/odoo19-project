@@ -85,8 +85,8 @@
 
                                         <!--                                        </t>-->
                                         <!--                                    </td>-->
-                                        <div style="width: 34%;text-align:center; vertical-align: top;  padding: 5px 10px; margin-top:8px;">
-                                            <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/footer_companies_names.jpg'"
+                                        <div style="width: 34%;text-align:center; vertical-align: top;  padding: 5px 10px; margin-top:8px;margin-left:25px;">
+                                            <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/faakart_logo.png'"
                                                  style="max-width:100%; height:auto;"/>
                                         </div>
 

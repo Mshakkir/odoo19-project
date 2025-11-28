@@ -1,6 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-
 <!--&lt;!&ndash; Copyright 2017 ForgeFlow S.L.-->
 <!--     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). &ndash;&gt;-->
 <!--<odoo>-->
@@ -39,109 +36,49 @@
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
 <!-- Copyright 2017 ForgeFlow S.L.
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
-
-
-
-<!--<odoo>-->
-<!--    <template id="report_invoice_document" inherit_id="account.report_invoice_document">-->
-<!--        <xpath expr="//t[@t-set='display_discount']" position="after">-->
-<!--            <t-->
-<!--                t-set="display_discount_fixed"-->
-<!--                t-value="any([l.discount_fixed for l in o.invoice_line_ids])"-->
-<!--            />-->
-<!--        </xpath>-->
-<!--        <xpath expr="//th[@name='th_discount']/span" position="attributes">-->
-<!--            <attribute name="t-if">not display_discount_fixed</attribute>-->
-<!--        </xpath>-->
-
-<!--        <xpath expr="//th[@t-if='display_discount']/span" position="before">-->
-<!--            <t t-if="display_discount_fixed">-->
-<!--                <span>Discount Amount (%)</span>-->
-<!--            </t>-->
-<!--        </xpath>-->
-
-<!--        <span t-field="line.discount" position="before">-->
-<!--            <t t-if="display_discount_fixed">-->
-<!--                <span class="text-nowrap" t-field="line.discount_fixed" />-->
-<!--                <span class="text-nowrap"> (or</span>-->
-<!--            </t>-->
-<!--        </span>-->
-<!--        <span t-field="line.discount" position="after">-->
-<!--            <t t-if="display_discount_fixed">-->
-<!--                <span class="text-nowrap"> %)</span>-->
-<!--            </t>-->
-<!--        </span>-->
-
-<!--        &lt;!&ndash; Add global discount information before the tax totals table &ndash;&gt;-->
-<!--        <xpath expr="//table[@class='o_total_table table table-borderless avoid-page-break-inside']" position="before">-->
-<!--            <div t-if="o.global_discount_fixed" class="clearfix mb-2">-->
-<!--                <div class="row">-->
-<!--                    <div class="col-6 text-end">-->
-<!--                        <strong>Global Discount:</strong>-->
-<!--                    </div>-->
-<!--                    <div class="col-6 text-end">-->
-<!--                        <span t-field="o.global_discount_fixed"-->
-<!--                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </xpath>-->
-<!--    </template>-->
-<!--</odoo>-->
-
-
 <odoo>
     <template id="report_invoice_document" inherit_id="account.report_invoice_document">
-
-        <!-- Add custom discount breakdown section at the end of the document -->
-        <xpath expr="//div[hasclass('page')]" position="inside">
-
-            <!-- Only show this section if there's a global discount -->
-            <t t-if="o.global_discount_fixed and o.global_discount_fixed &gt; 0">
-                <div class="row mt-4" style="page-break-inside: avoid;">
-                    <div class="col-6 offset-6">
-                        <div style="border: 2px solid #000; padding: 15px; background-color: #f8f9fa;">
-                            <h5 class="mb-3 text-center">Invoice Summary with Discount</h5>
-                            <table class="table table-sm mb-0">
-                                <tr>
-                                    <td><strong>Untaxed Amount:</strong></td>
-                                    <td class="text-end">
-                                        <span t-field="o.amount_undiscounted"/>
-                                    </td>
-                                </tr>
-                                <tr style="border-top: 1px solid #000;">
-                                    <td><strong>Discount:</strong></td>
-                                    <td class="text-end text-danger">
-                                        - <span t-field="o.global_discount_fixed"/>
-                                    </td>
-                                </tr>
-                                <tr style="border-top: 1px solid #000;">
-                                    <td><strong>Untaxed Amount (After Discount):</strong></td>
-                                    <td class="text-end">
-                                        <span t-field="o.amount_after_discount"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong>VAT Taxes:</strong></td>
-                                    <td class="text-end">
-                                        <span t-field="o.amount_tax"/>
-                                    </td>
-                                </tr>
-                                <tr style="border-top: 2px solid #000; background-color: #e9ecef;">
-                                    <td><strong style="font-size: 1.2em;">TOTAL:</strong></td>
-                                    <td class="text-end">
-                                        <strong style="font-size: 1.2em;">
-                                            <span t-field="o.amount_total"/>
-                                        </strong>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </t>
-
+        <xpath expr="//t[@t-set='display_discount']" position="after">
+            <t
+                t-set="display_discount_fixed"
+                t-value="any([l.discount_fixed for l in o.invoice_line_ids])"
+            />
+        </xpath>
+        <xpath expr="//th[@name='th_discount']/span" position="attributes">
+            <attribute name="t-if">not display_discount_fixed</attribute>
         </xpath>
 
+        <xpath expr="//th[@t-if='display_discount']/span" position="before">
+            <t t-if="display_discount_fixed">
+                <span>Discount Amount (%)</span>
+            </t>
+        </xpath>
+
+        <span t-field="line.discount" position="before">
+            <t t-if="display_discount_fixed">
+                <span class="text-nowrap" t-field="line.discount_fixed" />
+                <span class="text-nowrap"> (or</span>
+            </t>
+        </span>
+        <span t-field="line.discount" position="after">
+            <t t-if="display_discount_fixed">
+                <span class="text-nowrap"> %)</span>
+            </t>
+        </span>
+
+        <!-- Add global discount information before the tax totals table -->
+        <xpath expr="//table[@class='o_total_table table table-borderless avoid-page-break-inside']" position="before">
+            <div t-if="o.global_discount_fixed" class="clearfix mb-2">
+                <div class="row">
+                    <div class="col-6 text-end">
+                        <strong>Global Discount:</strong>
+                    </div>
+                    <div class="col-6 text-end">
+                        <span t-field="o.global_discount_fixed"
+                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                    </div>
+                </div>
+            </div>
+        </xpath>
     </template>
 </odoo>

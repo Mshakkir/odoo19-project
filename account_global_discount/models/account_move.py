@@ -69,7 +69,7 @@ class AccountMove(models.Model):
             "base": base,
             "base_discounted": discount["base_discounted"],
             "account_id": global_discount.account_id.id,
-            "tax_ids": [(4, tax_id) for tax_id in tax_ids],
+            "tax_ids": [(6, 0, tax_ids)],
         }
 
     def _set_global_discounts_by_tax(self):
@@ -127,13 +127,10 @@ class AccountMove(models.Model):
         base_total = 0
         zero_taxes = self.env["account.tax"]
 
-        for line in self.line_ids.filtered("tax_ids"):
-            if line.product_id and line.product_id.bypass_global_discount:
-                continue
-            key = tuple(line.tax_ids.ids)
-            if taxes_keys.get(key):
-                base_total += line.price_subtotal
-                zero_taxes |= line.tax_ids
+        for key, value in taxes_keys.items():
+            if value:
+                base_total += value
+                zero_taxes |= self.env["account.tax"].browse(key)
 
         for global_discount in self.global_discount_ids:
             if not base_total:
@@ -168,30 +165,34 @@ class AccountMove(models.Model):
                     self.date or fields.Date.context_today(self),
                 )
 
-            create_method(
-                {
-                    "invoice_global_discount_id": discount.id,
-                    "move_id": self.id,
-                    "name": "{} - {}".format(
-                        discount.name, ", ".join(discount.tax_ids.mapped("name"))
-                    ),
-                    "debit": disc_amount_company_currency > 0.0
-                             and disc_amount_company_currency
-                             or 0.0,
-                    "credit": disc_amount_company_currency < 0.0
-                              and -disc_amount_company_currency
-                              or 0.0,
-                    "amount_currency": (disc_amount > 0.0 and disc_amount or 0.0)
-                                       - (disc_amount < 0.0 and -disc_amount or 0.0),
-                    "account_id": discount.account_id.id,
-                    "tax_ids": [(4, x.id) for x in discount.tax_ids],
-                    "partner_id": self.commercial_partner_id.id,
-                    "currency_id": self.currency_id.id,
-                    "price_unit": -1 * abs(disc_amount_company_currency),
-                    "display_type": "product",
-                    "exclude_from_invoice_tab": True,
-                }
-            )
+            # Prepare line values - REMOVED exclude_from_invoice_tab
+            line_vals = {
+                "invoice_global_discount_id": discount.id,
+                "move_id": self.id,
+                "name": "{} - {}".format(
+                    discount.name, ", ".join(discount.tax_ids.mapped("name"))
+                ),
+                "debit": disc_amount_company_currency > 0.0
+                         and disc_amount_company_currency
+                         or 0.0,
+                "credit": disc_amount_company_currency < 0.0
+                          and -disc_amount_company_currency
+                          or 0.0,
+                "amount_currency": disc_amount,
+                "account_id": discount.account_id.id,
+                "tax_ids": [(6, 0, discount.tax_ids.ids)],
+                "partner_id": self.commercial_partner_id.id,
+                "currency_id": self.currency_id.id,
+                "price_unit": -1 * abs(disc_amount),
+                "display_type": "product",
+            }
+
+            # In Odoo 19, use is_downpayment flag instead of exclude_from_invoice_tab
+            # Or simply omit if not needed
+            if hasattr(self.env[model], 'is_downpayment'):
+                line_vals['is_downpayment'] = False
+
+            create_method(line_vals)
 
     @api.depends("partner_id", "company_id", "move_type")
     def _compute_global_discount_ids(self):

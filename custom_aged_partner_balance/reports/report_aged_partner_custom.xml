@@ -36,74 +36,80 @@
                     <div class="page">
 
                         <!-- Custom Header -->
-                        <div class="row" style="border-bottom: 3px solid #875A7B; margin-bottom: 20px; padding-bottom: 10px;">
-<!--                            <div class="col-8">-->
-<!--                                <h2 style="margin: 0; color: #875A7B;">-->
-<!--                                    Custom Aged Partner Balance Report-->
-<!--                                </h2>-->
-<!--                            </div>-->
-                             <div class="header"
-                             style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
+                        <div class="row"
+                             style="border-bottom: 3px solid #875A7B; margin-bottom: 20px; padding-bottom: 10px;">
+                            <!--                            <div class="col-8">-->
+                            <!--                                <h2 style="margin: 0; color: #875A7B;">-->
+                            <!--                                    Custom Aged Partner Balance Report-->
+                            <!--                                </h2>-->
+                            <!--                            </div>-->
+                            <div class="header"
+                                 style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
 
-                            <!-- Company Names in One Row -->
-                            <table style="width: 100%; border-collapse: collapse;border:none">
-                                <tr>
-                                    <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white;padding-left:0px;">
-                                        <div style="color: #8B1538; font-size: 16px; font-weight: bold; text-transform: uppercase;">
-                                            SAMEER SHARAF AL OTAIBI TRADING COMPANY
-                                        </div>
-                                    </td>
-                                    <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white;padding-right:0px;">
-                                        <div style="color: #8B1538; font-size: 18px; font-weight: 900; direction: rtl;"
-                                             class="ar">
-                                            شركة سمير شرف العتيبي التجارية
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
+                                <!-- Company Names in One Row -->
+                                <table style="width: 100%; border-collapse: collapse;border:none">
+                                    <tr>
+                                        <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white;padding-left:0px;">
+                                            <div style="color: #8B1538; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                                                SAMEER SHARAF AL OTAIBI TRADING COMPANY
+                                            </div>
+                                        </td>
+                                        <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white;padding-right:0px;">
+                                            <div style="color: #8B1538; font-size: 18px; font-weight: 900; direction: rtl;"
+                                                 class="ar">
+                                                شركة سمير شرف العتيبي التجارية
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
 
-                            <!-- Details and Logo Row -->
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <tr>
-                                    <!-- Left Column: English Info -->
-                                    <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: top;
+                                <!-- Details and Logo Row -->
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <!-- Left Column: English Info -->
+                                        <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: top;
                         border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;padding-top:0px;padding-left:0px;">
-                                        <div style="line-height: 1.3; font-weight: 500;padding-left:0px;padding-top:0px;margin-top:0px;">
-                                            C.R. 4030216154
-                                            <br/>
-                                            VAT Regd: 311299944700003
+                                            <div style="line-height: 1.3; font-weight: 500;padding-left:0px;padding-top:0px;margin-top:0px;">
+                                                C.R. 4030216154
+                                                <br/>
+                                                VAT Regd: 311299944700003
+                                            </div>
+                                        </td>
+
+                                        <!--                                    &lt;!&ndash; Center Column: Company Logo &ndash;&gt;-->
+                                        <!--                                    <td style="width: 34%; text-align: center; vertical-align: top;-->
+                                        <!--                        padding: 5px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">-->
+                                        <!--                                        <t t-if="o.company_id.logo">-->
+                                        <!--                                            <img t-att-src="image_data_uri(o.company_id.logo)"-->
+                                        <!--                                                 style="max-height: 140px; max-width: 100%; object-fit: contain; display: block; margin: -23px auto;padding-top:8px;padding-top:5px;"/>-->
+
+                                        <!--                                        </t>-->
+                                        <!--                                    </td>-->
+                                        <div style="width: 34%;text-align:center; vertical-align: top;  padding: 5px 10px; margin-top:8px;">
+                                            <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/footer_companies_names.jpg'"
+                                                 style="max-width:100%; height:auto;"/>
                                         </div>
-                                    </td>
 
-                                    <!-- Center Column: Company Logo -->
-                                    <td style="width: 34%; text-align: center; vertical-align: top;
-                        padding: 5px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">
-                                        <t t-if="o.company_id.logo">
-                                            <img t-att-src="image_data_uri(o.company_id.logo)"
-                                                 style="max-height: 140px; max-width: 100%; object-fit: contain; display: block; margin: -23px auto;padding-top:8px;padding-top:5px;"/>
-
-                                        </t>
-                                    </td>
-
-                                    <!-- Right Column: Arabic Info -->
-                                    <td style="width: 33%; text-align: right; font-size: 15px; color: #333; vertical-align: top;
+                                        <!-- Right Column: Arabic Info -->
+                                        <td style="width: 33%; text-align: right; font-size: 15px; color: #333; vertical-align: top;
                         direction: rtl; padding: 0px 10px 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">
-                                        <div style="line-height: 1.3;font-weight:900; padding-right:0px; margin-top:0px; text-align: right; direction: rtl;"
-                                             class="ar">
-                                            س.ت: ٤٠٣٠٢١٦١٥٤
-                                            <br/>
-                                            الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
-                                            <br/>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
+                                            <div style="line-height: 1.3;font-weight:900; padding-right:0px; margin-top:0px; text-align: right; direction: rtl;"
+                                                 class="ar">
+                                                س.ت: ٤٠٣٠٢١٦١٥٤
+                                                <br/>
+                                                الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
+                                                <br/>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
 
-                        </div>
+                            </div>
 
                             <div class="col-4 text-end">
                                 <p style="margin: 0;">
-                                    <strong>Report Date:</strong><br/>
+                                    <strong>Report Date:</strong>
+                                    <br/>
                                     <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M')"/>
                                 </p>
                             </div>
@@ -135,7 +141,9 @@
                                 <p>
                                     <span t-if="data['result_selection'] == 'customer'">Receivable Accounts</span>
                                     <span t-if="data['result_selection'] == 'supplier'">Payable Accounts</span>
-                                    <span t-if="data['result_selection'] == 'customer_supplier'">Receivable and Payable Accounts</span>
+                                    <span t-if="data['result_selection'] == 'customer_supplier'">Receivable and Payable
+                                        Accounts
+                                    </span>
                                 </p>
                             </div>
                             <div class="col-3">
@@ -164,51 +172,97 @@
                                     <th>Phone</th>
                                     <th>City</th>
                                     <th class="text-end">Not due</th>
-                                    <th class="text-end"><span t-esc="data['4']['name']"/></th>
-                                    <th class="text-end"><span t-esc="data['3']['name']"/></th>
-                                    <th class="text-end"><span t-esc="data['2']['name']"/></th>
-                                    <th class="text-end"><span t-esc="data['1']['name']"/></th>
-                                    <th class="text-end"><span t-esc="data['0']['name']"/></th>
+                                    <th class="text-end">
+                                        <span t-esc="data['4']['name']"/>
+                                    </th>
+                                    <th class="text-end">
+                                        <span t-esc="data['3']['name']"/>
+                                    </th>
+                                    <th class="text-end">
+                                        <span t-esc="data['2']['name']"/>
+                                    </th>
+                                    <th class="text-end">
+                                        <span t-esc="data['1']['name']"/>
+                                    </th>
+                                    <th class="text-end">
+                                        <span t-esc="data['0']['name']"/>
+                                    </th>
                                     <th class="text-end">Total</th>
                                 </tr>
                                 <tr t-if="get_partner_lines" style="background-color: #f0f0f0; font-weight: bold;">
                                     <th>Account Total</th>
                                     <th colspan="3" class="text-center">Details</th>
-                                    <th class="text-end"><span t-esc="get_direction[6]" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/></th>
-                                    <th class="text-end"><span t-esc="get_direction[4]" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/></th>
-                                    <th class="text-end"><span t-esc="get_direction[3]" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/></th>
-                                    <th class="text-end"><span t-esc="get_direction[2]" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/></th>
-                                    <th class="text-end"><span t-esc="get_direction[1]" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/></th>
-                                    <th class="text-end"><span t-esc="get_direction[0]" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/></th>
-                                    <th class="text-end"><span t-esc="get_direction[5]" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/></th>
+                                    <th class="text-end">
+                                        <span t-esc="get_direction[6]"
+                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                    </th>
+                                    <th class="text-end">
+                                        <span t-esc="get_direction[4]"
+                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                    </th>
+                                    <th class="text-end">
+                                        <span t-esc="get_direction[3]"
+                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                    </th>
+                                    <th class="text-end">
+                                        <span t-esc="get_direction[2]"
+                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                    </th>
+                                    <th class="text-end">
+                                        <span t-esc="get_direction[1]"
+                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                    </th>
+                                    <th class="text-end">
+                                        <span t-esc="get_direction[0]"
+                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                    </th>
+                                    <th class="text-end">
+                                        <span t-esc="get_direction[5]"
+                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr t-foreach="get_partner_lines" t-as="partner">
-                                    <td><span t-esc="partner['name']"/></td>
-                                    <td><span t-esc="partner.get('email', '')"/></td>
-                                    <td><span t-esc="partner.get('phone', '')"/></td>
-                                    <td><span t-esc="partner.get('city', '')"/></td>
-                                    <td class="text-end">
-                                        <span t-esc="partner['direction']" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                    <td>
+                                        <span t-esc="partner['name']"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="partner.get('email', '')"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="partner.get('phone', '')"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="partner.get('city', '')"/>
                                     </td>
                                     <td class="text-end">
-                                        <span t-esc="partner['4']" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        <span t-esc="partner['direction']"
+                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
                                     <td class="text-end">
-                                        <span t-esc="partner['3']" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        <span t-esc="partner['4']"
+                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
                                     <td class="text-end">
-                                        <span t-esc="partner['2']" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        <span t-esc="partner['3']"
+                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
                                     <td class="text-end">
-                                        <span t-esc="partner['1']" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        <span t-esc="partner['2']"
+                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
                                     <td class="text-end">
-                                        <span t-esc="partner['0']" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        <span t-esc="partner['1']"
+                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-esc="partner['0']"
+                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
                                     <td class="text-end" style="font-weight: bold;">
-                                        <span t-esc="partner['total']" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        <span t-esc="partner['total']"
+                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
                                 </tr>
                             </tbody>
@@ -230,25 +284,31 @@
                                         <tr>
                                             <td>Not Due</td>
                                             <td class="text-end">
-                                                <span t-esc="get_direction[6]" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                                <span t-esc="get_direction[6]"
+                                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                             </td>
                                             <td class="text-end">
                                                 <span t-esc="'%.2f' % percentage_breakdown.get('not_due', 0)"/>%
                                             </td>
                                         </tr>
                                         <tr t-foreach="range(5)" t-as="period_idx">
-                                            <td><span t-esc="data[str(4-period_idx)]['name']"/></td>
-                                            <td class="text-end">
-                                                <span t-esc="get_direction[4-period_idx]" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                            <td>
+                                                <span t-esc="data[str(4-period_idx)]['name']"/>
                                             </td>
                                             <td class="text-end">
-                                                <span t-esc="'%.2f' % percentage_breakdown.get('period_' + str(4-period_idx), 0)"/>%
+                                                <span t-esc="get_direction[4-period_idx]"
+                                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-esc="'%.2f' % percentage_breakdown.get('period_' + str(4-period_idx), 0)"/>
+                                                %
                                             </td>
                                         </tr>
                                         <tr style="font-weight: bold; background-color: #f0f0f0;">
                                             <td>Total</td>
                                             <td class="text-end">
-                                                <span t-esc="get_direction[5]" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                                <span t-esc="get_direction[5]"
+                                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                             </td>
                                             <td class="text-end">100.00%</td>
                                         </tr>
@@ -261,13 +321,16 @@
                         <div class="row mt32" style="border-top: 2px solid #875A7B; padding-top: 10px;">
                             <div class="col-6">
                                 <small class="text-muted">
-                                    <strong t-esc="res_company.name"/> |
+                                    <strong t-esc="res_company.name"/>
+                                    |
                                     <span t-esc="res_company.phone or ''"/>
                                 </small>
                             </div>
                             <div class="col-6 text-end">
                                 <small class="text-muted">
-                                    Generated by <span t-esc="user.name"/> on
+                                    Generated by
+                                    <span t-esc="user.name"/>
+                                    on
                                     <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M')"/>
                                 </small>
                             </div>

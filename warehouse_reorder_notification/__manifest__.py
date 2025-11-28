@@ -10,11 +10,12 @@
     """,
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',
-    'depends': ['stock', 'mail'],
+    'depends': ['stock', 'mail','purchase'],
     'data': [
         'security/stock_warehouse_orderpoint_security.xml',
         'security/ir.model.access.csv',
         'views/stock_warehouse_orderpoint_views.xml',
+        'views/stock_warehouse_orderpoint_actions.xml',
     ],
     'installable': True,
     'application': False,

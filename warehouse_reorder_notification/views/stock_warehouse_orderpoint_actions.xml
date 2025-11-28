@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Server Action: Create Combined Purchase Order -->
+    <record id="action_create_combined_purchase_order" model="ir.actions.server">
+        <field name="name">📦 Create Combined Purchase Order</field>
+        <field name="model_id" ref="stock.model_stock_warehouse_orderpoint"/>
+        <field name="binding_model_id" ref="stock.model_stock_warehouse_orderpoint"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+action = records.action_create_combined_purchase_order()
+        </field>
+    </record>
+
+</odoo>

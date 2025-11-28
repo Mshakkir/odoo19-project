@@ -76,39 +76,6 @@
         </field>
     </record>
 
-    <!-- Tree View - Create new tree view with stock status -->
-    <record id="view_warehouse_orderpoint_tree_inherit" model="ir.ui.view">
-        <field name="name">stock.warehouse.orderpoint.tree.inherit.notification</field>
-        <field name="model">stock.warehouse.orderpoint</field>
-        <field name="inherit_id" ref="stock.stock_warehouse_orderpoint_view_tree"/>
-        <field name="arch" type="xml">
-            <xpath expr="//tree" position="inside">
-                <field name="has_active_notification" optional="show" widget="boolean_toggle"/>
-                <field name="stock_status" optional="show"/>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- Search View - Add filters for active notifications -->
-    <record id="view_warehouse_orderpoint_search_inherit" model="ir.ui.view">
-        <field name="name">stock.warehouse.orderpoint.search.inherit.notification</field>
-        <field name="model">stock.warehouse.orderpoint</field>
-        <field name="inherit_id" ref="stock.stock_warehouse_orderpoint_view_search"/>
-        <field name="arch" type="xml">
-            <xpath expr="//search" position="inside">
-                <filter name="has_active_notifications" string="Has Active Notifications"
-                        domain="[('has_active_notification', '=', True)]"/>
-                <filter name="below_minimum" string="Below Minimum Stock"
-                        domain="[('stock_status', '=', 'below_min')]"/>
-                <filter name="stock_ok" string="Stock OK"
-                        domain="[('stock_status', '=', 'ok')]"/>
-                <separator/>
-                <filter name="needs_attention" string="Needs Attention"
-                        domain="['|', ('stock_status', '=', 'below_min'), ('stock_status', '=', 'above_max')]"/>
-            </xpath>
-        </field>
-    </record>
-
     <!-- Scheduled Action - Check reorder rules every hour -->
     <record id="ir_cron_check_reorder_notifications" model="ir.cron">
         <field name="name">Warehouse: Check Reordering Rules and Send Notifications</field>

@@ -13,9 +13,9 @@
     "excludes": ["account_invoice_triple_discount"],
     "data": [
         "security/res_groups.xml",
-        "views/account_move_view.xml",
+        # "views/account_move_view.xml",
         "views/sale_order_view.xml",
-        "reports/report_account_invoice.xml",
+        # "reports/report_account_invoice.xml",
         "reports/report_sale_order.xml",
     ],
 }

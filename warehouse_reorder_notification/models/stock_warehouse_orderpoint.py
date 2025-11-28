@@ -332,6 +332,7 @@ class StockWarehouseOrderpoint(models.Model):
     def action_create_combined_purchase_order(self):
         """Create ONE combined purchase order for ALL selected products
         NO vendor restriction - user can change vendor in PO form
+        FIXED for Odoo 19: Uses product.uom_id and product_uom_id
         """
         if not self:
             return {
@@ -411,28 +412,24 @@ class StockWarehouseOrderpoint(models.Model):
         purchase_order = self.env['purchase.order'].sudo().create(po_vals)
 
         # Create order lines for all products
-        lines_created = 0
-        products_list = []
-
         for op_data in orderpoints_data:
             product = op_data['product']
             qty = op_data['qty_to_order']
             price = op_data['price']
             orderpoint = op_data['orderpoint']
 
+            # FIXED for Odoo 19: Use product.uom_id and product_uom_id
             line_vals = {
                 'order_id': purchase_order.id,
                 'product_id': product.id,
                 'product_qty': qty,
-                'product_uom': product.uom_id.id,
+                'product_uom_id': product.uom_id.id,  # Odoo 19: product_uom_id (not product_uom)
                 'price_unit': price,
                 'date_planned': fields.Datetime.now(),
                 'name': product.display_name,
             }
 
             self.env['purchase.order.line'].sudo().create(line_vals)
-            lines_created += 1
-            products_list.append(product.display_name)
 
             # Update orderpoint tracking
             orderpoint.sudo().write({
@@ -448,11 +445,6 @@ class StockWarehouseOrderpoint(models.Model):
             'view_mode': 'form',
             'target': 'current',
         }
-
-
-
-
-
 
 # from odoo import models, fields, api, _
 # from datetime import datetime, timedelta

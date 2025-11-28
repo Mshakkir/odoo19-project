@@ -46,26 +46,13 @@ class AccountMove(models.Model):
                 move.amount_undiscounted = 0.0
                 move.amount_after_discount = 0.0
 
-    @api.depends(
-        'line_ids.matched_debit_ids.debit_move_id.move_id.payment_id.is_matched',
-        'line_ids.matched_debit_ids.debit_move_id.move_id.line_ids.amount_residual',
-        'line_ids.matched_debit_ids.debit_move_id.move_id.line_ids.amount_residual_currency',
-        'line_ids.matched_credit_ids.credit_move_id.move_id.payment_id.is_matched',
-        'line_ids.matched_credit_ids.credit_move_id.move_id.line_ids.amount_residual',
-        'line_ids.matched_credit_ids.credit_move_id.move_id.line_ids.amount_residual_currency',
-        'line_ids.balance',
-        'line_ids.currency_id',
-        'line_ids.amount_currency',
-        'line_ids.amount_residual',
-        'line_ids.amount_residual_currency',
-        'line_ids.payment_id.state',
-        'line_ids.full_reconcile_id',
-        'global_discount_fixed',
-    )
     def _compute_amount(self):
         """
         Override the main amount computation to apply global discount.
         This method is called by Odoo to compute invoice totals.
+
+        IMPORTANT: We don't add @api.depends here because we're extending
+        the existing compute method, and adding dependencies causes conflicts.
         """
         # First, let Odoo compute the standard amounts
         super(AccountMove, self)._compute_amount()
@@ -122,13 +109,11 @@ class AccountMove(models.Model):
             new_total = currency.round(new_total)
 
             # Update move amounts WITHOUT triggering recursion
-            # We use update() instead of assignment to avoid triggering compute
-            move.update({
-                'amount_untaxed': new_subtotal,
-                'amount_tax': new_tax,
-                'amount_total': new_total,
-                'amount_residual': new_total,
-            })
+            # We use direct assignment in the ORM cache
+            move.amount_untaxed = new_subtotal
+            move.amount_tax = new_tax
+            move.amount_total = new_total
+            move.amount_residual = new_total
 
             _logger.warning(
                 f"✅✅✅ DISCOUNT APPLIED to {move.name or 'New'}: "
@@ -141,7 +126,10 @@ class AccountMove(models.Model):
         """Trigger recomputation when discount changes in the UI."""
         if self.is_invoice():
             _logger.info(f"🔄 Discount changed in UI for {self.name or 'New'}")
-            # Trigger amount recomputation
+            # Manually trigger recomputation of line totals
+            for line in self.invoice_line_ids.filtered(lambda l: not l.display_type):
+                line._compute_totals()
+            # Then recompute move amounts
             self._compute_amount()
 
     @api.model_create_multi
@@ -155,10 +143,9 @@ class AccountMove(models.Model):
         # Apply discount to invoices that have it
         for move in moves:
             if move.is_invoice() and move.global_discount_fixed and move.global_discount_fixed > 0:
-                _logger.info(f"🎯 Invoice created with discount: {move.global_discount_fixed}")
-                # The _compute_amount will be automatically triggered by Odoo
-                # But we force it here to ensure it runs
-                move._compute_amount()
+                _logger.info(f"🎯 Invoice {move.name or 'New'} created with discount: {move.global_discount_fixed}")
+                # Force recomputation using the dynamic lines method
+                move._recompute_dynamic_lines(recompute_all_taxes=True)
 
         return moves
 
@@ -174,6 +161,6 @@ class AccountMove(models.Model):
         if discount_changing:
             for move in self.filtered(lambda m: m.is_invoice() and m.state == 'draft'):
                 _logger.info(f"🔄 Discount changed for {move.name}, recomputing")
-                move._compute_amount()
+                move._recompute_dynamic_lines(recompute_all_taxes=True)
 
         return res

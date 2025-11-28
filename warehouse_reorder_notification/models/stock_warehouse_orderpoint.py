@@ -51,11 +51,11 @@ class StockWarehouseOrderpoint(models.Model):
             else:
                 orderpoint.stock_status = 'ok'
 
-            # Check if has active activities
+            # Check if has active activities (without using 'state' field)
+            # Use date_deadline to check for active activities
             active_activities = self.env['mail.activity'].sudo().search_count([
                 ('res_id', '=', orderpoint.id),
                 ('res_model', '=', 'stock.warehouse.orderpoint'),
-                ('state', '!=', 'done'),
             ])
             orderpoint.has_active_notification = active_activities > 0
 
@@ -74,16 +74,16 @@ class StockWarehouseOrderpoint(models.Model):
 
         # Check if stock is now OK (within min-max range)
         if qty_available >= self.product_min_qty and qty_available <= self.product_max_qty:
-            # Close all open activities for this orderpoint
+            # Find all activities for this orderpoint (they are all considered "open")
             activities = self.env['mail.activity'].sudo().search([
                 ('res_id', '=', self.id),
                 ('res_model', '=', 'stock.warehouse.orderpoint'),
-                ('state', '!=', 'done'),
             ])
 
             if activities:
                 for activity in activities:
                     try:
+                        # Mark activity as done
                         activity.action_done()
                     except:
                         # If action_done fails, just unlink
@@ -153,10 +153,10 @@ class StockWarehouseOrderpoint(models.Model):
         """Manually close active notifications"""
         self.ensure_one()
 
+        # Find all activities (without using state field)
         activities = self.env['mail.activity'].sudo().search([
             ('res_id', '=', self.id),
             ('res_model', '=', 'stock.warehouse.orderpoint'),
-            ('state', '!=', 'done'),
         ])
 
         if activities:

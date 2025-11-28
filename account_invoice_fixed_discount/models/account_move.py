@@ -42,105 +42,138 @@ class AccountMove(models.Model):
                 )
                 move.amount_undiscounted = amount_undiscounted
                 move.amount_after_discount = amount_undiscounted - (move.global_discount_fixed or 0.0)
-
-                _logger.info(f"Compute discount amounts: {move.name or 'New'} - "
-                             f"Undiscounted={amount_undiscounted}, Discount={move.global_discount_fixed}, "
-                             f"After={move.amount_after_discount}")
             else:
                 move.amount_undiscounted = 0.0
                 move.amount_after_discount = 0.0
 
-    def _recompute_tax_lines(self, recompute_tax_base_amount=False):
+    @api.depends(
+        'line_ids.matched_debit_ids.debit_move_id.move_id.payment_id.is_matched',
+        'line_ids.matched_debit_ids.debit_move_id.move_id.line_ids.amount_residual',
+        'line_ids.matched_debit_ids.debit_move_id.move_id.line_ids.amount_residual_currency',
+        'line_ids.matched_credit_ids.credit_move_id.move_id.payment_id.is_matched',
+        'line_ids.matched_credit_ids.credit_move_id.move_id.line_ids.amount_residual',
+        'line_ids.matched_credit_ids.credit_move_id.move_id.line_ids.amount_residual_currency',
+        'line_ids.balance',
+        'line_ids.currency_id',
+        'line_ids.amount_currency',
+        'line_ids.amount_residual',
+        'line_ids.amount_residual_currency',
+        'line_ids.payment_id.state',
+        'line_ids.full_reconcile_id',
+        'global_discount_fixed',
+    )
+    def _compute_amount(self):
         """
-        This is THE key method that Odoo uses to compute taxes.
-        We override it to apply discount AFTER taxes are computed.
+        Override the main amount computation to apply global discount.
+        This method is called by Odoo to compute invoice totals.
         """
-        _logger.info(f"=== _recompute_tax_lines called for {self.mapped('name')} ===")
-
-        # Let Odoo compute taxes normally
-        res = super()._recompute_tax_lines(recompute_tax_base_amount=recompute_tax_base_amount)
+        # First, let Odoo compute the standard amounts
+        super(AccountMove, self)._compute_amount()
 
         # Now apply our global discount
         for move in self:
+            # Only process invoices
             if not move.is_invoice():
                 continue
 
+            # Skip if no discount
             if not move.global_discount_fixed or move.global_discount_fixed <= 0:
                 continue
 
-            # Get product lines
+            # Get invoice lines (product lines only)
             product_lines = move.invoice_line_ids.filtered(lambda l: not l.display_type)
             if not product_lines:
-                _logger.warning(f"No product lines in {move.name or 'New'}")
+                _logger.warning(f"⚠️ No product lines in {move.name or 'New'}")
                 continue
 
-            # Calculate totals from lines
-            subtotal = sum(product_lines.mapped('price_subtotal'))
-            total_with_tax = sum(product_lines.mapped('price_total'))
-            tax_amount = total_with_tax - subtotal
+            # Calculate original amounts from lines
+            original_subtotal = sum(product_lines.mapped('price_subtotal'))
+            original_total_with_tax = sum(product_lines.mapped('price_total'))
+            original_tax = original_total_with_tax - original_subtotal
 
-            _logger.info(f"Before discount - Subtotal: {subtotal}, Tax: {tax_amount}, Total: {total_with_tax}")
+            _logger.info(
+                f"📊 {move.name or 'New'} - Original: Subtotal={original_subtotal}, "
+                f"Tax={original_tax}, Total={original_total_with_tax}"
+            )
 
-            if subtotal <= 0:
+            # Skip if subtotal is zero
+            if original_subtotal <= 0:
+                _logger.warning(f"⚠️ Subtotal is zero for {move.name or 'New'}")
                 continue
 
             # Apply discount to subtotal
-            new_subtotal = subtotal - move.global_discount_fixed
+            new_subtotal = original_subtotal - move.global_discount_fixed
             if new_subtotal < 0:
                 new_subtotal = 0.0
 
-            # Proportionally reduce tax
-            discount_ratio = new_subtotal / subtotal if subtotal > 0 else 0.0
-            new_tax = tax_amount * discount_ratio
+            # Proportionally adjust tax
+            if original_subtotal > 0:
+                discount_ratio = new_subtotal / original_subtotal
+                new_tax = original_tax * discount_ratio
+            else:
+                new_tax = 0.0
+
             new_total = new_subtotal + new_tax
 
-            # Round using currency
+            # Round amounts
             currency = move.currency_id or move.company_id.currency_id
             new_subtotal = currency.round(new_subtotal)
             new_tax = currency.round(new_tax)
             new_total = currency.round(new_total)
 
-            # Update move totals
-            move.amount_untaxed = new_subtotal
-            move.amount_tax = new_tax
-            move.amount_total = new_total
-            move.amount_residual = new_total if move.state == 'posted' else new_total
+            # Update move amounts WITHOUT triggering recursion
+            # We use update() instead of assignment to avoid triggering compute
+            move.update({
+                'amount_untaxed': new_subtotal,
+                'amount_tax': new_tax,
+                'amount_total': new_total,
+                'amount_residual': new_total,
+            })
 
-            _logger.info(
+            _logger.warning(
                 f"✅✅✅ DISCOUNT APPLIED to {move.name or 'New'}: "
-                f"New Subtotal={new_subtotal}, New Tax={new_tax}, New Total={new_total}"
+                f"Discount={move.global_discount_fixed}, New Subtotal={new_subtotal}, "
+                f"New Tax={new_tax}, New Total={new_total}"
             )
-
-        return res
 
     @api.onchange('global_discount_fixed')
     def _onchange_global_discount_fixed(self):
         """Trigger recomputation when discount changes in the UI."""
         if self.is_invoice():
-            _logger.info(f"Discount changed in UI for {self.name or 'New'}, triggering recompute")
-            self._recompute_tax_lines()
+            _logger.info(f"🔄 Discount changed in UI for {self.name or 'New'}")
+            # Trigger amount recomputation
+            self._compute_amount()
 
     @api.model_create_multi
     def create(self, vals_list):
-        """Ensure discount is applied on create."""
-        moves = super().create(vals_list)
+        """Ensure discount is applied after invoice creation."""
+        _logger.info(f"📝 Creating {len(vals_list)} invoice(s)")
 
+        # Create invoices normally
+        moves = super(AccountMove, self).create(vals_list)
+
+        # Apply discount to invoices that have it
         for move in moves:
             if move.is_invoice() and move.global_discount_fixed and move.global_discount_fixed > 0:
-                _logger.info(f"New invoice created with discount: {move.global_discount_fixed}")
-                # Force tax recomputation
-                move._recompute_tax_lines()
+                _logger.info(f"🎯 Invoice created with discount: {move.global_discount_fixed}")
+                # The _compute_amount will be automatically triggered by Odoo
+                # But we force it here to ensure it runs
+                move._compute_amount()
 
         return moves
 
     def write(self, vals):
-        """Ensure discount is reapplied when invoice changes."""
-        res = super().write(vals)
+        """Recompute when discount changes."""
+        # Track if discount is changing
+        discount_changing = 'global_discount_fixed' in vals
 
-        # If discount changed, recompute
-        if 'global_discount_fixed' in vals:
+        # Perform the write
+        res = super(AccountMove, self).write(vals)
+
+        # Recompute if discount changed
+        if discount_changing:
             for move in self.filtered(lambda m: m.is_invoice() and m.state == 'draft'):
-                _logger.info(f"Discount changed via write for {move.name}, recomputing")
-                move._recompute_tax_lines()
+                _logger.info(f"🔄 Discount changed for {move.name}, recomputing")
+                move._compute_amount()
 
         return res

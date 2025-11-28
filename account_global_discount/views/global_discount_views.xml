@@ -44,13 +44,70 @@
         </field>
     </record>
 
-    <!-- Menu item -->
+    <!-- Menu item - OPTION 1: Try Configuration menu -->
     <menuitem
         id="menu_account_global_discount"
         action="base_global_discount.action_global_discount_tree"
         name="Global Discounts"
         groups="base_global_discount.group_global_discount"
-        parent="account.account_management_menu"
+        parent="account.menu_finance_configuration"
         sequence="50"
     />
 </odoo>
+
+
+<!--&lt;!&ndash; Copyright 2019 Tecnativa - David Vidal-->
+<!--     Copyright 2025 - Odoo 19 CE Conversion-->
+<!--     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). &ndash;&gt;-->
+<!--<odoo>-->
+<!--    &lt;!&ndash; Tree view extension &ndash;&gt;-->
+<!--    <record id="global_discount_view_tree" model="ir.ui.view">-->
+<!--        <field name="model">global.discount</field>-->
+<!--        <field name="inherit_id" ref="base_global_discount.global_discount_view_tree"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <field name="company_id" position="before">-->
+<!--                <field-->
+<!--                    name="account_id"-->
+<!--                    required="1"-->
+<!--                    domain="[('company_ids', 'in', [company_id])]"-->
+<!--                />-->
+<!--                <field-->
+<!--                    domain="['|', ('company_id', '=', company_id), ('company_id', '=', False)]"-->
+<!--                    name="account_analytic_id"-->
+<!--                    groups="analytic.group_analytic_accounting"-->
+<!--                    optional="hide"-->
+<!--                />-->
+<!--            </field>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Form view extension &ndash;&gt;-->
+<!--    <record id="global_discount_view_form" model="ir.ui.view">-->
+<!--        <field name="model">global.discount</field>-->
+<!--        <field name="inherit_id" ref="base_global_discount.global_discount_view_form"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <field name="company_id" position="before">-->
+<!--                <field-->
+<!--                    name="account_id"-->
+<!--                    required="1"-->
+<!--                    domain="[('company_ids', 'in', [company_id])]"-->
+<!--                />-->
+<!--                <field-->
+<!--                    domain="['|', ('company_id', '=', company_id), ('company_id', '=', False)]"-->
+<!--                    name="account_analytic_id"-->
+<!--                    groups="analytic.group_analytic_accounting"-->
+<!--                />-->
+<!--            </field>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Menu item &ndash;&gt;-->
+<!--    <menuitem-->
+<!--        id="menu_account_global_discount"-->
+<!--        action="base_global_discount.action_global_discount_tree"-->
+<!--        name="Global Discounts"-->
+<!--        groups="base_global_discount.group_global_discount"-->
+<!--        parent="account.account_management_menu"-->
+<!--        sequence="50"-->
+<!--    />-->
+<!--</odoo>-->

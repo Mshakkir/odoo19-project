@@ -10,7 +10,6 @@
             <field name="decoration_type">danger</field>
             <field name="delay_count">0</field>
             <field name="delay_unit">days</field>
-            <field name="res_model_id" ref="stock.model_stock_warehouse_orderpoint"/>
         </record>
     </data>
 </odoo>

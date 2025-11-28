@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.ui.view" id="res_partner_form_view">
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='sales_purchases']//group[@name='sale']" position="inside">
+                <field name="customer_global_discount_ids" widget="many2many_tags" groups="base_global_discount.group_global_discount" invisible="not is_company and parent_id"/>
+            </xpath>
+            <xpath expr="//page[@name='sales_purchases']//group[@name='purchase']" position="inside">
+                <field name="supplier_global_discount_ids" widget="many2many_tags" groups="base_global_discount.group_global_discount" invisible="not is_company and parent_id"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

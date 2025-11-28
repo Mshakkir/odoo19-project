@@ -37,8 +37,7 @@ class StockWarehouseOrderpoint(models.Model):
         # Create notification message
         message_body = self._format_notification_message_simple(notification_data)
 
-        # FIX 1: Use custom activity type to hide from "Other activities"
-        # Get or create custom activity type
+        # FIX 1: Get custom activity type - it MUST exist
         activity_type = self.env.ref(
             'warehouse_reorder_notification.mail_activity_type_reorder_notification',
             raise_if_not_found=False
@@ -52,16 +51,32 @@ class StockWarehouseOrderpoint(models.Model):
         notifications = []
         for user in users_to_notify:
             try:
-                # Create activity for tracking - specific to this warehouse
-                self.env['mail.activity'].sudo().create({
-                    'activity_type_id': activity_type.id,
-                    'summary': title,
-                    'note': message_body,
-                    'res_id': self.id,
-                    'res_model_id': self.env['ir.model']._get_id('stock.warehouse.orderpoint'),
-                    'user_id': user.id,
-                    'date_deadline': fields.Date.today(),
-                })
+                # IMPORTANT: Check if activity already exists for this user/orderpoint
+                existing_activity = self.env['mail.activity'].sudo().search([
+                    ('res_id', '=', self.id),
+                    ('res_model', '=', 'stock.warehouse.orderpoint'),
+                    ('user_id', '=', user.id),
+                    ('activity_type_id', '=', activity_type.id),
+                ], limit=1)
+
+                if existing_activity:
+                    # Update existing activity instead of creating new one
+                    existing_activity.write({
+                        'summary': title,
+                        'note': message_body,
+                        'date_deadline': fields.Date.today(),
+                    })
+                else:
+                    # Create NEW activity for tracking - specific to this warehouse
+                    self.env['mail.activity'].sudo().create({
+                        'activity_type_id': activity_type.id,
+                        'summary': title,
+                        'note': message_body,
+                        'res_id': self.id,
+                        'res_model_id': self.env['ir.model']._get_id('stock.warehouse.orderpoint'),
+                        'user_id': user.id,
+                        'date_deadline': fields.Date.today(),
+                    })
 
                 # Send browser notification
                 notifications.append([

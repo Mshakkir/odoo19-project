@@ -119,12 +119,12 @@
                 <div class="page">
                     <h2 class="text-center">Your Completely Custom Report</h2>
 
-                    <!-- Add your completely custom HTML here -->
+                    <!- Add your completely custom HTML here -->
 
-                </div>
-            </t>
-        </t>
-    </template>
-    -->
+<!--                </div>-->
+<!--            </t>-->
+<!--        </t>-->
+<!--    </template>-->
+<!--    &ndash;&gt;-->
 
 </odoo>

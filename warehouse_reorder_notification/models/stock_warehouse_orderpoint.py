@@ -16,6 +16,57 @@ class StockWarehouseOrderpoint(models.Model):
         help='Number of notifications sent for this rule'
     )
 
+    has_active_notification = fields.Boolean(
+        string='Has Active Notification',
+        compute='_compute_has_active_notification',
+        store=False,
+        help='Whether this orderpoint has active notifications'
+    )
+
+    stock_status = fields.Selection([
+        ('ok', 'Stock OK'),
+        ('below_min', 'Below Minimum'),
+        ('above_max', 'Above Maximum'),
+    ], string='Stock Status', compute='_compute_stock_status', store=False)
+
+    @api.depends('product_id', 'location_id')
+    def _compute_has_active_notification(self):
+        """Check if orderpoint has active notifications"""
+        for rec in self:
+            activity_type = self.env.ref(
+                'warehouse_reorder_notification.mail_activity_type_reorder_notification',
+                raise_if_not_found=False
+            )
+
+            if activity_type:
+                active_count = self.env['mail.activity'].sudo().search_count([
+                    ('res_id', '=', rec.id),
+                    ('res_model', '=', 'stock.warehouse.orderpoint'),
+                    ('activity_type_id', '=', activity_type.id),
+                ])
+                rec.has_active_notification = active_count > 0
+            else:
+                rec.has_active_notification = False
+
+    @api.depends('product_id', 'location_id', 'product_min_qty', 'product_max_qty')
+    def _compute_stock_status(self):
+        """Compute current stock status"""
+        for rec in self:
+            if not rec.product_id or not rec.location_id:
+                rec.stock_status = 'ok'
+                continue
+
+            qty_available = rec.product_id.with_context(
+                location=rec.location_id.id
+            ).qty_available
+
+            if qty_available < rec.product_min_qty:
+                rec.stock_status = 'below_min'
+            elif qty_available > rec.product_max_qty:
+                rec.stock_status = 'above_max'
+            else:
+                rec.stock_status = 'ok'
+
     def _send_system_notification(self, notification_data):
         """Send notification to Odoo notification center (bell icon)"""
         self.ensure_one()
@@ -37,7 +88,7 @@ class StockWarehouseOrderpoint(models.Model):
         # Create notification message
         message_body = self._format_notification_message_simple(notification_data)
 
-        # FIX 1: Get custom activity type - it MUST exist
+        # Get custom activity type
         activity_type = self.env.ref(
             'warehouse_reorder_notification.mail_activity_type_reorder_notification',
             raise_if_not_found=False
@@ -51,7 +102,7 @@ class StockWarehouseOrderpoint(models.Model):
         notifications = []
         for user in users_to_notify:
             try:
-                # IMPORTANT: Check if activity already exists for this user/orderpoint
+                # Check if activity already exists for this user/orderpoint
                 existing_activity = self.env['mail.activity'].sudo().search([
                     ('res_id', '=', self.id),
                     ('res_model', '=', 'stock.warehouse.orderpoint'),
@@ -60,14 +111,14 @@ class StockWarehouseOrderpoint(models.Model):
                 ], limit=1)
 
                 if existing_activity:
-                    # Update existing activity instead of creating new one
+                    # Update existing activity
                     existing_activity.write({
                         'summary': title,
                         'note': message_body,
                         'date_deadline': fields.Date.today(),
                     })
                 else:
-                    # Create NEW activity for tracking - specific to this warehouse
+                    # Create NEW activity
                     self.env['mail.activity'].sudo().create({
                         'activity_type_id': activity_type.id,
                         'summary': title,
@@ -141,31 +192,61 @@ class StockWarehouseOrderpoint(models.Model):
         """
         return message
 
-    # FIX 2: Auto-close notifications when product is purchased
     def _auto_close_notifications_if_stock_ok(self):
         """Close notifications if stock is now within acceptable range"""
         self.ensure_one()
 
-        product = self.product_id
-        location = self.location_id
-        qty_available = product.with_context(location=location.id).qty_available
+        try:
+            product = self.product_id
+            location = self.location_id
 
-        # If stock is now within range, close open activities
-        if self.product_min_qty <= qty_available <= self.product_max_qty:
-            # Find open activities for this orderpoint
-            open_activities = self.env['mail.activity'].sudo().search([
-                ('res_id', '=', self.id),
-                ('res_model', '=', 'stock.warehouse.orderpoint'),
-                ('user_id', 'in', self.warehouse_id._get_notification_users().ids)
-            ])
+            if not product or not location:
+                return
 
-            # Mark them as done
-            for activity in open_activities:
-                try:
-                    activity.action_done()
-                except:
-                    # If action_done fails, just unlink
-                    activity.unlink()
+            # Get current stock with proper context
+            qty_available = product.with_context(
+                location=location.id,
+                compute_child=False
+            ).qty_available
+
+            # If stock is now within acceptable range, close activities
+            if self.product_min_qty <= qty_available <= self.product_max_qty:
+                # Get custom activity type
+                activity_type = self.env.ref(
+                    'warehouse_reorder_notification.mail_activity_type_reorder_notification',
+                    raise_if_not_found=False
+                )
+
+                # Build domain for activities to close
+                domain = [
+                    ('res_id', '=', self.id),
+                    ('res_model', '=', 'stock.warehouse.orderpoint'),
+                ]
+
+                if activity_type:
+                    domain.append(('activity_type_id', '=', activity_type.id))
+
+                # Find and close activities
+                open_activities = self.env['mail.activity'].sudo().search(domain)
+
+                if open_activities:
+                    for activity in open_activities:
+                        try:
+                            # Mark as done (creates message in chatter)
+                            activity.action_done()
+                        except:
+                            # If action_done fails, just delete
+                            activity.unlink()
+
+                    # Log that notifications were auto-closed
+                    self.message_post(
+                        body=f"✅ Stock replenished to {qty_available:.2f} {product.uom_id.name}. "
+                             f"Reorder notifications automatically closed.",
+                        subject="Stock Replenished"
+                    )
+        except Exception as e:
+            # Log error but don't break the flow
+            pass
 
     @api.model
     def check_and_send_reorder_notifications(self):
@@ -176,6 +257,7 @@ class StockWarehouseOrderpoint(models.Model):
         ])
 
         notifications_sent = 0
+        notifications_closed = 0
 
         # Process each warehouse separately
         for warehouse in warehouses:
@@ -199,9 +281,25 @@ class StockWarehouseOrderpoint(models.Model):
                     # Get on-hand quantity
                     qty_available = product.with_context(location=location.id).qty_available
 
-                    # FIX 2: Auto-close notifications if stock is OK
+                    # Auto-close notifications if stock is OK
                     if orderpoint.product_min_qty <= qty_available <= orderpoint.product_max_qty:
-                        orderpoint._auto_close_notifications_if_stock_ok()
+                        # Check if there are open notifications before closing
+                        activity_type = self.env.ref(
+                            'warehouse_reorder_notification.mail_activity_type_reorder_notification',
+                            raise_if_not_found=False
+                        )
+
+                        if activity_type:
+                            open_count = self.env['mail.activity'].sudo().search_count([
+                                ('res_id', '=', orderpoint.id),
+                                ('res_model', '=', 'stock.warehouse.orderpoint'),
+                                ('activity_type_id', '=', activity_type.id),
+                            ])
+
+                            if open_count > 0:
+                                orderpoint._auto_close_notifications_if_stock_ok()
+                                notifications_closed += 1
+
                         continue
 
                     # Skip if notification was sent in last 4 hours
@@ -251,7 +349,10 @@ class StockWarehouseOrderpoint(models.Model):
                 except Exception as e:
                     continue
 
-        return notifications_sent
+        return {
+            'sent': notifications_sent,
+            'closed': notifications_closed
+        }
 
     def action_send_notification_now(self):
         """Manual button to send notification immediately"""
@@ -368,6 +469,22 @@ class StockWarehouseOrderpoint(models.Model):
                 }
             }
 
+    def action_close_notification(self):
+        """Manual button to close notification"""
+        self.ensure_one()
+        self._auto_close_notifications_if_stock_ok()
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('✅ Closed'),
+                'message': _('Notification closed successfully.'),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+
     def action_view_notifications(self):
         """View all notifications/activities for this orderpoint"""
         self.ensure_one()
@@ -384,10 +501,7 @@ class StockWarehouseOrderpoint(models.Model):
         }
 
     def action_create_combined_purchase_order(self):
-        """Create ONE combined purchase order for ALL selected products
-        NO vendor restriction - user can change vendor in PO form
-        FIXED for Odoo 19: Uses product.uom_id and product_uom_id
-        """
+        """Create ONE combined purchase order for ALL selected products"""
         if not self:
             return {
                 'type': 'ir.actions.client',
@@ -400,23 +514,18 @@ class StockWarehouseOrderpoint(models.Model):
                 }
             }
 
-        # Collect all orderpoints data
         orderpoints_data = []
         default_vendor = False
 
         for orderpoint in self:
             product = orderpoint.product_id
             location = orderpoint.location_id
-
-            # Get quantity to order
             qty_available = product.with_context(location=location.id).qty_available
 
-            # Calculate qty to order - only if below minimum
             if qty_available < orderpoint.product_min_qty:
                 qty_to_order = orderpoint.product_max_qty - qty_available
 
                 if qty_to_order > 0:
-                    # Get vendor from product (if available)
                     vendor = False
                     price = 0.0
 
@@ -424,7 +533,6 @@ class StockWarehouseOrderpoint(models.Model):
                         vendor = product.seller_ids[0].partner_id
                         price = product.seller_ids[0].price
 
-                        # Use first vendor found as default
                         if not default_vendor:
                             default_vendor = vendor
 
@@ -448,31 +556,24 @@ class StockWarehouseOrderpoint(models.Model):
                 }
             }
 
-        # Get warehouse from first orderpoint
         warehouse = self[0].warehouse_id
 
-        # Create purchase order with default vendor (or empty if none found)
         po_vals = {
             'date_order': fields.Datetime.now(),
             'origin': f'Combined Reorder - {warehouse.name}',
             'picking_type_id': warehouse.in_type_id.id,
         }
 
-        # Add vendor if we found one
         if default_vendor:
             po_vals['partner_id'] = default_vendor.id
 
-        # Create purchase order
         purchase_order = self.env['purchase.order'].sudo().create(po_vals)
 
-        # Create order lines for all products
         for op_data in orderpoints_data:
             product = op_data['product']
             qty = op_data['qty_to_order']
             price = op_data['price']
-            orderpoint = op_data['orderpoint']
 
-            # FIXED for Odoo 19: Use product.uom_id and product_uom_id
             line_vals = {
                 'order_id': purchase_order.id,
                 'product_id': product.id,
@@ -485,10 +586,6 @@ class StockWarehouseOrderpoint(models.Model):
 
             self.env['purchase.order.line'].sudo().create(line_vals)
 
-            # FIX 2: Auto-close notification after creating PO
-            orderpoint._auto_close_notifications_if_stock_ok()
-
-        # Return action to open the created purchase order
         return {
             'type': 'ir.actions.act_window',
             'name': _('Combined Purchase Order Created'),

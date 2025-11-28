@@ -424,7 +424,7 @@ class StockWarehouseOrderpoint(models.Model):
                 'order_id': purchase_order.id,
                 'product_id': product.id,
                 'product_qty': qty,
-                'product_uom': product.uom_po_id.id,
+                'product_uom': product.uom_id.id,
                 'price_unit': price,
                 'date_planned': fields.Datetime.now(),
                 'name': product.display_name,

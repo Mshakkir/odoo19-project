@@ -61,18 +61,18 @@
             </xpath>
 
             <!-- Add global discount field after invoice lines -->
-            <xpath expr="//field[@name='invoice_line_ids']" position="after">
-                <group>
-                    <group>
-                        <field
-                            name="global_discount_fixed"
-                            groups="account_invoice_fixed_discount.group_fixed_discount"
-                            widget="monetary"
-                            readonly="state == 'posted'"
-                        />
-                    </group>
-                </group>
-            </xpath>
+<!--            <xpath expr="//field[@name='invoice_line_ids']" position="after">-->
+<!--                <group>-->
+<!--                    <group>-->
+<!--                        <field-->
+<!--                            name="global_discount_fixed"-->
+<!--                            groups="account_invoice_fixed_discount.group_fixed_discount"-->
+<!--                            widget="monetary"-->
+<!--                            readonly="state == 'posted'"-->
+<!--                        />-->
+<!--                    </group>-->
+<!--                </group>-->
+<!--            </xpath>-->
         </field>
     </record>
 </odoo>

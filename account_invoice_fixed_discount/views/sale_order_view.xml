@@ -1,3 +1,25 @@
+<!--&lt;!&ndash; Copyright 2017 ForgeFlow S.L.-->
+<!--     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). &ndash;&gt;-->
+<!--<odoo>-->
+<!--    <record id="view_order_form" model="ir.ui.view">-->
+<!--        <field name="name">sale.order.form - fixed_discount</field>-->
+<!--        <field name="model">sale.order</field>-->
+<!--        <field name="inherit_id" ref="sale.view_order_form" />-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath-->
+<!--                expr="//field[@name='order_line']/list/field[@name='discount']"-->
+<!--                position="before"-->
+<!--            >-->
+<!--                <field-->
+<!--                    name="discount_fixed"-->
+<!--                    groups="account_invoice_fixed_discount.group_fixed_discount"-->
+<!--                    optional="show"-->
+<!--                />-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+<!--</odoo>-->
+
 <!-- Copyright 2017 ForgeFlow S.L.
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
 <odoo>
@@ -15,19 +37,6 @@
                     name="discount_fixed"
                     groups="account_invoice_fixed_discount.group_fixed_discount"
                     optional="show"
-                />
-            </xpath>
-
-            <!-- Add Amount (Before Discount) column AFTER the existing Amount column -->
-            <xpath
-                expr="//field[@name='order_line']/list/field[@name='price_subtotal']"
-                position="before"
-            >
-                <field
-                    name="price_subtotal_before_discount"
-                    groups="account_invoice_fixed_discount.group_fixed_discount"
-                    optional="show"
-                    widget="monetary"
                 />
             </xpath>
 

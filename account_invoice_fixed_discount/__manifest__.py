@@ -17,7 +17,6 @@
         "views/sale_order_view.xml",
         "reports/report_account_invoice.xml",
         "reports/report_sale_order.xml",
-
     ],
 }
 #

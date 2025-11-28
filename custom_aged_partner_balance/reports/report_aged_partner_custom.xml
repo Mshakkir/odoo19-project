@@ -41,13 +41,13 @@
                             <!-- Company Names in One Row -->
                             <table style="width: 100%; border-collapse: collapse; border:none; margin-bottom: 10px;">
                                 <tr style="border:2px solid white;">
-                                    <td style="width: 50%; padding: 10px 0px; text-align: left; vertical-align: middle; border: none;">
+                                    <td style="width: 50%; padding: 10px 0px; text-align: left; vertical-align: middle; border: none;padding_bottom:0px;">
                                         <div style="color: #8B1538; font-size: 16px; font-weight: bold; text-transform: uppercase;">
                                             SAMEER SHARAF AL OTAIBI TRADING COMPANY
                                         </div>
                                     </td>
                                     <td style="width: 50%; padding: 10px 0px; text-align: right; vertical-align: middle; border: none;">
-                                        <div style="color: #8B1538; font-size: 18px; font-weight: 900; direction: rtl;" class="ar">
+                                        <div style="color: #8B1538; font-size: 18px; font-weight: 900; direction: rtl;padding_bottom:0px;" class="ar">
                                             شركة سمير شرف العتيبي التجارية
                                         </div>
                                     </td>
@@ -59,7 +59,7 @@
                                 <tr  style="border:2px solid white;">
                                     <!-- Left Column: English Info -->
                                     <td style="width: 33%; text-align: left; font-size: 14px; color: #333; vertical-align: middle;
-                                    padding: 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
+                                    padding: 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;padding_top:0px;">
                                         <div style="line-height: 1.6; font-weight: 500;">
                                             C.R. 4030216154<br/>
                                             VAT Regd: 311299944700003
@@ -70,13 +70,13 @@
                                     <td style="width: 34%; text-align: center; vertical-align: middle; padding: 5px 10px padding-top:0px;;
                                     border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
                                         <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/faakart_logo.png'"
-                                             style="max-height: 110px; max-width: 100%; object-fit: contain;"/>
+                                             style="max-height: 110px; max-width: 100%; object-fit: contain;padding_top:0px;"/>
                                     </td>
 
                                     <!-- Right Column: Arabic Info -->
                                     <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle;
                                     direction: rtl; padding: 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
-                                        <div style="line-height: 1.6; font-weight: 900; text-align: right; direction: rtl;" class="ar">
+                                        <div style="line-height: 1.6; font-weight: 900; text-align: right; direction: rtl;padding_top:0px;" class="ar">
                                             س.ت: ٤٠٣٠٢١٦١٥٤<br/>
                                             الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
                                         </div>
@@ -86,7 +86,7 @@
                         </div>
 
                         <!-- Report Title and Date -->
-                        <div class="row" style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 3px solid #875A7B;padding-top:30px;">
+                        <div class="row" style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 3px solid #875A7B;padding-top:60px;">
                             <div class="col-8">
                                 <h3 style="margin: 0; color: #875A7B; font-weight: bold;">
                                     Aged Partner Balance Report

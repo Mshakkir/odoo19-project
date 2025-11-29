@@ -7,14 +7,8 @@ class ReorderRuleNotification(models.Model):
     # GET USER ALLOWED WAREHOUSES
     # ------------------------------------------
     def _get_user_warehouses(self, user):
-        """
-        Returns warehouses allowed for the user.
-        If no specific warehouse field → return all.
-        """
         if hasattr(user, 'stock_warehouse_ids') and user.stock_warehouse_ids:
             return user.stock_warehouse_ids
-
-        # fallback: all warehouses
         return self.env['stock.warehouse'].search([])
 
     # ------------------------------------------
@@ -25,7 +19,6 @@ class ReorderRuleNotification(models.Model):
         users = self.env['res.users'].search([])
 
         for user in users:
-
             warehouses = self._get_user_warehouses(user)
             if not warehouses:
                 continue
@@ -33,7 +26,6 @@ class ReorderRuleNotification(models.Model):
             rules = self.search([
                 ('warehouse_id', 'in', warehouses.ids),
                 ('qty_to_order', '>', 0),
-                ('product_id', '!=', False),
             ])
 
             if not rules:
@@ -45,10 +37,9 @@ class ReorderRuleNotification(models.Model):
             ])
 
             message = _(
-                "📦 *Reordering Alerts*\n\n%s\n\nThese products need replenishment."
+                "📦 Reordering Alerts\n\n%s\n\nThese products need replenishment."
             ) % product_list
 
-            # send to bell icon
             user.partner_id.notify_info(message)
 
     # -----------------------------------------
@@ -57,15 +48,14 @@ class ReorderRuleNotification(models.Model):
     def action_manual_reorder_notify(self):
         rules = self.search([
             ('qty_to_order', '>', 0),
-            ('product_id', '!=', False)
         ])
         if not rules:
             return True
 
         for user in self.env['res.users'].search([]):
             warehouses = self._get_user_warehouses(user)
-
             user_rules = rules.filtered(lambda r: r.warehouse_id in warehouses)
+
             if not user_rules:
                 continue
 
@@ -74,10 +64,11 @@ class ReorderRuleNotification(models.Model):
                 for r in user_rules
             ])
 
-            message = _("📢 *Manual Reorder Alerts*\n\n%s") % product_list
+            message = _("📢 Manual Reorder Alerts\n\n%s") % product_list
             user.partner_id.notify_info(message)
 
         return True
+
 
 
 

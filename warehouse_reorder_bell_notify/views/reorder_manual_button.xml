@@ -5,16 +5,41 @@
         <field name="inherit_id" ref="stock.view_warehouse_orderpoint_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add a new header at top of form -->
-            <xpath expr="//form" position="inside">
+            <!-- Add button in Header -->
+            <xpath expr="//form/sheet" position="before">
                 <header>
                     <button name="action_manual_reorder_notify"
                             type="object"
                             string="Send Notification"
-                            class="btn-primary"/>
+                            class="oe_highlight"/>
                 </header>
             </xpath>
 
         </field>
     </record>
 </odoo>
+
+
+
+
+
+<!--<odoo>-->
+<!--    <record id="view_reorder_manual_notify_button" model="ir.ui.view">-->
+<!--        <field name="name">reorder.manual.notify.button</field>-->
+<!--        <field name="model">stock.warehouse.orderpoint</field>-->
+<!--        <field name="inherit_id" ref="stock.view_warehouse_orderpoint_form"/>-->
+<!--        <field name="arch" type="xml">-->
+
+<!--            &lt;!&ndash; Add a new header at top of form &ndash;&gt;-->
+<!--            <xpath expr="//form" position="inside">-->
+<!--                <header>-->
+<!--                    <button name="action_manual_reorder_notify"-->
+<!--                            type="object"-->
+<!--                            string="Send Notification"-->
+<!--                            class="btn-primary"/>-->
+<!--                </header>-->
+<!--            </xpath>-->
+
+<!--        </field>-->
+<!--    </record>-->
+<!--</odoo>-->

@@ -141,9 +141,9 @@
                             <thead style="background-color: #A3AABE; color: black;">
                                 <tr>
                                     <th style="padding: 8px; white-space: nowrap;">Partners</th>
-                                    <th style="padding: 8px; white-space: nowrap;">Email</th>
-                                    <th style="padding: 8px; white-space: nowrap;">Phone</th>
-                                    <th style="padding: 8px; white-space: nowrap;">City</th>
+<!--                                    <th style="padding: 8px; white-space: nowrap;">Email</th>-->
+<!--                                    <th style="padding: 8px; white-space: nowrap;">Phone</th>-->
+<!--                                    <th style="padding: 8px; white-space: nowrap;">City</th>-->
                                     <th class="text-end" style="padding: 8px; white-space: nowrap;">Not due</th>
                                     <th class="text-end" style="padding: 8px; white-space: nowrap;">
                                         <span t-esc="data['4']['name']"/>
@@ -164,7 +164,7 @@
                                 </tr>
                                 <tr t-if="get_partner_lines" style="background-color: #f0f0f0; font-weight: bold;">
                                     <th style="padding: 8px;">Account Total</th>
-                                    <th colspan="3" class="text-center" style="padding: 8px;">Details</th>
+<!--                                    <th colspan="3" class="text-center" style="padding: 8px;">Details</th>-->
                                     <th class="text-end" style="padding: 8px;">
                                         <span t-esc="get_direction[6]"
                                               t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
@@ -200,15 +200,15 @@
                                     <td style="padding: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                         <span t-esc="partner['name']"/>
                                     </td>
-                                    <td style="padding: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px;">
-                                        <span t-esc="partner.get('email', '')"/>
-                                    </td>
-                                    <td style="padding: 6px; white-space: nowrap;">
-                                        <span t-esc="partner.get('phone', '')"/>
-                                    </td>
-                                    <td style="padding: 6px; white-space: nowrap;">
-                                        <span t-esc="partner.get('city', '')"/>
-                                    </td>
+<!--                                    <td style="padding: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px;">-->
+<!--                                        <span t-esc="partner.get('email', '')"/>-->
+<!--                                    </td>-->
+<!--                                    <td style="padding: 6px; white-space: nowrap;">-->
+<!--                                        <span t-esc="partner.get('phone', '')"/>-->
+<!--                                    </td>-->
+<!--                                    <td style="padding: 6px; white-space: nowrap;">-->
+<!--                                        <span t-esc="partner.get('city', '')"/>-->
+<!--                                    </td>-->
                                     <td class="text-end" style="padding: 6px; white-space: nowrap;">
                                         <span t-esc="partner['direction']"
                                               t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>

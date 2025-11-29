@@ -5,14 +5,13 @@ class MailActivity(models.Model):
     _inherit = 'mail.activity'
 
     @api.model
-    def _search(self, args, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
+    def _search(self, domain, offset=0, limit=None, order=None, **kwargs):
         """Override search to filter activities based on warehouse assignment"""
 
         # Check if user is stock manager - they see everything
         if self.env.user.has_group('stock.group_stock_manager'):
             return super(MailActivity, self)._search(
-                args, offset=offset, limit=limit, order=order,
-                count=count, access_rights_uid=access_rights_uid
+                domain, offset=offset, limit=limit, order=order, **kwargs
             )
 
         # For stock users, filter orderpoint activities
@@ -37,9 +36,8 @@ class MailActivity(models.Model):
             ]
 
             # Combine with original domain
-            args = args + warehouse_domain if args else warehouse_domain
+            domain = domain + warehouse_domain if domain else warehouse_domain
 
         return super(MailActivity, self)._search(
-            args, offset=offset, limit=limit, order=order,
-            count=count, access_rights_uid=access_rights_uid
+            domain, offset=offset, limit=limit, order=order, **kwargs
         )

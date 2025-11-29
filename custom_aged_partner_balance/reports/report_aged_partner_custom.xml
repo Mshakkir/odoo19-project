@@ -108,7 +108,7 @@
             <!-- Left Column: English Info -->
             <td style="width: 33%; text-align: left; font-size: 14px; color: #333; vertical-align: middle;
             padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
-                <div style="line-height: 1.6; font-weight: 500; margin-top: -35px;">
+                <div style="line-height: 1.6; font-weight: 500; margin-top: -32px;">
                     C.R. 4030216154<br/>
                     VAT Regd: 311299944700003
                 </div>
@@ -124,7 +124,7 @@
             <!-- Right Column: Arabic Info -->
             <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle;
             direction: rtl; padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
-                <div style="line-height: 1.6; font-weight: 900; text-align: right; direction: rtl; margin-top: -35px;" class="ar">
+                <div style="line-height: 1.6; font-weight: 900; text-align: right; direction: rtl; margin-top: -32px;" class="ar">
                     س.ت: ٤٠٣٠٢١٦١٥٤<br/>
                     الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
                 </div>

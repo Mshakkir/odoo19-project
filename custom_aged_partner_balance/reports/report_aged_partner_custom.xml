@@ -1,29 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Option 4: Create custom paper format to control margins and header/footer -->
-
-    <!-- Define custom paper format -->
-<!--    <record id="paperformat_aged_partner_custom" model="report.paperformat">-->
-<!--        <field name="name">Aged Partner Balance Custom Format</field>-->
-<!--        <field name="default" eval="True"/>-->
-<!--        <field name="format">A4</field>-->
-<!--        <field name="page_height">0</field>-->
-<!--        <field name="page_width">0</field>-->
-<!--        <field name="orientation">Landscape</field>-->
-<!--        <field name="margin_top">15</field>-->
-<!--        <field name="margin_bottom">15</field>-->
-<!--        <field name="margin_left">10</field>-->
-<!--        <field name="margin_right">10</field>-->
-<!--        <field name="header_line" eval="False"/>-->
-<!--        <field name="header_spacing">10</field>-->
-<!--        <field name="dpi">90</field>-->
-<!--    </record>-->
-
-<!--    &lt;!&ndash; Find and update the report action to use custom paper format &ndash;&gt;-->
-<!--    <record id="accounting_pdf_reports.action_report_aged_partner_balance" model="ir.actions.report">-->
-<!--        <field name="paperformat_id" ref="paperformat_aged_partner_custom"/>-->
-<!--    </record>-->
 
     <!-- Main report template with minimal header -->
     <template id="report_agedpartnerbalance_minimal" inherit_id="accounting_pdf_reports.report_agedpartnerbalance">
@@ -35,55 +12,7 @@
                 <t t-call="web.basic_layout">
                     <div class="page" style="padding-top: 20px;">
 
-                        <!-- Custom Header -->
-<!--                        <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 25px; padding: 15px 0;">-->
 
-<!--                            &lt;!&ndash; Company Names in One Row &ndash;&gt;-->
-<!--                            <table style="width: 100%; border-collapse: collapse; border:none; margin-bottom: 10px;">-->
-<!--                                <tr style="border:2px solid white;">-->
-<!--                                    <td style="width: 50%; padding: 10px 0px; text-align: left; vertical-align: middle; border: none;padding-bottom:0px;">-->
-<!--                                        <div style="color: #8B1538; font-size: 14px; font-weight: bold; text-transform: uppercase;">-->
-<!--                                            SAMEER SHARAF AL OTAIBI TRADING COMPANY-->
-<!--                                        </div>-->
-<!--                                    </td>-->
-<!--                                    <td style="width: 50%; padding: 10px 0px; text-align: right; vertical-align: middle; border: none;">-->
-<!--                                        <div style="color: #8B1538; font-size: 16px; font-weight: 900; direction: rtl;padding-bottom:0px;" class="ar">-->
-<!--                                            شركة سمير شرف العتيبي التجارية-->
-<!--                                        </div>-->
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                            </table>-->
-
-<!--                            &lt;!&ndash; Details and Logo Row &ndash;&gt;-->
-<!--                            <table style="width: 100%; border-collapse: collapse;">-->
-<!--                                <tr  style="border:2px solid white;">-->
-<!--                                    &lt;!&ndash; Left Column: English Info &ndash;&gt;-->
-<!--                                    <td style="width: 33%; text-align: left; font-size: 14px; color: #333; vertical-align: middle;-->
-<!--                                    padding: 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;margin-top:0px;">-->
-<!--                                        <div style="line-height: 1.6; font-weight: 500;">-->
-<!--                                            C.R. 4030216154<br/>-->
-<!--                                            VAT Regd: 311299944700003-->
-<!--                                        </div>-->
-<!--                                    </td>-->
-
-<!--                                    &lt;!&ndash; Center Column: Company Logo &ndash;&gt;-->
-<!--                                    <td style="width: 34%; text-align: center; vertical-align: middle; padding: 5px 10px padding-top:0px;;-->
-<!--                                    border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">-->
-<!--                                        <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/faakart_logo.png'"-->
-<!--                                             style="max-height: 110px; max-width: 100%; object-fit: contain;padding-top:0px;"/>-->
-<!--                                    </td>-->
-
-<!--                                    &lt;!&ndash; Right Column: Arabic Info &ndash;&gt;-->
-<!--                                    <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle;-->
-<!--                                    direction: rtl; padding: 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">-->
-<!--                                        <div style="line-height: 1.6; font-weight: 900; text-align: right; direction: rtl;padding-top:0px;" class="ar">-->
-<!--                                            س.ت: ٤٠٣٠٢١٦١٥٤<br/>-->
-<!--                                            الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣-->
-<!--                                        </div>-->
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                            </table>-->
-<!--                        </div>-->
 <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 25px; padding: 15px 0;">
 
     <!-- Company Names in One Row -->
@@ -108,7 +37,7 @@
             <!-- Left Column: English Info -->
             <td style="width: 33%; text-align: left; font-size: 14px; color: #333; vertical-align: middle;
             padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
-                <div style="line-height: 1.6; font-weight: 500; margin-top: -32px;">
+                <div style="line-height: 1.6; font-weight: 500; margin-top: 10px;">
                     C.R. 4030216154<br/>
                     VAT Regd: 311299944700003
                 </div>
@@ -118,13 +47,13 @@
             <td style="width: 34%; text-align: center; vertical-align: middle; padding: 5px 10px;
             border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
                 <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/faakart_logo.png'"
-                     style="max-height: 90px; max-width: 100%; object-fit: contain;margin-top: -25px"/>
+                     style="max-height: 90px; max-width: 100%; object-fit: contain;"/>
             </td>
 
             <!-- Right Column: Arabic Info -->
             <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle;
             direction: rtl; padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
-                <div style="line-height: 1.6; font-weight: 900; text-align: right; direction: rtl; margin-top: -32px;" class="ar">
+                <div style="line-height: 1.6; font-weight: 900; text-align: right; direction: rtl; margin-top: 10px;" class="ar">
                     س.ت: ٤٠٣٠٢١٦١٥٤<br/>
                     الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
                 </div>
@@ -134,7 +63,7 @@
 </div>
 
                         <!-- Report Title and Date -->
-                        <div class="row" style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 3px solid white;padding-top:160px;">
+                        <div class="row" style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 3px solid white; margin-top: 30px;">
                             <div class="col-8">
                                 <h5 style="margin: 0; color: black; font-weight: bold;">
                                     Aged Partner Balance Report

@@ -124,12 +124,9 @@
                         </div>
 
                         <!-- Main Table -->
-                        <table class="table table-sm table-bordered" style="margin-bottom: 25px; width: 100%; min-width: 1200px;">
+                        <table class="table table-sm table-bordered" style="margin-bottom: 25px; width: 100%; min-width: 1000px;">
                             <colgroup>
                                 <col style="width: 180px;"/>
-                                <col style="width: 140px;"/>
-                                <col style="width: 110px;"/>
-                                <col style="width: 90px;"/>
                                 <col style="width: 100px;"/>
                                 <col style="width: 100px;"/>
                                 <col style="width: 100px;"/>

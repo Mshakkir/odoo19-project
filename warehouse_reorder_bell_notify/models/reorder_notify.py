@@ -40,7 +40,7 @@ class ReorderRuleNotification(models.Model):
                 "📦 Reordering Alerts\n\n%s\n\nThese products need replenishment."
             ) % product_list
 
-            user.partner_id.notify_info(message)
+            user.notify_info(message)
 
     # -----------------------------------------
     # MANUAL BUTTON NOTIFICATION
@@ -65,12 +65,11 @@ class ReorderRuleNotification(models.Model):
             ])
 
             message = _("📢 Manual Reorder Alerts\n\n%s") % product_list
-            user.partner_id.notify_info(message)
+
+            # FIX: notify user directly (not partner)
+            user.notify_info(message)
 
         return True
-
-
-
 
 
 

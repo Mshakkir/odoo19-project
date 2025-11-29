@@ -124,30 +124,43 @@
                         </div>
 
                         <!-- Main Table -->
-                        <table class="table table-sm table-bordered" style="margin-bottom: 25px; table-layout: fixed; width: 100%;">
+                        <table class="table table-sm table-bordered" style="margin-bottom: 25px; width: 100%; min-width: 1200px;">
+                            <colgroup>
+                                <col style="width: 180px;"/>
+                                <col style="width: 140px;"/>
+                                <col style="width: 110px;"/>
+                                <col style="width: 90px;"/>
+                                <col style="width: 100px;"/>
+                                <col style="width: 100px;"/>
+                                <col style="width: 100px;"/>
+                                <col style="width: 100px;"/>
+                                <col style="width: 100px;"/>
+                                <col style="width: 100px;"/>
+                                <col style="width: 120px;"/>
+                            </colgroup>
                             <thead style="background-color: #A3AABE; color: black;">
                                 <tr>
-                                    <th style="padding: 8px; width: 15%;">Partners</th>
-                                    <th style="padding: 8px; width: 12%;">Email</th>
-                                    <th style="padding: 8px; width: 10%;">Phone</th>
-                                    <th style="padding: 8px; width: 8%;">City</th>
-                                    <th class="text-end" style="padding: 8px; width: 9%;">Not due</th>
-                                    <th class="text-end" style="padding: 8px; width: 9%;">
+                                    <th style="padding: 8px; white-space: nowrap;">Partners</th>
+                                    <th style="padding: 8px; white-space: nowrap;">Email</th>
+                                    <th style="padding: 8px; white-space: nowrap;">Phone</th>
+                                    <th style="padding: 8px; white-space: nowrap;">City</th>
+                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">Not due</th>
+                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">
                                         <span t-esc="data['4']['name']"/>
                                     </th>
-                                    <th class="text-end" style="padding: 8px; width: 9%;">
+                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">
                                         <span t-esc="data['3']['name']"/>
                                     </th>
-                                    <th class="text-end" style="padding: 8px; width: 9%;">
+                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">
                                         <span t-esc="data['2']['name']"/>
                                     </th>
-                                    <th class="text-end" style="padding: 8px; width: 9%;">
+                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">
                                         <span t-esc="data['1']['name']"/>
                                     </th>
-                                    <th class="text-end" style="padding: 8px; width: 9%;">
+                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">
                                         <span t-esc="data['0']['name']"/>
                                     </th>
-                                    <th class="text-end" style="padding: 8px; width: 10%;">Total</th>
+                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">Total</th>
                                 </tr>
                                 <tr t-if="get_partner_lines" style="background-color: #f0f0f0; font-weight: bold;">
                                     <th style="padding: 8px;">Account Total</th>
@@ -184,43 +197,43 @@
                             </thead>
                             <tbody>
                                 <tr t-foreach="get_partner_lines" t-as="partner">
-                                    <td style="padding: 6px;">
+                                    <td style="padding: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                         <span t-esc="partner['name']"/>
                                     </td>
-                                    <td style="padding: 6px;">
+                                    <td style="padding: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px;">
                                         <span t-esc="partner.get('email', '')"/>
                                     </td>
-                                    <td style="padding: 6px;">
+                                    <td style="padding: 6px; white-space: nowrap;">
                                         <span t-esc="partner.get('phone', '')"/>
                                     </td>
-                                    <td style="padding: 6px;">
+                                    <td style="padding: 6px; white-space: nowrap;">
                                         <span t-esc="partner.get('city', '')"/>
                                     </td>
-                                    <td class="text-end" style="padding: 6px;">
+                                    <td class="text-end" style="padding: 6px; white-space: nowrap;">
                                         <span t-esc="partner['direction']"
                                               t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
-                                    <td class="text-end" style="padding: 6px;">
+                                    <td class="text-end" style="padding: 6px; white-space: nowrap;">
                                         <span t-esc="partner['4']"
                                               t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
-                                    <td class="text-end" style="padding: 6px;">
+                                    <td class="text-end" style="padding: 6px; white-space: nowrap;">
                                         <span t-esc="partner['3']"
                                               t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
-                                    <td class="text-end" style="padding: 6px;">
+                                    <td class="text-end" style="padding: 6px; white-space: nowrap;">
                                         <span t-esc="partner['2']"
                                               t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
-                                    <td class="text-end" style="padding: 6px;">
+                                    <td class="text-end" style="padding: 6px; white-space: nowrap;">
                                         <span t-esc="partner['1']"
                                               t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
-                                    <td class="text-end" style="padding: 6px;">
+                                    <td class="text-end" style="padding: 6px; white-space: nowrap;">
                                         <span t-esc="partner['0']"
                                               t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
-                                    <td class="text-end" style="padding: 6px; font-weight: bold;">
+                                    <td class="text-end" style="padding: 6px; font-weight: bold; white-space: nowrap;">
                                         <span t-esc="partner['total']"
                                               t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>

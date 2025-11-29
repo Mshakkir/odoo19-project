@@ -9,5 +9,3 @@ access_res_groups_stock_user,access.res.groups.stock.user,base.model_res_groups,
 access_res_groups_stock_manager,access.res.groups.stock.manager,base.model_res_groups,stock.group_stock_manager,1,0,0,0
 access_mail_message_stock_user,mail.message.stock.user,mail.model_mail_message,stock.group_stock_user,1,1,1,0
 access_mail_message_stock_manager,mail.message.stock.manager,mail.model_mail_message,stock.group_stock_manager,1,1,1,1
-access_mail_activity_stock_user,mail.activity.stock.user,mail.model_mail_activity,stock.group_stock_user,1,1,1,1
-access_mail_activity_stock_manager,mail.activity.stock.manager,mail.model_mail_activity,stock.group_stock_manager,1,1,1,1

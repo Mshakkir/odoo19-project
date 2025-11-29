@@ -108,7 +108,7 @@
             <!-- Left Column: English Info -->
             <td style="width: 33%; text-align: left; font-size: 14px; color: #333; vertical-align: middle;
             padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
-                <div style="line-height: 1.6; font-weight: 500; margin-top: 10px;">
+                <div style="line-height: 1.6; font-weight: 500; margin-top: -30px;">
                     C.R. 4030216154<br/>
                     VAT Regd: 311299944700003
                 </div>
@@ -124,7 +124,7 @@
             <!-- Right Column: Arabic Info -->
             <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle;
             direction: rtl; padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
-                <div style="line-height: 1.6; font-weight: 900; text-align: right; direction: rtl; margin-top: 10px;" class="ar">
+                <div style="line-height: 1.6; font-weight: 900; text-align: right; direction: rtl; margin-top: -30px;" class="ar">
                     س.ت: ٤٠٣٠٢١٦١٥٤<br/>
                     الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
                 </div>
@@ -196,7 +196,7 @@
 
                         <!-- Main Table -->
                         <table class="table table-sm table-bordered" style="margin-bottom: 25px;">
-                            <thead style="background-color: #E8E9E8; color: black;">
+                            <thead style="background-color: #DAD8C9; color: black;">
                                 <tr>
                                     <th style="padding: 8px;">Partners</th>
                                     <th style="padding: 8px;">Email</th>
@@ -304,7 +304,7 @@
                             <div class="col-12">
                                 <h4 style="color:#808080; margin-bottom: 15px;">Aging Analysis Summary</h4>
                                 <table class="table table-sm table-bordered">
-                                    <thead style="background-color: #E8E9E8; color: white;">
+                                    <thead style="background-color: #DAD8C9; color: white;">
                                         <tr>
                                             <th style="padding: 8px;">Period</th>
                                             <th class="text-end" style="padding: 8px;">Amount</th>

@@ -1,24 +1,19 @@
 <odoo>
-    <record id="action_reorder_notify" model="ir.actions.server">
-        <field name="name">Send Reorder Alerts Now</field>
-        <field name="model_id" ref="stock.model_stock_warehouse_orderpoint"/>
-        <field name="state">code</field>
-        <field name="code">
-            action = env['stock.warehouse.orderpoint'].action_manual_reorder_notify()
-        </field>
-    </record>
-
-    <record id="view_reorder_action_button" model="ir.ui.view">
-        <field name="name">reorder.rule.action.button</field>
+    <record id="view_reorder_manual_notify_button" model="ir.ui.view">
+        <field name="name">reorder.manual.notify.button</field>
         <field name="model">stock.warehouse.orderpoint</field>
-        <field name="inherit_id" ref="stock.warehouse_orderpoint_view_tree"/>
+        <field name="inherit_id" ref="stock.view_warehouse_orderpoint_form"/>
         <field name="arch" type="xml">
+
+            <!-- Add button inside the form header -->
             <xpath expr="//form/header" position="inside">
-                <button name="%(action_reorder_notify)d"
-                        string="Send Reorder Alerts Now"
-                        type="action"
-                        class="btn-primary"/>
+                <button name="action_manual_reorder_notify"
+                        type="object"
+                        string="Send Notification"
+                        class="btn-primary"
+                />
             </xpath>
+
         </field>
     </record>
 </odoo>

@@ -13,6 +13,13 @@ class ReorderRuleNotification(models.Model):
         return self.env['stock.warehouse'].search([])
 
     # ------------------------------------------
+    # CHECK IF USER IS ADMIN
+    # ------------------------------------------
+    def _is_admin(self, user):
+        """Check if user is administrator"""
+        return user.has_group('base.group_system')
+
+    # ------------------------------------------
     # SEND NOTIFICATION TO USER
     # ------------------------------------------
     def _send_notification(self, user, message):
@@ -37,24 +44,38 @@ class ReorderRuleNotification(models.Model):
         users = self.env['res.users'].search([('active', '=', True)])
 
         for user in users:
+            # Check if user is admin or has warehouse access
+            is_admin = self._is_admin(user)
             warehouses = self._get_user_warehouses(user)
 
-            rules = self.search([
-                ('warehouse_id', 'in', warehouses.ids),
-                ('qty_to_order', '>', 0),
-                ('product_id', '!=', False),
-            ])
+            if is_admin:
+                # Admin gets ALL reorder rules
+                rules = self.search([
+                    ('qty_to_order', '>', 0),
+                    ('product_id', '!=', False),
+                ])
+            else:
+                # Regular users get only their warehouse rules
+                rules = self.search([
+                    ('warehouse_id', 'in', warehouses.ids),
+                    ('qty_to_order', '>', 0),
+                    ('product_id', '!=', False),
+                ])
 
             if not rules:
                 continue
 
             product_lines = []
             for r in rules:
+                warehouse_name = r.warehouse_id.name if r.warehouse_id else 'N/A'
                 product_lines.append(
-                    f"• {r.product_id.display_name}: Need to order {r.qty_to_order} {r.product_uom.name}"
+                    f"• {r.product_id.display_name} ({warehouse_name}): Need {r.qty_to_order} {r.product_uom.name}"
                 )
 
-            message = _("📦 Reorder Alerts\n\n%s\n\nThese products need replenishment.") % "\n".join(product_lines)
+            if is_admin:
+                message = _("📦 Admin Reorder Alerts (All Warehouses)\n\n%s\n\nThese products need replenishment.") % "\n".join(product_lines)
+            else:
+                message = _("📦 Reorder Alerts\n\n%s\n\nThese products need replenishment.") % "\n".join(product_lines)
 
             self._send_notification(user, message)
 
@@ -81,22 +102,35 @@ class ReorderRuleNotification(models.Model):
 
         users = self.env['res.users'].search([('active', '=', True)])
         notified_count = 0
+        admin_count = 0
 
         for user in users:
+            # Check if user is admin or has warehouse access
+            is_admin = self._is_admin(user)
             warehouses = self._get_user_warehouses(user)
 
-            user_rules = rules.filtered(lambda r: r.warehouse_id in warehouses)
+            if is_admin:
+                # Admin gets ALL reorder rules
+                user_rules = rules
+                admin_count += 1
+            else:
+                # Regular users get only their warehouse rules
+                user_rules = rules.filtered(lambda r: r.warehouse_id in warehouses)
 
             if not user_rules:
                 continue
 
             product_lines = []
             for r in user_rules:
+                warehouse_name = r.warehouse_id.name if r.warehouse_id else 'N/A'
                 product_lines.append(
-                    f"• {r.product_id.display_name}: Need to order {r.qty_to_order} {r.product_uom.name}"
+                    f"• {r.product_id.display_name} ({warehouse_name}): Need {r.qty_to_order} {r.product_uom.name}"
                 )
 
-            message = _("📢 Manual Reorder Alerts\n\n%s\n\nPlease review these items.") % "\n".join(product_lines)
+            if is_admin:
+                message = _("📢 Admin Manual Reorder Alerts (All Warehouses)\n\n%s\n\nPlease review these items.") % "\n".join(product_lines)
+            else:
+                message = _("📢 Manual Reorder Alerts\n\n%s\n\nPlease review these items.") % "\n".join(product_lines)
 
             self._send_notification(user, message)
             notified_count += 1
@@ -106,7 +140,7 @@ class ReorderRuleNotification(models.Model):
             'tag': 'display_notification',
             'params': {
                 'title': _('Success'),
-                'message': _('Notifications sent to %s user(s)') % notified_count,
+                'message': _('Notifications sent to %s user(s) (including %s admin(s))') % (notified_count, admin_count),
                 'type': 'success',
                 'sticky': False,
             }
@@ -119,68 +153,120 @@ class ReorderRuleNotification(models.Model):
 
 
 
-# from odoo import models, fields, api, _
+
+# from odoo import models, api, _
+# from odoo.exceptions import UserError
 #
 # class ReorderRuleNotification(models.Model):
 #     _inherit = 'stock.warehouse.orderpoint'
 #
+#     # ------------------------------------------
+#     # GET USER ALLOWED WAREHOUSES
+#     # ------------------------------------------
 #     def _get_user_warehouses(self, user):
-#         """Returns warehouses allowed for the user"""
-#         if hasattr(user, 'stock_warehouse_ids'):
+#         if hasattr(user, 'stock_warehouse_ids') and user.stock_warehouse_ids:
 #             return user.stock_warehouse_ids
 #         return self.env['stock.warehouse'].search([])
 #
-#     # ---------------------------
-#     # 1) AUTO NOTIFICATION (CRON)
-#     # ---------------------------
+#     # ------------------------------------------
+#     # SEND NOTIFICATION TO USER
+#     # ------------------------------------------
+#     def _send_notification(self, user, message):
+#         """Send notification using Odoo's bus notification system"""
+#         # Use Odoo's notification bus - works in Odoo 19
+#         self.env['bus.bus']._sendone(
+#             user.partner_id,
+#             'simple_notification',
+#             {
+#                 'type': 'info',
+#                 'title': _('Reorder Alert'),
+#                 'message': message,
+#                 'sticky': False,
+#             }
+#         )
+#
+#     # ------------------------------------------
+#     # AUTO - NOTIFICATION (CRON)
+#     # ------------------------------------------
 #     @api.model
 #     def cron_send_reorder_notifications(self):
-#         users = self.env['res.users'].search([])
+#         users = self.env['res.users'].search([('active', '=', True)])
 #
 #         for user in users:
 #             warehouses = self._get_user_warehouses(user)
-#             if not warehouses:
-#                 continue
 #
 #             rules = self.search([
 #                 ('warehouse_id', 'in', warehouses.ids),
 #                 ('qty_to_order', '>', 0),
+#                 ('product_id', '!=', False),
 #             ])
 #
 #             if not rules:
 #                 continue
 #
-#             product_list = "\n".join([
-#                 f"- {r.product_id.display_name}: Order {r.qty_to_order}"
-#                 for r in rules
-#             ])
+#             product_lines = []
+#             for r in rules:
+#                 product_lines.append(
+#                     f"• {r.product_id.display_name}: Need to order {r.qty_to_order} {r.product_uom.name}"
+#                 )
 #
-#             message = _(
-#                 "Reordering Alerts:\n%s\n"
-#                 "These products in your warehouse require replenishment."
-#             ) % product_list
+#             message = _("📦 Reorder Alerts\n\n%s\n\nThese products need replenishment.") % "\n".join(product_lines)
 #
-#             user.partner_id.notify_info(message)
+#             self._send_notification(user, message)
 #
-#     # -----------------------------------
-#     # 2) MANUAL NOTIFICATION (BUTTON)
-#     # -----------------------------------
+#     # -----------------------------------------
+#     # MANUAL BUTTON NOTIFICATION
+#     # -----------------------------------------
 #     def action_manual_reorder_notify(self):
-#         rules = self.search([('qty_to_order', '>', 0)])
-#         if not rules:
-#             return
+#         rules = self.search([
+#             ('qty_to_order', '>', 0),
+#             ('product_id', '!=', False)
+#         ])
 #
-#         for user in self.env['res.users'].search([]):
+#         if not rules:
+#             return {
+#                 'type': 'ir.actions.client',
+#                 'tag': 'display_notification',
+#                 'params': {
+#                     'title': _('No Alerts'),
+#                     'message': _('No reorder rules found that need replenishment.'),
+#                     'type': 'warning',
+#                     'sticky': False,
+#                 }
+#             }
+#
+#         users = self.env['res.users'].search([('active', '=', True)])
+#         notified_count = 0
+#
+#         for user in users:
 #             warehouses = self._get_user_warehouses(user)
+#
 #             user_rules = rules.filtered(lambda r: r.warehouse_id in warehouses)
 #
 #             if not user_rules:
 #                 continue
 #
-#             product_list = "\n".join([
-#                 f"- {r.product_id.display_name}: Order {r.qty_to_order}"
-#                 for r in user_rules
-#             ])
+#             product_lines = []
+#             for r in user_rules:
+#                 product_lines.append(
+#                     f"• {r.product_id.display_name}: Need to order {r.qty_to_order} {r.product_uom.name}"
+#                 )
 #
-#             message = _("Manual Reorder Alerts:\n%s") % product_list
-#             user.partner_id.notify_info(message)
+#             message = _("📢 Manual Reorder Alerts\n\n%s\n\nPlease review these items.") % "\n".join(product_lines)
+#
+#             self._send_notification(user, message)
+#             notified_count += 1
+#
+#         return {
+#             'type': 'ir.actions.client',
+#             'tag': 'display_notification',
+#             'params': {
+#                 'title': _('Success'),
+#                 'message': _('Notifications sent to %s user(s)') % notified_count,
+#                 'type': 'success',
+#                 'sticky': False,
+#             }
+#         }
+#
+#
+#

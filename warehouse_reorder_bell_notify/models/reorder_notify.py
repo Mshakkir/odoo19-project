@@ -16,26 +16,18 @@ class ReorderRuleNotification(models.Model):
     # SEND NOTIFICATION TO USER
     # ------------------------------------------
     def _send_notification(self, user, message):
-        """Send notification using Odoo's standard notification system"""
-        try:
-            # Create activity or send message via chatter
-            self.env['mail.thread'].message_notify(
-                partner_ids=[user.partner_id.id],
-                body=message,
-                subject=_('Reorder Rule Notification'),
-                message_type='notification',
-                subtype_xmlid='mail.mt_note',
-            )
-        except Exception:
-            # Fallback: Create activity
-            self.env['mail.activity'].create({
-                'res_id': user.id,
-                'res_model_id': self.env['ir.model']._get('res.users').id,
-                'user_id': user.id,
-                'summary': _('Reorder Alert'),
-                'note': message,
-                'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id,
-            })
+        """Send notification using Odoo's bus notification system"""
+        # Use Odoo's notification bus - works in Odoo 19
+        self.env['bus.bus']._sendone(
+            user.partner_id,
+            'simple_notification',
+            {
+                'type': 'info',
+                'title': _('Reorder Alert'),
+                'message': message,
+                'sticky': False,
+            }
+        )
 
     # ------------------------------------------
     # AUTO - NOTIFICATION (CRON)
@@ -56,20 +48,13 @@ class ReorderRuleNotification(models.Model):
             if not rules:
                 continue
 
-            product_list = "<br/>".join([
-                f"<li><strong>{r.product_id.display_name}</strong>: Need to order <strong>{r.qty_to_order}</strong> {r.product_uom.name}</li>"
-                for r in rules
-            ])
+            product_lines = []
+            for r in rules:
+                product_lines.append(
+                    f"• {r.product_id.display_name}: Need to order {r.qty_to_order} {r.product_uom.name}"
+                )
 
-            message = f"""
-                <div style="padding: 10px; border-left: 4px solid #00A09D;">
-                    <h3>📦 Reorder Alerts</h3>
-                    <ul style="margin: 10px 0;">
-                        {product_list}
-                    </ul>
-                    <p style="color: #666;">These products need replenishment.</p>
-                </div>
-            """
+            message = _("📦 Reorder Alerts\n\n%s\n\nThese products need replenishment.") % "\n".join(product_lines)
 
             self._send_notification(user, message)
 
@@ -83,7 +68,16 @@ class ReorderRuleNotification(models.Model):
         ])
 
         if not rules:
-            raise UserError(_('No reorder rules found that need replenishment.'))
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Alerts'),
+                    'message': _('No reorder rules found that need replenishment.'),
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
 
         users = self.env['res.users'].search([('active', '=', True)])
         notified_count = 0
@@ -96,20 +90,13 @@ class ReorderRuleNotification(models.Model):
             if not user_rules:
                 continue
 
-            product_list = "<br/>".join([
-                f"<li><strong>{r.product_id.display_name}</strong>: Need to order <strong>{r.qty_to_order}</strong> {r.product_uom.name}</li>"
-                for r in user_rules
-            ])
+            product_lines = []
+            for r in user_rules:
+                product_lines.append(
+                    f"• {r.product_id.display_name}: Need to order {r.qty_to_order} {r.product_uom.name}"
+                )
 
-            message = f"""
-                <div style="padding: 10px; border-left: 4px solid #FF6B6B;">
-                    <h3>📢 Manual Reorder Alerts</h3>
-                    <ul style="margin: 10px 0;">
-                        {product_list}
-                    </ul>
-                    <p style="color: #666;">Please review these items for replenishment.</p>
-                </div>
-            """
+            message = _("📢 Manual Reorder Alerts\n\n%s\n\nPlease review these items.") % "\n".join(product_lines)
 
             self._send_notification(user, message)
             notified_count += 1

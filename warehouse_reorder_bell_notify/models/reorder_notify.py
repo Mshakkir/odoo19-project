@@ -1,6 +1,7 @@
 from odoo import models, api, _
 from odoo.exceptions import UserError
 
+
 class ReorderRuleNotification(models.Model):
     _inherit = 'stock.warehouse.orderpoint'
 
@@ -8,15 +9,16 @@ class ReorderRuleNotification(models.Model):
     # GET USER ALLOWED WAREHOUSES
     # ------------------------------------------
     def _get_user_warehouses(self, user):
+        """Get warehouses assigned to user"""
         if hasattr(user, 'stock_warehouse_ids') and user.stock_warehouse_ids:
             return user.stock_warehouse_ids
-        return self.env['stock.warehouse'].search([])
+        return self.env['stock.warehouse'].browse()  # Empty recordset
 
     # ------------------------------------------
     # CHECK IF USER IS ADMIN
     # ------------------------------------------
     def _is_admin(self, user):
-        """Check if user is administrator"""
+        """Check if user is system administrator"""
         return user.has_group('base.group_system')
 
     # ------------------------------------------
@@ -24,71 +26,99 @@ class ReorderRuleNotification(models.Model):
     # ------------------------------------------
     def _send_notification(self, user, message):
         """Send notification using Odoo's bus notification system"""
-        # Use Odoo's notification bus - works in Odoo 19
-        self.env['bus.bus']._sendone(
-            user.partner_id,
-            'simple_notification',
-            {
-                'type': 'info',
-                'title': _('Reorder Alert'),
-                'message': message,
-                'sticky': False,
-            }
-        )
+        try:
+            self.env['bus.bus']._sendone(
+                user.partner_id,
+                'simple_notification',
+                {
+                    'type': 'info',
+                    'title': _('Reorder Alert'),
+                    'message': message,
+                    'sticky': False,
+                }
+            )
+        except Exception as e:
+            # Log error but don't break the flow
+            print(f"Notification error for user {user.name}: {str(e)}")
 
     # ------------------------------------------
     # AUTO - NOTIFICATION (CRON)
     # ------------------------------------------
     @api.model
     def cron_send_reorder_notifications(self):
-        users = self.env['res.users'].search([('active', '=', True)])
+        """Send automatic reorder notifications"""
 
-        for user in users:
-            # Check if user is admin or has warehouse access
+        # Get all reorder rules that need attention
+        all_rules = self.search([
+            ('qty_to_order', '>', 0),
+            ('product_id', '!=', False),
+        ])
+
+        if not all_rules:
+            return
+
+        # Get all active users
+        all_users = self.env['res.users'].search([('active', '=', True)])
+
+        notified_users = 0
+
+        for user in all_users:
             is_admin = self._is_admin(user)
-            warehouses = self._get_user_warehouses(user)
 
             if is_admin:
-                # Admin gets ALL reorder rules
-                rules = self.search([
-                    ('qty_to_order', '>', 0),
-                    ('product_id', '!=', False),
-                ])
+                # ADMIN: Get ALL reorder rules from ALL warehouses
+                user_rules = all_rules
             else:
-                # Regular users get only their warehouse rules
-                rules = self.search([
-                    ('warehouse_id', 'in', warehouses.ids),
-                    ('qty_to_order', '>', 0),
-                    ('product_id', '!=', False),
-                ])
+                # REGULAR USER: Get only rules from assigned warehouses
+                user_warehouses = self._get_user_warehouses(user)
 
-            if not rules:
+                if not user_warehouses:
+                    continue  # Skip users without warehouse assignment
+
+                user_rules = all_rules.filtered(
+                    lambda r: r.warehouse_id in user_warehouses
+                )
+
+            if not user_rules:
                 continue
 
+            # Build notification message
             product_lines = []
-            for r in rules:
-                warehouse_name = r.warehouse_id.name if r.warehouse_id else 'N/A'
+            for rule in user_rules:
+                warehouse_name = rule.warehouse_id.name or 'Unknown'
                 product_lines.append(
-                    f"• {r.product_id.display_name} ({warehouse_name}): Need {r.qty_to_order} {r.product_uom.name}"
+                    f"• [{warehouse_name}] {rule.product_id.display_name}: "
+                    f"Need {rule.qty_to_order} {rule.product_uom.name}"
                 )
 
             if is_admin:
-                message = _("📦 Admin Reorder Alerts (All Warehouses)\n\n%s\n\nThese products need replenishment.") % "\n".join(product_lines)
+                title = _("📦 Admin Alert - All Warehouses")
+                footer = _("\n\n✓ You are receiving all warehouse alerts as administrator.")
             else:
-                message = _("📦 Reorder Alerts\n\n%s\n\nThese products need replenishment.") % "\n".join(product_lines)
+                warehouse_names = ', '.join(user_rules.mapped('warehouse_id.name'))
+                title = _("📦 Reorder Alert - Your Warehouses")
+                footer = _("\n\n✓ Showing only: %s") % warehouse_names
+
+            message = f"{title}\n\n" + "\n".join(product_lines) + footer
 
             self._send_notification(user, message)
+            notified_users += 1
+
+        print(f"Reorder notifications sent to {notified_users} user(s)")
 
     # -----------------------------------------
     # MANUAL BUTTON NOTIFICATION
     # -----------------------------------------
     def action_manual_reorder_notify(self):
-        rules = self.search([
+        """Manual trigger for reorder notifications"""
+
+        # Get all reorder rules that need attention
+        all_rules = self.search([
             ('qty_to_order', '>', 0),
             ('product_id', '!=', False)
         ])
 
-        if not rules:
+        if not all_rules:
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
@@ -100,47 +130,67 @@ class ReorderRuleNotification(models.Model):
                 }
             }
 
-        users = self.env['res.users'].search([('active', '=', True)])
-        notified_count = 0
+        # Get all active users
+        all_users = self.env['res.users'].search([('active', '=', True)])
+
+        notified_users = 0
         admin_count = 0
 
-        for user in users:
-            # Check if user is admin or has warehouse access
+        for user in all_users:
             is_admin = self._is_admin(user)
-            warehouses = self._get_user_warehouses(user)
 
             if is_admin:
-                # Admin gets ALL reorder rules
-                user_rules = rules
+                # ADMIN: Get ALL reorder rules from ALL warehouses
+                user_rules = all_rules
                 admin_count += 1
             else:
-                # Regular users get only their warehouse rules
-                user_rules = rules.filtered(lambda r: r.warehouse_id in warehouses)
+                # REGULAR USER: Get only rules from assigned warehouses
+                user_warehouses = self._get_user_warehouses(user)
+
+                if not user_warehouses:
+                    continue  # Skip users without warehouse assignment
+
+                user_rules = all_rules.filtered(
+                    lambda r: r.warehouse_id in user_warehouses
+                )
 
             if not user_rules:
                 continue
 
+            # Build notification message
             product_lines = []
-            for r in user_rules:
-                warehouse_name = r.warehouse_id.name if r.warehouse_id else 'N/A'
+            for rule in user_rules:
+                warehouse_name = rule.warehouse_id.name or 'Unknown'
                 product_lines.append(
-                    f"• {r.product_id.display_name} ({warehouse_name}): Need {r.qty_to_order} {r.product_uom.name}"
+                    f"• [{warehouse_name}] {rule.product_id.display_name}: "
+                    f"Need {rule.qty_to_order} {rule.product_uom.name}"
                 )
 
             if is_admin:
-                message = _("📢 Admin Manual Reorder Alerts (All Warehouses)\n\n%s\n\nPlease review these items.") % "\n".join(product_lines)
+                title = _("📢 Manual Alert - All Warehouses (Admin)")
+                footer = _("\n\n✓ You are receiving all warehouse alerts as administrator.")
             else:
-                message = _("📢 Manual Reorder Alerts\n\n%s\n\nPlease review these items.") % "\n".join(product_lines)
+                warehouse_names = ', '.join(user_rules.mapped('warehouse_id.name'))
+                title = _("📢 Manual Reorder Alert - Your Warehouses")
+                footer = _("\n\n✓ Showing only: %s") % warehouse_names
+
+            message = f"{title}\n\n" + "\n".join(product_lines) + footer
 
             self._send_notification(user, message)
-            notified_count += 1
+            notified_users += 1
+
+        # Show success message to whoever clicked the button
+        if admin_count > 0:
+            msg = _('Notifications sent to %s user(s) including %s administrator(s)') % (notified_users, admin_count)
+        else:
+            msg = _('Notifications sent to %s warehouse user(s)') % notified_users
 
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': _('Success'),
-                'message': _('Notifications sent to %s user(s) (including %s admin(s))') % (notified_count, admin_count),
+                'title': _('✓ Success'),
+                'message': msg,
                 'type': 'success',
                 'sticky': False,
             }

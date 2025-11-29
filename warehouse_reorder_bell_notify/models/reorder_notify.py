@@ -20,12 +20,11 @@ class ReorderRuleNotification(models.Model):
 
         for user in users:
             warehouses = self._get_user_warehouses(user)
-            if not warehouses:
-                continue
 
             rules = self.search([
                 ('warehouse_id', 'in', warehouses.ids),
                 ('qty_to_order', '>', 0),
+                ('product_id', '!=', False),
             ])
 
             if not rules:
@@ -37,10 +36,11 @@ class ReorderRuleNotification(models.Model):
             ])
 
             message = _(
-                "📦 Reordering Alerts\n\n%s\n\nThese products need replenishment."
+                "📦 *Reorder Alerts*\n\n%s\n\nThese products need replenishment."
             ) % product_list
 
-            user.notify_info(message)
+            # USER → PARTNER → notify_info
+            user.partner_id.notify_info(message)
 
     # -----------------------------------------
     # MANUAL BUTTON NOTIFICATION
@@ -48,12 +48,17 @@ class ReorderRuleNotification(models.Model):
     def action_manual_reorder_notify(self):
         rules = self.search([
             ('qty_to_order', '>', 0),
+            ('product_id', '!=', False)
         ])
+
         if not rules:
             return True
 
-        for user in self.env['res.users'].search([]):
+        users = self.env['res.users'].search([])
+
+        for user in users:
             warehouses = self._get_user_warehouses(user)
+
             user_rules = rules.filtered(lambda r: r.warehouse_id in warehouses)
 
             if not user_rules:
@@ -64,12 +69,13 @@ class ReorderRuleNotification(models.Model):
                 for r in user_rules
             ])
 
-            message = _("📢 Manual Reorder Alerts\n\n%s") % product_list
+            message = _("📢 *Manual Reorder Alerts*\n\n%s") % product_list
 
-            # FIX: notify user directly (not partner)
-            user.notify_info(message)
+            # MUST USE partner_id NOT user
+            user.partner_id.notify_info(message)
 
         return True
+
 
 
 

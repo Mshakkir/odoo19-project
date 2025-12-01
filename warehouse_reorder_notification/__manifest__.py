@@ -12,9 +12,9 @@
     'website': 'https://www.yourcompany.com',
     'depends': ['stock', 'mail', 'purchase'],
     'data': [
-        'data/mail_activity_type_data.xml',
         'security/stock_warehouse_orderpoint_security.xml',
         'security/ir.model.access.csv',
+        'data/mail_activity_type_data.xml',
         'views/stock_warehouse_orderpoint_views.xml',
         'views/stock_warehouse_orderpoint_actions.xml',
     ],

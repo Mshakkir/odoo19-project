@@ -21,7 +21,7 @@
                 <field name="journal_ids" required="0" invisible="1"/>
 
                 <!-- Partners Field -->
-                <group string="Filter by Partners">
+                <group name="partner_filter_group" string="Filter by Partners">
                     <field name="partner_ids"
                            widget="many2many_tags"
                            options="{'no_create': True, 'no_open': True}"
@@ -48,16 +48,16 @@
         <field name="inherit_id" ref="account_aged_balance_custom_view"/>
         <field name="mode">primary</field>
         <field name="arch" type="xml">
-            <!-- Change group label from "Filter by Partners" to "Filter by Customers" -->
-            <xpath expr="//group[@string='Filter by Partners']" position="attributes">
-                <attribute name="string">Filter by Customers</attribute>
-            </xpath>
-
-            <!-- Set domain to show only customers -->
-            <field name="partner_ids" position="attributes">
-                <attribute name="domain">[('customer_rank', '>', 0)]</attribute>
-                <attribute name="placeholder">Leave empty to include all customers</attribute>
-            </field>
+            <!-- Replace the entire partner group with new label -->
+            <group name="partner_filter_group" position="replace">
+                <group name="partner_filter_group" string="Filter by Customers">
+                    <field name="partner_ids"
+                           widget="many2many_tags"
+                           domain="[('customer_rank', '>', 0)]"
+                           options="{'no_create': True, 'no_open': True}"
+                           placeholder="Leave empty to include all customers"/>
+                </group>
+            </group>
         </field>
     </record>
 
@@ -68,16 +68,16 @@
         <field name="inherit_id" ref="account_aged_balance_custom_view"/>
         <field name="mode">primary</field>
         <field name="arch" type="xml">
-            <!-- Change group label from "Filter by Partners" to "Filter by Vendors" -->
-            <xpath expr="//group[@string='Filter by Partners']" position="attributes">
-                <attribute name="string">Filter by Vendors</attribute>
-            </xpath>
-
-            <!-- Set domain to show only vendors -->
-            <field name="partner_ids" position="attributes">
-                <attribute name="domain">[('supplier_rank', '>', 0)]</attribute>
-                <attribute name="placeholder">Leave empty to include all vendors</attribute>
-            </field>
+            <!-- Replace the entire partner group with new label -->
+            <group name="partner_filter_group" position="replace">
+                <group name="partner_filter_group" string="Filter by Vendors">
+                    <field name="partner_ids"
+                           widget="many2many_tags"
+                           domain="[('supplier_rank', '>', 0)]"
+                           options="{'no_create': True, 'no_open': True}"
+                           placeholder="Leave empty to include all vendors"/>
+                </group>
+            </group>
         </field>
     </record>
 

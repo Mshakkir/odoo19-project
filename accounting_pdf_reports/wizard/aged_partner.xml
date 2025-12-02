@@ -23,8 +23,10 @@
                     </group>
                 </xpath>
                 <footer>
-                    <button name="check_report" class="oe_highlight"
-                            string="Print" type="object"/>
+                    <button name="show_details" class="oe_highlight"
+                            string="Show Details" type="object"/>
+                    <button name="check_report"
+                            string="Print PDF" type="object"/>
                     <button string="Cancel" class="btn btn-default" special="cancel"/>
                 </footer>
             </form>
@@ -57,14 +59,109 @@
         </field>
     </record>
 
+    <!-- Detail Line Tree View -->
+    <record id="view_aged_detail_tree" model="ir.ui.view">
+        <field name="name">account.aged.detail.line.tree</field>
+        <field name="model">account.aged.detail.line</field>
+        <field name="arch" type="xml">
+            <list string="Aged Balance Details"
+                  decoration-danger="total &gt; 0 and (period_3 != 0 or period_4 != 0)"
+                  decoration-warning="total &gt; 0 and (period_1 != 0 or period_2 != 0)"
+                  decoration-info="total &lt; 0"
+                  create="false" edit="false">
+
+                <field name="partner_name" string="Partner"/>
+                <field name="trust" optional="show"/>
+                <field name="email" optional="hide"/>
+                <field name="phone" optional="hide"/>
+                <field name="vat" optional="hide"/>
+
+                <field name="not_due"
+                       sum="Total Not Due"
+                       widget="monetary"/>
+
+                <field name="period_4"
+                       sum="Total"
+                       widget="monetary"
+                       decoration-danger="period_4 != 0"/>
+
+                <field name="period_3"
+                       sum="Total"
+                       widget="monetary"
+                       decoration-danger="period_3 != 0"/>
+
+                <field name="period_2"
+                       sum="Total"
+                       widget="monetary"
+                       decoration-warning="period_2 != 0"/>
+
+                <field name="period_1"
+                       sum="Total"
+                       widget="monetary"
+                       decoration-warning="period_1 != 0"/>
+
+                <field name="period_0"
+                       sum="Total"
+                       widget="monetary"/>
+
+                <field name="total"
+                       sum="Grand Total"
+                       widget="monetary"
+                       decoration-bf="1"/>
+
+                <button name="action_view_partner_ledger"
+                        type="object"
+                        icon="fa-book"
+                        title="View Partner Ledger"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Detail Line Form View (for expanded view) -->
+    <record id="view_aged_detail_form" model="ir.ui.view">
+        <field name="name">account.aged.detail.line.form</field>
+        <field name="model">account.aged.detail.line</field>
+        <field name="arch" type="xml">
+            <form string="Aged Balance Detail">
+                <sheet>
+                    <group>
+                        <group string="Partner Information">
+                            <field name="partner_id" readonly="1"/>
+                            <field name="partner_name" readonly="1"/>
+                            <field name="trust" readonly="1"/>
+                            <field name="email" readonly="1"/>
+                            <field name="phone" readonly="1"/>
+                            <field name="vat" readonly="1"/>
+                        </group>
+                        <group string="Aging Breakdown">
+                            <field name="not_due" readonly="1" widget="monetary"/>
+                            <field name="period_0" readonly="1" widget="monetary"/>
+                            <field name="period_1" readonly="1" widget="monetary"/>
+                            <field name="period_2" readonly="1" widget="monetary"/>
+                            <field name="period_3" readonly="1" widget="monetary"/>
+                            <field name="period_4" readonly="1" widget="monetary"/>
+                            <field name="total" readonly="1" widget="monetary"/>
+                        </group>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <button name="action_view_partner_ledger"
+                            type="object"
+                            class="oe_highlight"
+                            string="View Partner Ledger"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
     <!-- Action for Aged Partner Balance -->
     <record id="action_account_aged_balance_view" model="ir.actions.act_window">
         <field name="name">Aged Partner Balance</field>
         <field name="res_model">account.aged.trial.balance</field>
         <field name="type">ir.actions.act_window</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">form</field>
         <field name="view_id" ref="account_aged_balance_view"/>
-        <field name="context"></field>
+        <field name="context">{}</field>
         <field name="target">new</field>
     </record>
 
@@ -79,7 +176,7 @@
         <field name="name">Aged Receivable</field>
         <field name="res_model">account.aged.trial.balance</field>
         <field name="type">ir.actions.act_window</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">form</field>
         <field name="view_id" ref="account_aged_receivable_view"/>
         <field name="context">{'default_result_selection': 'customer',
             'hide_result_selection': 1}</field>
@@ -97,7 +194,7 @@
         <field name="name">Aged Payable</field>
         <field name="res_model">account.aged.trial.balance</field>
         <field name="type">ir.actions.act_window</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">form</field>
         <field name="view_id" ref="account_aged_payable_view"/>
         <field name="context">{'default_result_selection': 'supplier',
             'hide_result_selection': 1}</field>
@@ -110,6 +207,124 @@
               action="action_account_aged_payable"
               parent="menu_finance_partner_reports"/>
 </odoo>
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    &lt;!&ndash; Base view for Aged Partner Balance &ndash;&gt;-->
+<!--    <record id="account_aged_balance_view" model="ir.ui.view">-->
+<!--        <field name="name">Aged Partner Balance</field>-->
+<!--        <field name="model">account.aged.trial.balance</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <form string="Report Options">-->
+<!--                <group col="4">-->
+<!--                    <field name="date_from"/>-->
+<!--                    <field name="period_length"/>-->
+<!--                    <field name="company_id" invisible="1"/>-->
+<!--                    <newline/>-->
+<!--                    <field name="result_selection" widget="radio"-->
+<!--                           invisible="context.get('hide_result_selection')"/>-->
+<!--                    <field name="target_move" widget="radio"/>-->
+<!--                </group>-->
+<!--                <field name="journal_ids" required="0" invisible="1"/>-->
+<!--                <xpath expr="//field[@name='journal_ids']" position="before">-->
+<!--                    <group>-->
+<!--                        <field name="partner_ids" widget="many2many_tags"-->
+<!--                               options="{'no_open': True, 'no_create': True}"/>-->
+<!--                    </group>-->
+<!--                </xpath>-->
+<!--                <footer>-->
+<!--                    <button name="check_report" class="oe_highlight"-->
+<!--                            string="Print" type="object"/>-->
+<!--                    <button string="Cancel" class="btn btn-default" special="cancel"/>-->
+<!--                </footer>-->
+<!--            </form>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Separate view for Aged Receivable with "Customers" label &ndash;&gt;-->
+<!--    <record id="account_aged_receivable_view" model="ir.ui.view">-->
+<!--        <field name="name">Aged Receivable</field>-->
+<!--        <field name="model">account.aged.trial.balance</field>-->
+<!--        <field name="inherit_id" ref="account_aged_balance_view"/>-->
+<!--        <field name="mode">primary</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//field[@name='partner_ids']" position="attributes">-->
+<!--                <attribute name="string">Customers</attribute>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Separate view for Aged Payable with "Vendors" label &ndash;&gt;-->
+<!--    <record id="account_aged_payable_view" model="ir.ui.view">-->
+<!--        <field name="name">Aged Payable</field>-->
+<!--        <field name="model">account.aged.trial.balance</field>-->
+<!--        <field name="inherit_id" ref="account_aged_balance_view"/>-->
+<!--        <field name="mode">primary</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//field[@name='partner_ids']" position="attributes">-->
+<!--                <attribute name="string">Vendors</attribute>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Action for Aged Partner Balance &ndash;&gt;-->
+<!--    <record id="action_account_aged_balance_view" model="ir.actions.act_window">-->
+<!--        <field name="name">Aged Partner Balance</field>-->
+<!--        <field name="res_model">account.aged.trial.balance</field>-->
+<!--        <field name="type">ir.actions.act_window</field>-->
+<!--        <field name="view_mode">list,form</field>-->
+<!--        <field name="view_id" ref="account_aged_balance_view"/>-->
+<!--        <field name="context"></field>-->
+<!--        <field name="target">new</field>-->
+<!--    </record>-->
+
+<!--    <menuitem id="menu_aged_trial_balance"-->
+<!--              name="Aged Partner Balance"-->
+<!--              sequence="10"-->
+<!--              action="action_account_aged_balance_view"-->
+<!--              parent="menu_finance_partner_reports"/>-->
+
+<!--    &lt;!&ndash; Action for Aged Receivable using the custom view &ndash;&gt;-->
+<!--    <record id="action_account_aged_receivable" model="ir.actions.act_window">-->
+<!--        <field name="name">Aged Receivable</field>-->
+<!--        <field name="res_model">account.aged.trial.balance</field>-->
+<!--        <field name="type">ir.actions.act_window</field>-->
+<!--        <field name="view_mode">list,form</field>-->
+<!--        <field name="view_id" ref="account_aged_receivable_view"/>-->
+<!--        <field name="context">{'default_result_selection': 'customer',-->
+<!--            'hide_result_selection': 1}</field>-->
+<!--        <field name="target">new</field>-->
+<!--    </record>-->
+
+<!--    <menuitem id="menu_aged_receivable"-->
+<!--              name="Aged Receivable"-->
+<!--              sequence="20"-->
+<!--              action="action_account_aged_receivable"-->
+<!--              parent="menu_finance_partner_reports"/>-->
+
+<!--    &lt;!&ndash; Action for Aged Payable using the custom view &ndash;&gt;-->
+<!--    <record id="action_account_aged_payable" model="ir.actions.act_window">-->
+<!--        <field name="name">Aged Payable</field>-->
+<!--        <field name="res_model">account.aged.trial.balance</field>-->
+<!--        <field name="type">ir.actions.act_window</field>-->
+<!--        <field name="view_mode">list,form</field>-->
+<!--        <field name="view_id" ref="account_aged_payable_view"/>-->
+<!--        <field name="context">{'default_result_selection': 'supplier',-->
+<!--            'hide_result_selection': 1}</field>-->
+<!--        <field name="target">new</field>-->
+<!--    </record>-->
+
+<!--    <menuitem id="menu_aged_payable"-->
+<!--              name="Aged Payable"-->
+<!--              sequence="30"-->
+<!--              action="action_account_aged_payable"-->
+<!--              parent="menu_finance_partner_reports"/>-->
+<!--</odoo>-->
 
 
 

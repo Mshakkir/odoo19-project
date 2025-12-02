@@ -23,6 +23,7 @@
     'data': [
         'security/ir.model.access.csv',
         'reports/report_aged_partner_custom.xml',
+        'reports/aged_partner.xml',
         # 'views/aged_partner_wizard_view.xml',  # Uncomment if you add wizard customization
     ],
     'installable': True,

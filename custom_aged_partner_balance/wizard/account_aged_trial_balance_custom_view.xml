@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Wizard View for Aged Partner Balance -->
+    <!-- Base Wizard View -->
     <record id="account_aged_balance_custom_view" model="ir.ui.view">
         <field name="name">Custom Aged Partner Balance</field>
         <field name="model">account.aged.trial.balance.custom</field>
@@ -20,11 +20,11 @@
                 <!-- Journal field (hidden but required) -->
                 <field name="journal_ids" required="0" invisible="1"/>
 
-                <!-- Partners Field with Dynamic Domain -->
+                <!-- Partners Field -->
                 <group string="Filter by Partners">
                     <field name="partner_ids"
                            widget="many2many_tags"
-                           options="{'no_create': True}"
+                           options="{'no_create': True, 'no_open': True}"
                            placeholder="Leave empty to include all partners"/>
                 </group>
 
@@ -38,6 +38,46 @@
                             special="cancel"/>
                 </footer>
             </form>
+        </field>
+    </record>
+
+    <!-- Receivable View - Shows only Customers with "Customers" label -->
+    <record id="account_aged_receivable_custom_view" model="ir.ui.view">
+        <field name="name">Aged Receivable View</field>
+        <field name="model">account.aged.trial.balance.custom</field>
+        <field name="inherit_id" ref="account_aged_balance_custom_view"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <!-- Change group label from "Filter by Partners" to "Filter by Customers" -->
+            <xpath expr="//group[@string='Filter by Partners']" position="attributes">
+                <attribute name="string">Filter by Customers</attribute>
+            </xpath>
+
+            <!-- Set domain to show only customers -->
+            <field name="partner_ids" position="attributes">
+                <attribute name="domain">[('customer_rank', '>', 0)]</attribute>
+                <attribute name="placeholder">Leave empty to include all customers</attribute>
+            </field>
+        </field>
+    </record>
+
+    <!-- Payable View - Shows only Vendors with "Vendors" label -->
+    <record id="account_aged_payable_custom_view" model="ir.ui.view">
+        <field name="name">Aged Payable View</field>
+        <field name="model">account.aged.trial.balance.custom</field>
+        <field name="inherit_id" ref="account_aged_balance_custom_view"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <!-- Change group label from "Filter by Partners" to "Filter by Vendors" -->
+            <xpath expr="//group[@string='Filter by Partners']" position="attributes">
+                <attribute name="string">Filter by Vendors</attribute>
+            </xpath>
+
+            <!-- Set domain to show only vendors -->
+            <field name="partner_ids" position="attributes">
+                <attribute name="domain">[('supplier_rank', '>', 0)]</attribute>
+                <attribute name="placeholder">Leave empty to include all vendors</attribute>
+            </field>
         </field>
     </record>
 
@@ -58,7 +98,7 @@
         <field name="res_model">account.aged.trial.balance.custom</field>
         <field name="type">ir.actions.act_window</field>
         <field name="view_mode">form</field>
-        <field name="view_id" ref="account_aged_balance_custom_view"/>
+        <field name="view_id" ref="account_aged_receivable_custom_view"/>
         <field name="context">{
             'default_result_selection': 'customer',
             'hide_result_selection': 1
@@ -72,7 +112,7 @@
         <field name="res_model">account.aged.trial.balance.custom</field>
         <field name="type">ir.actions.act_window</field>
         <field name="view_mode">form</field>
-        <field name="view_id" ref="account_aged_balance_custom_view"/>
+        <field name="view_id" ref="account_aged_payable_custom_view"/>
         <field name="context">{
             'default_result_selection': 'supplier',
             'hide_result_selection': 1

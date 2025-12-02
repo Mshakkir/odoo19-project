@@ -4,7 +4,7 @@
     <record id="view_aged_partner_balance_inherit_details" model="ir.ui.view">
         <field name="name">Aged Partner Balance - Add Show Details</field>
         <field name="model">account.aged.trial.balance</field>
-        <field name="inherit_id" ref="account.view_account_aged_trial_balance"/>
+        <field name="inherit_id" ref="accounting_pdf_reports.account_aged_balance_view"/>
         <field name="arch" type="xml">
 
             <xpath expr="//footer" position="inside">

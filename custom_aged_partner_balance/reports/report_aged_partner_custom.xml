@@ -119,109 +119,214 @@
                         </div>
 
                         <!-- Main Table with Fixed Layout -->
-                        <div style="overflow-x: auto;">
-                            <table class="table table-sm table-bordered" style="margin-bottom: 25px; width: 100%; table-layout: fixed;">
-                                <colgroup>
-                                    <col style="width: 20%;"/>  <!-- Partner Name -->
-                                    <col style="width: 11.43%;"/>  <!-- Not Due -->
-                                    <col style="width: 11.43%;"/>  <!-- Period 4 -->
-                                    <col style="width: 11.43%;"/>  <!-- Period 3 -->
-                                    <col style="width: 11.43%;"/>  <!-- Period 2 -->
-                                    <col style="width: 11.43%;"/>  <!-- Period 1 -->
-                                    <col style="width: 11.43%;"/>  <!-- Period 0 -->
-                                    <col style="width: 11.42%;"/>  <!-- Total -->
-                                </colgroup>
-                                <thead style="background-color: #A3AABE; color: black;">
-                                    <tr>
-                                        <th style="padding: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Partners</th>
-                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">Not due</th>
-                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">
-                                            <span t-esc="data['4']['name']"/>
-                                        </th>
-                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">
-                                            <span t-esc="data['3']['name']"/>
-                                        </th>
-                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">
-                                            <span t-esc="data['2']['name']"/>
-                                        </th>
-                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">
-                                            <span t-esc="data['1']['name']"/>
-                                        </th>
-                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">
-                                            <span t-esc="data['0']['name']"/>
-                                        </th>
-                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">Total</th>
-                                    </tr>
-                                    <!-- Account Total Row -->
-                                    <tr t-if="get_partner_lines" style="background-color: #f0f0f0; font-weight: bold;">
-                                        <th style="padding: 8px;">Account Total</th>
-                                        <th class="text-end" style="padding: 8px;">
-                                            <span t-esc="get_direction[6]"
-                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                        </th>
-                                        <th class="text-end" style="padding: 8px;">
-                                            <span t-esc="get_direction[4]"
-                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                        </th>
-                                        <th class="text-end" style="padding: 8px;">
-                                            <span t-esc="get_direction[3]"
-                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                        </th>
-                                        <th class="text-end" style="padding: 8px;">
-                                            <span t-esc="get_direction[2]"
-                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                        </th>
-                                        <th class="text-end" style="padding: 8px;">
-                                            <span t-esc="get_direction[1]"
-                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                        </th>
-                                        <th class="text-end" style="padding: 8px;">
-                                            <span t-esc="get_direction[0]"
-                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                        </th>
-                                        <th class="text-end" style="padding: 8px;">
-                                            <span t-esc="get_direction[5]"
-                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr t-foreach="get_partner_lines" t-as="partner">
-                                        <td style="padding: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                            <span t-esc="partner['name']"/>
-                                        </td>
-                                        <td class="text-end" style="padding: 6px; white-space: nowrap;">
-                                            <span t-esc="partner['direction']"
-                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                        </td>
-                                        <td class="text-end" style="padding: 6px; white-space: nowrap;">
-                                            <span t-esc="partner['4']"
-                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                        </td>
-                                        <td class="text-end" style="padding: 6px; white-space: nowrap;">
-                                            <span t-esc="partner['3']"
-                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                        </td>
-                                        <td class="text-end" style="padding: 6px; white-space: nowrap;">
-                                            <span t-esc="partner['2']"
-                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                        </td>
-                                        <td class="text-end" style="padding: 6px; white-space: nowrap;">
-                                            <span t-esc="partner['1']"
-                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                        </td>
-                                        <td class="text-end" style="padding: 6px; white-space: nowrap;">
-                                            <span t-esc="partner['0']"
-                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                        </td>
-                                        <td class="text-end" style="padding: 6px; font-weight: bold; white-space: nowrap;">
-                                            <span t-esc="partner['total']"
-                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+<!--                        <div style="overflow-x: auto;">-->
+<!--                            <table class="table table-sm table-bordered" style="margin-bottom: 25px; width: 100%; table-layout: fixed;">-->
+<!--                                <colgroup>-->
+<!--                                    <col style="width: 20%;"/>  &lt;!&ndash; Partner Name &ndash;&gt;-->
+<!--                                    <col style="width: 11.43%;"/>  &lt;!&ndash; Not Due &ndash;&gt;-->
+<!--                                    <col style="width: 11.43%;"/>  &lt;!&ndash; Period 4 &ndash;&gt;-->
+<!--                                    <col style="width: 11.43%;"/>  &lt;!&ndash; Period 3 &ndash;&gt;-->
+<!--                                    <col style="width: 11.43%;"/>  &lt;!&ndash; Period 2 &ndash;&gt;-->
+<!--                                    <col style="width: 11.43%;"/>  &lt;!&ndash; Period 1 &ndash;&gt;-->
+<!--                                    <col style="width: 11.43%;"/>  &lt;!&ndash; Period 0 &ndash;&gt;-->
+<!--                                    <col style="width: 11.42%;"/>  &lt;!&ndash; Total &ndash;&gt;-->
+<!--                                </colgroup>-->
+<!--                                <thead style="background-color: #A3AABE; color: black;">-->
+<!--                                    <tr>-->
+<!--                                        <th style="padding: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Partners</th>-->
+<!--                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">Not due</th>-->
+<!--                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">-->
+<!--                                            <span t-esc="data['4']['name']"/>-->
+<!--                                        </th>-->
+<!--                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">-->
+<!--                                            <span t-esc="data['3']['name']"/>-->
+<!--                                        </th>-->
+<!--                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">-->
+<!--                                            <span t-esc="data['2']['name']"/>-->
+<!--                                        </th>-->
+<!--                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">-->
+<!--                                            <span t-esc="data['1']['name']"/>-->
+<!--                                        </th>-->
+<!--                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">-->
+<!--                                            <span t-esc="data['0']['name']"/>-->
+<!--                                        </th>-->
+<!--                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">Total</th>-->
+<!--                                    </tr>-->
+<!--                                    &lt;!&ndash; Account Total Row &ndash;&gt;-->
+<!--                                    <tr t-if="get_partner_lines" style="background-color: #f0f0f0; font-weight: bold;">-->
+<!--                                        <th style="padding: 8px;">Account Total</th>-->
+<!--                                        <th class="text-end" style="padding: 8px;">-->
+<!--                                            <span t-esc="get_direction[6]"-->
+<!--                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </th>-->
+<!--                                        <th class="text-end" style="padding: 8px;">-->
+<!--                                            <span t-esc="get_direction[4]"-->
+<!--                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </th>-->
+<!--                                        <th class="text-end" style="padding: 8px;">-->
+<!--                                            <span t-esc="get_direction[3]"-->
+<!--                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </th>-->
+<!--                                        <th class="text-end" style="padding: 8px;">-->
+<!--                                            <span t-esc="get_direction[2]"-->
+<!--                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </th>-->
+<!--                                        <th class="text-end" style="padding: 8px;">-->
+<!--                                            <span t-esc="get_direction[1]"-->
+<!--                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </th>-->
+<!--                                        <th class="text-end" style="padding: 8px;">-->
+<!--                                            <span t-esc="get_direction[0]"-->
+<!--                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </th>-->
+<!--                                        <th class="text-end" style="padding: 8px;">-->
+<!--                                            <span t-esc="get_direction[5]"-->
+<!--                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </th>-->
+<!--                                    </tr>-->
+<!--                                </thead>-->
+<!--                                <tbody>-->
+<!--                                    <tr t-foreach="get_partner_lines" t-as="partner">-->
+<!--                                        <td style="padding: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-->
+<!--                                            <span t-esc="partner['name']"/>-->
+<!--                                        </td>-->
+<!--                                        <td class="text-end" style="padding: 6px; white-space: nowrap;">-->
+<!--                                            <span t-esc="partner['direction']"-->
+<!--                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </td>-->
+<!--                                        <td class="text-end" style="padding: 6px; white-space: nowrap;">-->
+<!--                                            <span t-esc="partner['4']"-->
+<!--                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </td>-->
+<!--                                        <td class="text-end" style="padding: 6px; white-space: nowrap;">-->
+<!--                                            <span t-esc="partner['3']"-->
+<!--                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </td>-->
+<!--                                        <td class="text-end" style="padding: 6px; white-space: nowrap;">-->
+<!--                                            <span t-esc="partner['2']"-->
+<!--                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </td>-->
+<!--                                        <td class="text-end" style="padding: 6px; white-space: nowrap;">-->
+<!--                                            <span t-esc="partner['1']"-->
+<!--                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </td>-->
+<!--                                        <td class="text-end" style="padding: 6px; white-space: nowrap;">-->
+<!--                                            <span t-esc="partner['0']"-->
+<!--                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </td>-->
+<!--                                        <td class="text-end" style="padding: 6px; font-weight: bold; white-space: nowrap;">-->
+<!--                                            <span t-esc="partner['total']"-->
+<!--                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+<!--                                </tbody>-->
+<!--                            </table>-->
+<!--                        </div>-->
+
+                        <!-- Main Table with Fixed Layout -->
+<div style="overflow-x: auto;">
+    <table class="table table-sm table-bordered" style="margin-bottom: 25px; width: 100%; table-layout: fixed; border-collapse: collapse;">
+        <colgroup>
+            <col style="width: 20%;"/>  <!-- Partner Name -->
+            <col style="width: 11.43%;"/>  <!-- Not Due -->
+            <col style="width: 11.43%;"/>  <!-- Period 4 -->
+            <col style="width: 11.43%;"/>  <!-- Period 3 -->
+            <col style="width: 11.43%;"/>  <!-- Period 2 -->
+            <col style="width: 11.43%;"/>  <!-- Period 1 -->
+            <col style="width: 11.43%;"/>  <!-- Period 0 -->
+            <col style="width: 11.42%;"/>  <!-- Total -->
+        </colgroup>
+        <thead style="background-color: #A3AABE; color: black;">
+            <tr>
+                <th style="padding: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px solid #dee2e6;">Partners</th>
+                <th class="text-end" style="padding: 8px; white-space: nowrap; border: 1px solid #dee2e6;">Not due</th>
+                <th class="text-end" style="padding: 8px; white-space: nowrap; border: 1px solid #dee2e6;">
+                    <span t-esc="data['4']['name']"/>
+                </th>
+                <th class="text-end" style="padding: 8px; white-space: nowrap; border: 1px solid #dee2e6;">
+                    <span t-esc="data['3']['name']"/>
+                </th>
+                <th class="text-end" style="padding: 8px; white-space: nowrap; border: 1px solid #dee2e6;">
+                    <span t-esc="data['2']['name']"/>
+                </th>
+                <th class="text-end" style="padding: 8px; white-space: nowrap; border: 1px solid #dee2e6;">
+                    <span t-esc="data['1']['name']"/>
+                </th>
+                <th class="text-end" style="padding: 8px; white-space: nowrap; border: 1px solid #dee2e6;">
+                    <span t-esc="data['0']['name']"/>
+                </th>
+                <th class="text-end" style="padding: 8px; white-space: nowrap; border: 1px solid #dee2e6;">Total</th>
+            </tr>
+            <!-- Account Total Row -->
+            <tr t-if="get_partner_lines" style="background-color: #f0f0f0; font-weight: bold;">
+                <th style="padding: 8px; border: 1px solid #dee2e6;">Account Total</th>
+                <th class="text-end" style="padding: 8px; border: 1px solid #dee2e6;">
+                    <span t-esc="get_direction[6]"
+                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                </th>
+                <th class="text-end" style="padding: 8px; border: 1px solid #dee2e6;">
+                    <span t-esc="get_direction[4]"
+                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                </th>
+                <th class="text-end" style="padding: 8px; border: 1px solid #dee2e6;">
+                    <span t-esc="get_direction[3]"
+                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                </th>
+                <th class="text-end" style="padding: 8px; border: 1px solid #dee2e6;">
+                    <span t-esc="get_direction[2]"
+                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                </th>
+                <th class="text-end" style="padding: 8px; border: 1px solid #dee2e6;">
+                    <span t-esc="get_direction[1]"
+                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                </th>
+                <th class="text-end" style="padding: 8px; border: 1px solid #dee2e6;">
+                    <span t-esc="get_direction[0]"
+                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                </th>
+                <th class="text-end" style="padding: 8px; border: 1px solid #dee2e6;">
+                    <span t-esc="get_direction[5]"
+                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr t-foreach="get_partner_lines" t-as="partner">
+                <td style="padding: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px solid #dee2e6;">
+                    <span t-esc="partner['name']"/>
+                </td>
+                <td class="text-end" style="padding: 6px; white-space: nowrap; border: 1px solid #dee2e6;">
+                    <span t-esc="partner['direction']"
+                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                </td>
+                <td class="text-end" style="padding: 6px; white-space: nowrap; border: 1px solid #dee2e6;">
+                    <span t-esc="partner['4']"
+                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                </td>
+                <td class="text-end" style="padding: 6px; white-space: nowrap; border: 1px solid #dee2e6;">
+                    <span t-esc="partner['3']"
+                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                </td>
+                <td class="text-end" style="padding: 6px; white-space: nowrap; border: 1px solid #dee2e6;">
+                    <span t-esc="partner['2']"
+                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                </td>
+                <td class="text-end" style="padding: 6px; white-space: nowrap; border: 1px solid #dee2e6;">
+                    <span t-esc="partner['1']"
+                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                </td>
+                <td class="text-end" style="padding: 6px; white-space: nowrap; border: 1px solid #dee2e6;">
+                    <span t-esc="partner['0']"
+                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                </td>
+                <td class="text-end" style="padding: 6px; font-weight: bold; white-space: nowrap; border: 1px solid #dee2e6;">
+                    <span t-esc="partner['total']"
+                          t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
                         <!-- Aging Analysis Section -->
                         <div class="row" style="margin-top: 30px;" t-if="percentage_breakdown">

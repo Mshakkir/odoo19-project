@@ -107,7 +107,12 @@
 
                         <div class="row" style="margin-bottom: 20px;">
                             <div class="col-3">
-                                <strong>Partner's:</strong>
+                                <!-- Dynamic label based on report type -->
+                                <strong>
+                                    <span t-if="data['result_selection'] == 'customer'">Customer's:</span>
+                                    <span t-elif="data['result_selection'] == 'supplier'">Vendor's:</span>
+                                    <span t-else="">Partner's:</span>
+                                </strong>
                                 <p style="margin: 5px 0;">
                                     <span t-if="data['result_selection'] == 'customer'">Receivable Accounts</span>
                                     <span t-if="data['result_selection'] == 'supplier'">Payable Accounts</span>
@@ -122,11 +127,21 @@
                                 </p>
                             </div>
                             <div class="col-3">
-                                <strong>Total Partners:</strong>
+                                <!-- Dynamic label for total count -->
+                                <strong>
+                                    <span t-if="data['result_selection'] == 'customer'">Total Customers:</span>
+                                    <span t-elif="data['result_selection'] == 'supplier'">Total Vendors:</span>
+                                    <span t-else="">Total Partners:</span>
+                                </strong>
                                 <p t-esc="total_partners or len(get_partner_lines)" style="margin: 5px 0;"/>
                             </div>
                             <div class="col-3">
-                                <strong>Partners with Overdue:</strong>
+                                <!-- Dynamic label for overdue -->
+                                <strong>
+                                    <span t-if="data['result_selection'] == 'customer'">Customers with Overdue:</span>
+                                    <span t-elif="data['result_selection'] == 'supplier'">Vendors with Overdue:</span>
+                                    <span t-else="">Partners with Overdue:</span>
+                                </strong>
                                 <p t-esc="partners_with_overdue or 0" style="margin: 5px 0;"/>
                             </div>
                         </div>
@@ -146,7 +161,12 @@
                                 </colgroup>
                                 <thead style="background-color: #A3AABE; color: black;">
                                     <tr>
-                                        <th style="padding: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Partners</th>
+                                        <!-- Dynamic column header based on report type -->
+                                        <th style="padding: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                            <span t-if="data['result_selection'] == 'customer'">Customers</span>
+                                            <span t-elif="data['result_selection'] == 'supplier'">Vendors</span>
+                                            <span t-else="">Partners</span>
+                                        </th>
                                         <th class="text-end" style="padding: 8px; white-space: nowrap;">Not due</th>
                                         <th class="text-end" style="padding: 8px; white-space: nowrap;">
                                             <span t-esc="data['4']['name']"/>
@@ -308,7 +328,6 @@
     </template>
 
 </odoo>
-
 
 
 

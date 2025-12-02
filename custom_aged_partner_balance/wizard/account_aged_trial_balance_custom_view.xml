@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Base Wizard View - For All Partners -->
+    <!-- Base Wizard View -->
     <record id="account_aged_balance_custom_view" model="ir.ui.view">
         <field name="name">Custom Aged Partner Balance</field>
         <field name="model">account.aged.trial.balance.custom</field>
@@ -21,7 +21,7 @@
                 <field name="journal_ids" required="0" invisible="1"/>
 
                 <!-- Partners Field -->
-                <group string="Filter by Partners">
+                <group name="partner_filter_group" string="Filter by Partners">
                     <field name="partner_ids"
                            widget="many2many_tags"
                            options="{'no_create': True, 'no_open': True}"
@@ -41,83 +41,43 @@
         </field>
     </record>
 
-    <!-- Separate View for Aged Receivable - Shows CUSTOMERS -->
+    <!-- Receivable View - Shows only Customers with "Customers" label -->
     <record id="account_aged_receivable_custom_view" model="ir.ui.view">
         <field name="name">Aged Receivable View</field>
         <field name="model">account.aged.trial.balance.custom</field>
+        <field name="inherit_id" ref="account_aged_balance_custom_view"/>
+        <field name="mode">primary</field>
         <field name="arch" type="xml">
-            <form string="Report Options">
-                <group col="4">
-                    <field name="date_from"/>
-                    <field name="period_length"/>
-                    <field name="company_id" invisible="1"/>
-                    <newline/>
-                    <field name="result_selection" widget="radio" invisible="1"/>
-                    <field name="target_move" widget="radio"/>
-                </group>
-
-                <!-- Journal field (hidden but required) -->
-                <field name="journal_ids" required="0" invisible="1"/>
-
-                <!-- CUSTOMERS Field -->
-                <group string="Filter by Customers">
+            <!-- Replace the entire partner group with new label -->
+            <group name="partner_filter_group" position="replace">
+                <group name="partner_filter_group" string="Filter by Customers">
                     <field name="partner_ids"
                            widget="many2many_tags"
                            domain="[('customer_rank', '>', 0)]"
                            options="{'no_create': True, 'no_open': True}"
                            placeholder="Leave empty to include all customers"/>
                 </group>
-
-                <footer>
-                    <button name="check_report"
-                            class="oe_highlight"
-                            string="Print"
-                            type="object"/>
-                    <button string="Cancel"
-                            class="btn btn-default"
-                            special="cancel"/>
-                </footer>
-            </form>
+            </group>
         </field>
     </record>
 
-    <!-- Separate View for Aged Payable - Shows VENDORS -->
+    <!-- Payable View - Shows only Vendors with "Vendors" label -->
     <record id="account_aged_payable_custom_view" model="ir.ui.view">
         <field name="name">Aged Payable View</field>
         <field name="model">account.aged.trial.balance.custom</field>
+        <field name="inherit_id" ref="account_aged_balance_custom_view"/>
+        <field name="mode">primary</field>
         <field name="arch" type="xml">
-            <form string="Report Options">
-                <group col="4">
-                    <field name="date_from"/>
-                    <field name="period_length"/>
-                    <field name="company_id" invisible="1"/>
-                    <newline/>
-                    <field name="result_selection" widget="radio" invisible="1"/>
-                    <field name="target_move" widget="radio"/>
-                </group>
-
-                <!-- Journal field (hidden but required) -->
-                <field name="journal_ids" required="0" invisible="1"/>
-
-                <!-- VENDORS Field -->
-                <group string="Filter by Vendors">
+            <!-- Replace the entire partner group with new label -->
+            <group name="partner_filter_group" position="replace">
+                <group name="partner_filter_group" string="Filter by Vendors">
                     <field name="partner_ids"
                            widget="many2many_tags"
                            domain="[('supplier_rank', '>', 0)]"
                            options="{'no_create': True, 'no_open': True}"
                            placeholder="Leave empty to include all vendors"/>
                 </group>
-
-                <footer>
-                    <button name="check_report"
-                            class="oe_highlight"
-                            string="Print"
-                            type="object"/>
-                    <button string="Cancel"
-                            class="btn btn-default"
-                            special="cancel"/>
-                </footer>
-            </form>
+            </group>
         </field>
     </record>
 

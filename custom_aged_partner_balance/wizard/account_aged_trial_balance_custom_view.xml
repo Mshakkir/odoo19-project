@@ -5,6 +5,7 @@
     <record id="account_aged_balance_custom_view" model="ir.ui.view">
         <field name="name">Custom Aged Partner Balance</field>
         <field name="model">account.aged.trial.balance.custom</field>
+        <field name="priority">20</field>
         <field name="arch" type="xml">
             <form string="Report Options">
                 <group col="4">
@@ -43,10 +44,11 @@
 
     <!-- Separate View for Aged Receivable - Shows CUSTOMERS -->
     <record id="account_aged_receivable_custom_view" model="ir.ui.view">
-        <field name="name">Aged Receivable View</field>
+        <field name="name">Aged Receivable Customer View</field>
         <field name="model">account.aged.trial.balance.custom</field>
+        <field name="priority">10</field>
         <field name="arch" type="xml">
-            <form string="Report Options">
+            <form string="Aged Receivable Options">
                 <group col="4">
                     <field name="date_from"/>
                     <field name="period_length"/>
@@ -83,10 +85,11 @@
 
     <!-- Separate View for Aged Payable - Shows VENDORS -->
     <record id="account_aged_payable_custom_view" model="ir.ui.view">
-        <field name="name">Aged Payable View</field>
+        <field name="name">Aged Payable Vendor View</field>
         <field name="model">account.aged.trial.balance.custom</field>
+        <field name="priority">10</field>
         <field name="arch" type="xml">
-            <form string="Report Options">
+            <form string="Aged Payable Options">
                 <group col="4">
                     <field name="date_from"/>
                     <field name="period_length"/>
@@ -181,7 +184,7 @@
     <menuitem id="menu_aged_payable_custom"
               name="Aged Payable"
               sequence="30"
-              action="action_account_aged_payable_custom"
+              action="account_aged_payable_custom"
               parent="menu_custom_aged_reports"/>
 
 </odoo>

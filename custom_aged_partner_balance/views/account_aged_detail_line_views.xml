@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Tree View -->
+    <!-- List View (was Tree View in older versions) -->
     <record id="view_aged_detail_tree" model="ir.ui.view">
         <field name="name">account.aged.detail.line.tree</field>
         <field name="model">account.aged.detail.line</field>
         <field name="arch" type="xml">
-            <tree string="Aged Balance Details"
+            <list string="Aged Balance Details"
                   decoration-danger="total &gt; 0 and (period_3 != 0 or period_4 != 0)"
                   decoration-warning="total &gt; 0 and (period_1 != 0 or period_2 != 0)"
                   decoration-info="total &lt; 0"
@@ -59,9 +59,9 @@
                         title="View Partner Ledger"
                         class="oe_link"/>
 
-                <field name="currency_id" invisible="1"/>
-                <field name="company_id" invisible="1"/>
-            </tree>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="company_id" column_invisible="1"/>
+            </list>
         </field>
     </record>
 

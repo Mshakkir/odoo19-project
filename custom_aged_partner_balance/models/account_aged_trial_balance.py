@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import time
-from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
@@ -54,26 +52,25 @@ class AccountAgedTrialBalance(models.TransientModel):
                 'company_id': self.company_id.id,
                 'currency_id': self.company_id.currency_id.id,
             }
-            detail_lines.append((0, 0, vals))
+            detail_lines.append(vals)
 
         # If no data found
         if not detail_lines:
             raise UserError(_('No data found for the selected criteria.'))
 
         # Create detail lines
-        for cmd in detail_lines:
-            self.env['account.aged.detail.line'].create(cmd[2])
+        for vals in detail_lines:
+            self.env['account.aged.detail.line'].create(vals)
 
-        # Return action to show tree view
+        # Return action to show list view (changed from tree to list)
         action = {
             'name': _('Aged Balance Details'),
             'type': 'ir.actions.act_window',
             'res_model': 'account.aged.detail.line',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',  # Changed from 'tree,form' to 'list,form'
             'domain': [('wizard_id', '=', self.id)],
             'context': {
                 'default_wizard_id': self.id,
-                'search_default_group_by_partner': 0,
             },
             'target': 'current',
         }
@@ -115,10 +112,8 @@ class AccountAgedTrialBalance(models.TransientModel):
     def _get_partner_aging_data(self, data):
         """
         Calculate aging data for each partner
-        This replicates the logic from the report parser
         """
         MoveLine = self.env['account.move.line']
-        Partner = self.env['res.partner']
 
         # Build domain
         domain = [
@@ -159,7 +154,7 @@ class AccountAgedTrialBalance(models.TransientModel):
                 partner_data[partner_id] = {
                     'partner_id': partner_id,
                     'name': line.partner_id.name,
-                    'trust': line.partner_id.trust,
+                    'trust': line.partner_id.trust if hasattr(line.partner_id, 'trust') else 'normal',
                     'email': line.partner_id.email or '',
                     'phone': line.partner_id.phone or '',
                     'vat': line.partner_id.vat or '',
@@ -173,7 +168,7 @@ class AccountAgedTrialBalance(models.TransientModel):
                 }
 
             # Calculate aging
-            amount = line.debit - line.credit
+            amount = line.balance  # Use balance instead of debit - credit
             due_date = line.date_maturity or line.date
 
             # Determine which period this belongs to

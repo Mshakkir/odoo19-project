@@ -23,6 +23,8 @@
     'data': [
         'security/ir.model.access.csv',
         'reports/report_aged_partner_custom.xml',
+        'wizard/account_aged_trial_balance_custom_view.xml',
+        'report/report_definition.xml',
         # 'views/aged_partner_wizard_view.xml',  # Uncomment if you add wizard customization
     ],
     'installable': True,

@@ -1,72 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-
-    <!-- Main report template with minimal header -->
-    <template id="report_agedpartnerbalance_minimal" inherit_id="accounting_pdf_reports.report_agedpartnerbalance">
+    <!-- Custom report template that replaces the standard one -->
+    <template id="report_agedpartnerbalance_minimal"
+              inherit_id="accounting_pdf_reports.report_agedpartnerbalance">
 
         <!-- Replace entire template structure -->
         <xpath expr="//t[@t-call='web.html_container']" position="replace">
             <t t-call="web.html_container">
-                <!-- Use basic_layout for no header/footer -->
                 <t t-call="web.basic_layout">
                     <div class="page" style="padding-top: 20px;">
 
+                        <!-- Custom Header -->
+                        <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 25px; padding: 15px 0;">
+                            <table style="width: 100%; border-collapse: collapse; border:none; margin-bottom: 0px;">
+                                <tr style="border:2px solid white;">
+                                    <td style="width: 50%; padding: 10px 0px; text-align: left; vertical-align: middle; border: none;padding-bottom:0px;">
+                                        <div style="color: #8B1538; font-size: 14px; font-weight: bold; text-transform: uppercase;">
+                                            SAMEER SHARAF AL OTAIBI TRADING COMPANY
+                                        </div>
+                                    </td>
+                                    <td style="width: 50%; padding: 10px 0px; text-align: right; vertical-align: middle; border: none;">
+                                        <div style="color: #8B1538; font-size: 16px; font-weight: 900; direction: rtl;padding-bottom:0px;" class="ar">
+                                            شركة سمير شرف العتيبي التجارية
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
 
-<div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 25px; padding: 15px 0;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr style="border:2px solid white;">
+                                    <td style="width: 33%; text-align: left; font-size: 14px; color: #333; vertical-align: middle;
+                                    padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
+                                        <div style="line-height: 1.6; font-weight: 500; margin-top: 10px;">
+                                            C.R. 4030216154<br/>
+                                            VAT Regd: 311299944700003
+                                        </div>
+                                    </td>
 
-    <!-- Company Names in One Row -->
-    <table style="width: 100%; border-collapse: collapse; border:none; margin-bottom: 0px;">
-        <tr style="border:2px solid white;">
-            <td style="width: 50%; padding: 10px 0px; text-align: left; vertical-align: middle; border: none;padding-bottom:0px;">
-                <div style="color: #8B1538; font-size: 14px; font-weight: bold; text-transform: uppercase;">
-                    SAMEER SHARAF AL OTAIBI TRADING COMPANY
-                </div>
-            </td>
-            <td style="width: 50%; padding: 10px 0px; text-align: right; vertical-align: middle; border: none;">
-                <div style="color: #8B1538; font-size: 16px; font-weight: 900; direction: rtl;padding-bottom:0px;" class="ar">
-                    شركة سمير شرف العتيبي التجارية
-                </div>
-            </td>
-        </tr>
-    </table>
+                                    <td style="width: 34%; text-align: center; vertical-align: middle; padding: 5px 10px;
+                                    border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
+                                        <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/faakart_logo.png'"
+                                             style="max-height: 90px; max-width: 100%; object-fit: contain;"/>
+                                    </td>
 
-    <!-- Details and Logo Row -->
-    <table style="width: 100%; border-collapse: collapse;">
-        <tr  style="border:2px solid white;">
-            <!-- Left Column: English Info -->
-            <td style="width: 33%; text-align: left; font-size: 14px; color: #333; vertical-align: middle;
-            padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
-                <div style="line-height: 1.6; font-weight: 500; margin-top: 10px;">
-                    C.R. 4030216154<br/>
-                    VAT Regd: 311299944700003
-                </div>
-            </td>
+                                    <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle;
+                                    direction: rtl; padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
+                                        <div style="line-height: 1.6; font-weight: 900; text-align: right; direction: rtl; margin-top: 10px;" class="ar">
+                                            س.ت: ٤٠٣٠٢١٦١٥٤<br/>
+                                            الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
 
-            <!-- Center Column: Company Logo -->
-            <td style="width: 34%; text-align: center; vertical-align: middle; padding: 5px 10px;
-            border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
-                <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/faakart_logo.png'"
-                     style="max-height: 90px; max-width: 100%; object-fit: contain;"/>
-            </td>
-
-            <!-- Right Column: Arabic Info -->
-            <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle;
-            direction: rtl; padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
-                <div style="line-height: 1.6; font-weight: 900; text-align: right; direction: rtl; margin-top: 10px;" class="ar">
-                    س.ت: ٤٠٣٠٢١٦١٥٤<br/>
-                    الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
-                </div>
-            </td>
-        </tr>
-    </table>
-</div>
-
-                        <!-- Report Title and Date -->
+                        <!-- Report Title - Dynamic based on type -->
                         <div class="row" style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 3px solid white; margin-top: 30px;">
                             <div class="col-8">
                                 <h5 style="margin: 0; color: black; font-weight: bold;">
-                                    Aged Partner Balance Report
+                                    <span t-if="data['result_selection'] == 'customer'">Aged Receivable Report</span>
+                                    <span t-elif="data['result_selection'] == 'supplier'">Aged Payable Report</span>
+                                    <span t-else="">Aged Partner Balance Report</span>
                                 </h5>
                             </div>
                             <div class="col-4 text-end">
@@ -97,7 +92,7 @@
                             </div>
                         </div>
 
-                        <div class="row" style="margin-bottom: 10px;">
+                        <div class="row" style="margin-bottom: 20px;">
                             <div class="col-3">
                                 <strong>Partner's:</strong>
                                 <p style="margin: 5px 0;">
@@ -123,120 +118,110 @@
                             </div>
                         </div>
 
-                        <!-- Main Table -->
-                        <table class="table table-sm table-bordered" style="margin-bottom: 25px; width: 100%; min-width: 1000px;">
-                            <colgroup>
-                                <col style="width: 180px;"/>
-                                <col style="width: 100px;"/>
-                                <col style="width: 100px;"/>
-                                <col style="width: 100px;"/>
-                                <col style="width: 100px;"/>
-                                <col style="width: 100px;"/>
-                                <col style="width: 100px;"/>
-                                <col style="width: 120px;"/>
-                            </colgroup>
-                            <thead style="background-color: #A3AABE; color: black;">
-                                <tr>
-                                    <th style="padding: 8px; white-space: nowrap;">Partners</th>
-<!--                                    <th style="padding: 8px; white-space: nowrap;">Email</th>-->
-<!--                                    <th style="padding: 8px; white-space: nowrap;">Phone</th>-->
-<!--                                    <th style="padding: 8px; white-space: nowrap;">City</th>-->
-                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">Not due</th>
-                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">
-                                        <span t-esc="data['4']['name']"/>
-                                    </th>
-                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">
-                                        <span t-esc="data['3']['name']"/>
-                                    </th>
-                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">
-                                        <span t-esc="data['2']['name']"/>
-                                    </th>
-                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">
-                                        <span t-esc="data['1']['name']"/>
-                                    </th>
-                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">
-                                        <span t-esc="data['0']['name']"/>
-                                    </th>
-                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">Total</th>
-                                </tr>
-                                <tr t-if="get_partner_lines" style="background-color: #f0f0f0; font-weight: bold;">
-                                    <th style="padding: 8px;">Account Total</th>
-<!--                                    <th colspan="3" class="text-center" style="padding: 8px;">Details</th>-->
-                                    <th class="text-end" style="padding: 8px;">
-                                        <span t-esc="get_direction[6]"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </th>
-                                    <th class="text-end" style="padding: 8px;">
-                                        <span t-esc="get_direction[4]"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </th>
-                                    <th class="text-end" style="padding: 8px;">
-                                        <span t-esc="get_direction[3]"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </th>
-                                    <th class="text-end" style="padding: 8px;">
-                                        <span t-esc="get_direction[2]"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </th>
-                                    <th class="text-end" style="padding: 8px;">
-                                        <span t-esc="get_direction[1]"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </th>
-                                    <th class="text-end" style="padding: 8px;">
-                                        <span t-esc="get_direction[0]"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </th>
-                                    <th class="text-end" style="padding: 8px;">
-                                        <span t-esc="get_direction[5]"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr t-foreach="get_partner_lines" t-as="partner">
-                                    <td style="padding: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                        <span t-esc="partner['name']"/>
-                                    </td>
-<!--                                    <td style="padding: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px;">-->
-<!--                                        <span t-esc="partner.get('email', '')"/>-->
-<!--                                    </td>-->
-<!--                                    <td style="padding: 6px; white-space: nowrap;">-->
-<!--                                        <span t-esc="partner.get('phone', '')"/>-->
-<!--                                    </td>-->
-<!--                                    <td style="padding: 6px; white-space: nowrap;">-->
-<!--                                        <span t-esc="partner.get('city', '')"/>-->
-<!--                                    </td>-->
-                                    <td class="text-end" style="padding: 6px; white-space: nowrap;">
-                                        <span t-esc="partner['direction']"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </td>
-                                    <td class="text-end" style="padding: 6px; white-space: nowrap;">
-                                        <span t-esc="partner['4']"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </td>
-                                    <td class="text-end" style="padding: 6px; white-space: nowrap;">
-                                        <span t-esc="partner['3']"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </td>
-                                    <td class="text-end" style="padding: 6px; white-space: nowrap;">
-                                        <span t-esc="partner['2']"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </td>
-                                    <td class="text-end" style="padding: 6px; white-space: nowrap;">
-                                        <span t-esc="partner['1']"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </td>
-                                    <td class="text-end" style="padding: 6px; white-space: nowrap;">
-                                        <span t-esc="partner['0']"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </td>
-                                    <td class="text-end" style="padding: 6px; font-weight: bold; white-space: nowrap;">
-                                        <span t-esc="partner['total']"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <!-- Main Table with Fixed Layout -->
+                        <div style="overflow-x: auto;">
+                            <table class="table table-sm table-bordered" style="margin-bottom: 25px; width: 100%; table-layout: fixed;">
+                                <colgroup>
+                                    <col style="width: 20%;"/>  <!-- Partner Name -->
+                                    <col style="width: 11.43%;"/>  <!-- Not Due -->
+                                    <col style="width: 11.43%;"/>  <!-- Period 4 -->
+                                    <col style="width: 11.43%;"/>  <!-- Period 3 -->
+                                    <col style="width: 11.43%;"/>  <!-- Period 2 -->
+                                    <col style="width: 11.43%;"/>  <!-- Period 1 -->
+                                    <col style="width: 11.43%;"/>  <!-- Period 0 -->
+                                    <col style="width: 11.42%;"/>  <!-- Total -->
+                                </colgroup>
+                                <thead style="background-color: #A3AABE; color: black;">
+                                    <tr>
+                                        <th style="padding: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Partners</th>
+                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">Not due</th>
+                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">
+                                            <span t-esc="data['4']['name']"/>
+                                        </th>
+                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">
+                                            <span t-esc="data['3']['name']"/>
+                                        </th>
+                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">
+                                            <span t-esc="data['2']['name']"/>
+                                        </th>
+                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">
+                                            <span t-esc="data['1']['name']"/>
+                                        </th>
+                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">
+                                            <span t-esc="data['0']['name']"/>
+                                        </th>
+                                        <th class="text-end" style="padding: 8px; white-space: nowrap;">Total</th>
+                                    </tr>
+                                    <!-- Account Total Row -->
+                                    <tr t-if="get_partner_lines" style="background-color: #f0f0f0; font-weight: bold;">
+                                        <th style="padding: 8px;">Account Total</th>
+                                        <th class="text-end" style="padding: 8px;">
+                                            <span t-esc="get_direction[6]"
+                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </th>
+                                        <th class="text-end" style="padding: 8px;">
+                                            <span t-esc="get_direction[4]"
+                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </th>
+                                        <th class="text-end" style="padding: 8px;">
+                                            <span t-esc="get_direction[3]"
+                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </th>
+                                        <th class="text-end" style="padding: 8px;">
+                                            <span t-esc="get_direction[2]"
+                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </th>
+                                        <th class="text-end" style="padding: 8px;">
+                                            <span t-esc="get_direction[1]"
+                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </th>
+                                        <th class="text-end" style="padding: 8px;">
+                                            <span t-esc="get_direction[0]"
+                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </th>
+                                        <th class="text-end" style="padding: 8px;">
+                                            <span t-esc="get_direction[5]"
+                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="get_partner_lines" t-as="partner">
+                                        <td style="padding: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                            <span t-esc="partner['name']"/>
+                                        </td>
+                                        <td class="text-end" style="padding: 6px; white-space: nowrap;">
+                                            <span t-esc="partner['direction']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </td>
+                                        <td class="text-end" style="padding: 6px; white-space: nowrap;">
+                                            <span t-esc="partner['4']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </td>
+                                        <td class="text-end" style="padding: 6px; white-space: nowrap;">
+                                            <span t-esc="partner['3']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </td>
+                                        <td class="text-end" style="padding: 6px; white-space: nowrap;">
+                                            <span t-esc="partner['2']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </td>
+                                        <td class="text-end" style="padding: 6px; white-space: nowrap;">
+                                            <span t-esc="partner['1']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </td>
+                                        <td class="text-end" style="padding: 6px; white-space: nowrap;">
+                                            <span t-esc="partner['0']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </td>
+                                        <td class="text-end" style="padding: 6px; font-weight: bold; white-space: nowrap;">
+                                            <span t-esc="partner['total']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
 
                         <!-- Aging Analysis Section -->
                         <div class="row" style="margin-top: 30px;" t-if="percentage_breakdown">
@@ -286,7 +271,7 @@
                             </div>
                         </div>
 
-                        <!-- Custom Footer inside page -->
+                        <!-- Custom Footer -->
                         <div class="row" style="margin-top: 30px; border-top: 2px solid #875A7B; padding-top: 15px;">
                             <div class="col-6">
                                 <small class="text-muted">
@@ -310,6 +295,9 @@
     </template>
 
 </odoo>
+
+
+
 
 
 
@@ -439,34 +427,44 @@
 <!--                        </div>-->
 
 <!--                        &lt;!&ndash; Main Table &ndash;&gt;-->
-<!--                        <table class="table table-sm table-bordered" style="margin-bottom: 25px;">-->
+<!--                        <table class="table table-sm table-bordered" style="margin-bottom: 25px; width: 100%; min-width: 1000px;">-->
+<!--                            <colgroup>-->
+<!--                                <col style="width: 180px;"/>-->
+<!--                                <col style="width: 100px;"/>-->
+<!--                                <col style="width: 100px;"/>-->
+<!--                                <col style="width: 100px;"/>-->
+<!--                                <col style="width: 100px;"/>-->
+<!--                                <col style="width: 100px;"/>-->
+<!--                                <col style="width: 100px;"/>-->
+<!--                                <col style="width: 120px;"/>-->
+<!--                            </colgroup>-->
 <!--                            <thead style="background-color: #A3AABE; color: black;">-->
 <!--                                <tr>-->
-<!--                                    <th style="padding: 8px;">Partners</th>-->
-<!--                                    <th style="padding: 8px;">Email</th>-->
-<!--                                    <th style="padding: 8px;">Phone</th>-->
-<!--                                    <th style="padding: 8px;">City</th>-->
-<!--                                    <th class="text-end" style="padding: 8px;">Not due</th>-->
-<!--                                    <th class="text-end" style="padding: 8px;">-->
+<!--                                    <th style="padding: 8px; white-space: nowrap;">Partners</th>-->
+<!--&lt;!&ndash;                                    <th style="padding: 8px; white-space: nowrap;">Email</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th style="padding: 8px; white-space: nowrap;">Phone</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th style="padding: 8px; white-space: nowrap;">City</th>&ndash;&gt;-->
+<!--                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">Not due</th>-->
+<!--                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">-->
 <!--                                        <span t-esc="data['4']['name']"/>-->
 <!--                                    </th>-->
-<!--                                    <th class="text-end" style="padding: 8px;">-->
+<!--                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">-->
 <!--                                        <span t-esc="data['3']['name']"/>-->
 <!--                                    </th>-->
-<!--                                    <th class="text-end" style="padding: 8px;">-->
+<!--                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">-->
 <!--                                        <span t-esc="data['2']['name']"/>-->
 <!--                                    </th>-->
-<!--                                    <th class="text-end" style="padding: 8px;">-->
+<!--                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">-->
 <!--                                        <span t-esc="data['1']['name']"/>-->
 <!--                                    </th>-->
-<!--                                    <th class="text-end" style="padding: 8px;">-->
+<!--                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">-->
 <!--                                        <span t-esc="data['0']['name']"/>-->
 <!--                                    </th>-->
-<!--                                    <th class="text-end" style="padding: 8px;">Total</th>-->
+<!--                                    <th class="text-end" style="padding: 8px; white-space: nowrap;">Total</th>-->
 <!--                                </tr>-->
 <!--                                <tr t-if="get_partner_lines" style="background-color: #f0f0f0; font-weight: bold;">-->
 <!--                                    <th style="padding: 8px;">Account Total</th>-->
-<!--                                    <th colspan="3" class="text-center" style="padding: 8px;">Details</th>-->
+<!--&lt;!&ndash;                                    <th colspan="3" class="text-center" style="padding: 8px;">Details</th>&ndash;&gt;-->
 <!--                                    <th class="text-end" style="padding: 8px;">-->
 <!--                                        <span t-esc="get_direction[6]"-->
 <!--                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
@@ -499,43 +497,43 @@
 <!--                            </thead>-->
 <!--                            <tbody>-->
 <!--                                <tr t-foreach="get_partner_lines" t-as="partner">-->
-<!--                                    <td style="padding: 6px;">-->
+<!--                                    <td style="padding: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-->
 <!--                                        <span t-esc="partner['name']"/>-->
 <!--                                    </td>-->
-<!--                                    <td style="padding: 6px;">-->
-<!--                                        <span t-esc="partner.get('email', '')"/>-->
-<!--                                    </td>-->
-<!--                                    <td style="padding: 6px;">-->
-<!--                                        <span t-esc="partner.get('phone', '')"/>-->
-<!--                                    </td>-->
-<!--                                    <td style="padding: 6px;">-->
-<!--                                        <span t-esc="partner.get('city', '')"/>-->
-<!--                                    </td>-->
-<!--                                    <td class="text-end" style="padding: 6px;">-->
+<!--&lt;!&ndash;                                    <td style="padding: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="partner.get('email', '')"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <td style="padding: 6px; white-space: nowrap;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="partner.get('phone', '')"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <td style="padding: 6px; white-space: nowrap;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="partner.get('city', '')"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </td>&ndash;&gt;-->
+<!--                                    <td class="text-end" style="padding: 6px; white-space: nowrap;">-->
 <!--                                        <span t-esc="partner['direction']"-->
 <!--                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
 <!--                                    </td>-->
-<!--                                    <td class="text-end" style="padding: 6px;">-->
+<!--                                    <td class="text-end" style="padding: 6px; white-space: nowrap;">-->
 <!--                                        <span t-esc="partner['4']"-->
 <!--                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
 <!--                                    </td>-->
-<!--                                    <td class="text-end" style="padding: 6px;">-->
+<!--                                    <td class="text-end" style="padding: 6px; white-space: nowrap;">-->
 <!--                                        <span t-esc="partner['3']"-->
 <!--                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
 <!--                                    </td>-->
-<!--                                    <td class="text-end" style="padding: 6px;">-->
+<!--                                    <td class="text-end" style="padding: 6px; white-space: nowrap;">-->
 <!--                                        <span t-esc="partner['2']"-->
 <!--                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
 <!--                                    </td>-->
-<!--                                    <td class="text-end" style="padding: 6px;">-->
+<!--                                    <td class="text-end" style="padding: 6px; white-space: nowrap;">-->
 <!--                                        <span t-esc="partner['1']"-->
 <!--                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
 <!--                                    </td>-->
-<!--                                    <td class="text-end" style="padding: 6px;">-->
+<!--                                    <td class="text-end" style="padding: 6px; white-space: nowrap;">-->
 <!--                                        <span t-esc="partner['0']"-->
 <!--                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
 <!--                                    </td>-->
-<!--                                    <td class="text-end" style="padding: 6px; font-weight: bold;">-->
+<!--                                    <td class="text-end" style="padding: 6px; font-weight: bold; white-space: nowrap;">-->
 <!--                                        <span t-esc="partner['total']"-->
 <!--                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
 <!--                                    </td>-->
@@ -615,3 +613,308 @@
 <!--    </template>-->
 
 <!--</odoo>-->
+
+
+
+<!--&lt;!&ndash;<?xml version="1.0" encoding="utf-8"?>&ndash;&gt;-->
+<!--&lt;!&ndash;<odoo>&ndash;&gt;-->
+
+
+<!--&lt;!&ndash;    &lt;!&ndash; Main report template with minimal header &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    <template id="report_agedpartnerbalance_minimal" inherit_id="accounting_pdf_reports.report_agedpartnerbalance">&ndash;&gt;-->
+
+<!--&lt;!&ndash;        &lt;!&ndash; Replace entire template structure &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;        <xpath expr="//t[@t-call='web.html_container']" position="replace">&ndash;&gt;-->
+<!--&lt;!&ndash;            <t t-call="web.html_container">&ndash;&gt;-->
+<!--&lt;!&ndash;                &lt;!&ndash; Use basic_layout for no header/footer &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                <t t-call="web.basic_layout">&ndash;&gt;-->
+<!--&lt;!&ndash;                    <div class="page" style="padding-top: 20px;">&ndash;&gt;-->
+
+
+<!--&lt;!&ndash;<div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 25px; padding: 15px 0;">&ndash;&gt;-->
+
+<!--&lt;!&ndash;    &lt;!&ndash; Company Names in One Row &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    <table style="width: 100%; border-collapse: collapse; border:none; margin-bottom: 0px;">&ndash;&gt;-->
+<!--&lt;!&ndash;        <tr style="border:2px solid white;">&ndash;&gt;-->
+<!--&lt;!&ndash;            <td style="width: 50%; padding: 10px 0px; text-align: left; vertical-align: middle; border: none;padding-bottom:0px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                <div style="color: #8B1538; font-size: 14px; font-weight: bold; text-transform: uppercase;">&ndash;&gt;-->
+<!--&lt;!&ndash;                    SAMEER SHARAF AL OTAIBI TRADING COMPANY&ndash;&gt;-->
+<!--&lt;!&ndash;                </div>&ndash;&gt;-->
+<!--&lt;!&ndash;            </td>&ndash;&gt;-->
+<!--&lt;!&ndash;            <td style="width: 50%; padding: 10px 0px; text-align: right; vertical-align: middle; border: none;">&ndash;&gt;-->
+<!--&lt;!&ndash;                <div style="color: #8B1538; font-size: 16px; font-weight: 900; direction: rtl;padding-bottom:0px;" class="ar">&ndash;&gt;-->
+<!--&lt;!&ndash;                    شركة سمير شرف العتيبي التجارية&ndash;&gt;-->
+<!--&lt;!&ndash;                </div>&ndash;&gt;-->
+<!--&lt;!&ndash;            </td>&ndash;&gt;-->
+<!--&lt;!&ndash;        </tr>&ndash;&gt;-->
+<!--&lt;!&ndash;    </table>&ndash;&gt;-->
+
+<!--&lt;!&ndash;    &lt;!&ndash; Details and Logo Row &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    <table style="width: 100%; border-collapse: collapse;">&ndash;&gt;-->
+<!--&lt;!&ndash;        <tr  style="border:2px solid white;">&ndash;&gt;-->
+<!--&lt;!&ndash;            &lt;!&ndash; Left Column: English Info &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;            <td style="width: 33%; text-align: left; font-size: 14px; color: #333; vertical-align: middle;&ndash;&gt;-->
+<!--&lt;!&ndash;            padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">&ndash;&gt;-->
+<!--&lt;!&ndash;                <div style="line-height: 1.6; font-weight: 500; margin-top: 10px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                    C.R. 4030216154<br/>&ndash;&gt;-->
+<!--&lt;!&ndash;                    VAT Regd: 311299944700003&ndash;&gt;-->
+<!--&lt;!&ndash;                </div>&ndash;&gt;-->
+<!--&lt;!&ndash;            </td>&ndash;&gt;-->
+
+<!--&lt;!&ndash;            &lt;!&ndash; Center Column: Company Logo &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;            <td style="width: 34%; text-align: center; vertical-align: middle; padding: 5px 10px;&ndash;&gt;-->
+<!--&lt;!&ndash;            border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">&ndash;&gt;-->
+<!--&lt;!&ndash;                <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/faakart_logo.png'"&ndash;&gt;-->
+<!--&lt;!&ndash;                     style="max-height: 90px; max-width: 100%; object-fit: contain;"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            </td>&ndash;&gt;-->
+
+<!--&lt;!&ndash;            &lt;!&ndash; Right Column: Arabic Info &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;            <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle;&ndash;&gt;-->
+<!--&lt;!&ndash;            direction: rtl; padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">&ndash;&gt;-->
+<!--&lt;!&ndash;                <div style="line-height: 1.6; font-weight: 900; text-align: right; direction: rtl; margin-top: 10px;" class="ar">&ndash;&gt;-->
+<!--&lt;!&ndash;                    س.ت: ٤٠٣٠٢١٦١٥٤<br/>&ndash;&gt;-->
+<!--&lt;!&ndash;                    الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣&ndash;&gt;-->
+<!--&lt;!&ndash;                </div>&ndash;&gt;-->
+<!--&lt;!&ndash;            </td>&ndash;&gt;-->
+<!--&lt;!&ndash;        </tr>&ndash;&gt;-->
+<!--&lt;!&ndash;    </table>&ndash;&gt;-->
+<!--&lt;!&ndash;</div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;                        &lt;!&ndash; Report Title and Date &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                        <div class="row" style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 3px solid white; margin-top: 30px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div class="col-8">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <h5 style="margin: 0; color: black; font-weight: bold;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                    Aged Partner Balance Report&ndash;&gt;-->
+<!--&lt;!&ndash;                                </h5>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div class="col-4 text-end">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <p style="margin: 0;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <strong>Report Date:</strong><br/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M')"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                </p>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;                        &lt;!&ndash; Report Parameters &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                        <div class="row" style="margin-bottom: 10px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div class="col-3">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <strong>Company:</strong>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <p t-esc="res_company.name" style="margin: 5px 0;"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div class="col-3">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <strong>Start Date:</strong>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <p t-esc="data['date_from']" style="margin: 5px 0;"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div class="col-3">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <strong>Period Length (days):</strong>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <p t-esc="data['period_length']" style="margin: 5px 0;"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div class="col-3">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <strong>Generated By:</strong>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <p t-esc="user.name" style="margin: 5px 0;"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;                        <div class="row" style="margin-bottom: 10px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div class="col-3">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <strong>Partner's:</strong>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <p style="margin: 5px 0;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <span t-if="data['result_selection'] == 'customer'">Receivable Accounts</span>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <span t-if="data['result_selection'] == 'supplier'">Payable Accounts</span>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <span t-if="data['result_selection'] == 'customer_supplier'">Receivable and Payable Accounts</span>&ndash;&gt;-->
+<!--&lt;!&ndash;                                </p>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div class="col-3">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <strong>Target Moves:</strong>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <p style="margin: 5px 0;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <span t-if="data['target_move'] == 'all'">All Entries</span>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <span t-if="data['target_move'] == 'posted'">All Posted Entries</span>&ndash;&gt;-->
+<!--&lt;!&ndash;                                </p>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div class="col-3">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <strong>Total Partners:</strong>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <p t-esc="total_partners or len(get_partner_lines)" style="margin: 5px 0;"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div class="col-3">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <strong>Partners with Overdue:</strong>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <p t-esc="partners_with_overdue or 0" style="margin: 5px 0;"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;                        &lt;!&ndash; Main Table &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                        <table class="table table-sm table-bordered" style="margin-bottom: 25px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <thead style="background-color: #A3AABE; color: black;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th style="padding: 8px;">Partners</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th style="padding: 8px;">Email</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th style="padding: 8px;">Phone</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th style="padding: 8px;">City</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th class="text-end" style="padding: 8px;">Not due</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th class="text-end" style="padding: 8px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="data['4']['name']"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th class="text-end" style="padding: 8px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="data['3']['name']"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th class="text-end" style="padding: 8px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="data['2']['name']"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th class="text-end" style="padding: 8px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="data['1']['name']"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th class="text-end" style="padding: 8px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="data['0']['name']"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th class="text-end" style="padding: 8px;">Total</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                </tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <tr t-if="get_partner_lines" style="background-color: #f0f0f0; font-weight: bold;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th style="padding: 8px;">Account Total</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th colspan="3" class="text-center" style="padding: 8px;">Details</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th class="text-end" style="padding: 8px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="get_direction[6]"&ndash;&gt;-->
+<!--&lt;!&ndash;                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th class="text-end" style="padding: 8px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="get_direction[4]"&ndash;&gt;-->
+<!--&lt;!&ndash;                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th class="text-end" style="padding: 8px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="get_direction[3]"&ndash;&gt;-->
+<!--&lt;!&ndash;                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th class="text-end" style="padding: 8px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="get_direction[2]"&ndash;&gt;-->
+<!--&lt;!&ndash;                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th class="text-end" style="padding: 8px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="get_direction[1]"&ndash;&gt;-->
+<!--&lt;!&ndash;                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th class="text-end" style="padding: 8px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="get_direction[0]"&ndash;&gt;-->
+<!--&lt;!&ndash;                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <th class="text-end" style="padding: 8px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="get_direction[5]"&ndash;&gt;-->
+<!--&lt;!&ndash;                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                </tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </thead>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <tbody>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <tr t-foreach="get_partner_lines" t-as="partner">&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <td style="padding: 6px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="partner['name']"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <td style="padding: 6px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="partner.get('email', '')"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <td style="padding: 6px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="partner.get('phone', '')"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <td style="padding: 6px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="partner.get('city', '')"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <td class="text-end" style="padding: 6px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="partner['direction']"&ndash;&gt;-->
+<!--&lt;!&ndash;                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <td class="text-end" style="padding: 6px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="partner['4']"&ndash;&gt;-->
+<!--&lt;!&ndash;                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <td class="text-end" style="padding: 6px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="partner['3']"&ndash;&gt;-->
+<!--&lt;!&ndash;                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <td class="text-end" style="padding: 6px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="partner['2']"&ndash;&gt;-->
+<!--&lt;!&ndash;                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <td class="text-end" style="padding: 6px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="partner['1']"&ndash;&gt;-->
+<!--&lt;!&ndash;                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <td class="text-end" style="padding: 6px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="partner['0']"&ndash;&gt;-->
+<!--&lt;!&ndash;                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <td class="text-end" style="padding: 6px; font-weight: bold;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <span t-esc="partner['total']"&ndash;&gt;-->
+<!--&lt;!&ndash;                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                </tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </tbody>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </table>&ndash;&gt;-->
+
+<!--&lt;!&ndash;                        &lt;!&ndash; Aging Analysis Section &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                        <div class="row" style="margin-top: 30px;" t-if="percentage_breakdown">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div class="col-12">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <h4 style="color:#808080; margin-bottom: 15px;">Aging Analysis Summary</h4>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <table class="table table-sm table-bordered">&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <thead style="background-color: #A3AABE; color: white;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <th style="padding: 8px;">Period</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <th class="text-end" style="padding: 8px;">Amount</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <th class="text-end" style="padding: 8px;">Percentage</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        </tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </thead>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <tbody>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <td style="padding: 6px;">Not Due</td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <td class="text-end" style="padding: 6px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                                <span t-esc="get_direction[6]"&ndash;&gt;-->
+<!--&lt;!&ndash;                                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <td class="text-end" style="padding: 6px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                                <span t-esc="'%.2f' % percentage_breakdown.get('not_due', 0)"/>%&ndash;&gt;-->
+<!--&lt;!&ndash;                                            </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        </tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <tr t-foreach="range(5)" t-as="period_idx">&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <td style="padding: 6px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                                <span t-esc="data[str(4-period_idx)]['name']"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <td class="text-end" style="padding: 6px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                                <span t-esc="get_direction[4-period_idx]"&ndash;&gt;-->
+<!--&lt;!&ndash;                                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <td class="text-end" style="padding: 6px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                                <span t-esc="'%.2f' % percentage_breakdown.get('period_' + str(4-period_idx), 0)"/>%&ndash;&gt;-->
+<!--&lt;!&ndash;                                            </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        </tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <tr style="font-weight: bold; background-color: #f0f0f0;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <td style="padding: 6px;">Total</td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <td class="text-end" style="padding: 6px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                                                <span t-esc="get_direction[5]"&ndash;&gt;-->
+<!--&lt;!&ndash;                                                      t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <td class="text-end" style="padding: 6px;">100.00%</td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        </tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </tbody>&ndash;&gt;-->
+<!--&lt;!&ndash;                                </table>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;                        &lt;!&ndash; Custom Footer inside page &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                        <div class="row" style="margin-top: 30px; border-top: 2px solid #875A7B; padding-top: 15px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div class="col-6">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <small class="text-muted">&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <strong t-esc="res_company.name"/> |&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <span t-esc="res_company.phone or ''"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                </small>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div class="col-6 text-end">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <small class="text-muted">&ndash;&gt;-->
+<!--&lt;!&ndash;                                    Generated by <span t-esc="user.name"/> on&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M')"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                </small>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                </t>&ndash;&gt;-->
+<!--&lt;!&ndash;            </t>&ndash;&gt;-->
+<!--&lt;!&ndash;        </xpath>&ndash;&gt;-->
+
+<!--&lt;!&ndash;    </template>&ndash;&gt;-->
+
+<!--&lt;!&ndash;</odoo>&ndash;&gt;-->

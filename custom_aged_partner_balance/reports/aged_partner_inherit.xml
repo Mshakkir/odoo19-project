@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Inherit Odoo Mates wizard -->
     <record id="view_aged_partner_balance_inherit_details" model="ir.ui.view">
         <field name="name">Aged Partner Balance - Add Show Details</field>
         <field name="model">account.aged.trial.balance</field>
-        <field name="inherit_id" ref="accounting_pdf_reports.account_aged_balance_view"/>
+        <field name="inherit_id" ref="account.view_account_aged_trial_balance"/>
         <field name="arch" type="xml">
 
-            <!-- Insert button in footer -->
             <xpath expr="//footer" position="inside">
                 <button name="show_details"
                         string="Show Details"

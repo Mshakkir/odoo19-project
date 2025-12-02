@@ -64,7 +64,7 @@
         <field name="name">account.aged.detail.line.tree</field>
         <field name="model">account.aged.detail.line</field>
         <field name="arch" type="xml">
-            <tree string="Aged Balance Details"
+            <list string="Aged Balance Details"
                   decoration-danger="total &gt; 0 and (period_3 != 0 or period_4 != 0)"
                   decoration-warning="total &gt; 0 and (period_1 != 0 or period_2 != 0)"
                   decoration-info="total &lt; 0"
@@ -113,7 +113,7 @@
                         type="object"
                         icon="fa-book"
                         title="View Partner Ledger"/>
-            </tree>
+            </list>
         </field>
     </record>
 

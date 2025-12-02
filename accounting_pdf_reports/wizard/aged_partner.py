@@ -148,7 +148,7 @@ class AccountAgedTrialBalance(models.TransientModel):
             ),
             'type': 'ir.actions.act_window',
             'res_model': 'account.aged.detail.line',
-            'view_mode': 'tree',
+            'view_mode': 'list,form',
             'view_id': self.env.ref('custom_aged_partner_balance.view_aged_detail_tree').id,
             'domain': [('wizard_id', '=', self.id)],
             'context': {

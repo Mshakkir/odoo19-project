@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_aged_trial_balance_custom" model="ir.ui.view">
+        <field name="name">account.aged.trial.balance.custom.form</field>
+        <field name="model">account.aged.trial.balance</field>
+        <field name="inherit_id">accounting_pdf_reports.account_aged_balance_view</field>
+        <field name="arch" type="xml">
+
+            <!-- Add button next to Print button -->
+            <xpath expr="//footer" position="inside">
+                <button string="Show Details"
+                        type="object"
+                        name="action_show_details"
+                        class="oe_highlight"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

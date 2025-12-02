@@ -1,4 +1,4 @@
-from odoo import models
+from odoo import models, fields
 
 class AccountAgedTrialBalance(models.TransientModel):
     _inherit = 'account.aged.trial.balance'
@@ -22,16 +22,9 @@ class AccountAgedTrialBalance(models.TransientModel):
         if self.partner_ids:
             domain.append(('partner_id', 'in', self.partner_ids.ids))
 
-        # -------- GUARANTEED SAFE VIEW LOOKUP --------
-        try:
-            tree_view = self.env.ref('account.view_move_line_tree')
-        except:
-            tree_view = False
-
-        try:
-            form_view = self.env.ref('account.view_move_line_form')
-        except:
-            form_view = False
+        # Lookup the views safely
+        tree_view = self.env.ref('account.view_move_line_tree', raise_if_not_found=False)
+        form_view = self.env.ref('account.view_move_line_form', raise_if_not_found=False)
 
         views = []
         if tree_view:
@@ -39,7 +32,7 @@ class AccountAgedTrialBalance(models.TransientModel):
         if form_view:
             views.append((form_view.id, 'form'))
 
-        # If NOTHING exists, fallback (avoids crash)
+        # Fallback to default if views not found
         if not views:
             views = [(False, 'tree'), (False, 'form')]
 
@@ -48,7 +41,7 @@ class AccountAgedTrialBalance(models.TransientModel):
             'type': 'ir.actions.act_window',
             'res_model': 'account.move.line',
             'domain': domain,
-            'view_mode': 'form',
+            'view_mode': 'tree,form',
             'views': views,
             'target': 'current',
             'context': {'search_default_group_by_partner': 1},

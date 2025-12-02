@@ -1,4 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
+    <!-- Base wizard form -->
     <record id="account_aged_balance_view" model="ir.ui.view">
         <field name="name">account.aged.balance.form</field>
         <field name="model">account.aged.trial.balance</field>
@@ -8,15 +11,40 @@
                     <field name="date_from"/>
                     <field name="date_to"/>
                     <field name="company_id"/>
+                    <field name="journal_ids"/>
+                    <field name="partner_ids"/>
+                    <field name="result_selection"/>
+                    <field name="target_move"/>
                 </group>
+                <footer>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
             </form>
         </field>
     </record>
 
+    <!-- Act Window -->
     <record id="action_aged_balance" model="ir.actions.act_window">
         <field name="name">Aged Partner Balance</field>
         <field name="res_model">account.aged.trial.balance</field>
         <field name="view_mode">form</field>
         <field name="view_id" ref="account_aged_balance_view"/>
+        <field name="target">new</field>
     </record>
+
+    <!-- Inherit the wizard to add Show Details button -->
+    <record id="view_aged_balance_inherit_show_details" model="ir.ui.view">
+        <field name="name">Aged Partner Balance - Show Details</field>
+        <field name="model">account.aged.trial.balance</field>
+        <field name="inherit_id" ref="your_module_name.account_aged_balance_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//footer" position="inside">
+                <button name="show_details"
+                        string="Show Details"
+                        type="object"
+                        class="oe_highlight"/>
+            </xpath>
+        </field>
+    </record>
+
 </odoo>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit the OdooMates wizard form to add Show Details button -->
+    <record id="view_account_aged_balance_inherit" model="ir.ui.view">
+        <field name="name">account.aged.trial.balance.form.inherit</field>
+        <field name="model">account.aged.trial.balance</field>
+        <field name="inherit_id" ref="accounting_pdf_reports.account_aged_balance_view"/>
+        <field name="arch" type="xml">
+
+            <!-- Add partner_ids field if it doesn't exist -->
+            <xpath expr="//field[@name='target_move']" position="after">
+                <field name="partner_ids"
+                       widget="many2many_tags"
+                       options="{'no_create': True}"
+                       placeholder="Leave empty for all partners"/>
+            </xpath>
+
+            <!-- Add Show Details button in footer -->
+            <xpath expr="//footer/button[@name='check_report']" position="before">
+                <button name="show_details"
+                        string="Show Details"
+                        type="object"
+                        class="btn-primary"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

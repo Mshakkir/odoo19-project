@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tree View -->
+    <record id="view_aged_detail_tree" model="ir.ui.view">
+        <field name="name">account.aged.detail.line.tree</field>
+        <field name="model">account.aged.detail.line</field>
+        <field name="arch" type="xml">
+            <tree string="Aged Balance Details"
+                  decoration-danger="total &gt; 0 and (period_3 != 0 or period_4 != 0)"
+                  decoration-warning="total &gt; 0 and (period_1 != 0 or period_2 != 0)"
+                  decoration-info="total &lt; 0"
+                  create="false"
+                  edit="false"
+                  export_xlsx="true">
+
+                <field name="partner_name" string="Partner"/>
+                <field name="trust" optional="show"/>
+                <field name="email" optional="hide"/>
+                <field name="phone" optional="hide"/>
+                <field name="vat" optional="hide"/>
+
+                <field name="not_due"
+                       sum="Total Not Due"
+                       widget="monetary"/>
+
+                <field name="period_0"
+                       sum="Total 0-30"
+                       widget="monetary"/>
+
+                <field name="period_1"
+                       sum="Total 30-60"
+                       widget="monetary"
+                       decoration-warning="period_1 != 0"/>
+
+                <field name="period_2"
+                       sum="Total 60-90"
+                       widget="monetary"
+                       decoration-warning="period_2 != 0"/>
+
+                <field name="period_3"
+                       sum="Total 90-120"
+                       widget="monetary"
+                       decoration-danger="period_3 != 0"/>
+
+                <field name="period_4"
+                       sum="Total 120+"
+                       widget="monetary"
+                       decoration-danger="period_4 != 0"/>
+
+                <field name="total"
+                       sum="Grand Total"
+                       widget="monetary"
+                       decoration-bf="1"/>
+
+                <button name="action_view_partner_ledger"
+                        type="object"
+                        icon="fa-book"
+                        title="View Partner Ledger"
+                        class="oe_link"/>
+
+                <field name="currency_id" invisible="1"/>
+                <field name="company_id" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_aged_detail_form" model="ir.ui.view">
+        <field name="name">account.aged.detail.line.form</field>
+        <field name="model">account.aged.detail.line</field>
+        <field name="arch" type="xml">
+            <form string="Aged Balance Detail" create="false" edit="false">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_partner_ledger"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-book">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">View</span>
+                                <span class="o_stat_text">Ledger</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <group>
+                        <group string="Partner Information">
+                            <field name="partner_id" readonly="1"/>
+                            <field name="partner_name" readonly="1"/>
+                            <field name="trust" readonly="1"/>
+                            <field name="email" readonly="1" widget="email"/>
+                            <field name="phone" readonly="1" widget="phone"/>
+                            <field name="vat" readonly="1"/>
+                        </group>
+                        <group string="Report Parameters">
+                            <field name="date_from" readonly="1"/>
+                            <field name="period_length" readonly="1"/>
+                            <field name="company_id" readonly="1"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <group string="Aging Breakdown">
+                        <group>
+                            <field name="not_due" readonly="1" widget="monetary"/>
+                            <field name="period_0" readonly="1" widget="monetary"/>
+                            <field name="period_1" readonly="1" widget="monetary"/>
+                        </group>
+                        <group>
+                            <field name="period_2" readonly="1" widget="monetary"/>
+                            <field name="period_3" readonly="1" widget="monetary"/>
+                            <field name="period_4" readonly="1" widget="monetary"/>
+                            <field name="total" readonly="1" widget="monetary" class="oe_subtotal_footer_separator"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_aged_detail_search" model="ir.ui.view">
+        <field name="name">account.aged.detail.line.search</field>
+        <field name="model">account.aged.detail.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Aged Details">
+                <field name="partner_name" string="Partner" filter_domain="[('partner_name', 'ilike', self)]"/>
+                <field name="email"/>
+                <field name="phone"/>
+                <field name="vat"/>
+
+                <filter string="Has Overdue (90+ days)" name="has_severe_overdue"
+                        domain="['|', ('period_3', '!=', 0), ('period_4', '!=', 0)]"/>
+                <filter string="Has Overdue (30+ days)" name="has_overdue"
+                        domain="['|', '|', ('period_1', '!=', 0), ('period_2', '!=', 0), '|', ('period_3', '!=', 0), ('period_4', '!=', 0)]"/>
+                <filter string="Credits" name="credit_balance"
+                        domain="[('total', '&lt;', 0)]"/>
+                <filter string="Debits" name="debit_balance"
+                        domain="[('total', '&gt;', 0)]"/>
+
+                <separator/>
+                <filter string="Good Debtor" name="trust_good"
+                        domain="[('trust', '=', 'good')]"/>
+                <filter string="Normal Debtor" name="trust_normal"
+                        domain="[('trust', '=', 'normal')]"/>
+                <filter string="Bad Debtor" name="trust_bad"
+                        domain="[('trust', '=', 'bad')]"/>
+
+                <group expand="0" string="Group By">
+                    <filter string="Trust Level" name="group_by_trust"
+                            context="{'group_by': 'trust'}"/>
+                    <filter string="Partner" name="group_by_partner"
+                            context="{'group_by': 'partner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

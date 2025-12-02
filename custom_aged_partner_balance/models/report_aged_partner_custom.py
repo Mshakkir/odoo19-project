@@ -111,7 +111,7 @@
 #
 
 
-# wizard/aged_partner.py
+# wizard/account_aged_detail_line.py
 
 import time
 from dateutil.relativedelta import relativedelta

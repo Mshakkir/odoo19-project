@@ -1,20 +1,22 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <record id="view_aged_partner_balance_inherit_details" model="ir.ui.view">
-        <field name="name">Aged Partner Balance - Add Show Details</field>
+    <record id="account_aged_balance_view" model="ir.ui.view">
+        <field name="name">account.aged.balance.form</field>
         <field name="model">account.aged.trial.balance</field>
-        <field name="inherit_id" ref="accounting_pdf_reports.account_aged_balance_view"/>
         <field name="arch" type="xml">
-
-            <xpath expr="//footer" position="inside">
-                <button name="show_details"
-                        string="Show Details"
-                        type="object"
-                        class="oe_highlight"/>
-            </xpath>
-
+            <form string="Aged Partner Balance">
+                <group col="4">
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                    <field name="company_id"/>
+                </group>
+            </form>
         </field>
     </record>
 
+    <record id="action_aged_balance" model="ir.actions.act_window">
+        <field name="name">Aged Partner Balance</field>
+        <field name="res_model">account.aged.trial.balance</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="account_aged_balance_view"/>
+    </record>
 </odoo>

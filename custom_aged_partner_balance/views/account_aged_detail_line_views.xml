@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- ============================== -->
     <!-- List View -->
+    <!-- ============================== -->
     <record id="view_aged_detail_list" model="ir.ui.view">
         <field name="name">account.aged.detail.line.list</field>
         <field name="model">account.aged.detail.line</field>
@@ -38,7 +40,9 @@
         </field>
     </record>
 
+    <!-- ============================== -->
     <!-- Form View -->
+    <!-- ============================== -->
     <record id="view_aged_detail_form" model="ir.ui.view">
         <field name="name">account.aged.detail.line.form</field>
         <field name="model">account.aged.detail.line</field>
@@ -66,6 +70,7 @@
                             <field name="phone" readonly="1"/>
                             <field name="vat" readonly="1"/>
                         </group>
+
                         <group string="Report Parameters">
                             <field name="date_from" readonly="1"/>
                             <field name="period_length" readonly="1"/>
@@ -87,17 +92,21 @@
                             <field name="total" readonly="1" widget="monetary"/>
                         </group>
                     </group>
+
                 </sheet>
             </form>
         </field>
     </record>
 
+    <!-- ============================== -->
     <!-- Search View -->
+    <!-- ============================== -->
     <record id="view_aged_detail_search" model="ir.ui.view">
         <field name="name">account.aged.detail.line.search</field>
         <field name="model">account.aged.detail.line</field>
         <field name="arch" type="xml">
             <search>
+
                 <field name="partner_name"/>
                 <field name="email"/>
                 <field name="phone"/>
@@ -106,10 +115,13 @@
 
                 <filter string="Has Severe Overdue" name="has_severe_overdue"
                         domain="[('period_3', '!=', 0)]"/>
+
                 <filter string="Has Overdue" name="has_overdue"
                         domain="[('period_1', '!=', 0)]"/>
+
                 <filter string="Credits" name="credit_balance"
                         domain="[('total', '&lt;', 0)]"/>
+
                 <filter string="Debits" name="debit_balance"
                         domain="[('total', '&gt;', 0)]"/>
 
@@ -119,6 +131,7 @@
                     <filter string="Partner" name="group_by_partner"
                             context="{'group_by': 'partner_id'}"/>
                 </group>
+
             </search>
         </field>
     </record>

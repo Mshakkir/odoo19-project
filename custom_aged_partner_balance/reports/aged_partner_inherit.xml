@@ -33,18 +33,19 @@
     </record>
 
     <!-- Inherit the wizard to add Show Details button -->
-    <record id="view_aged_balance_inherit_show_details" model="ir.ui.view">
-        <field name="name">Aged Partner Balance - Show Details</field>
-        <field name="model">account.aged.trial.balance</field>
-        <field name="inherit_id" ref="your_module_name.account_aged_balance_view"/>
-        <field name="arch" type="xml">
-            <xpath expr="//footer" position="inside">
-                <button name="show_details"
-                        string="Show Details"
-                        type="object"
-                        class="oe_highlight"/>
-            </xpath>
-        </field>
-    </record>
+<record id="view_aged_balance_inherit_show_details" model="ir.ui.view">
+    <field name="name">Aged Partner Balance - Show Details</field>
+    <field name="model">account.aged.trial.balance</field>
+    <field name="inherit_id" ref="custom_aged_partner_balance.account_aged_balance_view"/>
+    <field name="arch" type="xml">
+        <xpath expr="//footer" position="inside">
+            <button name="show_details"
+                    string="Show Details"
+                    type="object"
+                    class="oe_highlight"/>
+        </xpath>
+    </field>
+</record>
+
 
 </odoo>

@@ -23,8 +23,7 @@
     'data': [
         'security/ir.model.access.csv',
         'reports/report_aged_partner_custom.xml',
-        'views/account_aged_detail_line_views.xml',
-        'views/account_aged_trial_balance_views.xml',
+        'reports/aged_partner_inherit.xml',
     ],
     'installable': True,
     'application': False,

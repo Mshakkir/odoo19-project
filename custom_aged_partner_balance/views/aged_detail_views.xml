@@ -60,7 +60,7 @@
                 <button name="action_view_journal_entries"
                         type="object"
                         icon="fa-list"
-                        string="View Entries"
+                        string=""
                         title="View Journal Entries"/>
             </list>
         </field>

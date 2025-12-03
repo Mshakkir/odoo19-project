@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class StockPicking(models.Model):
@@ -31,11 +34,15 @@ class StockPicking(models.Model):
         for picking in self:
             # Check if this transfer goes to a transit location
             if picking.location_dest_id.usage == 'transit' and picking.state == 'done':
-                # Send notification to requesting warehouse
-                self._notify_warehouse_user(picking, 'approved')
+                try:
+                    # Send notification to requesting warehouse
+                    self._notify_warehouse_user(picking, 'approved')
 
-                # Auto-create the second transfer (receipt)
-                self._create_receipt_transfer(picking)
+                    # Auto-create the second transfer (receipt)
+                    self._create_receipt_transfer(picking)
+                except Exception as e:
+                    _logger.error('Error in warehouse automation: %s', str(e))
+                    # Continue even if notification fails
 
         return res
 
@@ -46,8 +53,12 @@ class StockPicking(models.Model):
         for picking in self:
             # If this is a request from branch to main warehouse
             if picking.is_inter_warehouse_request and picking.location_dest_id.usage == 'transit':
-                # Notify Main warehouse users
-                self._notify_main_warehouse_users(picking)
+                try:
+                    # Notify Main warehouse users
+                    self._notify_main_warehouse_users(picking)
+                except Exception as e:
+                    _logger.error('Error sending notification to main warehouse: %s', str(e))
+                    # Continue even if notification fails
 
         return res
 
@@ -127,6 +138,7 @@ class StockPicking(models.Model):
         main_wh_users = self._get_warehouse_users(main_warehouse)
 
         if not main_wh_users:
+            _logger.warning('No users found for Main warehouse notification')
             return
 
         # Create notification message
@@ -167,6 +179,7 @@ class StockPicking(models.Model):
         warehouse_users = self._get_warehouse_users(dest_warehouse)
 
         if not warehouse_users:
+            _logger.warning('No users found for warehouse notification')
             return
 
         source_warehouse = picking.location_id.warehouse_id
@@ -202,46 +215,57 @@ class StockPicking(models.Model):
 
     def _get_warehouse_users(self, warehouse):
         """Get users who have access to this warehouse"""
-        # Find users in groups that have access to this warehouse
+        try:
+            # Option 1: Try to find warehouse-specific group users first
+            warehouse_group_mapping = {
+                'Main Office': 'Main WH',
+                'Dammam': 'Dammam WH',
+                'Baladiya': 'Baladiya WH',
+            }
 
-        # Option 1: Get all inventory users (simple approach)
-        inventory_group = self.env.ref('stock.group_stock_user', raise_if_not_found=False)
-        if inventory_group:
-            all_users = inventory_group.users_ids  # ← FIXED: Changed from 'users' to 'users_ids'
-        else:
-            all_users = self.env['res.users'].search([])
+            # Try to match warehouse name to group name
+            group_name = None
+            for key, value in warehouse_group_mapping.items():
+                if key in warehouse.name:
+                    group_name = value
+                    break
 
-        # Option 2: Filter by custom warehouse groups (if you created them)
-        # Try to find warehouse-specific groups based on naming
-        warehouse_group_mapping = {
-            'Main Office': 'Main WH',
-            'Dammam': 'Dammam WH',
-            'Baladiya': 'Baladiya WH',
-        }
+            if group_name:
+                warehouse_groups = self.env['res.groups'].search([
+                    ('name', '=', group_name)
+                ])
 
-        # Try to match warehouse name to group name
-        group_name = None
-        for key, value in warehouse_group_mapping.items():
-            if key in warehouse.name:
-                group_name = value
-                break
+                if warehouse_groups:
+                    # Get users who are in these groups
+                    warehouse_users = self.env['res.users'].search([
+                        ('groups_id', 'in', warehouse_groups.ids),
+                        ('active', '=', True)
+                    ])
+                    if warehouse_users:
+                        return warehouse_users
 
-        if group_name:
-            warehouse_groups = self.env['res.groups'].search([
-                ('name', '=', group_name)
-            ])
+            # Option 2: Fallback to all inventory users
+            inventory_group = self.env.ref('stock.group_stock_user', raise_if_not_found=False)
+            if inventory_group:
+                all_users = self.env['res.users'].search([
+                    ('groups_id', 'in', inventory_group.id),
+                    ('active', '=', True)
+                ])
+                return all_users
 
-            if warehouse_groups:
-                return warehouse_groups.mapped('users_ids')  # ← FIXED: Changed from 'users' to 'users_ids'
+            # Option 3: Last fallback - return admin
+            return self.env.ref('base.user_admin', raise_if_not_found=False)
 
-        # Fallback: return all inventory users
-        return all_users
+        except Exception as e:
+            _logger.error('Error getting warehouse users: %s', str(e))
+            # Return admin user as last resort
+            return self.env['res.users'].browse(2)
 
     @api.model
     def _get_warehouse_for_user(self, user):
         """Get the warehouse assigned to a user"""
         # Check if user has a default warehouse set
-        if user.property_warehouse_id:
+        if hasattr(user, 'property_warehouse_id') and user.property_warehouse_id:
             return user.property_warehouse_id
 
         # Try to find from groups

@@ -203,36 +203,24 @@ class StockPicking(models.Model):
     def _get_warehouse_users(self, warehouse):
         """Get users who have access to this warehouse"""
         # Find users in groups that have access to this warehouse
+        # You can customize this based on your security groups
 
         # Option 1: Get all inventory users (simple approach)
         inventory_group = self.env.ref('stock.group_stock_user', raise_if_not_found=False)
         if inventory_group:
-            all_users = inventory_group.users_ids  # ← FIXED: Changed from 'users' to 'users_ids'
+            all_users = inventory_group.users
         else:
             all_users = self.env['res.users'].search([])
 
         # Option 2: Filter by custom warehouse groups (if you created them)
-        # Try to find warehouse-specific groups based on naming
-        warehouse_group_mapping = {
-            'Main Office': 'Main WH',
-            'Dammam': 'Dammam WH',
-            'Baladiya': 'Baladiya WH',
-        }
+        # Try to find warehouse-specific groups
+        warehouse_group_name = warehouse.name.replace('SSAOCO-', '').replace('SSAOCO - ', '').strip() + ' WH'
+        warehouse_groups = self.env['res.groups'].search([
+            ('name', 'ilike', warehouse_group_name)
+        ])
 
-        # Try to match warehouse name to group name
-        group_name = None
-        for key, value in warehouse_group_mapping.items():
-            if key in warehouse.name:
-                group_name = value
-                break
-
-        if group_name:
-            warehouse_groups = self.env['res.groups'].search([
-                ('name', '=', group_name)
-            ])
-
-            if warehouse_groups:
-                return warehouse_groups.mapped('users_ids')  # ← FIXED: Changed from 'users' to 'users_ids'
+        if warehouse_groups:
+            return warehouse_groups.mapped('users')
 
         # Fallback: return all inventory users
         return all_users

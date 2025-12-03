@@ -1,78 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Header Form View with Report Info -->
-    <record id="view_aged_report_header_form" model="ir.ui.view">
-        <field name="name">aged.report.header.form</field>
-        <field name="model">aged.report.header</field>
+    <!-- Tree/List View for Aged Detail Lines -->
+    <record id="view_aged_detail_line_tree" model="ir.ui.view">
+        <field name="name">account.aged.detail.line.tree</field>
+        <field name="model">account.aged.detail.line</field>
         <field name="arch" type="xml">
-            <form string="Aged Report" create="false" edit="false">
-                <sheet>
-                    <!-- Report Header Information -->
-                    <div class="oe_title">
-                        <h1><field name="report_title" readonly="1"/></h1>
-                        <div class="o_row">
-                            <span class="text-muted">Report Date: </span>
-                            <field name="report_date" readonly="1"/>
-                        </div>
-                    </div>
+            <list string="Aged Balance Details"
+                  decoration-danger="total &gt; 0 and (period_3 != 0 or period_4 != 0)"
+                  decoration-warning="total &gt; 0 and (period_1 != 0 or period_2 != 0)"
+                  create="false" edit="false" delete="false">
 
-                    <group>
-                        <group string="Report Parameters">
-                            <field name="company_name" readonly="1"/>
-                            <field name="start_date" readonly="1"/>
-                            <field name="period_length" readonly="1"/>
-                            <field name="generated_by" readonly="1"/>
-                        </group>
-                        <group string="Report Summary">
-                            <label for="account_type_label" string="Account Type"/>
-                            <div>
-                                <field name="partner_type" invisible="1"/>
-                                <strong><field name="partner_type" readonly="1"/>: </strong>
-                                <field name="account_type_label" readonly="1" nolabel="1"/>
-                            </div>
-                            <field name="target_moves" readonly="1"/>
-                            <field name="total_partners" readonly="1"/>
-                            <field name="partners_with_overdue" readonly="1"/>
-                        </group>
-                    </group>
+                <field name="partner_name" string="Vendor"/>
+                <field name="trust" optional="hide"/>
+                <field name="email" optional="hide"/>
+                <field name="phone" optional="hide"/>
+                <field name="vat" optional="hide"/>
 
-                    <notebook>
-                        <page string="Details" name="details">
-                            <field name="detail_line_ids" nolabel="1">
-                                <list string="Aged Balance Details"
-                                      decoration-danger="total &gt; 0 and (period_3 != 0 or period_4 != 0)"
-                                      decoration-warning="total &gt; 0 and (period_1 != 0 or period_2 != 0)"
-                                      create="false" edit="false" delete="false">
+                <field name="not_due"
+                       sum="Total Not Due"
+                       widget="monetary"
+                       string="Not due"/>
 
-                                    <field name="partner_name"/>
-                                    <field name="trust" optional="hide"/>
-                                    <field name="email" optional="hide"/>
-                                    <field name="phone" optional="hide"/>
-                                    <field name="vat" optional="hide"/>
+                <field name="period_0"
+                       sum="Total"
+                       widget="monetary"
+                       string="0-30"/>
 
-                                    <field name="not_due" sum="Total Not Due" widget="monetary"/>
-                                    <field name="period_0" sum="Total" widget="monetary"/>
-                                    <field name="period_1" sum="Total" widget="monetary" decoration-warning="period_1 != 0"/>
-                                    <field name="period_2" sum="Total" widget="monetary" decoration-warning="period_2 != 0"/>
-                                    <field name="period_3" sum="Total" widget="monetary" decoration-danger="period_3 != 0"/>
-                                    <field name="period_4" sum="Total" widget="monetary" decoration-danger="period_4 != 0"/>
-                                    <field name="total" sum="Grand Total" widget="monetary" decoration-bf="1"/>
+                <field name="period_1"
+                       sum="Total"
+                       widget="monetary"
+                       decoration-warning="period_1 != 0"
+                       string="30-60"/>
 
-                                    <button name="action_view_journal_entries"
-                                            type="object"
-                                            icon="fa-list"
-                                            title="View Journal Entries"/>
-                                </list>
-                            </field>
-                        </page>
-                    </notebook>
-                </sheet>
-            </form>
+                <field name="period_2"
+                       sum="Total"
+                       widget="monetary"
+                       decoration-warning="period_2 != 0"
+                       string="60-90"/>
+
+                <field name="period_3"
+                       sum="Total"
+                       widget="monetary"
+                       decoration-danger="period_3 != 0"
+                       string="90-120"/>
+
+                <field name="period_4"
+                       sum="Total"
+                       widget="monetary"
+                       decoration-danger="period_4 != 0"
+                       string="+120"/>
+
+                <field name="total"
+                       sum="Grand Total"
+                       widget="monetary"
+                       decoration-bf="1"
+                       string="Total"/>
+
+                <button name="action_view_journal_entries"
+                        type="object"
+                        icon="fa-list"
+                        string=""
+                        title="View Journal Entries"/>
+            </list>
         </field>
     </record>
 
-    <!-- Individual Detail Line Form View -->
+    <!-- Form View for Aged Detail Lines -->
     <record id="view_aged_detail_line_form" model="ir.ui.view">
         <field name="name">account.aged.detail.line.form</field>
         <field name="model">account.aged.detail.line</field>

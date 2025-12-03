@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_aged_partner_custom_user,access.aged.partner.custom.user,accounting_pdf_reports.model_report_accounting_pdf_reports_report_agedpartnerbalance,account.group_account_user,1,0,0,0
-access_aged_partner_custom_manager,access.aged.partner.custom.manager,accounting_pdf_reports.model_report_accounting_pdf_reports_report_agedpartnerbalance,account.group_account_manager,1,1,1,1

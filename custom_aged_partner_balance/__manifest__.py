@@ -23,7 +23,7 @@
     'data': [
         'security/ir.model.access.csv',
         'reports/report_aged_partner_custom.xml',
-        'reports/aged_partner_inherit.xml',
+        # 'reports/aged_partner_inherit.xml',
     ],
     'installable': True,
     'application': False,

@@ -54,6 +54,8 @@
 
 # models/aged_partner_inherit.py
 
+# models/aged_partner_inherit.py
+
 from odoo import api, fields, models, _
 from dateutil.relativedelta import relativedelta
 
@@ -277,3 +279,8 @@ class AccountAgedDetailLine(models.TransientModel):
             'domain': domain,
             'target': 'current',
         }
+
+    # Alias for backward compatibility
+    def action_view_partner_ledger(self):
+        """Alias for action_view_journal_entries"""
+        return self.action_view_journal_entries()

@@ -126,131 +126,6 @@ class StockPicking(models.Model):
 
         return new_picking
 
-    # def _notify_main_warehouse_users(self, picking):
-    #     """Send notification to Main warehouse users about new request"""
-    #     # Get Main warehouse (source warehouse)
-    #     main_warehouse = picking.location_id.warehouse_id
-    #
-    #     if not main_warehouse:
-    #         return
-    #
-    #     # Find users who have access to Main warehouse
-    #     main_wh_users = self._get_warehouse_users(main_warehouse)
-    #
-    #     if not main_wh_users:
-    #         _logger.warning('No users found for Main warehouse notification')
-    #         return
-    #
-    #     # Create notification message
-    #     requesting_warehouse = picking.picking_type_id.warehouse_id
-    #     product_lines = ', '.join([
-    #         '%s (%s %s)' % (move.product_id.name, move.product_uom_qty, move.product_uom.name)
-    #         for move in picking.move_ids
-    #     ])
-    #
-    #     message = _(
-    #         '<p><strong>New Stock Request</strong></p>'
-    #         '<p>Warehouse <strong>%s</strong> has requested products from your warehouse:</p>'
-    #         '<ul>%s</ul>'
-    #         '<p>Transfer Reference: <strong>%s</strong></p>'
-    #         '<p>Please review and validate this request.</p>'
-    #     ) % (
-    #                   requesting_warehouse.name,
-    #                   ''.join(['<li>%s</li>' % line for line in product_lines.split(', ')]),
-    #                   picking.name
-    #               )
-    #
-    #     # Post message as internal note (no email)
-    #     picking.message_post(
-    #         body=message,
-    #         subject=_('New Stock Request from %s') % requesting_warehouse.name,
-    #         partner_ids=main_wh_users.mapped('partner_id').ids,
-    #         message_type='notification',
-    #         subtype_xmlid='mail.mt_note',  # Internal note - no email
-    #     )
-    #
-    #     # Also create activity for each user (appears in their "To Do" list)
-    #     for user in main_wh_users:
-    #         self.env['mail.activity'].create({
-    #             'res_id': picking.id,
-    #             'res_model_id': self.env['ir.model']._get('stock.picking').id,
-    #             'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id,
-    #             'summary': _('Review Stock Request from %s') % requesting_warehouse.name,
-    #             'note': message,
-    #             'user_id': user.id,
-    #         })
-    #
-    # def _notify_warehouse_user(self, picking, notification_type):
-    #     """Send notification to warehouse users"""
-    #     dest_warehouse = picking.location_dest_id.warehouse_id
-    #
-    #     if not dest_warehouse:
-    #         return
-    #
-    #     # Find users who have access to destination warehouse
-    #     warehouse_users = self._get_warehouse_users(dest_warehouse)
-    #
-    #     if not warehouse_users:
-    #         _logger.warning('No users found for warehouse notification')
-    #         return
-    #
-    #     source_warehouse = picking.location_id.warehouse_id
-    #     product_lines = ', '.join([
-    #         '%s (%s %s)' % (move.product_id.name, move.quantity, move.product_uom.name)
-    #         for move in picking.move_ids
-    #     ])
-    #
-    #     if notification_type == 'approved':
-    #         message = _(
-    #             '<p><strong>Stock Request Approved</strong></p>'
-    #             '<p>Your stock request has been approved by <strong>%s</strong>:</p>'
-    #             '<ul>%s</ul>'
-    #             '<p>Original Request: <strong>%s</strong></p>'
-    #             '<p>Products are now in transit. Please validate the receipt to complete the transfer.</p>'
-    #         ) % (
-    #                       source_warehouse.name,
-    #                       ''.join(['<li>%s</li>' % line for line in product_lines.split(', ')]),
-    #                       picking.name
-    #                   )
-    #         subject = _('Stock Request Approved - %s') % picking.name
-    #     else:
-    #         message = _('Stock transfer notification')
-    #         subject = _('Stock Transfer Update')
-    #
-    #     # Post message as internal note (no email)
-    #     picking.message_post(
-    #         body=message,
-    #         subject=subject,
-    #         partner_ids=warehouse_users.mapped('partner_id').ids,
-    #         message_type='notification',
-    #         subtype_xmlid='mail.mt_note',  # Internal note - no email
-    #     )
-    #
-    #     # Create activity for warehouse users
-    #     if notification_type == 'approved':
-    #         # Find the second transfer (receipt)
-    #         receipt_transfer = self.env['stock.picking'].search([
-    #             ('origin', '=', picking.name),
-    #             ('location_id', '=', picking.location_dest_id.id),
-    #             ('state', '!=', 'done')
-    #         ], limit=1)
-    #
-    #         if receipt_transfer:
-    #             for user in warehouse_users:
-    #                 self.env['mail.activity'].create({
-    #                     'res_id': receipt_transfer.id,
-    #                     'res_model_id': self.env['ir.model']._get('stock.picking').id,
-    #                     'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id,
-    #                     'summary': _('Validate Receipt from %s') % source_warehouse.name,
-    #                     'note': message,
-    #                     'user_id': user.id,
-    #                 })
-
-
-
-
-
-
     def _notify_main_warehouse_users(self, picking):
         """Send notification to Main warehouse users about new request"""
         # Get Main warehouse (source warehouse)
@@ -409,3 +284,127 @@ class StockPicking(models.Model):
                 ], limit=1)
 
         return False
+
+
+
+    # def _notify_main_warehouse_users(self, picking):
+    #     """Send notification to Main warehouse users about new request"""
+    #     # Get Main warehouse (source warehouse)
+    #     main_warehouse = picking.location_id.warehouse_id
+    #
+    #     if not main_warehouse:
+    #         return
+    #
+    #     # Find users who have access to Main warehouse
+    #     main_wh_users = self._get_warehouse_users(main_warehouse)
+    #
+    #     if not main_wh_users:
+    #         _logger.warning('No users found for Main warehouse notification')
+    #         return
+    #
+    #     # Create notification message
+    #     requesting_warehouse = picking.picking_type_id.warehouse_id
+    #     product_lines = ', '.join([
+    #         '%s (%s %s)' % (move.product_id.name, move.product_uom_qty, move.product_uom.name)
+    #         for move in picking.move_ids
+    #     ])
+    #
+    #     message = _(
+    #         '<p><strong>New Stock Request</strong></p>'
+    #         '<p>Warehouse <strong>%s</strong> has requested products from your warehouse:</p>'
+    #         '<ul>%s</ul>'
+    #         '<p>Transfer Reference: <strong>%s</strong></p>'
+    #         '<p>Please review and validate this request.</p>'
+    #     ) % (
+    #                   requesting_warehouse.name,
+    #                   ''.join(['<li>%s</li>' % line for line in product_lines.split(', ')]),
+    #                   picking.name
+    #               )
+    #
+    #     # Post message as internal note (no email)
+    #     picking.message_post(
+    #         body=message,
+    #         subject=_('New Stock Request from %s') % requesting_warehouse.name,
+    #         partner_ids=main_wh_users.mapped('partner_id').ids,
+    #         message_type='notification',
+    #         subtype_xmlid='mail.mt_note',  # Internal note - no email
+    #     )
+    #
+    #     # Also create activity for each user (appears in their "To Do" list)
+    #     for user in main_wh_users:
+    #         self.env['mail.activity'].create({
+    #             'res_id': picking.id,
+    #             'res_model_id': self.env['ir.model']._get('stock.picking').id,
+    #             'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id,
+    #             'summary': _('Review Stock Request from %s') % requesting_warehouse.name,
+    #             'note': message,
+    #             'user_id': user.id,
+    #         })
+    #
+    # def _notify_warehouse_user(self, picking, notification_type):
+    #     """Send notification to warehouse users"""
+    #     dest_warehouse = picking.location_dest_id.warehouse_id
+    #
+    #     if not dest_warehouse:
+    #         return
+    #
+    #     # Find users who have access to destination warehouse
+    #     warehouse_users = self._get_warehouse_users(dest_warehouse)
+    #
+    #     if not warehouse_users:
+    #         _logger.warning('No users found for warehouse notification')
+    #         return
+    #
+    #     source_warehouse = picking.location_id.warehouse_id
+    #     product_lines = ', '.join([
+    #         '%s (%s %s)' % (move.product_id.name, move.quantity, move.product_uom.name)
+    #         for move in picking.move_ids
+    #     ])
+    #
+    #     if notification_type == 'approved':
+    #         message = _(
+    #             '<p><strong>Stock Request Approved</strong></p>'
+    #             '<p>Your stock request has been approved by <strong>%s</strong>:</p>'
+    #             '<ul>%s</ul>'
+    #             '<p>Original Request: <strong>%s</strong></p>'
+    #             '<p>Products are now in transit. Please validate the receipt to complete the transfer.</p>'
+    #         ) % (
+    #                       source_warehouse.name,
+    #                       ''.join(['<li>%s</li>' % line for line in product_lines.split(', ')]),
+    #                       picking.name
+    #                   )
+    #         subject = _('Stock Request Approved - %s') % picking.name
+    #     else:
+    #         message = _('Stock transfer notification')
+    #         subject = _('Stock Transfer Update')
+    #
+    #     # Post message as internal note (no email)
+    #     picking.message_post(
+    #         body=message,
+    #         subject=subject,
+    #         partner_ids=warehouse_users.mapped('partner_id').ids,
+    #         message_type='notification',
+    #         subtype_xmlid='mail.mt_note',  # Internal note - no email
+    #     )
+    #
+    #     # Create activity for warehouse users
+    #     if notification_type == 'approved':
+    #         # Find the second transfer (receipt)
+    #         receipt_transfer = self.env['stock.picking'].search([
+    #             ('origin', '=', picking.name),
+    #             ('location_id', '=', picking.location_dest_id.id),
+    #             ('state', '!=', 'done')
+    #         ], limit=1)
+    #
+    #         if receipt_transfer:
+    #             for user in warehouse_users:
+    #                 self.env['mail.activity'].create({
+    #                     'res_id': receipt_transfer.id,
+    #                     'res_model_id': self.env['ir.model']._get('stock.picking').id,
+    #                     'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id,
+    #                     'summary': _('Validate Receipt from %s') % source_warehouse.name,
+    #                     'note': message,
+    #                     'user_id': user.id,
+    #                 })
+
+

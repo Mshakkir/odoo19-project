@@ -378,26 +378,46 @@ class AccountAgedTrialBalance(models.TransientModel):
 
     def _calculate_periods(self):
         """
-        Calculate aging period dates.
+        Calculate aging period dates - CORRECTED VERSION.
+        Period 0 = 0-30 days (most recent)
+        Period 4 = 120+ days (oldest)
         """
         periods = {}
-        start_date = self.date_from
+        current_date = self.date_from
 
-        for i in range(5):
-            period_key = f'period_{4 - i}'
-            end_date = start_date
-            start_date = end_date - relativedelta(days=self.period_length - 1)
+        # Period 0: 0-30 days old (from date_from going back 30 days)
+        periods['period_0'] = {
+            'start': current_date - relativedelta(days=self.period_length - 1),
+            'end': current_date,
+        }
 
-            periods[period_key] = {
-                'start': start_date,
-                'end': end_date,
-            }
+        # Period 1: 31-60 days old
+        periods['period_1'] = {
+            'start': current_date - relativedelta(days=(self.period_length * 2) - 1),
+            'end': current_date - relativedelta(days=self.period_length),
+        }
 
-            start_date = start_date - relativedelta(days=1)
+        # Period 2: 61-90 days old
+        periods['period_2'] = {
+            'start': current_date - relativedelta(days=(self.period_length * 3) - 1),
+            'end': current_date - relativedelta(days=self.period_length * 2),
+        }
+
+        # Period 3: 91-120 days old
+        periods['period_3'] = {
+            'start': current_date - relativedelta(days=(self.period_length * 4) - 1),
+            'end': current_date - relativedelta(days=self.period_length * 3),
+        }
+
+        # Period 4: 120+ days old (oldest)
+        periods['period_4'] = {
+            'start': fields.Date.from_string('1900-01-01'),  # Very old date
+            'end': current_date - relativedelta(days=self.period_length * 4),
+        }
 
         # Not due (future dates)
         periods['not_due'] = {
-            'start': self.date_from + relativedelta(days=1),
+            'start': current_date + relativedelta(days=1),
             'end': fields.Date.today() + relativedelta(years=10),
         }
 
@@ -407,15 +427,17 @@ class AccountAgedTrialBalance(models.TransientModel):
         """
         Determine which period a date falls into.
         """
+        # Check if not due (future date)
         if date_due > self.date_from:
             return 'not_due'
 
+        # Check each period in order from newest to oldest
         for i in range(5):
             period_key = f'period_{i}'
             if periods[period_key]['start'] <= date_due <= periods[period_key]['end']:
                 return period_key
 
-        # Oldest period
+        # If no match found (shouldn't happen), default to oldest
         return 'period_4'
 
     def _get_account_types(self):

@@ -11,9 +11,6 @@
                   decoration-warning="total &gt; 0 and (period_1 != 0 or period_2 != 0)"
                   create="false" edit="false" delete="false">
 
-                <!-- Report Information Banner (invisible but computed) -->
-                <field name="report_info" invisible="1"/>
-
                 <field name="partner_name" string="Vendor"/>
                 <field name="trust" optional="hide"/>
                 <field name="email" optional="hide"/>
@@ -69,24 +66,6 @@
         </field>
     </record>
 
-    <!-- Kanban view to show report header -->
-    <record id="view_aged_detail_line_kanban" model="ir.ui.view">
-        <field name="name">account.aged.detail.line.kanban</field>
-        <field name="model">account.aged.detail.line</field>
-        <field name="arch" type="xml">
-            <kanban create="false" edit="false" delete="false">
-                <field name="report_info"/>
-                <templates>
-                    <t t-name="kanban-box">
-                        <div class="oe_kanban_global_click" style="margin-bottom: 0;">
-                            <t t-out="record.report_info.raw_value"/>
-                        </div>
-                    </t>
-                </templates>
-            </kanban>
-        </field>
-    </record>
-
     <!-- Form View for Aged Detail Lines -->
     <record id="view_aged_detail_line_form" model="ir.ui.view">
         <field name="name">account.aged.detail.line.form</field>
@@ -136,7 +115,6 @@
     </record>
 
 </odoo>
-
 
 
 

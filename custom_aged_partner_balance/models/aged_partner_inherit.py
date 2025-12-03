@@ -435,6 +435,7 @@ class AccountAgedDetailLine(models.TransientModel):
     _description = 'Aged Balance Detail Line'
     _order = 'total desc, partner_name'
 
+    header_id = fields.Many2one('aged.report.header', string='Header', ondelete='cascade')
     wizard_id = fields.Many2one('account.aged.trial.balance', string='Wizard', ondelete='cascade')
     partner_id = fields.Many2one('res.partner', string='Partner', readonly=True)
     partner_name = fields.Char(string='Partner Name', readonly=True)

@@ -125,7 +125,6 @@ class StockPicking(models.Model):
         )
 
         return new_picking
-
     def _notify_main_warehouse_users(self, picking):
         """Send notification to Main warehouse users about new request"""
         # Get Main warehouse (source warehouse)
@@ -160,13 +159,25 @@ class StockPicking(models.Model):
                       picking.name
                   )
 
-        # Post message and notify users
+        # Post message as internal note (no email)
         picking.message_post(
             body=message,
             subject=_('New Stock Request from %s') % requesting_warehouse.name,
             partner_ids=main_wh_users.mapped('partner_id').ids,
             message_type='notification',
+            subtype_xmlid='mail.mt_note',  # Internal note - no email
         )
+
+        # Also create activity for each user (appears in their "To Do" list)
+        for user in main_wh_users:
+            self.env['mail.activity'].create({
+                'res_id': picking.id,
+                'res_model_id': self.env['ir.model']._get('stock.picking').id,
+                'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id,
+                'summary': _('Review Stock Request from %s') % requesting_warehouse.name,
+                'note': message,
+                'user_id': user.id,
+            })
 
     def _notify_warehouse_user(self, picking, notification_type):
         """Send notification to warehouse users"""
@@ -205,85 +216,35 @@ class StockPicking(models.Model):
             message = _('Stock transfer notification')
             subject = _('Stock Transfer Update')
 
-        # Post message and notify users
+        # Post message as internal note (no email)
         picking.message_post(
             body=message,
             subject=subject,
             partner_ids=warehouse_users.mapped('partner_id').ids,
             message_type='notification',
+            subtype_xmlid='mail.mt_note',  # Internal note - no email
         )
 
-    def _get_warehouse_users(self, warehouse):
-        """Get users who have access to this warehouse"""
-        try:
-            # Option 1: Try to find warehouse-specific group users first
-            warehouse_group_mapping = {
-                'Main Office': 'Main WH',
-                'Dammam': 'Dammam WH',
-                'Baladiya': 'Baladiya WH',
-            }
+        # Create activity for warehouse users
+        if notification_type == 'approved':
+            # Find the second transfer (receipt)
+            receipt_transfer = self.env['stock.picking'].search([
+                ('origin', '=', picking.name),
+                ('location_id', '=', picking.location_dest_id.id),
+                ('state', '!=', 'done')
+            ], limit=1)
 
-            # Try to match warehouse name to group name
-            group_name = None
-            for key, value in warehouse_group_mapping.items():
-                if key in warehouse.name:
-                    group_name = value
-                    break
+            if receipt_transfer:
+                for user in warehouse_users:
+                    self.env['mail.activity'].create({
+                        'res_id': receipt_transfer.id,
+                        'res_model_id': self.env['ir.model']._get('stock.picking').id,
+                        'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id,
+                        'summary': _('Validate Receipt from %s') % source_warehouse.name,
+                        'note': message,
+                        'user_id': user.id,
+                    })
 
-            if group_name:
-                warehouse_groups = self.env['res.groups'].search([
-                    ('name', '=', group_name)
-                ])
-
-                if warehouse_groups:
-                    # Get users who are in these groups
-                    warehouse_users = self.env['res.users'].search([
-                        ('groups_id', 'in', warehouse_groups.ids),
-                        ('active', '=', True)
-                    ])
-                    if warehouse_users:
-                        return warehouse_users
-
-            # Option 2: Fallback to all inventory users
-            inventory_group = self.env.ref('stock.group_stock_user', raise_if_not_found=False)
-            if inventory_group:
-                all_users = self.env['res.users'].search([
-                    ('groups_id', 'in', inventory_group.id),
-                    ('active', '=', True)
-                ])
-                return all_users
-
-            # Option 3: Last fallback - return admin
-            return self.env.ref('base.user_admin', raise_if_not_found=False)
-
-        except Exception as e:
-            _logger.error('Error getting warehouse users: %s', str(e))
-            # Return admin user as last resort
-            return self.env['res.users'].browse(2)
-
-    @api.model
-    def _get_warehouse_for_user(self, user):
-        """Get the warehouse assigned to a user"""
-        # Check if user has a default warehouse set
-        if hasattr(user, 'property_warehouse_id') and user.property_warehouse_id:
-            return user.property_warehouse_id
-
-        # Try to find from groups
-        for group in user.groups_id:
-            if 'Main WH' in group.name or 'Main Office' in group.name:
-                return self.env['stock.warehouse'].search([
-                    ('name', 'ilike', 'Main Office')
-                ], limit=1)
-            elif 'Dammam' in group.name:
-                return self.env['stock.warehouse'].search([
-                    ('name', 'ilike', 'Dammam')
-                ], limit=1)
-            elif 'Baladiya' in group.name:
-                return self.env['stock.warehouse'].search([
-                    ('name', 'ilike', 'Baladiya')
-                ], limit=1)
-
-        return False
 
 
 
@@ -321,25 +282,13 @@ class StockPicking(models.Model):
     #                   picking.name
     #               )
     #
-    #     # Post message as internal note (no email)
+    #     # Post message and notify users
     #     picking.message_post(
     #         body=message,
     #         subject=_('New Stock Request from %s') % requesting_warehouse.name,
     #         partner_ids=main_wh_users.mapped('partner_id').ids,
     #         message_type='notification',
-    #         subtype_xmlid='mail.mt_note',  # Internal note - no email
     #     )
-    #
-    #     # Also create activity for each user (appears in their "To Do" list)
-    #     for user in main_wh_users:
-    #         self.env['mail.activity'].create({
-    #             'res_id': picking.id,
-    #             'res_model_id': self.env['ir.model']._get('stock.picking').id,
-    #             'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id,
-    #             'summary': _('Review Stock Request from %s') % requesting_warehouse.name,
-    #             'note': message,
-    #             'user_id': user.id,
-    #         })
     #
     # def _notify_warehouse_user(self, picking, notification_type):
     #     """Send notification to warehouse users"""
@@ -378,33 +327,82 @@ class StockPicking(models.Model):
     #         message = _('Stock transfer notification')
     #         subject = _('Stock Transfer Update')
     #
-    #     # Post message as internal note (no email)
+    #     # Post message and notify users
     #     picking.message_post(
     #         body=message,
     #         subject=subject,
     #         partner_ids=warehouse_users.mapped('partner_id').ids,
     #         message_type='notification',
-    #         subtype_xmlid='mail.mt_note',  # Internal note - no email
     #     )
     #
-    #     # Create activity for warehouse users
-    #     if notification_type == 'approved':
-    #         # Find the second transfer (receipt)
-    #         receipt_transfer = self.env['stock.picking'].search([
-    #             ('origin', '=', picking.name),
-    #             ('location_id', '=', picking.location_dest_id.id),
-    #             ('state', '!=', 'done')
-    #         ], limit=1)
+    # def _get_warehouse_users(self, warehouse):
+    #     """Get users who have access to this warehouse"""
+    #     try:
+    #         # Option 1: Try to find warehouse-specific group users first
+    #         warehouse_group_mapping = {
+    #             'Main Office': 'Main WH',
+    #             'Dammam': 'Dammam WH',
+    #             'Baladiya': 'Baladiya WH',
+    #         }
     #
-    #         if receipt_transfer:
-    #             for user in warehouse_users:
-    #                 self.env['mail.activity'].create({
-    #                     'res_id': receipt_transfer.id,
-    #                     'res_model_id': self.env['ir.model']._get('stock.picking').id,
-    #                     'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id,
-    #                     'summary': _('Validate Receipt from %s') % source_warehouse.name,
-    #                     'note': message,
-    #                     'user_id': user.id,
-    #                 })
-
-
+    #         # Try to match warehouse name to group name
+    #         group_name = None
+    #         for key, value in warehouse_group_mapping.items():
+    #             if key in warehouse.name:
+    #                 group_name = value
+    #                 break
+    #
+    #         if group_name:
+    #             warehouse_groups = self.env['res.groups'].search([
+    #                 ('name', '=', group_name)
+    #             ])
+    #
+    #             if warehouse_groups:
+    #                 # Get users who are in these groups
+    #                 warehouse_users = self.env['res.users'].search([
+    #                     ('groups_id', 'in', warehouse_groups.ids),
+    #                     ('active', '=', True)
+    #                 ])
+    #                 if warehouse_users:
+    #                     return warehouse_users
+    #
+    #         # Option 2: Fallback to all inventory users
+    #         inventory_group = self.env.ref('stock.group_stock_user', raise_if_not_found=False)
+    #         if inventory_group:
+    #             all_users = self.env['res.users'].search([
+    #                 ('groups_id', 'in', inventory_group.id),
+    #                 ('active', '=', True)
+    #             ])
+    #             return all_users
+    #
+    #         # Option 3: Last fallback - return admin
+    #         return self.env.ref('base.user_admin', raise_if_not_found=False)
+    #
+    #     except Exception as e:
+    #         _logger.error('Error getting warehouse users: %s', str(e))
+    #         # Return admin user as last resort
+    #         return self.env['res.users'].browse(2)
+    #
+    # @api.model
+    # def _get_warehouse_for_user(self, user):
+    #     """Get the warehouse assigned to a user"""
+    #     # Check if user has a default warehouse set
+    #     if hasattr(user, 'property_warehouse_id') and user.property_warehouse_id:
+    #         return user.property_warehouse_id
+    #
+    #     # Try to find from groups
+    #     for group in user.groups_id:
+    #         if 'Main WH' in group.name or 'Main Office' in group.name:
+    #             return self.env['stock.warehouse'].search([
+    #                 ('name', 'ilike', 'Main Office')
+    #             ], limit=1)
+    #         elif 'Dammam' in group.name:
+    #             return self.env['stock.warehouse'].search([
+    #                 ('name', 'ilike', 'Dammam')
+    #             ], limit=1)
+    #         elif 'Baladiya' in group.name:
+    #             return self.env['stock.warehouse'].search([
+    #                 ('name', 'ilike', 'Baladiya')
+    #             ], limit=1)
+    #
+    #     return False

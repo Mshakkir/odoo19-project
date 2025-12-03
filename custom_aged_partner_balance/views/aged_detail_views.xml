@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tree/List View for Aged Detail Lines -->
+    <record id="view_aged_detail_line_tree" model="ir.ui.view">
+        <field name="name">account.aged.detail.line.tree</field>
+        <field name="model">account.aged.detail.line</field>
+        <field name="arch" type="xml">
+            <list string="Aged Balance Details"
+                  decoration-danger="total &gt; 0 and (period_3 != 0 or period_4 != 0)"
+                  decoration-warning="total &gt; 0 and (period_1 != 0 or period_2 != 0)"
+                  create="false" edit="false" delete="false">
+
+                <field name="partner_name" string="Vendor"/>
+
+                <field name="not_due"
+                       sum="Total Not Due"
+                       widget="monetary"
+                       string="Not due"/>
+
+                <field name="period_0"
+                       sum="Total"
+                       widget="monetary"
+                       string="0-30"/>
+
+                <field name="period_1"
+                       sum="Total"
+                       widget="monetary"
+                       decoration-warning="period_1 != 0"
+                       string="30-60"/>
+
+                <field name="period_2"
+                       sum="Total"
+                       widget="monetary"
+                       decoration-warning="period_2 != 0"
+                       string="60-90"/>
+
+                <field name="period_3"
+                       sum="Total"
+                       widget="monetary"
+                       decoration-danger="period_3 != 0"
+                       string="90-120"/>
+
+                <field name="period_4"
+                       sum="Total"
+                       widget="monetary"
+                       decoration-danger="period_4 != 0"
+                       string="+120"/>
+
+                <field name="total"
+                       sum="Grand Total"
+                       widget="monetary"
+                       decoration-bf="1"
+                       string="Total"/>
+
+                <button name="action_view_journal_entries"
+                        type="object"
+                        icon="fa-list"
+                        string="View Entries"
+                        title="View Journal Entries"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View for Aged Detail Lines -->
+    <record id="view_aged_detail_line_form" model="ir.ui.view">
+        <field name="name">account.aged.detail.line.form</field>
+        <field name="model">account.aged.detail.line</field>
+        <field name="arch" type="xml">
+            <form string="Aged Balance Detail" create="false" edit="false">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_journal_entries"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-list">
+                            <span>View Journal Entries</span>
+                        </button>
+                    </div>
+
+                    <group>
+                        <group string="Partner Information">
+                            <field name="partner_id" readonly="1"/>
+                            <field name="partner_name" readonly="1"/>
+                        </group>
+                        <group string="Summary">
+                            <field name="total" readonly="1" widget="monetary"
+                                   style="font-size: 18px; font-weight: bold;"/>
+                        </group>
+                    </group>
+
+                    <group string="Aging Breakdown">
+                        <group>
+                            <field name="not_due" readonly="1" widget="monetary"/>
+                            <field name="period_0" readonly="1" widget="monetary"/>
+                            <field name="period_1" readonly="1" widget="monetary"/>
+                        </group>
+                        <group>
+                            <field name="period_2" readonly="1" widget="monetary"/>
+                            <field name="period_3" readonly="1" widget="monetary"/>
+                            <field name="period_4" readonly="1" widget="monetary"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

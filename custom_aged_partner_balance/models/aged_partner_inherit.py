@@ -233,6 +233,10 @@ class AccountAgedDetailLine(models.TransientModel):
     wizard_id = fields.Many2one('account.aged.trial.balance', string='Wizard', ondelete='cascade')
     partner_id = fields.Many2one('res.partner', string='Partner', readonly=True)
     partner_name = fields.Char(string='Partner Name', readonly=True)
+    trust = fields.Selection(related='partner_id.trust', string='Trust', readonly=True, store=True)
+    email = fields.Char(related='partner_id.email', string='Email', readonly=True)
+    phone = fields.Char(related='partner_id.phone', string='Phone', readonly=True)
+    vat = fields.Char(related='partner_id.vat', string='Tax ID', readonly=True)
 
     not_due = fields.Monetary(string='Not Due', readonly=True, currency_field='currency_id')
     period_0 = fields.Monetary(string='0-30', readonly=True, currency_field='currency_id')

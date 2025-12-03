@@ -5,6 +5,7 @@
     <record id="view_aged_detail_line_tree" model="ir.ui.view">
         <field name="name">account.aged.detail.line.tree</field>
         <field name="model">account.aged.detail.line</field>
+        <field name="priority">99</field>
         <field name="arch" type="xml">
             <list string="Aged Balance Details"
                   decoration-danger="total &gt; 0 and (period_3 != 0 or period_4 != 0)"

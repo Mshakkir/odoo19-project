@@ -21,7 +21,7 @@
         'accounting_pdf_reports',  # Odoo Mates module
     ],
     'data': [
-        'security/ir.model.access.csv',
+        # 'security/ir.model.access.csv',
         'reports/report_aged_partner_custom.xml',
         # 'reports/aged_partner_inherit.xml',
     ],

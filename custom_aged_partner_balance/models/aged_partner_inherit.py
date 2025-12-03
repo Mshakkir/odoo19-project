@@ -44,8 +44,7 @@ class AccountAgedTrialBalance(models.TransientModel):
             'type': 'ir.actions.act_window',
             'res_model': 'account.move.line',
             'domain': domain,
-            'view_mode': 'tree,form',
-            'views': [(False, 'tree'), (False, 'form')],
+            'view_mode': 'list,form',
             'target': 'current',
             'context': {
                 'search_default_group_by_partner': 1,

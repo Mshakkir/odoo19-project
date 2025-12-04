@@ -1,0 +1,16 @@
+<odoo>
+    <record id="group_baladiya_wh" model="res.groups">
+        <field name="name">Baladiya WH</field>
+        <field name="category_id" ref="base.module_category_inventory"/>
+    </record>
+
+    <record id="group_dammam_wh" model="res.groups">
+        <field name="name">Dammam WH</field>
+        <field name="category_id" ref="base.module_category_inventory"/>
+    </record>
+
+    <record id="group_main_wh" model="res.groups">
+        <field name="name">Main WH</field>
+        <field name="category_id" ref="base.module_category_inventory"/>
+    </record>
+</odoo>

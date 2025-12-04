@@ -352,84 +352,47 @@ class StockPicking(models.Model):
                 _logger.info('  - Activity for user: %s (ID: %s)', activity.user_id.name, activity.user_id.id)
 
     def _get_warehouse_users(self, warehouse):
-        """Get users who have access to this warehouse"""
+        """Return users assigned to the correct warehouse group."""
+
+        _logger.info("Checking users for warehouse: %s", warehouse.name)
+
+        # Mapping warehouse names to group XML IDs
+        warehouse_group_map = {
+            'baladiya': 'warehouse_notify.group_baladiya_wh',
+            'balad': 'warehouse_notify.group_baladiya_wh',  # fallback keyword
+            'dammam': 'warehouse_notify.group_dammam_wh',
+            'main': 'warehouse_notify.group_main_wh',
+        }
+
+        warehouse_name = warehouse.name.lower()
+        target_group_xml_id = False
+
+        for key, xml_id in warehouse_group_map.items():
+            if key in warehouse_name:
+                target_group_xml_id = xml_id
+                break
+
+        if not target_group_xml_id:
+            _logger.warning("❗ No mapping found for warehouse %s — returning admin.", warehouse.name)
+            return self.env['res.users'].browse([2])  # Fallback admin
+
+        # Load group
         try:
-            _logger.info('=== GET WAREHOUSE USERS DEBUG ===')
-            _logger.info('Looking for users for warehouse: %s', warehouse.name)
+            group = self.env.ref(target_group_xml_id)
+        except ValueError:
+            _logger.error("❗ Group XML ID %s not found in system!", target_group_xml_id)
+            return self.env['res.users'].browse([2])
 
-            # Warehouse name to group name mapping - use flexible matching
-            warehouse_name = warehouse.name.strip()
+        # Find users in this group
+        users = self.env['res.users'].sudo().search([
+            ('groups_id', 'in', group.id),
+            ('active', '=', True),
+        ])
 
-            # Determine group name based on warehouse name
-            if 'Main Office' in warehouse_name or 'Main' in warehouse_name:
-                group_name = 'Main WH'
-            elif 'Dammam' in warehouse_name:
-                group_name = 'Dammam WH'
-            elif 'Baladiya' in warehouse_name:
-                group_name = 'Baladiya WH'
-            else:
-                group_name = None
-                _logger.warning('Could not determine group name for warehouse: %s', warehouse_name)
+        _logger.info("Users found for warehouse %s: %s",
+                     warehouse.name, users.mapped('login'))
 
-            if group_name:
-                _logger.info('Searching for group: %s', group_name)
-                warehouse_groups = self.env['res.groups'].sudo().search([
-                    ('name', '=', group_name)
-                ])
-
-                _logger.info('Found %s groups matching "%s"', len(warehouse_groups), group_name)
-
-                if warehouse_groups:
-                    # Get users who are in these groups
-                    warehouse_users = self.env['res.users'].sudo().search([
-                        ('groups_id', 'in', warehouse_groups.ids),
-                        ('active', '=', True),
-                        ('share', '=', False)  # Exclude portal users
-                    ])
-
-                    _logger.info('Found %s users in group "%s"', len(warehouse_users), group_name)
-
-                    if warehouse_users:
-                        for user in warehouse_users:
-                            _logger.info('  - User: %s (ID: %s, Login: %s, Partner: %s)',
-                                       user.name, user.id, user.login, user.partner_id.id)
-                            # Check if user has Discuss access
-                            discuss_group = self.env.ref('base.group_user', raise_if_not_found=False)
-                            if discuss_group and discuss_group.id not in user.groups_id.ids:
-                                _logger.warning('    WARNING: User %s does not have Discuss access!', user.name)
-                        return warehouse_users
-                    else:
-                        _logger.warning('No users found in group: %s', group_name)
-                else:
-                    _logger.warning('No groups found with name: %s', group_name)
-
-            # Fallback: Get all inventory users
-            _logger.info('Using fallback: getting all inventory users')
-            inventory_group = self.env.ref('stock.group_stock_user', raise_if_not_found=False)
-            if inventory_group:
-                all_users = self.env['res.users'].sudo().search([
-                    ('groups_id', 'in', inventory_group.id),
-                    ('active', '=', True),
-                    ('share', '=', False)
-                ])
-                _logger.info('Found %s inventory users', len(all_users))
-                for user in all_users:
-                    _logger.info('  - User: %s (ID: %s)', user.name, user.id)
-                if all_users:
-                    return all_users
-
-            # Last resort: return admin
-            _logger.warning('Returning admin user as last resort')
-            admin_user = self.env.ref('base.user_admin', raise_if_not_found=False)
-            if admin_user:
-                return admin_user
-            return self.env['res.users'].sudo().browse(2)
-
-        except Exception as e:
-            _logger.error('Error getting warehouse users: %s', str(e))
-            import traceback
-            _logger.error('Traceback: %s', traceback.format_exc())
-            return self.env['res.users'].sudo().browse(2)
+        return users if users else self.env['res.users'].browse([2])
 
     @api.model
     def _get_warehouse_for_user(self, user):

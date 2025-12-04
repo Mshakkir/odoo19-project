@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit and customize the partner ledger template -->
+    <template id="report_partnerledger_custom" inherit_id="accounting_pdf_reports.report_partnerledger">
+
+        <!-- Example 1: Modify the report title -->
+        <xpath expr="//h2" position="replace">
+            <h2>Customized Partner Ledger Report</h2>
+        </xpath>
+
+        <!-- Example 2: Add custom information section -->
+        <xpath expr="//div[@class='row']" position="after">
+            <div class="row mt-3">
+                <div class="col-12">
+                    <p class="text-muted">
+                        <small>Report Generated: <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M:%S')"/></small>
+                    </p>
+                </div>
+            </div>
+        </xpath>
+
+        <!-- Example 3: Add a new column header (uncomment to use) -->
+        <!--
+        <xpath expr="//thead/tr/th[last()]" position="after">
+            <th>Custom Column</th>
+        </xpath>
+        -->
+
+        <!-- Example 4: Customize partner header row -->
+        <xpath expr="//tbody/tr[1]" position="replace">
+            <tr style="background-color: #f8f9fa;">
+                <td colspan="4">
+                    <strong>Partner: </strong>
+                    <span t-esc="o.ref" t-if="o.ref"/>
+                    <span t-if="o.ref"> - </span>
+                    <strong t-esc="o.name"/>
+                    <span t-if="o.vat" class="text-muted"> (VAT: <t t-esc="o.vat"/>)</span>
+                </td>
+                <td class="text-end">
+                    <strong t-esc="sum_partner(data, o, 'debit')"
+                            t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                </td>
+                <td class="text-end">
+                    <strong t-esc="sum_partner(data, o, 'credit')"
+                            t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                </td>
+                <td class="text-end">
+                    <strong t-esc="sum_partner(data, o, 'debit - credit')"
+                            t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                </td>
+                <td t-if="data['form']['amount_currency']"/>
+            </tr>
+        </xpath>
+
+        <!-- Example 5: Add custom styling to table -->
+        <xpath expr="//table[@class='table table-sm table-reports']" position="attributes">
+            <attribute name="class">table table-sm table-reports table-bordered</attribute>
+        </xpath>
+
+        <!-- Example 6: Customize line items (add custom classes or modify structure) -->
+        <xpath expr="//tr[@t-foreach='lines(data, o)']" position="attributes">
+            <attribute name="class">ledger-line</attribute>
+        </xpath>
+
+    </template>
+
+    <!-- Optional: Create a completely new template (if you want full control) -->
+    <!--
+    <template id="report_partnerledger_full_custom">
+        <t t-call="web.html_container">
+            <t t-call="web.internal_layout">
+                <t t-set="data_report_margin_top" t-value="12"/>
+                <t t-set="data_report_header_spacing" t-value="9"/>
+                <t t-set="data_report_dpi" t-value="110"/>
+                <div class="page">
+                    <h2>Your Custom Partner Ledger</h2>
+                    Add your completely custom template here
+                </div>
+            </t>
+        </t>
+    </template>
+    -->
+
+</odoo>

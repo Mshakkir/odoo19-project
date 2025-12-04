@@ -334,16 +334,14 @@ class StockPicking(models.Model):
 
                 if warehouse_groups:
                     # Get users who are in these groups
-                    # For many2many fields, we need to check if ANY of the group ids are in the user's groups
-                    domain = []
-                    for group in warehouse_groups:
-                        if domain:
-                            domain = ['|'] + domain
-                        domain.append(('groups_id', 'in', group.id))
+                    # Use correct syntax for many2many field search
+                    warehouse_users = self.env['res.users'].search([
+                        ('groups_id', 'in', warehouse_groups.ids),
+                        ('active', '=', True),
+                        ('share', '=', False)  # Exclude portal users
+                    ])
 
-                    domain += [('active', '=', True), ('share', '=', False)]
-
-                    warehouse_users = self.env['res.users'].search(domain)
+                    _logger.info('Search query: groups_id in %s', warehouse_groups.ids)
 
                     _logger.info('Found %s users in group', len(warehouse_users))
 
@@ -360,7 +358,7 @@ class StockPicking(models.Model):
             _logger.info('Using fallback: getting all inventory users')
             inventory_group = self.env.ref('stock.group_stock_user', raise_if_not_found=False)
             if inventory_group:
-                all_users = self.env['res.users'].search([
+                all_users = self.env['res.users'].sudo().search([
                     ('groups_id', 'in', inventory_group.id),
                     ('active', '=', True),
                     ('share', '=', False)

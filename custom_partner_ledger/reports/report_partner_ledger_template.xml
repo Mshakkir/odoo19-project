@@ -88,7 +88,7 @@
 
                             <td style="width: 34%; text-align: center; vertical-align: middle; padding: 5px 10px;
                             border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
-                                <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/faakart_logo.png'"
+                                <img t-att-src="request.httprequest.host_url + 'custom_partner_ledger/static/src/img/faakart_logo.png'"
                                      style="max-height: 90px; max-width: 100%; object-fit: contain;"
                                      alt="Company Logo"/>
                             </td>

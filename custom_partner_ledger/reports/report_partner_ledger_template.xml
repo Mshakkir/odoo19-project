@@ -2,7 +2,9 @@
 <odoo>
 
     <!-- Inherit and customize the partner ledger template -->
-    <template id="report_partnerledger_custom" inherit_id="accounting_pdf_reports.report_partnerledger">
+    <template id="report_partnerledger"
+              inherit_id="accounting_pdf_reports.report_partnerledger"
+              primary="True">
 
         <!-- Replace entire page structure to match aged partner report -->
         <xpath expr="//div[@class='page']" position="replace">

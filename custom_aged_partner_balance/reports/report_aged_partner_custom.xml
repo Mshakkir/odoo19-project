@@ -9,9 +9,23 @@
         <xpath expr="//t[@t-call='web.html_container']" position="replace">
             <t t-call="web.html_container">
                 <t t-call="web.basic_layout">
-                    <div class="page" style="padding-top: 10px;">
+                    <div class="page" style="padding: 0; margin: 0;">
 
                         <style>
+                            /* Override page margins for tighter layout */
+                            @page {
+                                margin-top: 15mm;
+                                margin-bottom: 15mm;
+                                margin-left: 10mm;
+                                margin-right: 10mm;
+                            }
+
+                            /* Remove default body margins */
+                            body {
+                                margin: 0 !important;
+                                padding: 0 !important;
+                            }
+
                             /* Hide scrollbar but keep functionality */
                             div[style*="overflow-x: auto"]::-webkit-scrollbar {
                                 height: 0px !important;
@@ -65,8 +79,13 @@
 
                             /* Reduce overall spacing for better fit */
                             @media print {
+                                body {
+                                    margin: 0 !important;
+                                }
+
                                 .page {
-                                    padding-top: 5px !important;
+                                    padding-top: 0px !important;
+                                    padding-bottom: 0px !important;
                                 }
 
                                 /* Ensure proper table rendering */
@@ -76,46 +95,56 @@
 
                                 /* Tighter spacing for print */
                                 .header {
-                                    margin-bottom: 10px !important;
+                                    margin-bottom: 8px !important;
+                                    padding: 8px 0 !important;
                                 }
 
                                 .report-params {
-                                    margin-bottom: 8px !important;
+                                    margin-bottom: 5px !important;
                                 }
 
                                 /* Reduce row heights */
                                 .aged-balance-table tbody tr td {
-                                    padding: 3px 5px !important;
-                                    line-height: 1.2 !important;
+                                    padding: 2px 4px !important;
+                                    line-height: 1.1 !important;
+                                    font-size: 10px !important;
                                 }
 
                                 .aged-balance-table thead tr th {
-                                    padding: 4px 6px !important;
-                                    line-height: 1.3 !important;
+                                    padding: 3px 4px !important;
+                                    line-height: 1.2 !important;
+                                    font-size: 10px !important;
                                 }
 
                                 /* Compact report title and params */
                                 .row {
-                                    margin-bottom: 5px !important;
+                                    margin-bottom: 3px !important;
                                 }
 
                                 h5 {
-                                    margin-bottom: 5px !important;
+                                    margin-bottom: 3px !important;
+                                    font-size: 14px !important;
+                                }
+
+                                /* Reduce parameter section text */
+                                .report-params strong,
+                                .report-params p {
+                                    font-size: 10px !important;
                                 }
                             }
                         </style>
 
                         <!-- Custom Header -->
-                        <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px; padding: 10px 0;">
+                        <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 8px; padding: 8px 0;">
                             <table style="width: 100%; border-collapse: collapse; border:none; margin-bottom: 0px;">
                                 <tr style="border:2px solid white;">
-                                    <td style="width: 50%; padding: 10px 0px; text-align: left; vertical-align: middle; border: none;padding-bottom:0px;">
-                                        <div style="color: #8B1538; font-size: 14px; font-weight: bold; text-transform: uppercase;">
+                                    <td style="width: 50%; padding: 5px 0px; text-align: left; vertical-align: middle; border: none;padding-bottom:0px;">
+                                        <div style="color: #8B1538; font-size: 13px; font-weight: bold; text-transform: uppercase;">
                                             SAMEER SHARAF AL OTAIBI TRADING COMPANY
                                         </div>
                                     </td>
-                                    <td style="width: 50%; padding: 10px 0px; text-align: right; vertical-align: middle; border: none;">
-                                        <div style="color: #8B1538; font-size: 16px; font-weight: 900; direction: rtl;padding-bottom:0px;" class="ar">
+                                    <td style="width: 50%; padding: 5px 0px; text-align: right; vertical-align: middle; border: none;">
+                                        <div style="color: #8B1538; font-size: 15px; font-weight: 900; direction: rtl;padding-bottom:0px;" class="ar">
                                             شركة سمير شرف العتيبي التجارية
                                         </div>
                                     </td>
@@ -124,23 +153,23 @@
 
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tr style="border:2px solid white;">
-                                    <td style="width: 33%; text-align: left; font-size: 14px; color: #333; vertical-align: middle;
-                                    padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
-                                        <div style="line-height: 1.6; font-weight: 500; margin-top: 10px;">
+                                    <td style="width: 33%; text-align: left; font-size: 12px; color: #333; vertical-align: middle;
+                                    padding: 0px 0px 8px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
+                                        <div style="line-height: 1.4; font-weight: 500; margin-top: 8px;">
                                             C.R. 4030216154<br/>
                                             VAT Regd: 311299944700003
                                         </div>
                                     </td>
 
-                                    <td style="width: 34%; text-align: center; vertical-align: middle; padding: 5px 10px;
+                                    <td style="width: 34%; text-align: center; vertical-align: middle; padding: 3px 10px;
                                     border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
                                         <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/faakart_logo.png'"
-                                             style="max-height: 90px; max-width: 100%; object-fit: contain;"/>
+                                             style="max-height: 70px; max-width: 100%; object-fit: contain;"/>
                                     </td>
 
-                                    <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle;
-                                    direction: rtl; padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
-                                        <div style="line-height: 1.6; font-weight: 900; text-align: right; direction: rtl; margin-top: 10px;" class="ar">
+                                    <td style="width: 33%; text-align: right; font-size: 12px; color: #333; vertical-align: middle;
+                                    direction: rtl; padding: 0px 0px 8px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
+                                        <div style="line-height: 1.4; font-weight: 900; text-align: right; direction: rtl; margin-top: 8px;" class="ar">
                                             س.ت: ٤٠٣٠٢١٦١٥٤<br/>
                                             الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
                                         </div>

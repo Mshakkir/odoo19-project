@@ -4,82 +4,114 @@
     <!-- Inherit and customize the partner ledger template -->
     <template id="report_partnerledger_custom" inherit_id="accounting_pdf_reports.report_partnerledger">
 
-        <!-- Example 1: Modify the report title -->
-        <xpath expr="//h2" position="replace">
-            <h2>Customized Partner Ledger Report</h2>
-        </xpath>
+        <!-- Add custom header before the main content -->
+        <xpath expr="//div[@class='page']" position="before">
+            <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 25px; padding: 15px 0;">
+                <table style="width: 100%; border-collapse: collapse; border:none; margin-bottom: 0px;">
+                    <tr style="border:2px solid white;">
+                        <td style="width: 50%; padding: 10px 0px; text-align: left; vertical-align: middle; border: none;padding-bottom:0px;">
+                            <div style="color: #8B1538; font-size: 14px; font-weight: bold; text-transform: uppercase;">
+                                SAMEER SHARAF AL OTAIBI TRADING COMPANY
+                            </div>
+                        </td>
+                        <td style="width: 50%; padding: 10px 0px; text-align: right; vertical-align: middle; border: none;">
+                            <div style="color: #8B1538; font-size: 16px; font-weight: 900; direction: rtl;padding-bottom:0px;" class="ar">
+                                شركة سمير شرف العتيبي التجارية
+                            </div>
+                        </td>
+                    </tr>
+                </table>
 
-        <!-- Example 2: Add custom information section -->
-        <xpath expr="//div[@class='row']" position="after">
-            <div class="row mt-3">
-                <div class="col-12">
-                    <p class="text-muted">
-                        <small>Report Generated: <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M:%S')"/></small>
-                    </p>
-                </div>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr style="border:2px solid white;">
+                        <td style="width: 33%; text-align: left; font-size: 14px; color: #333; vertical-align: middle;
+                        padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
+                            <div style="line-height: 1.6; font-weight: 500; margin-top: 10px;">
+                                C.R. 4030216154<br/>
+                                VAT Regd: 311299944700003
+                            </div>
+                        </td>
+
+                        <td style="width: 34%; text-align: center; vertical-align: middle; padding: 5px 10px;
+                        border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
+                            <img t-att-src="'/custom_partner_ledger/static/src/img/faakart_logo.png'"
+                                 style="max-height: 90px; max-width: 100%; object-fit: contain;"
+                                 alt="Company Logo"/>
+                        </td>
+
+                        <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle;
+                        direction: rtl; padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
+                            <div style="line-height: 1.6; font-weight: 900; text-align: right; direction: rtl; margin-top: 10px;" class="ar">
+                                س.ت: ٤٠٣٠٢١٦١٥٤<br/>
+                                الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
+                            </div>
+                        </td>
+                    </tr>
+                </table>
             </div>
         </xpath>
 
-        <!-- Example 3: Add a new column header (uncomment to use) -->
-        <!--
-        <xpath expr="//thead/tr/th[last()]" position="after">
-            <th>Custom Column</th>
-        </xpath>
-        -->
+        <!-- Add Arabic font support -->
+        <xpath expr="//div[@class='page']" position="before">
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;900&amp;display=swap');
 
-        <!-- Example 4: Customize partner header row -->
+                .ar {
+                    font-family: 'Noto Sans Arabic', Arial, sans-serif !important;
+                }
+
+                .header {
+                    page-break-inside: avoid;
+                }
+            </style>
+        </xpath>
+
+        <!-- Modify the report title -->
+        <xpath expr="//h2" position="replace">
+            <h2 style="text-align: center; color: #8B1538; margin-top: 20px;">Partner Ledger Report</h2>
+        </xpath>
+
+        <!-- Customize the info section styling -->
+        <xpath expr="//div[@class='row']" position="attributes">
+            <attribute name="style">margin-top: 20px; margin-bottom: 20px;</attribute>
+        </xpath>
+
+        <!-- Customize partner header row -->
         <xpath expr="//tbody/tr[1]" position="replace">
-            <tr style="background-color: #f8f9fa;">
-                <td colspan="4">
+            <tr style="background-color: #f8f9fa; border-top: 2px solid #8B1538;">
+                <td colspan="4" style="padding: 10px;">
                     <strong>Partner: </strong>
                     <span t-esc="o.ref" t-if="o.ref"/>
                     <span t-if="o.ref"> - </span>
                     <strong t-esc="o.name"/>
                     <span t-if="o.vat" class="text-muted"> (VAT: <t t-esc="o.vat"/>)</span>
                 </td>
-                <td class="text-end">
+                <td class="text-end" style="padding: 10px;">
                     <strong t-esc="sum_partner(data, o, 'debit')"
                             t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                 </td>
-                <td class="text-end">
+                <td class="text-end" style="padding: 10px;">
                     <strong t-esc="sum_partner(data, o, 'credit')"
                             t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                 </td>
-                <td class="text-end">
+                <td class="text-end" style="padding: 10px;">
                     <strong t-esc="sum_partner(data, o, 'debit - credit')"
                             t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                 </td>
-                <td t-if="data['form']['amount_currency']"/>
+                <td t-if="data['form']['amount_currency']" style="padding: 10px;"/>
             </tr>
         </xpath>
 
-        <!-- Example 5: Add custom styling to table -->
+        <!-- Add custom styling to table -->
         <xpath expr="//table[@class='table table-sm table-reports']" position="attributes">
-            <attribute name="class">table table-sm table-reports table-bordered</attribute>
+            <attribute name="style">margin-top: 15px; border: 1px solid #ddd;</attribute>
         </xpath>
 
-        <!-- Example 6: Customize line items (add custom classes or modify structure) -->
-        <xpath expr="//tr[@t-foreach='lines(data, o)']" position="attributes">
-            <attribute name="class">ledger-line</attribute>
+        <!-- Style table headers -->
+        <xpath expr="//thead" position="attributes">
+            <attribute name="style">background-color: #8B1538; color: white;</attribute>
         </xpath>
 
     </template>
-
-    <!-- Optional: Create a completely new template (if you want full control) -->
-    <!--
-    <template id="report_partnerledger_full_custom">
-        <t t-call="web.html_container">
-            <t t-call="web.internal_layout">
-                <t t-set="data_report_margin_top" t-value="12"/>
-                <t t-set="data_report_header_spacing" t-value="9"/>
-                <t t-set="data_report_dpi" t-value="110"/>
-                <div class="page">
-                    <h2>Your Custom Partner Ledger</h2>
-                    Add your completely custom template here
-                </div>
-            </t>
-        </t>
-    </template>
-    -->
 
 </odoo>

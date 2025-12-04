@@ -15,8 +15,8 @@
     'website': 'https://www.yourcompany.com',
     'depends': ['stock', 'mail'],
     'data': [
-        'security/ir.model.access.csv',
         'security/groups.xml',
+        'security/ir.model.access.csv',
         'data/mail_template.xml',
         'views/stock_picking_views.xml',
     ],

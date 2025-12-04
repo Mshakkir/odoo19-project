@@ -9,7 +9,7 @@
         <xpath expr="//t[@t-call='web.html_container']" position="replace">
             <t t-call="web.html_container">
                 <t t-call="web.basic_layout">
-                    <div class="page" style="padding-top: 20px;">
+                    <div class="page" style="padding-top: 10px;">
 
                         <style>
                             /* Hide scrollbar but keep functionality */
@@ -46,10 +46,16 @@
                                 display: table-row-group !important;
                             }
 
-                            /* Prevent rows from breaking across pages */
+                            /* Allow controlled row breaks - reduces empty space */
                             .aged-balance-table tbody tr {
                                 page-break-inside: avoid !important;
                                 page-break-after: auto;
+                            }
+
+                            /* Optimize page filling */
+                            .aged-balance-table tbody {
+                                orphans: 3;
+                                widows: 3;
                             }
 
                             /* Keep account total row with header */
@@ -57,10 +63,10 @@
                                 page-break-after: avoid !important;
                             }
 
-                            /* Reduce spacing for better fit */
+                            /* Reduce overall spacing for better fit */
                             @media print {
                                 .page {
-                                    padding-top: 10px !important;
+                                    padding-top: 5px !important;
                                 }
 
                                 /* Ensure proper table rendering */
@@ -70,17 +76,37 @@
 
                                 /* Tighter spacing for print */
                                 .header {
-                                    margin-bottom: 15px !important;
+                                    margin-bottom: 10px !important;
                                 }
 
                                 .report-params {
-                                    margin-bottom: 10px !important;
+                                    margin-bottom: 8px !important;
+                                }
+
+                                /* Reduce row heights */
+                                .aged-balance-table tbody tr td {
+                                    padding: 3px 5px !important;
+                                    line-height: 1.2 !important;
+                                }
+
+                                .aged-balance-table thead tr th {
+                                    padding: 4px 6px !important;
+                                    line-height: 1.3 !important;
+                                }
+
+                                /* Compact report title and params */
+                                .row {
+                                    margin-bottom: 5px !important;
+                                }
+
+                                h5 {
+                                    margin-bottom: 5px !important;
                                 }
                             }
                         </style>
 
                         <!-- Custom Header -->
-                        <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 25px; padding: 15px 0;">
+                        <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px; padding: 10px 0;">
                             <table style="width: 100%; border-collapse: collapse; border:none; margin-bottom: 0px;">
                                 <tr style="border:2px solid white;">
                                     <td style="width: 50%; padding: 10px 0px; text-align: left; vertical-align: middle; border: none;padding-bottom:0px;">
@@ -124,7 +150,7 @@
                         </div>
 
                         <!-- Report Title - Dynamic based on type -->
-                        <div class="row" style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 3px solid white; margin-top: 5px;">
+                        <div class="row" style="margin-bottom: 5px; padding-bottom: 5px; border-bottom: 3px solid white; margin-top: 5px;">
                             <div class="col-8">
                                 <h5 style="margin: 0; color: black; font-weight: bold;">
                                     <span t-if="data['result_selection'] == 'customer'">Aged Receivable Report</span>
@@ -142,26 +168,26 @@
 
                         <!-- Report Parameters -->
                         <div class="report-params">
-                            <div class="row" style="margin-bottom: 8px;">
+                            <div class="row" style="margin-bottom: 5px;">
                                 <div class="col-3">
                                     <strong>Company:</strong>
-                                    <p t-esc="res_company.name" style="margin: 3px 0;"/>
+                                    <p t-esc="res_company.name" style="margin: 2px 0;"/>
                                 </div>
                                 <div class="col-3">
                                     <strong>Start Date:</strong>
-                                    <p t-esc="data['date_from']" style="margin: 3px 0;"/>
+                                    <p t-esc="data['date_from']" style="margin: 2px 0;"/>
                                 </div>
                                 <div class="col-3">
                                     <strong>Period Length (days):</strong>
-                                    <p t-esc="data['period_length']" style="margin: 3px 0;"/>
+                                    <p t-esc="data['period_length']" style="margin: 2px 0;"/>
                                 </div>
                                 <div class="col-3">
                                     <strong>Generated By:</strong>
-                                    <p t-esc="user.name" style="margin: 3px 0;"/>
+                                    <p t-esc="user.name" style="margin: 2px 0;"/>
                                 </div>
                             </div>
 
-                            <div class="row" style="margin-bottom: 15px;">
+                            <div class="row" style="margin-bottom: 10px;">
                                 <div class="col-3">
                                     <strong>
                                         <span t-if="data['result_selection'] == 'customer'">Customer's:</span>
@@ -201,7 +227,7 @@
                         </div>
 
                         <!-- Main Table - Removed overflow-x wrapper for better print handling -->
-                        <div style="margin-bottom: 15px;">
+                        <div style="margin-bottom: 10px;">
                             <table class="table table-sm table-bordered aged-balance-table"
                                    style="width: 100%; table-layout: fixed; border-collapse: collapse;">
                                 <colgroup>

@@ -318,24 +318,12 @@ class AccountAgedTrialBalance(models.TransientModel):
 
     def _get_aging_data(self):
         """
-        Calculate aging breakdown for each partner - DEBUG VERSION
+        Calculate aging breakdown for each partner.
         """
         self.ensure_one()
 
-        import logging
-        _logger = logging.getLogger(__name__)
-
         # Calculate period dates
         periods = self._calculate_periods()
-
-        # Log period boundaries
-        _logger.info("=" * 80)
-        _logger.info(f"REPORT DATE: {self.date_from}")
-        _logger.info(f"PERIOD LENGTH: {self.period_length} days")
-        _logger.info("PERIOD BOUNDARIES:")
-        for key, val in periods.items():
-            _logger.info(f"  {key}: {val['start']} to {val['end']}")
-        _logger.info("=" * 80)
 
         # Build domain for move lines
         domain = [
@@ -355,8 +343,6 @@ class AccountAgedTrialBalance(models.TransientModel):
 
         # Get all move lines
         move_lines = self.env['account.move.line'].search(domain)
-
-        _logger.info(f"Found {len(move_lines)} move lines matching domain")
 
         # Group by partner and calculate aging
         partner_data = {}
@@ -382,8 +368,10 @@ class AccountAgedTrialBalance(models.TransientModel):
             account_type = line.account_id.account_type
 
             if account_type == 'asset_receivable':
+                # For receivables: positive = amount owed TO us
                 amount = line.debit - line.credit
             elif account_type == 'liability_payable':
+                # For payables: positive = amount we owe TO them
                 amount = line.credit - line.debit
             else:
                 amount = 0.0
@@ -392,45 +380,18 @@ class AccountAgedTrialBalance(models.TransientModel):
             if amount == 0.0:
                 continue
 
-            # Determine which aging bucket
+            # Determine which aging bucket using date_maturity (or date as fallback)
             date_due = line.date_maturity or line.date
 
-            # Check if not yet due
-            if date_due > self.date_from:
+            # CRITICAL FIX: Include invoices due ON or AFTER the report date as "not_due"
+            # An invoice due today hasn't passed its due date yet
+            if date_due >= self.date_from:
                 period_key = 'not_due'
             else:
                 period_key = self._get_period_key(date_due, periods)
 
-            # Log for ABDULRAHMAN vendor
-            if 'ABDULRAHMAN' in line.partner_id.name.upper():
-                _logger.info(f"ABDULRAHMAN LINE:")
-                _logger.info(f"  Move: {line.move_id.name}")
-                _logger.info(f"  Date: {line.date}")
-                _logger.info(f"  Date Maturity: {line.date_maturity}")
-                _logger.info(f"  Date Due Used: {date_due}")
-                _logger.info(f"  Debit: {line.debit}, Credit: {line.credit}")
-                _logger.info(f"  Amount: {amount}")
-                _logger.info(f"  Account Type: {account_type}")
-                _logger.info(f"  Assigned to: {period_key}")
-                _logger.info(f"  Report Date: {self.date_from}")
-                _logger.info(f"  Is Future? {date_due > self.date_from}")
-                _logger.info("-" * 60)
-
             partner_data[partner_id][period_key] += amount
             partner_data[partner_id]['total'] += amount
-
-        # Log final results for ABDULRAHMAN
-        for partner_id, data in partner_data.items():
-            if 'ABDULRAHMAN' in data['partner_name'].upper():
-                _logger.info("ABDULRAHMAN FINAL TOTALS:")
-                _logger.info(f"  Not Due: {data['not_due']}")
-                _logger.info(f"  Period 0 (0-30): {data['period_0']}")
-                _logger.info(f"  Period 1 (31-60): {data['period_1']}")
-                _logger.info(f"  Period 2 (61-90): {data['period_2']}")
-                _logger.info(f"  Period 3 (91-120): {data['period_3']}")
-                _logger.info(f"  Period 4 (120+): {data['period_4']}")
-                _logger.info(f"  TOTAL: {data['total']}")
-                _logger.info("=" * 80)
 
         return list(partner_data.values())
 
@@ -485,14 +446,13 @@ class AccountAgedTrialBalance(models.TransientModel):
     def _get_period_key(self, date_due, periods):
         """
         Determine which period a date falls into.
+        Note: Invoices due ON or AFTER report date should be filtered out before calling this.
         """
-        # Check if not due (future date - after report date)
-        if date_due > self.date_from:
-            return 'not_due'
+        # This method should only be called for overdue invoices (date_due < self.date_from)
 
         # Check each period from newest to oldest
         # Period 0: 0-30 days overdue
-        if periods['period_0']['start'] < date_due <= periods['period_0']['end']:
+        if periods['period_0']['start'] < date_due < self.date_from:
             return 'period_0'
 
         # Period 1: 31-60 days overdue

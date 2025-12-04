@@ -43,8 +43,7 @@ class StockPicking(models.Model):
                         self._notify_warehouse_user(picking, new_transfer, 'approved')
                 except Exception as e:
                     _logger.error('Error in warehouse automation: %s', str(e))
-                    import traceback
-                    _logger.error(traceback.format_exc())
+                    # Continue even if notification fails
 
         return res
 
@@ -60,8 +59,7 @@ class StockPicking(models.Model):
                     self._notify_main_warehouse_users(picking)
                 except Exception as e:
                     _logger.error('Error sending notification to main warehouse: %s', str(e))
-                    import traceback
-                    _logger.error(traceback.format_exc())
+                    # Continue even if notification fails
 
         return res
 
@@ -89,7 +87,7 @@ class StockPicking(models.Model):
             )
             return False
 
-        # Create the receiving transfer
+        # Create the receiving transfer in DRAFT state
         new_picking_vals = {
             'picking_type_id': receiving_type.id,
             'location_id': transit_loc.id,
@@ -102,6 +100,7 @@ class StockPicking(models.Model):
 
         # Copy move lines with correct quantities
         for move in picking.move_ids:
+            # Use quantity_done (actual validated quantity) not product_uom_qty
             actual_qty = move.quantity_done if move.quantity_done > 0 else move.product_uom_qty
 
             move_vals = {
@@ -116,20 +115,22 @@ class StockPicking(models.Model):
             }
             self.env['stock.move'].create(move_vals)
 
-        # Confirm but don't validate automatically
+        # IMPORTANT: Only confirm, do NOT validate automatically
+        # This keeps it in "Ready" state waiting for warehouse user to validate
         new_picking.action_confirm()
 
-        # Reset quantity_done to 0
+        # Set quantities to available so user can validate immediately
         for move in new_picking.move_ids:
-            move.quantity_done = 0
+            move.quantity_done = 0  # Reset to 0, user must set quantity when validating
 
-        # Add messages
+        # Add message to original picking
         picking.message_post(
             body=_('Receipt transfer %s has been automatically created for %s.') %
                  (new_picking.name, dest_warehouse.name),
             subtype_xmlid='mail.mt_note',
         )
 
+        # Add message to new picking
         new_picking.message_post(
             body=_(
                 'This receipt was automatically created from transfer %s. Please validate to receive the products.') % picking.name,
@@ -140,27 +141,26 @@ class StockPicking(models.Model):
 
     def _notify_main_warehouse_users(self, picking):
         """Send notification to Main warehouse users about new request"""
-        _logger.info('=' * 80)
-        _logger.info('NOTIFYING MAIN WAREHOUSE USERS')
-        _logger.info('=' * 80)
-
         # Get Main warehouse (source warehouse)
         main_warehouse = picking.location_id.warehouse_id
 
         if not main_warehouse:
-            _logger.warning('No main warehouse found')
+            _logger.warning('No source warehouse found for picking %s', picking.name)
             return
+
+        _logger.info('=== NOTIFICATION DEBUG ===')
+        _logger.info('Picking: %s', picking.name)
+        _logger.info('Source warehouse: %s', main_warehouse.name)
+        _logger.info('Requesting warehouse: %s', picking.picking_type_id.warehouse_id.name)
 
         # Find users who have access to Main warehouse
         main_wh_users = self._get_warehouse_users(main_warehouse)
 
         if not main_wh_users:
-            _logger.error('ERROR: No users found for Main warehouse notification')
+            _logger.warning('No users found for Main warehouse notification')
             return
 
-        _logger.info('Will notify %s users: %s',
-                     len(main_wh_users),
-                     ', '.join(['%s (ID:%s)' % (u.name, u.id) for u in main_wh_users]))
+        _logger.info('Found %s users for notification', len(main_wh_users))
 
         # Create notification message
         requesting_warehouse = picking.picking_type_id.warehouse_id
@@ -171,7 +171,7 @@ class StockPicking(models.Model):
             )
 
         message = _(
-            '<p><strong>🔔 New Stock Request</strong></p>'
+            '<p><strong>New Stock Request</strong></p>'
             '<p>Warehouse <strong>%s</strong> has requested products from your warehouse:</p>'
             '<ul>%s</ul>'
             '<p>Transfer Reference: <strong>%s</strong></p>'
@@ -182,79 +182,63 @@ class StockPicking(models.Model):
                       picking.name
                   )
 
-        # Post message - USE SUDO
-        try:
-            picking.sudo().message_post(
-                body=message,
-                subject=_('New Stock Request from %s') % requesting_warehouse.name,
-                partner_ids=main_wh_users.mapped('partner_id').ids,
-                message_type='notification',
-                subtype_xmlid='mail.mt_note',
-            )
-            _logger.info('✓ Posted message successfully')
-        except Exception as e:
-            _logger.error('✗ Error posting message: %s', str(e))
+        # Post message as internal note (no email)
+        picking.message_post(
+            body=message,
+            subject=_('New Stock Request from %s') % requesting_warehouse.name,
+            partner_ids=main_wh_users.mapped('partner_id').ids,
+            message_type='notification',
+            subtype_xmlid='mail.mt_note',
+        )
 
-        # Get activity type
+        _logger.info('Message posted to picking %s', picking.name)
+
+        # Create activity for each Main warehouse user with sudo to bypass permissions
         activity_type = self.env.ref('mail.mail_activity_data_todo', raise_if_not_found=False)
         if not activity_type:
-            activity_type = self.env['mail.activity.type'].sudo().search([('name', '=', 'To Do')], limit=1)
-        if not activity_type:
-            activity_type = self.env['mail.activity.type'].sudo().search([], limit=1)
+            activity_type = self.env['mail.activity.type'].search([('name', '=', 'To Do')], limit=1)
 
         if not activity_type:
-            _logger.error('No activity type found!')
+            _logger.error('Could not find To Do activity type')
             return
 
-        _logger.info('Using activity type: %s (ID: %s)', activity_type.name, activity_type.id)
-
-        # Create activity for each Main warehouse user
         for user in main_wh_users:
             try:
-                _logger.info('Creating activity for user: %s (ID: %s)', user.name, user.id)
-
-                # USE SUDO to create activity
+                # Use sudo() to ensure activity is created regardless of current user permissions
                 activity = self.env['mail.activity'].sudo().create({
                     'res_id': picking.id,
-                    'res_model_id': self.env['ir.model'].sudo()._get('stock.picking').id,
+                    'res_model_id': self.env['ir.model']._get('stock.picking').id,
                     'activity_type_id': activity_type.id,
                     'summary': _('Review Stock Request from %s') % requesting_warehouse.name,
                     'note': message,
                     'user_id': user.id,
                     'date_deadline': fields.Date.today(),
                 })
-
-                _logger.info('✓✓✓ SUCCESS: Created activity ID %s for user %s', activity.id, user.name)
-
+                _logger.info('Created activity %s for user: %s (ID: %s)', activity.id, user.name, user.id)
             except Exception as e:
-                _logger.error('✗✗✗ FAILED: Error creating activity for user %s: %s', user.name, str(e))
-                import traceback
-                _logger.error(traceback.format_exc())
-
-        _logger.info('=' * 80)
+                _logger.error('Error creating activity for user %s: %s', user.name, str(e))
 
     def _notify_warehouse_user(self, picking, receipt_transfer, notification_type):
         """Send notification to warehouse users"""
-        _logger.info('=' * 80)
-        _logger.info('NOTIFYING REQUESTING WAREHOUSE USERS')
-        _logger.info('=' * 80)
-
         dest_warehouse = picking.location_dest_id.warehouse_id
 
         if not dest_warehouse:
-            _logger.warning('No destination warehouse found')
+            _logger.warning('No destination warehouse found for picking %s', picking.name)
             return
+
+        _logger.info('=== APPROVAL NOTIFICATION DEBUG ===')
+        _logger.info('Picking: %s', picking.name)
+        _logger.info('Destination warehouse: %s', dest_warehouse.name)
+        _logger.info('Receipt transfer: %s', receipt_transfer.name if receipt_transfer else 'None')
 
         # Find users who have access to destination warehouse
         warehouse_users = self._get_warehouse_users(dest_warehouse)
 
         if not warehouse_users:
-            _logger.error('ERROR: No users found for warehouse notification')
+            _logger.warning('No users found for warehouse notification')
             return
 
-        _logger.info('Will notify %s users: %s',
-                     len(warehouse_users),
-                     ', '.join(['%s (ID:%s)' % (u.name, u.id) for u in warehouse_users]))
+        _logger.info('Found %s users for notification', len(warehouse_users))
 
         source_warehouse = picking.location_id.warehouse_id
         product_lines = []
@@ -266,7 +250,7 @@ class StockPicking(models.Model):
 
         if notification_type == 'approved':
             message = _(
-                '<p><strong>✅ Stock Request Approved</strong></p>'
+                '<p><strong>Stock Request Approved</strong></p>'
                 '<p>Your stock request has been approved by <strong>%s</strong>:</p>'
                 '<ul>%s</ul>'
                 '<p>Original Request: <strong>%s</strong></p>'
@@ -283,147 +267,133 @@ class StockPicking(models.Model):
             message = _('Stock transfer notification')
             subject = _('Stock Transfer Update')
 
-        # Post message to receipt transfer - USE SUDO
+        # Post message to the RECEIPT transfer (not the original picking)
         if receipt_transfer:
-            try:
-                receipt_transfer.sudo().message_post(
-                    body=message,
-                    subject=subject,
-                    partner_ids=warehouse_users.mapped('partner_id').ids,
-                    message_type='notification',
-                    subtype_xmlid='mail.mt_note',
-                )
-                _logger.info('✓ Posted message to receipt transfer')
-            except Exception as e:
-                _logger.error('✗ Error posting message: %s', str(e))
+            receipt_transfer.message_post(
+                body=message,
+                subject=subject,
+                partner_ids=warehouse_users.mapped('partner_id').ids,
+                message_type='notification',
+                subtype_xmlid='mail.mt_note',
+            )
+            _logger.info('Message posted to receipt transfer %s', receipt_transfer.name)
 
-        # Create activity for warehouse users
+        # Create activity for warehouse users on the RECEIPT transfer
         if notification_type == 'approved' and receipt_transfer:
             activity_type = self.env.ref('mail.mail_activity_data_todo', raise_if_not_found=False)
             if not activity_type:
-                activity_type = self.env['mail.activity.type'].sudo().search([('name', '=', 'To Do')], limit=1)
-            if not activity_type:
-                activity_type = self.env['mail.activity.type'].sudo().search([], limit=1)
+                activity_type = self.env['mail.activity.type'].search([('name', '=', 'To Do')], limit=1)
 
             if not activity_type:
-                _logger.error('No activity type found!')
+                _logger.error('Could not find To Do activity type')
                 return
-
-            _logger.info('Using activity type: %s (ID: %s)', activity_type.name, activity_type.id)
 
             for user in warehouse_users:
                 try:
-                    _logger.info('Creating receipt activity for user: %s (ID: %s)', user.name, user.id)
-
-                    # USE SUDO to create activity
+                    # Use sudo() to ensure activity is created
                     activity = self.env['mail.activity'].sudo().create({
                         'res_id': receipt_transfer.id,
-                        'res_model_id': self.env['ir.model'].sudo()._get('stock.picking').id,
+                        'res_model_id': self.env['ir.model']._get('stock.picking').id,
                         'activity_type_id': activity_type.id,
                         'summary': _('Validate Receipt from %s') % source_warehouse.name,
                         'note': message,
                         'user_id': user.id,
                         'date_deadline': fields.Date.today(),
                     })
-
-                    _logger.info('✓✓✓ SUCCESS: Created receipt activity ID %s for user %s', activity.id, user.name)
-
+                    _logger.info('Created receipt activity %s for user: %s (ID: %s)', activity.id, user.name, user.id)
                 except Exception as e:
-                    _logger.error('✗✗✗ FAILED: Error creating receipt activity for user %s: %s', user.name, str(e))
-                    import traceback
-                    _logger.error(traceback.format_exc())
-
-        _logger.info('=' * 80)
+                    _logger.error('Error creating activity for user %s: %s', user.name, str(e))
 
     def _get_warehouse_users(self, warehouse):
         """Get users who have access to this warehouse"""
-        _logger.info('┌' + '─' * 78 + '┐')
-        _logger.info('│ GETTING USERS FOR: %-55s │' % warehouse.name[:55])
-        _logger.info('└' + '─' * 78 + '┘')
-
         try:
-            # Warehouse name to group name mapping
-            warehouse_group_mapping = {
-                'SSAOCO-Main Office': 'Main WH',
-                'SSAOCO - Dammam': 'Dammam WH',
-                'SSAOCO - Baladiya': 'Baladiya WH',
-            }
+            _logger.info('=== GET WAREHOUSE USERS DEBUG ===')
+            _logger.info('Looking for users for warehouse: %s', warehouse.name)
 
-            group_name = warehouse_group_mapping.get(warehouse.name)
-            _logger.info('→ Looking for group: "%s"', group_name)
+            # Warehouse name to group name mapping - use flexible matching
+            warehouse_name = warehouse.name.strip()
+
+            # Determine group name based on warehouse name
+            if 'Main Office' in warehouse_name or 'Main' in warehouse_name:
+                group_name = 'Main WH'
+            elif 'Dammam' in warehouse_name:
+                group_name = 'Dammam WH'
+            elif 'Baladiya' in warehouse_name:
+                group_name = 'Baladiya WH'
+            else:
+                group_name = None
+                _logger.warning('Could not determine group name for warehouse: %s', warehouse_name)
 
             if group_name:
-                # Search for warehouse-specific group
-                warehouse_group = self.env['res.groups'].sudo().search([
+                _logger.info('Searching for group: %s', group_name)
+                warehouse_groups = self.env['res.groups'].search([
                     ('name', '=', group_name)
-                ], limit=1)
-
-                if warehouse_group:
-                    _logger.info('→ Found group: %s (ID: %s)', warehouse_group.name, warehouse_group.id)
-
-                    # Get users in this group - USE SUDO
-                    warehouse_users = self.env['res.users'].sudo().search([
-                        ('groups_id', 'in', warehouse_group.id),
-                        ('active', '=', True),
-                        ('share', '=', False),
-                    ])
-
-                    if warehouse_users:
-                        _logger.info('→ Found %s users in group:', len(warehouse_users))
-                        for u in warehouse_users:
-                            _logger.info('   • %s (ID:%s, Login:%s)', u.name, u.id, u.login)
-                        return warehouse_users
-                    else:
-                        _logger.warning('→ Group exists but NO USERS found!')
-                else:
-                    _logger.warning('→ Group "%s" NOT FOUND!', group_name)
-            else:
-                _logger.warning('→ No group mapping for warehouse: %s', warehouse.name)
-
-            # Fallback: Get ALL inventory users
-            _logger.info('→ FALLBACK: Getting all inventory users...')
-            inventory_group = self.env.ref('stock.group_stock_user', raise_if_not_found=False)
-
-            if inventory_group:
-                all_users = self.env['res.users'].sudo().search([
-                    ('groups_id', 'in', inventory_group.id),
-                    ('active', '=', True),
-                    ('share', '=', False),
                 ])
 
-                _logger.info('→ Found %s inventory users:', len(all_users))
-                for u in all_users:
-                    _logger.info('   • %s (ID:%s, Login:%s)', u.name, u.id, u.login)
+                _logger.info('Found %s groups matching "%s"', len(warehouse_groups), group_name)
 
-                if all_users:
-                    return all_users
+                if warehouse_groups:
+                    # Get users who are in these groups
+                    warehouse_users = self.env['res.users'].search([
+                        ('groups_id', 'in', warehouse_groups.ids),
+                        ('active', '=', True),
+                        ('share', '=', False)  # Exclude portal users
+                    ])
 
-            # Last resort
-            _logger.warning('→ LAST RESORT: Returning admin')
-            admin = self.env.ref('base.user_admin', raise_if_not_found=False)
-            if admin:
-                return admin
-            return self.env['res.users'].sudo().browse(2)
+                    _logger.info('Found %s users in group', len(warehouse_users))
+
+                    if warehouse_users:
+                        for user in warehouse_users:
+                            _logger.info('  - User: %s (ID: %s, Login: %s)', user.name, user.id, user.login)
+                        return warehouse_users
+                    else:
+                        _logger.warning('No users found in group: %s', group_name)
+                else:
+                    _logger.warning('No groups found with name: %s', group_name)
+
+            # Fallback: Get all inventory users
+            _logger.info('Using fallback: getting all inventory users')
+            inventory_group = self.env.ref('stock.group_stock_user', raise_if_not_found=False)
+            if inventory_group:
+                all_users = self.env['res.users'].search([
+                    ('groups_id', 'in', inventory_group.id),
+                    ('active', '=', True),
+                    ('share', '=', False)
+                ])
+                _logger.info('Found %s inventory users', len(all_users))
+                for user in all_users:
+                    _logger.info('  - User: %s (ID: %s)', user.name, user.id)
+                return all_users
+
+            # Last resort: return admin
+            _logger.warning('Returning admin user as last resort')
+            return self.env.ref('base.user_admin', raise_if_not_found=False)
 
         except Exception as e:
-            _logger.error('✗✗✗ ERROR in _get_warehouse_users: %s', str(e))
-            import traceback
-            _logger.error(traceback.format_exc())
-            return self.env['res.users'].sudo().browse(2)
+            _logger.error('Error getting warehouse users: %s', str(e))
+            return self.env['res.users'].browse(2)
 
     @api.model
     def _get_warehouse_for_user(self, user):
         """Get the warehouse assigned to a user"""
+        # Check if user has a default warehouse set
         if hasattr(user, 'property_warehouse_id') and user.property_warehouse_id:
             return user.property_warehouse_id
 
+        # Try to find from groups
         for group in user.groups_id:
             if 'Main WH' in group.name or 'Main Office' in group.name:
-                return self.env['stock.warehouse'].search([('name', 'ilike', 'Main Office')], limit=1)
+                return self.env['stock.warehouse'].search([
+                    ('name', 'ilike', 'Main Office')
+                ], limit=1)
             elif 'Dammam' in group.name:
-                return self.env['stock.warehouse'].search([('name', 'ilike', 'Dammam')], limit=1)
+                return self.env['stock.warehouse'].search([
+                    ('name', 'ilike', 'Dammam')
+                ], limit=1)
             elif 'Baladiya' in group.name:
-                return self.env['stock.warehouse'].search([('name', 'ilike', 'Baladiya')], limit=1)
+                return self.env['stock.warehouse'].search([
+                    ('name', 'ilike', 'Baladiya')
+                ], limit=1)
 
         return False
 

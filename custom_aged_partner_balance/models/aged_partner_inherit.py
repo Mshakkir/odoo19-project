@@ -379,46 +379,47 @@ class AccountAgedTrialBalance(models.TransientModel):
     def _calculate_periods(self):
         """
         Calculate aging period dates - CORRECTED VERSION.
-        Period 0 = 0-30 days (most recent)
-        Period 4 = 120+ days (oldest)
+        Period 0 = 0-30 days overdue (most recent overdue)
+        Period 4 = 120+ days overdue (oldest)
+        Not due = future dates (not yet due)
         """
         periods = {}
         current_date = self.date_from
 
-        # Period 0: 0-30 days old (from date_from going back 30 days)
-        periods['period_0'] = {
-            'start': current_date - relativedelta(days=self.period_length - 1),
-            'end': current_date,
-        }
-
-        # Period 1: 31-60 days old
-        periods['period_1'] = {
-            'start': current_date - relativedelta(days=(self.period_length * 2) - 1),
-            'end': current_date - relativedelta(days=self.period_length),
-        }
-
-        # Period 2: 61-90 days old
-        periods['period_2'] = {
-            'start': current_date - relativedelta(days=(self.period_length * 3) - 1),
-            'end': current_date - relativedelta(days=self.period_length * 2),
-        }
-
-        # Period 3: 91-120 days old
-        periods['period_3'] = {
-            'start': current_date - relativedelta(days=(self.period_length * 4) - 1),
-            'end': current_date - relativedelta(days=self.period_length * 3),
-        }
-
-        # Period 4: 120+ days old (oldest)
-        periods['period_4'] = {
-            'start': fields.Date.from_string('1900-01-01'),  # Very old date
-            'end': current_date - relativedelta(days=self.period_length * 4),
-        }
-
-        # Not due (future dates)
+        # Not due: Future dates (after the report date)
         periods['not_due'] = {
             'start': current_date + relativedelta(days=1),
             'end': fields.Date.today() + relativedelta(years=10),
+        }
+
+        # Period 0: 0-30 days overdue (due dates from current_date back to 30 days)
+        periods['period_0'] = {
+            'start': current_date - relativedelta(days=self.period_length),
+            'end': current_date,
+        }
+
+        # Period 1: 31-60 days overdue
+        periods['period_1'] = {
+            'start': current_date - relativedelta(days=self.period_length * 2),
+            'end': current_date - relativedelta(days=self.period_length + 1),
+        }
+
+        # Period 2: 61-90 days overdue
+        periods['period_2'] = {
+            'start': current_date - relativedelta(days=self.period_length * 3),
+            'end': current_date - relativedelta(days=self.period_length * 2 + 1),
+        }
+
+        # Period 3: 91-120 days overdue
+        periods['period_3'] = {
+            'start': current_date - relativedelta(days=self.period_length * 4),
+            'end': current_date - relativedelta(days=self.period_length * 3 + 1),
+        }
+
+        # Period 4: 120+ days overdue (oldest)
+        periods['period_4'] = {
+            'start': fields.Date.from_string('1900-01-01'),
+            'end': current_date - relativedelta(days=self.period_length * 4 + 1),
         }
 
         return periods
@@ -427,17 +428,28 @@ class AccountAgedTrialBalance(models.TransientModel):
         """
         Determine which period a date falls into.
         """
-        # Check if not due (future date)
+        # Check if not due (future date - after report date)
         if date_due > self.date_from:
             return 'not_due'
 
-        # Check each period in order from newest to oldest
-        for i in range(5):
-            period_key = f'period_{i}'
-            if periods[period_key]['start'] <= date_due <= periods[period_key]['end']:
-                return period_key
+        # Check each period from newest to oldest
+        # Period 0: 0-30 days overdue
+        if periods['period_0']['start'] < date_due <= periods['period_0']['end']:
+            return 'period_0'
 
-        # If no match found (shouldn't happen), default to oldest
+        # Period 1: 31-60 days overdue
+        if periods['period_1']['start'] < date_due <= periods['period_1']['end']:
+            return 'period_1'
+
+        # Period 2: 61-90 days overdue
+        if periods['period_2']['start'] < date_due <= periods['period_2']['end']:
+            return 'period_2'
+
+        # Period 3: 91-120 days overdue
+        if periods['period_3']['start'] < date_due <= periods['period_3']['end']:
+            return 'period_3'
+
+        # Period 4: 120+ days overdue (default for very old dates)
         return 'period_4'
 
     def _get_account_types(self):

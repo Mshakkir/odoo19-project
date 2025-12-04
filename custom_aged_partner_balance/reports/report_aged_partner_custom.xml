@@ -9,23 +9,9 @@
         <xpath expr="//t[@t-call='web.html_container']" position="replace">
             <t t-call="web.html_container">
                 <t t-call="web.basic_layout">
-                    <div class="page" style="padding: 0; margin: 0;">
+                    <div class="page" style="padding-top: 20px;">
 
                         <style>
-                            /* Override page margins for tighter layout */
-                            @page {
-                                margin-top: 15mm;
-                                margin-bottom: 15mm;
-                                margin-left: 10mm;
-                                margin-right: 10mm;
-                            }
-
-                            /* Remove default body margins */
-                            body {
-                                margin: 0 !important;
-                                padding: 0 !important;
-                            }
-
                             /* Hide scrollbar but keep functionality */
                             div[style*="overflow-x: auto"]::-webkit-scrollbar {
                                 height: 0px !important;
@@ -60,16 +46,10 @@
                                 display: table-row-group !important;
                             }
 
-                            /* Allow controlled row breaks - reduces empty space */
+                            /* Prevent rows from breaking across pages */
                             .aged-balance-table tbody tr {
                                 page-break-inside: avoid !important;
                                 page-break-after: auto;
-                            }
-
-                            /* Optimize page filling */
-                            .aged-balance-table tbody {
-                                orphans: 3;
-                                widows: 3;
                             }
 
                             /* Keep account total row with header */
@@ -77,15 +57,10 @@
                                 page-break-after: avoid !important;
                             }
 
-                            /* Reduce overall spacing for better fit */
+                            /* Reduce spacing for better fit */
                             @media print {
-                                body {
-                                    margin: 0 !important;
-                                }
-
                                 .page {
-                                    padding-top: 0px !important;
-                                    padding-bottom: 0px !important;
+                                    padding-top: 10px !important;
                                 }
 
                                 /* Ensure proper table rendering */
@@ -95,56 +70,26 @@
 
                                 /* Tighter spacing for print */
                                 .header {
-                                    margin-bottom: 8px !important;
-                                    padding: 8px 0 !important;
+                                    margin-bottom: 15px !important;
                                 }
 
                                 .report-params {
-                                    margin-bottom: 5px !important;
-                                }
-
-                                /* Reduce row heights */
-                                .aged-balance-table tbody tr td {
-                                    padding: 2px 4px !important;
-                                    line-height: 1.1 !important;
-                                    font-size: 10px !important;
-                                }
-
-                                .aged-balance-table thead tr th {
-                                    padding: 3px 4px !important;
-                                    line-height: 1.2 !important;
-                                    font-size: 10px !important;
-                                }
-
-                                /* Compact report title and params */
-                                .row {
-                                    margin-bottom: 3px !important;
-                                }
-
-                                h5 {
-                                    margin-bottom: 3px !important;
-                                    font-size: 14px !important;
-                                }
-
-                                /* Reduce parameter section text */
-                                .report-params strong,
-                                .report-params p {
-                                    font-size: 10px !important;
+                                    margin-bottom: 10px !important;
                                 }
                             }
                         </style>
 
                         <!-- Custom Header -->
-                        <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 8px; padding: 8px 0;">
+                        <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 25px; padding: 15px 0;">
                             <table style="width: 100%; border-collapse: collapse; border:none; margin-bottom: 0px;">
                                 <tr style="border:2px solid white;">
-                                    <td style="width: 50%; padding: 5px 0px; text-align: left; vertical-align: middle; border: none;padding-bottom:0px;">
-                                        <div style="color: #8B1538; font-size: 13px; font-weight: bold; text-transform: uppercase;">
+                                    <td style="width: 50%; padding: 10px 0px; text-align: left; vertical-align: middle; border: none;padding-bottom:0px;">
+                                        <div style="color: #8B1538; font-size: 14px; font-weight: bold; text-transform: uppercase;">
                                             SAMEER SHARAF AL OTAIBI TRADING COMPANY
                                         </div>
                                     </td>
-                                    <td style="width: 50%; padding: 5px 0px; text-align: right; vertical-align: middle; border: none;">
-                                        <div style="color: #8B1538; font-size: 15px; font-weight: 900; direction: rtl;padding-bottom:0px;" class="ar">
+                                    <td style="width: 50%; padding: 10px 0px; text-align: right; vertical-align: middle; border: none;">
+                                        <div style="color: #8B1538; font-size: 16px; font-weight: 900; direction: rtl;padding-bottom:0px;" class="ar">
                                             شركة سمير شرف العتيبي التجارية
                                         </div>
                                     </td>
@@ -153,23 +98,23 @@
 
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tr style="border:2px solid white;">
-                                    <td style="width: 33%; text-align: left; font-size: 12px; color: #333; vertical-align: middle;
-                                    padding: 0px 0px 8px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
-                                        <div style="line-height: 1.4; font-weight: 500; margin-top: 8px;">
+                                    <td style="width: 33%; text-align: left; font-size: 14px; color: #333; vertical-align: middle;
+                                    padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
+                                        <div style="line-height: 1.6; font-weight: 500; margin-top: 10px;">
                                             C.R. 4030216154<br/>
                                             VAT Regd: 311299944700003
                                         </div>
                                     </td>
 
-                                    <td style="width: 34%; text-align: center; vertical-align: middle; padding: 3px 10px;
+                                    <td style="width: 34%; text-align: center; vertical-align: middle; padding: 5px 10px;
                                     border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
                                         <img t-att-src="request.httprequest.host_url + 'custom_sa_quotation/static/src/img/faakart_logo.png'"
-                                             style="max-height: 70px; max-width: 100%; object-fit: contain;"/>
+                                             style="max-height: 90px; max-width: 100%; object-fit: contain;"/>
                                     </td>
 
-                                    <td style="width: 33%; text-align: right; font-size: 12px; color: #333; vertical-align: middle;
-                                    direction: rtl; padding: 0px 0px 8px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
-                                        <div style="line-height: 1.4; font-weight: 900; text-align: right; direction: rtl; margin-top: 8px;" class="ar">
+                                    <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle;
+                                    direction: rtl; padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
+                                        <div style="line-height: 1.6; font-weight: 900; text-align: right; direction: rtl; margin-top: 10px;" class="ar">
                                             س.ت: ٤٠٣٠٢١٦١٥٤<br/>
                                             الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
                                         </div>
@@ -179,7 +124,7 @@
                         </div>
 
                         <!-- Report Title - Dynamic based on type -->
-                        <div class="row" style="margin-bottom: 5px; padding-bottom: 5px; border-bottom: 3px solid white; margin-top: 5px;">
+                        <div class="row" style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 3px solid white; margin-top: 5px;">
                             <div class="col-8">
                                 <h5 style="margin: 0; color: black; font-weight: bold;">
                                     <span t-if="data['result_selection'] == 'customer'">Aged Receivable Report</span>
@@ -197,26 +142,26 @@
 
                         <!-- Report Parameters -->
                         <div class="report-params">
-                            <div class="row" style="margin-bottom: 5px;">
+                            <div class="row" style="margin-bottom: 8px;">
                                 <div class="col-3">
                                     <strong>Company:</strong>
-                                    <p t-esc="res_company.name" style="margin: 2px 0;"/>
+                                    <p t-esc="res_company.name" style="margin: 3px 0;"/>
                                 </div>
                                 <div class="col-3">
                                     <strong>Start Date:</strong>
-                                    <p t-esc="data['date_from']" style="margin: 2px 0;"/>
+                                    <p t-esc="data['date_from']" style="margin: 3px 0;"/>
                                 </div>
                                 <div class="col-3">
                                     <strong>Period Length (days):</strong>
-                                    <p t-esc="data['period_length']" style="margin: 2px 0;"/>
+                                    <p t-esc="data['period_length']" style="margin: 3px 0;"/>
                                 </div>
                                 <div class="col-3">
                                     <strong>Generated By:</strong>
-                                    <p t-esc="user.name" style="margin: 2px 0;"/>
+                                    <p t-esc="user.name" style="margin: 3px 0;"/>
                                 </div>
                             </div>
 
-                            <div class="row" style="margin-bottom: 10px;">
+                            <div class="row" style="margin-bottom: 15px;">
                                 <div class="col-3">
                                     <strong>
                                         <span t-if="data['result_selection'] == 'customer'">Customer's:</span>
@@ -256,7 +201,7 @@
                         </div>
 
                         <!-- Main Table - Removed overflow-x wrapper for better print handling -->
-                        <div style="margin-bottom: 10px;">
+                        <div style="margin-bottom: 15px;">
                             <table class="table table-sm table-bordered aged-balance-table"
                                    style="width: 100%; table-layout: fixed; border-collapse: collapse;">
                                 <colgroup>

@@ -358,10 +358,10 @@ class StockPicking(models.Model):
 
         # Mapping warehouse names to group XML IDs
         warehouse_group_map = {
-            'baladiya': 'warehouse_notify.group_baladiya_wh',
-            'balad': 'warehouse_notify.group_baladiya_wh',  # fallback keyword
-            'dammam': 'warehouse_notify.group_dammam_wh',
-            'main': 'warehouse_notify.group_main_wh',
+            'baladiya': 'warehouse_transfer_automation.group_baladiya_wh',
+            'balad': 'warehouse_transfer_automation.group_baladiya_wh',
+            'dammam': 'warehouse_transfer_automation.group_dammam_wh',
+            'main': 'warehouse_transfer_automation.group_main_wh',
         }
 
         warehouse_name = warehouse.name.lower()

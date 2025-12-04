@@ -1,13 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+
+    <!-- ========================================================= -->
+    <!--  MODULE CATEGORY (Mandatory for showing groups in UI)     -->
+    <!-- ========================================================= -->
+    <record id="module_category_warehouse_transfer" model="ir.module.category">
+        <field name="name">Warehouse Transfers</field>
+        <field name="description">Groups for warehouse transfer workflow</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- ========================================================= -->
+    <!--  BALADIYA WAREHOUSE GROUP                                -->
+    <!-- ========================================================= -->
     <record id="group_baladiya_wh" model="res.groups">
-        <field name="name">Baladiya WH</field>
+        <field name="name">Baladiya Warehouse</field>
+        <field name="category_id" ref="module_category_warehouse_transfer"/>
     </record>
 
+    <!-- ========================================================= -->
+    <!--  DAMMAM WAREHOUSE GROUP                                   -->
+    <!-- ========================================================= -->
     <record id="group_dammam_wh" model="res.groups">
-        <field name="name">Dammam WH</field>
+        <field name="name">Dammam Warehouse</field>
+        <field name="category_id" ref="module_category_warehouse_transfer"/>
     </record>
 
+    <!-- ========================================================= -->
+    <!--  MAIN WAREHOUSE GROUP                                     -->
+    <!-- ========================================================= -->
     <record id="group_main_wh" model="res.groups">
-        <field name="name">Main WH</field>
+        <field name="name">Main Warehouse</field>
+        <field name="category_id" ref="module_category_warehouse_transfer"/>
     </record>
+
 </odoo>

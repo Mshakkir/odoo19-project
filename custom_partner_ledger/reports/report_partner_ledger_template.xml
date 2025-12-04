@@ -2,18 +2,12 @@
 <odoo>
 
     <!-- Inherit and customize the partner ledger template -->
-    <template id="report_partnerledger"
-              inherit_id="accounting_pdf_reports.report_partnerledger"
-              primary="True">
+    <template id="report_partnerledger_custom"
+              inherit_id="accounting_pdf_reports.report_partnerledger">
 
-        <!-- Replace the internal_layout call to remove default header -->
-        <xpath expr="//t[@t-call='web.internal_layout']" position="replace">
+        <xpath expr="//t[@t-call='web.html_container']" position="replace">
             <t t-call="web.html_container">
-                <t t-set="data_report_margin_top" t-value="12"/>
-                <t t-set="data_report_header_spacing" t-value="9"/>
-                <t t-set="data_report_dpi" t-value="110"/>
-
-                <div class="page" style="padding-top: 20px;">
+                <t t-call="web.basic_layout">
 
                     <style>
                         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;900&amp;display=swap');
@@ -274,7 +268,8 @@
                         </div>
                     </div>
 
-                </div>
+                </t>
+
             </t>
         </xpath>
 

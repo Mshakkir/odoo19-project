@@ -185,6 +185,7 @@
 
 
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 
 
@@ -334,6 +335,7 @@ class PartnerLedgerDetail(models.TransientModel):
             partner_lines = move_lines.filtered(lambda l: l.partner_id == partner)
 
             # Calculate opening balance if date_from is set
+            opening_balance = 0
             if date_from:
                 opening_balance = self._calculate_opening_balance(
                     partner, date_from, account_ids, move_state, reconciled, journal_ids
@@ -352,7 +354,7 @@ class PartnerLedgerDetail(models.TransientModel):
                     })
 
             # Add all move lines for this partner
-            running_balance = opening_balance if date_from else 0
+            running_balance = opening_balance
             for line in partner_lines:
                 running_balance += line.debit - line.credit
 

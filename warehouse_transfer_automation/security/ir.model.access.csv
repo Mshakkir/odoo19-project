@@ -6,5 +6,3 @@ access_mail_message_user,mail.message.user,mail.model_mail_message,stock.group_s
 access_mail_notification_user,mail.notification.user,mail.model_mail_notification,stock.group_stock_user,1,1,1,0
 access_mail_followers_user,mail.followers.user,mail.model_mail_followers,stock.group_stock_user,1,1,1,1
 access_ir_model_user,ir.model.user,base.model_ir_model,stock.group_stock_user,1,0,0,0
-access_mail_channel_user,mail.channel.user,mail.model_mail_channel,stock.group_stock_user,1,1,1,0
-access_mail_channel_partner_user,mail.channel.partner.user,mail.model_mail_channel_partner,stock.group_stock_user,1,1,1,0

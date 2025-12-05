@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- List View -->
     <record id="view_partner_ledger_detail_tree" model="ir.ui.view">
         <field name="name">partner.ledger.detail.list</field>
         <field name="model">partner.ledger.detail</field>
@@ -11,8 +10,8 @@
                 <field name="partner_id"/>
                 <field name="date"/>
 
-                <!-- Default Many2One clickable -->
-                <field name="move_id" readonly="1"/>
+                <!-- FIXED FIELD -->
+                <field name="move_id" readonly="1" widget="many2one"/>
 
                 <field name="journal_id"/>
                 <field name="account_id"/>
@@ -22,7 +21,6 @@
                 <field name="credit"/>
                 <field name="balance"/>
 
-                <!-- Optional action button -->
                 <button name="action_open_document"
                         type="object"
                         icon="fa-external-link"
@@ -31,7 +29,6 @@
         </field>
     </record>
 
-    <!-- Search View -->
     <record id="view_partner_ledger_detail_search" model="ir.ui.view">
         <field name="name">partner.ledger.detail.search</field>
         <field name="model">partner.ledger.detail</field>

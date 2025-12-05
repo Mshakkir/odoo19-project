@@ -152,8 +152,10 @@
                                 </p>
                             </div>
                             <div class="col-3">
-                                <strong>Partners:</strong>
-                                <p t-esc="len(docs)" style="margin: 3px 0;"/>
+                                             <span t-if="data['result_selection'] == 'customer'">Customer's:</span>
+                                        <span t-elif="data['result_selection'] == 'supplier'">Vendor's:</span>
+<!--                                <strong>Partners:</strong>-->
+<!--                                <p t-esc="len(docs)" style="margin: 3px 0;"/>-->
                             </div>
                             <div class="col-3">
                                 <strong>Currency Display:</strong>
@@ -193,7 +195,9 @@
                                 <!-- Partner Header Row -->
                                 <tr style="background-color: #f8f9fa; border-top: 2px solid #8B1538;">
                                     <td colspan="4" style="padding: 10px; border: 1px solid #ddd;">
-                                        <strong>Partner: </strong>
+<!--                                        <strong>Partner: </strong>-->
+                                                     <span t-if="data['result_selection'] == 'customer'">Customer's:</span>
+                                        <span t-elif="data['result_selection'] == 'supplier'">Vendor's:</span>
                                         <span t-esc="o.ref" t-if="o.ref"/>
                                         <span t-if="o.ref"> - </span>
                                         <strong t-esc="o.name"/>

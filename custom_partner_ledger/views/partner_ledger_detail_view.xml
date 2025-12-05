@@ -60,7 +60,7 @@
                 <field name="balance"/>
                 <field name="is_opening_balance" column_invisible="1"/>
                 <button name="action_view_invoice" type="object" string="Invoice" icon="fa-file-text-o" title="View Invoice/Bill" invisible="is_opening_balance or not move_id"/>
-                <button name="action_view_journal_entry" type="object" string="Entry" icon="fa-book" title="View Journal Entry" invisible="is_opening_balance or not move_id"/>
+<!--                <button name="action_view_journal_entry" type="object" string="Entry" icon="fa-book" title="View Journal Entry" invisible="is_opening_balance or not move_id"/>-->
             </list>
         </field>
     </record>

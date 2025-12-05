@@ -117,8 +117,8 @@
         <field name="model">partner.ledger.detail.line</field>
         <field name="arch" type="xml">
             <search string="Search Partner Ledger Details">
-                <field name="partner_name" string="Partner" filter_domain="[('partner_name', 'ilike', self)]"/>
-                <field name="move_name" string="Entry" filter_domain="[('move_name', 'ilike', self)]"/>
+                <field name="partner_name" string="Partner"/>
+                <field name="move_name" string="Entry"/>
                 <field name="journal_code" string="Journal"/>
                 <field name="account_code" string="Account"/>
                 <field name="ref" string="Reference"/>
@@ -132,10 +132,10 @@
                 <filter string="Has Credit" name="has_credit" domain="[('credit', '>', 0)]"/>
 
                 <group expand="0" string="Group By">
-                    <filter string="Partner" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Partner" name="group_partner" context="{'group_by': 'partner_name'}"/>
                     <filter string="Date" name="group_date" context="{'group_by': 'date'}"/>
-                    <filter string="Journal" name="group_journal" context="{'group_by': 'journal_id'}"/>
-                    <filter string="Account" name="group_account" context="{'group_by': 'account_id'}"/>
+                    <filter string="Journal" name="group_journal" context="{'group_by': 'journal_code'}"/>
+                    <filter string="Account" name="group_account" context="{'group_by': 'account_code'}"/>
                 </group>
             </search>
         </field>

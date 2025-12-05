@@ -1,7 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--<odoo>-->
+
+<!--    &lt;!&ndash; List View &ndash;&gt;-->
+<!--    <record id="view_partner_ledger_detail_tree" model="ir.ui.view">-->
+<!--        <field name="name">partner.ledger.detail.list</field>-->
+<!--        <field name="model">partner.ledger.detail</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <list string="Partner Ledger Details" default_order="date asc">-->
+<!--                <field name="partner_id"/>-->
+<!--                <field name="date"/>-->
+<!--                <field name="move_id"/>-->
+<!--                <field name="journal_id"/>-->
+<!--                <field name="account_id"/>-->
+<!--                <field name="name"/>-->
+<!--                <field name="ref"/>-->
+<!--                <field name="debit"/>-->
+<!--                <field name="credit"/>-->
+<!--                <field name="balance"/>-->
+<!--            </list>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Search View &ndash;&gt;-->
+<!--    <record id="view_partner_ledger_detail_search" model="ir.ui.view">-->
+<!--        <field name="name">partner.ledger.detail.search</field>-->
+<!--        <field name="model">partner.ledger.detail</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <search>-->
+<!--                <field name="partner_id"/>-->
+<!--                <field name="journal_id"/>-->
+<!--                <filter name="group_partner" string="Group by Partner"-->
+<!--                        context="{'group_by': 'partner_id'}"/>-->
+<!--            </search>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--</odoo>-->
+
+
 <odoo>
 
-    <!-- List View -->
+    <!-- List View with Action Buttons -->
     <record id="view_partner_ledger_detail_tree" model="ir.ui.view">
         <field name="name">partner.ledger.detail.list</field>
         <field name="model">partner.ledger.detail</field>
@@ -17,7 +56,75 @@
                 <field name="debit"/>
                 <field name="credit"/>
                 <field name="balance"/>
+                <field name="is_opening_balance" invisible="1"/>
+
+                <!-- Action buttons -->
+                <button name="action_view_invoice"
+                        type="object"
+                        string="View Invoice"
+                        icon="fa-file-text-o"
+                        title="View Invoice/Bill"
+                        invisible="is_opening_balance or not move_id"/>
+
+                <button name="action_view_journal_entry"
+                        type="object"
+                        string="View Entry"
+                        icon="fa-book"
+                        title="View Journal Entry"
+                        invisible="is_opening_balance or not move_id"/>
             </list>
+        </field>
+    </record>
+
+    <!-- Form View (Optional - for viewing details) -->
+    <record id="view_partner_ledger_detail_form" model="ir.ui.view">
+        <field name="name">partner.ledger.detail.form</field>
+        <field name="model">partner.ledger.detail</field>
+        <field name="arch" type="xml">
+            <form string="Partner Ledger Detail">
+                <header>
+                    <button name="action_view_invoice"
+                            string="View Invoice"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="is_opening_balance or not move_id"/>
+                    <button name="action_view_journal_entry"
+                            string="View Journal Entry"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="is_opening_balance or not move_id"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="date"/>
+                            <field name="move_id"/>
+                            <field name="journal_id"/>
+                            <field name="account_id"/>
+                        </group>
+                        <group>
+                            <field name="name"/>
+                            <field name="ref"/>
+                            <field name="move_state"/>
+                            <field name="reconcile_id"/>
+                            <field name="is_opening_balance" invisible="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="debit"/>
+                            <field name="credit"/>
+                            <field name="balance"/>
+                        </group>
+                        <group>
+                            <field name="amount_currency"/>
+                            <field name="currency_id"/>
+                            <field name="company_currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
         </field>
     </record>
 
@@ -29,8 +136,42 @@
             <search>
                 <field name="partner_id"/>
                 <field name="journal_id"/>
-                <filter name="group_partner" string="Group by Partner"
-                        context="{'group_by': 'partner_id'}"/>
+                <field name="move_id"/>
+                <field name="ref"/>
+
+                <filter name="filter_transactions"
+                        string="Transactions Only"
+                        domain="[('is_opening_balance', '=', False)]"/>
+
+                <filter name="filter_opening_balance"
+                        string="Opening Balance"
+                        domain="[('is_opening_balance', '=', True)]"/>
+
+                <separator/>
+
+                <filter name="filter_draft"
+                        string="Draft"
+                        domain="[('move_state', '=', 'draft')]"/>
+
+                <filter name="filter_posted"
+                        string="Posted"
+                        domain="[('move_state', '=', 'posted')]"/>
+
+                <separator/>
+
+                <group expand="0" string="Group By">
+                    <filter name="group_by_partner"
+                            string="Partner"
+                            context="{'group_by': 'partner_id'}"/>
+
+                    <filter name="group_by_journal"
+                            string="Journal"
+                            context="{'group_by': 'journal_id'}"/>
+
+                    <filter name="group_by_date"
+                            string="Date"
+                            context="{'group_by': 'date'}"/>
+                </group>
             </search>
         </field>
     </record>

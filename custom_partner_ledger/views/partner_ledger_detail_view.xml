@@ -6,31 +6,28 @@
         <field name="name">partner.ledger.detail.list</field>
         <field name="model">partner.ledger.detail</field>
         <field name="arch" type="xml">
-<list string="Partner Ledger Details" default_order="date asc">
+            <list string="Partner Ledger Details" default_order="date asc">
 
-    <field name="partner_id"/>
-    <field name="date"/>
+                <field name="partner_id"/>
+                <field name="date"/>
 
-    <!-- Clickable: opens invoice or journal entry -->
-    <field name="move_id" widget="handle"/>
+                <!-- Default Many2One clickable -->
+                <field name="move_id" readonly="1"/>
 
-    <field name="journal_id"/>
-    <field name="account_id"/>
-    <field name="ref"/>
-    <field name="name"/>
-    <field name="debit"/>
-    <field name="credit"/>
-    <field name="balance"/>
+                <field name="journal_id"/>
+                <field name="account_id"/>
+                <field name="ref"/>
+                <field name="name"/>
+                <field name="debit"/>
+                <field name="credit"/>
+                <field name="balance"/>
 
-    <!-- Optional button -->
-    <button name="action_open_document"
-            type="object"
-            icon="fa-external-link"
-            title="Open Original Document"/>
-</list>
-
-
-
+                <!-- Optional action button -->
+                <button name="action_open_document"
+                        type="object"
+                        icon="fa-external-link"
+                        title="Open Original Document"/>
+            </list>
         </field>
     </record>
 

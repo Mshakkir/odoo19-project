@@ -7,11 +7,12 @@
         <field name="model">partner.ledger.detail</field>
         <field name="arch" type="xml">
 <list string="Partner Ledger Details" default_order="date asc">
+
     <field name="partner_id"/>
     <field name="date"/>
 
-    <!-- clickable field -->
-    <field name="move_id" widget="many2one_reference" options="{'no_open': False}"/>
+    <!-- Clickable: opens invoice or journal entry -->
+    <field name="move_id" widget="handle"/>
 
     <field name="journal_id"/>
     <field name="account_id"/>
@@ -21,12 +22,13 @@
     <field name="credit"/>
     <field name="balance"/>
 
-    <!-- manual icon button -->
+    <!-- Optional button -->
     <button name="action_open_document"
             type="object"
             icon="fa-external-link"
             title="Open Original Document"/>
 </list>
+
 
 
         </field>

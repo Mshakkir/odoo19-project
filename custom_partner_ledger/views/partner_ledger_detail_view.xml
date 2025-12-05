@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tree/List View for Partner Ledger Detail Lines -->
+    <record id="view_partner_ledger_detail_line_tree" model="ir.ui.view">
+        <field name="name">partner.ledger.detail.line.tree</field>
+        <field name="model">partner.ledger.detail.line</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <list string="Partner Ledger Transaction Details"
+                  decoration-info="reconciled == True"
+                  decoration-muted="balance == 0"
+                  create="false" edit="false" delete="false">
+
+                <field name="date"/>
+                <field name="partner_name" string="Partner"/>
+                <field name="journal_code" string="Journal"/>
+                <field name="account_code" string="Account"/>
+                <field name="account_name" optional="hide"/>
+                <field name="move_name" string="Entry"/>
+                <field name="ref" string="Reference" optional="show"/>
+                <field name="name" string="Label" optional="hide"/>
+
+                <field name="debit"
+                       sum="Total Debit"
+                       widget="monetary"
+                       decoration-bf="debit != 0"/>
+
+                <field name="credit"
+                       sum="Total Credit"
+                       widget="monetary"
+                       decoration-bf="credit != 0"/>
+
+                <field name="balance"
+                       sum="Total Balance"
+                       widget="monetary"
+                       decoration-bf="1"/>
+
+                <field name="amount_currency"
+                       sum="Total Amount Currency"
+                       widget="monetary"
+                       options="{'currency_field': 'foreign_currency_id'}"
+                       optional="hide"/>
+
+                <field name="foreign_currency_id" optional="hide"/>
+                <field name="reconciled" optional="hide"/>
+                <field name="currency_id" column_invisible="1"/>
+
+                <button name="action_view_move"
+                        type="object"
+                        icon="fa-external-link"
+                        string=""
+                        title="View Journal Entry"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View for Partner Ledger Detail Lines -->
+    <record id="view_partner_ledger_detail_line_form" model="ir.ui.view">
+        <field name="name">partner.ledger.detail.line.form</field>
+        <field name="model">partner.ledger.detail.line</field>
+        <field name="arch" type="xml">
+            <form string="Transaction Detail" create="false" edit="false">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_move"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-book">
+                            <span>View Journal Entry</span>
+                        </button>
+                    </div>
+
+                    <group>
+                        <group string="Partner &amp; Date">
+                            <field name="partner_id" readonly="1"/>
+                            <field name="partner_name" readonly="1"/>
+                            <field name="date" readonly="1"/>
+                        </group>
+                        <group string="Amounts">
+                            <field name="debit" readonly="1" widget="monetary"/>
+                            <field name="credit" readonly="1" widget="monetary"/>
+                            <field name="balance" readonly="1" widget="monetary"
+                                   style="font-size: 16px; font-weight: bold;"/>
+                        </group>
+                    </group>
+
+                    <group string="Transaction Details">
+                        <group>
+                            <field name="move_name" readonly="1"/>
+                            <field name="journal_id" readonly="1"/>
+                            <field name="journal_code" readonly="1"/>
+                            <field name="account_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="account_code" readonly="1"/>
+                            <field name="ref" readonly="1"/>
+                            <field name="name" readonly="1"/>
+                            <field name="reconciled" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <group string="Currency Information" attrs="{'invisible': [('foreign_currency_id', '=', False)]}">
+                        <field name="amount_currency" readonly="1" widget="monetary"
+                               options="{'currency_field': 'foreign_currency_id'}"/>
+                        <field name="foreign_currency_id" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View for filtering -->
+    <record id="view_partner_ledger_detail_line_search" model="ir.ui.view">
+        <field name="name">partner.ledger.detail.line.search</field>
+        <field name="model">partner.ledger.detail.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Partner Ledger Details">
+                <field name="partner_name" string="Partner" filter_domain="[('partner_name', 'ilike', self)]"/>
+                <field name="move_name" string="Entry" filter_domain="[('move_name', 'ilike', self)]"/>
+                <field name="journal_code" string="Journal"/>
+                <field name="account_code" string="Account"/>
+                <field name="ref" string="Reference"/>
+
+                <separator/>
+                <filter string="Reconciled" name="reconciled" domain="[('reconciled', '=', True)]"/>
+                <filter string="Not Reconciled" name="not_reconciled" domain="[('reconciled', '=', False)]"/>
+
+                <separator/>
+                <filter string="Has Debit" name="has_debit" domain="[('debit', '>', 0)]"/>
+                <filter string="Has Credit" name="has_credit" domain="[('credit', '>', 0)]"/>
+
+                <group expand="0" string="Group By">
+                    <filter string="Partner" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'date'}"/>
+                    <filter string="Journal" name="group_journal" context="{'group_by': 'journal_id'}"/>
+                    <filter string="Account" name="group_account" context="{'group_by': 'account_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

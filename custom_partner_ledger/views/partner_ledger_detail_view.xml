@@ -38,6 +38,7 @@
 <!--</odoo>-->
 
 
+
 <odoo>
 
     <!-- List View with Action Buttons -->
@@ -56,7 +57,7 @@
                 <field name="debit"/>
                 <field name="credit"/>
                 <field name="balance"/>
-                <field name="is_opening_balance" invisible="1"/>
+                <field name="is_opening_balance" column_invisible="1"/>
 
                 <!-- Action buttons -->
                 <button name="action_view_invoice"
@@ -138,36 +139,25 @@
                 <field name="journal_id"/>
                 <field name="move_id"/>
                 <field name="ref"/>
-
                 <filter name="filter_transactions"
                         string="Transactions Only"
                         domain="[('is_opening_balance', '=', False)]"/>
-
                 <filter name="filter_opening_balance"
                         string="Opening Balance"
                         domain="[('is_opening_balance', '=', True)]"/>
-
-                <separator/>
-
                 <filter name="filter_draft"
                         string="Draft"
                         domain="[('move_state', '=', 'draft')]"/>
-
                 <filter name="filter_posted"
                         string="Posted"
                         domain="[('move_state', '=', 'posted')]"/>
-
-                <separator/>
-
                 <group expand="0" string="Group By">
                     <filter name="group_by_partner"
                             string="Partner"
                             context="{'group_by': 'partner_id'}"/>
-
                     <filter name="group_by_journal"
                             string="Journal"
                             context="{'group_by': 'journal_id'}"/>
-
                     <filter name="group_by_date"
                             string="Date"
                             context="{'group_by': 'date'}"/>

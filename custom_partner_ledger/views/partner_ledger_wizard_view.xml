@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit the Partner Ledger Wizard View -->
+    <record id="account_report_partner_ledger_custom_view" model="ir.ui.view">
+        <field name="name">Custom Partner Ledger Wizard</field>
+        <field name="model">account.report.partner.ledger</field>
+        <field name="inherit_id" ref="accounting_pdf_reports.account_report_partner_ledger_view"/>
+        <field name="arch" type="xml">
+            <!-- Add Show Details button in the footer -->
+            <xpath expr="//footer" position="inside">
+                <button string="Show Details"
+                        name="action_show_details"
+                        type="object"
+                        class="btn-primary"
+                        data-hotkey="d"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Custom tree view for partner ledger details -->
+    <record id="view_move_line_partner_ledger_tree" model="ir.ui.view">
+        <field name="name">Partner Ledger Move Lines Tree</field>
+        <field name="model">account.move.line</field>
+        <field name="arch" type="xml">
+            <tree string="Partner Ledger Details"
+                  decoration-info="parent_state == 'draft'"
+                  create="false"
+                  edit="false">
+                <field name="date"/>
+                <field name="move_id"/>
+                <field name="journal_id"/>
+                <field name="partner_id"/>
+                <field name="account_id"/>
+                <field name="name"/>
+                <field name="ref"/>
+                <field name="debit" sum="Total Debit"/>
+                <field name="credit" sum="Total Credit"/>
+                <field name="balance" sum="Total Balance"/>
+                <field name="amount_currency"
+                       optional="hide"
+                       groups="base.group_multi_currency"/>
+                <field name="currency_id"
+                       optional="hide"
+                       groups="base.group_multi_currency"/>
+                <field name="full_reconcile_id" optional="hide"/>
+                <field name="parent_state" column_invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Search view with group by partner -->
+    <record id="view_move_line_partner_ledger_search" model="ir.ui.view">
+        <field name="name">Partner Ledger Move Lines Search</field>
+        <field name="model">account.move.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Partner Ledger">
+                <field name="partner_id"/>
+                <field name="account_id"/>
+                <field name="journal_id"/>
+                <field name="move_id"/>
+                <field name="date"/>
+                <field name="ref"/>
+                <separator/>
+                <filter string="Partner"
+                        name="group_by_partner"
+                        context="{'group_by': 'partner_id'}"/>
+                <filter string="Account"
+                        name="group_by_account"
+                        context="{'group_by': 'account_id'}"/>
+                <filter string="Journal"
+                        name="group_by_journal"
+                        context="{'group_by': 'journal_id'}"/>
+                <filter string="Date"
+                        name="group_by_date"
+                        context="{'group_by': 'date'}"/>
+            </search>
+        </field>
+    </record>
+
+</odoo>

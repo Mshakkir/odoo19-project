@@ -77,7 +77,7 @@
         </field>
     </record>
 
-    <!-- Form View (Optional - for viewing details) -->
+    <!-- Form View -->
     <record id="view_partner_ledger_detail_form" model="ir.ui.view">
         <field name="name">partner.ledger.detail.form</field>
         <field name="model">partner.ledger.detail</field>
@@ -134,33 +134,19 @@
         <field name="name">partner.ledger.detail.search</field>
         <field name="model">partner.ledger.detail</field>
         <field name="arch" type="xml">
-            <search>
+            <search string="Partner Ledger Details">
                 <field name="partner_id"/>
                 <field name="journal_id"/>
                 <field name="move_id"/>
                 <field name="ref"/>
-                <filter name="filter_transactions"
-                        string="Transactions Only"
-                        domain="[('is_opening_balance', '=', False)]"/>
-                <filter name="filter_opening_balance"
-                        string="Opening Balance"
-                        domain="[('is_opening_balance', '=', True)]"/>
-                <filter name="filter_draft"
-                        string="Draft"
-                        domain="[('move_state', '=', 'draft')]"/>
-                <filter name="filter_posted"
-                        string="Posted"
-                        domain="[('move_state', '=', 'posted')]"/>
-                <group expand="0" string="Group By">
-                    <filter name="group_by_partner"
-                            string="Partner"
-                            context="{'group_by': 'partner_id'}"/>
-                    <filter name="group_by_journal"
-                            string="Journal"
-                            context="{'group_by': 'journal_id'}"/>
-                    <filter name="group_by_date"
-                            string="Date"
-                            context="{'group_by': 'date'}"/>
+                <filter string="Transactions Only" name="filter_transactions" domain="[('is_opening_balance', '=', False)]"/>
+                <filter string="Opening Balance" name="filter_opening_balance" domain="[('is_opening_balance', '=', True)]"/>
+                <filter string="Draft" name="filter_draft" domain="[('move_state', '=', 'draft')]"/>
+                <filter string="Posted" name="filter_posted" domain="[('move_state', '=', 'posted')]"/>
+                <group string="Group By">
+                    <filter string="Partner" name="group_by_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Journal" name="group_by_journal" context="{'group_by': 'journal_id'}"/>
+                    <filter string="Date" name="group_by_date" context="{'group_by': 'date'}"/>
                 </group>
             </search>
         </field>

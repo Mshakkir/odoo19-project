@@ -1,4 +1,284 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--<odoo>-->
+
+<!--    &lt;!&ndash; Inherit and customize the partner ledger template &ndash;&gt;-->
+<!--    <template id="report_partnerledger_custom"-->
+<!--              inherit_id="accounting_pdf_reports.report_partnerledger">-->
+
+<!--        <xpath expr="//t[@t-call='web.html_container']" position="replace">-->
+<!--            <t t-call="web.html_container">-->
+<!--                <t t-call="web.basic_layout">-->
+
+<!--                    <style>-->
+<!--                        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;900&amp;display=swap');-->
+
+<!--                        .ar {-->
+<!--                            font-family: 'Noto Sans Arabic', Arial, sans-serif !important;-->
+<!--                        }-->
+
+<!--                        .header {-->
+<!--                            page-break-inside: avoid;-->
+<!--                        }-->
+
+<!--                        .report-params {-->
+<!--                            page-break-inside: avoid !important;-->
+<!--                            page-break-after: avoid !important;-->
+<!--                        }-->
+
+<!--                        /* Force table header to repeat on every page */-->
+<!--                        .ledger-table thead {-->
+<!--                            display: table-header-group !important;-->
+<!--                        }-->
+
+<!--                        .ledger-table tbody {-->
+<!--                            display: table-row-group !important;-->
+<!--                        }-->
+
+<!--                        /* Prevent rows from breaking across pages */-->
+<!--                        .ledger-table tbody tr {-->
+<!--                            page-break-inside: avoid !important;-->
+<!--                            page-break-after: auto;-->
+<!--                        }-->
+
+<!--                        /* Reduce spacing for better fit */-->
+<!--                        @media print {-->
+<!--                            .page {-->
+<!--                                padding-top: 10px !important;-->
+<!--                            }-->
+
+<!--                            table {-->
+<!--                                border-collapse: collapse !important;-->
+<!--                            }-->
+
+<!--                            .header {-->
+<!--                                margin-bottom: 15px !important;-->
+<!--                            }-->
+
+<!--                            .report-params {-->
+<!--                                margin-bottom: 10px !important;-->
+<!--                            }-->
+<!--                        }-->
+<!--                    </style>-->
+
+<!--                    &lt;!&ndash; Custom Header &ndash;&gt;-->
+<!--                    <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 25px; padding: 15px 0;">-->
+<!--                        <table style="width: 100%; border-collapse: collapse; border:none; margin-bottom: 0px;">-->
+<!--                            <tr style="border:2px solid white;">-->
+<!--                                <td style="width: 50%; padding: 10px 0px; text-align: left; vertical-align: middle; border: none;padding-bottom:0px;">-->
+<!--                                    <div style="color: #8B1538; font-size: 14px; font-weight: bold; text-transform: uppercase;">-->
+<!--                                        SAMEER SHARAF AL OTAIBI TRADING COMPANY-->
+<!--                                    </div>-->
+<!--                                </td>-->
+<!--                                <td style="width: 50%; padding: 10px 0px; text-align: right; vertical-align: middle; border: none;">-->
+<!--                                    <div style="color: #8B1538; font-size: 16px; font-weight: 900; direction: rtl;padding-bottom:0px;" class="ar">-->
+<!--                                        شركة سمير شرف العتيبي التجارية-->
+<!--                                    </div>-->
+<!--                                </td>-->
+<!--                            </tr>-->
+<!--                        </table>-->
+
+<!--                        <table style="width: 100%; border-collapse: collapse;">-->
+<!--                            <tr style="border:2px solid white;">-->
+<!--                                <td style="width: 33%; text-align: left; font-size: 14px; color: #333; vertical-align: middle;-->
+<!--                                padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">-->
+<!--                                    <div style="line-height: 1.6; font-weight: 500; margin-top: 10px;">-->
+<!--                                        C.R. 4030216154<br/>-->
+<!--                                        VAT Regd: 311299944700003-->
+<!--                                    </div>-->
+<!--                                </td>-->
+
+<!--                                <td style="width: 34%; text-align: center; vertical-align: middle; padding: 5px 10px;-->
+<!--                                border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">-->
+<!--                                    <img t-att-src="'/custom_partner_ledger/static/src/img/faakart_logo.png'"-->
+<!--                                         style="max-height: 90px; max-width: 100%; object-fit: contain;"-->
+<!--                                         alt="Company Logo"/>-->
+<!--                                </td>-->
+
+<!--                                <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle;-->
+<!--                                direction: rtl; padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">-->
+<!--                                    <div style="line-height: 1.6; font-weight: 900; text-align: right; direction: rtl; margin-top: 10px;" class="ar">-->
+<!--                                        س.ت: ٤٠٣٠٢١٦١٥٤<br/>-->
+<!--                                        الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣-->
+<!--                                    </div>-->
+<!--                                </td>-->
+<!--                            </tr>-->
+<!--                        </table>-->
+<!--                    </div>-->
+
+<!--                    &lt;!&ndash; Report Title &ndash;&gt;-->
+<!--                    <div class="row" style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 3px solid white; margin-top: 5px;">-->
+<!--                        <div class="col-8">-->
+<!--                            <h5 style="margin: 0; color: black; font-weight: bold;">Partner Ledger Report</h5>-->
+<!--                        </div>-->
+<!--                        <div class="col-4 text-end">-->
+<!--                            <p style="margin: 0;">-->
+<!--                                <strong>Report Date:</strong><br/>-->
+<!--                                <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M')"/>-->
+<!--                            </p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    &lt;!&ndash; Report Parameters &ndash;&gt;-->
+<!--                    <div class="report-params">-->
+<!--                        <div class="row" style="margin-bottom: 8px;">-->
+<!--                            <div class="col-3">-->
+<!--                                <strong>Company:</strong>-->
+<!--                                <p t-esc="res_company.name" style="margin: 3px 0;"/>-->
+<!--                            </div>-->
+<!--                            <div class="col-3">-->
+<!--                                <t t-if="data['form']['date_from']">-->
+<!--                                    <strong>Date from:</strong>-->
+<!--                                    <p t-esc="data['form']['date_from']" style="margin: 3px 0;"/>-->
+<!--                                </t>-->
+<!--                            </div>-->
+<!--                            <div class="col-3">-->
+<!--                                <t t-if="data['form']['date_to']">-->
+<!--                                    <strong>Date to:</strong>-->
+<!--                                    <p t-esc="data['form']['date_to']" style="margin: 3px 0;"/>-->
+<!--                                </t>-->
+<!--                            </div>-->
+<!--                            <div class="col-3">-->
+<!--                                <strong>Generated By:</strong>-->
+<!--                                <p t-esc="user.name" style="margin: 3px 0;"/>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+<!--                        <div class="row" style="margin-bottom: 15px;">-->
+<!--                            <div class="col-3">-->
+<!--                                <strong>Target Moves:</strong>-->
+<!--                                <p style="margin: 3px 0;">-->
+<!--                                    <span t-if="data['form']['target_move'] == 'all'">All Entries</span>-->
+<!--                                    <span t-if="data['form']['target_move'] == 'posted'">All Posted Entries</span>-->
+<!--                                </p>-->
+<!--                            </div>-->
+<!--                            <div class="col-3">-->
+<!--                                <strong>Partners:</strong>-->
+<!--                                <p t-esc="len(docs)" style="margin: 3px 0;"/>-->
+<!--                            </div>-->
+<!--                            <div class="col-3">-->
+<!--                                <strong>Currency Display:</strong>-->
+<!--                                <p style="margin: 3px 0;">-->
+<!--                                    <span t-if="data['form']['amount_currency']">Enabled</span>-->
+<!--                                    <span t-else="">Disabled</span>-->
+<!--                                </p>-->
+<!--                            </div>-->
+<!--                            <div class="col-3">-->
+<!--                                <strong>Reconciled Items:</strong>-->
+<!--                                <p style="margin: 3px 0;">-->
+<!--                                    <span t-if="data['form']['reconciled']">Included</span>-->
+<!--                                    <span t-else="">Excluded</span>-->
+<!--                                </p>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    &lt;!&ndash; Partner Ledger Table &ndash;&gt;-->
+<!--                    <table class="table table-sm table-bordered ledger-table"-->
+<!--                           style="margin-bottom: 15px; width: 100%; border-collapse: collapse;">-->
+<!--                        <thead>-->
+<!--                            <tr style="background-color: #A3AABE; color: black;">-->
+<!--                                <th style="padding: 6px; text-align: left; border: 1px solid #ddd;">Date</th>-->
+<!--                                <th style="padding: 6px; text-align: left; border: 1px solid #ddd;">JRNL</th>-->
+<!--                                <th style="padding: 6px; text-align: left; border: 1px solid #ddd;">Account</th>-->
+<!--                                <th style="padding: 6px; text-align: left; border: 1px solid #ddd;">Ref</th>-->
+<!--                                <th style="padding: 6px; text-align: right; border: 1px solid #ddd;">Debit</th>-->
+<!--                                <th style="padding: 6px; text-align: right; border: 1px solid #ddd;">Credit</th>-->
+<!--                                <th style="padding: 6px; text-align: right; border: 1px solid #ddd;">Balance</th>-->
+<!--                                <th t-if="data['form']['amount_currency']"-->
+<!--                                    style="padding: 6px; text-align: right; border: 1px solid #ddd;">Currency</th>-->
+<!--                            </tr>-->
+<!--                        </thead>-->
+<!--                        <t t-foreach="docs" t-as="o">-->
+<!--                            <tbody>-->
+<!--                                &lt;!&ndash; Partner Header Row &ndash;&gt;-->
+<!--                                <tr style="background-color: #f8f9fa; border-top: 2px solid #8B1538;">-->
+<!--                                    <td colspan="4" style="padding: 10px; border: 1px solid #ddd;">-->
+<!--                                        <strong>Partner: </strong>-->
+<!--                                        <span t-esc="o.ref" t-if="o.ref"/>-->
+<!--                                        <span t-if="o.ref"> - </span>-->
+<!--                                        <strong t-esc="o.name"/>-->
+<!--                                        <span t-if="o.vat" class="text-muted"> (VAT: <t t-esc="o.vat"/>)</span>-->
+<!--                                    </td>-->
+<!--                                    <td class="text-end" style="padding: 10px; border: 1px solid #ddd;">-->
+<!--                                        <strong t-esc="sum_partner(data, o, 'debit')"-->
+<!--                                                t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                    </td>-->
+<!--                                    <td class="text-end" style="padding: 10px; border: 1px solid #ddd;">-->
+<!--                                        <strong t-esc="sum_partner(data, o, 'credit')"-->
+<!--                                                t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                    </td>-->
+<!--                                    <td class="text-end" style="padding: 10px; border: 1px solid #ddd;">-->
+<!--                                        <strong t-esc="sum_partner(data, o, 'debit - credit')"-->
+<!--                                                t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                    </td>-->
+<!--                                    <td t-if="data['form']['amount_currency']" style="padding: 10px; border: 1px solid #ddd;"/>-->
+<!--                                </tr>-->
+
+<!--                                &lt;!&ndash; Partner Transaction Lines &ndash;&gt;-->
+<!--                                <tr t-foreach="lines(data, o)" t-as="line">-->
+<!--                                    <td style="padding: 5px; border: 1px solid #ddd;">-->
+<!--                                        <span t-esc="line['date']"/>-->
+<!--                                    </td>-->
+<!--                                    <td style="padding: 5px; border: 1px solid #ddd;">-->
+<!--                                        <span t-esc="line['code']"/>-->
+<!--                                    </td>-->
+<!--                                    <td style="padding: 5px; border: 1px solid #ddd;">-->
+<!--                                        <span t-esc="line['a_name']"/>-->
+<!--                                    </td>-->
+<!--                                    <td style="padding: 5px; border: 1px solid #ddd;">-->
+<!--                                        <span t-esc="line['displayed_name']"/>-->
+<!--                                    </td>-->
+<!--                                    <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">-->
+<!--                                        <span t-esc="line['debit']"-->
+<!--                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                    </td>-->
+<!--                                    <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">-->
+<!--                                        <span t-esc="line['credit']"-->
+<!--                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                    </td>-->
+<!--                                    <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">-->
+<!--                                        <span t-esc="line['progress']"-->
+<!--                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                    </td>-->
+<!--                                    <td class="text-end" t-if="data['form']['amount_currency']"-->
+<!--                                        style="padding: 5px; border: 1px solid #ddd;">-->
+<!--                                        <t t-if="line['currency_id']">-->
+<!--                                            <span t-esc="line['amount_currency']"-->
+<!--                                                  t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>-->
+<!--                                        </t>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                            </tbody>-->
+<!--                        </t>-->
+<!--                    </table>-->
+
+<!--                    &lt;!&ndash; Custom Footer &ndash;&gt;-->
+<!--                    <div class="row" style="margin-top: 30px; border-top: 2px solid #8B1538; padding-top: 15px; page-break-inside: avoid;">-->
+<!--                        <div class="col-6">-->
+<!--                            <small class="text-muted">-->
+<!--                                <strong t-esc="res_company.name"/> |-->
+<!--                                <span t-esc="res_company.phone or ''"/>-->
+<!--                            </small>-->
+<!--                        </div>-->
+<!--                        <div class="col-6 text-end">-->
+<!--                            <small class="text-muted">-->
+<!--                                Generated by <span t-esc="user.name"/> on-->
+<!--                                <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M')"/>-->
+<!--                            </small>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                </t>-->
+
+<!--            </t>-->
+<!--        </xpath>-->
+
+<!--    </template>-->
+
+<!--</odoo>-->
+
+
+
 <odoo>
 
     <!-- Inherit and customize the partner ledger template -->
@@ -152,10 +432,9 @@
                                 </p>
                             </div>
                             <div class="col-3">
-                                             <span t-if="data['result_selection'] == 'customer'">Customer's:</span>
-                                        <span t-elif="data['result_selection'] == 'supplier'">Vendor's:</span>
-<!--                                <strong>Partners:</strong>-->
-<!--                                <p t-esc="len(docs)" style="margin: 3px 0;"/>-->
+                                <!-- Display dynamic label based on account type -->
+                                <strong t-esc="partner_type_info['display_label']"/>:
+                                <p t-esc="partner_type_info['count']" style="margin: 3px 0;"/>
                             </div>
                             <div class="col-3">
                                 <strong>Currency Display:</strong>
@@ -192,12 +471,11 @@
                         </thead>
                         <t t-foreach="docs" t-as="o">
                             <tbody>
-                                <!-- Partner Header Row -->
+                                <!-- Partner Header Row with dynamic label -->
                                 <tr style="background-color: #f8f9fa; border-top: 2px solid #8B1538;">
                                     <td colspan="4" style="padding: 10px; border: 1px solid #ddd;">
-<!--                                        <strong>Partner: </strong>-->
-                                                     <span t-if="data['result_selection'] == 'customer'">Customer's:</span>
-                                        <span t-elif="data['result_selection'] == 'supplier'">Vendor's:</span>
+                                        <!-- Dynamic label: Customer or Vendor -->
+                                        <strong t-esc="get_partner_label(data, o)"/>:
                                         <span t-esc="o.ref" t-if="o.ref"/>
                                         <span t-if="o.ref"> - </span>
                                         <strong t-esc="o.name"/>

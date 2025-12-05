@@ -38,7 +38,6 @@
 <!--</odoo>-->
 
 
-
 <odoo>
 
     <!-- List View -->
@@ -46,12 +45,9 @@
         <field name="name">partner.ledger.detail.list</field>
         <field name="model">partner.ledger.detail</field>
         <field name="arch" type="xml">
-            <list string="Partner Ledger Details"
-                  default_order="partner_id asc, date asc"
-                  decoration-muted="is_opening_balance"
-                  group_by="partner_id">
+            <list string="Partner Ledger Details" default_order="partner_id asc, date asc"
+                  decoration-muted="is_opening_balance">
 
-                <!-- Fields -->
                 <field name="partner_id"/>
                 <field name="date"/>
                 <field name="move_id" optional="hide"/>
@@ -64,15 +60,12 @@
                 <field name="balance"/>
                 <field name="is_opening_balance" column_invisible="1"/>
 
-                <!-- Buttons -->
-                <button name="action_view_invoice"
-                        type="object"
+                <button name="action_view_invoice" type="object"
                         icon="fa-file-text-o"
                         title="View Invoice/Bill"
                         invisible="is_opening_balance or not move_id"/>
 
-                <button name="action_view_journal_entry"
-                        type="object"
+                <button name="action_view_journal_entry" type="object"
                         icon="fa-book"
                         title="View Journal Entry"
                         invisible="is_opening_balance or not move_id"/>
@@ -90,7 +83,6 @@
                 <field name="partner_id"/>
                 <field name="journal_id"/>
 
-                <!-- Group by option still available in search -->
                 <filter name="group_partner"
                         string="Group by Partner"
                         context="{'group_by': 'partner_id'}"/>

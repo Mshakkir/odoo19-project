@@ -174,9 +174,8 @@
                     </div>
 
                     <!-- Partner Ledger Table -->
-                    <div style="margin-bottom: 15px;">
                     <table class="table table-sm table-bordered ledger-table"
-                           style="width: 100%; border-collapse: collapse;">
+                           style="margin-bottom: 15px; width: 100%; border-collapse: collapse;">
                         <thead>
                             <tr style="background-color: #A3AABE; color: black;">
                                 <th style="padding: 6px; text-align: left; border: 1px solid #ddd;">Date</th>
@@ -254,7 +253,6 @@
                             </tbody>
                         </t>
                     </table>
-                    </div>
 
                     <!-- Custom Footer -->
                     <div class="row" style="margin-top: 30px; border-top: 2px solid #8B1538; padding-top: 15px; page-break-inside: avoid;">

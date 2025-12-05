@@ -175,7 +175,7 @@
 
                     <!-- Partner Ledger Table -->
                     <table class="table table-sm table-bordered ledger-table"
-                           style="margin-bottom: 15px; width: 100%; border-collapse: collapse;">
+                           style="margin-bottom: 15px; width: 100%; table-layout: fixed; border-collapse: collapse;">
                         <thead>
                             <tr style="background-color: #A3AABE; color: black;">
                                 <th style="padding: 6px; text-align: left; border: 1px solid #ddd;">Date</th>

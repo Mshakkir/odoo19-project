@@ -6,9 +6,10 @@ class AccountPartnerLedgerCustom(models.TransientModel):
     _inherit = "account.report.partner.ledger"
 
     show_details = fields.Boolean(
-        string='Show Details',
-        default=False,
-        help="Show detailed transaction information in the report"
+        string='Show Transaction Details',
+        default=True,  # Set to True by default to show transaction lines
+        help="Show detailed transaction lines in the report. "
+             "Uncheck to show only partner summaries."
     )
 
     def _get_report_data(self, data):
@@ -18,10 +19,3 @@ class AccountPartnerLedgerCustom(models.TransientModel):
             'show_details': self.show_details,
         })
         return data
-
-    def button_show_details(self):
-        """Action for Show Details button"""
-        self.show_details = not self.show_details
-        return {
-            'type': 'ir.actions.do_nothing',
-        }

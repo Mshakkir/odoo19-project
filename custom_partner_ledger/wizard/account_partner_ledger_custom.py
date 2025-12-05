@@ -19,3 +19,17 @@ class AccountPartnerLedgerCustom(models.TransientModel):
             'show_details': self.show_details,
         })
         return data
+
+    def button_toggle_details(self):
+        """Toggle the show_details field when button is clicked"""
+        self.show_details = not self.show_details
+
+        # Return action to keep the wizard open and reload it with updated values
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': self._name,
+            'view_mode': 'form',
+            'res_id': self.id,
+            'views': [(False, 'form')],
+            'target': 'new',
+        }

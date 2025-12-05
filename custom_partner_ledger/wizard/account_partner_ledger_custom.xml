@@ -13,6 +13,15 @@
                 <field name="show_details" string="Show Transaction Details"/>
             </xpath>
 
+            <!-- Add Show Details Toggle button in footer before Print button -->
+            <xpath expr="//footer/button[@name='check_report']" position="before">
+                <button string="Toggle Details"
+                        name="button_toggle_details"
+                        type="object"
+                        class="btn-secondary"
+                        help="Click to show/hide transaction details"/>
+            </xpath>
+
         </field>
     </record>
 

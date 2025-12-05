@@ -39,9 +39,10 @@
 
 
 
+
 <odoo>
 
-    <!-- List View with Action Buttons -->
+    <!-- List View -->
     <record id="view_partner_ledger_detail_tree" model="ir.ui.view">
         <field name="name">partner.ledger.detail.list</field>
         <field name="model">partner.ledger.detail</field>
@@ -58,74 +59,9 @@
                 <field name="credit"/>
                 <field name="balance"/>
                 <field name="is_opening_balance" column_invisible="1"/>
-
-                <!-- Action buttons -->
-                <button name="action_view_invoice"
-                        type="object"
-                        string="View Invoice"
-                        icon="fa-file-text-o"
-                        title="View Invoice/Bill"
-                        invisible="is_opening_balance or not move_id"/>
-
-                <button name="action_view_journal_entry"
-                        type="object"
-                        string="View Entry"
-                        icon="fa-book"
-                        title="View Journal Entry"
-                        invisible="is_opening_balance or not move_id"/>
+                <button name="action_view_invoice" type="object" string="Invoice" icon="fa-file-text-o" title="View Invoice/Bill" invisible="is_opening_balance or not move_id"/>
+                <button name="action_view_journal_entry" type="object" string="Entry" icon="fa-book" title="View Journal Entry" invisible="is_opening_balance or not move_id"/>
             </list>
-        </field>
-    </record>
-
-    <!-- Form View -->
-    <record id="view_partner_ledger_detail_form" model="ir.ui.view">
-        <field name="name">partner.ledger.detail.form</field>
-        <field name="model">partner.ledger.detail</field>
-        <field name="arch" type="xml">
-            <form string="Partner Ledger Detail">
-                <header>
-                    <button name="action_view_invoice"
-                            string="View Invoice"
-                            type="object"
-                            class="oe_highlight"
-                            invisible="is_opening_balance or not move_id"/>
-                    <button name="action_view_journal_entry"
-                            string="View Journal Entry"
-                            type="object"
-                            class="oe_highlight"
-                            invisible="is_opening_balance or not move_id"/>
-                </header>
-                <sheet>
-                    <group>
-                        <group>
-                            <field name="partner_id"/>
-                            <field name="date"/>
-                            <field name="move_id"/>
-                            <field name="journal_id"/>
-                            <field name="account_id"/>
-                        </group>
-                        <group>
-                            <field name="name"/>
-                            <field name="ref"/>
-                            <field name="move_state"/>
-                            <field name="reconcile_id"/>
-                            <field name="is_opening_balance" invisible="1"/>
-                        </group>
-                    </group>
-                    <group>
-                        <group>
-                            <field name="debit"/>
-                            <field name="credit"/>
-                            <field name="balance"/>
-                        </group>
-                        <group>
-                            <field name="amount_currency"/>
-                            <field name="currency_id"/>
-                            <field name="company_currency_id" invisible="1"/>
-                        </group>
-                    </group>
-                </sheet>
-            </form>
         </field>
     </record>
 
@@ -134,20 +70,10 @@
         <field name="name">partner.ledger.detail.search</field>
         <field name="model">partner.ledger.detail</field>
         <field name="arch" type="xml">
-            <search string="Partner Ledger Details">
+            <search>
                 <field name="partner_id"/>
                 <field name="journal_id"/>
-                <field name="move_id"/>
-                <field name="ref"/>
-                <filter string="Transactions Only" name="filter_transactions" domain="[('is_opening_balance', '=', False)]"/>
-                <filter string="Opening Balance" name="filter_opening_balance" domain="[('is_opening_balance', '=', True)]"/>
-                <filter string="Draft" name="filter_draft" domain="[('move_state', '=', 'draft')]"/>
-                <filter string="Posted" name="filter_posted" domain="[('move_state', '=', 'posted')]"/>
-                <group string="Group By">
-                    <filter string="Partner" name="group_by_partner" context="{'group_by': 'partner_id'}"/>
-                    <filter string="Journal" name="group_by_journal" context="{'group_by': 'journal_id'}"/>
-                    <filter string="Date" name="group_by_date" context="{'group_by': 'date'}"/>
-                </group>
+                <filter name="group_partner" string="Group by Partner" context="{'group_by': 'partner_id'}"/>
             </search>
         </field>
     </record>

@@ -181,3 +181,27 @@ class PartnerLedgerDetail(models.TransientModel):
         total_credit = sum(lines.mapped('credit'))
 
         return total_debit - total_credit
+
+    def action_open_document(self):
+        """Open the original invoice or journal entry."""
+        self.ensure_one()
+
+        move = self.move_id
+
+        if not move:
+            return False
+
+        # Detect invoice type and show correct form view
+        view_id = False
+        if move.move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_refund']:
+            view_id = self.env.ref('account.view_move_form').id
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': move.name or "Document",
+            'view_mode': 'form',
+            'res_model': 'account.move',
+            'res_id': move.id,
+            'views': [(view_id, 'form')] if view_id else [(False, 'form')],
+            'target': 'current',
+        }

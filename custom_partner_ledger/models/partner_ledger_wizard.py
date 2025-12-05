@@ -8,7 +8,7 @@ class AccountPartnerLedgerCustom(models.TransientModel):
 
     def action_show_details(self):
         """
-        Show partner ledger details in a dedicated tree view
+        Show partner ledger details in a dedicated list view
         """
         self.ensure_one()
 
@@ -33,7 +33,7 @@ class AccountPartnerLedgerCustom(models.TransientModel):
             'name': _('Partner Ledger Details'),
             'type': 'ir.actions.act_window',
             'res_model': 'partner.ledger.detail',
-            'view_mode': 'tree',
+            'view_mode': 'list',
             'view_id': self.env.ref('custom_partner_ledger.view_partner_ledger_detail_tree').id,
             'search_view_id': self.env.ref('custom_partner_ledger.view_partner_ledger_detail_search').id,
             'context': {

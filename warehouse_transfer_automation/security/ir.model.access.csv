@@ -1,7 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_stock_picking_user,stock.picking.user,stock.model_stock_picking,stock.group_stock_user,1,1,1,1
-access_mail_activity_user,mail.activity.user,mail.model_mail_activity,stock.group_stock_user,1,1,1,1
-access_mail_activity_type_user,mail.activity.type.user,mail.model_mail_activity_type,stock.group_stock_user,1,0,0,0
-access_mail_message_user,mail.message.user,mail.model_mail_message,stock.group_stock_user,1,1,1,1
-access_mail_followers_user,mail.followers.user,mail.model_mail_followers,stock.group_stock_user,1,1,1,1
-access_ir_model_user,ir.model.user,base.model_ir_model,stock.group_stock_user,1,0,0,0

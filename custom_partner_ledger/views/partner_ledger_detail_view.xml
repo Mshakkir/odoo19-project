@@ -100,7 +100,8 @@
                         </group>
                     </group>
 
-                    <group string="Currency Information" attrs="{'invisible': [('foreign_currency_id', '=', False)]}">
+                    <!-- Currency group - show only when foreign currency exists -->
+                    <group string="Currency Information" invisible="foreign_currency_id == False">
                         <field name="amount_currency" readonly="1" widget="monetary"
                                options="{'currency_field': 'foreign_currency_id'}"/>
                         <field name="foreign_currency_id" readonly="1"/>

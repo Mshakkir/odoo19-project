@@ -45,6 +45,7 @@
 
 
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from odoo import fields, models, api, _
 
 
@@ -79,12 +80,11 @@ class AccountPartnerLedgerCustom(models.TransientModel):
             'name': _('Partner Ledger Details'),
             'type': 'ir.actions.act_window',
             'res_model': 'partner.ledger.detail',
-            'view_mode': 'list,form',
-            'view_id': self.env.ref('custom_partner_ledger.view_partner_ledger_detail_tree').id,
-            'search_view_id': self.env.ref('custom_partner_ledger.view_partner_ledger_detail_search').id,
+            'view_mode': 'list',
+            'views': [(self.env.ref('custom_partner_ledger.view_partner_ledger_detail_tree').id, 'list')],
+            'search_view_id': [self.env.ref('custom_partner_ledger.view_partner_ledger_detail_search').id],
             'context': {
                 'search_default_group_by_partner': 1,
-                'search_default_filter_transactions': 1,
             },
             'target': 'current',
         }

@@ -154,8 +154,11 @@ class StockPicking(models.Model):
 
         # Copy move lines with proper product quantities
         for move in picking.move_ids:
-            # Use the actual done quantity
-            done_qty = move.quantity if hasattr(move, 'quantity') and move.quantity > 0 else move.product_uom_qty
+            # Use the actual done quantity from move_line_ids (this is the real validated quantity)
+            done_qty = sum(move.move_line_ids.mapped('quantity')) if move.move_line_ids else move.product_uom_qty
+
+            if done_qty <= 0:
+                done_qty = move.product_uom_qty
 
             move_vals = {
                 'name': move.name,
@@ -169,13 +172,35 @@ class StockPicking(models.Model):
                 'company_id': move.company_id.id,
                 'date': fields.Datetime.now(),
             }
-            self.env['stock.move'].create(move_vals)
+            created_move = self.env['stock.move'].create(move_vals)
+
+            # Force the move to confirmed state
+            created_move._action_confirm()
 
         # Confirm the new picking
         new_picking.action_confirm()
 
-        # Assign availability
+        # Force availability check
         new_picking.action_assign()
+
+        # If not ready, force reserve the quantities manually
+        if new_picking.state != 'assigned':
+            for move in new_picking.move_ids:
+                if move.state not in ['assigned', 'done']:
+                    # Create stock move lines manually to force reservation
+                    self.env['stock.move.line'].create({
+                        'move_id': move.id,
+                        'product_id': move.product_id.id,
+                        'product_uom_id': move.product_uom.id,
+                        'location_id': transit_loc.id,
+                        'location_dest_id': dest_location.id,
+                        'quantity': move.product_uom_qty,
+                        'picking_id': new_picking.id,
+                    })
+                    move.write({'state': 'assigned'})
+
+            # Force picking to ready state
+            new_picking.write({'state': 'assigned'})
 
         # Add message to original picking
         picking.message_post(
@@ -189,8 +214,8 @@ class StockPicking(models.Model):
                 'This receipt was automatically created from transfer %s. Please validate to receive products.') % picking.name
         )
 
-        _logger.info('Created receipt transfer %s for warehouse %s from picking %s',
-                     new_picking.name, dest_warehouse.name, picking.name)
+        _logger.info('Created receipt transfer %s (state: %s) for warehouse %s from picking %s',
+                     new_picking.name, new_picking.state, dest_warehouse.name, picking.name)
 
         return new_picking
 
@@ -342,6 +367,7 @@ class StockPicking(models.Model):
             _logger.error('Error getting warehouse users: %s', str(e))
             admin = self.env.ref('base.user_admin', raise_if_not_found=False)
             return admin if admin else self.env['res.users'].browse([])
+
 
 
 

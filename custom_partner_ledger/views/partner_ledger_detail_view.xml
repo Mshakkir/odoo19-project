@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tree View -->
+    <record id="view_partner_ledger_detail_tree" model="ir.ui.view">
+        <field name="name">partner.ledger.detail.tree</field>
+        <field name="model">partner.ledger.detail</field>
+        <field name="arch" type="xml">
+            <tree string="Partner Ledger Detail" default_order="date asc">
+                <field name="partner_id"/>
+                <field name="date"/>
+                <field name="move_id"/>
+                <field name="journal_id"/>
+                <field name="account_id"/>
+                <field name="ref"/>
+                <field name="name"/>
+                <field name="debit"/>
+                <field name="credit"/>
+                <field name="balance"/>
+                <field name="amount_currency"/>
+                <field name="currency_id"/>
+                <field name="move_state"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_partner_ledger_detail_search" model="ir.ui.view">
+        <field name="name">partner.ledger.detail.search</field>
+        <field name="model">partner.ledger.detail</field>
+        <field name="arch" type="xml">
+            <search string="Search Partner Ledger">
+                <field name="partner_id"/>
+                <field name="journal_id"/>
+                <field name="account_id"/>
+                <filter string="Opening Balance" name="opening_balance" domain="[('is_opening_balance', '=', True)]"/>
+                <filter string="Transactions" name="transactions" domain="[('is_opening_balance','=',False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Partner" domain="[]" context="{'group_by':'partner_id'}"/>
+                    <filter string="Journal" domain="[]" context="{'group_by':'journal_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

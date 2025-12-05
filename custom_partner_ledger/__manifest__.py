@@ -17,8 +17,7 @@
     ],
     'data': [
         'reports/report_partner_ledger_template.xml',
-        'wizard/account_partner_ledger_custom.xml',
-        'views/partner_ledger_detail_view.xml'
+
     ],
     'installable': True,
     'application': False,

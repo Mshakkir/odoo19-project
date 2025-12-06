@@ -28,7 +28,7 @@
                     </group>
                 </xpath>
                 <footer>
-                    <button name="action_show_details"
+                    <button name="show_details"
                             class="btn btn-primary"
                             string="Show Details"
                             type="object"/>
@@ -85,36 +85,43 @@
 
                 <field name="not_due"
                        sum="Total Not Due"
-                       widget="monetary"/>
+                       widget="monetary"
+                       string="Not Due"/>
 
-                <field name="period_4"
+                <field name="period_0"
                        sum="Total"
                        widget="monetary"
-                       decoration-danger="period_4 != 0"/>
-
-                <field name="period_3"
-                       sum="Total"
-                       widget="monetary"
-                       decoration-danger="period_3 != 0"/>
-
-                <field name="period_2"
-                       sum="Total"
-                       widget="monetary"
-                       decoration-warning="period_2 != 0"/>
+                       string="0-30"/>
 
                 <field name="period_1"
                        sum="Total"
                        widget="monetary"
-                       decoration-warning="period_1 != 0"/>
+                       decoration-warning="period_1 != 0"
+                       string="31-60"/>
 
-                <field name="period_0"
+                <field name="period_2"
                        sum="Total"
-                       widget="monetary"/>
+                       widget="monetary"
+                       decoration-warning="period_2 != 0"
+                       string="61-90"/>
+
+                <field name="period_3"
+                       sum="Total"
+                       widget="monetary"
+                       decoration-danger="period_3 != 0"
+                       string="91-120"/>
+
+                <field name="period_4"
+                       sum="Total"
+                       widget="monetary"
+                       decoration-danger="period_4 != 0"
+                       string="120+"/>
 
                 <field name="total"
                        sum="Grand Total"
                        widget="monetary"
-                       decoration-bf="1"/>
+                       decoration-bf="1"
+                       string="Total"/>
 
                 <button name="action_view_journal_entries"
                         type="object"

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Purchase Book Wizard Form -->
+        <record id="view_purchase_book_wizard_form" model="ir.ui.view">
+            <field name="name">purchase.book.wizard.form</field>
+            <field name="model">purchase.book.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Purchase Book Report">
+                    <group>
+                        <group>
+                            <field name="report_type" widget="radio"/>
+                            <field name="view_type"/>
+                        </group>
+                        <group>
+                            <field name="filter_type"/>
+                            <field name="include_expense"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <label for="date_from" string="Date Range"/>
+                            <div class="o_row">
+                                <field name="date_from" class="oe_inline"/>
+                                <span class="oe_inline"> to </span>
+                                <field name="date_to" class="oe_inline"/>
+                            </div>
+                        </group>
+                        <group>
+                            <field name="partner_ids" widget="many2many_tags"
+                                   placeholder="All Vendors"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button string="Show Report (F5)" name="action_print_report"
+                                type="object" class="btn-primary"
+                                data-hotkey="f"/>
+                        <button string="Exit" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Purchase Book Wizard Action -->
+        <record id="action_purchase_book_wizard" model="ir.actions.act_window">
+            <field name="name">Purchase Book</field>
+            <field name="res_model">purchase.book.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="binding_model_id" ref="purchase.model_purchase_order"/>
+        </record>
+
+        <!-- Purchase Return Wizard Action -->
+        <record id="action_purchase_return_wizard" model="ir.actions.act_window">
+            <field name="name">Purchase Return Book</field>
+            <field name="res_model">purchase.book.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'default_report_type': 'return'}</field>
+        </record>
+
+        <!-- Purchase & Return Combined Wizard Action -->
+        <record id="action_purchase_both_wizard" model="ir.actions.act_window">
+            <field name="name">Purchase &amp; Purchase Return Book</field>
+            <field name="res_model">purchase.book.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'default_report_type': 'both'}</field>
+        </record>
+
+    </data>
+</odoo>

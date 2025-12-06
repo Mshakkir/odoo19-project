@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Purchase Book Report -->
+        <record id="action_report_purchase_book" model="ir.actions.report">
+            <field name="name">Purchase Book Report</field>
+            <field name="model">purchase.book.wizard</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">purchase_book.report_purchase_book_document</field>
+            <field name="report_file">purchase_book.report_purchase_book_document</field>
+            <field name="binding_model_id" ref="model_purchase_book_wizard"/>
+            <field name="binding_type">report</field>
+            <field name="print_report_name">'Purchase_Book_%s' % (object.date_from)</field>
+        </record>
+
+    </data>
+</odoo>

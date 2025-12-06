@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Main Menu under Purchase -->
+        <menuitem id="menu_purchase_book_root"
+                  name="Purchase Books"
+                  parent="purchase.menu_procurement_management"
+                  sequence="50"/>
+
+        <!-- Purchase Book Menu Item -->
+        <menuitem id="menu_purchase_book"
+                  name="Purchase Book"
+                  parent="menu_purchase_book_root"
+                  action="action_purchase_book_wizard"
+                  sequence="10"/>
+
+        <!-- Purchase Return Book Menu Item -->
+        <menuitem id="menu_purchase_return_book"
+                  name="Purchase Return Book"
+                  parent="menu_purchase_book_root"
+                  action="action_purchase_return_wizard"
+                  sequence="20"/>
+
+        <!-- Purchase & Purchase Return Menu Item -->
+        <menuitem id="menu_purchase_both_book"
+                  name="Purchase &amp; Purchase Return"
+                  parent="menu_purchase_book_root"
+                  action="action_purchase_both_wizard"
+                  sequence="30"/>
+
+    </data>
+</odoo>

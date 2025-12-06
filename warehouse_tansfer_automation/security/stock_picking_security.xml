@@ -6,7 +6,7 @@
         <record id="stock_picking_main_warehouse_rule" model="ir.rule">
             <field name="name">Main Warehouse: See only Main warehouse operations</field>
             <field name="model_id" ref="stock.model_stock_picking"/>
-            <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_main_warehouse'))]"/>
+            <field name="groups" eval="[(4, ref('warehouse_tansfer_automation.group_main_warehouse'))]"/>
             <field name="domain_force">[
                 '|', '|', '|', '|', '|',
                 ('picking_type_id.warehouse_id.name', '=', 'SSAOCO-Main Office'),
@@ -28,7 +28,7 @@
         <record id="stock_picking_dammam_warehouse_rule" model="ir.rule">
             <field name="name">Dammam Warehouse: See only Dammam warehouse operations</field>
             <field name="model_id" ref="stock.model_stock_picking"/>
-            <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_dammam_warehouse'))]"/>
+            <field name="groups" eval="[(4, ref('warehouse_tansfer_automation.group_dammam_warehouse'))]"/>
             <field name="domain_force">[
                 '|', '|', '|',
                 ('picking_type_id.warehouse_id.name', '=', 'SSAOCO - Dammam'),
@@ -47,7 +47,7 @@
         <record id="stock_picking_baladiya_warehouse_rule" model="ir.rule">
             <field name="name">Baladiya Warehouse: See only Baladiya warehouse operations</field>
             <field name="model_id" ref="stock.model_stock_picking"/>
-            <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_baladiya_warehouse'))]"/>
+            <field name="groups" eval="[(4, ref('warehouse_tansfer_automation.group_baladiya_warehouse'))]"/>
             <field name="domain_force">[
                 '|', '|', '|',
                 ('picking_type_id.warehouse_id.name', '=', 'SSAOCO - Baladiya'),
@@ -66,7 +66,7 @@
         <record id="stock_location_main_warehouse_rule" model="ir.rule">
             <field name="name">Main Warehouse: See all locations</field>
             <field name="model_id" ref="stock.model_stock_location"/>
-            <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_main_warehouse'))]"/>
+            <field name="groups" eval="[(4, ref('warehouse_tansfer_automation.group_main_warehouse'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -78,7 +78,7 @@
         <record id="stock_location_dammam_warehouse_rule" model="ir.rule">
             <field name="name">Dammam Warehouse: See only Dammam and Main locations</field>
             <field name="model_id" ref="stock.model_stock_location"/>
-            <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_dammam_warehouse'))]"/>
+            <field name="groups" eval="[(4, ref('warehouse_tansfer_automation.group_dammam_warehouse'))]"/>
             <field name="domain_force">[
                 '|', '|', '|', '|',
                 ('warehouse_id.name', '=', 'SSAOCO - Dammam'),
@@ -97,7 +97,7 @@
         <record id="stock_location_baladiya_warehouse_rule" model="ir.rule">
             <field name="name">Baladiya Warehouse: See only Baladiya and Main locations</field>
             <field name="model_id" ref="stock.model_stock_location"/>
-            <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_baladiya_warehouse'))]"/>
+            <field name="groups" eval="[(4, ref('warehouse_tansfer_automation.group_baladiya_warehouse'))]"/>
             <field name="domain_force">[
                 '|', '|', '|', '|',
                 ('warehouse_id.name', '=', 'SSAOCO - Baladiya'),
@@ -116,7 +116,7 @@
         <record id="stock_picking_type_dammam_warehouse_rule" model="ir.rule">
             <field name="name">Dammam Warehouse: See only Dammam operation types</field>
             <field name="model_id" ref="stock.model_stock_picking_type"/>
-            <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_dammam_warehouse'))]"/>
+            <field name="groups" eval="[(4, ref('warehouse_tansfer_automation.group_dammam_warehouse'))]"/>
             <field name="domain_force">[
                 ('warehouse_id.name', '=', 'SSAOCO - Dammam')
             ]</field>
@@ -130,7 +130,7 @@
         <record id="stock_picking_type_baladiya_warehouse_rule" model="ir.rule">
             <field name="name">Baladiya Warehouse: See only Baladiya operation types</field>
             <field name="model_id" ref="stock.model_stock_picking_type"/>
-            <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_baladiya_warehouse'))]"/>
+            <field name="groups" eval="[(4, ref('warehouse_tansfer_automation.group_baladiya_warehouse'))]"/>
             <field name="domain_force">[
                 ('warehouse_id.name', '=', 'SSAOCO - Baladiya')
             ]</field>
@@ -144,7 +144,7 @@
         <record id="stock_picking_type_main_warehouse_rule" model="ir.rule">
             <field name="name">Main Warehouse: See all operation types</field>
             <field name="model_id" ref="stock.model_stock_picking_type"/>
-            <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_main_warehouse'))]"/>
+            <field name="groups" eval="[(4, ref('warehouse_tansfer_automation.group_main_warehouse'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>

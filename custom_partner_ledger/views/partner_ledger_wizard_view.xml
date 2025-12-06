@@ -12,6 +12,14 @@
                 <attribute name="string">Customers &amp; Vendors</attribute>
             </xpath>
 
+            <!-- Add Analytic Account (Warehouse) field after partner_ids -->
+            <xpath expr="//field[@name='partner_ids']" position="after">
+                <field name="analytic_account_ids"
+                       widget="many2many_tags"
+                       options="{'no_create': True}"
+                       placeholder="Select warehouses/analytic accounts..."/>
+            </xpath>
+
             <!-- Add Show Details button in the footer -->
             <xpath expr="//footer" position="inside">
                 <button string="Show Details"

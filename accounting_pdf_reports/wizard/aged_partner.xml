@@ -23,7 +23,9 @@
                     </group>
                 </xpath>
                 <footer>
-                    <button name="check_report" class="oe_highlight"
+                    <button name="show_details" class="oe_highlight"
+                            string="Show Details" type="object"/>
+                    <button name="check_report"
                             string="Print PDF" type="object"/>
                     <button string="Cancel" class="btn btn-default" special="cancel"/>
                 </footer>

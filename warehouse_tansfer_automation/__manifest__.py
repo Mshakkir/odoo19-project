@@ -10,14 +10,15 @@
         * Auto-creates second transfer from transit to destination warehouse
         * Sends notification to Main warehouse when branch requests products
         * Sends notification to branch warehouse when Main approves request
+        * Warehouse-specific access control with security groups
     """,
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',
     'depends': ['stock', 'mail'],
     'data': [
         'security/warehouse_security_groups.xml',
-        'security/stock_picking_security.xml',
         'security/ir.model.access.csv',
+        # 'security/stock_picking_security.xml',
         'data/mail_template.xml',
         'views/stock_picking_views.xml',
     ],

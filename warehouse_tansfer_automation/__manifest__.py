@@ -18,7 +18,7 @@
     'data': [
         'security/warehouse_security_groups.xml',
         'security/ir.model.access.csv',
-        # 'security/stock_picking_security.xml',
+        'security/stock_picking_security.xml',
         'data/mail_template.xml',
         'views/stock_picking_views.xml',
     ],

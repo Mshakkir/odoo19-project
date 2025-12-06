@@ -7,15 +7,10 @@
         <field name="model">account.report.partner.ledger</field>
         <field name="inherit_id" ref="accounting_pdf_reports.account_report_partner_ledger_view"/>
         <field name="arch" type="xml">
-            <!-- Replace "Partners" label with "Customers & Vendors" -->
-            <xpath expr="//label[@for='partner_ids']" position="attributes">
+            <!-- Change the label of partner_ids field -->
+            <xpath expr="//field[@name='partner_ids']" position="attributes">
                 <attribute name="string">Customers &amp; Vendors</attribute>
             </xpath>
-
-            <!-- Alternative: if the above doesn't work, try replacing the entire label -->
-            <!-- <xpath expr="//label[@for='partner_ids']" position="replace">
-                <label for="partner_ids" string="Customers &amp; Vendors"/>
-            </xpath> -->
 
             <!-- Add Show Details button in the footer -->
             <xpath expr="//footer" position="inside">

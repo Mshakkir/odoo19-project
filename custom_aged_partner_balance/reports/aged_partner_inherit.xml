@@ -1,4 +1,10 @@
 <odoo>
+    <!-- Create Parent Menu for Partner Reports -->
+    <menuitem id="menu_finance_partner_reports"
+              name="Partner Reports"
+              parent="account.menu_finance_reports"
+              sequence="50"/>
+
     <!-- Base view for Aged Partner Balance -->
     <record id="account_aged_balance_view" model="ir.ui.view">
         <field name="name">Aged Partner Balance</field>

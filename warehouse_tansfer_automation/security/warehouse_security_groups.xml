@@ -1,26 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
+    <data noupdate="0">
 
         <!-- Main Warehouse Group -->
         <record id="group_main_warehouse" model="res.groups">
             <field name="name">Main Warehouse User</field>
             <field name="implied_ids" eval="[(4, ref('stock.group_stock_user'))]"/>
-            <field name="comment">Users who can access Main Office warehouse operations</field>
         </record>
 
         <!-- Dammam Warehouse Group -->
         <record id="group_dammam_warehouse" model="res.groups">
             <field name="name">Dammam Warehouse User</field>
             <field name="implied_ids" eval="[(4, ref('stock.group_stock_user'))]"/>
-            <field name="comment">Users who can access Dammam warehouse operations only</field>
         </record>
 
         <!-- Baladiya Warehouse Group -->
         <record id="group_baladiya_warehouse" model="res.groups">
             <field name="name">Baladiya Warehouse User</field>
             <field name="implied_ids" eval="[(4, ref('stock.group_stock_user'))]"/>
-            <field name="comment">Users who can access Baladiya warehouse operations only</field>
         </record>
 
     </data>

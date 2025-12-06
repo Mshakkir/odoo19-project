@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Get reference to existing Purchase/Reporting menu -->
-        <!-- The external ID for Purchase > Reporting menu -->
+        <!-- Find and reference the existing Reporting menu by searching -->
+        <!-- If Reporting menu doesn't exist, create it -->
+        <record id="purchase_reporting_menu" model="ir.ui.menu">
+            <field name="name">Reporting</field>
+            <field name="parent_id" ref="purchase.menu_procurement_management"/>
+            <field name="sequence">99</field>
+        </record>
 
         <!-- Main Menu under Purchase > Reporting -->
         <menuitem id="menu_purchase_book_root"
                   name="Purchase Books"
-                  parent="purchase.menu_reporting"
+                  parent="purchase_reporting_menu"
                   sequence="50"/>
 
         <!-- Purchase Book Menu Item -->

@@ -15,6 +15,8 @@
     'website': 'https://www.yourcompany.com',
     'depends': ['stock', 'mail'],
     'data': [
+        'security/warehouse_security_groups.xml',
+        'security/stock_picking_security.xml',
         'security/ir.model.access.csv',
         'data/mail_template.xml',
         'views/stock_picking_views.xml',
@@ -24,4 +26,3 @@
     'auto_install': False,
     'license': 'LGPL-3',
 }
-

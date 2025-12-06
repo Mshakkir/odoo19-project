@@ -173,7 +173,38 @@
     <record id="action_account_aged_receivable" model="ir.actions.act_window">
         <field name="name">Aged Receivable</field>
         <field name="res_model">account.aged.trial.balance</field>
-        <field name="type">ir.actions.act
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="account_aged_receivable_view"/>
+        <field name="context">{'default_result_selection': 'customer',
+            'hide_result_selection': 1}</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_aged_receivable"
+              name="Aged Receivable"
+              sequence="20"
+              action="action_account_aged_receivable"
+              parent="menu_finance_partner_reports"/>
+
+    <!-- Action for Aged Payable using the custom view -->
+    <record id="action_account_aged_payable" model="ir.actions.act_window">
+        <field name="name">Aged Payable</field>
+        <field name="res_model">account.aged.trial.balance</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="account_aged_payable_view"/>
+        <field name="context">{'default_result_selection': 'supplier',
+            'hide_result_selection': 1}</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_aged_payable"
+              name="Aged Payable"
+              sequence="30"
+              action="action_account_aged_payable"
+              parent="menu_finance_partner_reports"/>
+</odoo>
 
 
 

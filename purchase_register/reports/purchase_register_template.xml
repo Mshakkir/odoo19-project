@@ -1,0 +1,91 @@
+<odoo>
+    <template id="report_purchase_register_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <!-- Header -->
+                        <div class="row mb-4">
+                            <div class="col-12 text-center">
+                                <h2>PURCHASE REGISTER</h2>
+                                <h4 t-field="o.company_id.name"/>
+                                <p>
+                                    Period: <span t-field="o.date_from"/> to <span t-field="o.date_to"/>
+                                </p>
+                                <p t-if="o.partner_ids">
+                                    Suppliers: <span t-esc="', '.join(o.partner_ids.mapped('name'))"/>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Get Purchase Data -->
+                        <t t-set="purchase_data" t-value="o._get_purchase_data()"/>
+
+                        <!-- Table -->
+                        <table class="table table-sm table-bordered">
+                            <thead style="background-color: #4472C4; color: white;">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Invoice No.</th>
+                                    <th>Supplier</th>
+                                    <th>VAT/GST</th>
+                                    <th>Product/Service</th>
+                                    <th class="text-right">Qty</th>
+                                    <th class="text-right">Unit Price</th>
+                                    <th class="text-right">Subtotal</th>
+                                    <th>Tax</th>
+                                    <th class="text-right">Tax Amt</th>
+                                    <th class="text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="total_subtotal" t-value="0"/>
+                                <t t-set="total_tax" t-value="0"/>
+                                <t t-set="total_amount" t-value="0"/>
+
+                                <t t-foreach="purchase_data" t-as="line">
+                                    <tr>
+                                        <td><span t-esc="line['date'].strftime('%d/%m/%Y')"/></td>
+                                        <td><span t-esc="line['invoice_number']"/></td>
+                                        <td><span t-esc="line['supplier_name']"/></td>
+                                        <td><span t-esc="line['supplier_vat']"/></td>
+                                        <td><span t-esc="line['product']"/></td>
+                                        <td class="text-right"><span t-esc="'%.2f' % line['quantity']"/></td>
+                                        <td class="text-right"><span t-esc="'%.2f' % line['unit_price']"/></td>
+                                        <td class="text-right"><span t-esc="'%.2f' % line['subtotal']"/></td>
+                                        <td><span t-esc="line['taxes']"/></td>
+                                        <td class="text-right"><span t-esc="'%.2f' % line['tax_amount']"/></td>
+                                        <td class="text-right"><strong><span t-esc="'%.2f' % line['total']"/></strong></td>
+                                    </tr>
+
+                                    <t t-set="total_subtotal" t-value="total_subtotal + line['subtotal']"/>
+                                    <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>
+                                    <t t-set="total_amount" t-value="total_amount + line['total']"/>
+                                </t>
+                            </tbody>
+                            <tfoot style="background-color: #D9E1F2; font-weight: bold;">
+                                <tr>
+                                    <td colspan="7" class="text-right">TOTAL:</td>
+                                    <td class="text-right"><span t-esc="'%.2f' % total_subtotal"/></td>
+                                    <td></td>
+                                    <td class="text-right"><span t-esc="'%.2f' % total_tax"/></td>
+                                    <td class="text-right"><span t-esc="'%.2f' % total_amount"/></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <!-- Summary -->
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <p><strong>Total Records:</strong> <span t-esc="len(purchase_data)"/></p>
+                            </div>
+                            <div class="col-6 text-right">
+                                <p><strong>Generated On:</strong> <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M:%S')"/></p>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

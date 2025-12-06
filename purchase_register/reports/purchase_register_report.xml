@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Report Definition -->
+    <record id="action_report_purchase_register" model="ir.actions.report">
+        <field name="name">Purchase Register</field>
+        <field name="model">purchase.register.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">purchase_register.report_purchase_register_document</field>
+        <field name="report_file">purchase_register.report_purchase_register_document</field>
+        <field name="binding_model_id" ref="model_purchase_register_wizard"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Purchase_Register_%s_%s' % (object.date_from, object.date_to)</field>
+    </record>
+</odoo>
+

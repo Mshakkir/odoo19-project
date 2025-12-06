@@ -1,3 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--<odoo>-->
+<!--    <template id="report_purchase_register_document">-->
+<!--        <t t-call="web.html_container">-->
+<!--            <t t-foreach="docs" t-as="o">-->
+<!--                <t t-call="web.external_layout">-->
+<!--                    <div class="page">-->
+<!--                        &lt;!&ndash; Header &ndash;&gt;-->
+<!--                        <div class="row mb-4">-->
+<!--                            <div class="col-12 text-center">-->
+<!--                                <h2>PURCHASE REGISTER</h2>-->
+<!--                                <h4 t-field="o.company_id.name"/>-->
+<!--                                <p>-->
+<!--                                    Period: <span t-field="o.date_from"/> to <span t-field="o.date_to"/>-->
+<!--                                </p>-->
+<!--                                <p t-if="o.partner_ids">-->
+<!--                                    Suppliers: <span t-esc="', '.join(o.partner_ids.mapped('name'))"/>-->
+<!--                                </p>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+<!--                        &lt;!&ndash; Get Purchase Data &ndash;&gt;-->
+<!--                        <t t-set="purchase_data" t-value="o._get_purchase_data()"/>-->
+
+<!--                        &lt;!&ndash; Table &ndash;&gt;-->
+<!--                        <table class="table table-sm table-bordered">-->
+<!--                            <thead style="background-color: #4472C4; color: white;">-->
+<!--                                <tr>-->
+<!--                                    <th>Date</th>-->
+<!--                                    <th>Invoice No.</th>-->
+<!--                                    <th>Supplier</th>-->
+<!--                                    <th>VAT/GST</th>-->
+<!--                                    <th>Product/Service</th>-->
+<!--                                    <th class="text-right">Qty</th>-->
+<!--                                    <th class="text-right">Unit Price</th>-->
+<!--                                    <th class="text-right">Subtotal</th>-->
+<!--                                    <th>Tax</th>-->
+<!--                                    <th class="text-right">Tax Amt</th>-->
+<!--                                    <th class="text-right">Total</th>-->
+<!--                                </tr>-->
+<!--                            </thead>-->
+<!--                            <tbody>-->
+<!--                                <t t-set="total_subtotal" t-value="0"/>-->
+<!--                                <t t-set="total_tax" t-value="0"/>-->
+<!--                                <t t-set="total_amount" t-value="0"/>-->
+
+<!--                                <t t-foreach="purchase_data" t-as="line">-->
+<!--                                    <tr>-->
+<!--                                        <td><span t-esc="line['date'].strftime('%d/%m/%Y')"/></td>-->
+<!--                                        <td><span t-esc="line['invoice_number']"/></td>-->
+<!--                                        <td><span t-esc="line['supplier_name']"/></td>-->
+<!--                                        <td><span t-esc="line['supplier_vat']"/></td>-->
+<!--                                        <td><span t-esc="line['product']"/></td>-->
+<!--                                        <td class="text-right"><span t-esc="'%.2f' % line['quantity']"/></td>-->
+<!--                                        <td class="text-right"><span t-esc="'%.2f' % line['unit_price']"/></td>-->
+<!--                                        <td class="text-right"><span t-esc="'%.2f' % line['subtotal']"/></td>-->
+<!--                                        <td><span t-esc="line['taxes']"/></td>-->
+<!--                                        <td class="text-right"><span t-esc="'%.2f' % line['tax_amount']"/></td>-->
+<!--                                        <td class="text-right"><strong><span t-esc="'%.2f' % line['total']"/></strong></td>-->
+<!--                                    </tr>-->
+
+<!--                                    <t t-set="total_subtotal" t-value="total_subtotal + line['subtotal']"/>-->
+<!--                                    <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>-->
+<!--                                    <t t-set="total_amount" t-value="total_amount + line['total']"/>-->
+<!--                                </t>-->
+<!--                            </tbody>-->
+<!--                            <tfoot style="background-color: #D9E1F2; font-weight: bold;">-->
+<!--                                <tr>-->
+<!--                                    <td colspan="7" class="text-right">TOTAL:</td>-->
+<!--                                    <td class="text-right"><span t-esc="'%.2f' % total_subtotal"/></td>-->
+<!--                                    <td></td>-->
+<!--                                    <td class="text-right"><span t-esc="'%.2f' % total_tax"/></td>-->
+<!--                                    <td class="text-right"><span t-esc="'%.2f' % total_amount"/></td>-->
+<!--                                </tr>-->
+<!--                            </tfoot>-->
+<!--                        </table>-->
+
+<!--                        &lt;!&ndash; Summary &ndash;&gt;-->
+<!--                        <div class="row mt-4">-->
+<!--                            <div class="col-6">-->
+<!--                                <p><strong>Total Records:</strong> <span t-esc="len(purchase_data)"/></p>-->
+<!--                            </div>-->
+<!--                            <div class="col-6 text-right">-->
+<!--                                <p><strong>Generated On:</strong> <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M:%S')"/></p>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </t>-->
+<!--            </t>-->
+<!--        </t>-->
+<!--    </template>-->
+<!--</odoo>-->
+
+
 <odoo>
     <template id="report_purchase_register_document">
         <t t-call="web.html_container">
@@ -8,12 +102,15 @@
                         <div class="row mb-4">
                             <div class="col-12 text-center">
                                 <h2>PURCHASE REGISTER</h2>
-                                <h4 t-field="o.company_id.name"/>
+                                <h4><span t-field="o.company_id.name"/></h4>
                                 <p>
-                                    Period: <span t-field="o.date_from"/> to <span t-field="o.date_to"/>
+                                    Period: <span t-esc="o.date_from.strftime('%d/%m/%Y')"/> to <span t-esc="o.date_to.strftime('%d/%m/%Y')"/>
                                 </p>
                                 <p t-if="o.partner_ids">
                                     Suppliers: <span t-esc="', '.join(o.partner_ids.mapped('name'))"/>
+                                </p>
+                                <p>
+                                    Data Source: <span t-esc="dict(o._fields['data_source'].selection).get(o.data_source)"/>
                                 </p>
                             </div>
                         </div>
@@ -21,68 +118,79 @@
                         <!-- Get Purchase Data -->
                         <t t-set="purchase_data" t-value="o._get_purchase_data()"/>
 
+                        <!-- Check if data exists -->
+                        <t t-if="not purchase_data">
+                            <div class="alert alert-warning">
+                                <strong>No Data Found!</strong> No purchase records found for the selected period.
+                            </div>
+                        </t>
+
                         <!-- Table -->
-                        <table class="table table-sm table-bordered">
-                            <thead style="background-color: #4472C4; color: white;">
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Invoice No.</th>
-                                    <th>Supplier</th>
-                                    <th>VAT/GST</th>
-                                    <th>Product/Service</th>
-                                    <th class="text-right">Qty</th>
-                                    <th class="text-right">Unit Price</th>
-                                    <th class="text-right">Subtotal</th>
-                                    <th>Tax</th>
-                                    <th class="text-right">Tax Amt</th>
-                                    <th class="text-right">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <t t-set="total_subtotal" t-value="0"/>
-                                <t t-set="total_tax" t-value="0"/>
-                                <t t-set="total_amount" t-value="0"/>
-
-                                <t t-foreach="purchase_data" t-as="line">
+                        <t t-if="purchase_data">
+                            <table class="table table-sm table-bordered">
+                                <thead style="background-color: #4472C4; color: white;">
                                     <tr>
-                                        <td><span t-esc="line['date'].strftime('%d/%m/%Y')"/></td>
-                                        <td><span t-esc="line['invoice_number']"/></td>
-                                        <td><span t-esc="line['supplier_name']"/></td>
-                                        <td><span t-esc="line['supplier_vat']"/></td>
-                                        <td><span t-esc="line['product']"/></td>
-                                        <td class="text-right"><span t-esc="'%.2f' % line['quantity']"/></td>
-                                        <td class="text-right"><span t-esc="'%.2f' % line['unit_price']"/></td>
-                                        <td class="text-right"><span t-esc="'%.2f' % line['subtotal']"/></td>
-                                        <td><span t-esc="line['taxes']"/></td>
-                                        <td class="text-right"><span t-esc="'%.2f' % line['tax_amount']"/></td>
-                                        <td class="text-right"><strong><span t-esc="'%.2f' % line['total']"/></strong></td>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Document No.</th>
+                                        <th>Supplier</th>
+                                        <th>VAT/GST</th>
+                                        <th>Product/Service</th>
+                                        <th class="text-right">Qty</th>
+                                        <th class="text-right">Unit Price</th>
+                                        <th class="text-right">Subtotal</th>
+                                        <th>Tax</th>
+                                        <th class="text-right">Tax Amt</th>
+                                        <th class="text-right">Total</th>
                                     </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="total_subtotal" t-value="0"/>
+                                    <t t-set="total_tax" t-value="0"/>
+                                    <t t-set="total_amount" t-value="0"/>
 
-                                    <t t-set="total_subtotal" t-value="total_subtotal + line['subtotal']"/>
-                                    <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>
-                                    <t t-set="total_amount" t-value="total_amount + line['total']"/>
-                                </t>
-                            </tbody>
-                            <tfoot style="background-color: #D9E1F2; font-weight: bold;">
-                                <tr>
-                                    <td colspan="7" class="text-right">TOTAL:</td>
-                                    <td class="text-right"><span t-esc="'%.2f' % total_subtotal"/></td>
-                                    <td></td>
-                                    <td class="text-right"><span t-esc="'%.2f' % total_tax"/></td>
-                                    <td class="text-right"><span t-esc="'%.2f' % total_amount"/></td>
-                                </tr>
-                            </tfoot>
-                        </table>
+                                    <t t-foreach="purchase_data" t-as="line">
+                                        <tr>
+                                            <td><span t-esc="line['date'].strftime('%d/%m/%Y') if hasattr(line['date'], 'strftime') else line['date']"/></td>
+                                            <td><span t-esc="line['document_type']"/></td>
+                                            <td><span t-esc="line['document_number']"/></td>
+                                            <td><span t-esc="line['supplier_name']"/></td>
+                                            <td><span t-esc="line['supplier_vat']"/></td>
+                                            <td><span t-esc="line['product']"/></td>
+                                            <td class="text-right"><span t-esc="'%.2f' % line['quantity']"/></td>
+                                            <td class="text-right"><span t-esc="'%.2f' % line['unit_price']"/></td>
+                                            <td class="text-right"><span t-esc="'%.2f' % line['subtotal']"/></td>
+                                            <td><span t-esc="line['taxes']"/></td>
+                                            <td class="text-right"><span t-esc="'%.2f' % line['tax_amount']"/></td>
+                                            <td class="text-right"><strong><span t-esc="'%.2f' % line['total']"/></strong></td>
+                                        </tr>
 
-                        <!-- Summary -->
-                        <div class="row mt-4">
-                            <div class="col-6">
-                                <p><strong>Total Records:</strong> <span t-esc="len(purchase_data)"/></p>
+                                        <t t-set="total_subtotal" t-value="total_subtotal + line['subtotal']"/>
+                                        <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>
+                                        <t t-set="total_amount" t-value="total_amount + line['total']"/>
+                                    </t>
+                                </tbody>
+                                <tfoot style="background-color: #D9E1F2; font-weight: bold;">
+                                    <tr>
+                                        <td colspan="8" class="text-right">TOTAL:</td>
+                                        <td class="text-right"><span t-esc="'%.2f' % total_subtotal"/></td>
+                                        <td></td>
+                                        <td class="text-right"><span t-esc="'%.2f' % total_tax"/></td>
+                                        <td class="text-right"><span t-esc="'%.2f' % total_amount"/></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+                            <!-- Summary -->
+                            <div class="row mt-4">
+                                <div class="col-6">
+                                    <p><strong>Total Records:</strong> <span t-esc="len(purchase_data)"/></p>
+                                </div>
+                                <div class="col-6 text-right">
+                                    <p><strong>Generated On:</strong> <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M:%S')"/></p>
+                                </div>
                             </div>
-                            <div class="col-6 text-right">
-                                <p><strong>Generated On:</strong> <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M:%S')"/></p>
-                            </div>
-                        </div>
+                        </t>
                     </div>
                 </t>
             </t>

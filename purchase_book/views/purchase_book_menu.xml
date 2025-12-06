@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Main Menu under Purchase -->
-        <menuitem id="menu_purchase_book_root"
-                  name="Purchase Books"
+        <!-- Create Reporting submenu under Purchase if it doesn't exist -->
+        <menuitem id="menu_purchase_reporting"
+                  name="Reporting"
                   parent="purchase.menu_procurement_management"
                   sequence="50"/>
+
+        <!-- Main Menu under Purchase > Reporting -->
+        <menuitem id="menu_purchase_book_root"
+                  name="Purchase Books"
+                  parent="menu_purchase_reporting"
+                  sequence="10"/>
 
         <!-- Purchase Book Menu Item -->
         <menuitem id="menu_purchase_book"

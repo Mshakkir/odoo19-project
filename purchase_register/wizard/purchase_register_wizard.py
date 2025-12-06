@@ -302,7 +302,13 @@ class PurchaseRegisterWizard(models.TransientModel):
         po_data = []
         for po in purchase_orders:
             for line in po.order_line:
-                taxes = line.taxes_id
+                # Get taxes - handle different field names across Odoo versions
+                taxes = False
+                if hasattr(line, 'tax_id'):
+                    taxes = line.tax_id
+                elif hasattr(line, 'taxes_id'):
+                    taxes = line.taxes_id
+
                 tax_amount = 0
                 if taxes:
                     tax_amount = sum(line.price_subtotal * (tax.amount / 100) for tax in taxes)
@@ -350,7 +356,9 @@ class PurchaseRegisterWizard(models.TransientModel):
             for invoice in invoices:
                 for line in invoice.invoice_line_ids:
                     taxes = line.tax_ids
-                    tax_amount = sum(line.price_subtotal * (tax.amount / 100) for tax in taxes)
+                    tax_amount = 0
+                    if taxes:
+                        tax_amount = sum(line.price_subtotal * (tax.amount / 100) for tax in taxes)
 
                     invoice_data.append({
                         'date': invoice.invoice_date,
@@ -364,7 +372,7 @@ class PurchaseRegisterWizard(models.TransientModel):
                         'subtotal': line.price_subtotal,
                         'tax_amount': tax_amount,
                         'total': line.price_total,
-                        'taxes': ', '.join(taxes.mapped('name')),
+                        'taxes': ', '.join(taxes.mapped('name')) if taxes else '',
                         'currency': invoice.currency_id.name,
                     })
         except Exception as e:

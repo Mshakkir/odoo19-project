@@ -2,17 +2,9 @@
 <odoo>
     <data>
 
-        <!-- Category for Warehouse Groups -->
-        <record id="module_category_warehouse_access" model="ir.module.category">
-            <field name="name">Warehouse Access</field>
-            <field name="description">Control access to specific warehouses</field>
-            <field name="sequence">10</field>
-        </record>
-
         <!-- Main Warehouse Group -->
         <record id="group_main_warehouse" model="res.groups">
             <field name="name">Main Warehouse User</field>
-            <field name="categ_id" ref="module_category_warehouse_access"/>
             <field name="implied_ids" eval="[(4, ref('stock.group_stock_user'))]"/>
             <field name="comment">Users who can access Main Office warehouse operations</field>
         </record>
@@ -20,7 +12,6 @@
         <!-- Dammam Warehouse Group -->
         <record id="group_dammam_warehouse" model="res.groups">
             <field name="name">Dammam Warehouse User</field>
-            <field name="categ_id" ref="module_category_warehouse_access"/>
             <field name="implied_ids" eval="[(4, ref('stock.group_stock_user'))]"/>
             <field name="comment">Users who can access Dammam warehouse operations only</field>
         </record>
@@ -28,7 +19,6 @@
         <!-- Baladiya Warehouse Group -->
         <record id="group_baladiya_warehouse" model="res.groups">
             <field name="name">Baladiya Warehouse User</field>
-            <field name="categ_id" ref="module_category_warehouse_access"/>
             <field name="implied_ids" eval="[(4, ref('stock.group_stock_user'))]"/>
             <field name="comment">Users who can access Baladiya warehouse operations only</field>
         </record>

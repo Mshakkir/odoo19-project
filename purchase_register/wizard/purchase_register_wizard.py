@@ -224,6 +224,7 @@
 #             'target': 'new',
 #         }
 
+
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 from datetime import datetime
@@ -313,8 +314,13 @@ class PurchaseRegisterWizard(models.TransientModel):
                 if taxes:
                     tax_amount = sum(line.price_subtotal * (tax.amount / 100) for tax in taxes)
 
+                # Convert datetime to date if needed
+                order_date = po.date_order
+                if hasattr(order_date, 'date'):
+                    order_date = order_date.date()
+
                 po_data.append({
-                    'date': po.date_order.date() if hasattr(po.date_order, 'date') else po.date_order,
+                    'date': order_date,
                     'document_number': po.name or '',
                     'document_type': 'Purchase Order',
                     'supplier_name': po.partner_id.name,

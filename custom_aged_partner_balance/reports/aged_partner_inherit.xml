@@ -21,30 +21,6 @@
         </field>
     </record>
 
-    <!-- INHERIT Receivable view to change Partners label to Customers -->
-    <record id="account_aged_receivable_view_inherit" model="ir.ui.view">
-        <field name="name">Aged Receivable - Customers Label</field>
-        <field name="model">account.aged.trial.balance</field>
-        <field name="inherit_id" ref="accounting_pdf_reports.account_aged_balance_view"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='partner_ids']" position="attributes">
-                <attribute name="string">Customers</attribute>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- INHERIT Payable view to change Partners label to Vendors -->
-    <record id="account_aged_payable_view_inherit" model="ir.ui.view">
-        <field name="name">Aged Payable - Vendors Label</field>
-        <field name="model">account.aged.trial.balance</field>
-        <field name="inherit_id" ref="accounting_pdf_reports.account_aged_balance_view"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='partner_ids']" position="attributes">
-                <attribute name="string">Vendors</attribute>
-            </xpath>
-        </field>
-    </record>
-
     <!-- Detail Line Tree View -->
     <record id="view_aged_detail_tree" model="ir.ui.view">
         <field name="name">account.aged.detail.line.tree</field>
@@ -165,7 +141,7 @@
         <field name="parent_id" ref="menu_finance_partner_reports"/>
     </record>
 
-    <record id="accounting_pdf_reports.menu_aged_payable" model="ir.ui.view">
+    <record id="accounting_pdf_reports.menu_aged_payable" model="ir.ui.menu">
         <field name="parent_id" ref="menu_finance_partner_reports"/>
     </record>
 

@@ -24,6 +24,7 @@
         'security/ir.model.access.csv',
         'reports/report_aged_partner_custom.xml',
         'views/aged_detail_views.xml',
+        'reports/aged_partner_inherit.xml',
     ],
     'installable': True,
     'application': False,

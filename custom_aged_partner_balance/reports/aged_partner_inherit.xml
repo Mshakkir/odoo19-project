@@ -5,47 +5,27 @@
               parent="account.menu_finance_reports"
               sequence="50"/>
 
-    <!-- Base view for Aged Partner Balance -->
-    <record id="account_aged_balance_view" model="ir.ui.view">
-        <field name="name">Aged Partner Balance</field>
+    <!-- INHERIT the Odoo Mates base view and add Show Details button -->
+    <record id="account_aged_balance_view_inherit" model="ir.ui.view">
+        <field name="name">Aged Partner Balance - Add Show Details</field>
         <field name="model">account.aged.trial.balance</field>
+        <field name="inherit_id" ref="accounting_pdf_reports.account_aged_balance_view"/>
         <field name="arch" type="xml">
-            <form string="Report Options">
-                <group col="4">
-                    <field name="date_from"/>
-                    <field name="period_length"/>
-                    <field name="company_id" invisible="1"/>
-                    <newline/>
-                    <field name="result_selection" widget="radio"
-                           invisible="context.get('hide_result_selection')"/>
-                    <field name="target_move" widget="radio"/>
-                </group>
-                <field name="journal_ids" required="0" invisible="1"/>
-                <xpath expr="//field[@name='journal_ids']" position="before">
-                    <group>
-                        <field name="partner_ids" widget="many2many_tags"
-                               options="{'no_open': True, 'no_create': True}"/>
-                    </group>
-                </xpath>
-                <footer>
-                    <button name="show_details"
-                            class="btn btn-primary"
-                            string="Show Details"
-                            type="object"/>
-                    <button name="check_report" class="oe_highlight"
-                            string="Print PDF" type="object"/>
-                    <button string="Cancel" class="btn btn-default" special="cancel"/>
-                </footer>
-            </form>
+            <!-- Add Show Details button before Print button -->
+            <xpath expr="//footer/button[@name='check_report']" position="before">
+                <button name="show_details"
+                        class="btn btn-primary"
+                        string="Show Details"
+                        type="object"/>
+            </xpath>
         </field>
     </record>
 
-    <!-- Separate view for Aged Receivable with "Customers" label -->
-    <record id="account_aged_receivable_view" model="ir.ui.view">
-        <field name="name">Aged Receivable</field>
+    <!-- INHERIT Receivable view to change Partners label to Customers -->
+    <record id="account_aged_receivable_view_inherit" model="ir.ui.view">
+        <field name="name">Aged Receivable - Customers Label</field>
         <field name="model">account.aged.trial.balance</field>
-        <field name="inherit_id" ref="account_aged_balance_view"/>
-        <field name="mode">primary</field>
+        <field name="inherit_id" ref="accounting_pdf_reports.account_aged_balance_view"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_ids']" position="attributes">
                 <attribute name="string">Customers</attribute>
@@ -53,12 +33,11 @@
         </field>
     </record>
 
-    <!-- Separate view for Aged Payable with "Vendors" label -->
-    <record id="account_aged_payable_view" model="ir.ui.view">
-        <field name="name">Aged Payable</field>
+    <!-- INHERIT Payable view to change Partners label to Vendors -->
+    <record id="account_aged_payable_view_inherit" model="ir.ui.view">
+        <field name="name">Aged Payable - Vendors Label</field>
         <field name="model">account.aged.trial.balance</field>
-        <field name="inherit_id" ref="account_aged_balance_view"/>
-        <field name="mode">primary</field>
+        <field name="inherit_id" ref="accounting_pdf_reports.account_aged_balance_view"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_ids']" position="attributes">
                 <attribute name="string">Vendors</attribute>
@@ -131,7 +110,7 @@
         </field>
     </record>
 
-    <!-- Detail Line Form View (for expanded view) -->
+    <!-- Detail Line Form View -->
     <record id="view_aged_detail_form" model="ir.ui.view">
         <field name="name">account.aged.detail.line.form</field>
         <field name="model">account.aged.detail.line</field>
@@ -177,77 +156,17 @@
         <field name="target">current</field>
     </record>
 
-    <!-- Action for Aged Partner Balance -->
-    <record id="action_account_aged_balance_view" model="ir.actions.act_window">
-        <field name="name">Aged Partner Balance</field>
-        <field name="res_model">account.aged.trial.balance</field>
-        <field name="type">ir.actions.act_window</field>
-        <field name="view_mode">form</field>
-        <field name="view_id" ref="account_aged_balance_view"/>
-        <field name="context">{}</field>
-        <field name="target">new</field>
+    <!-- Update existing menu items to use our parent menu -->
+    <record id="accounting_pdf_reports.menu_aged_trial_balance" model="ir.ui.menu">
+        <field name="parent_id" ref="menu_finance_partner_reports"/>
     </record>
 
-    <menuitem id="menu_aged_trial_balance"
-              name="Aged Partner Balance"
-              sequence="10"
-              action="action_account_aged_balance_view"
-              parent="menu_finance_partner_reports"/>
-
-    <!-- Action for Aged Receivable using the custom view -->
-    <record id="action_account_aged_receivable" model="ir.actions.act_window">
-        <field name="name">Aged Receivable</field>
-        <field name="res_model">account.aged.trial.balance</field>
-        <field name="type">ir.actions.act_window</field>
-        <field name="view_mode">form</field>
-        <field name="view_id" ref="account_aged_receivable_view"/>
-        <field name="context">{'default_result_selection': 'customer',
-            'hide_result_selection': 1}</field>
-        <field name="target">new</field>
+    <record id="accounting_pdf_reports.menu_aged_receivable" model="ir.ui.menu">
+        <field name="parent_id" ref="menu_finance_partner_reports"/>
     </record>
 
-    <menuitem id="menu_aged_receivable"
-              name="Aged Receivable"
-              sequence="20"
-              action="action_account_aged_receivable"
-              parent="menu_finance_partner_reports"/>
-
-    <!-- Action for Aged Payable using the custom view -->
-    <record id="action_account_aged_payable" model="ir.actions.act_window">
-        <field name="name">Aged Payable</field>
-        <field name="res_model">account.aged.trial.balance</field>
-        <field name="type">ir.actions.act_window</field>
-        <field name="view_mode">form</field>
-        <field name="view_id" ref="account_aged_payable_view"/>
-        <field name="context">{'default_result_selection': 'supplier',
-            'hide_result_selection': 1}</field>
-        <field name="target">new</field>
+    <record id="accounting_pdf_reports.menu_aged_payable" model="ir.ui.view">
+        <field name="parent_id" ref="menu_finance_partner_reports"/>
     </record>
 
-    <menuitem id="menu_aged_payable"
-              name="Aged Payable"
-              sequence="30"
-              action="action_account_aged_payable"
-              parent="menu_finance_partner_reports"/>
 </odoo>
-
-
-        <!--<?xml version="1.0" encoding="utf-8"?>-->
-        <!--<odoo>-->
-        <!--    &lt;!&ndash; No need to modify the wizard form - it already has show_details button &ndash;&gt;-->
-        <!--    &lt;!&ndash; Just ensure your custom report template is loaded &ndash;&gt;-->
-
-        <!--    &lt;!&ndash; Optional: Add custom styling or modifications to the detail views &ndash;&gt;-->
-        <!--    <record id="view_aged_detail_tree_custom" model="ir.ui.view">-->
-        <!--        <field name="name">account.aged.detail.line.tree.custom</field>-->
-        <!--        <field name="model">account.aged.detail.line</field>-->
-        <!--        <field name="inherit_id" ref="accounting_pdf_reports.view_aged_detail_tree"/>-->
-        <!--        <field name="arch" type="xml">-->
-        <!--            &lt;!&ndash; Add any custom columns or styling here if needed &ndash;&gt;-->
-        <!--            <xpath expr="//field[@name='partner_name']" position="attributes">-->
-        <!--                <attribute name="decoration-bf">1</attribute>-->
-        <!--            </xpath>-->
-        <!--        </field>-->
-        <!--    </record>-->
-
-        <!--</odoo>-->

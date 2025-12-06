@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Base view for Aged Partner Balance -->
     <record id="account_aged_balance_view" model="ir.ui.view">
@@ -107,10 +106,10 @@
                        widget="monetary"
                        decoration-bf="1"/>
 
-                <button name="action_view_partner_ledger"
+                <button name="action_view_journal_entries"
                         type="object"
                         icon="fa-book"
-                        title="View Partner Ledger"/>
+                        title="View Journal Entries"/>
             </list>
         </field>
     </record>
@@ -143,10 +142,10 @@
                     </group>
                 </sheet>
                 <div class="oe_chatter">
-                    <button name="action_view_partner_ledger"
+                    <button name="action_view_journal_entries"
                             type="object"
                             class="oe_highlight"
-                            string="View Partner Ledger"/>
+                            string="View Journal Entries"/>
                 </div>
             </form>
         </field>
@@ -207,24 +206,22 @@
 </odoo>
 
 
+        <!--<?xml version="1.0" encoding="utf-8"?>-->
+        <!--<odoo>-->
+        <!--    &lt;!&ndash; No need to modify the wizard form - it already has show_details button &ndash;&gt;-->
+        <!--    &lt;!&ndash; Just ensure your custom report template is loaded &ndash;&gt;-->
 
+        <!--    &lt;!&ndash; Optional: Add custom styling or modifications to the detail views &ndash;&gt;-->
+        <!--    <record id="view_aged_detail_tree_custom" model="ir.ui.view">-->
+        <!--        <field name="name">account.aged.detail.line.tree.custom</field>-->
+        <!--        <field name="model">account.aged.detail.line</field>-->
+        <!--        <field name="inherit_id" ref="accounting_pdf_reports.view_aged_detail_tree"/>-->
+        <!--        <field name="arch" type="xml">-->
+        <!--            &lt;!&ndash; Add any custom columns or styling here if needed &ndash;&gt;-->
+        <!--            <xpath expr="//field[@name='partner_name']" position="attributes">-->
+        <!--                <attribute name="decoration-bf">1</attribute>-->
+        <!--            </xpath>-->
+        <!--        </field>-->
+        <!--    </record>-->
 
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-<!--    &lt;!&ndash; No need to modify the wizard form - it already has show_details button &ndash;&gt;-->
-<!--    &lt;!&ndash; Just ensure your custom report template is loaded &ndash;&gt;-->
-
-<!--    &lt;!&ndash; Optional: Add custom styling or modifications to the detail views &ndash;&gt;-->
-<!--    <record id="view_aged_detail_tree_custom" model="ir.ui.view">-->
-<!--        <field name="name">account.aged.detail.line.tree.custom</field>-->
-<!--        <field name="model">account.aged.detail.line</field>-->
-<!--        <field name="inherit_id" ref="accounting_pdf_reports.view_aged_detail_tree"/>-->
-<!--        <field name="arch" type="xml">-->
-<!--            &lt;!&ndash; Add any custom columns or styling here if needed &ndash;&gt;-->
-<!--            <xpath expr="//field[@name='partner_name']" position="attributes">-->
-<!--                <attribute name="decoration-bf">1</attribute>-->
-<!--            </xpath>-->
-<!--        </field>-->
-<!--    </record>-->
-
-<!--</odoo>-->
+        <!--</odoo>-->

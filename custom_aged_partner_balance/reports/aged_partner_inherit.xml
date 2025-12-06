@@ -28,6 +28,10 @@
                     </group>
                 </xpath>
                 <footer>
+                    <button name="action_show_details"
+                            class="btn btn-primary"
+                            string="Show Details"
+                            type="object"/>
                     <button name="check_report" class="oe_highlight"
                             string="Print PDF" type="object"/>
                     <button string="Cancel" class="btn btn-default" special="cancel"/>
@@ -155,6 +159,15 @@
                 </div>
             </form>
         </field>
+    </record>
+
+    <!-- Action for Aged Detail Lines -->
+    <record id="action_aged_detail_lines" model="ir.actions.act_window">
+        <field name="name">Aged Balance Details</field>
+        <field name="res_model">account.aged.detail.line</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_aged_detail_tree"/>
+        <field name="target">current</field>
     </record>
 
     <!-- Action for Aged Partner Balance -->

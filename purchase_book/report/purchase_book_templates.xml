@@ -20,19 +20,19 @@
 
                             <!-- Purchase Report -->
                             <t t-if="o.report_type == 'purchase'">
-                                <t t-set="data" t-value="o._get_purchase_data()"/>
+                                <t t-set="data" t-value="o._get_report_data()"/>
                                 <t t-call="purchase_book.purchase_table_template"/>
                             </t>
 
                             <!-- Purchase Return Report -->
                             <t t-if="o.report_type == 'return'">
-                                <t t-set="data" t-value="o._get_return_data()"/>
+                                <t t-set="data" t-value="o._get_report_data()"/>
                                 <t t-call="purchase_book.return_table_template"/>
                             </t>
 
                             <!-- Combined Report -->
                             <t t-if="o.report_type == 'both'">
-                                <t t-set="data" t-value="o._get_combined_data()"/>
+                                <t t-set="data" t-value="o._get_report_data()"/>
                                 <t t-call="purchase_book.combined_table_template"/>
                             </t>
 

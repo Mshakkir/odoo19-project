@@ -34,6 +34,9 @@ class PurchaseBookWizard(models.TransientModel):
 
     include_expense = fields.Boolean(string='Include Expense Purchases', default=True)
 
+    company_id = fields.Many2one('res.company', string='Company',
+                                 default=lambda self: self.env.company)
+
     @api.onchange('filter_type')
     def _onchange_filter_type(self):
         """Auto-set date range based on filter type"""
@@ -50,81 +53,98 @@ class PurchaseBookWizard(models.TransientModel):
 
     def action_print_report(self):
         """Generate the selected report"""
-        data = {
-            'report_type': self.report_type,
-            'view_type': self.view_type,
-            'date_from': self.date_from.strftime('%Y-%m-%d'),
-            'date_to': self.date_to.strftime('%Y-%m-%d'),
-            'partner_ids': self.partner_ids.ids,
-            'include_expense': self.include_expense,
-        }
+        self.ensure_one()
+        return self.env.ref('purchase_book.action_report_purchase_book').report_action(self)
 
-        return self.env.ref('purchase_book.action_report_purchase_book').report_action(self, data=data)
+    def _get_report_data(self):
+        """Get report data based on report type"""
+        self.ensure_one()
+
+        if self.report_type == 'purchase':
+            return self._get_purchase_data()
+        elif self.report_type == 'return':
+            return self._get_return_data()
+        else:  # both
+            return self._get_combined_data()
 
     def _get_purchase_data(self):
         """Fetch purchase order data based on filters"""
+        self.ensure_one()
+
+        # Search for posted vendor bills (purchase invoices)
         domain = [
-            ('date_order', '>=', self.date_from),
-            ('date_order', '<=', self.date_to),
-            ('state', 'in', ['purchase', 'done'])
+            ('invoice_date', '>=', self.date_from),
+            ('invoice_date', '<=', self.date_to),
+            ('state', '=', 'posted'),
+            ('move_type', '=', 'in_invoice'),
+            ('company_id', '=', self.company_id.id)
         ]
 
         if self.partner_ids:
             domain.append(('partner_id', 'in', self.partner_ids.ids))
 
-        purchases = self.env['purchase.order'].search(domain, order='date_order asc')
+        invoices = self.env['account.move'].search(domain, order='invoice_date asc, name asc')
 
         data = []
-        for po in purchases:
-            # Get invoice information
-            invoices = po.invoice_ids.filtered(lambda inv: inv.state == 'posted' and inv.move_type == 'in_invoice')
+        for invoice in invoices:
+            # Calculate amounts
+            gross_total = sum(line.price_subtotal for line in invoice.invoice_line_ids)
+            trade_disc = 0.0  # Calculate discount if your lines have discount field
+            for line in invoice.invoice_line_ids:
+                if line.discount:
+                    discount_amount = (line.price_unit * line.quantity * line.discount) / 100
+                    trade_disc += discount_amount
 
-            for invoice in invoices:
-                gross_total = sum(line.price_subtotal for line in invoice.invoice_line_ids)
-                trade_disc = sum(line.discount_amount if hasattr(line, 'discount_amount') else 0
-                                 for line in invoice.invoice_line_ids)
-                net_total = gross_total - trade_disc
-                tax_amount = sum(line.price_total - line.price_subtotal for line in invoice.invoice_line_ids)
-                grand_total = invoice.amount_total
+            net_total = gross_total - trade_disc
+            tax_amount = invoice.amount_tax
+            grand_total = invoice.amount_total
 
-                data.append({
-                    'date': invoice.invoice_date,
-                    'vendor': po.partner_id.name,
-                    'invoice_ref': invoice.ref or invoice.name,
-                    'po_number': po.name,
-                    'gross': gross_total,
-                    'trade_disc': trade_disc,
-                    'net_total': net_total,
-                    'add_disc': 0.0,  # Additional discount if applicable
-                    'add_cost': 0.0,  # Additional cost if applicable
-                    'round_off': invoice.amount_residual if hasattr(invoice, 'amount_residual') else 0,
-                    'adj_amount': 0.0,
-                    'tax_amount': tax_amount,
-                    'grand_total': grand_total,
-                })
+            data.append({
+                'date': invoice.invoice_date,
+                'vendor': invoice.partner_id.name,
+                'invoice_ref': invoice.ref or invoice.name,
+                'po_number': ', '.join(invoice.invoice_line_ids.mapped('purchase_line_id.order_id.name')) or '',
+                'gross': gross_total,
+                'trade_disc': trade_disc,
+                'net_total': net_total,
+                'add_disc': 0.0,
+                'add_cost': 0.0,
+                'round_off': invoice.amount_residual_signed if hasattr(invoice, 'amount_residual_signed') else 0.0,
+                'adj_amount': 0.0,
+                'tax_amount': tax_amount,
+                'grand_total': grand_total,
+            })
 
         return data
 
     def _get_return_data(self):
         """Fetch purchase return (refund) data based on filters"""
+        self.ensure_one()
+
         domain = [
             ('invoice_date', '>=', self.date_from),
             ('invoice_date', '<=', self.date_to),
             ('state', '=', 'posted'),
-            ('move_type', '=', 'in_refund')
+            ('move_type', '=', 'in_refund'),
+            ('company_id', '=', self.company_id.id)
         ]
 
         if self.partner_ids:
             domain.append(('partner_id', 'in', self.partner_ids.ids))
 
-        refunds = self.env['account.move'].search(domain, order='invoice_date asc')
+        refunds = self.env['account.move'].search(domain, order='invoice_date asc, name asc')
 
         data = []
         for refund in refunds:
             gross_total = sum(line.price_subtotal for line in refund.invoice_line_ids)
             trade_disc = 0.0
-            net_total = gross_total
-            tax_amount = sum(line.price_total - line.price_subtotal for line in refund.invoice_line_ids)
+            for line in refund.invoice_line_ids:
+                if line.discount:
+                    discount_amount = (line.price_unit * line.quantity * line.discount) / 100
+                    trade_disc += discount_amount
+
+            net_total = gross_total - trade_disc
+            tax_amount = refund.amount_tax
             grand_total = refund.amount_total
 
             data.append({
@@ -146,6 +166,8 @@ class PurchaseBookWizard(models.TransientModel):
 
     def _get_combined_data(self):
         """Fetch both purchase and return data"""
+        self.ensure_one()
+
         purchase_data = self._get_purchase_data()
         return_data = self._get_return_data()
 
@@ -156,15 +178,30 @@ class PurchaseBookWizard(models.TransientModel):
 
         for item in return_data:
             item['type'] = 'Return'
-            item['type_label'] = 'Purchase Invoice'
+            item['type_label'] = 'Purchase Return'
             # Make return values negative for proper accounting
-            item['gross'] = -item['gross']
-            item['net_total'] = -item['net_total']
-            item['tax_amount'] = -item['tax_amount']
-            item['grand_total'] = -item['grand_total']
+            item['gross'] = -abs(item['gross'])
+            item['net_total'] = -abs(item['net_total'])
+            item['tax_amount'] = -abs(item['tax_amount'])
+            item['grand_total'] = -abs(item['grand_total'])
 
         # Combine and sort by date
         combined = purchase_data + return_data
         combined.sort(key=lambda x: x['date'])
 
         return combined
+
+    def _get_report_values(self):
+        """Get values to pass to the report template"""
+        self.ensure_one()
+
+        return {
+            'doc_ids': self.ids,
+            'doc_model': 'purchase.book.wizard',
+            'docs': self,
+            'data': self._get_report_data(),
+            'date_from': self.date_from,
+            'date_to': self.date_to,
+            'report_type': self.report_type,
+            'company': self.company_id,
+        }

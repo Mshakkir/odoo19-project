@@ -9,11 +9,10 @@
                 <form string="Purchase Book Report">
                     <group>
                         <group>
-                            <field name="report_type" widget="radio"/>
                             <field name="view_type"/>
+                            <field name="filter_type"/>
                         </group>
                         <group>
-                            <field name="filter_type"/>
                             <field name="include_expense"/>
                         </group>
                     </group>
@@ -21,9 +20,11 @@
                         <group>
                             <label for="date_from" string="Date Range"/>
                             <div class="o_row">
-                                <field name="date_from" class="oe_inline"/>
+                                <field name="date_from" class="oe_inline"
+                                       options="{'datepicker': {'format': 'dd/mm/yyyy'}}"/>
                                 <span class="oe_inline"> to </span>
-                                <field name="date_to" class="oe_inline"/>
+                                <field name="date_to" class="oe_inline"
+                                       options="{'datepicker': {'format': 'dd/mm/yyyy'}}"/>
                             </div>
                         </group>
                         <group>
@@ -31,8 +32,9 @@
                                    placeholder="All Vendors"/>
                         </group>
                     </group>
+                    <field name="report_type" invisible="1"/>
                     <footer>
-                        <button string="Show Report (F5)" name="action_print_report"
+                        <button string="Print PDF" name="action_print_report"
                                 type="object" class="btn-primary"
                                 data-hotkey="f"/>
                         <button string="Exit" class="btn-secondary" special="cancel"/>
@@ -48,6 +50,7 @@
             <field name="view_mode">form</field>
             <field name="target">new</field>
             <field name="binding_model_id" ref="purchase.model_purchase_order"/>
+            <field name="context">{'default_report_type': 'purchase'}</field>
         </record>
 
         <!-- Purchase Return Wizard Action -->

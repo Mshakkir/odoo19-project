@@ -1,38 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Find and reference the existing Reporting menu by searching -->
-        <!-- If Reporting menu doesn't exist, create it -->
-        <record id="purchase_reporting_menu" model="ir.ui.menu">
-            <field name="name">Reporting</field>
-            <field name="parent_id" ref="purchase.menu_procurement_management"/>
-            <field name="sequence">99</field>
-        </record>
-
-        <!-- Main Menu under Purchase > Reporting -->
-        <menuitem id="menu_purchase_book_root"
-                  name="Purchase Books"
-                  parent="purchase_reporting_menu"
-                  sequence="50"/>
+        <!-- Root Menu under Purchase -->
+        <menuitem id="menu_purchase_register_root"
+                  name="Purchase books"
+                  parent="purchase.menu_purchase_root"
+                  sequence="99"/>
 
         <!-- Purchase Book Menu Item -->
         <menuitem id="menu_purchase_book"
-                  name="Purchase Book"
-                  parent="menu_purchase_book_root"
+                  name="Purchase"
+                  parent="menu_purchase_register_root"
                   action="action_purchase_book_wizard"
                   sequence="10"/>
 
         <!-- Purchase Return Book Menu Item -->
         <menuitem id="menu_purchase_return_book"
-                  name="Purchase Return Book"
-                  parent="menu_purchase_book_root"
+                  name="Purchase Return"
+                  parent="menu_purchase_register_root"
                   action="action_purchase_return_wizard"
                   sequence="20"/>
 
         <!-- Purchase & Purchase Return Menu Item -->
         <menuitem id="menu_purchase_both_book"
                   name="Purchase &amp; Purchase Return"
-                  parent="menu_purchase_book_root"
+                  parent="menu_purchase_register_root"
                   action="action_purchase_both_wizard"
                   sequence="30"/>
 

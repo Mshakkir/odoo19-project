@@ -172,7 +172,7 @@
                         <!-- Table -->
                         <t t-if="purchase_data">
                             <table class="table table-sm table-bordered">
-                                <thead style="background-color: C4C3BE; color: black;">
+                                <thead style="background-color: #808077; color: black;">
                                     <tr>
                                         <th>Date</th>
                                         <th>Type</th>

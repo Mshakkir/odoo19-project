@@ -30,6 +30,8 @@
                         <group>
                             <field name="partner_ids" widget="many2many_tags"
                                    placeholder="All Vendors"/>
+                            <field name="analytic_account_ids" widget="many2many_tags"
+                                   placeholder="All Analytic Accounts"/>
                         </group>
                     </group>
                     <field name="report_type" invisible="1"/>

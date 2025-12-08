@@ -179,6 +179,7 @@
                                         <th>Document No.</th>
                                         <th>Supplier</th>
                                         <th>VAT/GST</th>
+                                        <th>Warehouse</th>
                                         <th>Product/Service</th>
                                         <th class="text-right">Qty</th>
                                         <th class="text-right">Unit Price</th>
@@ -186,12 +187,16 @@
                                         <th>Tax</th>
                                         <th class="text-right">Tax Amt</th>
                                         <th class="text-right">Total</th>
+                                        <th class="text-right">Paid</th>
+                                        <th class="text-right">Balance</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <t t-set="total_subtotal" t-value="0"/>
                                     <t t-set="total_tax" t-value="0"/>
                                     <t t-set="total_amount" t-value="0"/>
+                                    <t t-set="total_paid" t-value="0"/>
+                                    <t t-set="total_balance" t-value="0"/>
 
                                     <t t-foreach="purchase_data" t-as="line">
                                         <tr>
@@ -200,6 +205,7 @@
                                             <td><span t-esc="line.get('document_number', '')"/></td>
                                             <td><span t-esc="line.get('supplier_name', '')"/></td>
                                             <td><span t-esc="line.get('supplier_vat', '')"/></td>
+                                            <td><span t-esc="line.get('warehouse', '')"/></td>
                                             <td><span t-esc="line.get('product', '')"/></td>
                                             <td class="text-right"><span t-esc="'%.2f' % line.get('quantity', 0)"/></td>
                                             <td class="text-right"><span t-esc="'%.2f' % line.get('unit_price', 0)"/></td>
@@ -207,20 +213,26 @@
                                             <td><span t-esc="line.get('taxes', '')"/></td>
                                             <td class="text-right"><span t-esc="'%.2f' % line.get('tax_amount', 0)"/></td>
                                             <td class="text-right"><strong><span t-esc="'%.2f' % line.get('total', 0)"/></strong></td>
+                                            <td class="text-right"><span t-esc="'%.2f' % line.get('paid', 0)"/></td>
+                                            <td class="text-right"><span t-esc="'%.2f' % line.get('balance', 0)"/></td>
                                         </tr>
 
                                         <t t-set="total_subtotal" t-value="total_subtotal + line.get('subtotal', 0)"/>
                                         <t t-set="total_tax" t-value="total_tax + line.get('tax_amount', 0)"/>
                                         <t t-set="total_amount" t-value="total_amount + line.get('total', 0)"/>
+                                        <t t-set="total_paid" t-value="total_paid + line.get('paid', 0)"/>
+                                        <t t-set="total_balance" t-value="total_balance + line.get('balance', 0)"/>
                                     </t>
                                 </tbody>
                                 <tfoot style="background-color: #D9E1F2; font-weight: bold;">
                                     <tr>
-                                        <td colspan="8" class="text-right">TOTAL:</td>
+                                        <td colspan="9" class="text-right">TOTAL:</td>
                                         <td class="text-right"><span t-esc="'%.2f' % total_subtotal"/></td>
                                         <td></td>
                                         <td class="text-right"><span t-esc="'%.2f' % total_tax"/></td>
                                         <td class="text-right"><span t-esc="'%.2f' % total_amount"/></td>
+                                        <td class="text-right"><span t-esc="'%.2f' % total_paid"/></td>
+                                        <td class="text-right"><span t-esc="'%.2f' % total_balance"/></td>
                                     </tr>
                                 </tfoot>
                             </table>

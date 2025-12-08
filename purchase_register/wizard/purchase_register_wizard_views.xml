@@ -20,31 +20,31 @@
                             <field name="partner_ids" widget="many2many_tags"/>
                         </group>
                     </group>
-                    <notebook>
-                        <page string="Instructions">
-                            <group>
-                                <div style="padding: 10px; background-color: #f0f8ff; border-radius: 5px;">
-                                    <h3>How to Use:</h3>
-                                    <ul>
-                                        <li><strong>Data Source:</strong> Choose to include Purchase Orders, Vendor Bills, or both</li>
-                                        <li><strong>Date Range:</strong> Select the date range for the purchase register</li>
-                                        <li><strong>Suppliers:</strong> Optionally filter by specific suppliers (leave empty for all)</li>
-                                        <li><strong>Report Type:</strong> Choose Summary or Detailed report</li>
-                                        <li><strong>Grouping:</strong> Select how to group the data</li>
-                                        <li><strong>Generate:</strong> Click "Print PDF" or "Export Excel"</li>
-                                    </ul>
-                                    <p style="margin-top: 10px; color: #0066cc;">
-                                        <strong>Note:</strong> If you don't have the accounting module installed,
-                                        select "Purchase Orders Only" as the data source.
-                                    </p>
-                                </div>
-                            </group>
-                        </page>
-                    </notebook>
+<!--                    <notebook>-->
+<!--                        <page string="Instructions">-->
+<!--                            <group>-->
+<!--                                <div style="padding: 10px; background-color: #f0f8ff; border-radius: 5px;">-->
+<!--                                    <h3>How to Use:</h3>-->
+<!--                                    <ul>-->
+<!--                                        <li><strong>Data Source:</strong> Choose to include Purchase Orders, Vendor Bills, or both</li>-->
+<!--                                        <li><strong>Date Range:</strong> Select the date range for the purchase register</li>-->
+<!--                                        <li><strong>Suppliers:</strong> Optionally filter by specific suppliers (leave empty for all)</li>-->
+<!--                                        <li><strong>Report Type:</strong> Choose Summary or Detailed report</li>-->
+<!--                                        <li><strong>Grouping:</strong> Select how to group the data</li>-->
+<!--                                        <li><strong>Generate:</strong> Click "Print PDF" or "Export Excel"</li>-->
+<!--                                    </ul>-->
+<!--                                    <p style="margin-top: 10px; color: #0066cc;">-->
+<!--                                        <strong>Note:</strong> If you don't have the accounting module installed,-->
+<!--                                        select "Purchase Orders Only" as the data source.-->
+<!--                                    </p>-->
+<!--                                </div>-->
+<!--                            </group>-->
+<!--                        </page>-->
+<!--                    </notebook>-->
                 </sheet>
                 <footer>
                     <button name="action_print_pdf" string="Print PDF" type="object" class="btn-primary"/>
-                    <button name="action_export_excel" string="Export Excel" type="object" class="btn-success"/>
+<!--                    <button name="action_export_excel" string="Export Excel" type="object" class="btn-success"/>-->
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>

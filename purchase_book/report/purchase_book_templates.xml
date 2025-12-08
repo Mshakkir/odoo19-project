@@ -8,38 +8,38 @@
                     <!-- Use basic_layout instead of external_layout to avoid default header -->
                     <t t-call="web.basic_layout">
                         <head>
-                        <meta charset="UTF-8"/>
-                        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-                        <style type="text/css">
-                            /* Import Google Noto Arabic Font */
-                            @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&amp;display=swap');
+                            <meta charset="UTF-8"/>
+                            <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+                            <style type="text/css">
+                                /* Import Google Noto Arabic Font */
+                                @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&amp;display=swap');
 
-                            @page {
-                            margin: 20mm;
-                            }
+                                @page {
+                                margin: 20mm;
+                                }
 
-                            body {
-                            font-family: 'DejaVu Sans', Arial, sans-serif;
-                            }
+                                body {
+                                font-family: 'DejaVu Sans', Arial, sans-serif;
+                                }
 
-                            .ar {
-                            font-family: 'Noto Naskh Arabic', 'DejaVu Sans', Arial, sans-serif !important;
-                            direction: rtl;
-                            unicode-bidi: bidi-override;
-                            font-weight: 700;
-                            display: inline-block;
-                            }
+                                .ar {
+                                font-family: 'Noto Naskh Arabic', 'DejaVu Sans', Arial, sans-serif !important;
+                                direction: rtl;
+                                unicode-bidi: bidi-override;
+                                font-weight: 700;
+                                display: inline-block;
+                                }
 
-                            table {
-                            width: 100%;
-                            border-collapse: collapse;
-                            }
+                                table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                }
 
-                            * {
-                            box-sizing: border-box;
-                            }
-                        </style>
-                    </head>
+                                * {
+                                box-sizing: border-box;
+                                }
+                            </style>
+                        </head>
                         <div class="page">
                             <div class="header"
                                  style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
@@ -107,8 +107,10 @@
                                     <t t-if="o.report_type == 'both'">Purchase &amp; Purchase Return Book Report</t>
                                 </h3>
                                 <p style="margin: 5px 0; font-size: 14px;">
-                                    <strong>Date Range: </strong>
-                                    <span t-esc="o.date_from.strftime('%d-%m-%Y')"/> to <span t-esc="o.date_to.strftime('%d-%m-%Y')"/>
+                                    <strong>Date Range:</strong>
+                                    <span t-esc="o.date_from.strftime('%d-%m-%Y')"/>
+                                    to
+                                    <span t-esc="o.date_to.strftime('%d-%m-%Y')"/>
                                 </p>
                             </div>
 
@@ -137,67 +139,41 @@
         </template>
 
         <!-- Purchase Table Template -->
-<template id="purchase_table_template">
-    <table class="table table-sm table-bordered">
-        <thead style="background-color: #e9ecef;">
-            <tr>
-                <th>Date</th>
-                <!-- Show Vendor and Invoice only in Detail view -->
-                <t t-if="o.view_type == 'detail'">
-                    <th>Vendor</th>
-                    <th>Invoice</th>
-                </t>
-                <th class="text-right">Gross</th>
-                <th class="text-right">Tr. Disc</th>
-                <th class="text-right">Net Total</th>
-                <th class="text-right">Ad. Disc</th>
-                <th class="text-right">Ad. Cost</th>
-                <th class="text-right">Round Off</th>
-                <th class="text-right">Adj. Amt</th>
-                <th class="text-right">Tax Amt</th>
-                <th class="text-right">Grand Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            <t t-set="total_gross" t-value="0"/>
-            <t t-set="total_trade_disc" t-value="0"/>
-            <t t-set="total_net" t-value="0"/>
-            <t t-set="total_ad_disc" t-value="0"/>
-            <t t-set="total_ad_cost" t-value="0"/>
-            <t t-set="total_round" t-value="0"/>
-            <t t-set="total_adj" t-value="0"/>
-            <t t-set="total_tax" t-value="0"/>
-            <t t-set="total_grand" t-value="0"/>
+        <template id="purchase_table_template">
+            <table class="table table-sm table-bordered">
+                <thead style="background-color: #e9ecef;">
+                    <tr>
+                        <th>Date</th>
+                        <!-- Show Vendor and Invoice only in Detail view -->
+                        <t t-if="o.view_type == 'detail'">
+                            <th>Vendor</th>
+                            <th>Invoice</th>
+                        </t>
+                        <th class="text-right">Gross</th>
+                        <th class="text-right">Tr. Disc</th>
+                        <th class="text-right">Net Total</th>
+                        <th class="text-right">Ad. Disc</th>
+                        <th class="text-right">Ad. Cost</th>
+                        <th class="text-right">Round Off</th>
+                        <th class="text-right">Adj. Amt</th>
+                        <th class="text-right">Tax Amt</th>
+                        <th class="text-right">Grand Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-set="total_gross" t-value="0"/>
+                    <t t-set="total_trade_disc" t-value="0"/>
+                    <t t-set="total_net" t-value="0"/>
+                    <t t-set="total_ad_disc" t-value="0"/>
+                    <t t-set="total_ad_cost" t-value="0"/>
+                    <t t-set="total_round" t-value="0"/>
+                    <t t-set="total_adj" t-value="0"/>
+                    <t t-set="total_tax" t-value="0"/>
+                    <t t-set="total_grand" t-value="0"/>
 
-            <!-- For Detail view, group by date and show subtotals -->
-            <t t-if="o.view_type == 'detail'">
-                <t t-set="current_date" t-value="None"/>
-                <t t-set="date_gross" t-value="0"/>
-                <t t-set="date_trade_disc" t-value="0"/>
-                <t t-set="date_net" t-value="0"/>
-                <t t-set="date_ad_disc" t-value="0"/>
-                <t t-set="date_ad_cost" t-value="0"/>
-                <t t-set="date_round" t-value="0"/>
-                <t t-set="date_adj" t-value="0"/>
-                <t t-set="date_tax" t-value="0"/>
-                <t t-set="date_grand" t-value="0"/>
-
-                <t t-foreach="data" t-as="line">
-                    <!-- Check if date changed, print subtotal for previous date -->
-                    <t t-if="current_date and current_date != line['date']">
-                        <tr style="background-color: #f0f0f0; font-weight: bold;">
-                            <td colspan="3" class="text-right">Total:</td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_gross"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_trade_disc"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_net"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_ad_disc"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_ad_cost"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_round"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_adj"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_tax"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_grand"/></td>
-                        </tr>
-                        <!-- Reset date totals -->
+                    <!-- For Detail view, group by date and show subtotals -->
+                    <t t-if="o.view_type == 'detail'">
+                        <t t-set="current_date" t-value="None"/>
                         <t t-set="date_gross" t-value="0"/>
                         <t t-set="date_trade_disc" t-value="0"/>
                         <t t-set="date_net" t-value="0"/>
@@ -207,165 +183,316 @@
                         <t t-set="date_adj" t-value="0"/>
                         <t t-set="date_tax" t-value="0"/>
                         <t t-set="date_grand" t-value="0"/>
+
+                        <t t-foreach="data" t-as="line">
+                            <!-- Check if date changed, print subtotal for previous date -->
+                            <t t-if="current_date and current_date != line['date']">
+                                <tr style="background-color: #f0f0f0; font-weight: bold;">
+                                    <td colspan="3" class="text-right">Total:</td>
+                                    <td class="text-right">
+                                        <span t-esc="'%.2f' % date_gross"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="'%.2f' % date_trade_disc"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="'%.2f' % date_net"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="'%.2f' % date_ad_disc"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="'%.2f' % date_ad_cost"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="'%.2f' % date_round"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="'%.2f' % date_adj"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="'%.2f' % date_tax"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="'%.2f' % date_grand"/>
+                                    </td>
+                                </tr>
+                                <!-- Reset date totals -->
+                                <t t-set="date_gross" t-value="0"/>
+                                <t t-set="date_trade_disc" t-value="0"/>
+                                <t t-set="date_net" t-value="0"/>
+                                <t t-set="date_ad_disc" t-value="0"/>
+                                <t t-set="date_ad_cost" t-value="0"/>
+                                <t t-set="date_round" t-value="0"/>
+                                <t t-set="date_adj" t-value="0"/>
+                                <t t-set="date_tax" t-value="0"/>
+                                <t t-set="date_grand" t-value="0"/>
+                            </t>
+
+                            <tr>
+                                <td>
+                                    <span t-esc="line['date'].strftime('%d-%m-%Y')"/>
+                                </td>
+                                <td>
+                                    <span t-esc="line['vendor']"/>
+                                </td>
+                                <td>
+                                    <span t-esc="line['invoice_ref']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % line['gross']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % line['trade_disc']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % line['net_total']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % line['add_disc']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % line['add_cost']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % line['round_off']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % line['adj_amount']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % line['tax_amount']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % line['grand_total']"/>
+                                </td>
+                            </tr>
+
+                            <!-- Accumulate totals -->
+                            <t t-set="current_date" t-value="line['date']"/>
+                            <t t-set="date_gross" t-value="date_gross + line['gross']"/>
+                            <t t-set="date_trade_disc" t-value="date_trade_disc + line['trade_disc']"/>
+                            <t t-set="date_net" t-value="date_net + line['net_total']"/>
+                            <t t-set="date_ad_disc" t-value="date_ad_disc + line['add_disc']"/>
+                            <t t-set="date_ad_cost" t-value="date_ad_cost + line['add_cost']"/>
+                            <t t-set="date_round" t-value="date_round + line['round_off']"/>
+                            <t t-set="date_adj" t-value="date_adj + line['adj_amount']"/>
+                            <t t-set="date_tax" t-value="date_tax + line['tax_amount']"/>
+                            <t t-set="date_grand" t-value="date_grand + line['grand_total']"/>
+
+                            <t t-set="total_gross" t-value="total_gross + line['gross']"/>
+                            <t t-set="total_trade_disc" t-value="total_trade_disc + line['trade_disc']"/>
+                            <t t-set="total_net" t-value="total_net + line['net_total']"/>
+                            <t t-set="total_ad_disc" t-value="total_ad_disc + line['add_disc']"/>
+                            <t t-set="total_ad_cost" t-value="total_ad_cost + line['add_cost']"/>
+                            <t t-set="total_round" t-value="total_round + line['round_off']"/>
+                            <t t-set="total_adj" t-value="total_adj + line['adj_amount']"/>
+                            <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>
+                            <t t-set="total_grand" t-value="total_grand + line['grand_total']"/>
+                        </t>
+
+                        <!-- Print last date's subtotal -->
+                        <t t-if="current_date">
+                            <tr style="background-color: #f0f0f0; font-weight: bold;">
+                                <td colspan="3" class="text-right">Total:</td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_gross"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_trade_disc"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_net"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_ad_disc"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_ad_cost"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_round"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_adj"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_tax"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_grand"/>
+                                </td>
+                            </tr>
+                        </t>
                     </t>
 
+                    <!-- For Short view, simple list without vendor/invoice columns -->
+                    <!-- For Short view, grouped by date -->
+                    <t t-else="">
+                        <t t-set="grouped_data" t-value="{}"/>
+                        <!-- Group data by date -->
+                        <t t-foreach="data" t-as="line">
+                            <t t-set="date_key" t-value="line['date'].strftime('%d-%m-%Y')"/>
+                            <t t-if="date_key not in grouped_data">
+                                <t t-set="grouped_data[date_key]" t-value="{
+                'date': line['date'],
+                'gross': 0,
+                'trade_disc': 0,
+                'net_total': 0,
+                'add_disc': 0,
+                'add_cost': 0,
+                'round_off': 0,
+                'adj_amount': 0,
+                'tax_amount': 0,
+                'grand_total': 0
+            }"/>
+                            </t>
+                            <t t-set="grouped_data[date_key]['gross']"
+                               t-value="grouped_data[date_key]['gross'] + line['gross']"/>
+                            <t t-set="grouped_data[date_key]['trade_disc']"
+                               t-value="grouped_data[date_key]['trade_disc'] + line['trade_disc']"/>
+                            <t t-set="grouped_data[date_key]['net_total']"
+                               t-value="grouped_data[date_key]['net_total'] + line['net_total']"/>
+                            <t t-set="grouped_data[date_key]['add_disc']"
+                               t-value="grouped_data[date_key]['add_disc'] + line['add_disc']"/>
+                            <t t-set="grouped_data[date_key]['add_cost']"
+                               t-value="grouped_data[date_key]['add_cost'] + line['add_cost']"/>
+                            <t t-set="grouped_data[date_key]['round_off']"
+                               t-value="grouped_data[date_key]['round_off'] + line['round_off']"/>
+                            <t t-set="grouped_data[date_key]['adj_amount']"
+                               t-value="grouped_data[date_key]['adj_amount'] + line['adj_amount']"/>
+                            <t t-set="grouped_data[date_key]['tax_amount']"
+                               t-value="grouped_data[date_key]['tax_amount'] + line['tax_amount']"/>
+                            <t t-set="grouped_data[date_key]['grand_total']"
+                               t-value="grouped_data[date_key]['grand_total'] + line['grand_total']"/>
+                        </t>
+
+                        <!-- Display grouped data -->
+                        <t t-foreach="grouped_data.items()" t-as="item">
+                            <t t-set="date_key" t-value="item[0]"/>
+                            <t t-set="group" t-value="item[1]"/>
+                            <tr>
+                                <td>
+                                    <span t-esc="date_key"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % group['gross']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % group['trade_disc']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % group['net_total']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % group['add_disc']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % group['add_cost']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % group['round_off']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % group['adj_amount']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % group['tax_amount']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % group['grand_total']"/>
+                                </td>
+                            </tr>
+                            <t t-set="total_gross" t-value="total_gross + group['gross']"/>
+                            <t t-set="total_trade_disc" t-value="total_trade_disc + group['trade_disc']"/>
+                            <t t-set="total_net" t-value="total_net + group['net_total']"/>
+                            <t t-set="total_ad_disc" t-value="total_ad_disc + group['add_disc']"/>
+                            <t t-set="total_ad_cost" t-value="total_ad_cost + group['add_cost']"/>
+                            <t t-set="total_round" t-value="total_round + group['round_off']"/>
+                            <t t-set="total_adj" t-value="total_adj + group['adj_amount']"/>
+                            <t t-set="total_tax" t-value="total_tax + group['tax_amount']"/>
+                            <t t-set="total_grand" t-value="total_grand + group['grand_total']"/>
+                        </t>
+                    </t>
+                </tbody>
+
+                <!--            <t t-else="">-->
+                <!--                <t t-foreach="data" t-as="line">-->
+                <!--                    <tr>-->
+                <!--                        <td><span t-esc="line['date'].strftime('%d-%m-%Y')"/></td>-->
+                <!--                        <td class="text-right"><span t-esc="'%.2f' % line['gross']"/></td>-->
+                <!--                        <td class="text-right"><span t-esc="'%.2f' % line['trade_disc']"/></td>-->
+                <!--                        <td class="text-right"><span t-esc="'%.2f' % line['net_total']"/></td>-->
+                <!--                        <td class="text-right"><span t-esc="'%.2f' % line['add_disc']"/></td>-->
+                <!--                        <td class="text-right"><span t-esc="'%.2f' % line['add_cost']"/></td>-->
+                <!--                        <td class="text-right"><span t-esc="'%.2f' % line['round_off']"/></td>-->
+                <!--                        <td class="text-right"><span t-esc="'%.2f' % line['adj_amount']"/></td>-->
+                <!--                        <td class="text-right"><span t-esc="'%.2f' % line['tax_amount']"/></td>-->
+                <!--                        <td class="text-right"><span t-esc="'%.2f' % line['grand_total']"/></td>-->
+                <!--                    </tr>-->
+                <!--                    <t t-set="total_gross" t-value="total_gross + line['gross']"/>-->
+                <!--                    <t t-set="total_trade_disc" t-value="total_trade_disc + line['trade_disc']"/>-->
+                <!--                    <t t-set="total_net" t-value="total_net + line['net_total']"/>-->
+                <!--                    <t t-set="total_ad_disc" t-value="total_ad_disc + line['add_disc']"/>-->
+                <!--                    <t t-set="total_ad_cost" t-value="total_ad_cost + line['add_cost']"/>-->
+                <!--                    <t t-set="total_round" t-value="total_round + line['round_off']"/>-->
+                <!--                    <t t-set="total_adj" t-value="total_adj + line['adj_amount']"/>-->
+                <!--                    <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>-->
+                <!--                    <t t-set="total_grand" t-value="total_grand + line['grand_total']"/>-->
+                <!--                </t>-->
+                <!--            </t>-->
+                <!--        </tbody>-->
+                <!--        <tfoot style="background-color: #f8f9fa; font-weight: bold;">-->
+                <!--            <tr>-->
+                <!--                <td t-att-colspan="'3' if o.view_type == 'detail' else '1'" class="text-right">Grand Total</td>-->
+                <!--                <td class="text-right"><span t-esc="'%.2f' % total_gross"/></td>-->
+                <!--                <td class="text-right"><span t-esc="'%.2f' % total_trade_disc"/></td>-->
+                <!--                <td class="text-right"><span t-esc="'%.2f' % total_net"/></td>-->
+                <!--                <td class="text-right"><span t-esc="'%.2f' % total_ad_disc"/></td>-->
+                <!--                <td class="text-right"><span t-esc="'%.2f' % total_ad_cost"/></td>-->
+                <!--                <td class="text-right"><span t-esc="'%.2f' % total_round"/></td>-->
+                <!--                <td class="text-right"><span t-esc="'%.2f' % total_adj"/></td>-->
+                <!--                <td class="text-right"><span t-esc="'%.2f' % total_tax"/></td>-->
+                <!--                <td class="text-right"><span t-esc="'%.2f' % total_grand"/></td>-->
+                <!--            </tr>-->
+                <!--        </tfoot>-->
+            </table>
+        </template>
+        <!-- Return Table Template -->
+        <template id="return_table_template">
+            <table class="table table-sm table-bordered">
+                <thead style="background-color: #e9ecef;">
                     <tr>
-                        <td><span t-esc="line['date'].strftime('%d-%m-%Y')"/></td>
-                        <td><span t-esc="line['vendor']"/></td>
-                        <td><span t-esc="line['invoice_ref']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['gross']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['trade_disc']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['net_total']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['add_disc']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['add_cost']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['round_off']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['adj_amount']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['tax_amount']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['grand_total']"/></td>
+                        <th>Date</th>
+                        <t t-if="o.view_type == 'detail'">
+                            <th>Vendor</th>
+                            <th>Return Ref</th>
+                        </t>
+                        <th class="text-right">Gross</th>
+                        <th class="text-right">Tr. Disc</th>
+                        <th class="text-right">Net Total</th>
+                        <th class="text-right">Ad. Disc</th>
+                        <th class="text-right">Ad. Cost</th>
+                        <th class="text-right">Round Off</th>
+                        <th class="text-right">Adj. Amt</th>
+                        <th class="text-right">Tax Amt</th>
+                        <th class="text-right">Grand Total</th>
                     </tr>
+                </thead>
+                <tbody>
+                    <t t-set="total_gross" t-value="0"/>
+                    <t t-set="total_trade_disc" t-value="0"/>
+                    <t t-set="total_net" t-value="0"/>
+                    <t t-set="total_ad_disc" t-value="0"/>
+                    <t t-set="total_ad_cost" t-value="0"/>
+                    <t t-set="total_round" t-value="0"/>
+                    <t t-set="total_adj" t-value="0"/>
+                    <t t-set="total_tax" t-value="0"/>
+                    <t t-set="total_grand" t-value="0"/>
 
-                    <!-- Accumulate totals -->
-                    <t t-set="current_date" t-value="line['date']"/>
-                    <t t-set="date_gross" t-value="date_gross + line['gross']"/>
-                    <t t-set="date_trade_disc" t-value="date_trade_disc + line['trade_disc']"/>
-                    <t t-set="date_net" t-value="date_net + line['net_total']"/>
-                    <t t-set="date_ad_disc" t-value="date_ad_disc + line['add_disc']"/>
-                    <t t-set="date_ad_cost" t-value="date_ad_cost + line['add_cost']"/>
-                    <t t-set="date_round" t-value="date_round + line['round_off']"/>
-                    <t t-set="date_adj" t-value="date_adj + line['adj_amount']"/>
-                    <t t-set="date_tax" t-value="date_tax + line['tax_amount']"/>
-                    <t t-set="date_grand" t-value="date_grand + line['grand_total']"/>
-
-                    <t t-set="total_gross" t-value="total_gross + line['gross']"/>
-                    <t t-set="total_trade_disc" t-value="total_trade_disc + line['trade_disc']"/>
-                    <t t-set="total_net" t-value="total_net + line['net_total']"/>
-                    <t t-set="total_ad_disc" t-value="total_ad_disc + line['add_disc']"/>
-                    <t t-set="total_ad_cost" t-value="total_ad_cost + line['add_cost']"/>
-                    <t t-set="total_round" t-value="total_round + line['round_off']"/>
-                    <t t-set="total_adj" t-value="total_adj + line['adj_amount']"/>
-                    <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>
-                    <t t-set="total_grand" t-value="total_grand + line['grand_total']"/>
-                </t>
-
-                <!-- Print last date's subtotal -->
-                <t t-if="current_date">
-                    <tr style="background-color: #f0f0f0; font-weight: bold;">
-                        <td colspan="3" class="text-right">Total:</td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_gross"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_trade_disc"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_net"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_ad_disc"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_ad_cost"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_round"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_adj"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_tax"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_grand"/></td>
-                    </tr>
-                </t>
-            </t>
-
-            <!-- For Short view, simple list without vendor/invoice columns -->
-            <t t-else="">
-                <t t-foreach="data" t-as="line">
-                    <tr>
-                        <td><span t-esc="line['date'].strftime('%d-%m-%Y')"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['gross']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['trade_disc']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['net_total']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['add_disc']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['add_cost']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['round_off']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['adj_amount']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['tax_amount']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['grand_total']"/></td>
-                    </tr>
-                    <t t-set="total_gross" t-value="total_gross + line['gross']"/>
-                    <t t-set="total_trade_disc" t-value="total_trade_disc + line['trade_disc']"/>
-                    <t t-set="total_net" t-value="total_net + line['net_total']"/>
-                    <t t-set="total_ad_disc" t-value="total_ad_disc + line['add_disc']"/>
-                    <t t-set="total_ad_cost" t-value="total_ad_cost + line['add_cost']"/>
-                    <t t-set="total_round" t-value="total_round + line['round_off']"/>
-                    <t t-set="total_adj" t-value="total_adj + line['adj_amount']"/>
-                    <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>
-                    <t t-set="total_grand" t-value="total_grand + line['grand_total']"/>
-                </t>
-            </t>
-        </tbody>
-        <tfoot style="background-color: #f8f9fa; font-weight: bold;">
-            <tr>
-                <td t-att-colspan="'3' if o.view_type == 'detail' else '1'" class="text-right">Grand Total</td>
-                <td class="text-right"><span t-esc="'%.2f' % total_gross"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_trade_disc"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_net"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_ad_disc"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_ad_cost"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_round"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_adj"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_tax"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_grand"/></td>
-            </tr>
-        </tfoot>
-    </table>
-</template>
-<!-- Return Table Template -->
-<template id="return_table_template">
-    <table class="table table-sm table-bordered">
-        <thead style="background-color: #e9ecef;">
-            <tr>
-                <th>Date</th>
-                <t t-if="o.view_type == 'detail'">
-                    <th>Vendor</th>
-                    <th>Return Ref</th>
-                </t>
-                <th class="text-right">Gross</th>
-                <th class="text-right">Tr. Disc</th>
-                <th class="text-right">Net Total</th>
-                <th class="text-right">Ad. Disc</th>
-                <th class="text-right">Ad. Cost</th>
-                <th class="text-right">Round Off</th>
-                <th class="text-right">Adj. Amt</th>
-                <th class="text-right">Tax Amt</th>
-                <th class="text-right">Grand Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            <t t-set="total_gross" t-value="0"/>
-            <t t-set="total_trade_disc" t-value="0"/>
-            <t t-set="total_net" t-value="0"/>
-            <t t-set="total_ad_disc" t-value="0"/>
-            <t t-set="total_ad_cost" t-value="0"/>
-            <t t-set="total_round" t-value="0"/>
-            <t t-set="total_adj" t-value="0"/>
-            <t t-set="total_tax" t-value="0"/>
-            <t t-set="total_grand" t-value="0"/>
-
-            <!-- Detail view with date subtotals -->
-            <t t-if="o.view_type == 'detail'">
-                <t t-set="current_date" t-value="None"/>
-                <t t-set="date_gross" t-value="0"/>
-                <t t-set="date_trade_disc" t-value="0"/>
-                <t t-set="date_net" t-value="0"/>
-                <t t-set="date_ad_disc" t-value="0"/>
-                <t t-set="date_ad_cost" t-value="0"/>
-                <t t-set="date_round" t-value="0"/>
-                <t t-set="date_adj" t-value="0"/>
-                <t t-set="date_tax" t-value="0"/>
-                <t t-set="date_grand" t-value="0"/>
-
-                <t t-foreach="data" t-as="line">
-                    <t t-if="current_date and current_date != line['date']">
-                        <tr style="background-color: #f0f0f0; font-weight: bold;">
-                            <td colspan="3" class="text-right">Total:</td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_gross"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_trade_disc"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_net"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_ad_disc"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_ad_cost"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_round"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_adj"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_tax"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_grand"/></td>
-                        </tr>
+                    <!-- Detail view with date subtotals -->
+                    <t t-if="o.view_type == 'detail'">
+                        <t t-set="current_date" t-value="None"/>
                         <t t-set="date_gross" t-value="0"/>
                         <t t-set="date_trade_disc" t-value="0"/>
                         <t t-set="date_net" t-value="0"/>
@@ -375,747 +502,629 @@
                         <t t-set="date_adj" t-value="0"/>
                         <t t-set="date_tax" t-value="0"/>
                         <t t-set="date_grand" t-value="0"/>
+
+                        <t t-foreach="data" t-as="line">
+                            <t t-if="current_date and current_date != line['date']">
+                                <tr style="background-color: #f0f0f0; font-weight: bold;">
+                                    <td colspan="3" class="text-right">Total:</td>
+                                    <td class="text-right">
+                                        <span t-esc="'%.2f' % date_gross"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="'%.2f' % date_trade_disc"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="'%.2f' % date_net"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="'%.2f' % date_ad_disc"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="'%.2f' % date_ad_cost"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="'%.2f' % date_round"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="'%.2f' % date_adj"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="'%.2f' % date_tax"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="'%.2f' % date_grand"/>
+                                    </td>
+                                </tr>
+                                <t t-set="date_gross" t-value="0"/>
+                                <t t-set="date_trade_disc" t-value="0"/>
+                                <t t-set="date_net" t-value="0"/>
+                                <t t-set="date_ad_disc" t-value="0"/>
+                                <t t-set="date_ad_cost" t-value="0"/>
+                                <t t-set="date_round" t-value="0"/>
+                                <t t-set="date_adj" t-value="0"/>
+                                <t t-set="date_tax" t-value="0"/>
+                                <t t-set="date_grand" t-value="0"/>
+                            </t>
+
+                            <tr>
+                                <td>
+                                    <span t-esc="line['date'].strftime('%d-%m-%Y')"/>
+                                </td>
+                                <td>
+                                    <span t-esc="line['vendor']"/>
+                                </td>
+                                <td>
+                                    <span t-esc="line['invoice_ref']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % line['gross']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % line['trade_disc']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % line['net_total']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % line['add_disc']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % line['add_cost']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % line['round_off']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % line['adj_amount']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % line['tax_amount']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % line['grand_total']"/>
+                                </td>
+                            </tr>
+
+                            <t t-set="current_date" t-value="line['date']"/>
+                            <t t-set="date_gross" t-value="date_gross + line['gross']"/>
+                            <t t-set="date_trade_disc" t-value="date_trade_disc + line['trade_disc']"/>
+                            <t t-set="date_net" t-value="date_net + line['net_total']"/>
+                            <t t-set="date_ad_disc" t-value="date_ad_disc + line['add_disc']"/>
+                            <t t-set="date_ad_cost" t-value="date_ad_cost + line['add_cost']"/>
+                            <t t-set="date_round" t-value="date_round + line['round_off']"/>
+                            <t t-set="date_adj" t-value="date_adj + line['adj_amount']"/>
+                            <t t-set="date_tax" t-value="date_tax + line['tax_amount']"/>
+                            <t t-set="date_grand" t-value="date_grand + line['grand_total']"/>
+
+                            <t t-set="total_gross" t-value="total_gross + line['gross']"/>
+                            <t t-set="total_trade_disc" t-value="total_trade_disc + line['trade_disc']"/>
+                            <t t-set="total_net" t-value="total_net + line['net_total']"/>
+                            <t t-set="total_ad_disc" t-value="total_ad_disc + line['add_disc']"/>
+                            <t t-set="total_ad_cost" t-value="total_ad_cost + line['add_cost']"/>
+                            <t t-set="total_round" t-value="total_round + line['round_off']"/>
+                            <t t-set="total_adj" t-value="total_adj + line['adj_amount']"/>
+                            <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>
+                            <t t-set="total_grand" t-value="total_grand + line['grand_total']"/>
+                        </t>
+
+                        <t t-if="current_date">
+                            <tr style="background-color: #f0f0f0; font-weight: bold;">
+                                <td colspan="3" class="text-right">Total:</td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_gross"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_trade_disc"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_net"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_ad_disc"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_ad_cost"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_round"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_adj"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_tax"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_grand"/>
+                                </td>
+                            </tr>
+                        </t>
                     </t>
 
+                    <!-- Short view -->
+                    <!-- Short view -->
+                    <t t-else="">
+                        <t t-set="grouped_data" t-value="{}"/>
+                        <!-- Group data by date -->
+                        <t t-foreach="data" t-as="line">
+                            <t t-set="date_key" t-value="line['date'].strftime('%d-%m-%Y')"/>
+                            <t t-if="date_key not in grouped_data">
+                                <t t-set="grouped_data[date_key]" t-value="{
+                'date': line['date'],
+                'gross': 0,
+                'trade_disc': 0,
+                'net_total': 0,
+                'add_disc': 0,
+                'add_cost': 0,
+                'round_off': 0,
+                'adj_amount': 0,
+                'tax_amount': 0,
+                'grand_total': 0
+            }"/>
+                            </t>
+                            <t t-set="grouped_data[date_key]['gross']"
+                               t-value="grouped_data[date_key]['gross'] + line['gross']"/>
+                            <t t-set="grouped_data[date_key]['trade_disc']"
+                               t-value="grouped_data[date_key]['trade_disc'] + line['trade_disc']"/>
+                            <t t-set="grouped_data[date_key]['net_total']"
+                               t-value="grouped_data[date_key]['net_total'] + line['net_total']"/>
+                            <t t-set="grouped_data[date_key]['add_disc']"
+                               t-value="grouped_data[date_key]['add_disc'] + line['add_disc']"/>
+                            <t t-set="grouped_data[date_key]['add_cost']"
+                               t-value="grouped_data[date_key]['add_cost'] + line['add_cost']"/>
+                            <t t-set="grouped_data[date_key]['round_off']"
+                               t-value="grouped_data[date_key]['round_off'] + line['round_off']"/>
+                            <t t-set="grouped_data[date_key]['adj_amount']"
+                               t-value="grouped_data[date_key]['adj_amount'] + line['adj_amount']"/>
+                            <t t-set="grouped_data[date_key]['tax_amount']"
+                               t-value="grouped_data[date_key]['tax_amount'] + line['tax_amount']"/>
+                            <t t-set="grouped_data[date_key]['grand_total']"
+                               t-value="grouped_data[date_key]['grand_total'] + line['grand_total']"/>
+                        </t>
+
+                        <!-- Display grouped data -->
+                        <t t-foreach="grouped_data.items()" t-as="item">
+                            <t t-set="date_key" t-value="item[0]"/>
+                            <t t-set="group" t-value="item[1]"/>
+                            <tr>
+                                <td>
+                                    <span t-esc="date_key"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % group['gross']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % group['trade_disc']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % group['net_total']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % group['add_disc']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % group['add_cost']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % group['round_off']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % group['adj_amount']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % group['tax_amount']"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % group['grand_total']"/>
+                                </td>
+                            </tr>
+                            <t t-set="total_gross" t-value="total_gross + group['gross']"/>
+                            <t t-set="total_trade_disc" t-value="total_trade_disc + group['trade_disc']"/>
+                            <t t-set="total_net" t-value="total_net + group['net_total']"/>
+                            <t t-set="total_ad_disc" t-value="total_ad_disc + group['add_disc']"/>
+                            <t t-set="total_ad_cost" t-value="total_ad_cost + group['add_cost']"/>
+                            <t t-set="total_round" t-value="total_round + group['round_off']"/>
+                            <t t-set="total_adj" t-value="total_adj + group['adj_amount']"/>
+                            <t t-set="total_tax" t-value="total_tax + group['tax_amount']"/>
+                            <t t-set="total_grand" t-value="total_grand + group['grand_total']"/>
+                        </t>
+                    </t>
+                </tbody>
+
+                <!--                    <t t-else="">-->
+                <!--                        <t t-foreach="data" t-as="line">-->
+                <!--                            <tr>-->
+                <!--                                <td>-->
+                <!--                                    <span t-esc="line['date'].strftime('%d-%m-%Y')"/>-->
+                <!--                                </td>-->
+                <!--                                <td class="text-right">-->
+                <!--                                    <span t-esc="'%.2f' % line['gross']"/>-->
+                <!--                                </td>-->
+                <!--                                <td class="text-right">-->
+                <!--                                    <span t-esc="'%.2f' % line['trade_disc']"/>-->
+                <!--                                </td>-->
+                <!--                                <td class="text-right">-->
+                <!--                                    <span t-esc="'%.2f' % line['net_total']"/>-->
+                <!--                                </td>-->
+                <!--                                <td class="text-right">-->
+                <!--                                    <span t-esc="'%.2f' % line['add_disc']"/>-->
+                <!--                                </td>-->
+                <!--                                <td class="text-right">-->
+                <!--                                    <span t-esc="'%.2f' % line['add_cost']"/>-->
+                <!--                                </td>-->
+                <!--                                <td class="text-right">-->
+                <!--                                    <span t-esc="'%.2f' % line['round_off']"/>-->
+                <!--                                </td>-->
+                <!--                                <td class="text-right">-->
+                <!--                                    <span t-esc="'%.2f' % line['adj_amount']"/>-->
+                <!--                                </td>-->
+                <!--                                <td class="text-right">-->
+                <!--                                    <span t-esc="'%.2f' % line['tax_amount']"/>-->
+                <!--                                </td>-->
+                <!--                                <td class="text-right">-->
+                <!--                                    <span t-esc="'%.2f' % line['grand_total']"/>-->
+                <!--                                </td>-->
+                <!--                            </tr>-->
+                <!--                            <t t-set="total_gross" t-value="total_gross + line['gross']"/>-->
+                <!--                            <t t-set="total_trade_disc" t-value="total_trade_disc + line['trade_disc']"/>-->
+                <!--                            <t t-set="total_net" t-value="total_net + line['net_total']"/>-->
+                <!--                            <t t-set="total_ad_disc" t-value="total_ad_disc + line['add_disc']"/>-->
+                <!--                            <t t-set="total_ad_cost" t-value="total_ad_cost + line['add_cost']"/>-->
+                <!--                            <t t-set="total_round" t-value="total_round + line['round_off']"/>-->
+                <!--                            <t t-set="total_adj" t-value="total_adj + line['adj_amount']"/>-->
+                <!--                            <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>-->
+                <!--                            <t t-set="total_grand" t-value="total_grand + line['grand_total']"/>-->
+                <!--                        </t>-->
+                <!--                    </t>-->
+                <!--                </tbody>-->
+                <!--                <tfoot style="background-color: #f8f9fa; font-weight: bold;">-->
+                <!--                    <tr>-->
+                <!--                        <td t-att-colspan="'3' if o.view_type == 'detail' else '1'" class="text-right">Grand Total</td>-->
+                <!--                        <td class="text-right">-->
+                <!--                            <span t-esc="'%.2f' % total_gross"/>-->
+                <!--                        </td>-->
+                <!--                        <td class="text-right">-->
+                <!--                            <span t-esc="'%.2f' % total_trade_disc"/>-->
+                <!--                        </td>-->
+                <!--                        <td class="text-right">-->
+                <!--                            <span t-esc="'%.2f' % total_net"/>-->
+                <!--                        </td>-->
+                <!--                        <td class="text-right">-->
+                <!--                            <span t-esc="'%.2f' % total_ad_disc"/>-->
+                <!--                        </td>-->
+                <!--                        <td class="text-right">-->
+                <!--                            <span t-esc="'%.2f' % total_ad_cost"/>-->
+                <!--                        </td>-->
+                <!--                        <td class="text-right">-->
+                <!--                            <span t-esc="'%.2f' % total_round"/>-->
+                <!--                        </td>-->
+                <!--                        <td class="text-right">-->
+                <!--                            <span t-esc="'%.2f' % total_adj"/>-->
+                <!--                        </td>-->
+                <!--                        <td class="text-right">-->
+                <!--                            <span t-esc="'%.2f' % total_tax"/>-->
+                <!--                        </td>-->
+                <!--                        <td class="text-right">-->
+                <!--                            <span t-esc="'%.2f' % total_grand"/>-->
+                <!--                        </td>-->
+                <!--                    </tr>-->
+                <!--                </tfoot>-->
+            </table>
+        </template>
+        <!-- Combined Table Template -->
+        <template id="combined_table_template">
+            <table class="table table-sm table-bordered">
+                <thead style="background-color: #e9ecef;">
                     <tr>
-                        <td><span t-esc="line['date'].strftime('%d-%m-%Y')"/></td>
-                        <td><span t-esc="line['vendor']"/></td>
-                        <td><span t-esc="line['invoice_ref']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['gross']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['trade_disc']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['net_total']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['add_disc']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['add_cost']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['round_off']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['adj_amount']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['tax_amount']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['grand_total']"/></td>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <t t-if="o.view_type == 'detail'">
+                            <th>Vendor</th>
+                            <th>Ref</th>
+                        </t>
+                        <th class="text-right">Gross</th>
+                        <th class="text-right">Tr. Disc</th>
+                        <th class="text-right">Net Total</th>
+                        <th class="text-right">Tax Amt</th>
+                        <th class="text-right">Cost</th>
+                        <th class="text-right">Adj</th>
+                        <th class="text-right">Net Amt</th>
                     </tr>
+                </thead>
+                <tbody>
+                <t t-set="total_gross" t-value="0"/>
+                <t t-set="total_trade_disc" t-value="0"/>
+                <t t-set="total_net" t-value="0"/>
+                <t t-set="total_tax" t-value="0"/>
+                <t t-set="total_cost" t-value="0"/>
+                <t t-set="total_adj" t-value="0"/>
+                <t t-set="total_grand" t-value="0"/>
 
-                    <t t-set="current_date" t-value="line['date']"/>
-                    <t t-set="date_gross" t-value="date_gross + line['gross']"/>
-                    <t t-set="date_trade_disc" t-value="date_trade_disc + line['trade_disc']"/>
-                    <t t-set="date_net" t-value="date_net + line['net_total']"/>
-                    <t t-set="date_ad_disc" t-value="date_ad_disc + line['add_disc']"/>
-                    <t t-set="date_ad_cost" t-value="date_ad_cost + line['add_cost']"/>
-                    <t t-set="date_round" t-value="date_round + line['round_off']"/>
-                    <t t-set="date_adj" t-value="date_adj + line['adj_amount']"/>
-                    <t t-set="date_tax" t-value="date_tax + line['tax_amount']"/>
-                    <t t-set="date_grand" t-value="date_grand + line['grand_total']"/>
-
-                    <t t-set="total_gross" t-value="total_gross + line['gross']"/>
-                    <t t-set="total_trade_disc" t-value="total_trade_disc + line['trade_disc']"/>
-                    <t t-set="total_net" t-value="total_net + line['net_total']"/>
-                    <t t-set="total_ad_disc" t-value="total_ad_disc + line['add_disc']"/>
-                    <t t-set="total_ad_cost" t-value="total_ad_cost + line['add_cost']"/>
-                    <t t-set="total_round" t-value="total_round + line['round_off']"/>
-                    <t t-set="total_adj" t-value="total_adj + line['adj_amount']"/>
-                    <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>
-                    <t t-set="total_grand" t-value="total_grand + line['grand_total']"/>
-                </t>
-
-                <t t-if="current_date">
-                    <tr style="background-color: #f0f0f0; font-weight: bold;">
-                        <td colspan="3" class="text-right">Total:</td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_gross"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_trade_disc"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_net"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_ad_disc"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_ad_cost"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_round"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_adj"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_tax"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_grand"/></td>
-                    </tr>
-                </t>
-            </t>
-
-            <!-- Short view -->
-            <t t-else="">
-                <t t-foreach="data" t-as="line">
-                    <tr>
-                        <td><span t-esc="line['date'].strftime('%d-%m-%Y')"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['gross']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['trade_disc']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['net_total']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['add_disc']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['add_cost']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['round_off']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['adj_amount']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['tax_amount']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['grand_total']"/></td>
-                    </tr>
-                    <t t-set="total_gross" t-value="total_gross + line['gross']"/>
-                    <t t-set="total_trade_disc" t-value="total_trade_disc + line['trade_disc']"/>
-                    <t t-set="total_net" t-value="total_net + line['net_total']"/>
-                    <t t-set="total_ad_disc" t-value="total_ad_disc + line['add_disc']"/>
-                    <t t-set="total_ad_cost" t-value="total_ad_cost + line['add_cost']"/>
-                    <t t-set="total_round" t-value="total_round + line['round_off']"/>
-                    <t t-set="total_adj" t-value="total_adj + line['adj_amount']"/>
-                    <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>
-                    <t t-set="total_grand" t-value="total_grand + line['grand_total']"/>
-                </t>
-            </t>
-        </tbody>
-        <tfoot style="background-color: #f8f9fa; font-weight: bold;">
-            <tr>
-                <td t-att-colspan="'3' if o.view_type == 'detail' else '1'" class="text-right">Grand Total</td>
-                <td class="text-right"><span t-esc="'%.2f' % total_gross"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_trade_disc"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_net"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_ad_disc"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_ad_cost"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_round"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_adj"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_tax"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_grand"/></td>
-            </tr>
-        </tfoot>
-    </table>
-</template>
-<!-- Combined Table Template -->
-<template id="combined_table_template">
-    <table class="table table-sm table-bordered">
-        <thead style="background-color: #e9ecef;">
-            <tr>
-                <th>Date</th>
-                <th>Type</th>
+                <!-- Detail view with date grouping -->
                 <t t-if="o.view_type == 'detail'">
-                    <th>Vendor</th>
-                    <th>Ref</th>
-                </t>
-                <th class="text-right">Gross</th>
-                <th class="text-right">Tr. Disc</th>
-                <th class="text-right">Net Total</th>
-                <th class="text-right">Tax Amt</th>
-                <th class="text-right">Cost</th>
-                <th class="text-right">Adj</th>
-                <th class="text-right">Net Amt</th>
-            </tr>
-        </thead>
-        <tbody>
-            <t t-set="total_gross" t-value="0"/>
-            <t t-set="total_trade_disc" t-value="0"/>
-            <t t-set="total_net" t-value="0"/>
-            <t t-set="total_tax" t-value="0"/>
-            <t t-set="total_cost" t-value="0"/>
-            <t t-set="total_adj" t-value="0"/>
-            <t t-set="total_grand" t-value="0"/>
+                    <t t-set="current_date" t-value="None"/>
+                    <t t-set="date_gross" t-value="0"/>
+                    <t t-set="date_trade_disc" t-value="0"/>
+                    <t t-set="date_net" t-value="0"/>
+                    <t t-set="date_tax" t-value="0"/>
+                    <t t-set="date_cost" t-value="0"/>
+                    <t t-set="date_adj" t-value="0"/>
+                    <t t-set="date_grand" t-value="0"/>
 
-            <!-- Detail view with date grouping -->
-            <t t-if="o.view_type == 'detail'">
-                <t t-set="current_date" t-value="None"/>
-                <t t-set="date_gross" t-value="0"/>
-                <t t-set="date_trade_disc" t-value="0"/>
-                <t t-set="date_net" t-value="0"/>
-                <t t-set="date_tax" t-value="0"/>
-                <t t-set="date_cost" t-value="0"/>
-                <t t-set="date_adj" t-value="0"/>
-                <t t-set="date_grand" t-value="0"/>
+                    <t t-foreach="data" t-as="line">
+                        <t t-if="current_date and current_date != line['date']">
+                            <tr style="background-color: #f0f0f0; font-weight: bold;">
+                                <td colspan="4" class="text-right">Total:</td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_gross"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_trade_disc"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_net"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_tax"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_cost"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_adj"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'%.2f' % date_grand"/>
+                                </td>
+                            </tr>
+                            <t t-set="date_gross" t-value="0"/>
+                            <t t-set="date_trade_disc" t-value="0"/>
+                            <t t-set="date_net" t-value="0"/>
+                            <t t-set="date_tax" t-value="0"/>
+                            <t t-set="date_cost" t-value="0"/>
+                            <t t-set="date_adj" t-value="0"/>
+                            <t t-set="date_grand" t-value="0"/>
+                        </t>
 
-                <t t-foreach="data" t-as="line">
-                    <t t-if="current_date and current_date != line['date']">
+                        <tr>
+                            <td>
+                                <span t-esc="line['date'].strftime('%d-%m-%Y')"/>
+                            </td>
+                            <td>
+                                <span t-if="line.get('type') == 'Purchase'" class="badge badge-success">Purchase
+                                </span>
+                                <span t-if="line.get('type') == 'Return'" class="badge badge-danger">Return</span>
+                            </td>
+                            <td>
+                                <span t-esc="line['vendor']"/>
+                            </td>
+                            <td>
+                                <span t-esc="line['invoice_ref']"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % line['gross']"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % line['trade_disc']"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % line['net_total']"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % line['tax_amount']"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % line['add_cost']"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % line['adj_amount']"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % line['grand_total']"/>
+                            </td>
+                        </tr>
+
+                        <t t-set="current_date" t-value="line['date']"/>
+                        <t t-set="date_gross" t-value="date_gross + line['gross']"/>
+                        <t t-set="date_trade_disc" t-value="date_trade_disc + line['trade_disc']"/>
+                        <t t-set="date_net" t-value="date_net + line['net_total']"/>
+                        <t t-set="date_tax" t-value="date_tax + line['tax_amount']"/>
+                        <t t-set="date_cost" t-value="date_cost + line['add_cost']"/>
+                        <t t-set="date_adj" t-value="date_adj + line['adj_amount']"/>
+                        <t t-set="date_grand" t-value="date_grand + line['grand_total']"/>
+
+                        <t t-set="total_gross" t-value="total_gross + line['gross']"/>
+                        <t t-set="total_trade_disc" t-value="total_trade_disc + line['trade_disc']"/>
+                        <t t-set="total_net" t-value="total_net + line['net_total']"/>
+                        <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>
+                        <t t-set="total_cost" t-value="total_cost + line['add_cost']"/>
+                        <t t-set="total_adj" t-value="total_adj + line['adj_amount']"/>
+                        <t t-set="total_grand" t-value="total_grand + line['grand_total']"/>
+                    </t>
+
+                    <t t-if="current_date">
                         <tr style="background-color: #f0f0f0; font-weight: bold;">
                             <td colspan="4" class="text-right">Total:</td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_gross"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_trade_disc"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_net"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_tax"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_cost"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_adj"/></td>
-                            <td class="text-right"><span t-esc="'%.2f' % date_grand"/></td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % date_gross"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % date_trade_disc"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % date_net"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % date_tax"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % date_cost"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % date_adj"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % date_grand"/>
+                            </td>
                         </tr>
-                        <t t-set="date_gross" t-value="0"/>
-                        <t t-set="date_trade_disc" t-value="0"/>
-                        <t t-set="date_net" t-value="0"/>
-                        <t t-set="date_tax" t-value="0"/>
-                        <t t-set="date_cost" t-value="0"/>
-                        <t t-set="date_adj" t-value="0"/>
-                        <t t-set="date_grand" t-value="0"/>
+                    </t>
+                </t>
+
+                <!-- Short view -->
+                <!-- Short view -->
+                <t t-else="">
+                    <t t-set="grouped_data" t-value="{}"/>
+                    <!-- Group data by date and type -->
+                    <t t-foreach="data" t-as="line">
+                        <t t-set="date_key" t-value="line['date'].strftime('%d-%m-%Y')"/>
+                        <t t-set="type_key" t-value="line.get('type', 'Purchase')"/>
+                        <t t-set="combined_key" t-value="date_key + '_' + type_key"/>
+
+                        <t t-if="combined_key not in grouped_data">
+                            <t t-set="grouped_data[combined_key]" t-value="{
+                'date': line['date'],
+                'type': type_key,
+                'gross': 0,
+                'trade_disc': 0,
+                'net_total': 0,
+                'tax_amount': 0,
+                'add_cost': 0,
+                'adj_amount': 0,
+                'grand_total': 0
+            }"/>
+                        </t>
+                        <t t-set="grouped_data[combined_key]['gross']"
+                           t-value="grouped_data[combined_key]['gross'] + line['gross']"/>
+                        <t t-set="grouped_data[combined_key]['trade_disc']"
+                           t-value="grouped_data[combined_key]['trade_disc'] + line['trade_disc']"/>
+                        <t t-set="grouped_data[combined_key]['net_total']"
+                           t-value="grouped_data[combined_key]['net_total'] + line['net_total']"/>
+                        <t t-set="grouped_data[combined_key]['tax_amount']"
+                           t-value="grouped_data[combined_key]['tax_amount'] + line['tax_amount']"/>
+                        <t t-set="grouped_data[combined_key]['add_cost']"
+                           t-value="grouped_data[combined_key]['add_cost'] + line['add_cost']"/>
+                        <t t-set="grouped_data[combined_key]['adj_amount']"
+                           t-value="grouped_data[combined_key]['adj_amount'] + line['adj_amount']"/>
+                        <t t-set="grouped_data[combined_key]['grand_total']"
+                           t-value="grouped_data[combined_key]['grand_total'] + line['grand_total']"/>
                     </t>
 
-                    <tr>
-                        <td><span t-esc="line['date'].strftime('%d-%m-%Y')"/></td>
-                        <td>
-                            <span t-if="line.get('type') == 'Purchase'" class="badge badge-success">Purchase</span>
-                            <span t-if="line.get('type') == 'Return'" class="badge badge-danger">Return</span>
-                        </td>
-                        <td><span t-esc="line['vendor']"/></td>
-                        <td><span t-esc="line['invoice_ref']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['gross']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['trade_disc']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['net_total']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['tax_amount']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['add_cost']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['adj_amount']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['grand_total']"/></td>
-                    </tr>
-
-                    <t t-set="current_date" t-value="line['date']"/>
-                    <t t-set="date_gross" t-value="date_gross + line['gross']"/>
-                    <t t-set="date_trade_disc" t-value="date_trade_disc + line['trade_disc']"/>
-                    <t t-set="date_net" t-value="date_net + line['net_total']"/>
-                    <t t-set="date_tax" t-value="date_tax + line['tax_amount']"/>
-                    <t t-set="date_cost" t-value="date_cost + line['add_cost']"/>
-                    <t t-set="date_adj" t-value="date_adj + line['adj_amount']"/>
-                    <t t-set="date_grand" t-value="date_grand + line['grand_total']"/>
-
-                    <t t-set="total_gross" t-value="total_gross + line['gross']"/>
-                    <t t-set="total_trade_disc" t-value="total_trade_disc + line['trade_disc']"/>
-                    <t t-set="total_net" t-value="total_net + line['net_total']"/>
-                    <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>
-                    <t t-set="total_cost" t-value="total_cost + line['add_cost']"/>
-                    <t t-set="total_adj" t-value="total_adj + line['adj_amount']"/>
-                    <t t-set="total_grand" t-value="total_grand + line['grand_total']"/>
+                    <!-- Display grouped data -->
+                    <t t-foreach="grouped_data.items()" t-as="item">
+                        <t t-set="combined_key" t-value="item[0]"/>
+                        <t t-set="group" t-value="item[1]"/>
+                        <tr>
+                            <td>
+                                <span t-esc="group['date'].strftime('%d-%m-%Y')"/>
+                            </td>
+                            <td>
+                                <span t-if="group['type'] == 'Purchase'" class="badge badge-success">Purchase</span>
+                                <span t-if="group['type'] == 'Return'" class="badge badge-danger">Return</span>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % group['gross']"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % group['trade_disc']"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % group['net_total']"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % group['tax_amount']"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % group['add_cost']"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % group['adj_amount']"/>
+                            </td>
+                            <td class="text-right">
+                                <span t-esc="'%.2f' % group['grand_total']"/>
+                            </td>
+                        </tr>
+                        <t t-set="total_gross" t-value="total_gross + group['gross']"/>
+                        <t t-set="total_trade_disc" t-value="total_trade_disc + group['trade_disc']"/>
+                        <t t-set="total_net" t-value="total_net + group['net_total']"/>
+                        <t t-set="total_tax" t-value="total_tax + group['tax_amount']"/>
+                        <t t-set="total_cost" t-value="total_cost + group['add_cost']"/>
+                        <t t-set="total_adj" t-value="total_adj + group['adj_amount']"/>
+                        <t t-set="total_grand" t-value="total_grand + group['grand_total']"/>
+                    </t>
                 </t>
+                </tbody>
 
-                <t t-if="current_date">
-                    <tr style="background-color: #f0f0f0; font-weight: bold;">
-                        <td colspan="4" class="text-right">Total:</td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_gross"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_trade_disc"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_net"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_tax"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_cost"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_adj"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % date_grand"/></td>
-                    </tr>
-                </t>
-            </t>
 
-            <!-- Short view -->
-            <t t-else="">
-                <t t-foreach="data" t-as="line">
-                    <tr>
-                        <td><span t-esc="line['date'].strftime('%d-%m-%Y')"/></td>
-                        <td>
-                            <span t-if="line.get('type') == 'Purchase'" class="badge badge-success">Purchase</span>
-                            <span t-if="line.get('type') == 'Return'" class="badge badge-danger">Return</span>
-                        </td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['gross']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['trade_disc']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['net_total']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['tax_amount']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['add_cost']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['adj_amount']"/></td>
-                        <td class="text-right"><span t-esc="'%.2f' % line['grand_total']"/></td>
-                    </tr>
-                    <t t-set="total_gross" t-value="total_gross + line['gross']"/>
-                    <t t-set="total_trade_disc" t-value="total_trade_disc + line['trade_disc']"/>
-                    <t t-set="total_net" t-value="total_net + line['net_total']"/>
-                    <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>
-                    <t t-set="total_cost" t-value="total_cost + line['add_cost']"/>
-                    <t t-set="total_adj" t-value="total_adj + line['adj_amount']"/>
-                    <t t-set="total_grand" t-value="total_grand + line['grand_total']"/>
-                </t>
-            </t>
-        </tbody>
-        <tfoot style="background-color: #f8f9fa; font-weight: bold;">
-            <tr>
-                <td t-att-colspan="'4' if o.view_type == 'detail' else '2'" class="text-right">Grand Total</td>
-                <td class="text-right"><span t-esc="'%.2f' % total_gross"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_trade_disc"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_net"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_tax"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_cost"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_adj"/></td>
-                <td class="text-right"><span t-esc="'%.2f' % total_grand"/></td>
-            </tr>
-        </tfoot>
-    </table>
-</template>
-        </data>
+                <!--                    <t t-else="">-->
+                <!--                        <t t-foreach="data" t-as="line">-->
+                <!--                            <tr>-->
+                <!--                                <td>-->
+                <!--                                    <span t-esc="line['date'].strftime('%d-%m-%Y')"/>-->
+                <!--                                </td>-->
+                <!--                                <td>-->
+                <!--                                    <span t-if="line.get('type') == 'Purchase'" class="badge badge-success">Purchase-->
+                <!--                                    </span>-->
+                <!--                                    <span t-if="line.get('type') == 'Return'" class="badge badge-danger">Return</span>-->
+                <!--                                </td>-->
+                <!--                                <td class="text-right">-->
+                <!--                                    <span t-esc="'%.2f' % line['gross']"/>-->
+                <!--                                </td>-->
+                <!--                                <td class="text-right">-->
+                <!--                                    <span t-esc="'%.2f' % line['trade_disc']"/>-->
+                <!--                                </td>-->
+                <!--                                <td class="text-right">-->
+                <!--                                    <span t-esc="'%.2f' % line['net_total']"/>-->
+                <!--                                </td>-->
+                <!--                                <td class="text-right">-->
+                <!--                                    <span t-esc="'%.2f' % line['tax_amount']"/>-->
+                <!--                                </td>-->
+                <!--                                <td class="text-right">-->
+                <!--                                    <span t-esc="'%.2f' % line['add_cost']"/>-->
+                <!--                                </td>-->
+                <!--                                <td class="text-right">-->
+                <!--                                    <span t-esc="'%.2f' % line['adj_amount']"/>-->
+                <!--                                </td>-->
+                <!--                                <td class="text-right">-->
+                <!--                                    <span t-esc="'%.2f' % line['grand_total']"/>-->
+                <!--                                </td>-->
+                <!--                            </tr>-->
+                <!--                            <t t-set="total_gross" t-value="total_gross + line['gross']"/>-->
+                <!--                            <t t-set="total_trade_disc" t-value="total_trade_disc + line['trade_disc']"/>-->
+                <!--                            <t t-set="total_net" t-value="total_net + line['net_total']"/>-->
+                <!--                            <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>-->
+                <!--                            <t t-set="total_cost" t-value="total_cost + line['add_cost']"/>-->
+                <!--                            <t t-set="total_adj" t-value="total_adj + line['adj_amount']"/>-->
+                <!--                            <t t-set="total_grand" t-value="total_grand + line['grand_total']"/>-->
+                <!--                        </t>-->
+                <!--                    </t>-->
+                <!--                </tbody>-->
+                <!--                <tfoot style="background-color: #f8f9fa; font-weight: bold;">-->
+                <!--                    <tr>-->
+                <!--                        <td t-att-colspan="'4' if o.view_type == 'detail' else '2'" class="text-right">Grand Total</td>-->
+                <!--                        <td class="text-right">-->
+                <!--                            <span t-esc="'%.2f' % total_gross"/>-->
+                <!--                        </td>-->
+                <!--                        <td class="text-right">-->
+                <!--                            <span t-esc="'%.2f' % total_trade_disc"/>-->
+                <!--                        </td>-->
+                <!--                        <td class="text-right">-->
+                <!--                            <span t-esc="'%.2f' % total_net"/>-->
+                <!--                        </td>-->
+                <!--                        <td class="text-right">-->
+                <!--                            <span t-esc="'%.2f' % total_tax"/>-->
+                <!--                        </td>-->
+                <!--                        <td class="text-right">-->
+                <!--                            <span t-esc="'%.2f' % total_cost"/>-->
+                <!--                        </td>-->
+                <!--                        <td class="text-right">-->
+                <!--                            <span t-esc="'%.2f' % total_adj"/>-->
+                <!--                        </td>-->
+                <!--                        <td class="text-right">-->
+                <!--                            <span t-esc="'%.2f' % total_grand"/>-->
+                <!--                        </td>-->
+                <!--                    </tr>-->
+                <!--                </tfoot>-->
+            </table>
+        </template>
+    </data>
 </odoo>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-<!--    <data>-->
-<!--        &lt;!&ndash; Main Purchase Book Report Template &ndash;&gt;-->
-<!--        <template id="report_purchase_book_document">-->
-<!--            <t t-call="web.html_container">-->
-<!--                <t t-foreach="docs" t-as="o">-->
-<!--                    &lt;!&ndash; Use basic_layout instead of external_layout to avoid default header &ndash;&gt;-->
-<!--                    <t t-call="web.basic_layout">-->
-<!--                        <head>-->
-<!--                        <meta charset="UTF-8"/>-->
-<!--                        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>-->
-<!--                        <style type="text/css">-->
-<!--                            /* Import Google Noto Arabic Font */-->
-<!--                            @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&amp;display=swap');-->
-
-<!--                            @page {-->
-<!--                            margin: 20mm;-->
-<!--                            }-->
-
-<!--                            body {-->
-<!--                            font-family: 'DejaVu Sans', Arial, sans-serif;-->
-<!--                            }-->
-
-<!--                            .ar {-->
-<!--                            font-family: 'Noto Naskh Arabic', 'DejaVu Sans', Arial, sans-serif !important;-->
-<!--                            direction: rtl;-->
-<!--                            unicode-bidi: bidi-override;-->
-<!--                            font-weight: 700;-->
-<!--                            display: inline-block;-->
-<!--                            }-->
-
-<!--                            table {-->
-<!--                            width: 100%;-->
-<!--                            border-collapse: collapse;-->
-<!--                            }-->
-
-<!--                            * {-->
-<!--                            box-sizing: border-box;-->
-<!--                            }-->
-<!--                        </style>-->
-<!--                    </head>-->
-<!--                        <div class="page">-->
-<!--                            <div class="header"-->
-<!--                                 style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">-->
-
-<!--                                &lt;!&ndash; Company Names in One Row &ndash;&gt;-->
-<!--                                <table style="width: 100%; border-collapse: collapse;border:none">-->
-<!--                                    <tr>-->
-<!--                                        <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white;padding-left:0px;">-->
-<!--                                            <div style="color: #8B1538; font-size: 16px; font-weight: bold; text-transform: uppercase;">-->
-<!--                                                SAMEER SHARAF AL OTAIBI TRADING COMPANY-->
-<!--                                            </div>-->
-<!--                                        </td>-->
-<!--                                        <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white;padding-right:0px;">-->
-<!--                                            <div style="color: #8B1538; font-size: 17px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;"-->
-<!--                                                 class="ar">-->
-<!--                                                شركة سمير شرف العتيبي التجارية-->
-<!--                                            </div>-->
-<!--                                        </td>-->
-<!--                                    </tr>-->
-<!--                                </table>-->
-
-<!--                                &lt;!&ndash; Details and Logo Row &ndash;&gt;-->
-<!--                                <table style="width: 100%; border-collapse: collapse;">-->
-<!--                                    <tr>-->
-<!--                                        &lt;!&ndash; Left Column: English Info &ndash;&gt;-->
-<!--                                        <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: top;-->
-<!--                        border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;padding-top:0px;padding-left:0px;">-->
-<!--                                            <div style="line-height: 1.3; font-weight: 500;padding-left:0px;padding-top:0px;margin-top:0px;">-->
-<!--                                                C.R. 4030216154-->
-<!--                                                <br/>-->
-<!--                                                VAT Regd: 311299944700003-->
-<!--                                            </div>-->
-<!--                                        </td>-->
-
-<!--                                        &lt;!&ndash; Center Column: Company Logo &ndash;&gt;-->
-<!--                                        <td style="width: 34%; text-align: center; vertical-align: top;-->
-<!--                        padding: 5px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">-->
-<!--                                            <t t-if="o.company_id.logo">-->
-<!--                                                <img t-att-src="image_data_uri(o.company_id.logo)"-->
-<!--                                                     style="max-height: 140px; max-width: 100%; object-fit: contain; display: block; margin: -23px auto;padding-top:8px;padding-top:5px;"/>-->
-
-<!--                                            </t>-->
-<!--                                        </td>-->
-
-<!--                                        &lt;!&ndash; Right Column: Arabic Info &ndash;&gt;-->
-<!--                                        <td style="width: 33%; text-align: right; font-size: 15px; color: #333; vertical-align: top;-->
-<!--                        direction: rtl; padding: 0px 10px 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">-->
-<!--                                            <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight:900; padding-right:0px; margin-top:0px; text-align: right; direction: rtl;"-->
-<!--                                                 class="ar">-->
-<!--                                                س.ت: ٤٠٣٠٢١٦١٥٤-->
-<!--                                                <br/>-->
-<!--                                                الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣-->
-<!--                                                <br/>-->
-<!--                                            </div>-->
-<!--                                        </td>-->
-<!--                                    </tr>-->
-<!--                                </table>-->
-
-<!--                            </div>-->
-
-
-<!--                            &lt;!&ndash; Report Title &ndash;&gt;-->
-<!--                            <div class="text-center mb-4">-->
-<!--                                <h3 style="margin: 20px 0 10px 0; font-size: 20px; font-weight: bold;">-->
-<!--                                    <t t-if="o.report_type == 'purchase'">Purchase Book Report</t>-->
-<!--                                    <t t-if="o.report_type == 'return'">Purchase Return Book Report</t>-->
-<!--                                    <t t-if="o.report_type == 'both'">Purchase &amp; Purchase Return Book Report</t>-->
-<!--                                </h3>-->
-<!--                                <p style="margin: 5px 0; font-size: 14px;">-->
-<!--                                    <strong>Date Range:</strong>-->
-<!--                                    <span t-esc="o.date_from.strftime('%d-%m-%Y')"/>-->
-<!--                                    to-->
-<!--                                    <span t-esc="o.date_to.strftime('%d-%m-%Y')"/>-->
-<!--                                </p>-->
-<!--                            </div>-->
-
-<!--                            &lt;!&ndash; Purchase Report &ndash;&gt;-->
-<!--                            <t t-if="o.report_type == 'purchase'">-->
-<!--                                <t t-set="data" t-value="o._get_report_data()"/>-->
-<!--                                <t t-call="purchase_book.purchase_table_template"/>-->
-<!--                            </t>-->
-
-<!--                            &lt;!&ndash; Purchase Return Report &ndash;&gt;-->
-<!--                            <t t-if="o.report_type == 'return'">-->
-<!--                                <t t-set="data" t-value="o._get_report_data()"/>-->
-<!--                                <t t-call="purchase_book.return_table_template"/>-->
-<!--                            </t>-->
-
-<!--                            &lt;!&ndash; Combined Report &ndash;&gt;-->
-<!--                            <t t-if="o.report_type == 'both'">-->
-<!--                                <t t-set="data" t-value="o._get_report_data()"/>-->
-<!--                                <t t-call="purchase_book.combined_table_template"/>-->
-<!--                            </t>-->
-
-<!--                        </div>-->
-<!--                    </t>-->
-<!--                </t>-->
-<!--            </t>-->
-<!--        </template>-->
-
-<!--        &lt;!&ndash; Purchase Table Template &ndash;&gt;-->
-<!--        <template id="purchase_table_template">-->
-<!--            <table class="table table-sm table-bordered">-->
-<!--                <thead style="background-color: #e9ecef;">-->
-<!--                    <tr>-->
-<!--                        <th>Date</th>-->
-<!--                        <th>Vendor</th>-->
-<!--                        <th>Invoice</th>-->
-<!--                        <th class="text-right">Gross</th>-->
-<!--                        <th class="text-right">Tr. Disc</th>-->
-<!--                        <th class="text-right">Net Total</th>-->
-<!--                        <th class="text-right">Ad. Disc</th>-->
-<!--                        <th class="text-right">Ad. Cost</th>-->
-<!--                        <th class="text-right">Round Off</th>-->
-<!--                        <th class="text-right">Adj. Amt</th>-->
-<!--                        <th class="text-right">Tax Amt</th>-->
-<!--                        <th class="text-right">Grand Total</th>-->
-<!--                    </tr>-->
-<!--                </thead>-->
-<!--                <tbody>-->
-<!--                    <t t-set="total_gross" t-value="0"/>-->
-<!--                    <t t-set="total_trade_disc" t-value="0"/>-->
-<!--                    <t t-set="total_net" t-value="0"/>-->
-<!--                    <t t-set="total_ad_disc" t-value="0"/>-->
-<!--                    <t t-set="total_ad_cost" t-value="0"/>-->
-<!--                    <t t-set="total_round" t-value="0"/>-->
-<!--                    <t t-set="total_adj" t-value="0"/>-->
-<!--                    <t t-set="total_tax" t-value="0"/>-->
-<!--                    <t t-set="total_grand" t-value="0"/>-->
-
-<!--                    <t t-foreach="data" t-as="line">-->
-<!--                        <tr>-->
-<!--                            <td>-->
-<!--                                <span t-esc="line['date']"/>-->
-<!--                            </td>-->
-<!--                            <td>-->
-<!--                                <span t-esc="line['vendor']"/>-->
-<!--                            </td>-->
-<!--                            <td>-->
-<!--                                <span t-esc="line['invoice_ref']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['gross']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['trade_disc']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['net_total']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['add_disc']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['add_cost']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['round_off']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['adj_amount']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['tax_amount']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['grand_total']"/>-->
-<!--                            </td>-->
-<!--                        </tr>-->
-<!--                        <t t-set="total_gross" t-value="total_gross + line['gross']"/>-->
-<!--                        <t t-set="total_trade_disc" t-value="total_trade_disc + line['trade_disc']"/>-->
-<!--                        <t t-set="total_net" t-value="total_net + line['net_total']"/>-->
-<!--                        <t t-set="total_ad_disc" t-value="total_ad_disc + line['add_disc']"/>-->
-<!--                        <t t-set="total_ad_cost" t-value="total_ad_cost + line['add_cost']"/>-->
-<!--                        <t t-set="total_round" t-value="total_round + line['round_off']"/>-->
-<!--                        <t t-set="total_adj" t-value="total_adj + line['adj_amount']"/>-->
-<!--                        <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>-->
-<!--                        <t t-set="total_grand" t-value="total_grand + line['grand_total']"/>-->
-<!--                    </t>-->
-<!--                </tbody>-->
-<!--                <tfoot style="background-color: #f8f9fa; font-weight: bold;">-->
-<!--                    <tr>-->
-<!--                        <td colspan="3" class="text-right">Grand Total</td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_gross"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_trade_disc"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_net"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_ad_disc"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_ad_cost"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_round"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_adj"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_tax"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_grand"/>-->
-<!--                        </td>-->
-<!--                    </tr>-->
-<!--                </tfoot>-->
-<!--            </table>-->
-<!--        </template>-->
-
-<!--        &lt;!&ndash; Return Table Template &ndash;&gt;-->
-<!--        <template id="return_table_template">-->
-<!--            <table class="table table-sm table-bordered">-->
-<!--                <thead style="background-color: #e9ecef;">-->
-<!--                    <tr>-->
-<!--                        <th>Date</th>-->
-<!--                        <th>Vendor</th>-->
-<!--                        <th>Return Ref</th>-->
-<!--                        <th class="text-right">Gross</th>-->
-<!--                        <th class="text-right">Tr. Disc</th>-->
-<!--                        <th class="text-right">Net Total</th>-->
-<!--                        <th class="text-right">Ad. Disc</th>-->
-<!--                        <th class="text-right">Ad. Cost</th>-->
-<!--                        <th class="text-right">Round Off</th>-->
-<!--                        <th class="text-right">Adj. Amt</th>-->
-<!--                        <th class="text-right">Tax Amt</th>-->
-<!--                        <th class="text-right">Grand Total</th>-->
-<!--                    </tr>-->
-<!--                </thead>-->
-<!--                <tbody>-->
-<!--                    <t t-set="total_gross" t-value="0"/>-->
-<!--                    <t t-set="total_trade_disc" t-value="0"/>-->
-<!--                    <t t-set="total_net" t-value="0"/>-->
-<!--                    <t t-set="total_ad_disc" t-value="0"/>-->
-<!--                    <t t-set="total_ad_cost" t-value="0"/>-->
-<!--                    <t t-set="total_round" t-value="0"/>-->
-<!--                    <t t-set="total_adj" t-value="0"/>-->
-<!--                    <t t-set="total_tax" t-value="0"/>-->
-<!--                    <t t-set="total_grand" t-value="0"/>-->
-
-<!--                    <t t-foreach="data" t-as="line">-->
-<!--                        <tr>-->
-<!--                            <td>-->
-<!--                                <span t-esc="line['date']"/>-->
-<!--                            </td>-->
-<!--                            <td>-->
-<!--                                <span t-esc="line['vendor']"/>-->
-<!--                            </td>-->
-<!--                            <td>-->
-<!--                                <span t-esc="line['invoice_ref']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['gross']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['trade_disc']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['net_total']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['add_disc']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['add_cost']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['round_off']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['adj_amount']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['tax_amount']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['grand_total']"/>-->
-<!--                            </td>-->
-<!--                        </tr>-->
-<!--                        <t t-set="total_gross" t-value="total_gross + line['gross']"/>-->
-<!--                        <t t-set="total_trade_disc" t-value="total_trade_disc + line['trade_disc']"/>-->
-<!--                        <t t-set="total_net" t-value="total_net + line['net_total']"/>-->
-<!--                        <t t-set="total_ad_disc" t-value="total_ad_disc + line['add_disc']"/>-->
-<!--                        <t t-set="total_ad_cost" t-value="total_ad_cost + line['add_cost']"/>-->
-<!--                        <t t-set="total_round" t-value="total_round + line['round_off']"/>-->
-<!--                        <t t-set="total_adj" t-value="total_adj + line['adj_amount']"/>-->
-<!--                        <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>-->
-<!--                        <t t-set="total_grand" t-value="total_grand + line['grand_total']"/>-->
-<!--                    </t>-->
-<!--                </tbody>-->
-<!--                <tfoot style="background-color: #f8f9fa; font-weight: bold;">-->
-<!--                    <tr>-->
-<!--                        <td colspan="3" class="text-right">Grand Total</td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_gross"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_trade_disc"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_net"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_ad_disc"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_ad_cost"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_round"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_adj"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_tax"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_grand"/>-->
-<!--                        </td>-->
-<!--                    </tr>-->
-<!--                </tfoot>-->
-<!--            </table>-->
-<!--        </template>-->
-
-<!--        &lt;!&ndash; Combined Table Template &ndash;&gt;-->
-<!--        <template id="combined_table_template">-->
-<!--            <table class="table table-sm table-bordered">-->
-<!--                <thead style="background-color: #e9ecef;">-->
-<!--                    <tr>-->
-<!--                        <th>Date</th>-->
-<!--                        <th>Type</th>-->
-<!--                        <th>Vendor</th>-->
-<!--                        <th>Ref</th>-->
-<!--                        <th class="text-right">Gross</th>-->
-<!--                        <th class="text-right">Tr. Disc</th>-->
-<!--                        <th class="text-right">Net Total</th>-->
-<!--                        <th class="text-right">Tax Amt</th>-->
-<!--                        <th class="text-right">Cost</th>-->
-<!--                        <th class="text-right">Adj</th>-->
-<!--                        <th class="text-right">Net Amt</th>-->
-<!--                    </tr>-->
-<!--                </thead>-->
-<!--                <tbody>-->
-<!--                    <t t-set="total_gross" t-value="0"/>-->
-<!--                    <t t-set="total_trade_disc" t-value="0"/>-->
-<!--                    <t t-set="total_net" t-value="0"/>-->
-<!--                    <t t-set="total_tax" t-value="0"/>-->
-<!--                    <t t-set="total_cost" t-value="0"/>-->
-<!--                    <t t-set="total_adj" t-value="0"/>-->
-<!--                    <t t-set="total_grand" t-value="0"/>-->
-
-<!--                    <t t-foreach="data" t-as="line">-->
-<!--                        <tr>-->
-<!--                            <td>-->
-<!--                                <span t-esc="line['date']"/>-->
-<!--                            </td>-->
-<!--                            <td>-->
-<!--                                <span t-if="line.get('type') == 'Purchase'" class="badge badge-success">Purchase</span>-->
-<!--                                <span t-if="line.get('type') == 'Return'" class="badge badge-danger">Return</span>-->
-<!--                            </td>-->
-<!--                            <td>-->
-<!--                                <span t-esc="line['vendor']"/>-->
-<!--                            </td>-->
-<!--                            <td>-->
-<!--                                <span t-esc="line['invoice_ref']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['gross']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['trade_disc']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['net_total']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['tax_amount']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['add_cost']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['adj_amount']"/>-->
-<!--                            </td>-->
-<!--                            <td class="text-right">-->
-<!--                                <span t-esc="'%.2f' % line['grand_total']"/>-->
-<!--                            </td>-->
-<!--                        </tr>-->
-<!--                        <t t-set="total_gross" t-value="total_gross + line['gross']"/>-->
-<!--                        <t t-set="total_trade_disc" t-value="total_trade_disc + line['trade_disc']"/>-->
-<!--                        <t t-set="total_net" t-value="total_net + line['net_total']"/>-->
-<!--                        <t t-set="total_tax" t-value="total_tax + line['tax_amount']"/>-->
-<!--                        <t t-set="total_cost" t-value="total_cost + line['add_cost']"/>-->
-<!--                        <t t-set="total_adj" t-value="total_adj + line['adj_amount']"/>-->
-<!--                        <t t-set="total_grand" t-value="total_grand + line['grand_total']"/>-->
-<!--                    </t>-->
-<!--                </tbody>-->
-<!--                <tfoot style="background-color: #f8f9fa; font-weight: bold;">-->
-<!--                    <tr>-->
-<!--                        <td colspan="4" class="text-right">Grand Total</td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_gross"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_trade_disc"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_net"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_tax"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_cost"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_adj"/>-->
-<!--                        </td>-->
-<!--                        <td class="text-right">-->
-<!--                            <span t-esc="'%.2f' % total_grand"/>-->
-<!--                        </td>-->
-<!--                    </tr>-->
-<!--                </tfoot>-->
-<!--            </table>-->
-<!--        </template>-->
-
-<!--    </data>-->
-<!--</odoo>-->

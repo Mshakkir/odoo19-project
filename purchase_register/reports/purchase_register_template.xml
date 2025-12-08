@@ -97,9 +97,9 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
-                    <t t-call="web.basic_layout">
                     <div class="page">
-                         <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 25px; padding: 15px 0;">
+                        <!-- Custom Header -->
+                        <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 25px; padding: 15px 0;">
                             <table style="width: 100%; border-collapse: collapse; border:none; margin-bottom: 0px;">
                                 <tr style="border:2px solid white;">
                                     <td style="width: 50%; padding: 10px 0px; text-align: left; vertical-align: middle; border: none;padding-bottom:0px;">
@@ -141,7 +141,8 @@
                                 </tr>
                             </table>
                         </div>
-                        <!-- Header -->
+
+                        <!-- Report Title Header -->
                         <div class="row mb-4">
                             <div class="col-12 text-center">
                                 <h2>PURCHASE REGISTER</h2>
@@ -235,7 +236,6 @@
                             </div>
                         </t>
                     </div>
-                    </t>
                 </t>
             </t>
         </t>

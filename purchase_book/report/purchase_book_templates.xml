@@ -5,16 +5,65 @@
         <template id="report_purchase_book_document">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="o">
-                    <t t-call="web.external_layout">
+                    <!-- Use basic_layout instead of external_layout to avoid default header -->
+                    <t t-call="web.basic_layout">
                         <div class="page">
-                            <!-- Company Header -->
+                            <!-- Custom Header -->
+                            <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 25px; padding: 15px 0;">
+                                <table style="width: 100%; border-collapse: collapse; border:none; margin-bottom: 0px;">
+                                    <tr style="border:2px solid white;">
+                                        <td style="width: 50%; padding: 10px 0px; text-align: left; vertical-align: middle; border: none;padding-bottom:0px;">
+                                            <div style="color: #8B1538; font-size: 14px; font-weight: bold; text-transform: uppercase;">
+                                                SAMEER SHARAF AL OTAIBI TRADING COMPANY
+                                            </div>
+                                        </td>
+                                        <td style="width: 50%; padding: 10px 0px; text-align: right; vertical-align: middle; border: none;">
+                                            <div style="color: #8B1538; font-size: 16px; font-weight: 900; direction: rtl;padding-bottom:0px;" class="ar">
+                                                شركة سمير شرف العتيبي التجارية
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr style="border:2px solid white;">
+                                        <td style="width: 33%; text-align: left; font-size: 14px; color: #333; vertical-align: middle;
+                                        padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
+                                            <div style="line-height: 1.6; font-weight: 500; margin-top: 10px;">
+                                                C.R. 4030216154<br/>
+                                                VAT Regd: 311299944700003
+                                            </div>
+                                        </td>
+
+                                        <td style="width: 34%; text-align: center; vertical-align: middle; padding: 5px 10px;
+                                        border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
+                                            <t t-if="o.company_id.logo">
+                                                <img t-att-src="image_data_uri(o.company_id.logo)"
+                                                     style="max-height: 90px; max-width: 100%; object-fit: contain;"/>
+                                            </t>
+                                        </td>
+
+                                        <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle;
+                                        direction: rtl; padding: 0px 0px 10px 0px; border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
+                                            <div style="line-height: 1.6; font-weight: 900; text-align: right; direction: rtl; margin-top: 10px;" class="ar">
+                                                س.ت: ٤٠٣٠٢١٦١٥٤<br/>
+                                                الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Report Title -->
                             <div class="text-center mb-4">
-                                <h3 t-if="o.report_type == 'purchase'">Purchase Book Report</h3>
-                                <h3 t-if="o.report_type == 'return'">Purchase Return Book Report</h3>
-                                <h3 t-if="o.report_type == 'both'">Purchase &amp; Purchase Return Book Report</h3>
-                                <p>
+                                <h3 style="margin: 20px 0 10px 0; font-size: 20px; font-weight: bold;">
+                                    <t t-if="o.report_type == 'purchase'">Purchase Book Report</t>
+                                    <t t-if="o.report_type == 'return'">Purchase Return Book Report</t>
+                                    <t t-if="o.report_type == 'both'">Purchase &amp; Purchase Return Book Report</t>
+                                </h3>
+                                <p style="margin: 5px 0; font-size: 14px;">
                                     <strong>Date Range: </strong>
-                                    <span t-esc="o.date_from"/> to <span t-esc="o.date_to"/>
+                                    <span t-esc="o.date_from.strftime('%d-%m-%Y')"/> to <span t-esc="o.date_to.strftime('%d-%m-%Y')"/>
                                 </p>
                             </div>
 

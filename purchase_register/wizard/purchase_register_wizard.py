@@ -696,7 +696,21 @@ class PurchaseRegisterWizard(models.TransientModel):
 
             for invoice in invoices:
                 # Calculate paid amount for the invoice
-                invoice_paid = invoice.amount_total - invoice.amount_residual
+                # Use amount_paid field if available, otherwise calculate from residual
+                if hasattr(invoice, 'amount_paid'):
+                    invoice_paid = invoice.amount_paid
+                else:
+                    invoice_paid = invoice.amount_total - invoice.amount_residual
+
+                # Alternative: Check reconciled payments directly
+                if invoice_paid == 0:
+                    # Try to get payment from reconciled items
+                    for line in invoice.line_ids.filtered(
+                            lambda l: l.account_id.account_type in ['liability_payable', 'asset_receivable']):
+                        for partial in line.matched_debit_ids:
+                            invoice_paid += partial.amount
+                        for partial in line.matched_credit_ids:
+                            invoice_paid += partial.amount
 
                 for line in invoice.invoice_line_ids:
                     # Skip section and note lines

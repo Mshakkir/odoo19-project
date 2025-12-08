@@ -850,7 +850,7 @@
                         </tr>
                     </table>
 
-<!--                    product lines -->
+<!--               <!--                    product lines -->
                     <table width="100%" border="1"
                            style="border-collapse: collapse; font-size: 11px; margin-top: 10px; border-color: #000;"
                            cellpadding="0" cellspacing="0">
@@ -902,7 +902,6 @@
                                     </span>
                                 </th>
 
-
                                 <th style="width: 3%; text-align: center; padding: 6px 10px;">
                                     Line Total
                                     <br/>
@@ -942,14 +941,10 @@
                                     <t t-esc="line.tax_ids and line.tax_ids[0].amount or 0"/>%
                                 </td>
 
-                                <!-- UPDATED: Display VAT Amount Before Discount -->
-<!--                                <td style="padding: 8px 12px; text-align:center;">-->
-<!--                                    <span t-esc="'%.2f' % line.price_tax_before_discount"/>-->
-<!--                                </td>-->
-
-<!--                                <td style="padding: 8px 12px;text-align:right;">-->
-<!--                                    <span t-field="line.price_subtotal_before_discount"/>-->
-<!--                                </td>-->
+                                <!-- Line Total (Subtotal with Tax) -->
+                                <td style="padding: 8px 12px;text-align:right;">
+                                    <span t-field="line.price_total"/>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

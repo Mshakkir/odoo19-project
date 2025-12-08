@@ -172,7 +172,7 @@
                         <!-- Table -->
                         <t t-if="purchase_data">
                             <table class="table table-sm table-bordered">
-                                <thead style="background-color: #CCC6C6; color: black;">
+                                <thead style="background-color: #4472C4; color: white;">
                                     <tr>
                                         <th>Date</th>
                                         <th>Type</th>
@@ -184,8 +184,12 @@
                                         <th class="text-right">Qty</th>
                                         <th class="text-right">Unit Price</th>
                                         <th class="text-right">Subtotal</th>
+                                        <th class="text-right">Trade Dis</th>
+                                        <th class="text-right">AddIn Dis</th>
+                                        <th class="text-right">AddIn Cost</th>
                                         <th>Tax</th>
                                         <th class="text-right">Tax Amt</th>
+                                        <th class="text-right">Round Off</th>
                                         <th class="text-right">Total</th>
                                         <th class="text-right">Paid</th>
                                         <th class="text-right">Balance</th>
@@ -193,7 +197,11 @@
                                 </thead>
                                 <tbody>
                                     <t t-set="total_subtotal" t-value="0"/>
+                                    <t t-set="total_trade_dis" t-value="0"/>
+                                    <t t-set="total_addin_dis" t-value="0"/>
+                                    <t t-set="total_addin_cost" t-value="0"/>
                                     <t t-set="total_tax" t-value="0"/>
+                                    <t t-set="total_round_off" t-value="0"/>
                                     <t t-set="total_amount" t-value="0"/>
                                     <t t-set="total_paid" t-value="0"/>
                                     <t t-set="total_balance" t-value="0"/>
@@ -210,15 +218,23 @@
                                             <td class="text-right"><span t-esc="'%.2f' % line.get('quantity', 0)"/></td>
                                             <td class="text-right"><span t-esc="'%.2f' % line.get('unit_price', 0)"/></td>
                                             <td class="text-right"><span t-esc="'%.2f' % line.get('subtotal', 0)"/></td>
+                                            <td class="text-right"><span t-esc="'%.2f' % line.get('trade_discount', 0)"/></td>
+                                            <td class="text-right"><span t-esc="'%.2f' % line.get('addin_discount', 0)"/></td>
+                                            <td class="text-right"><span t-esc="'%.2f' % line.get('addin_cost', 0)"/></td>
                                             <td><span t-esc="line.get('taxes', '')"/></td>
                                             <td class="text-right"><span t-esc="'%.2f' % line.get('tax_amount', 0)"/></td>
+                                            <td class="text-right"><span t-esc="'%.2f' % line.get('round_off', 0)"/></td>
                                             <td class="text-right"><strong><span t-esc="'%.2f' % line.get('total', 0)"/></strong></td>
                                             <td class="text-right"><span t-esc="'%.2f' % line.get('paid', 0)"/></td>
                                             <td class="text-right"><span t-esc="'%.2f' % line.get('balance', 0)"/></td>
                                         </tr>
 
                                         <t t-set="total_subtotal" t-value="total_subtotal + line.get('subtotal', 0)"/>
+                                        <t t-set="total_trade_dis" t-value="total_trade_dis + line.get('trade_discount', 0)"/>
+                                        <t t-set="total_addin_dis" t-value="total_addin_dis + line.get('addin_discount', 0)"/>
+                                        <t t-set="total_addin_cost" t-value="total_addin_cost + line.get('addin_cost', 0)"/>
                                         <t t-set="total_tax" t-value="total_tax + line.get('tax_amount', 0)"/>
+                                        <t t-set="total_round_off" t-value="total_round_off + line.get('round_off', 0)"/>
                                         <t t-set="total_amount" t-value="total_amount + line.get('total', 0)"/>
                                         <t t-set="total_paid" t-value="total_paid + line.get('paid', 0)"/>
                                         <t t-set="total_balance" t-value="total_balance + line.get('balance', 0)"/>
@@ -228,8 +244,12 @@
                                     <tr>
                                         <td colspan="9" class="text-right">TOTAL:</td>
                                         <td class="text-right"><span t-esc="'%.2f' % total_subtotal"/></td>
+                                        <td class="text-right"><span t-esc="'%.2f' % total_trade_dis"/></td>
+                                        <td class="text-right"><span t-esc="'%.2f' % total_addin_dis"/></td>
+                                        <td class="text-right"><span t-esc="'%.2f' % total_addin_cost"/></td>
                                         <td></td>
                                         <td class="text-right"><span t-esc="'%.2f' % total_tax"/></td>
+                                        <td class="text-right"><span t-esc="'%.2f' % total_round_off"/></td>
                                         <td class="text-right"><span t-esc="'%.2f' % total_amount"/></td>
                                         <td class="text-right"><span t-esc="'%.2f' % total_paid"/></td>
                                         <td class="text-right"><span t-esc="'%.2f' % total_balance"/></td>

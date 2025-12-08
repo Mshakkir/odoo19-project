@@ -527,12 +527,14 @@
 #             'url': f'/web/content/{attachment.id}?download=true',
 #             'target': 'new',
 #         }
-
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 from datetime import datetime
 import base64
 import io
+import logging
+
+_logger = logging.getLogger(__name__)
 
 try:
     from odoo.tools.misc import xlsxwriter
@@ -612,9 +614,37 @@ class PurchaseRegisterWizard(models.TransientModel):
                 ('state', '=', 'posted')
             ])
 
-            # Calculate total paid and residual for the entire PO
-            total_invoice_amount = sum(invoices.mapped('amount_total'))
-            total_paid = sum(invoices.mapped(lambda inv: inv.amount_total - inv.amount_residual))
+            # Calculate total paid for all related invoices
+            total_invoice_amount = 0
+            total_paid = 0
+
+            for inv in invoices:
+                total_invoice_amount += inv.amount_total
+
+                # Method 1: Try payment_state and residual
+                if hasattr(inv, 'payment_state') and inv.payment_state == 'paid':
+                    total_paid += inv.amount_total
+                elif hasattr(inv, 'amount_residual'):
+                    total_paid += (inv.amount_total - inv.amount_residual)
+                else:
+                    # Method 2: Search for matching payments (Odoo Mates compatible)
+                    from datetime import timedelta
+                    payments = self.env['account.payment'].search([
+                        ('partner_id', '=', po.partner_id.id),
+                        ('payment_type', '=', 'outbound'),
+                        ('state', '=', 'posted'),
+                        ('date', '>=', inv.invoice_date - timedelta(days=30)),
+                        ('date', '<=', inv.invoice_date + timedelta(days=30)),
+                    ])
+
+                    for payment in payments:
+                        # Match by amount or reference
+                        if abs(payment.amount - inv.amount_total) < 0.01:
+                            total_paid += payment.amount
+                        elif hasattr(payment, 'ref') and payment.ref and inv.name in payment.ref:
+                            total_paid += payment.amount
+                        elif hasattr(payment, 'memo') and payment.memo and inv.name in str(payment.memo):
+                            total_paid += payment.amount
 
             for line in po.order_line:
                 # Get warehouse from analytic account
@@ -629,9 +659,39 @@ class PurchaseRegisterWizard(models.TransientModel):
                 elif hasattr(line, 'taxes_id'):
                     taxes = line.taxes_id
 
+                # Calculate tax amount
                 tax_amount = 0
                 if taxes:
                     tax_amount = sum(line.price_subtotal * (tax.amount / 100) for tax in taxes)
+
+                # Calculate Trade Discount (line discount)
+                trade_discount = 0
+                if hasattr(line, 'discount') and line.discount > 0:
+                    # Discount is percentage-based
+                    trade_discount = (line.product_qty * line.price_unit * line.discount) / 100
+
+                # Calculate subtotal (before discount)
+                gross_amount = line.product_qty * line.price_unit
+
+                # Additional Discount (from PO level discount if exists)
+                addin_discount = 0
+                if hasattr(po, 'additional_discount') and po.additional_discount:
+                    # Proportional additional discount for this line
+                    if po.amount_untaxed > 0:
+                        addin_discount = (line.price_subtotal / po.amount_untaxed) * po.additional_discount
+
+                # Additional Cost (from PO level additional costs like freight)
+                addin_cost = 0
+                if hasattr(po, 'additional_cost') and po.additional_cost:
+                    # Proportional additional cost for this line
+                    if po.amount_untaxed > 0:
+                        addin_cost = (line.price_subtotal / po.amount_untaxed) * po.additional_cost
+
+                # Round Off (calculated at document level, distributed proportionally)
+                round_off = 0
+                if hasattr(po, 'amount_round') and po.amount_round:
+                    if po.amount_untaxed > 0:
+                        round_off = (line.price_subtotal / po.amount_untaxed) * po.amount_round
 
                 # Convert datetime to date if needed
                 order_date = po.date_order
@@ -662,7 +722,11 @@ class PurchaseRegisterWizard(models.TransientModel):
                     'quantity': line.product_qty,
                     'unit_price': line.price_unit,
                     'subtotal': line.price_subtotal,
+                    'trade_discount': trade_discount,
+                    'addin_discount': addin_discount,
+                    'addin_cost': addin_cost,
                     'tax_amount': tax_amount,
+                    'round_off': round_off,
                     'total': line_total,
                     'paid': paid_amount,
                     'balance': balance_amount,
@@ -696,21 +760,45 @@ class PurchaseRegisterWizard(models.TransientModel):
 
             for invoice in invoices:
                 # Calculate paid amount for the invoice
-                # Use amount_paid field if available, otherwise calculate from residual
-                if hasattr(invoice, 'amount_paid'):
-                    invoice_paid = invoice.amount_paid
-                else:
-                    invoice_paid = invoice.amount_total - invoice.amount_residual
+                invoice_paid = 0
 
-                # Alternative: Check reconciled payments directly
+                # Method 1: Check if invoice has payment_state and amount fields
+                if hasattr(invoice, 'payment_state'):
+                    if invoice.payment_state in ['paid', 'in_payment', 'partial']:
+                        # Calculate from residual
+                        invoice_paid = invoice.amount_total - invoice.amount_residual
+
+                # Method 2: If still 0, check reconciled payment items
                 if invoice_paid == 0:
-                    # Try to get payment from reconciled items
-                    for line in invoice.line_ids.filtered(
-                            lambda l: l.account_id.account_type in ['liability_payable', 'asset_receivable']):
+                    for line in invoice.line_ids.filtered(lambda l: l.account_id.account_type == 'liability_payable'):
+                        # Check matched debits (vendor payments)
                         for partial in line.matched_debit_ids:
                             invoice_paid += partial.amount
+                        # Check matched credits (if any)
                         for partial in line.matched_credit_ids:
                             invoice_paid += partial.amount
+
+                # Method 3: If still 0, search for related payments by partner and amount
+                if invoice_paid == 0:
+                    # Search for payments to this vendor around the invoice date
+                    payments = self.env['account.payment'].search([
+                        ('partner_id', '=', invoice.partner_id.id),
+                        ('payment_type', '=', 'outbound'),
+                        ('state', '=', 'posted'),
+                        ('date', '>=', invoice.invoice_date),
+                    ])
+
+                    # Check if any payment matches this invoice
+                    for payment in payments:
+                        # Check if payment has reconciled_bill_ids or reconciled_invoice_ids
+                        if hasattr(payment, 'reconciled_bill_ids') and invoice in payment.reconciled_bill_ids:
+                            invoice_paid += payment.amount
+                        elif hasattr(payment, 'reconciled_invoice_ids') and invoice in payment.reconciled_invoice_ids:
+                            invoice_paid += payment.amount
+
+                # Ensure we don't exceed the total
+                if invoice_paid > invoice.amount_total:
+                    invoice_paid = invoice.amount_total
 
                 for line in invoice.invoice_line_ids:
                     # Skip section and note lines
@@ -730,9 +818,35 @@ class PurchaseRegisterWizard(models.TransientModel):
                         warehouse_name = line.analytic_account_id.name
 
                     taxes = line.tax_ids
+
+                    # Calculate tax amount
                     tax_amount = 0
                     if taxes:
                         tax_amount = sum(line.price_subtotal * (tax.amount / 100) for tax in taxes)
+
+                    # Calculate Trade Discount (line discount)
+                    trade_discount = 0
+                    if hasattr(line, 'discount') and line.discount > 0:
+                        trade_discount = (line.quantity * line.price_unit * line.discount) / 100
+
+                    # Additional Discount (invoice level)
+                    addin_discount = 0
+                    if hasattr(invoice, 'additional_discount') and invoice.additional_discount:
+                        if invoice.amount_untaxed > 0:
+                            addin_discount = (
+                                                         line.price_subtotal / invoice.amount_untaxed) * invoice.additional_discount
+
+                    # Additional Cost (invoice level freight/charges)
+                    addin_cost = 0
+                    if hasattr(invoice, 'additional_cost') and invoice.additional_cost:
+                        if invoice.amount_untaxed > 0:
+                            addin_cost = (line.price_subtotal / invoice.amount_untaxed) * invoice.additional_cost
+
+                    # Round Off (proportional distribution)
+                    round_off = 0
+                    if hasattr(invoice, 'amount_round') and invoice.amount_round:
+                        if invoice.amount_untaxed > 0:
+                            round_off = (line.price_subtotal / invoice.amount_untaxed) * invoice.amount_round
 
                     # Calculate line total
                     line_total = line.price_total
@@ -757,7 +871,11 @@ class PurchaseRegisterWizard(models.TransientModel):
                         'quantity': line.quantity,
                         'unit_price': line.price_unit,
                         'subtotal': line.price_subtotal,
+                        'trade_discount': trade_discount,
+                        'addin_discount': addin_discount,
+                        'addin_cost': addin_cost,
                         'tax_amount': tax_amount,
+                        'round_off': round_off,
                         'total': line_total,
                         'paid': line_paid,
                         'balance': line_balance,
@@ -829,9 +947,9 @@ class PurchaseRegisterWizard(models.TransientModel):
         currency_format = workbook.add_format({'num_format': '#,##0.00'})
 
         # Title
-        worksheet.merge_range('A1:P1', 'PURCHASE REGISTER', title_format)
-        worksheet.merge_range('A2:P2', f'{self.company_id.name}', title_format)
-        worksheet.merge_range('A3:P3',
+        worksheet.merge_range('A1:T1', 'PURCHASE REGISTER', title_format)
+        worksheet.merge_range('A2:T2', f'{self.company_id.name}', title_format)
+        worksheet.merge_range('A3:T3',
                               f'Period: {self.date_from.strftime("%d/%m/%Y")} to {self.date_to.strftime("%d/%m/%Y")}',
                               title_format)
 
@@ -839,7 +957,8 @@ class PurchaseRegisterWizard(models.TransientModel):
         headers = [
             'Date', 'Document Type', 'Document No.', 'Supplier Name', 'Supplier VAT/GST',
             'Warehouse', 'Product/Service', 'Quantity', 'Unit Price', 'Subtotal',
-            'Tax', 'Tax Amount', 'Total', 'Paid', 'Balance', 'Currency'
+            'Trade Dis', 'AddIn Dis', 'AddIn Cost', 'Tax', 'Tax Amount', 'Round Off',
+            'Total', 'Paid', 'Balance', 'Currency'
         ]
 
         for col, header in enumerate(headers):
@@ -848,7 +967,11 @@ class PurchaseRegisterWizard(models.TransientModel):
         # Data
         row = 5
         total_subtotal = 0
+        total_trade_dis = 0
+        total_addin_dis = 0
+        total_addin_cost = 0
         total_tax = 0
+        total_round_off = 0
         total_amount = 0
         total_paid = 0
         total_balance = 0
@@ -864,15 +987,23 @@ class PurchaseRegisterWizard(models.TransientModel):
             worksheet.write(row, 7, record['quantity'])
             worksheet.write(row, 8, record['unit_price'], currency_format)
             worksheet.write(row, 9, record['subtotal'], currency_format)
-            worksheet.write(row, 10, record['taxes'])
-            worksheet.write(row, 11, record['tax_amount'], currency_format)
-            worksheet.write(row, 12, record['total'], currency_format)
-            worksheet.write(row, 13, record['paid'], currency_format)
-            worksheet.write(row, 14, record['balance'], currency_format)
-            worksheet.write(row, 15, record['currency'])
+            worksheet.write(row, 10, record.get('trade_discount', 0), currency_format)
+            worksheet.write(row, 11, record.get('addin_discount', 0), currency_format)
+            worksheet.write(row, 12, record.get('addin_cost', 0), currency_format)
+            worksheet.write(row, 13, record['taxes'])
+            worksheet.write(row, 14, record['tax_amount'], currency_format)
+            worksheet.write(row, 15, record.get('round_off', 0), currency_format)
+            worksheet.write(row, 16, record['total'], currency_format)
+            worksheet.write(row, 17, record['paid'], currency_format)
+            worksheet.write(row, 18, record['balance'], currency_format)
+            worksheet.write(row, 19, record['currency'])
 
             total_subtotal += record['subtotal']
+            total_trade_dis += record.get('trade_discount', 0)
+            total_addin_dis += record.get('addin_discount', 0)
+            total_addin_cost += record.get('addin_cost', 0)
             total_tax += record['tax_amount']
+            total_round_off += record.get('round_off', 0)
             total_amount += record['total']
             total_paid += record['paid']
             total_balance += record['balance']
@@ -888,10 +1019,14 @@ class PurchaseRegisterWizard(models.TransientModel):
 
         worksheet.write(row, 8, 'TOTAL:', total_format)
         worksheet.write(row, 9, total_subtotal, total_format)
-        worksheet.write(row, 11, total_tax, total_format)
-        worksheet.write(row, 12, total_amount, total_format)
-        worksheet.write(row, 13, total_paid, total_format)
-        worksheet.write(row, 14, total_balance, total_format)
+        worksheet.write(row, 10, total_trade_dis, total_format)
+        worksheet.write(row, 11, total_addin_dis, total_format)
+        worksheet.write(row, 12, total_addin_cost, total_format)
+        worksheet.write(row, 14, total_tax, total_format)
+        worksheet.write(row, 15, total_round_off, total_format)
+        worksheet.write(row, 16, total_amount, total_format)
+        worksheet.write(row, 17, total_paid, total_format)
+        worksheet.write(row, 18, total_balance, total_format)
 
         # Column widths
         worksheet.set_column('A:A', 12)
@@ -902,8 +1037,8 @@ class PurchaseRegisterWizard(models.TransientModel):
         worksheet.set_column('F:F', 20)  # Warehouse
         worksheet.set_column('G:G', 30)
         worksheet.set_column('H:H', 10)
-        worksheet.set_column('I:O', 12)
-        worksheet.set_column('P:P', 10)
+        worksheet.set_column('I:S', 12)
+        worksheet.set_column('T:T', 10)
 
         workbook.close()
         output.seek(0)

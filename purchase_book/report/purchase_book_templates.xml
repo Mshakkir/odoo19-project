@@ -37,10 +37,12 @@
 
                                         <td style="width: 34%; text-align: center; vertical-align: middle; padding: 5px 10px;
                                         border-top: 1px solid #ddd; border-bottom: 2px solid #8B1538;">
-                                            <t t-if="o.company_id.logo">
-                                                <img t-att-src="image_data_uri(o.company_id.logo)"
-                                                     style="max-height: 90px; max-width: 100%; object-fit: contain;"/>
-                                            </t>
+                                            <img t-att-src="request.httprequest.host_url + 'purchase_book/static/src/img/logo.png'"
+                                             style="max-height: 90px; max-width: 100%; object-fit: contain;"/>
+<!--                                            <t t-if="o.company_id.logo">-->
+<!--                                                <img t-att-src="image_data_uri(o.company_id.logo)"-->
+<!--                                                     style="max-height: 90px; max-width: 100%; object-fit: contain;"/>-->
+<!--                                            </t>-->
                                         </td>
 
                                         <td style="width: 33%; text-align: right; font-size: 14px; color: #333; vertical-align: middle;

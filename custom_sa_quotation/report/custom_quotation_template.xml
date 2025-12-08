@@ -951,9 +951,9 @@
                                 </td>
 
                                 <!-- UPDATED: Display VAT Amount Before Discount -->
-                                <td style="padding: 8px 12px; text-align:center;">
-                                    <span t-esc="'%.2f' % line.price_tax_before_discount"/>
-                                </td>
+<!--                                <td style="padding: 8px 12px; text-align:center;">-->
+<!--                                    <span t-esc="'%.2f' % line.price_tax_before_discount"/>-->
+<!--                                </td>-->
 
                                 <td style="padding: 8px 12px;text-align:right;">
                                     <span t-field="line.price_subtotal_before_discount"/>

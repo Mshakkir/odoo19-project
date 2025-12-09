@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Sales Book Wizard Form -->
         <record id="view_sales_book_wizard_form" model="ir.ui.view">
             <field name="name">sales.book.wizard.form</field>
             <field name="model">sales.book.wizard</field>
@@ -20,42 +19,33 @@
                         <group>
                             <label for="date_from" string="Date Range"/>
                             <div class="o_row">
-                                <field name="date_from" class="oe_inline"
-                                       options="{'datepicker': {'format': 'dd/mm/yyyy'}}"/>
+                                <field name="date_from" class="oe_inline"/>
                                 <span class="oe_inline"> to </span>
-                                <field name="date_to" class="oe_inline"
-                                       options="{'datepicker': {'format': 'dd/mm/yyyy'}}"/>
+                                <field name="date_to" class="oe_inline"/>
                             </div>
                         </group>
                         <group>
-                            <field name="partner_ids" widget="many2many_tags"
-                                   placeholder="All Customers"/>
-                            <field name="analytic_account_ids" widget="many2many_tags"
-                                   placeholder="All Analytic Accounts"/>
+                            <field name="partner_ids" widget="many2many_tags" placeholder="All Customers"/>
+                            <field name="analytic_account_ids" widget="many2many_tags" placeholder="All Analytic Accounts"/>
                         </group>
                     </group>
                     <field name="report_type" invisible="1"/>
                     <footer>
-                        <button string="Print PDF" name="action_print_report"
-                                type="object" class="btn-primary"
-                                data-hotkey="f"/>
+                        <button string="Print PDF" name="action_print_report" type="object" class="btn-primary"/>
                         <button string="Exit" class="btn-secondary" special="cancel"/>
                     </footer>
                 </form>
             </field>
         </record>
 
-        <!-- Sales Book Wizard Action -->
         <record id="action_sales_book_wizard" model="ir.actions.act_window">
             <field name="name">Sales Book</field>
             <field name="res_model">sales.book.wizard</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>
-            <field name="binding_model_id" ref="sale.model_sale_order"/>
             <field name="context">{'default_report_type': 'sales'}</field>
         </record>
 
-        <!-- Sales Return Wizard Action -->
         <record id="action_sales_return_wizard" model="ir.actions.act_window">
             <field name="name">Sales Return Book</field>
             <field name="res_model">sales.book.wizard</field>
@@ -64,7 +54,6 @@
             <field name="context">{'default_report_type': 'return'}</field>
         </record>
 
-        <!-- Sales & Return Combined Wizard Action -->
         <record id="action_sales_both_wizard" model="ir.actions.act_window">
             <field name="name">Sales &amp; Sales Return Book</field>
             <field name="res_model">sales.book.wizard</field>
@@ -72,6 +61,5 @@
             <field name="target">new</field>
             <field name="context">{'default_report_type': 'both'}</field>
         </record>
-
     </data>
 </odoo>

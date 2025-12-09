@@ -541,7 +541,7 @@ class SalesRegisterWizard(models.TransientModel):
         }
 
     def action_show_details(self):
-        """Show details in a tree view window"""
+        """Show details in a list view window"""
         self.ensure_one()
 
         # Get sales data
@@ -581,17 +581,18 @@ class SalesRegisterWizard(models.TransientModel):
             })
             detail_ids.append(detail.id)
 
-        # Return action to open tree view
+        # Return action to open list view
         return {
             'name': _('Sales Register Details'),
             'type': 'ir.actions.act_window',
             'res_model': 'sales.register.details',
-            'view_mode': 'list',
+            'view_mode': 'list,form',
+            'views': [(self.env.ref('sales_register.view_sales_register_details_tree').id, 'list')],
             'domain': [('id', 'in', detail_ids)],
             'context': {
                 'create': False,
                 'edit': False,
                 'delete': False,
             },
-            'target': 'new',
+            'target': 'current',
         }

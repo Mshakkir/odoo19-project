@@ -18,28 +18,28 @@
                     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&amp;display=swap');
 
                     @page {
-                        margin: 20mm;
+                    margin: 20mm;
                     }
 
                     body {
-                        font-family: 'DejaVu Sans', Arial, sans-serif;
+                    font-family: 'DejaVu Sans', Arial, sans-serif;
                     }
 
                     .ar {
-                        font-family: 'Noto Naskh Arabic', 'Tajawal', 'DejaVu Sans', Arial, sans-serif !important;
-                        direction: rtl;
-                        unicode-bidi: bidi-override;
-                        font-weight: 700;
-                        display: inline-block;
+                    font-family: 'Noto Naskh Arabic', 'Tajawal', 'DejaVu Sans', Arial, sans-serif !important;
+                    direction: rtl;
+                    unicode-bidi: bidi-override;
+                    font-weight: 700;
+                    display: inline-block;
                     }
 
                     table {
-                        width: 100%;
-                        border-collapse: collapse;
+                    width: 100%;
+                    border-collapse: collapse;
                     }
 
                     * {
-                        box-sizing: border-box;
+                    box-sizing: border-box;
                     }
                 </style>
             </head>
@@ -47,7 +47,8 @@
             <div class="page">
 
                 <!-- ===== CUSTOM HEADER ===== -->
-                <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
+                <div class="header"
+                     style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
 
                     <!-- Company Names in One Row -->
                     <table style="width: 100%; border-collapse: collapse;border:none">
@@ -58,7 +59,8 @@
                                 </div>
                             </td>
                             <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white;padding-right:0px;">
-                                <div style="color: #8B1538; font-size: 17px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;" class="ar">
+                                <div style="color: #8B1538; font-size: 17px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;"
+                                     class="ar">
                                     شركة سمير شرف العتيبي التجارية
                                 </div>
                             </td>
@@ -72,7 +74,8 @@
                             <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: top;
                                 border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;padding-top:0px;padding-left:0px;">
                                 <div style="line-height: 1.3; font-weight: 500;padding-left:0px;padding-top:0px;margin-top:0px;">
-                                    C.R. 4030216154<br/>
+                                    C.R. 4030216154
+                                    <br/>
                                     VAT Regd: 311299944700003
                                 </div>
                             </td>
@@ -89,9 +92,12 @@
                             <!-- Right Column: Arabic Info -->
                             <td style="width: 33%; text-align: right; font-size: 15px; color: #333; vertical-align: top;
                                 direction: rtl; padding: 0px 10px 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">
-                                <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight:900; padding-right:0px; margin-top:0px; text-align: right; direction: rtl;" class="ar">
-                                    س.ت: ٤٠٣٠٢١٦١٥٤<br/>
-                                    الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣<br/>
+                                <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight:900; padding-right:0px; margin-top:0px; text-align: right; direction: rtl;"
+                                     class="ar">
+                                    س.ت: ٤٠٣٠٢١٦١٥٤
+                                    <br/>
+                                    الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
+                                    <br/>
                                 </div>
                             </td>
                         </tr>
@@ -100,255 +106,170 @@
                 </div>
 
                 <!-- ===== BODY SECTION ===== -->
-<!--                <div class="body-content">-->
-<!--                    <h3>-->
-<!--                        <strong>-->
-<!--                            <span t-field="o.payment_receipt_title">Payment Receipt</span>:-->
-<!--                            <span t-field="o.name">INV0001</span>-->
-<!--                        </strong>-->
-<!--                    </h3>-->
 
-<!--                    <div class="mb-4 mt-3">-->
-<!--                        <div name="date" class="row">-->
-<!--                            <div class="col-6" t-if="o.date">-->
-<!--                                Payment Date: <span t-field="o.date">2023-01-01</span>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="oe_structure"/>-->
-
-<!--                        <div class="row">-->
-<!--                            <div class="col-6" t-if="o.partner_type">-->
-<!--                                &lt;!&ndash; Conditional Display based on Partner Type &ndash;&gt;-->
-<!--                                <t t-if="o.partner_type == 'customer'">-->
-<!--                                    Customer:-->
-<!--                                </t>-->
-<!--                                <t t-elif="o.partner_type == 'supplier'">-->
-<!--                                    Vendor:-->
-<!--                                </t>-->
-<!--                                <span t-field="o.partner_id" data-oe-demo="Marc Demo"/>-->
-<!--                            </div>-->
-<!--                            <div name="payment_method" t-if="values['display_payment_method'] and o.payment_method_id" class="col-6">-->
-<!--                                Payment Method: <span t-field="o.payment_method_id.name">Credit card</span>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="oe_structure"/>-->
-
-<!--                        <div class="row">-->
-<!--                            <div class="col-6" t-if="o.amount">-->
-<!--                                Payment Amount: <span t-field="o.amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">50 USD</span>-->
-<!--                            </div>-->
-<!--                            <div class="col-6" t-if="o.memo">-->
-<!--                                Memo: <span t-field="o.memo">Sample Memo</span>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-
-<!--                    <div class="oe_structure"/>-->
-
-<!--                    &lt;!&ndash; Invoice Details Table &ndash;&gt;-->
-<!--                    <table name="invoices" t-if="values['display_invoices']" class="table table-borderless">-->
-<!--                        <t t-set="invoices" t-value="o.reconciled_invoice_ids or o.reconciled_bill_ids"/>-->
-<!--                        &lt;!&ndash; Check if invoices include different currencies &ndash;&gt;-->
-<!--                        <t t-foreach="invoices" t-as="inv">-->
-<!--                            <t t-if="any(inv.currency_id != par[2].currency_id for par in inv._get_reconciled_invoices_partials()[0])" t-set="otherCurrency" t-value="True"/>-->
-<!--                        </t>-->
-<!--                        <thead>-->
-<!--                            <tr>-->
-<!--                                <th><span>Invoice Date</span></th>-->
-<!--                                <th><span>Invoice Number</span></th>-->
-<!--                                <th><span>Reference</span></th>-->
-<!--                                <th t-if="otherCurrency" class="text-end"><span>Amount In Currency</span></th>-->
-<!--                                <th class="text-end"><span>Amount</span></th>-->
-<!--                            </tr>-->
-<!--                        </thead>-->
-<!--                        <tbody>-->
-<!--                            <t t-foreach="invoices" t-as="inv">-->
-<!--                                <t t-if="inv.move_type != 'entry'">-->
-<!--                                    <tr>-->
-<!--                                        <td><span t-field="inv.invoice_date">2023-01-01</span></td>-->
-<!--                                        <td><span t-field="inv.name">INV001</span></td>-->
-<!--                                        <td><span t-field="inv.ref" data-oe-demo="Sample Ref"/></td>-->
-<!--                                        <td t-if="otherCurrency"/>-->
-<!--                                        <td class="text-end"><span t-field="inv.amount_total">100.00 USD</span></td>-->
-<!--                                    </tr>-->
-
-<!--                                    &lt;!&ndash; PAYMENTS/REVERSALS &ndash;&gt;-->
-<!--                                    <tr t-foreach="inv._get_reconciled_invoices_partials()[0]" t-as="par">-->
-<!--                                        <t t-set="payment" t-value="par[2]"/>-->
-<!--                                        <td><span t-field="payment.move_id.date">2023-01-05</span></td>-->
-<!--                                        <td><span t-field="payment.move_id.name">PAY001</span></td>-->
-<!--                                        <td><span t-field="payment.payment_id.memo" data-oe-demo="Payment Ref"/></td>-->
-<!--                                        <t t-set="amountPayment" t-value="-(par[0].debit_amount_currency if par[2].debit &gt; 0 else par[0].credit_amount_currency)"/>-->
-<!--                                        <t t-set="amountInvoice" t-value="-par[1]"/>-->
-<!--                                        <t t-set="currencyPayment" t-value="payment.currency_id"/>-->
-<!--                                        <t t-set="currencyInvoice" t-value="inv.currency_id"/>-->
-<!--                                        <td t-if="otherCurrency" class="text-end">-->
-<!--                                            <span t-if="currencyPayment != currencyInvoice" t-out="amountPayment" t-options="{'widget': 'monetary', 'display_currency': currencyPayment}">50.00 EUR</span>-->
-<!--                                        </td>-->
-<!--                                        <td class="text-end">-->
-<!--                                            <span t-out="amountInvoice" t-options="{'widget': 'monetary', 'display_currency': currencyInvoice}">25.00 USD</span>-->
-<!--                                        </td>-->
-<!--                                    </tr>-->
-
-<!--                                    &lt;!&ndash; BALANCE &ndash;&gt;-->
-<!--                                    <tr>-->
-<!--                                        <td/>-->
-<!--                                        <td><strong>Due Amount for <span t-field="inv.name">INV001</span></strong></td>-->
-<!--                                        <td/>-->
-<!--                                        <td t-if="otherCurrency"/>-->
-<!--                                        <td class="text-end"><strong><span t-field="inv.amount_residual">25.0 USD</span></strong></td>-->
-<!--                                    </tr>-->
-<!--                                </t>-->
-<!--                            </t>-->
-<!--                        </tbody>-->
-<!--                    </table>-->
-<!--                </div>-->
                 <div class="body-content" style="font-size:14px;">
 
-    <!-- ===== TITLE ===== -->
-    <h3 style="margin-bottom:10px;">
-        <strong>
-            Payment Receipt:
-            <span t-field="o.name"/>
-        </strong>
-    </h3>
-
-    <!-- ===== TOP DETAILS ===== -->
-    <table style="width:100%; margin-bottom:15px; font-size:14px;">
-        <tr>
-            <td style="width:50%;">
-                Payment Date:
-                <span t-field="o.date"/>
-            </td>
-            <td style="width:50%;">
-                Payment Method:
-                <span t-field="o.payment_method_id.name"/>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <t t-if="o.partner_type == 'customer'">Customer:</t>
-                <t t-if="o.partner_type == 'supplier'">Vendor:</t>
-                <span t-field="o.partner_id"/>
-            </td>
-            <td>
-                Memo:
-                <span t-field="o.memo"/>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Payment Amount:
-                <span t-field="o.amount"
-                      t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
-            </td>
-        </tr>
-    </table>
-
-    <!-- ===== INVOICE TABLE (Like Screenshot) ===== -->
-    <table style="width:100%; border-collapse: collapse; font-size:14px;">
-        <thead style="background:#f5f5f5;">
-            <tr>
-                <th style="padding:8px; border:1px solid #ddd;">INVOICE DATE</th>
-                <th style="padding:8px; border:1px solid #ddd;">INVOICE NUMBER</th>
-                <th style="padding:8px; border:1px solid #ddd;">REFERENCE</th>
-                <th style="padding:8px; border:1px solid #ddd; text-align:right;">AMOUNT</th>
-            </tr>
-        </thead>
-
-        <tbody>
-
-            <!-- INVOICE LINE -->
-            <t t-foreach="o.reconciled_invoice_ids" t-as="inv">
-                <!-- Invoice Row -->
-                <tr>
-                    <td style="padding:8px; border:1px solid #ddd;">
-                        <span t-field="inv.invoice_date"/>
-                    </td>
-                    <td style="padding:8px; border:1px solid #ddd;">
-                        <span t-field="inv.name"/>
-                    </td>
-                    <td style="padding:8px; border:1px solid #ddd;">
-                        <span t-field="inv.ref"/>
-                    </td>
-                    <td style="padding:8px; border:1px solid #ddd; text-align:right;">
-                        <span t-field="inv.amount_total"
-                              t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>
-                    </td>
-                </tr>
-
-                <!-- PAYMENT ROWS (par = reconciled lines) -->
-                <tr t-foreach="inv._get_reconciled_invoices_partials()[0]"
-                    t-as="par">
-                    <t t-set="payment" t-value="par[2]"/>
-
-                    <td style="padding:8px; border:1px solid #ddd;">
-                        <span t-field="payment.move_id.date"/>
-                    </td>
-
-                    <td style="padding:8px; border:1px solid #ddd;">
-                        <span t-field="payment.move_id.name"/>
-                    </td>
-
-                    <td style="padding:8px; border:1px solid #ddd;">
-                        <span t-field="payment.payment_id.memo"/>
-                    </td>
-
-                    <td style="padding:8px; border:1px solid #ddd; text-align:right;">
-                        <t t-set="amt" t-value="-par[1]"/>
-                        <span t-out="amt"
-                              t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>
-                    </td>
-                </tr>
-
-                <!-- DUE AMOUNT -->
-                <tr>
-                    <td style="padding:8px; border:1px solid #ddd;"></td>
-                    <td style="padding:8px; border:1px solid #ddd;">
-                        <strong>Due Amount for <span t-field="inv.name"/></strong>
-                    </td>
-                    <td style="padding:8px; border:1px solid #ddd;"></td>
-                    <td style="padding:8px; border:1px solid #ddd; text-align:right;">
+                    <!-- ===== TITLE ===== -->
+                    <h3 style="margin-bottom:10px;text-align: center">
                         <strong>
-                            <span t-field="inv.amount_residual"
-                                  t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>
+                            Payment Receipt:
+                            <span t-field="o.name"/>
                         </strong>
-                    </td>
-                </tr>
-            </t>
+                    </h3>
 
-        </tbody>
-    </table>
+                    <!-- ===== TOP DETAILS ===== -->
+                    <table style="width:100%; margin-bottom:15px; font-size:14px;">
+                        <tr>
+                            <td style="width:50%;">
+                                Payment Date:
+                                <span t-field="o.date"/>
+                            </td>
+                            <td style="width:50%;">
+                                Payment Method:
+                                <span t-field="o.payment_method_id.name"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <t t-if="o.partner_type == 'customer'">Customer:</t>
+                                <t t-if="o.partner_type == 'supplier'">Vendor:</t>
+                                <span t-field="o.partner_id"/>
+                            </td>
+                            <td>
+                                Memo:
+                                <span t-field="o.memo"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Payment Amount:
+                                <span t-field="o.amount"
+                                      t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                            </td>
+                        </tr>
+                    </table>
 
-</div>
+                    <!-- ===== INVOICE TABLE (Like Screenshot) ===== -->
+                    <table style="width:100%; border-collapse: collapse; font-size:14px;">
+                        <thead style="background:#f5f5f5;">
+                            <tr>
+                                <th style="padding:8px; border:1px solid #ddd;">INVOICE DATE</th>
+                                <th style="padding:8px; border:1px solid #ddd;">INVOICE NUMBER</th>
+                                <th style="padding:8px; border:1px solid #ddd;">REFERENCE</th>
+                                <th style="padding:8px; border:1px solid #ddd; text-align:right;">AMOUNT</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <!-- INVOICE LINE -->
+                            <t t-foreach="o.reconciled_invoice_ids" t-as="inv">
+                                <!-- Invoice Row -->
+                                <tr>
+                                    <td style="padding:8px; border:1px solid #ddd;">
+                                        <span t-field="inv.invoice_date"/>
+                                    </td>
+                                    <td style="padding:8px; border:1px solid #ddd;">
+                                        <span t-field="inv.name"/>
+                                    </td>
+                                    <td style="padding:8px; border:1px solid #ddd;">
+                                        <span t-field="inv.ref"/>
+                                    </td>
+                                    <td style="padding:8px; border:1px solid #ddd; text-align:right;">
+                                        <span t-field="inv.amount_total"
+                                              t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>
+                                    </td>
+                                </tr>
+
+                                <!-- PAYMENT ROWS (par = reconciled lines) -->
+                                <tr t-foreach="inv._get_reconciled_invoices_partials()[0]"
+                                    t-as="par">
+                                    <t t-set="payment" t-value="par[2]"/>
+
+                                    <td style="padding:8px; border:1px solid #ddd;">
+                                        <span t-field="payment.move_id.date"/>
+                                    </td>
+
+                                    <td style="padding:8px; border:1px solid #ddd;">
+                                        <span t-field="payment.move_id.name"/>
+                                    </td>
+
+                                    <td style="padding:8px; border:1px solid #ddd;">
+                                        <span t-field="payment.payment_id.memo"/>
+                                    </td>
+
+                                    <td style="padding:8px; border:1px solid #ddd; text-align:right;">
+                                        <t t-set="amt" t-value="-par[1]"/>
+                                        <span t-out="amt"
+                                              t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>
+                                    </td>
+                                </tr>
+
+                                <!-- DUE AMOUNT -->
+                                <tr>
+                                    <td style="padding:8px; border:1px solid #ddd;"></td>
+                                    <td style="padding:8px; border:1px solid #ddd;">
+                                        <strong>Due Amount for
+                                            <span t-field="inv.name"/>
+                                        </strong>
+                                    </td>
+                                    <td style="padding:8px; border:1px solid #ddd;"></td>
+                                    <td style="padding:8px; border:1px solid #ddd; text-align:right;">
+                                        <strong>
+                                            <span t-field="inv.amount_residual"
+                                                  t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </t>
+
+                        </tbody>
+                    </table>
+
+                </div>
 
                 <!-- ===== CUSTOM FOOTER ===== -->
                 <div class="footer" style="margin-top: 30px; page-break-inside: avoid;">
-                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px; border-top: 2px solid #8B1538; padding-top: 10px;">
+                    <table width="100%"
+                           style="border-collapse: collapse; margin-bottom:5px; font-size:10px; border-top: 2px solid #8B1538; padding-top: 10px;">
                         <tr>
                             <td style="width:33%; padding:4px; border-right: 1px solid #ccc; vertical-align: top;">
-                                <strong style="color: #8B1538;">Jeddah:</strong><br/>
-                                Jeddah, 7655 Al Fayha<br/>
-                                Al Fayha Dist. JEDDAH 22244-3108<br/>
-                                Saudi Arabia<br/>
-                                Tel: <br/>
+                                <strong style="color: #8B1538;">Jeddah:</strong>
+                                <br/>
+                                Jeddah, 7655 Al Fayha
+                                <br/>
+                                Al Fayha Dist. JEDDAH 22244-3108
+                                <br/>
+                                Saudi Arabia
+                                <br/>
+                                Tel:
+                                <br/>
                                 Email:
                             </td>
 
                             <td style="width:33%; padding:4px; border-right: 1px solid #ccc; vertical-align: top;">
-                                <strong style="color: #8B1538;">Baladiya:</strong><br/>
-                                Sookul Anwar, Al Baladeah<br/>
-                                Aziziyah, Jeddah 31303<br/>
-                                Tel: 0535081008<br/>
+                                <strong style="color: #8B1538;">Baladiya:</strong>
+                                <br/>
+                                Sookul Anwar, Al Baladeah
+                                <br/>
+                                Aziziyah, Jeddah 31303
+                                <br/>
+                                Tel: 0535081008
+                                <br/>
                                 Email: ssaoe.dammam@gmail.com
                             </td>
 
                             <td style="width:33%; padding:4px; vertical-align: top;">
-                                <strong style="color: #8B1538;">Dammam:</strong><br/>
-                                8515, Qutaibah bin Muslim ST<br/>
-                                Al Souq, Dammam 4525-32242<br/>
-                                Saudi Arabia<br/>
-                                Tel/Mobile: 0535081008<br/>
+                                <strong style="color: #8B1538;">Dammam:</strong>
+                                <br/>
+                                8515, Qutaibah bin Muslim ST
+                                <br/>
+                                Al Souq, Dammam 4525-32242
+                                <br/>
+                                Saudi Arabia
+                                <br/>
+                                Tel/Mobile: 0535081008
+                                <br/>
                                 Email: ssaoe.dammam@gmail.com
                             </td>
                         </tr>

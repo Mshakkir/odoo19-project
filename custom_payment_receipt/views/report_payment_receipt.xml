@@ -237,7 +237,7 @@
                 <!-- ===== CUSTOM FOOTER ===== -->
                 <div class="footer" style="margin-top: 30px; page-break-inside: avoid;">
                     <table width="100%"
-                           style="border-collapse: collapse; margin-bottom:5px; font-size:10px; border-top: 2px solid #8B1538; padding-top: 10px;">
+                           style="border-collapse: collapse; margin-bottom:5px; font-size:10px; border-top: 2px  padding-top: 10px;">
                         <tr>
                             <td style="width:33%; padding:4px; border-right: 1px solid #ccc; vertical-align: top;">
                                 <strong style="color: #8B1538;">Jeddah:</strong>

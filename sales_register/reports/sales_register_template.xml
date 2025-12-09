@@ -302,8 +302,8 @@
                                 </t>
 
                                 <!-- Grand Total Summary - Full Width -->
-                                <div style="margin: 15px -15px 10px -15px; padding: 8px 10px; background-color: #e0e0e0; color: bold; font-size: 11px; font-weight: bold;">
-                                    <table style="width: 100%; border: none; color: white;">
+                                <div style="margin: 22px -15px 10px -15px; padding: 8px 10px; background-color: #e0e0e0; color: bold; font-size: 11px; font-weight: bold;">
+                                    <table style="width: 100%; border: none; color: bold;">
                                         <tr>
                                             <td style="width: 70%; border: none;">GRAND TOTAL</td>
                                             <td style="width: 15%; text-align: right; border: none;">Tax: <span t-esc="'%.2f' % grand_tax"/></td>

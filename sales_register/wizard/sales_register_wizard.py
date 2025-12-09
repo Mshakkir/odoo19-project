@@ -539,3 +539,59 @@ class SalesRegisterWizard(models.TransientModel):
             'url': f'/web/content/{attachment.id}?download=true',
             'target': 'new',
         }
+
+    def action_show_details(self):
+        """Show details in a tree view window"""
+        self.ensure_one()
+
+        # Get sales data
+        sales_data = self._get_sales_data()
+
+        if not sales_data:
+            raise UserError(_('No sales data found for the selected period.'))
+
+        # Clear existing details for this wizard
+        self.env['sales.register.details'].search([('wizard_id', '=', self.id)]).unlink()
+
+        # Create detail records
+        detail_ids = []
+        for data in sales_data:
+            detail = self.env['sales.register.details'].create({
+                'wizard_id': self.id,
+                'date': data.get('date'),
+                'document_type': data.get('document_type', ''),
+                'document_number': data.get('document_number', ''),
+                'customer_name': data.get('customer_name', ''),
+                'customer_vat': data.get('customer_vat', ''),
+                'warehouse': data.get('warehouse', ''),
+                'product': data.get('product', ''),
+                'quantity': data.get('quantity', 0),
+                'unit_price': data.get('unit_price', 0),
+                'subtotal': data.get('subtotal', 0),
+                'trade_discount': data.get('trade_discount', 0),
+                'addin_discount': data.get('addin_discount', 0),
+                'addin_cost': data.get('addin_cost', 0),
+                'taxes': data.get('taxes', ''),
+                'tax_amount': data.get('tax_amount', 0),
+                'round_off': data.get('round_off', 0),
+                'total': data.get('total', 0),
+                'paid': data.get('paid', 0),
+                'balance': data.get('balance', 0),
+                'currency': data.get('currency', ''),
+            })
+            detail_ids.append(detail.id)
+
+        # Return action to open tree view
+        return {
+            'name': _('Sales Register Details'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'sales.register.details',
+            'view_mode': 'tree',
+            'domain': [('id', 'in', detail_ids)],
+            'context': {
+                'create': False,
+                'edit': False,
+                'delete': False,
+            },
+            'target': 'new',
+        }

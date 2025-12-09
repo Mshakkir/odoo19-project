@@ -9,42 +9,21 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="date_from" required="1"/>
-                            <field name="date_to" required="1"/>
+                            <field name="date_filter" widget="radio"/>
+                            <field name="date_from" required="1" attrs="{'readonly': [('date_filter', '!=', 'custom')]}"/>
+                            <field name="date_to" required="1" attrs="{'readonly': [('date_filter', '!=', 'custom')]}"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
                         <group>
                             <field name="data_source"/>
-                            <field name="report_type"/>
-                            <field name="group_by"/>
+                            <field name="report_type" widget="radio"/>
+                            <field name="group_by" attrs="{'invisible': [('report_type', '=', 'detailed')]}"/>
                             <field name="partner_ids" widget="many2many_tags"/>
                         </group>
                     </group>
-<!--                    <notebook>-->
-<!--                        <page string="Instructions">-->
-<!--                            <group>-->
-<!--                                <div style="padding: 10px; background-color: #f0f8ff; border-radius: 5px;">-->
-<!--                                    <h3>How to Use:</h3>-->
-<!--                                    <ul>-->
-<!--                                        <li><strong>Data Source:</strong> Choose to include Purchase Orders, Vendor Bills, or both</li>-->
-<!--                                        <li><strong>Date Range:</strong> Select the date range for the purchase register</li>-->
-<!--                                        <li><strong>Suppliers:</strong> Optionally filter by specific suppliers (leave empty for all)</li>-->
-<!--                                        <li><strong>Report Type:</strong> Choose Summary or Detailed report</li>-->
-<!--                                        <li><strong>Grouping:</strong> Select how to group the data</li>-->
-<!--                                        <li><strong>Generate:</strong> Click "Print PDF" or "Export Excel"</li>-->
-<!--                                    </ul>-->
-<!--                                    <p style="margin-top: 10px; color: #0066cc;">-->
-<!--                                        <strong>Note:</strong> If you don't have the accounting module installed,-->
-<!--                                        select "Purchase Orders Only" as the data source.-->
-<!--                                    </p>-->
-<!--                                </div>-->
-<!--                            </group>-->
-<!--                        </page>-->
-<!--                    </notebook>-->
                 </sheet>
                 <footer>
                     <button name="action_print_pdf" string="Print PDF" type="object" class="btn-primary"/>
-<!--                    <button name="action_export_excel" string="Export Excel" type="object" class="btn-success"/>-->
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
@@ -73,77 +52,3 @@
               sequence="1"/>
 
 </odoo>
-
-
-
-
-
-<!--<odoo>-->
-<!--    &lt;!&ndash; Wizard Form View &ndash;&gt;-->
-<!--    <record id="view_purchase_register_wizard_form" model="ir.ui.view">-->
-<!--        <field name="name">purchase.register.wizard.form</field>-->
-<!--        <field name="model">purchase.register.wizard</field>-->
-<!--        <field name="arch" type="xml">-->
-<!--            <form string="Purchase Register Report">-->
-<!--                <sheet>-->
-<!--                    <group>-->
-<!--                        <group>-->
-<!--                            <field name="date_from" required="1"/>-->
-<!--                            <field name="date_to" required="1"/>-->
-<!--                            <field name="company_id" groups="base.group_multi_company"/>-->
-<!--                        </group>-->
-<!--                        <group>-->
-<!--                            <field name="report_type"/>-->
-<!--                            <field name="group_by"/>-->
-<!--                            <field name="partner_ids" widget="many2many_tags"/>-->
-<!--                        </group>-->
-<!--                    </group>-->
-<!--                    <notebook>-->
-<!--                        <page string="Instructions">-->
-<!--                            <group>-->
-<!--                                <div style="padding: 10px; background-color: #f0f8ff; border-radius: 5px;">-->
-<!--                                    <h3>How to Use:</h3>-->
-<!--                                    <ul>-->
-<!--                                        <li>Select the date range for the purchase register</li>-->
-<!--                                        <li>Optionally filter by specific suppliers</li>-->
-<!--                                        <li>Choose report type (Summary or Detailed)</li>-->
-<!--                                        <li>Select grouping option</li>-->
-<!--                                        <li>Click "Print PDF" or "Export Excel"</li>-->
-<!--                                    </ul>-->
-<!--                                </div>-->
-<!--                            </group>-->
-<!--                        </page>-->
-<!--                    </notebook>-->
-<!--                </sheet>-->
-<!--                <footer>-->
-<!--                    <button name="action_print_pdf" string="Print PDF" type="object" class="btn-primary"/>-->
-<!--                    <button name="action_export_excel" string="Export Excel" type="object" class="btn-success"/>-->
-<!--                    <button string="Cancel" class="btn-secondary" special="cancel"/>-->
-<!--                </footer>-->
-<!--            </form>-->
-<!--        </field>-->
-<!--    </record>-->
-
-<!--    &lt;!&ndash; Wizard Action &ndash;&gt;-->
-<!--    <record id="action_purchase_register_wizard" model="ir.actions.act_window">-->
-<!--        <field name="name">Purchase Register</field>-->
-<!--        <field name="res_model">purchase.register.wizard</field>-->
-<!--        <field name="view_mode">form</field>-->
-<!--        <field name="target">new</field>-->
-<!--        <field name="binding_model_id" ref="purchase.model_purchase_order"/>-->
-<!--    </record>-->
-
-<!--    &lt;!&ndash; Menu Item &ndash;&gt;-->
-<!--    <menuitem id="menu_purchase_register_root"-->
-<!--              name="Purchase Register"-->
-<!--              parent="purchase.menu_purchase_root"-->
-<!--              sequence="99"/>-->
-
-<!--    <menuitem id="menu_purchase_register_report"-->
-<!--              name="Generate Register"-->
-<!--              parent="menu_purchase_register_root"-->
-<!--              action="action_purchase_register_wizard"-->
-<!--              sequence="1"/>-->
-
-<!--</odoo>-->
-

@@ -8,9 +8,8 @@
         <field name="arch" type="xml">
 
             <!-- Add button to RIGHT side -->
-            <xpath expr="//t[@t-name='JournalBodyBankCash']//div[@name='kanban_primary_right']"
-                   position="inside">
-                <t t-if="journal_type == 'bank'">
+            <xpath expr="//div[@name='kanban_primary_right']" position="inside">
+                <t t-if="record.type.raw_value == 'bank'">
                     <div class="mt-2">
                         <button type="action"
                                 name="%(action_custom_bank_reconciliation)d"
@@ -22,9 +21,8 @@
             </xpath>
 
             <!-- Add balances to LEFT side -->
-            <xpath expr="//t[@t-name='JournalBodyBankCash']//div[@name='kanban_primary_left']"
-                   position="inside">
-                <t t-if="journal_type == 'bank' and dashboard.last_balance">
+            <xpath expr="//div[@name='kanban_primary_left']" position="inside">
+                <t t-if="record.type.raw_value == 'bank' and dashboard.last_balance">
 
                     <div class="row mt-2">
                         <div class="col-7">Bank Statement Balance</div>
@@ -48,6 +46,7 @@
     </record>
 
 </odoo>
+
 
 
 

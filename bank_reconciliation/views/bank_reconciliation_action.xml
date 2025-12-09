@@ -7,7 +7,6 @@
         <field name="res_model">bank.statement</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-        <field name="view_id" ref="bank_statement_wiz"/>
         <field name="context">{'default_journal_id': active_id}</field>
     </record>
 

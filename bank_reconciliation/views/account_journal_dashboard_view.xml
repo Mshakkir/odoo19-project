@@ -13,7 +13,8 @@
                     <div class="mt-2">
                         <button type="object"
                                 name="create_bank_statement"
-                                class="btn btn-primary">
+                                class="btn btn-primary"
+                                context="{'default_journal_id': id}">
                             Bank Reconciliation
                         </button>
                     </div>

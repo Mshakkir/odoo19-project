@@ -5,12 +5,12 @@
         <field name="inherit_id" ref="account.account_journal_dashboard_kanban_view"/>
         <field name="arch" type="xml">
 
-            <!-- Correct placement: add your button in the right-side panel -->
+            <!-- Add button to right side -->
             <xpath expr="//t[@t-name='JournalBody_BankCash']//div[contains(@class, 'kanban_primary_right')]" position="inside">
                 <t t-if="journal_type == 'bank'">
                     <div class="mt-2">
                         <button type="action"
-                                name="%(account.action_bank_reconciliation)d"
+                                name="%(account.action_account_bank_reconciliation)d"
                                 class="btn btn-primary">
                             Bank Reconciliation
                         </button>
@@ -18,7 +18,7 @@
                 </t>
             </xpath>
 
-            <!-- Correct placement: add reconciliation balances -->
+            <!-- Add reconciliation balances to left side -->
             <xpath expr="//t[@t-name='JournalBody_BankCash']//div[contains(@class, 'kanban_primary_left')]" position="inside">
                 <t t-if="journal_type == 'bank' and dashboard.last_balance">
 
@@ -47,6 +47,7 @@
         </field>
     </record>
 </odoo>
+
 
 
 

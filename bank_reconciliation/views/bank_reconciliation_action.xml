@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Custom Client Action -->
+    <record id="action_custom_bank_reconciliation" model="ir.actions.client">
+        <field name="name">Bank Reconciliation</field>
+        <field name="tag">bank_reconciliation_custom_screen</field>
+    </record>
+
+</odoo>

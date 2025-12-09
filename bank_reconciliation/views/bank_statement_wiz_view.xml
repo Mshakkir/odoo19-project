@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="bank_statement_wiz" model="ir.ui.view">
+        <field name="name">bank.statement.reconciliation</field>
+        <field name="model">bank.statement</field>
+        <field name="arch" type="xml">
+            <form string="Bank Statement Reconciliation">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="journal_id"/>
+                            <field name="account_id" readonly="1"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="company_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Statement Lines">
+                            <field name="statement_lines" nolabel="1">
+                                <tree create="false" editable="bottom" default_order="date">
+                                    <field name="date" readonly="1"/>
+                                    <field name="move_id" readonly="1" optional="hide"/>
+                                    <field name="name" readonly="1"/>
+                                    <field name="ref" readonly="1" optional="show"/>
+                                    <field name="partner_id" readonly="1"/>
+                                    <field name="debit" readonly="1" sum="Total Debit"/>
+                                    <field name="credit" readonly="1" sum="Total Credit"/>
+                                    <field name="amount_currency" readonly="1" optional="hide" groups="base.group_multi_currency"/>
+                                    <field name="currency_id" readonly="1" column_invisible="1"/>
+                                    <field name="date_maturity" readonly="1" optional="hide"/>
+                                    <field name="statement_date" required="0"/>
+                                    <field name="company_currency_id" column_invisible="1" readonly="1"/>
+                                    <field name="company_id" column_invisible="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+
+                    <group class="oe_subtotal_footer oe_right" col="1">
+                        <field name="gl_balance" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        <field name="balance_difference" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        <field name="bank_balance" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_bank_statement_wiz" model="ir.actions.act_window">
+        <field name="name">Bank Statement Reconciliation</field>
+        <field name="res_model">bank.statement</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        id="menu_action_bank_reconciliation"
+        name="Bank Reconciliation"
+        parent="account.menu_finance_entries_actions"
+        action="action_bank_statement_wiz"
+        sequence="25"/>
+
+</odoo>

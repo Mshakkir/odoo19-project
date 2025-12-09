@@ -10,14 +10,14 @@
                     <group>
                         <group>
                             <field name="date_filter" widget="radio"/>
-                            <field name="date_from" required="1" attrs="{'readonly': [('date_filter', '!=', 'custom')]}"/>
-                            <field name="date_to" required="1" attrs="{'readonly': [('date_filter', '!=', 'custom')]}"/>
+                            <field name="date_from" required="1" readonly="date_filter != 'custom'"/>
+                            <field name="date_to" required="1" readonly="date_filter != 'custom'"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
                         <group>
                             <field name="data_source"/>
                             <field name="report_type" widget="radio"/>
-                            <field name="group_by" attrs="{'invisible': [('report_type', '=', 'detailed')]}"/>
+                            <field name="group_by" invisible="report_type == 'detailed'"/>
                             <field name="partner_ids" widget="many2many_tags"/>
                         </group>
                     </group>

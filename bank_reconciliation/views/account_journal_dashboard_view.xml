@@ -1,47 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
     <record id="inherit_account_journal_dashboard_custom" model="ir.ui.view">
         <field name="name">account.journal.dashboard.custom</field>
         <field name="model">account.journal</field>
-        <field name="inherit_id" ref="account.account_journal_kanban_view"/>
+        <field name="inherit_id" ref="account.account_journal_dashboard_kanban_view"/>
         <field name="arch" type="xml">
 
-            <!-- Add new button under journal CTA -->
-            <xpath expr="//div[@class='o_journal_dashboard_button_container']" position="inside">
-                <t t-if="record.type.raw_value == 'bank'">
-                    <button type="action"
-                            name="%(account.action_bank_reconciliation)d"
-                            class="btn btn-primary mt-2">
-                        Bank Reconciliation
-                    </button>
-                </t>
-            </xpath>
-
-            <!-- Add reconciliation value -->
-            <xpath expr="//div[@class='o_journal_dashboard_values']" position="inside">
-                <t t-if="record.type.raw_value == 'bank' and dashboard.last_balance">
-                    <div class="row mt-2">
-                        <div class="col-7">
-                            Bank Statement Balance
-                        </div>
-                        <div class="col-5 text-end">
-                            <span t-out="dashboard.last_balance"/>
-                        </div>
-                    </div>
-                    <div class="row" t-if="dashboard.difference">
-                        <div class="col-7">
-                            Unreconciled Difference
-                        </div>
-                        <div class="col-5 text-end">
-                            <span t-out="dashboard.difference"
-                                  t-attf-class="#{dashboard.difference != '0' ? 'text-danger' : ''}"/>
-                        </div>
-                    </div>
-                </t>
+            <!-- Add button inside bank journal CTA -->
+            <xpath expr="//div[@name='bank_journal_cta']" position="inside">
+                <button type="object"
+                        name="action_open_reconciliation_widget"
+                        class="btn btn-primary mt-2">
+                    Bank Reconciliation
+                </button>
             </xpath>
 
         </field>
     </record>
+
 </odoo>
+
 
 
 

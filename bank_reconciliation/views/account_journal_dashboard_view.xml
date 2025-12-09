@@ -7,8 +7,9 @@
         <field name="inherit_id" ref="account.account_journal_dashboard_kanban_view"/>
         <field name="arch" type="xml">
 
-            <!-- Add button to right side -->
-            <xpath expr="//t[@t-name='JournalBody_BankCash']//div[contains(@class, 'kanban_primary_right')]" position="inside">
+            <!-- Add button to RIGHT side -->
+            <xpath expr="//t[@t-name='JournalBodyBankCash']//div[@name='kanban_primary_right']"
+                   position="inside">
                 <t t-if="journal_type == 'bank'">
                     <div class="mt-2">
                         <button type="action"
@@ -20,10 +21,34 @@
                 </t>
             </xpath>
 
+            <!-- Add balances to LEFT side -->
+            <xpath expr="//t[@t-name='JournalBodyBankCash']//div[@name='kanban_primary_left']"
+                   position="inside">
+                <t t-if="journal_type == 'bank' and dashboard.last_balance">
+
+                    <div class="row mt-2">
+                        <div class="col-7">Bank Statement Balance</div>
+                        <div class="col-5 text-end">
+                            <span t-out="dashboard.last_balance"/>
+                        </div>
+                    </div>
+
+                    <div class="row" t-if="dashboard.difference">
+                        <div class="col-7">Unreconciled Difference</div>
+                        <div class="col-5 text-end">
+                            <span t-out="dashboard.difference"
+                                  t-attf-class="#{dashboard.difference != '0' ? 'text-danger' : ''}"/>
+                        </div>
+                    </div>
+
+                </t>
+            </xpath>
+
         </field>
     </record>
 
 </odoo>
+
 
 
 

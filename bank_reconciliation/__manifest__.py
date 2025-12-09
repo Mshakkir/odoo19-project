@@ -12,7 +12,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/account_move_line_view.xml',
-"views/bank_reconciliation_action.xml",
+"views/action.xml",
         'views/account_journal_dashboard_view.xml',
         # 'wizard/bank_statement_wiz_view.xml',
     ],

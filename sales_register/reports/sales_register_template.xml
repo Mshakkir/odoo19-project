@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="report_purchase_register_document">
+    <template id="report_sales_register_document">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.basic_layout">
@@ -52,13 +52,13 @@
                         <!-- Report Title Header -->
                         <div class="row mb-4">
                             <div class="col-12 text-center">
-                                <h2>PURCHASE REGISTER</h2>
+                                <h2>SALES REGISTER</h2>
                                 <h4><span t-field="o.company_id.name"/></h4>
                                 <p>
                                     Period: <span t-esc="o.date_from.strftime('%d/%m/%Y')"/> to <span t-esc="o.date_to.strftime('%d/%m/%Y')"/>
                                 </p>
                                 <p t-if="o.partner_ids">
-                                    Suppliers: <span t-esc="', '.join(o.partner_ids.mapped('name'))"/>
+                                    Customers: <span t-esc="', '.join(o.partner_ids.mapped('name'))"/>
                                 </p>
                                 <p>
                                     Report Type: <span t-esc="'Summary' if o.report_type == 'summary' else 'Detailed'"/>
@@ -68,25 +68,25 @@
 
                         <!-- Summary Report (Current Format) -->
                         <t t-if="o.report_type == 'summary'">
-                            <!-- Get Purchase Data -->
-                            <t t-set="purchase_data" t-value="o._get_purchase_data()"/>
+                            <!-- Get Sales Data -->
+                            <t t-set="sales_data" t-value="o._get_sales_data()"/>
 
                             <!-- Check if data exists -->
-                            <t t-if="not purchase_data">
+                            <t t-if="not sales_data">
                                 <div class="alert alert-warning">
-                                    <strong>No Data Found!</strong> No purchase records found for the selected period.
+                                    <strong>No Data Found!</strong> No sales records found for the selected period.
                                 </div>
                             </t>
 
                             <!-- Summary Table -->
-                            <t t-if="purchase_data">
+                            <t t-if="sales_data">
                                 <table class="table table-sm table-bordered">
                                     <thead style="background-color: #CCC6C6; color: bold;">
                                         <tr>
                                             <th>Date</th>
                                             <th>Type</th>
                                             <th>Document No.</th>
-                                            <th>Supplier</th>
+                                            <th>Customer</th>
                                             <th>VAT</th>
                                             <th>Warehouse</th>
                                             <th>Product</th>
@@ -115,13 +115,13 @@
                                         <t t-set="total_paid" t-value="0"/>
                                         <t t-set="total_balance" t-value="0"/>
 
-                                        <t t-foreach="purchase_data" t-as="line">
+                                        <t t-foreach="sales_data" t-as="line">
                                             <tr>
                                                 <td><t t-if="line.get('date')"><span t-esc="line['date'].strftime('%d/%m/%Y')"/></t></td>
                                                 <td><span t-esc="line.get('document_type', '')"/></td>
                                                 <td><span t-esc="line.get('document_number', '')"/></td>
-                                                <td><span t-esc="line.get('supplier_name', '')"/></td>
-                                                <td><span t-esc="line.get('supplier_vat', '')"/></td>
+                                                <td><span t-esc="line.get('customer_name', '')"/></td>
+                                                <td><span t-esc="line.get('customer_vat', '')"/></td>
                                                 <td><span t-esc="line.get('warehouse', '')"/></td>
                                                 <td><span t-esc="line.get('product', '')"/></td>
                                                 <td class="text-right"><span t-esc="'%.2f' % line.get('quantity', 0)"/></td>
@@ -169,7 +169,7 @@
                                 <!-- Summary -->
                                 <div class="row mt-4">
                                     <div class="col-6">
-                                        <p><strong>Total Records:</strong> <span t-esc="len(purchase_data)"/></p>
+                                        <p><strong>Total Records:</strong> <span t-esc="len(sales_data)"/></p>
                                     </div>
                                     <div class="col-6 text-right">
                                         <p><strong>Generated On:</strong> <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M:%S')"/></p>
@@ -178,7 +178,7 @@
                             </t>
                         </t>
 
-                        <!-- Detailed Report (Document-wise with line items) -->
+                        <!-- Detailed Report (Document-wise with line items - 2 per page) -->
                         <t t-if="o.report_type == 'detailed'">
                             <!-- Get Detailed Data -->
                             <t t-set="detailed_data" t-value="o._get_detailed_data()"/>
@@ -186,7 +186,7 @@
                             <!-- Check if data exists -->
                             <t t-if="not detailed_data">
                                 <div class="alert alert-warning">
-                                    <strong>No Data Found!</strong> No purchase records found for the selected period.
+                                    <strong>No Data Found!</strong> No sales records found for the selected period.
                                 </div>
                             </t>
 
@@ -209,7 +209,7 @@
                                             </tr>
                                             <tr>
                                                 <td style="border: none; font-size: 11px; padding: 4px;"><strong>Customer:</strong></td>
-                                                <td colspan="5" style="border: none; font-size: 11px; padding: 4px;"><span t-esc="doc['supplier_name']"/></td>
+                                                <td colspan="5" style="border: none; font-size: 11px; padding: 4px;"><span t-esc="doc['customer_name']"/></td>
                                             </tr>
                                         </table>
                                     </div>
@@ -277,7 +277,7 @@
                                                             <td style="text-align: right; padding: 3px 8px; border: 1px solid #ddd; background-color: white;"><strong>Tax Amount:</strong></td>
                                                             <td style="text-align: right; padding: 3px 8px; border: 1px solid #ddd; background-color: white;"><span t-esc="'%.2f' % doc['tax_amount']"/></td>
                                                         </tr>
-                                                        <tr style="background-color: #e0e0e0; color: bold; font-weight: bold;">
+                                                        <tr style="background-color: #333; color: white; font-weight: bold;">
                                                             <td style="text-align: right; padding: 5px 8px; border: 1px solid #333; font-size: 11px;"><strong>Net Amount:</strong></td>
                                                             <td style="text-align: right; padding: 5px 8px; border: 1px solid #333; font-size: 11px;"><strong><span t-esc="'%.2f' % doc['total']"/></strong></td>
                                                         </tr>
@@ -302,7 +302,7 @@
                                 </t>
 
                                 <!-- Grand Total Summary - Full Width -->
-                                <div style="margin: 15px -15px 10px -15px; padding: 8px 10px; background-color: #e0e0e0; color: bold; font-size: 11px; font-weight: bold;">
+                                <div style="margin: 15px -15px 10px -15px; padding: 8px 10px; background-color: #8B1538; color: white; font-size: 11px; font-weight: bold;">
                                     <table style="width: 100%; border: none; color: white;">
                                         <tr>
                                             <td style="width: 70%; border: none;">GRAND TOTAL</td>

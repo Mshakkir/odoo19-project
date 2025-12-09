@@ -1,30 +1,27 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <!-- Inherit journal dashboard to show reconciliation info -->
-    <record id="account_journal_dashboard_kanban_view" model="ir.ui.view">
-        <field name="name">account.journal.dashboard.kanban.inherit.bank.reconciliation</field>
+    <record id="inherit_account_journal_dashboard_custom" model="ir.ui.view">
+        <field name="name">account.journal.dashboard.custom</field>
         <field name="model">account.journal</field>
-        <field name="inherit_id" ref="account.account_journal_dashboard_kanban_view"/>
+        <field name="inherit_id" ref="account.account_journal_kanban_view"/>
         <field name="arch" type="xml">
 
-            <!-- Replace or extend the bank statement section -->
-            <xpath expr="//div[@name='bank_journal_cta']" position="inside">
+            <!-- Add new button under journal CTA -->
+            <xpath expr="//div[@class='o_journal_dashboard_button_container']" position="inside">
                 <t t-if="record.type.raw_value == 'bank'">
-                    <button type="object"
-                            name="create_bank_statement"
-                            class="btn btn-primary">
+                    <button type="action"
+                            name="%(account.action_bank_reconciliation)d"
+                            class="btn btn-primary mt-2">
                         Bank Reconciliation
                     </button>
                 </t>
             </xpath>
 
-            <!-- Add reconciliation info if available -->
-            <xpath expr="//div[hasclass('o_kanban_primary_bottom')]" position="inside">
+            <!-- Add reconciliation value -->
+            <xpath expr="//div[@class='o_journal_dashboard_values']" position="inside">
                 <t t-if="record.type.raw_value == 'bank' and dashboard.last_balance">
-                    <div class="row mt-3">
+                    <div class="row mt-2">
                         <div class="col-7">
-                            <span title="Latest Statement Balance">Bank Statement Balance</span>
+                            Bank Statement Balance
                         </div>
                         <div class="col-5 text-end">
                             <span t-out="dashboard.last_balance"/>
@@ -32,11 +29,11 @@
                     </div>
                     <div class="row" t-if="dashboard.difference">
                         <div class="col-7">
-                            <span title="Difference between GL and Bank">Unreconciled Difference</span>
+                            Unreconciled Difference
                         </div>
                         <div class="col-5 text-end">
                             <span t-out="dashboard.difference"
-                                  t-attf-class="#{parseFloat(dashboard.difference.replace(/[^0-9.-]/g, '')) !== 0 ? 'text-warning' : ''}"/>
+                                  t-attf-class="#{dashboard.difference != '0' ? 'text-danger' : ''}"/>
                         </div>
                     </div>
                 </t>
@@ -44,5 +41,58 @@
 
         </field>
     </record>
-
 </odoo>
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+
+<!--    &lt;!&ndash; Inherit journal dashboard to show reconciliation info &ndash;&gt;-->
+<!--    <record id="account_journal_dashboard_kanban_view" model="ir.ui.view">-->
+<!--        <field name="name">account.journal.dashboard.kanban.inherit.bank.reconciliation</field>-->
+<!--        <field name="model">account.journal</field>-->
+<!--        <field name="inherit_id" ref="account.account_journal_dashboard_kanban_view"/>-->
+<!--        <field name="arch" type="xml">-->
+
+<!--            &lt;!&ndash; Replace or extend the bank statement section &ndash;&gt;-->
+<!--            <xpath expr="//div[@name='bank_journal_cta']" position="inside">-->
+<!--                <t t-if="record.type.raw_value == 'bank'">-->
+<!--                    <button type="object"-->
+<!--                            name="create_bank_statement"-->
+<!--                            class="btn btn-primary">-->
+<!--                        Bank Reconciliation-->
+<!--                    </button>-->
+<!--                </t>-->
+<!--            </xpath>-->
+
+<!--            &lt;!&ndash; Add reconciliation info if available &ndash;&gt;-->
+<!--            <xpath expr="//div[hasclass('o_kanban_primary_bottom')]" position="inside">-->
+<!--                <t t-if="record.type.raw_value == 'bank' and dashboard.last_balance">-->
+<!--                    <div class="row mt-3">-->
+<!--                        <div class="col-7">-->
+<!--                            <span title="Latest Statement Balance">Bank Statement Balance</span>-->
+<!--                        </div>-->
+<!--                        <div class="col-5 text-end">-->
+<!--                            <span t-out="dashboard.last_balance"/>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="row" t-if="dashboard.difference">-->
+<!--                        <div class="col-7">-->
+<!--                            <span title="Difference between GL and Bank">Unreconciled Difference</span>-->
+<!--                        </div>-->
+<!--                        <div class="col-5 text-end">-->
+<!--                            <span t-out="dashboard.difference"-->
+<!--                                  t-attf-class="#{parseFloat(dashboard.difference.replace(/[^0-9.-]/g, '')) !== 0 ? 'text-warning' : ''}"/>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </t>-->
+<!--            </xpath>-->
+
+<!--        </field>-->
+<!--    </record>-->
+
+<!--</odoo>-->

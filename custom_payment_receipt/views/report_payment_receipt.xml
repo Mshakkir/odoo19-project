@@ -15,7 +15,6 @@
                 <style type="text/css">
                     /* Import Google Noto Arabic Font */
                     @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&amp;display=swap');
-                    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&amp;display=swap');
 
                     @page {
                     margin: 20mm;
@@ -26,7 +25,7 @@
                     }
 
                     .ar {
-                    font-family: 'Noto Naskh Arabic', 'Tajawal', 'DejaVu Sans', Arial, sans-serif !important;
+                    font-family: 'Noto Naskh Arabic', 'DejaVu Sans', Arial, sans-serif !important;
                     direction: rtl;
                     unicode-bidi: bidi-override;
                     font-weight: 700;
@@ -109,7 +108,7 @@
 
                 <div class="body-content" style="font-size:14px;">
 
-                    <!-- ===== TITLE ===== -->
+                    <!-- Title -->
                     <h3 style="margin-bottom:10px;text-align: center">
                         <strong>
                             Payment Receipt:
@@ -117,7 +116,7 @@
                         </strong>
                     </h3>
 
-                    <!-- ===== TOP DETAILS ===== -->
+                    <!-- Payment Details -->
                     <table style="width:100%; margin-bottom:15px; font-size:14px;">
                         <tr>
                             <td style="width:50%;">
@@ -144,12 +143,19 @@
                             <td>
                                 Payment Amount:
                                 <span t-field="o.amount"
-                                      t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                    t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
                             </td>
                         </tr>
                     </table>
 
-                    <!-- ===== INVOICE TABLE (Like Screenshot) ===== -->
+                    <!-- ====================================================== -->
+                    <!-- FIXED INVOICE/BILL TABLE (ALWAYS SHOWS LINES) -->
+                    <!-- ====================================================== -->
+
+                    <!-- Get reconciled invoice/bill moves -->
+                    <t t-set="docs"
+                       t-value="(o.move_line_ids.matched_debit_ids.move_id | union(o.move_line_ids.matched_credit_ids.move_id)).filtered(lambda d: d.move_type in ['out_invoice','out_refund','in_invoice','in_refund'])"/>
+
                     <table style="width:100%; border-collapse: collapse; font-size:14px;">
                         <thead style="background:#f5f5f5;">
                             <tr>
@@ -162,9 +168,10 @@
 
                         <tbody>
 
-                            <!-- INVOICE LINE -->
-                            <t t-foreach="o.reconciled_invoice_ids" t-as="inv">
-                                <!-- Invoice Row -->
+                            <!-- LOOP THROUGH ALL MATCHED INVOICE/BILL DOCUMENTS -->
+                            <t t-foreach="docs" t-as="inv">
+
+                                <!-- Invoice/Bill Row -->
                                 <tr>
                                     <td style="padding:8px; border:1px solid #ddd;">
                                         <span t-field="inv.invoice_date"/>
@@ -181,21 +188,21 @@
                                     </td>
                                 </tr>
 
-                                <!-- PAYMENT ROWS (par = reconciled lines) -->
-                                <tr t-foreach="inv._get_reconciled_invoices_partials()[0]"
-                                    t-as="par">
-                                    <t t-set="payment" t-value="par[2]"/>
+                                <!-- PAYMENT AMOUNTS APPLIED -->
+                                <t t-set="partials"
+                                   t-value="inv._get_reconciled_invoices_partials()[0]"/>
+
+                                <tr t-foreach="partials" t-as="par">
+                                    <t t-set="payline" t-value="par[2]"/>
 
                                     <td style="padding:8px; border:1px solid #ddd;">
-                                        <span t-field="payment.move_id.date"/>
+                                        <span t-field="payline.move_id.date"/>
                                     </td>
-
                                     <td style="padding:8px; border:1px solid #ddd;">
-                                        <span t-field="payment.move_id.name"/>
+                                        <span t-field="payline.move_id.name"/>
                                     </td>
-
                                     <td style="padding:8px; border:1px solid #ddd;">
-                                        <span t-field="payment.payment_id.memo"/>
+                                        <span t-field="payline.payment_id.memo"/>
                                     </td>
 
                                     <td style="padding:8px; border:1px solid #ddd; text-align:right;">
@@ -205,13 +212,11 @@
                                     </td>
                                 </tr>
 
-                                <!-- DUE AMOUNT -->
+                                <!-- Due Amount -->
                                 <tr>
                                     <td style="padding:8px; border:1px solid #ddd;"></td>
                                     <td style="padding:8px; border:1px solid #ddd;">
-                                        <strong>Due Amount for
-                                            <span t-field="inv.name"/>
-                                        </strong>
+                                        <strong>Due Amount for <span t-field="inv.name"/></strong>
                                     </td>
                                     <td style="padding:8px; border:1px solid #ddd;"></td>
                                     <td style="padding:8px; border:1px solid #ddd; text-align:right;">
@@ -221,6 +226,7 @@
                                         </strong>
                                     </td>
                                 </tr>
+
                             </t>
 
                         </tbody>

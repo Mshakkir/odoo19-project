@@ -25,7 +25,11 @@ class BankStatement(models.TransientModel):
     #     'bank_statement_id',
     #     string='Statement Lines'
     # )
-    statement_lines = fields.One2many('bank.statement.line', 'wizard_id', string="Statement Lines")
+    statement_lines = fields.One2many(
+        'bank.statement.line',
+        'wizard_id',
+        string="Statement Lines"
+    )
 
     gl_balance = fields.Monetary(
         string='Balance as per Company Books',
@@ -107,63 +111,23 @@ class BankStatement(models.TransientModel):
         domain = [
             ('account_id', '=', self.journal_id.default_account_id.id),
             ('statement_date', '=', False),
-            ('parent_state', '=', 'posted')
+            ('parent_state', '=', 'posted'),
         ]
 
         if self.date_from:
             domain.append(('date', '>=', self.date_from))
+
         if self.date_to:
             domain.append(('date', '<=', self.date_to))
 
         lines = self.env['account.move.line'].search(domain)
 
         self.statement_lines = [
-            (0, 0, {'move_line_id': line.id, 'statement_date': False})
-            for line in lines
+            (0, 0, {
+                'move_line_id': line.id,
+                'statement_date': False
+            }) for line in lines
         ]
-
-    @api.depends('statement_lines.statement_date', 'account_id')
-    def _compute_amount(self):
-        """Calculate GL balance, bank balance, and difference"""
-        for record in self:
-            gl_balance = 0.0
-            bank_balance = 0.0
-            current_update = 0.0
-
-            if not record.account_id:
-                record.gl_balance = 0.0
-                record.bank_balance = 0.0
-                record.balance_difference = 0.0
-                continue
-
-            # Calculate GL balance (all posted entries for this account)
-            domain = [
-                ('account_id', '=', record.account_id.id),
-                ('parent_state', '=', 'posted')
-            ]
-            lines = self.env['account.move.line'].search(domain)
-            gl_balance = sum(line.debit - line.credit for line in lines)
-
-            # Calculate bank balance (previously reconciled entries)
-            domain = [
-                ('account_id', '=', record.account_id.id),
-                ('id', 'not in', record.statement_lines.ids),
-                ('statement_date', '!=', False),
-                ('parent_state', '=', 'posted')
-            ]
-            lines = self.env['account.move.line'].search(domain)
-            bank_balance = sum(line.balance for line in lines)
-
-            # Add currently updated entries
-            current_update = sum(
-                line.debit - line.credit
-                for line in record.statement_lines
-                if line.statement_date
-            )
-
-            record.gl_balance = gl_balance
-            record.bank_balance = bank_balance + current_update
-            record.balance_difference = record.gl_balance - record.bank_balance
 
     # def action_save_reconciliation(self):
     #     """Save the reconciliation and close the wizard"""
@@ -179,3 +143,4 @@ class BankStatement(models.TransientModel):
                 line.move_line_id.write({'statement_date': line.statement_date})
 
         return {'type': 'ir.actions.act_window_close'}
+

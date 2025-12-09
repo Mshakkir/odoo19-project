@@ -160,79 +160,282 @@
                         </thead>
 
                         <tbody>
-                            <!-- Get reconciled bills/invoices from the payment's move lines -->
-                            <t t-set="payment_lines" t-value="o.move_id.line_ids.filtered(lambda l: l.account_id.account_type in ('asset_receivable', 'liability_payable'))"/>
                             <t t-set="has_data" t-value="False"/>
+                            <t t-set="invoices_shown" t-value="[]"/>
 
-                            <!-- Loop through payment lines to find matched invoices -->
-                            <t t-foreach="payment_lines" t-as="pay_line">
-                                <!-- Get all matched debits and credits -->
-                                <t t-set="all_partials" t-value="pay_line.matched_debit_ids | pay_line.matched_credit_ids"/>
+                            <!-- METHOD 1: Try reconciled_invoice_ids first (standard Odoo field) -->
+                            <t t-if="o.reconciled_invoice_ids">
+                                <t t-foreach="o.reconciled_invoice_ids" t-as="inv">
+                                    <t t-set="has_data" t-value="True"/>
+                                    <t t-set="invoices_shown" t-value="invoices_shown + [inv.id]"/>
 
-                                <t t-foreach="all_partials" t-as="partial">
-                                    <!-- Determine which is the invoice line -->
-                                    <t t-set="invoice_line" t-value="partial.debit_move_id if partial.debit_move_id != pay_line else partial.credit_move_id"/>
-                                    <t t-set="invoice_move" t-value="invoice_line.move_id"/>
+                                    <!-- Invoice Header Row -->
+                                    <tr style="background:#fafafa;">
+                                        <td style="padding:8px; border:1px solid #ddd;">
+                                            <span t-field="inv.invoice_date"/>
+                                        </td>
+                                        <td style="padding:8px; border:1px solid #ddd;">
+                                            <strong><span t-field="inv.name"/></strong>
+                                        </td>
+                                        <td style="padding:8px; border:1px solid #ddd;">
+                                            <span t-field="inv.ref"/>
+                                        </td>
+                                        <td style="padding:8px; border:1px solid #ddd; text-align:right;">
+                                            <strong>
+                                                <span t-field="inv.amount_total"
+                                                      t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>
+                                            </strong>
+                                        </td>
+                                    </tr>
 
-                                    <!-- Only show if it's an actual invoice/bill -->
-                                    <t t-if="invoice_move.move_type in ('out_invoice', 'in_invoice', 'out_refund', 'in_refund')">
-                                        <t t-set="has_data" t-value="True"/>
+                                    <!-- Get reconciliation details -->
+                                    <t t-set="partials" t-value="inv._get_reconciled_invoices_partials()"/>
+                                    <t t-if="partials and partials[0]">
+                                        <t t-foreach="partials[0]" t-as="par">
+                                            <t t-set="payment" t-value="par[2]"/>
 
-                                        <!-- Invoice Header Row -->
-                                        <tr style="background:#fafafa;">
-                                            <td style="padding:8px; border:1px solid #ddd;">
-                                                <span t-field="invoice_move.invoice_date"/>
-                                            </td>
-                                            <td style="padding:8px; border:1px solid #ddd;">
-                                                <strong><span t-field="invoice_move.name"/></strong>
-                                            </td>
-                                            <td style="padding:8px; border:1px solid #ddd;">
-                                                <span t-field="invoice_move.ref"/>
-                                            </td>
-                                            <td style="padding:8px; border:1px solid #ddd; text-align:right;">
-                                                <strong>
-                                                    <span t-field="invoice_move.amount_total"
+                                            <!-- Payment Row -->
+                                            <tr>
+                                                <td style="padding:8px; border:1px solid #ddd; padding-left:20px;">
+                                                    <span t-field="payment.move_id.date"/>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd; padding-left:20px;">
+                                                    <span t-field="payment.move_id.name"/>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd;">
+                                                    <span t-field="payment.payment_id.memo"/>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd; text-align:right;">
+                                                    <t t-set="amt" t-value="-par[1]"/>
+                                                    <span t-out="amt"
+                                                          t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+
+                                    <!-- Due Amount Row -->
+                                    <tr>
+                                        <td style="padding:8px; border:1px solid #ddd;"></td>
+                                        <td style="padding:8px; border:1px solid #ddd;">
+                                            <strong>Due Amount for <span t-field="inv.name"/></strong>
+                                        </td>
+                                        <td style="padding:8px; border:1px solid #ddd;"></td>
+                                        <td style="padding:8px; border:1px solid #ddd; text-align:right;">
+                                            <strong>
+                                                <span t-field="inv.amount_residual"
+                                                      t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </t>
+
+                            <!-- METHOD 2: Check payment move lines for reconciled items -->
+                            <t t-if="not has_data and o.move_id">
+                                <t t-set="payment_lines" t-value="o.move_id.line_ids.filtered(lambda l: l.account_id.account_type in ('asset_receivable', 'liability_payable'))"/>
+
+                                <t t-foreach="payment_lines" t-as="pay_line">
+                                    <t t-set="all_partials" t-value="pay_line.matched_debit_ids | pay_line.matched_credit_ids"/>
+
+                                    <t t-foreach="all_partials" t-as="partial">
+                                        <t t-set="invoice_line" t-value="partial.debit_move_id if partial.debit_move_id != pay_line else partial.credit_move_id"/>
+                                        <t t-set="invoice_move" t-value="invoice_line.move_id"/>
+
+                                        <t t-if="invoice_move.move_type in ('out_invoice', 'in_invoice', 'out_refund', 'in_refund') and invoice_move.id not in invoices_shown">
+                                            <t t-set="has_data" t-value="True"/>
+                                            <t t-set="invoices_shown" t-value="invoices_shown + [invoice_move.id]"/>
+
+                                            <!-- Invoice Header Row -->
+                                            <tr style="background:#fafafa;">
+                                                <td style="padding:8px; border:1px solid #ddd;">
+                                                    <span t-field="invoice_move.invoice_date"/>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd;">
+                                                    <strong><span t-field="invoice_move.name"/></strong>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd;">
+                                                    <span t-field="invoice_move.ref"/>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd; text-align:right;">
+                                                    <strong>
+                                                        <span t-field="invoice_move.amount_total"
+                                                              t-options="{'widget':'monetary','display_currency':invoice_move.currency_id}"/>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Payment Row -->
+                                            <tr>
+                                                <td style="padding:8px; border:1px solid #ddd; padding-left:20px;">
+                                                    <span t-field="o.date"/>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd; padding-left:20px;">
+                                                    <span t-field="o.name"/>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd;">
+                                                    <span t-field="o.memo"/>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd; text-align:right;">
+                                                    <span t-esc="partial.amount"
                                                           t-options="{'widget':'monetary','display_currency':invoice_move.currency_id}"/>
-                                                </strong>
-                                            </td>
-                                        </tr>
+                                                </td>
+                                            </tr>
 
-                                        <!-- Payment Row -->
-                                        <tr>
-                                            <td style="padding:8px; border:1px solid #ddd; padding-left:20px;">
-                                                <span t-field="o.date"/>
-                                            </td>
-                                            <td style="padding:8px; border:1px solid #ddd; padding-left:20px;">
-                                                <span t-field="o.name"/>
-                                            </td>
-                                            <td style="padding:8px; border:1px solid #ddd;">
-                                                <span t-field="o.memo"/>
-                                            </td>
-                                            <td style="padding:8px; border:1px solid #ddd; text-align:right;">
-                                                <span t-esc="partial.amount"
-                                                      t-options="{'widget':'monetary','display_currency':invoice_move.currency_id}"/>
-                                            </td>
-                                        </tr>
-
-                                        <!-- Due Amount Row -->
-                                        <tr>
-                                            <td style="padding:8px; border:1px solid #ddd;"></td>
-                                            <td style="padding:8px; border:1px solid #ddd;">
-                                                <strong>Due Amount for <span t-field="invoice_move.name"/></strong>
-                                            </td>
-                                            <td style="padding:8px; border:1px solid #ddd;"></td>
-                                            <td style="padding:8px; border:1px solid #ddd; text-align:right;">
-                                                <strong>
-                                                    <span t-field="invoice_move.amount_residual"
-                                                          t-options="{'widget':'monetary','display_currency':invoice_move.currency_id}"/>
-                                                </strong>
-                                            </td>
-                                        </tr>
+                                            <!-- Due Amount Row -->
+                                            <tr>
+                                                <td style="padding:8px; border:1px solid #ddd;"></td>
+                                                <td style="padding:8px; border:1px solid #ddd;">
+                                                    <strong>Due Amount for <span t-field="invoice_move.name"/></strong>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd;"></td>
+                                                <td style="padding:8px; border:1px solid #ddd; text-align:right;">
+                                                    <strong>
+                                                        <span t-field="invoice_move.amount_residual"
+                                                              t-options="{'widget':'monetary','display_currency':invoice_move.currency_id}"/>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                        </t>
                                     </t>
                                 </t>
                             </t>
 
-                            <!-- If no reconciliation data found -->
+                            <!-- METHOD 3: Check reconciled_bill_ids / reconciled_bills (for payments created with bills selected) -->
+                            <t t-if="not has_data">
+                                <t t-set="linked_bills" t-value="o.reconciled_bill_ids if hasattr(o, 'reconciled_bill_ids') else (o.reconciled_bills if hasattr(o, 'reconciled_bills') else False)"/>
+
+                                <t t-if="linked_bills">
+                                    <t t-foreach="linked_bills" t-as="bill">
+                                        <t t-if="bill.id not in invoices_shown">
+                                            <t t-set="has_data" t-value="True"/>
+                                            <t t-set="invoices_shown" t-value="invoices_shown + [bill.id]"/>
+
+                                            <!-- Invoice Header Row -->
+                                            <tr style="background:#fafafa;">
+                                                <td style="padding:8px; border:1px solid #ddd;">
+                                                    <span t-field="bill.invoice_date"/>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd;">
+                                                    <strong><span t-field="bill.name"/></strong>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd;">
+                                                    <span t-field="bill.ref"/>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd; text-align:right;">
+                                                    <strong>
+                                                        <span t-field="bill.amount_total"
+                                                              t-options="{'widget':'monetary','display_currency':bill.currency_id}"/>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Payment Row -->
+                                            <tr>
+                                                <td style="padding:8px; border:1px solid #ddd; padding-left:20px;">
+                                                    <span t-field="o.date"/>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd; padding-left:20px;">
+                                                    <span t-field="o.name"/>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd;">
+                                                    <span t-field="o.memo"/>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd; text-align:right;">
+                                                    <span t-field="o.amount"
+                                                          t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Due Amount Row -->
+                                            <tr>
+                                                <td style="padding:8px; border:1px solid #ddd;"></td>
+                                                <td style="padding:8px; border:1px solid #ddd;">
+                                                    <strong>Due Amount for <span t-field="bill.name"/></strong>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd;"></td>
+                                                <td style="padding:8px; border:1px solid #ddd; text-align:right;">
+                                                    <strong>
+                                                        <span t-field="bill.amount_residual"
+                                                              t-options="{'widget':'monetary','display_currency':bill.currency_id}"/>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </t>
+                            </t>
+
+                            <!-- METHOD 4: Look at destination_account_id lines for linked invoices -->
+                            <t t-if="not has_data and o.move_id">
+                                <t t-set="dest_lines" t-value="o.move_id.line_ids.filtered(lambda l: l.account_id == (o.destination_account_id if hasattr(o, 'destination_account_id') else False))"/>
+
+                                <t t-foreach="dest_lines" t-as="dest_line">
+                                    <!-- Check if this line has a reference to an invoice in its name or origin -->
+                                    <t t-if="dest_line.name and dest_line.name != '/'">
+                                        <!-- Try to find invoice by searching for the reference -->
+                                        <t t-set="potential_invoice" t-value="request.env['account.move'].sudo().search([('name', '=', dest_line.name), ('move_type', 'in', ['out_invoice', 'in_invoice', 'out_refund', 'in_refund'])], limit=1)"/>
+
+                                        <t t-if="potential_invoice and potential_invoice.id not in invoices_shown">
+                                            <t t-set="has_data" t-value="True"/>
+                                            <t t-set="invoices_shown" t-value="invoices_shown + [potential_invoice.id]"/>
+
+                                            <!-- Invoice Header Row -->
+                                            <tr style="background:#fafafa;">
+                                                <td style="padding:8px; border:1px solid #ddd;">
+                                                    <span t-field="potential_invoice.invoice_date"/>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd;">
+                                                    <strong><span t-field="potential_invoice.name"/></strong>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd;">
+                                                    <span t-field="potential_invoice.ref"/>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd; text-align:right;">
+                                                    <strong>
+                                                        <span t-field="potential_invoice.amount_total"
+                                                              t-options="{'widget':'monetary','display_currency':potential_invoice.currency_id}"/>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Payment Row -->
+                                            <tr>
+                                                <td style="padding:8px; border:1px solid #ddd; padding-left:20px;">
+                                                    <span t-field="o.date"/>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd; padding-left:20px;">
+                                                    <span t-field="o.name"/>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd;">
+                                                    <span t-field="o.memo"/>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd; text-align:right;">
+                                                    <span t-field="o.amount"
+                                                          t-options="{'widget':'monetary','display_currency':o.currency_id}"/>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Due Amount Row -->
+                                            <tr>
+                                                <td style="padding:8px; border:1px solid #ddd;"></td>
+                                                <td style="padding:8px; border:1px solid #ddd;">
+                                                    <strong>Due Amount for <span t-field="potential_invoice.name"/></strong>
+                                                </td>
+                                                <td style="padding:8px; border:1px solid #ddd;"></td>
+                                                <td style="padding:8px; border:1px solid #ddd; text-align:right;">
+                                                    <strong>
+                                                        <span t-field="potential_invoice.amount_residual"
+                                                              t-options="{'widget':'monetary','display_currency':potential_invoice.currency_id}"/>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </t>
+                            </t>
+
+                            <!-- If no data found at all, show message -->
                             <t t-if="not has_data">
                                 <tr>
                                     <td colspan="4" style="padding:20px; border:1px solid #ddd; text-align:center; color:#666;">
@@ -301,6 +504,7 @@
     </template>
 
 </odoo>
+
 
 
 
@@ -465,7 +669,7 @@
 <!--                        </tr>-->
 <!--                    </table>-->
 
-<!--                    &lt;!&ndash; ===== INVOICE TABLE (Like Screenshot) ===== &ndash;&gt;-->
+<!--                    &lt;!&ndash; ===== INVOICE TABLE ===== &ndash;&gt;-->
 <!--                    <table style="width:100%; border-collapse: collapse; font-size:14px;">-->
 <!--                        <thead style="background:#f5f5f5;">-->
 <!--                            <tr>-->
@@ -477,64 +681,83 @@
 <!--                        </thead>-->
 
 <!--                        <tbody>-->
+<!--                            &lt;!&ndash; Get reconciled bills/invoices from the payment's move lines &ndash;&gt;-->
+<!--                            <t t-set="payment_lines" t-value="o.move_id.line_ids.filtered(lambda l: l.account_id.account_type in ('asset_receivable', 'liability_payable'))"/>-->
+<!--                            <t t-set="has_data" t-value="False"/>-->
 
-<!--                            &lt;!&ndash; INVOICE LINE &ndash;&gt;-->
-<!--                            <t t-foreach="o.reconciled_invoice_ids" t-as="inv">-->
-<!--                                &lt;!&ndash; Invoice Row &ndash;&gt;-->
+<!--                            &lt;!&ndash; Loop through payment lines to find matched invoices &ndash;&gt;-->
+<!--                            <t t-foreach="payment_lines" t-as="pay_line">-->
+<!--                                &lt;!&ndash; Get all matched debits and credits &ndash;&gt;-->
+<!--                                <t t-set="all_partials" t-value="pay_line.matched_debit_ids | pay_line.matched_credit_ids"/>-->
+
+<!--                                <t t-foreach="all_partials" t-as="partial">-->
+<!--                                    &lt;!&ndash; Determine which is the invoice line &ndash;&gt;-->
+<!--                                    <t t-set="invoice_line" t-value="partial.debit_move_id if partial.debit_move_id != pay_line else partial.credit_move_id"/>-->
+<!--                                    <t t-set="invoice_move" t-value="invoice_line.move_id"/>-->
+
+<!--                                    &lt;!&ndash; Only show if it's an actual invoice/bill &ndash;&gt;-->
+<!--                                    <t t-if="invoice_move.move_type in ('out_invoice', 'in_invoice', 'out_refund', 'in_refund')">-->
+<!--                                        <t t-set="has_data" t-value="True"/>-->
+
+<!--                                        &lt;!&ndash; Invoice Header Row &ndash;&gt;-->
+<!--                                        <tr style="background:#fafafa;">-->
+<!--                                            <td style="padding:8px; border:1px solid #ddd;">-->
+<!--                                                <span t-field="invoice_move.invoice_date"/>-->
+<!--                                            </td>-->
+<!--                                            <td style="padding:8px; border:1px solid #ddd;">-->
+<!--                                                <strong><span t-field="invoice_move.name"/></strong>-->
+<!--                                            </td>-->
+<!--                                            <td style="padding:8px; border:1px solid #ddd;">-->
+<!--                                                <span t-field="invoice_move.ref"/>-->
+<!--                                            </td>-->
+<!--                                            <td style="padding:8px; border:1px solid #ddd; text-align:right;">-->
+<!--                                                <strong>-->
+<!--                                                    <span t-field="invoice_move.amount_total"-->
+<!--                                                          t-options="{'widget':'monetary','display_currency':invoice_move.currency_id}"/>-->
+<!--                                                </strong>-->
+<!--                                            </td>-->
+<!--                                        </tr>-->
+
+<!--                                        &lt;!&ndash; Payment Row &ndash;&gt;-->
+<!--                                        <tr>-->
+<!--                                            <td style="padding:8px; border:1px solid #ddd; padding-left:20px;">-->
+<!--                                                <span t-field="o.date"/>-->
+<!--                                            </td>-->
+<!--                                            <td style="padding:8px; border:1px solid #ddd; padding-left:20px;">-->
+<!--                                                <span t-field="o.name"/>-->
+<!--                                            </td>-->
+<!--                                            <td style="padding:8px; border:1px solid #ddd;">-->
+<!--                                                <span t-field="o.memo"/>-->
+<!--                                            </td>-->
+<!--                                            <td style="padding:8px; border:1px solid #ddd; text-align:right;">-->
+<!--                                                <span t-esc="partial.amount"-->
+<!--                                                      t-options="{'widget':'monetary','display_currency':invoice_move.currency_id}"/>-->
+<!--                                            </td>-->
+<!--                                        </tr>-->
+
+<!--                                        &lt;!&ndash; Due Amount Row &ndash;&gt;-->
+<!--                                        <tr>-->
+<!--                                            <td style="padding:8px; border:1px solid #ddd;"></td>-->
+<!--                                            <td style="padding:8px; border:1px solid #ddd;">-->
+<!--                                                <strong>Due Amount for <span t-field="invoice_move.name"/></strong>-->
+<!--                                            </td>-->
+<!--                                            <td style="padding:8px; border:1px solid #ddd;"></td>-->
+<!--                                            <td style="padding:8px; border:1px solid #ddd; text-align:right;">-->
+<!--                                                <strong>-->
+<!--                                                    <span t-field="invoice_move.amount_residual"-->
+<!--                                                          t-options="{'widget':'monetary','display_currency':invoice_move.currency_id}"/>-->
+<!--                                                </strong>-->
+<!--                                            </td>-->
+<!--                                        </tr>-->
+<!--                                    </t>-->
+<!--                                </t>-->
+<!--                            </t>-->
+
+<!--                            &lt;!&ndash; If no reconciliation data found &ndash;&gt;-->
+<!--                            <t t-if="not has_data">-->
 <!--                                <tr>-->
-<!--                                    <td style="padding:8px; border:1px solid #ddd;">-->
-<!--                                        <span t-field="inv.invoice_date"/>-->
-<!--                                    </td>-->
-<!--                                    <td style="padding:8px; border:1px solid #ddd;">-->
-<!--                                        <span t-field="inv.name"/>-->
-<!--                                    </td>-->
-<!--                                    <td style="padding:8px; border:1px solid #ddd;">-->
-<!--                                        <span t-field="inv.ref"/>-->
-<!--                                    </td>-->
-<!--                                    <td style="padding:8px; border:1px solid #ddd; text-align:right;">-->
-<!--                                        <span t-field="inv.amount_total"-->
-<!--                                              t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>-->
-<!--                                    </td>-->
-<!--                                </tr>-->
-
-<!--                                &lt;!&ndash; PAYMENT ROWS (par = reconciled lines) &ndash;&gt;-->
-<!--                                <tr t-foreach="inv._get_reconciled_invoices_partials()[0]"-->
-<!--                                    t-as="par">-->
-<!--                                    <t t-set="payment" t-value="par[2]"/>-->
-
-<!--                                    <td style="padding:8px; border:1px solid #ddd;">-->
-<!--                                        <span t-field="payment.move_id.date"/>-->
-<!--                                    </td>-->
-
-<!--                                    <td style="padding:8px; border:1px solid #ddd;">-->
-<!--                                        <span t-field="payment.move_id.name"/>-->
-<!--                                    </td>-->
-
-<!--                                    <td style="padding:8px; border:1px solid #ddd;">-->
-<!--                                        <span t-field="payment.payment_id.memo"/>-->
-<!--                                    </td>-->
-
-<!--                                    <td style="padding:8px; border:1px solid #ddd; text-align:right;">-->
-<!--                                        <t t-set="amt" t-value="-par[1]"/>-->
-<!--                                        <span t-out="amt"-->
-<!--                                              t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>-->
-<!--                                    </td>-->
-<!--                                </tr>-->
-
-<!--                                &lt;!&ndash; DUE AMOUNT &ndash;&gt;-->
-<!--                                <tr>-->
-<!--                                    <td style="padding:8px; border:1px solid #ddd;"></td>-->
-<!--                                    <td style="padding:8px; border:1px solid #ddd;">-->
-<!--                                        <strong>Due Amount for-->
-<!--                                            <span t-field="inv.name"/>-->
-<!--                                        </strong>-->
-<!--                                    </td>-->
-<!--                                    <td style="padding:8px; border:1px solid #ddd;"></td>-->
-<!--                                    <td style="padding:8px; border:1px solid #ddd; text-align:right;">-->
-<!--                                        <strong>-->
-<!--                                            <span t-field="inv.amount_residual"-->
-<!--                                                  t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>-->
-<!--                                        </strong>-->
+<!--                                    <td colspan="4" style="padding:20px; border:1px solid #ddd; text-align:center; color:#666;">-->
+<!--                                        No invoice reconciliation data available for this payment.-->
 <!--                                    </td>-->
 <!--                                </tr>-->
 <!--                            </t>-->

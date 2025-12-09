@@ -586,7 +586,7 @@ class SalesRegisterWizard(models.TransientModel):
             'name': _('Sales Register Details'),
             'type': 'ir.actions.act_window',
             'res_model': 'sales.register.details',
-            'view_mode': 'tree',
+            'view_mode': 'list',
             'domain': [('id', 'in', detail_ids)],
             'context': {
                 'create': False,

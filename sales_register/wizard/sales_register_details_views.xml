@@ -5,7 +5,7 @@
         <field name="name">sales.register.details.tree</field>
         <field name="model">sales.register.details</field>
         <field name="arch" type="xml">
-            <tree string="Sales Register Details" create="false" edit="false" delete="false">
+            <list string="Sales Register Details" create="false" edit="false" delete="false">
                 <field name="date"/>
                 <field name="document_type"/>
                 <field name="document_number"/>
@@ -25,7 +25,7 @@
                 <field name="total" sum="Grand Total"/>
                 <field name="paid" sum="Total Paid"/>
                 <field name="balance" sum="Total Balance"/>
-            </tree>
+            </list>
         </field>
     </record>
 

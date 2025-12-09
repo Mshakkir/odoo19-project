@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Root Menu under Sales -->
+        <menuitem id="menu_sales_register_root"
+                  name="Sales Books"
+                  parent="sale.sale_menu_root"
+                  sequence="99"/>
+
+        <!-- Sales Book Menu Item -->
+        <menuitem id="menu_sales_book"
+                  name="Sales"
+                  parent="menu_sales_register_root"
+                  action="action_sales_book_wizard"
+                  sequence="10"/>
+
+        <!-- Sales Return Book Menu Item -->
+        <menuitem id="menu_sales_return_book"
+                  name="Sales Return"
+                  parent="menu_sales_register_root"
+                  action="action_sales_return_wizard"
+                  sequence="20"/>
+
+        <!-- Sales & Sales Return Menu Item -->
+        <menuitem id="menu_sales_both_book"
+                  name="Sales &amp; Sales Return"
+                  parent="menu_sales_register_root"
+                  action="action_sales_both_wizard"
+                  sequence="30"/>
+
+    </data>
+</odoo>

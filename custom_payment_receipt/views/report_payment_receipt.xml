@@ -100,109 +100,227 @@
                 </div>
 
                 <!-- ===== BODY SECTION ===== -->
-                <div class="body-content">
-                    <h3>
+<!--                <div class="body-content">-->
+<!--                    <h3>-->
+<!--                        <strong>-->
+<!--                            <span t-field="o.payment_receipt_title">Payment Receipt</span>:-->
+<!--                            <span t-field="o.name">INV0001</span>-->
+<!--                        </strong>-->
+<!--                    </h3>-->
+
+<!--                    <div class="mb-4 mt-3">-->
+<!--                        <div name="date" class="row">-->
+<!--                            <div class="col-6" t-if="o.date">-->
+<!--                                Payment Date: <span t-field="o.date">2023-01-01</span>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="oe_structure"/>-->
+
+<!--                        <div class="row">-->
+<!--                            <div class="col-6" t-if="o.partner_type">-->
+<!--                                &lt;!&ndash; Conditional Display based on Partner Type &ndash;&gt;-->
+<!--                                <t t-if="o.partner_type == 'customer'">-->
+<!--                                    Customer:-->
+<!--                                </t>-->
+<!--                                <t t-elif="o.partner_type == 'supplier'">-->
+<!--                                    Vendor:-->
+<!--                                </t>-->
+<!--                                <span t-field="o.partner_id" data-oe-demo="Marc Demo"/>-->
+<!--                            </div>-->
+<!--                            <div name="payment_method" t-if="values['display_payment_method'] and o.payment_method_id" class="col-6">-->
+<!--                                Payment Method: <span t-field="o.payment_method_id.name">Credit card</span>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="oe_structure"/>-->
+
+<!--                        <div class="row">-->
+<!--                            <div class="col-6" t-if="o.amount">-->
+<!--                                Payment Amount: <span t-field="o.amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">50 USD</span>-->
+<!--                            </div>-->
+<!--                            <div class="col-6" t-if="o.memo">-->
+<!--                                Memo: <span t-field="o.memo">Sample Memo</span>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    <div class="oe_structure"/>-->
+
+<!--                    &lt;!&ndash; Invoice Details Table &ndash;&gt;-->
+<!--                    <table name="invoices" t-if="values['display_invoices']" class="table table-borderless">-->
+<!--                        <t t-set="invoices" t-value="o.reconciled_invoice_ids or o.reconciled_bill_ids"/>-->
+<!--                        &lt;!&ndash; Check if invoices include different currencies &ndash;&gt;-->
+<!--                        <t t-foreach="invoices" t-as="inv">-->
+<!--                            <t t-if="any(inv.currency_id != par[2].currency_id for par in inv._get_reconciled_invoices_partials()[0])" t-set="otherCurrency" t-value="True"/>-->
+<!--                        </t>-->
+<!--                        <thead>-->
+<!--                            <tr>-->
+<!--                                <th><span>Invoice Date</span></th>-->
+<!--                                <th><span>Invoice Number</span></th>-->
+<!--                                <th><span>Reference</span></th>-->
+<!--                                <th t-if="otherCurrency" class="text-end"><span>Amount In Currency</span></th>-->
+<!--                                <th class="text-end"><span>Amount</span></th>-->
+<!--                            </tr>-->
+<!--                        </thead>-->
+<!--                        <tbody>-->
+<!--                            <t t-foreach="invoices" t-as="inv">-->
+<!--                                <t t-if="inv.move_type != 'entry'">-->
+<!--                                    <tr>-->
+<!--                                        <td><span t-field="inv.invoice_date">2023-01-01</span></td>-->
+<!--                                        <td><span t-field="inv.name">INV001</span></td>-->
+<!--                                        <td><span t-field="inv.ref" data-oe-demo="Sample Ref"/></td>-->
+<!--                                        <td t-if="otherCurrency"/>-->
+<!--                                        <td class="text-end"><span t-field="inv.amount_total">100.00 USD</span></td>-->
+<!--                                    </tr>-->
+
+<!--                                    &lt;!&ndash; PAYMENTS/REVERSALS &ndash;&gt;-->
+<!--                                    <tr t-foreach="inv._get_reconciled_invoices_partials()[0]" t-as="par">-->
+<!--                                        <t t-set="payment" t-value="par[2]"/>-->
+<!--                                        <td><span t-field="payment.move_id.date">2023-01-05</span></td>-->
+<!--                                        <td><span t-field="payment.move_id.name">PAY001</span></td>-->
+<!--                                        <td><span t-field="payment.payment_id.memo" data-oe-demo="Payment Ref"/></td>-->
+<!--                                        <t t-set="amountPayment" t-value="-(par[0].debit_amount_currency if par[2].debit &gt; 0 else par[0].credit_amount_currency)"/>-->
+<!--                                        <t t-set="amountInvoice" t-value="-par[1]"/>-->
+<!--                                        <t t-set="currencyPayment" t-value="payment.currency_id"/>-->
+<!--                                        <t t-set="currencyInvoice" t-value="inv.currency_id"/>-->
+<!--                                        <td t-if="otherCurrency" class="text-end">-->
+<!--                                            <span t-if="currencyPayment != currencyInvoice" t-out="amountPayment" t-options="{'widget': 'monetary', 'display_currency': currencyPayment}">50.00 EUR</span>-->
+<!--                                        </td>-->
+<!--                                        <td class="text-end">-->
+<!--                                            <span t-out="amountInvoice" t-options="{'widget': 'monetary', 'display_currency': currencyInvoice}">25.00 USD</span>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+
+<!--                                    &lt;!&ndash; BALANCE &ndash;&gt;-->
+<!--                                    <tr>-->
+<!--                                        <td/>-->
+<!--                                        <td><strong>Due Amount for <span t-field="inv.name">INV001</span></strong></td>-->
+<!--                                        <td/>-->
+<!--                                        <td t-if="otherCurrency"/>-->
+<!--                                        <td class="text-end"><strong><span t-field="inv.amount_residual">25.0 USD</span></strong></td>-->
+<!--                                    </tr>-->
+<!--                                </t>-->
+<!--                            </t>-->
+<!--                        </tbody>-->
+<!--                    </table>-->
+<!--                </div>-->
+                <div class="body-content" style="font-size:14px;">
+
+    <!-- ===== TITLE ===== -->
+    <h3 style="margin-bottom:10px;">
+        <strong>
+            Payment Receipt:
+            <span t-field="o.name"/>
+        </strong>
+    </h3>
+
+    <!-- ===== TOP DETAILS ===== -->
+    <table style="width:100%; margin-bottom:15px; font-size:14px;">
+        <tr>
+            <td style="width:50%;">
+                Payment Date:
+                <span t-field="o.date"/>
+            </td>
+            <td style="width:50%;">
+                Payment Method:
+                <span t-field="o.payment_method_id.name"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <t t-if="o.partner_type == 'customer'">Customer:</t>
+                <t t-if="o.partner_type == 'supplier'">Vendor:</t>
+                <span t-field="o.partner_id"/>
+            </td>
+            <td>
+                Memo:
+                <span t-field="o.memo"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Payment Amount:
+                <span t-field="o.amount"
+                      t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+            </td>
+        </tr>
+    </table>
+
+    <!-- ===== INVOICE TABLE (Like Screenshot) ===== -->
+    <table style="width:100%; border-collapse: collapse; font-size:14px;">
+        <thead style="background:#f5f5f5;">
+            <tr>
+                <th style="padding:8px; border:1px solid #ddd;">INVOICE DATE</th>
+                <th style="padding:8px; border:1px solid #ddd;">INVOICE NUMBER</th>
+                <th style="padding:8px; border:1px solid #ddd;">REFERENCE</th>
+                <th style="padding:8px; border:1px solid #ddd; text-align:right;">AMOUNT</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <!-- INVOICE LINE -->
+            <t t-foreach="o.reconciled_invoice_ids" t-as="inv">
+                <!-- Invoice Row -->
+                <tr>
+                    <td style="padding:8px; border:1px solid #ddd;">
+                        <span t-field="inv.invoice_date"/>
+                    </td>
+                    <td style="padding:8px; border:1px solid #ddd;">
+                        <span t-field="inv.name"/>
+                    </td>
+                    <td style="padding:8px; border:1px solid #ddd;">
+                        <span t-field="inv.ref"/>
+                    </td>
+                    <td style="padding:8px; border:1px solid #ddd; text-align:right;">
+                        <span t-field="inv.amount_total"
+                              t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>
+                    </td>
+                </tr>
+
+                <!-- PAYMENT ROWS (par = reconciled lines) -->
+                <tr t-foreach="inv._get_reconciled_invoices_partials()[0]"
+                    t-as="par">
+                    <t t-set="payment" t-value="par[2]"/>
+
+                    <td style="padding:8px; border:1px solid #ddd;">
+                        <span t-field="payment.move_id.date"/>
+                    </td>
+
+                    <td style="padding:8px; border:1px solid #ddd;">
+                        <span t-field="payment.move_id.name"/>
+                    </td>
+
+                    <td style="padding:8px; border:1px solid #ddd;">
+                        <span t-field="payment.payment_id.memo"/>
+                    </td>
+
+                    <td style="padding:8px; border:1px solid #ddd; text-align:right;">
+                        <t t-set="amt" t-value="-par[1]"/>
+                        <span t-out="amt"
+                              t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>
+                    </td>
+                </tr>
+
+                <!-- DUE AMOUNT -->
+                <tr>
+                    <td style="padding:8px; border:1px solid #ddd;"></td>
+                    <td style="padding:8px; border:1px solid #ddd;">
+                        <strong>Due Amount for <span t-field="inv.name"/></strong>
+                    </td>
+                    <td style="padding:8px; border:1px solid #ddd;"></td>
+                    <td style="padding:8px; border:1px solid #ddd; text-align:right;">
                         <strong>
-                            <span t-field="o.payment_receipt_title">Payment Receipt</span>:
-                            <span t-field="o.name">INV0001</span>
+                            <span t-field="inv.amount_residual"
+                                  t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>
                         </strong>
-                    </h3>
+                    </td>
+                </tr>
+            </t>
 
-                    <div class="mb-4 mt-3">
-                        <div name="date" class="row">
-                            <div class="col-6" t-if="o.date">
-                                Payment Date: <span t-field="o.date">2023-01-01</span>
-                            </div>
-                        </div>
-                        <div class="oe_structure"/>
+        </tbody>
+    </table>
 
-                        <div class="row">
-                            <div class="col-6" t-if="o.partner_type">
-                                <!-- Conditional Display based on Partner Type -->
-                                <t t-if="o.partner_type == 'customer'">
-                                    Customer:
-                                </t>
-                                <t t-elif="o.partner_type == 'supplier'">
-                                    Vendor:
-                                </t>
-                                <span t-field="o.partner_id" data-oe-demo="Marc Demo"/>
-                            </div>
-                            <div name="payment_method" t-if="values['display_payment_method'] and o.payment_method_id" class="col-6">
-                                Payment Method: <span t-field="o.payment_method_id.name">Credit card</span>
-                            </div>
-                        </div>
-                        <div class="oe_structure"/>
-
-                        <div class="row">
-                            <div class="col-6" t-if="o.amount">
-                                Payment Amount: <span t-field="o.amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">50 USD</span>
-                            </div>
-                            <div class="col-6" t-if="o.memo">
-                                Memo: <span t-field="o.memo">Sample Memo</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="oe_structure"/>
-
-                    <!-- Invoice Details Table -->
-                    <table name="invoices" t-if="values['display_invoices']" class="table table-borderless">
-                        <t t-set="invoices" t-value="o.reconciled_invoice_ids or o.reconciled_bill_ids"/>
-                        <!-- Check if invoices include different currencies -->
-                        <t t-foreach="invoices" t-as="inv">
-                            <t t-if="any(inv.currency_id != par[2].currency_id for par in inv._get_reconciled_invoices_partials()[0])" t-set="otherCurrency" t-value="True"/>
-                        </t>
-                        <thead>
-                            <tr>
-                                <th><span>Invoice Date</span></th>
-                                <th><span>Invoice Number</span></th>
-                                <th><span>Reference</span></th>
-                                <th t-if="otherCurrency" class="text-end"><span>Amount In Currency</span></th>
-                                <th class="text-end"><span>Amount</span></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-foreach="invoices" t-as="inv">
-                                <t t-if="inv.move_type != 'entry'">
-                                    <tr>
-                                        <td><span t-field="inv.invoice_date">2023-01-01</span></td>
-                                        <td><span t-field="inv.name">INV001</span></td>
-                                        <td><span t-field="inv.ref" data-oe-demo="Sample Ref"/></td>
-                                        <td t-if="otherCurrency"/>
-                                        <td class="text-end"><span t-field="inv.amount_total">100.00 USD</span></td>
-                                    </tr>
-
-                                    <!-- PAYMENTS/REVERSALS -->
-                                    <tr t-foreach="inv._get_reconciled_invoices_partials()[0]" t-as="par">
-                                        <t t-set="payment" t-value="par[2]"/>
-                                        <td><span t-field="payment.move_id.date">2023-01-05</span></td>
-                                        <td><span t-field="payment.move_id.name">PAY001</span></td>
-                                        <td><span t-field="payment.payment_id.memo" data-oe-demo="Payment Ref"/></td>
-                                        <t t-set="amountPayment" t-value="-(par[0].debit_amount_currency if par[2].debit &gt; 0 else par[0].credit_amount_currency)"/>
-                                        <t t-set="amountInvoice" t-value="-par[1]"/>
-                                        <t t-set="currencyPayment" t-value="payment.currency_id"/>
-                                        <t t-set="currencyInvoice" t-value="inv.currency_id"/>
-                                        <td t-if="otherCurrency" class="text-end">
-                                            <span t-if="currencyPayment != currencyInvoice" t-out="amountPayment" t-options="{'widget': 'monetary', 'display_currency': currencyPayment}">50.00 EUR</span>
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-out="amountInvoice" t-options="{'widget': 'monetary', 'display_currency': currencyInvoice}">25.00 USD</span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- BALANCE -->
-                                    <tr>
-                                        <td/>
-                                        <td><strong>Due Amount for <span t-field="inv.name">INV001</span></strong></td>
-                                        <td/>
-                                        <td t-if="otherCurrency"/>
-                                        <td class="text-end"><strong><span t-field="inv.amount_residual">25.0 USD</span></strong></td>
-                                    </tr>
-                                </t>
-                            </t>
-                        </tbody>
-                    </table>
-                </div>
+</div>
 
                 <!-- ===== CUSTOM FOOTER ===== -->
                 <div class="footer" style="margin-top: 30px; page-break-inside: avoid;">

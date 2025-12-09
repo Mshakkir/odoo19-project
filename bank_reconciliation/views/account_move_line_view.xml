@@ -18,7 +18,7 @@
         <field name="name">account.bank.statement.move.line.tree</field>
         <field name="model">account.move.line</field>
         <field name="arch" type="xml">
-            <tree string="Journal Items" create="false" delete="false">
+            <list string="Journal Items" create="false" delete="false">
                 <field name="date"/>
                 <field name="move_id" optional="hide"/>
                 <field name="journal_id" optional="show"/>
@@ -34,7 +34,7 @@
                 <field name="statement_date"/>
                 <field name="company_currency_id" column_invisible="1"/>
                 <field name="company_id" column_invisible="1"/>
-            </tree>
+            </list>
         </field>
     </record>
 

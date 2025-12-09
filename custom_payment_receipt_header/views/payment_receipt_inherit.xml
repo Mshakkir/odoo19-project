@@ -12,7 +12,7 @@
             <!-- ============================================
                  REPLACE DEFAULT LAYOUT WITH CUSTOM HEADER
             ============================================ -->
-            <xpath expr="//t[@t-call='web.external_layout']" position="replace">
+           <xpath expr="//t[contains(@t-call, 'payment_receipt_layout')]" position="replace">
 
                 <!-- *********** CUSTOM HEADER ************** -->
                 <t t-set="o" t-value="o.with_context(lang=lang)"/>

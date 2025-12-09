@@ -190,96 +190,96 @@
                                 </div>
                             </t>
 
-                            <!-- Detailed Report by Document (2 per page) - Full Width -->
+                            <!-- Detailed Report by Document (2 per page) -->
                             <t t-if="detailed_data">
                                 <t t-set="grand_total" t-value="0"/>
                                 <t t-set="grand_tax" t-value="0"/>
 
                                 <t t-foreach="detailed_data" t-as="doc">
-                                    <!-- Document Header - Full Width -->
-                                    <div style="background-color: #f5f5f5; padding: 5px 8px; margin: 8px -15px 0 -15px; border-left: 4px solid #8B1538;">
-                                        <table style="width: 100%; border: none; border-collapse: collapse;">
+                                    <!-- Document Header -->
+                                    <div style="background-color: #f5f5f5; padding: 6px; margin-top: 10px; border-left: 4px solid #8B1538; font-size: 11px;line-height:1.6;">
+                                        <table style="width: 100%; border: none;">
                                             <tr>
-                                                <td style="width: 12%; border: none; font-size: 9px; padding: 2px;"><strong>Date:</strong></td>
-                                                <td style="width: 21%; border: none; font-size: 9px; padding: 2px;"><span t-esc="doc['date'].strftime('%d-%m-%Y')"/></td>
-                                                <td style="width: 12%; border: none; font-size: 9px; padding: 2px;"><strong>Inv No:</strong></td>
-                                                <td style="width: 21%; border: none; font-size: 9px; padding: 2px;"><span t-esc="doc['document_number']"/></td>
-                                                <td style="width: 12%; border: none; font-size: 9px; padding: 2px;"><strong>Warehouse:</strong></td>
-                                                <td style="width: 22%; border: none; font-size: 9px; padding: 2px;"><span t-esc="doc['warehouse'] or 'N/A'"/></td>
+                                                <td style="width: 15%; border: none; font-size: 10px;"><strong>Date:</strong></td>
+                                                <td style="width: 35%; border: none; font-size: 10px;"><span t-esc="doc['date'].strftime('%d-%m-%Y')"/></td>
+                                                <td style="width: 15%; border: none; font-size: 10px;"><strong>Inv No:</strong></td>
+                                                <td style="width: 35%; border: none; font-size: 10px;"><span t-esc="doc['document_number']"/></td>
                                             </tr>
                                             <tr>
-                                                <td style="border: none; font-size: 9px; padding: 2px;"><strong>Customer:</strong></td>
-                                                <td colspan="5" style="border: none; font-size: 9px; padding: 2px;"><span t-esc="doc['supplier_name']"/></td>
+                                                <td style="border: none; font-size: 10px;"><strong>Warehouse:</strong></td>
+                                                <td style="border: none; font-size: 10px;"><span t-esc="doc['warehouse'] or 'N/A'"/></td>
+                                                <td style="border: none; font-size: 10px;"><strong>Customer:</strong></td>
+                                                <td style="border: none; font-size: 10px;"><span t-esc="doc['supplier_name']"/></td>
                                             </tr>
                                         </table>
                                     </div>
 
-                                    <!-- Line Items Table - Full Width -->
-                                    <table style="width: calc(100% + 30px); margin: 2px -15px 3px -15px; border-collapse: collapse; font-size: 8px; border: 1px solid #ddd;">
+                                    <!-- Line Items Table -->
+                                    <table class="table table-sm table-bordered" style="margin-top: 3px; margin-bottom: 5px; font-size: 9px;">
                                         <thead style="background-color: #e0e0e0;">
                                             <tr>
-                                                <th style="width: 3%; padding: 2px; font-size: 8px; border: 1px solid #ccc; text-align: center;">SI</th>
-                                                <th style="width: 8%; padding: 2px; font-size: 8px; border: 1px solid #ccc;">Code</th>
-                                                <th style="width: 24%; padding: 2px; font-size: 8px; border: 1px solid #ccc;">Name</th>
-                                                <th style="width: 7%; padding: 2px; font-size: 8px; border: 1px solid #ccc;">Batch</th>
-                                                <th style="width: 15%; padding: 2px; font-size: 8px; border: 1px solid #ccc;">Description</th>
-                                                <th style="width: 5%; padding: 2px; font-size: 8px; border: 1px solid #ccc; text-align: right;">Qty</th>
-                                                <th style="width: 4%; padding: 2px; font-size: 8px; border: 1px solid #ccc; text-align: center;">Unit</th>
-                                                <th style="width: 7%; padding: 2px; font-size: 8px; border: 1px solid #ccc; text-align: right;">Rate</th>
-                                                <th style="width: 5%; padding: 2px; font-size: 8px; border: 1px solid #ccc; text-align: right;">Free</th>
-                                                <th style="width: 4%; padding: 2px; font-size: 8px; border: 1px solid #ccc; text-align: center;">Unit</th>
-                                                <th style="width: 8%; padding: 2px; font-size: 8px; border: 1px solid #ccc; text-align: right;">Discount</th>
-                                                <th style="width: 10%; padding: 2px; font-size: 8px; border: 1px solid #ccc; text-align: right;">Net Total</th>
+                                                <th style="width: 4%; padding: 2px; font-size: 9px;">SIno</th>
+                                                <th style="width: 9%; padding: 2px; font-size: 9px;">Code</th>
+                                                <th style="width: 23%; padding: 2px; font-size: 9px;">Name</th>
+                                                <th style="width: 8%; padding: 2px; font-size: 9px;">Batch</th>
+                                                <th style="width: 14%; padding: 2px; font-size: 9px;">Description</th>
+                                                <th class="text-right" style="width: 6%; padding: 2px; font-size: 9px;">Qty</th>
+                                                <th class="text-center" style="width: 4%; padding: 2px; font-size: 9px;">Unit</th>
+                                                <th class="text-right" style="width: 7%; padding: 2px; font-size: 9px;">Rate</th>
+                                                <th class="text-right" style="width: 6%; padding: 2px; font-size: 9px;">Free</th>
+                                                <th class="text-center" style="width: 4%; padding: 2px; font-size: 9px;">Unit</th>
+                                                <th class="text-right" style="width: 7%; padding: 2px; font-size: 9px;">Discount</th>
+                                                <th class="text-right" style="width: 8%; padding: 2px; font-size: 9px;">Net Total</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <t t-set="line_no" t-value="1"/>
                                             <t t-foreach="doc['lines']" t-as="line">
                                                 <tr>
-                                                    <td style="padding: 2px; font-size: 8px; border: 1px solid #ddd; text-align: center;"><span t-esc="line_no"/></td>
-                                                    <td style="padding: 2px; font-size: 8px; border: 1px solid #ddd;"><span t-esc="line.get('product', '').split(' ')[0][:12]"/></td>
-                                                    <td style="padding: 2px; font-size: 8px; border: 1px solid #ddd;"><span t-esc="line.get('product', '')[:40]"/></td>
-                                                    <td style="padding: 2px; font-size: 8px; border: 1px solid #ddd; text-align: center;">-</td>
-                                                    <td style="padding: 2px; font-size: 8px; border: 1px solid #ddd;"><span t-esc="line.get('product', '')[:25]"/></td>
-                                                    <td style="padding: 2px; font-size: 8px; border: 1px solid #ddd; text-align: right;"><span t-esc="'%.2f' % line.get('quantity', 0)"/></td>
-                                                    <td style="padding: 2px; font-size: 8px; border: 1px solid #ddd; text-align: center;">PCS</td>
-                                                    <td style="padding: 2px; font-size: 8px; border: 1px solid #ddd; text-align: right;"><span t-esc="'%.2f' % line.get('unit_price', 0)"/></td>
-                                                    <td style="padding: 2px; font-size: 8px; border: 1px solid #ddd; text-align: right;">0.00</td>
-                                                    <td style="padding: 2px; font-size: 8px; border: 1px solid #ddd; text-align: center;">PCS</td>
-                                                    <td style="padding: 2px; font-size: 8px; border: 1px solid #ddd; text-align: right;"><span t-esc="'%.2f' % line.get('trade_discount', 0)"/></td>
-                                                    <td style="padding: 2px; font-size: 8px; border: 1px solid #ddd; text-align: right;"><strong><span t-esc="'%.2f' % line.get('subtotal', 0)"/></strong></td>
+                                                    <td style="padding: 2px; font-size: 9px;"><span t-esc="line_no"/></td>
+                                                    <td style="padding: 2px; font-size: 9px;"><span t-esc="line.get('product', '').split(' ')[0][:10]"/></td>
+                                                    <td style="padding: 2px; font-size: 9px;"><span t-esc="line.get('product', '')[:30]"/></td>
+                                                    <td style="padding: 2px; font-size: 9px;">-</td>
+                                                    <td style="padding: 2px; font-size: 9px;"><span t-esc="line.get('product', '')[:20]"/></td>
+                                                    <td class="text-right" style="padding: 2px; font-size: 9px;"><span t-esc="'%.2f' % line.get('quantity', 0)"/></td>
+                                                    <td class="text-center" style="padding: 2px; font-size: 9px;">PCS</td>
+                                                    <td class="text-right" style="padding: 2px; font-size: 9px;"><span t-esc="'%.2f' % line.get('unit_price', 0)"/></td>
+                                                    <td class="text-right" style="padding: 2px; font-size: 9px;">0.00</td>
+                                                    <td class="text-center" style="padding: 2px; font-size: 9px;">PCS</td>
+                                                    <td class="text-right" style="padding: 2px; font-size: 9px;"><span t-esc="'%.2f' % line.get('trade_discount', 0)"/></td>
+                                                    <td class="text-right" style="padding: 2px; font-size: 9px;"><strong><span t-esc="'%.2f' % line.get('subtotal', 0)"/></strong></td>
                                                 </tr>
                                                 <t t-set="line_no" t-value="line_no + 1"/>
                                             </t>
                                         </tbody>
                                     </table>
 
-                                    <!-- Document Totals - Aligned Right -->
-                                    <div style="margin: 3px -15px 6px -15px; padding: 4px 8px; background-color: #f9f9f9; border: 1px solid #ddd;">
+                                    <!-- Document Totals -->
+                                    <div style="margin-top: 3px; padding: 5px; background-color: #f9f9f9; border: 1px solid #ddd; margin-bottom: 8px;">
                                         <table style="width: 100%; border: none;">
                                             <tr>
-                                                <td style="width: 75%; border: none;"></td>
-                                                <td style="width: 25%; border: none;">
-                                                    <table style="width: 100%; border: none; font-size: 8px;">
+                                                <td style="width: 70%; border: none;"></td>
+                                                <td style="width: 30%; border: none;">
+                                                    <table style="width: 100%; border: none; font-size: 9px;">
                                                         <tr>
-                                                            <td style="text-align: right; padding: 1px 3px; border: none;"><strong>Total:</strong></td>
-                                                            <td style="text-align: right; padding: 1px 3px; border: none; min-width: 70px;"><span t-esc="'%.2f' % sum(l.get('subtotal', 0) for l in doc['lines'])"/></td>
+                                                            <td style="text-align: right; padding: 1px; border: none;"><strong>Total:</strong></td>
+                                                            <td style="text-align: right; padding: 1px; border: none;"><span t-esc="'%.2f' % sum(l.get('subtotal', 0) for l in doc['lines'])"/></td>
                                                         </tr>
                                                         <tr>
-                                                            <td style="text-align: right; padding: 1px 3px; border: none;"><strong>Additional Disc:</strong></td>
-                                                            <td style="text-align: right; padding: 1px 3px; border: none;"><span t-esc="'%.2f' % sum(l.get('addin_discount', 0) for l in doc['lines'])"/></td>
+                                                            <td style="text-align: right; padding: 1px; border: none;"><strong>Additional Disc:</strong></td>
+                                                            <td style="text-align: right; padding: 1px; border: none;"><span t-esc="'%.2f' % sum(l.get('addin_discount', 0) for l in doc['lines'])"/></td>
                                                         </tr>
                                                         <tr>
-                                                            <td style="text-align: right; padding: 1px 3px; border: none;"><strong>Additional Cost:</strong></td>
-                                                            <td style="text-align: right; padding: 1px 3px; border: none;"><span t-esc="'%.2f' % sum(l.get('addin_cost', 0) for l in doc['lines'])"/></td>
+                                                            <td style="text-align: right; padding: 1px; border: none;"><strong>Additional Cost:</strong></td>
+                                                            <td style="text-align: right; padding: 1px; border: none;"><span t-esc="'%.2f' % sum(l.get('addin_cost', 0) for l in doc['lines'])"/></td>
                                                         </tr>
                                                         <tr>
-                                                            <td style="text-align: right; padding: 1px 3px; border: none;"><strong>Tax Amount:</strong></td>
-                                                            <td style="text-align: right; padding: 1px 3px; border: none;"><span t-esc="'%.2f' % doc['tax_amount']"/></td>
+                                                            <td style="text-align: right; padding: 1px; border: none;"><strong>Tax Amount:</strong></td>
+                                                            <td style="text-align: right; padding: 1px; border: none;"><span t-esc="'%.2f' % doc['tax_amount']"/></td>
                                                         </tr>
                                                         <tr style="background-color: #e0e0e0; font-weight: bold;">
-                                                            <td style="text-align: right; padding: 2px 3px; border: none; font-size: 9px;"><strong>Net Amount:</strong></td>
-                                                            <td style="text-align: right; padding: 2px 3px; border: none; font-size: 9px;"><strong><span t-esc="'%.2f' % doc['total']"/></strong></td>
+                                                            <td style="text-align: right; padding: 2px; border: none; font-size: 10px;"><strong>Net Amount:</strong></td>
+                                                            <td style="text-align: right; padding: 2px; border: none; font-size: 10px;"><strong><span t-esc="'%.2f' % doc['total']"/></strong></td>
                                                         </tr>
                                                     </table>
                                                 </td>
@@ -297,12 +297,12 @@
 
                                     <!-- Separator line between documents on same page -->
                                     <t t-if="(doc_index + 1) % 2 == 1 and not doc_last">
-                                        <hr style="border: 1px dashed #ccc; margin: 8px -15px;"/>
+                                        <hr style="border: 1px dashed #ccc; margin: 10px 0;"/>
                                     </t>
                                 </t>
 
-                                <!-- Grand Total Summary - Full Width -->
-                                <div style="margin: 15px -15px 10px -15px; padding: 8px 10px; background-color: #8B1538; color: white; font-size: 11px; font-weight: bold;">
+                                <!-- Grand Total Summary -->
+                                <div style="margin-top: 20px; padding: 10px; background-color: #8B1538; color: white; font-size: 13px; font-weight: bold;">
                                     <table style="width: 100%; border: none; color: white;">
                                         <tr>
                                             <td style="width: 70%; border: none;">GRAND TOTAL</td>
@@ -313,13 +313,13 @@
                                 </div>
 
                                 <!-- Report Footer -->
-                                <div style="margin: 10px -15px 0 -15px; font-size: 9px;">
-                                    <table style="width: 100%;">
-                                        <tr>
-                                            <td style="width: 50%;"><strong>Total Documents:</strong> <span t-esc="len(detailed_data)"/></td>
-                                            <td style="width: 50%; text-align: right;"><strong>Generated On:</strong> <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M:%S')"/></td>
-                                        </tr>
-                                    </table>
+                                <div class="row mt-3">
+                                    <div class="col-6">
+                                        <p style="font-size: 10px;"><strong>Total Documents:</strong> <span t-esc="len(detailed_data)"/></p>
+                                    </div>
+                                    <div class="col-6 text-right">
+                                        <p style="font-size: 10px;"><strong>Generated On:</strong> <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M:%S')"/></p>
+                                    </div>
                                 </div>
                             </t>
                         </t>

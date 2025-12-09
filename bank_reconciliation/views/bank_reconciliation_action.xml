@@ -1,12 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+
+    <!-- Action to open the Bank Reconciliation Wizard -->
     <record id="bank_reconciliation_custom_screen" model="ir.actions.act_window">
         <field name="name">Bank Reconciliation</field>
-        <field name="res_model">account.bank.statement</field> <!-- The model you want to open -->
-        <field name="view_mode">tree,form</field>
-        <field name="target">current</field>
+        <field name="res_model">bank.statement</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="bank_statement_wiz"/>
+        <field name="context">{'default_journal_id': active_id}</field>
     </record>
-</odoo>
 
+</odoo>
 
 
 

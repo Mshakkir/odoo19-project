@@ -11,8 +11,8 @@
             <xpath expr="//div[@name='kanban_primary_right']" position="inside">
                 <t t-if="record.type.raw_value == 'bank'">
                     <div class="mt-2">
-                        <button type="action"
-                                name="%(bank_reconciliation_custom_screen)d"
+                        <button type="object"
+                                name="create_bank_statement"
                                 class="btn btn-primary">
                             Bank Reconciliation
                         </button>

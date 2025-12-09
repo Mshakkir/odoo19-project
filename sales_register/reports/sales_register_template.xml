@@ -67,6 +67,117 @@
                         </div>
 
                         <!-- Summary Report (Current Format) -->
+<!--                        <t t-if="o.report_type == 'summary'">-->
+<!--                            &lt;!&ndash; Get Sales Data &ndash;&gt;-->
+<!--                            <t t-set="sales_data" t-value="o._get_sales_data()"/>-->
+
+<!--                            &lt;!&ndash; Check if data exists &ndash;&gt;-->
+<!--                            <t t-if="not sales_data">-->
+<!--                                <div class="alert alert-warning">-->
+<!--                                    <strong>No Data Found!</strong> No sales records found for the selected period.-->
+<!--                                </div>-->
+<!--                            </t>-->
+
+<!--                            &lt;!&ndash; Summary Table &ndash;&gt;-->
+<!--                            <t t-if="sales_data">-->
+<!--                                <table class="table table-sm table-bordered">-->
+<!--                                    <thead style="background-color: #CCC6C6; color: bold;">-->
+<!--                                        <tr>-->
+<!--                                            <th>Date</th>-->
+<!--                                            <th>Type</th>-->
+<!--                                            <th>Document No.</th>-->
+<!--                                            <th>Customer</th>-->
+<!--                                            <th>VAT</th>-->
+<!--                                            <th>Warehouse</th>-->
+<!--                                            <th>Product</th>-->
+<!--                                            <th class="text-right">Qty</th>-->
+<!--                                            <th class="text-right">Unit Price</th>-->
+<!--                                            <th class="text-right">Subtotal</th>-->
+<!--                                            <th class="text-right">Trade Dis</th>-->
+<!--                                            <th class="text-right">AddIn Dis</th>-->
+<!--                                            <th class="text-right">AddIn Cost</th>-->
+<!--                                            <th>Tax</th>-->
+<!--                                            <th class="text-right">Tax Amt</th>-->
+<!--                                            <th class="text-right">Round Off</th>-->
+<!--                                            <th class="text-right">Total</th>-->
+<!--                                            <th class="text-right">Received</th>-->
+<!--                                            <th class="text-right">Balance</th>-->
+<!--                                        </tr>-->
+<!--                                    </thead>-->
+<!--                                    <tbody>-->
+<!--                                        <t t-set="total_subtotal" t-value="0"/>-->
+<!--                                        <t t-set="total_trade_dis" t-value="0"/>-->
+<!--                                        <t t-set="total_addin_dis" t-value="0"/>-->
+<!--                                        <t t-set="total_addin_cost" t-value="0"/>-->
+<!--                                        <t t-set="total_tax" t-value="0"/>-->
+<!--                                        <t t-set="total_round_off" t-value="0"/>-->
+<!--                                        <t t-set="total_amount" t-value="0"/>-->
+<!--                                        <t t-set="total_paid" t-value="0"/>-->
+<!--                                        <t t-set="total_balance" t-value="0"/>-->
+
+<!--                                        <t t-foreach="sales_data" t-as="line">-->
+<!--                                            <tr>-->
+<!--                                                <td><t t-if="line.get('date')"><span t-esc="line['date'].strftime('%d/%m/%Y')"/></t></td>-->
+<!--                                                <td><span t-esc="line.get('document_type', '')"/></td>-->
+<!--                                                <td><span t-esc="line.get('document_number', '')"/></td>-->
+<!--                                                <td><span t-esc="line.get('customer_name', '')"/></td>-->
+<!--                                                <td><span t-esc="line.get('customer_vat', '')"/></td>-->
+<!--                                                <td><span t-esc="line.get('warehouse', '')"/></td>-->
+<!--                                                <td><span t-esc="line.get('product', '')"/></td>-->
+<!--                                                <td class="text-right"><span t-esc="'%.2f' % line.get('quantity', 0)"/></td>-->
+<!--                                                <td class="text-right"><span t-esc="'%.2f' % line.get('unit_price', 0)"/></td>-->
+<!--                                                <td class="text-right"><span t-esc="'%.2f' % line.get('subtotal', 0)"/></td>-->
+<!--                                                <td class="text-right"><span t-esc="'%.2f' % line.get('trade_discount', 0)"/></td>-->
+<!--                                                <td class="text-right"><span t-esc="'%.2f' % line.get('addin_discount', 0)"/></td>-->
+<!--                                                <td class="text-right"><span t-esc="'%.2f' % line.get('addin_cost', 0)"/></td>-->
+<!--                                                <td><span t-esc="line.get('taxes', '')"/></td>-->
+<!--                                                <td class="text-right"><span t-esc="'%.2f' % line.get('tax_amount', 0)"/></td>-->
+<!--                                                <td class="text-right"><span t-esc="'%.2f' % line.get('round_off', 0)"/></td>-->
+<!--                                                <td class="text-right"><strong><span t-esc="'%.2f' % line.get('total', 0)"/></strong></td>-->
+<!--                                                <td class="text-right"><span t-esc="'%.2f' % line.get('paid', 0)"/></td>-->
+<!--                                                <td class="text-right"><span t-esc="'%.2f' % line.get('balance', 0)"/></td>-->
+<!--                                            </tr>-->
+
+<!--                                            <t t-set="total_subtotal" t-value="total_subtotal + line.get('subtotal', 0)"/>-->
+<!--                                            <t t-set="total_trade_dis" t-value="total_trade_dis + line.get('trade_discount', 0)"/>-->
+<!--                                            <t t-set="total_addin_dis" t-value="total_addin_dis + line.get('addin_discount', 0)"/>-->
+<!--                                            <t t-set="total_addin_cost" t-value="total_addin_cost + line.get('addin_cost', 0)"/>-->
+<!--                                            <t t-set="total_tax" t-value="total_tax + line.get('tax_amount', 0)"/>-->
+<!--                                            <t t-set="total_round_off" t-value="total_round_off + line.get('round_off', 0)"/>-->
+<!--                                            <t t-set="total_amount" t-value="total_amount + line.get('total', 0)"/>-->
+<!--                                            <t t-set="total_paid" t-value="total_paid + line.get('paid', 0)"/>-->
+<!--                                            <t t-set="total_balance" t-value="total_balance + line.get('balance', 0)"/>-->
+<!--                                        </t>-->
+<!--                                    </tbody>-->
+<!--                                    <tfoot style="background-color: #D9E1F2; font-weight: bold;">-->
+<!--                                        <tr>-->
+<!--                                            <td colspan="9" class="text-right">TOTAL:</td>-->
+<!--                                            <td class="text-right"><span t-esc="'%.2f' % total_subtotal"/></td>-->
+<!--                                            <td class="text-right"><span t-esc="'%.2f' % total_trade_dis"/></td>-->
+<!--                                            <td class="text-right"><span t-esc="'%.2f' % total_addin_dis"/></td>-->
+<!--                                            <td class="text-right"><span t-esc="'%.2f' % total_addin_cost"/></td>-->
+<!--                                            <td></td>-->
+<!--                                            <td class="text-right"><span t-esc="'%.2f' % total_tax"/></td>-->
+<!--                                            <td class="text-right"><span t-esc="'%.2f' % total_round_off"/></td>-->
+<!--                                            <td class="text-right"><span t-esc="'%.2f' % total_amount"/></td>-->
+<!--                                            <td class="text-right"><span t-esc="'%.2f' % total_paid"/></td>-->
+<!--                                            <td class="text-right"><span t-esc="'%.2f' % total_balance"/></td>-->
+<!--                                        </tr>-->
+<!--                                    </tfoot>-->
+<!--                                </table>-->
+
+<!--                                &lt;!&ndash; Summary &ndash;&gt;-->
+<!--                                <div class="row mt-4">-->
+<!--                                    <div class="col-6">-->
+<!--                                        <p><strong>Total Records:</strong> <span t-esc="len(sales_data)"/></p>-->
+<!--                                    </div>-->
+<!--                                    <div class="col-6 text-right">-->
+<!--                                        <p><strong>Generated On:</strong> <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M:%S')"/></p>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </t>-->
+<!--                        </t>-->
+                        <!-- Summary Report (Current Format) with Date-wise Totals -->
                         <t t-if="o.report_type == 'summary'">
                             <!-- Get Sales Data -->
                             <t t-set="sales_data" t-value="o._get_sales_data()"/>
@@ -78,7 +189,7 @@
                                 </div>
                             </t>
 
-                            <!-- Summary Table -->
+                            <!-- Summary Table with Date-wise Totals -->
                             <t t-if="sales_data">
                                 <table class="table table-sm table-bordered">
                                     <thead style="background-color: #CCC6C6; color: bold;">
@@ -115,7 +226,50 @@
                                         <t t-set="total_paid" t-value="0"/>
                                         <t t-set="total_balance" t-value="0"/>
 
+                                        <!-- Date-wise totals -->
+                                        <t t-set="date_subtotal" t-value="0"/>
+                                        <t t-set="date_trade_dis" t-value="0"/>
+                                        <t t-set="date_addin_dis" t-value="0"/>
+                                        <t t-set="date_addin_cost" t-value="0"/>
+                                        <t t-set="date_tax" t-value="0"/>
+                                        <t t-set="date_round_off" t-value="0"/>
+                                        <t t-set="date_amount" t-value="0"/>
+                                        <t t-set="date_paid" t-value="0"/>
+                                        <t t-set="date_balance" t-value="0"/>
+                                        <t t-set="current_date" t-value="None"/>
+
                                         <t t-foreach="sales_data" t-as="line">
+                                            <!-- Check if date changed and print date total -->
+                                            <t t-if="current_date and current_date != line.get('date')">
+                                                <tr style="background-color: #E8F4F8; font-weight: bold; border-top: 2px solid #666;">
+                                                    <td colspan="9" class="text-right">Total for <span t-esc="current_date.strftime('%d-%m-%Y')"/>:</td>
+                                                    <td class="text-right"><span t-esc="'%.2f' % date_subtotal"/></td>
+                                                    <td class="text-right"><span t-esc="'%.2f' % date_trade_dis"/></td>
+                                                    <td class="text-right"><span t-esc="'%.2f' % date_addin_dis"/></td>
+                                                    <td class="text-right"><span t-esc="'%.2f' % date_addin_cost"/></td>
+                                                    <td></td>
+                                                    <td class="text-right"><span t-esc="'%.2f' % date_tax"/></td>
+                                                    <td class="text-right"><span t-esc="'%.2f' % date_round_off"/></td>
+                                                    <td class="text-right"><span t-esc="'%.2f' % date_amount"/></td>
+                                                    <td class="text-right"><span t-esc="'%.2f' % date_paid"/></td>
+                                                    <td class="text-right"><span t-esc="'%.2f' % date_balance"/></td>
+                                                </tr>
+                                                <!-- Reset date totals -->
+                                                <t t-set="date_subtotal" t-value="0"/>
+                                                <t t-set="date_trade_dis" t-value="0"/>
+                                                <t t-set="date_addin_dis" t-value="0"/>
+                                                <t t-set="date_addin_cost" t-value="0"/>
+                                                <t t-set="date_tax" t-value="0"/>
+                                                <t t-set="date_round_off" t-value="0"/>
+                                                <t t-set="date_amount" t-value="0"/>
+                                                <t t-set="date_paid" t-value="0"/>
+                                                <t t-set="date_balance" t-value="0"/>
+                                            </t>
+
+                                            <!-- Set current date -->
+                                            <t t-set="current_date" t-value="line.get('date')"/>
+
+                                            <!-- Data Row -->
                                             <tr>
                                                 <td><t t-if="line.get('date')"><span t-esc="line['date'].strftime('%d/%m/%Y')"/></t></td>
                                                 <td><span t-esc="line.get('document_type', '')"/></td>
@@ -138,6 +292,7 @@
                                                 <td class="text-right"><span t-esc="'%.2f' % line.get('balance', 0)"/></td>
                                             </tr>
 
+                                            <!-- Accumulate totals -->
                                             <t t-set="total_subtotal" t-value="total_subtotal + line.get('subtotal', 0)"/>
                                             <t t-set="total_trade_dis" t-value="total_trade_dis + line.get('trade_discount', 0)"/>
                                             <t t-set="total_addin_dis" t-value="total_addin_dis + line.get('addin_discount', 0)"/>
@@ -147,11 +302,39 @@
                                             <t t-set="total_amount" t-value="total_amount + line.get('total', 0)"/>
                                             <t t-set="total_paid" t-value="total_paid + line.get('paid', 0)"/>
                                             <t t-set="total_balance" t-value="total_balance + line.get('balance', 0)"/>
+
+                                            <!-- Accumulate date totals -->
+                                            <t t-set="date_subtotal" t-value="date_subtotal + line.get('subtotal', 0)"/>
+                                            <t t-set="date_trade_dis" t-value="date_trade_dis + line.get('trade_discount', 0)"/>
+                                            <t t-set="date_addin_dis" t-value="date_addin_dis + line.get('addin_discount', 0)"/>
+                                            <t t-set="date_addin_cost" t-value="date_addin_cost + line.get('addin_cost', 0)"/>
+                                            <t t-set="date_tax" t-value="date_tax + line.get('tax_amount', 0)"/>
+                                            <t t-set="date_round_off" t-value="date_round_off + line.get('round_off', 0)"/>
+                                            <t t-set="date_amount" t-value="date_amount + line.get('total', 0)"/>
+                                            <t t-set="date_paid" t-value="date_paid + line.get('paid', 0)"/>
+                                            <t t-set="date_balance" t-value="date_balance + line.get('balance', 0)"/>
+                                        </t>
+
+                                        <!-- Print last date total -->
+                                        <t t-if="current_date">
+                                            <tr style="background-color: #E8F4F8; font-weight: bold; border-top: 2px solid #666;">
+                                                <td colspan="9" class="text-right">Total for <span t-esc="current_date.strftime('%d-%m-%Y')"/>:</td>
+                                                <td class="text-right"><span t-esc="'%.2f' % date_subtotal"/></td>
+                                                <td class="text-right"><span t-esc="'%.2f' % date_trade_dis"/></td>
+                                                <td class="text-right"><span t-esc="'%.2f' % date_addin_dis"/></td>
+                                                <td class="text-right"><span t-esc="'%.2f' % date_addin_cost"/></td>
+                                                <td></td>
+                                                <td class="text-right"><span t-esc="'%.2f' % date_tax"/></td>
+                                                <td class="text-right"><span t-esc="'%.2f' % date_round_off"/></td>
+                                                <td class="text-right"><span t-esc="'%.2f' % date_amount"/></td>
+                                                <td class="text-right"><span t-esc="'%.2f' % date_paid"/></td>
+                                                <td class="text-right"><span t-esc="'%.2f' % date_balance"/></td>
+                                            </tr>
                                         </t>
                                     </tbody>
                                     <tfoot style="background-color: #D9E1F2; font-weight: bold;">
                                         <tr>
-                                            <td colspan="9" class="text-right">TOTAL:</td>
+                                            <td colspan="9" class="text-right">GRAND TOTAL:</td>
                                             <td class="text-right"><span t-esc="'%.2f' % total_subtotal"/></td>
                                             <td class="text-right"><span t-esc="'%.2f' % total_trade_dis"/></td>
                                             <td class="text-right"><span t-esc="'%.2f' % total_addin_dis"/></td>

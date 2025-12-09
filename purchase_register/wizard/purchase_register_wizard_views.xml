@@ -46,7 +46,7 @@
               sequence="99"/>
 
     <menuitem id="menu_purchase_register_report"
-              name="Generate Register"
+              name="Purchase"
               parent="menu_purchase_register_root"
               action="action_purchase_register_wizard"
               sequence="1"/>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Override Payment Receipt Header -->
+        <template id="payment_receipt_custom_header" inherit_id="account.report_payment_receipt_document">
+
+            <!-- Replace the web.external_layout call -->
+            <xpath expr="//t[@t-call='web.external_layout']" position="replace">
+
+                <!-- 🟩 Your Custom Header Start -->
+                <head>
+                    <meta charset="UTF-8"/>
+                    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+                    <style type="text/css">
+                        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&family=Noto+Naskh+Arabic:wght@400;700&display=swap');
+
+                        @page {
+                            margin: 20mm;
+                        }
+                        body {
+                            font-family: 'DejaVu Sans', Arial, sans-serif;
+                        }
+                        .ar {
+                            font-family: 'Noto Naskh Arabic', 'DejaVu Sans', Arial, sans-serif !important;
+                            direction: rtl;
+                            unicode-bidi: bidi-override;
+                            font-weight: 700;
+                            display: inline-block;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                        }
+                        * {
+                            box-sizing: border-box;
+                        }
+                    </style>
+                </head>
+
+                <div class="page">
+
+                    <div class="header"
+                         style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
+
+                        <!-- Company Names in One Row -->
+                        <table style="width: 100%; border-collapse: collapse;border:none">
+                            <tr>
+                                <td style="width: 50%; padding: 10px 20px; text-align: left;">
+                                    <div style="color: #8B1538; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                                        <span t-esc="o.company_id.name"/>
+                                    </div>
+                                </td>
+
+                                <td style="width: 50%; padding: 10px 20px; text-align: right;">
+                                    <div class="ar"
+                                         style="color: #8B1538; font-size: 17px; font-weight: 900; direction: rtl;">
+                                        شركة سمير شرف العتيبي التجارية
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Details + Logo -->
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+
+                                <!-- English Info -->
+                                <td style="width: 33%; text-align: left; font-size: 16px; color: #333;
+                                    border-bottom: 2px solid #8B1538;">
+                                    <div style="line-height: 1.3; font-weight: 500;">
+                                        C.R. 4030216154<br/>
+                                        VAT Regd: 311299944700003
+                                    </div>
+                                </td>
+
+                                <!-- Logo -->
+                                <td style="width: 34%; text-align: center; border-bottom: 2px solid #8B1538;">
+                                    <t t-if="o.company_id.logo">
+                                        <img t-att-src="image_data_uri(o.company_id.logo)"
+                                             style="max-height: 140px; max-width: 100%; object-fit: contain;"/>
+                                    </t>
+                                </td>
+
+                                <!-- Arabic Info -->
+                                <td style="width: 33%; text-align: right; font-size: 15px; color: #333;
+                                    border-bottom: 2px solid #8B1538;">
+                                    <div class="ar"
+                                         style="line-height: 1.3; font-weight:900;">
+                                        س.ت: ٤٠٣٠٢١٦١٥٤<br/>
+                                        الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+
+                    <!-- After this point → Insert original report body -->
+                    <t t-set="o" t-value="o.with_context(lang=lang)"/>
+                    <t t-set="values" t-value="o._get_payment_receipt_report_values()"/>
+
+                </div>
+
+                <!-- 🟩 Custom Header End -->
+
+            </xpath>
+
+        </template>
+
+    </data>
+</odoo>

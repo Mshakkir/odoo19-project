@@ -14,7 +14,7 @@
                     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
                     <style type="text/css">
-                        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&family=Noto+Naskh+Arabic:wght@400;700&display=swap');
+                        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&amp;family=Noto+Naskh+Arabic:wght@400;700&amp;display=swap');
 
                         @page {
                             margin: 20mm;

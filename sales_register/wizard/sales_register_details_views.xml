@@ -43,17 +43,66 @@
                         domain="[('document_type', '=', 'Sales Order')]"/>
                 <filter string="Invoices" name="invoices"
                         domain="[('document_type', '=', 'Customer Invoice')]"/>
-                <group expand="0" string="Group By">
-                    <filter string="Customer" name="group_customer"
-                            context="{'group_by': 'customer_name'}"/>
-                    <filter string="Document Type" name="group_type"
-                            context="{'group_by': 'document_type'}"/>
-                    <filter string="Date" name="group_date"
-                            context="{'group_by': 'date'}"/>
-                    <filter string="Warehouse" name="group_warehouse"
-                            context="{'group_by': 'warehouse'}"/>
-                </group>
+                <separator/>
+                <filter string="Customer" name="group_customer"
+                        context="{'group_by': 'customer_name'}"/>
+                <filter string="Document Type" name="group_type"
+                        context="{'group_by': 'document_type'}"/>
+                <filter string="Date" name="group_date"
+                        context="{'group_by': 'date'}"/>
+                <filter string="Warehouse" name="group_warehouse"
+                        context="{'group_by': 'warehouse'}"/>
             </search>
+        </field>
+    </record>
+
+    <!-- Form View for Sales Register Details (Optional) -->
+    <record id="view_sales_register_details_form" model="ir.ui.view">
+        <field name="name">sales.register.details.form</field>
+        <field name="model">sales.register.details</field>
+        <field name="arch" type="xml">
+            <form string="Sales Detail" create="false" edit="false" delete="false">
+                <sheet>
+                    <group>
+                        <group string="Document Information">
+                            <field name="date"/>
+                            <field name="document_type"/>
+                            <field name="document_number"/>
+                            <field name="warehouse"/>
+                        </group>
+                        <group string="Customer Information">
+                            <field name="customer_name"/>
+                            <field name="customer_vat"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Product &amp; Pricing">
+                            <field name="product"/>
+                            <field name="quantity"/>
+                            <field name="unit_price"/>
+                            <field name="subtotal"/>
+                        </group>
+                        <group string="Discounts &amp; Charges">
+                            <field name="trade_discount"/>
+                            <field name="addin_discount"/>
+                            <field name="addin_cost"/>
+                            <field name="round_off"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Tax &amp; Total">
+                            <field name="taxes"/>
+                            <field name="tax_amount"/>
+                            <field name="total"/>
+                            <field name="currency"/>
+                        </group>
+                        <group string="Payment Status">
+                            <field name="paid"/>
+                            <field name="balance"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
         </field>
     </record>
 </odoo>

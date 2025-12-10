@@ -16,16 +16,30 @@ class BankStatement(models.Model):
     account_id = fields.Many2one(
         'account.account',
         string='Bank Account',
+        compute='_compute_account_id',
+        store=True,
         readonly=True
     )
-    date_from = fields.Date(string='Date From')
-    date_to = fields.Date(string='Date To')
+    date_from = fields.Date(string='Date From', required=True)
+    date_to = fields.Date(string='Date To', required=True)
+
+    statement_line_ids = fields.Many2many(
+        'account.move.line',
+        'bank_statement_line_rel',
+        'statement_id',
+        'line_id',
+        string='Available Lines',
+        compute='_compute_statement_lines',
+        store=False
+    )
+
     statement_lines = fields.One2many(
         'account.move.line',
         'bank_statement_id',
         string='Statement Lines',
         context={'tree_view_ref': 'bank_reconciliation.view_bank_statement_move_line_tree'}
     )
+
     gl_balance = fields.Monetary(
         string='Balance as per Company Books',
         readonly=True,
@@ -47,6 +61,8 @@ class BankStatement(models.Model):
     currency_id = fields.Many2one(
         'res.currency',
         string='Currency',
+        compute='_compute_currency_id',
+        store=True,
         readonly=True
     )
     company_id = fields.Many2one(
@@ -66,47 +82,56 @@ class BankStatement(models.Model):
         ('done', 'Done'),
     ], string='Status', default='draft', readonly=True)
 
-    @api.onchange('journal_id', 'date_from', 'date_to')
-    def _onchange_get_lines(self):
+    @api.depends('journal_id')
+    def _compute_account_id(self):
+        """Compute bank account from journal"""
+        for record in self:
+            if record.journal_id and record.journal_id.default_account_id:
+                record.account_id = record.journal_id.default_account_id
+            else:
+                record.account_id = False
+
+    @api.depends('journal_id')
+    def _compute_currency_id(self):
+        """Compute currency from journal"""
+        for record in self:
+            if record.journal_id:
+                record.currency_id = (
+                        record.journal_id.currency_id or
+                        record.journal_id.company_id.currency_id
+                )
+            else:
+                record.currency_id = self.env.company.currency_id
+
+    @api.depends('journal_id', 'date_from', 'date_to', 'account_id')
+    def _compute_statement_lines(self):
         """Load unreconciled move lines based on journal and date range"""
-        if not self.journal_id:
-            self.statement_lines = [(5, 0, 0)]  # Clear lines
-            self.account_id = False
-            self.currency_id = False
-            return
+        for record in self:
+            if not record.journal_id or not record.account_id:
+                record.statement_line_ids = [(5, 0, 0)]
+                continue
 
-        # Set account and currency from journal
-        self.account_id = self.journal_id.default_account_id
-        self.currency_id = (
-                self.journal_id.currency_id or
-                self.journal_id.company_id.currency_id
-        )
+            # Build domain for unreconciled lines
+            domain = [
+                ('account_id', '=', record.account_id.id),
+                ('statement_date', '=', False),
+                ('parent_state', '=', 'posted'),
+            ]
 
-        if not self.account_id:
-            return {
-                'warning': {
-                    'title': _('Configuration Error'),
-                    'message': _('Please configure a default account for this journal.')
-                }
-            }
+            if record.date_from:
+                domain.append(('date', '>=', record.date_from))
+            if record.date_to:
+                domain.append(('date', '<=', record.date_to))
 
-        # Build domain for unreconciled lines
-        domain = [
-            ('account_id', '=', self.account_id.id),
-            ('statement_date', '=', False),
-            ('parent_state', '=', 'posted'),
-        ]
+            # Load lines
+            lines = self.env['account.move.line'].search(domain)
+            record.statement_line_ids = [(6, 0, lines.ids)]
 
-        if self.date_from:
-            domain.append(('date', '>=', self.date_from))
-        if self.date_to:
-            domain.append(('date', '<=', self.date_to))
-
-        # Load lines
-        lines = self.env['account.move.line'].search(domain)
-
-        # For persistent model, we update the One2many field properly
-        self.statement_lines = [(6, 0, lines.ids)]
+    @api.onchange('statement_line_ids')
+    def _onchange_statement_line_ids(self):
+        """Update statement_lines when computed lines change"""
+        if self.statement_line_ids and not self.statement_lines:
+            self.statement_lines = [(6, 0, self.statement_line_ids.ids)]
 
     @api.depends('statement_lines.statement_date', 'account_id')
     def _compute_amount(self):
@@ -127,6 +152,10 @@ class BankStatement(models.Model):
                 ('account_id', '=', record.account_id.id),
                 ('parent_state', '=', 'posted')
             ]
+
+            if record.date_to:
+                domain.append(('date', '<=', record.date_to))
+
             lines = self.env['account.move.line'].search(domain)
             gl_balance = sum(line.debit - line.credit for line in lines)
 
@@ -137,6 +166,10 @@ class BankStatement(models.Model):
                 ('statement_date', '!=', False),
                 ('parent_state', '=', 'posted')
             ]
+
+            if record.date_to:
+                domain.append(('statement_date', '<=', record.date_to))
+
             lines = self.env['account.move.line'].search(domain)
             bank_balance = sum(line.balance for line in lines)
 
@@ -166,10 +199,16 @@ class BankStatement(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        """Override create to generate sequence"""
-        # Process each dictionary in the list
+        """Override create to generate sequence and load lines"""
         for vals in vals_list:
             if vals.get('name', '/') == '/':
                 vals['name'] = self.env['ir.sequence'].next_by_code('bank.statement') or '/'
 
-        return super(BankStatement, self).create(vals_list)
+        records = super(BankStatement, self).create(vals_list)
+
+        # Load statement lines after creation
+        for record in records:
+            if record.statement_line_ids and not record.statement_lines:
+                record.statement_lines = [(6, 0, record.statement_line_ids.ids)]
+
+        return records

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Dedicated tree view for move lines in bank statement context -->
+    <!-- Dedicated list view for move lines in bank statement context -->
     <record id="view_move_line_tree_bank_statement" model="ir.ui.view">
         <field name="name">account.move.line.tree.bank.statement</field>
         <field name="model">account.move.line</field>
         <field name="priority">16</field>
         <field name="arch" type="xml">
-            <tree string="Statement Lines"
+            <list string="Statement Lines"
                   editable="bottom"
                   default_order="date"
                   decoration-muted="statement_date != False"
@@ -28,11 +28,11 @@
                 <field name="company_currency_id" column_invisible="1" readonly="1"/>
                 <field name="company_id" column_invisible="1"/>
                 <field name="account_id" column_invisible="1"/>
-            </tree>
+            </list>
         </field>
     </record>
 
-    <!-- Tree View -->
+    <!-- List View for Bank Statements -->
     <record id="bank_statement_tree" model="ir.ui.view">
         <field name="name">bank.statement.tree</field>
         <field name="model">bank.statement</field>

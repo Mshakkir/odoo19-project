@@ -6,16 +6,16 @@
             <field name="name">purchase.book.preview.tree</field>
             <field name="model">purchase.book.preview</field>
             <field name="arch" type="xml">
-                <tree string="Purchase Book Preview" create="false" edit="false" delete="false"
+                <list string="Purchase Book Preview" create="false" edit="false" delete="false"
                       decoration-bf="is_subtotal==True" decoration-muted="is_subtotal==True">
                     <field name="date"/>
                     <field name="subtotal_label" optional="hide"/>
                     <field name="transaction_type" string="Type"
-                           invisible="context.get('report_type') != 'both'"/>
+                           column_invisible="context.get('report_type') != 'both'"/>
                     <field name="vendor"
-                           invisible="context.get('view_type') == 'short'"/>
+                           column_invisible="context.get('view_type') == 'short'"/>
                     <field name="invoice_ref" string="Invoice/Ref"
-                           invisible="context.get('view_type') == 'short'"/>
+                           column_invisible="context.get('view_type') == 'short'"/>
                     <field name="gross" sum="Total Gross"/>
                     <field name="trade_disc" sum="Total Tr. Disc"/>
                     <field name="net_total" sum="Total Net"/>
@@ -25,10 +25,10 @@
                     <field name="adj_amount" sum="Total Adj." optional="hide"/>
                     <field name="tax_amount" sum="Total Tax"/>
                     <field name="grand_total" sum="Grand Total"/>
-                    <field name="is_subtotal" invisible="1"/>
-                    <field name="sequence" invisible="1"/>
-                    <field name="wizard_id" invisible="1"/>
-                </tree>
+                    <field name="is_subtotal" column_invisible="1"/>
+                    <field name="sequence" column_invisible="1"/>
+                    <field name="wizard_id" column_invisible="1"/>
+                </list>
             </field>
         </record>
 
@@ -36,7 +36,7 @@
         <record id="action_purchase_book_preview" model="ir.actions.act_window">
             <field name="name">Purchase Book Preview</field>
             <field name="res_model">purchase.book.preview</field>
-            <field name="view_mode">tree</field>
+            <field name="view_mode">list</field>
             <field name="view_id" ref="view_purchase_book_preview_tree"/>
             <field name="target">new</field>
         </record>

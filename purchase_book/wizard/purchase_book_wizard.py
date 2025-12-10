@@ -184,7 +184,7 @@ class PurchaseBookWizard(models.TransientModel):
             'name': 'Purchase Book Preview',
             'type': 'ir.actions.act_window',
             'res_model': 'purchase.book.preview',
-            'view_mode': 'tree',
+            'view_mode': 'list',
             'view_id': self.env.ref('purchase_book.view_purchase_book_preview_tree').id,
             'domain': [('wizard_id', '=', self.id)],
             'context': {

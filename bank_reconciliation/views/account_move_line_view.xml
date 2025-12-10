@@ -19,7 +19,7 @@
         <field name="model">account.move.line</field>
         <field name="priority">20</field>
         <field name="arch" type="xml">
-            <tree string="Statement Lines" create="false" editable="bottom" default_order="date" decoration-muted="statement_date != False">
+            <list string="Statement Lines" create="false" editable="bottom" default_order="date" decoration-muted="statement_date != False">
                 <field name="date" readonly="1"/>
                 <field name="move_id" readonly="1" optional="hide"/>
                 <field name="name" readonly="1"/>
@@ -34,7 +34,7 @@
                 <field name="statement_date"/>
                 <field name="company_currency_id" column_invisible="1" readonly="1"/>
                 <field name="company_id" column_invisible="1"/>
-            </tree>
+            </list>
         </field>
     </record>
 

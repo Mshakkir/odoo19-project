@@ -23,7 +23,8 @@ class BankStatement(models.Model):
     statement_lines = fields.One2many(
         'account.move.line',
         'bank_statement_id',
-        string='Statement Lines'
+        string='Statement Lines',
+        context={'tree_view_ref': 'bank_reconciliation.view_bank_statement_move_line_tree'}
     )
     gl_balance = fields.Monetary(
         string='Balance as per Company Books',

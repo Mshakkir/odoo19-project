@@ -6,7 +6,7 @@
         <field name="name">bank.statement.tree</field>
         <field name="model">bank.statement</field>
         <field name="arch" type="xml">
-            <list string="Bank Reconciliations">
+            <tree string="Bank Reconciliations">
                 <field name="name"/>
                 <field name="journal_id"/>
                 <field name="date_from"/>
@@ -17,7 +17,7 @@
                 <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'done'"/>
                 <field name="currency_id" column_invisible="1"/>
                 <field name="company_id" column_invisible="1"/>
-            </list>
+            </tree>
         </field>
     </record>
 
@@ -51,23 +51,7 @@
 
                     <notebook>
                         <page string="Statement Lines">
-                            <field name="statement_lines" nolabel="1">
-                                <tree create="false" editable="bottom" default_order="date">
-                                    <field name="date" readonly="1"/>
-                                    <field name="move_id" readonly="1" optional="hide"/>
-                                    <field name="name" readonly="1"/>
-                                    <field name="ref" readonly="1" optional="show"/>
-                                    <field name="partner_id" readonly="1"/>
-                                    <field name="debit" readonly="1" sum="Total Debit"/>
-                                    <field name="credit" readonly="1" sum="Total Credit"/>
-                                    <field name="amount_currency" readonly="1" optional="hide" groups="base.group_multi_currency"/>
-                                    <field name="currency_id" readonly="1" column_invisible="1"/>
-                                    <field name="date_maturity" readonly="1" optional="hide"/>
-                                    <field name="statement_date" required="0"/>
-                                    <field name="company_currency_id" column_invisible="1" readonly="1"/>
-                                    <field name="company_id" column_invisible="1"/>
-                                </tree>
-                            </field>
+                            <field name="statement_lines" nolabel="1"/>
                         </page>
                     </notebook>
 

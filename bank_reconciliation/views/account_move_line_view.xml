@@ -13,28 +13,28 @@
         </field>
     </record>
 
-    <!-- Tree view for bank statement lines -->
+    <!-- Tree view for bank statement lines (embedded in One2many) -->
     <record id="view_bank_statement_move_line_tree" model="ir.ui.view">
         <field name="name">account.bank.statement.move.line.tree</field>
         <field name="model">account.move.line</field>
+        <field name="priority">20</field>
         <field name="arch" type="xml">
-            <list string="Journal Items" create="false" delete="false">
-                <field name="date"/>
-                <field name="move_id" optional="hide"/>
-                <field name="journal_id" optional="show"/>
-                <field name="name"/>
-                <field name="ref" optional="show"/>
-                <field name="partner_id"/>
-                <field name="debit" sum="Total Debit"/>
-                <field name="credit" sum="Total Credit"/>
-                <field name="balance" optional="show"/>
-                <field name="amount_currency" optional="hide" groups="base.group_multi_currency"/>
-                <field name="currency_id" column_invisible="1"/>
-                <field name="date_maturity" optional="hide"/>
+            <tree string="Statement Lines" create="false" editable="bottom" default_order="date" decoration-muted="statement_date != False">
+                <field name="date" readonly="1"/>
+                <field name="move_id" readonly="1" optional="hide"/>
+                <field name="name" readonly="1"/>
+                <field name="ref" readonly="1" optional="show"/>
+                <field name="partner_id" readonly="1"/>
+                <field name="debit" readonly="1" sum="Total Debit"/>
+                <field name="credit" readonly="1" sum="Total Credit"/>
+                <field name="balance" readonly="1" optional="show" sum="Balance"/>
+                <field name="amount_currency" readonly="1" optional="hide" groups="base.group_multi_currency"/>
+                <field name="currency_id" readonly="1" column_invisible="1"/>
+                <field name="date_maturity" readonly="1" optional="hide"/>
                 <field name="statement_date"/>
-                <field name="company_currency_id" column_invisible="1"/>
+                <field name="company_currency_id" column_invisible="1" readonly="1"/>
                 <field name="company_id" column_invisible="1"/>
-            </list>
+            </tree>
         </field>
     </record>
 

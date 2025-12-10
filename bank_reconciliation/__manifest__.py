@@ -13,7 +13,7 @@
         'security/ir.model.access.csv',
         'data/sequence_data.xml',
         'views/account_move_line_view.xml',
-        'views/account_journal_dashboard_view.xml',
+        # 'views/account_journal_dashboard_view.xml',
         'wizard/bank_statement_wiz_view.xml',
     ],
     'assets': {},

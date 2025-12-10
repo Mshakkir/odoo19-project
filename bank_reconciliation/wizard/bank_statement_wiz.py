@@ -215,6 +215,7 @@
 
 
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
@@ -239,10 +240,14 @@ class BankStatement(models.Model):
     date_from = fields.Date(string='Date From', required=True)
     date_to = fields.Date(string='Date To', required=True)
 
-    statement_lines = fields.One2many(
+    # Use IDs field instead of One2many for better control
+    line_ids = fields.Many2many(
         'account.move.line',
-        'bank_statement_id',
-        string='Statement Lines'
+        'bank_statement_line_rel',
+        'statement_id',
+        'line_id',
+        string='Statement Lines',
+        domain=[('statement_date', '=', False), ('parent_state', '=', 'posted')]
     )
 
     gl_balance = fields.Monetary(
@@ -312,7 +317,7 @@ class BankStatement(models.Model):
     def _onchange_load_lines(self):
         """Load unreconciled move lines based on journal and date range"""
         if not self.journal_id or not self.date_from or not self.date_to:
-            self.statement_lines = [(5, 0, 0)]
+            self.line_ids = [(5, 0, 0)]
             return
 
         if not self.account_id:
@@ -336,7 +341,7 @@ class BankStatement(models.Model):
         lines = self.env['account.move.line'].search(domain)
 
         if not lines:
-            self.statement_lines = [(5, 0, 0)]
+            self.line_ids = [(5, 0, 0)]
             return {
                 'warning': {
                     'title': _('No Transactions Found'),
@@ -344,10 +349,10 @@ class BankStatement(models.Model):
                 }
             }
 
-        # Update statement lines
-        self.statement_lines = [(6, 0, lines.ids)]
+        # Update line_ids
+        self.line_ids = [(6, 0, lines.ids)]
 
-    @api.depends('statement_lines.statement_date', 'account_id', 'date_to')
+    @api.depends('line_ids.statement_date', 'account_id', 'date_to')
     def _compute_amount(self):
         """Calculate GL balance, bank balance, and difference"""
         for record in self:
@@ -376,7 +381,7 @@ class BankStatement(models.Model):
             # Calculate bank balance (previously reconciled entries)
             domain = [
                 ('account_id', '=', record.account_id.id),
-                ('id', 'not in', record.statement_lines.ids),
+                ('id', 'not in', record.line_ids.ids),
                 ('statement_date', '!=', False),
                 ('parent_state', '=', 'posted')
             ]
@@ -390,7 +395,7 @@ class BankStatement(models.Model):
             # Add currently updated entries (lines in this statement that are marked)
             current_update = sum(
                 line.debit - line.credit
-                for line in record.statement_lines
+                for line in record.line_ids
                 if line.statement_date
             )
 
@@ -401,6 +406,12 @@ class BankStatement(models.Model):
     def action_save_reconciliation(self):
         """Save the reconciliation and mark as done"""
         self.ensure_one()
+
+        # Link lines to this statement
+        for line in self.line_ids:
+            if line.statement_date:
+                line.bank_statement_id = self.id
+
         self.write({'state': 'done'})
         return {'type': 'ir.actions.act_window_close'}
 

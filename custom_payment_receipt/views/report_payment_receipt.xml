@@ -24,17 +24,21 @@
                     font-family: 'DejaVu Sans', Arial, sans-serif;
                     }
 
-                    /* Fix currency display - remove extra characters */
-                    .oe_currency_value::after {
-                    content: '' !important;
-                    }
-
                     .ar {
                     font-family: 'Noto Naskh Arabic', 'DejaVu Sans', Arial, sans-serif !important;
                     direction: rtl;
                     unicode-bidi: bidi-override;
                     font-weight: 700;
                     display: inline-block;
+                    }
+
+                    /* Remove extra space/characters before currency symbols */
+                    span[data-oe-type="monetary"]::before {
+                    content: '' !important;
+                    }
+
+                    .oe_currency_value {
+                    white-space: normal !important;
                     }
 
                     table {
@@ -147,8 +151,7 @@
                         <tr>
                             <td>
                                 Payment Amount:
-                                <span t-field="o.amount"
-                                      t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                <t t-esc="'{:,.2f}'.format(o.amount)"/> <t t-esc="o.currency_id.name"/>
                             </td>
                         </tr>
                     </table>
@@ -186,8 +189,7 @@
                                             </td>
                                             <td style="padding:8px; border:1px solid #000; text-align:right;">
                                                 <strong>
-                                                    <span t-field="inv.amount_total"
-                                                          t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>
+                                                    <t t-esc="'{:,.2f}'.format(inv.amount_total)"/> <t t-esc="inv.currency_id.name"/>
                                                 </strong>
                                             </td>
                                         </tr>
@@ -210,8 +212,7 @@
 
                                             <td style="padding:8px; border:1px solid #000; text-align:right;">
                                                 <t t-set="amountInvoice" t-value="-par[1]"/>
-                                                <span t-out="amountInvoice"
-                                                      t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>
+                                                <t t-esc="'{:,.2f}'.format(amountInvoice)"/> <t t-esc="inv.currency_id.name"/>
                                             </td>
                                         </tr>
 
@@ -226,8 +227,7 @@
                                             <td style="padding:8px; border:1px solid #000;"></td>
                                             <td style="padding:8px; border:1px solid #000; text-align:right;">
                                                 <strong>
-                                                    <span t-field="inv.amount_residual"
-                                                          t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>
+                                                    <t t-esc="'{:,.2f}'.format(inv.amount_residual)"/> <t t-esc="inv.currency_id.name"/>
                                                 </strong>
                                             </td>
                                         </tr>
@@ -316,6 +316,9 @@
 
 
 
+
+
+
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 
@@ -340,6 +343,11 @@
 
 <!--                    body {-->
 <!--                    font-family: 'DejaVu Sans', Arial, sans-serif;-->
+<!--                    }-->
+
+<!--                    /* Fix currency display - remove extra characters */-->
+<!--                    .oe_currency_value::after {-->
+<!--                    content: '' !important;-->
 <!--                    }-->
 
 <!--                    .ar {-->
@@ -470,13 +478,13 @@
 <!--                    &lt;!&ndash; Use the same logic as default Odoo template &ndash;&gt;-->
 <!--                    <t t-set="invoices" t-value="o.reconciled_invoice_ids or o.reconciled_bill_ids"/>-->
 
-<!--                    <table style="width:100%; border-collapse: collapse; font-size:14px;">-->
+<!--                    <table style="width:100%; border-collapse: collapse; font-size:14px; border: 1px solid #000;">-->
 <!--                        <thead style="background:#f5f5f5;">-->
 <!--                            <tr>-->
-<!--                                <th style="padding:8px; border:1px solid #ddd;">INVOICE DATE</th>-->
-<!--                                <th style="padding:8px; border:1px solid #ddd;">INVOICE NUMBER</th>-->
-<!--                                <th style="padding:8px; border:1px solid #ddd;">REFERENCE</th>-->
-<!--                                <th style="padding:8px; border:1px solid #ddd; text-align:right;">AMOUNT</th>-->
+<!--                                <th style="padding:8px; border:1px solid #000;">INVOICE DATE</th>-->
+<!--                                <th style="padding:8px; border:1px solid #000;">INVOICE NUMBER</th>-->
+<!--                                <th style="padding:8px; border:1px solid #000;">REFERENCE</th>-->
+<!--                                <th style="padding:8px; border:1px solid #000; text-align:right;">AMOUNT</th>-->
 <!--                            </tr>-->
 <!--                        </thead>-->
 
@@ -488,16 +496,16 @@
 
 <!--                                        &lt;!&ndash; INVOICE/BILL HEADER ROW &ndash;&gt;-->
 <!--                                        <tr style="background:#fafafa;">-->
-<!--                                            <td style="padding:8px; border:1px solid #ddd;">-->
+<!--                                            <td style="padding:8px; border:1px solid #000;">-->
 <!--                                                <span t-field="inv.invoice_date"/>-->
 <!--                                            </td>-->
-<!--                                            <td style="padding:8px; border:1px solid #ddd;">-->
+<!--                                            <td style="padding:8px; border:1px solid #000;">-->
 <!--                                                <strong><span t-field="inv.name"/></strong>-->
 <!--                                            </td>-->
-<!--                                            <td style="padding:8px; border:1px solid #ddd;">-->
+<!--                                            <td style="padding:8px; border:1px solid #000;">-->
 <!--                                                <span t-field="inv.ref"/>-->
 <!--                                            </td>-->
-<!--                                            <td style="padding:8px; border:1px solid #ddd; text-align:right;">-->
+<!--                                            <td style="padding:8px; border:1px solid #000; text-align:right;">-->
 <!--                                                <strong>-->
 <!--                                                    <span t-field="inv.amount_total"-->
 <!--                                                          t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>-->
@@ -509,19 +517,19 @@
 <!--                                        <tr t-foreach="inv._get_reconciled_invoices_partials()[0]" t-as="par">-->
 <!--                                            <t t-set="payment" t-value="par[2]"/>-->
 
-<!--                                            <td style="padding:8px; border:1px solid #ddd; padding-left:20px;">-->
+<!--                                            <td style="padding:8px; border:1px solid #000; padding-left:20px;">-->
 <!--                                                <span t-field="payment.move_id.date"/>-->
 <!--                                            </td>-->
 
-<!--                                            <td style="padding:8px; border:1px solid #ddd; padding-left:20px;">-->
+<!--                                            <td style="padding:8px; border:1px solid #000; padding-left:20px;">-->
 <!--                                                <span t-field="payment.move_id.name"/>-->
 <!--                                            </td>-->
 
-<!--                                            <td style="padding:8px; border:1px solid #ddd;">-->
+<!--                                            <td style="padding:8px; border:1px solid #000;">-->
 <!--                                                <span t-field="payment.payment_id.memo"/>-->
 <!--                                            </td>-->
 
-<!--                                            <td style="padding:8px; border:1px solid #ddd; text-align:right;">-->
+<!--                                            <td style="padding:8px; border:1px solid #000; text-align:right;">-->
 <!--                                                <t t-set="amountInvoice" t-value="-par[1]"/>-->
 <!--                                                <span t-out="amountInvoice"-->
 <!--                                                      t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>-->
@@ -530,14 +538,14 @@
 
 <!--                                        &lt;!&ndash; DUE AMOUNT ROW &ndash;&gt;-->
 <!--                                        <tr>-->
-<!--                                            <td style="padding:8px; border:1px solid #ddd;"></td>-->
-<!--                                            <td style="padding:8px; border:1px solid #ddd;">-->
+<!--                                            <td style="padding:8px; border:1px solid #000;"></td>-->
+<!--                                            <td style="padding:8px; border:1px solid #000;">-->
 <!--                                                <strong>Due Amount for-->
 <!--                                                    <span t-field="inv.name"/>-->
 <!--                                                </strong>-->
 <!--                                            </td>-->
-<!--                                            <td style="padding:8px; border:1px solid #ddd;"></td>-->
-<!--                                            <td style="padding:8px; border:1px solid #ddd; text-align:right;">-->
+<!--                                            <td style="padding:8px; border:1px solid #000;"></td>-->
+<!--                                            <td style="padding:8px; border:1px solid #000; text-align:right;">-->
 <!--                                                <strong>-->
 <!--                                                    <span t-field="inv.amount_residual"-->
 <!--                                                          t-options="{'widget':'monetary','display_currency':inv.currency_id}"/>-->
@@ -551,7 +559,7 @@
 <!--                            &lt;!&ndash; If no invoices/bills found &ndash;&gt;-->
 <!--                            <t t-if="not invoices">-->
 <!--                                <tr>-->
-<!--                                    <td colspan="4" style="padding:20px; border:1px solid #ddd; text-align:center; color:#666;">-->
+<!--                                    <td colspan="4" style="padding:20px; border:1px solid #000; text-align:center; color:#666;">-->
 <!--                                        No invoice reconciliation data available for this payment.-->
 <!--                                    </td>-->
 <!--                                </tr>-->

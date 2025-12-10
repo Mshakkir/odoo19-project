@@ -215,9 +215,11 @@
 
 
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class BankStatement(models.Model):
@@ -337,15 +339,75 @@ class BankStatement(models.Model):
             ('date', '<=', self.date_to),
         ]
 
-        # Search for lines
+        _logger.info("=" * 80)
+        _logger.info("BANK RECONCILIATION DEBUG INFO")
+        _logger.info("=" * 80)
+        _logger.info(f"Journal: {self.journal_id.name} (ID: {self.journal_id.id})")
+        _logger.info(f"Account: {self.account_id.name} (ID: {self.account_id.id})")
+        _logger.info(f"Date From: {self.date_from}")
+        _logger.info(f"Date To: {self.date_to}")
+        _logger.info(f"Search Domain: {domain}")
+
+        # Search for ALL lines in this account first (for debugging)
+        all_lines_domain = [('account_id', '=', self.account_id.id)]
+        all_lines = self.env['account.move.line'].search(all_lines_domain)
+        _logger.info(f"Total lines in account: {len(all_lines)}")
+
+        # Check posted lines
+        posted_domain = [
+            ('account_id', '=', self.account_id.id),
+            ('parent_state', '=', 'posted')
+        ]
+        posted_lines = self.env['account.move.line'].search(posted_domain)
+        _logger.info(f"Posted lines in account: {len(posted_lines)}")
+
+        # Check date range
+        date_domain = [
+            ('account_id', '=', self.account_id.id),
+            ('parent_state', '=', 'posted'),
+            ('date', '>=', self.date_from),
+            ('date', '<=', self.date_to),
+        ]
+        date_lines = self.env['account.move.line'].search(date_domain)
+        _logger.info(f"Lines in date range: {len(date_lines)}")
+
+        for line in date_lines[:5]:  # Show first 5
+            _logger.info(f"  - Line ID {line.id}: Date={line.date}, State={line.parent_state}, "
+                         f"Statement Date={line.statement_date}, Debit={line.debit}, Credit={line.credit}")
+
+        # Search for lines with our full domain
         lines = self.env['account.move.line'].search(domain)
+        _logger.info(f"Lines matching full criteria (unreconciled): {len(lines)}")
+        _logger.info("=" * 80)
 
         if not lines:
             self.line_ids = [(5, 0, 0)]
+
+            # Create detailed message
+            msg = f'No unreconciled transactions found.\n\n'
+            msg += f'Debug Info:\n'
+            msg += f'- Total lines in account: {len(all_lines)}\n'
+            msg += f'- Posted lines: {len(posted_lines)}\n'
+            msg += f'- Lines in date range: {len(date_lines)}\n'
+            msg += f'- Unreconciled lines: {len(lines)}\n\n'
+
+            if date_lines:
+                msg += 'Lines exist in date range but might be already reconciled.\n'
+                msg += 'Check if statement_date is already set on these transactions.'
+            elif posted_lines:
+                msg += 'Posted lines exist but not in your date range.\n'
+                msg += 'Try expanding your date range.'
+            elif all_lines:
+                msg += 'Lines exist but are not posted yet.\n'
+                msg += 'Make sure to post/confirm your payments first.'
+            else:
+                msg += 'No transactions found in this bank account at all.\n'
+                msg += 'Create some payments or journal entries first.'
+
             return {
                 'warning': {
                     'title': _('No Transactions Found'),
-                    'message': _('No unreconciled transactions found for the selected date range.')
+                    'message': msg
                 }
             }
 

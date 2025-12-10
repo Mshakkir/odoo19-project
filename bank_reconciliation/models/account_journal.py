@@ -6,11 +6,13 @@ from odoo.tools.misc import format_amount
 class AccountJournal(models.Model):
     _inherit = 'account.journal'
 
-    bank_statements_source = fields.Selection(
-        selection_add=[('manual', 'Record Manually')],
-        ondelete={'manual': 'set default'},
-        help="Defines how the bank statements will be registered"
-    )
+    # Override the method that provides selection values
+    @api.model
+    def _get_bank_statements_available_sources(self):
+        """Add 'manual' option to bank statement sources"""
+        sources = super()._get_bank_statements_available_sources()
+        sources.append(('manual', _('Record Manually')))
+        return sources
 
     def create_bank_statement(self):
         """Return action to create a bank statement.
@@ -33,6 +35,7 @@ class AccountJournal(models.Model):
         bank_balance = 0.0
         currency = self.currency_id or self.company_id.currency_id
 
+        # In Odoo 19, use default_account_id instead of separate debit/credit accounts
         account_ids = tuple(
             ac for ac in [self.default_account_id.id] if ac
         )
@@ -44,9 +47,9 @@ class AccountJournal(models.Model):
 
             # Get total account balance
             query = """
-                SELECT sum(%s)
-                FROM account_move_line
-                WHERE account_id in %%s
+                SELECT sum(%s) 
+                FROM account_move_line 
+                WHERE account_id in %%s 
                 AND date <= %%s
                 AND parent_state = 'posted';
             """ % (amount_field,)
@@ -58,10 +61,10 @@ class AccountJournal(models.Model):
 
             # Get reconciled bank balance
             query = """
-                SELECT sum(%s)
-                FROM account_move_line
-                WHERE account_id in %%s
-                AND date <= %%s
+                SELECT sum(%s) 
+                FROM account_move_line 
+                WHERE account_id in %%s 
+                AND date <= %%s 
                 AND statement_date IS NOT NULL
                 AND parent_state = 'posted';
             """ % (amount_field,)
@@ -79,4 +82,3 @@ class AccountJournal(models.Model):
         })
 
         return res
-

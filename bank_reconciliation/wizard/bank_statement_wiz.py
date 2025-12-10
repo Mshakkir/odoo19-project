@@ -3,9 +3,9 @@ from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
 
-class BankStatement(models.TransientModel):
+class BankStatement(models.Model):
     _name = 'bank.statement'
-    _description = 'Bank Statement Reconciliation Wizard'
+    _description = 'Bank Statement Reconciliation'
 
     journal_id = fields.Many2one(
         'account.journal',
@@ -54,12 +54,22 @@ class BankStatement(models.TransientModel):
         default=lambda self: self.env.company,
         readonly=True
     )
+    name = fields.Char(
+        string='Reference',
+        default='/',
+        readonly=True,
+        copy=False
+    )
+    state = fields.Selection([
+        ('draft', 'Draft'),
+        ('done', 'Done'),
+    ], string='Status', default='draft', readonly=True)
 
     @api.onchange('journal_id', 'date_from', 'date_to')
     def _onchange_get_lines(self):
         """Load unreconciled move lines based on journal and date range"""
         if not self.journal_id:
-            self.statement_lines = False
+            self.statement_lines = [(5, 0, 0)]  # Clear lines
             self.account_id = False
             self.currency_id = False
             return
@@ -72,7 +82,12 @@ class BankStatement(models.TransientModel):
         )
 
         if not self.account_id:
-            raise UserError(_('Please configure a default account for this journal.'))
+            return {
+                'warning': {
+                    'title': _('Configuration Error'),
+                    'message': _('Please configure a default account for this journal.')
+                }
+            }
 
         # Build domain for unreconciled lines
         domain = [
@@ -89,11 +104,8 @@ class BankStatement(models.TransientModel):
         # Load lines
         lines = self.env['account.move.line'].search(domain)
 
-        # Link lines to this statement
-        for line in lines:
-            line.bank_statement_id = self.id
-
-        self.statement_lines = lines
+        # For persistent model, we update the One2many field properly
+        self.statement_lines = [(6, 0, lines.ids)]
 
     @api.depends('statement_lines.statement_date', 'account_id')
     def _compute_amount(self):
@@ -142,7 +154,18 @@ class BankStatement(models.TransientModel):
         """Save the reconciliation and close the wizard"""
         self.ensure_one()
 
-        # The statement_date changes are already saved via onchange
-        # This method can be used for additional validation or logging
+        # Mark as done
+        self.write({'state': 'done'})
+
+        # Generate sequence name if not set
+        if self.name == '/':
+            self.name = self.env['ir.sequence'].next_by_code('bank.statement') or '/'
 
         return {'type': 'ir.actions.act_window_close'}
+
+    @api.model
+    def create(self, vals):
+        """Override create to generate sequence"""
+        if vals.get('name', '/') == '/':
+            vals['name'] = self.env['ir.sequence'].next_by_code('bank.statement') or '/'
+        return super(BankStatement, self).create(vals)

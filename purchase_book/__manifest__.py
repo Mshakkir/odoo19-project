@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 {
     'name': 'Purchase Book Reports',
     'version': '19.0.1.0.0',
@@ -11,6 +12,7 @@
         * Purchase & Purchase Return Combined Report
         * Date range filtering
         * Short/Detail view options
+        * Preview before printing
         * VAT compliant for Saudi Arabia
     """,
     'author': 'Your Company',
@@ -18,6 +20,7 @@
     'depends': ['purchase', 'account', 'stock'],
     'data': [
         'security/ir.model.access.csv',
+        'views/purchase_book_preview_view.xml',
         'wizard/purchase_book_wizard_view.xml',
         'report/purchase_book_report.xml',
         'report/purchase_book_templates.xml',

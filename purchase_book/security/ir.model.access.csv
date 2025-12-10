@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_purchase_book_wizard_user,purchase.book.wizard.user,model_purchase_book_wizard,purchase.group_purchase_user,1,1,1,1
 access_purchase_book_wizard_manager,purchase.book.wizard.manager,model_purchase_book_wizard,purchase.group_purchase_manager,1,1,1,1
+access_purchase_book_preview_user,purchase.book.preview.user,model_purchase_book_preview,purchase.group_purchase_user,1,1,1,1
+access_purchase_book_preview_manager,purchase.book.preview.manager,model_purchase_book_preview,purchase.group_purchase_manager,1,1,1,1

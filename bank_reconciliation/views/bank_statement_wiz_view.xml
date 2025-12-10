@@ -84,8 +84,8 @@
     <menuitem
         id="menu_action_bank_reconciliation"
         name="Bank Reconciliation"
-        parent="account.menu_finance_entries_actions"
+        parent="account.menu_finance"
         action="action_bank_statement_wiz"
-        sequence="25"/>
+        sequence="99"/>
 
 </odoo>

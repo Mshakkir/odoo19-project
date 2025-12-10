@@ -1,6 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- Dedicated tree view for move lines in bank statement context -->
+    <record id="view_move_line_tree_bank_statement" model="ir.ui.view">
+        <field name="name">account.move.line.tree.bank.statement</field>
+        <field name="model">account.move.line</field>
+        <field name="priority">16</field>
+        <field name="arch" type="xml">
+            <tree string="Statement Lines"
+                  editable="bottom"
+                  default_order="date"
+                  decoration-muted="statement_date != False"
+                  create="false"
+                  delete="true">
+                <field name="date" readonly="1"/>
+                <field name="move_id" readonly="1" optional="hide"/>
+                <field name="name" readonly="1"/>
+                <field name="ref" readonly="1" optional="show"/>
+                <field name="partner_id" readonly="1"/>
+                <field name="debit" readonly="1" sum="Total Debit"/>
+                <field name="credit" readonly="1" sum="Total Credit"/>
+                <field name="balance" readonly="1" optional="show" sum="Balance"/>
+                <field name="amount_currency" readonly="1" optional="hide" groups="base.group_multi_currency"/>
+                <field name="currency_id" readonly="1" column_invisible="1"/>
+                <field name="date_maturity" readonly="1" optional="hide"/>
+                <field name="statement_date"/>
+                <field name="company_currency_id" column_invisible="1" readonly="1"/>
+                <field name="company_id" column_invisible="1"/>
+                <field name="account_id" column_invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
     <!-- Tree View -->
     <record id="bank_statement_tree" model="ir.ui.view">
         <field name="name">bank.statement.tree</field>
@@ -61,30 +92,10 @@
 
                     <notebook>
                         <page string="Statement Lines">
-                            <field name="line_ids" nolabel="1" readonly="state == 'done'">
-                                <tree string="Statement Lines"
-                                      editable="bottom"
-                                      default_order="date"
-                                      decoration-muted="statement_date != False"
-                                      create="false"
-                                      delete="true">
-                                    <field name="date" readonly="1"/>
-                                    <field name="move_id" readonly="1" optional="hide"/>
-                                    <field name="name" readonly="1"/>
-                                    <field name="ref" readonly="1" optional="show"/>
-                                    <field name="partner_id" readonly="1"/>
-                                    <field name="debit" readonly="1" sum="Total Debit"/>
-                                    <field name="credit" readonly="1" sum="Total Credit"/>
-                                    <field name="balance" readonly="1" optional="show" sum="Balance"/>
-                                    <field name="amount_currency" readonly="1" optional="hide" groups="base.group_multi_currency"/>
-                                    <field name="currency_id" readonly="1" column_invisible="1"/>
-                                    <field name="date_maturity" readonly="1" optional="hide"/>
-                                    <field name="statement_date"/>
-                                    <field name="company_currency_id" column_invisible="1" readonly="1"/>
-                                    <field name="company_id" column_invisible="1"/>
-                                    <field name="account_id" column_invisible="1"/>
-                                </tree>
-                            </field>
+                            <field name="line_ids"
+                                   nolabel="1"
+                                   readonly="state == 'done'"
+                                   context="{'tree_view_ref': 'bank_reconciliation.view_move_line_tree_bank_statement'}"/>
                         </page>
                     </notebook>
 

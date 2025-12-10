@@ -5,12 +5,12 @@ from odoo import api, fields, models, _
 class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
 
-    # bank_statement_id = fields.Many2one(
-    #     'bank.statement',
-    #     string='Bank Statement',
-    #     copy=False,
-    #     index=True
-    # )
+    bank_statement_id = fields.Many2one(
+        'bank.statement',
+        string='Bank Statement',
+        copy=False,
+        index=True
+    )
     statement_date = fields.Date(
         string='Bank Statement Date',
         copy=False,

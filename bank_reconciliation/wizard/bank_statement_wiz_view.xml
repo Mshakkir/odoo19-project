@@ -23,7 +23,7 @@
                     <notebook>
                         <page string="Statement Lines">
                             <field name="statement_lines" nolabel="1">
-                                <tree create="false" editable="bottom" default_order="date desc">
+                                <tree create="false" editable="bottom" default_order="date">
                                     <field name="date" readonly="1"/>
                                     <field name="move_id" readonly="1" optional="hide"/>
                                     <field name="name" readonly="1"/>
@@ -37,7 +37,6 @@
                                     <field name="statement_date" required="0"/>
                                     <field name="company_currency_id" column_invisible="1" readonly="1"/>
                                     <field name="company_id" column_invisible="1"/>
-                                    <field name="move_line_id" column_invisible="1"/>
                                 </tree>
                             </field>
                         </page>
@@ -50,7 +49,6 @@
                     </group>
                 </sheet>
                 <footer>
-                    <button string="Save" class="btn-primary" type="object" name="action_save_reconciliation"/>
                     <button string="Close" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>

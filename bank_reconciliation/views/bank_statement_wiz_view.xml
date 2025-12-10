@@ -6,7 +6,7 @@
         <field name="name">bank.statement.tree</field>
         <field name="model">bank.statement</field>
         <field name="arch" type="xml">
-            <tree string="Bank Reconciliations">
+            <list string="Bank Reconciliations">
                 <field name="name"/>
                 <field name="journal_id"/>
                 <field name="date_from"/>
@@ -17,7 +17,7 @@
                 <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'done'"/>
                 <field name="currency_id" column_invisible="1"/>
                 <field name="company_id" column_invisible="1"/>
-            </tree>
+            </list>
         </field>
     </record>
 

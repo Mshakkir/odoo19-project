@@ -164,9 +164,12 @@ class BankStatement(models.Model):
 
         return {'type': 'ir.actions.act_window_close'}
 
-    @api.model
-    def create(self, vals):
+    @api.model_create_multi
+    def create(self, vals_list):
         """Override create to generate sequence"""
-        if vals.get('name', '/') == '/':
-            vals['name'] = self.env['ir.sequence'].next_by_code('bank.statement') or '/'
-        return super(BankStatement, self).create(vals)
+        # Process each dictionary in the list
+        for vals in vals_list:
+            if vals.get('name', '/') == '/':
+                vals['name'] = self.env['ir.sequence'].next_by_code('bank.statement') or '/'
+
+        return super(BankStatement, self).create(vals_list)

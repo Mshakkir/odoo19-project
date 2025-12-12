@@ -257,7 +257,7 @@ class StockPicking(models.Model):
             product_lines.append('%s (%s %s)' % (move.product_id.name, move.product_uom_qty, move.product_uom.name))
 
         message = _(
-            '<p><strong>New Stock Request</strong></p>'
+            '<p><strong>🔔 New Stock Request</strong></p>'
             '<p>Warehouse <strong>%s</strong> has requested products from your warehouse:</p>'
             '<ul>%s</ul>'
             '<p>Transfer Reference: <strong>%s</strong></p>'
@@ -268,6 +268,7 @@ class StockPicking(models.Model):
                       picking.name
                   )
 
+        # Method 1: Post message in chatter with notification
         picking.message_post(
             body=message,
             subject=_('New Stock Request from %s') % requesting_warehouse.name,
@@ -275,6 +276,35 @@ class StockPicking(models.Model):
             message_type='notification',
             subtype_xmlid='mail.mt_note',
         )
+
+        # Method 2: Create activity for each main warehouse user
+        ActivityModel = self.env['mail.activity'].sudo()
+        activity_type = self.env.ref('mail.mail_activity_data_todo', raise_if_not_found=False)
+
+        for user in main_wh_users:
+            try:
+                ActivityModel.create({
+                    'res_id': picking.id,
+                    'res_model_id': self.env['ir.model']._get('stock.picking').id,
+                    'activity_type_id': activity_type.id if activity_type else 1,
+                    'summary': _('Stock Request: %s') % requesting_warehouse.name,
+                    'note': message,
+                    'user_id': user.id,
+                    'date_deadline': fields.Date.today(),
+                })
+            except Exception as e:
+                _logger.warning('Could not create activity for user %s: %s', user.name, str(e))
+
+        # Method 3: Send internal message (inbox notification)
+        self.env['mail.message'].sudo().create({
+            'subject': _('New Stock Request from %s') % requesting_warehouse.name,
+            'body': message,
+            'model': 'stock.picking',
+            'res_id': picking.id,
+            'message_type': 'notification',
+            'partner_ids': [(4, pid) for pid in main_wh_users.mapped('partner_id').ids],
+            'needaction_partner_ids': [(4, pid) for pid in main_wh_users.mapped('partner_id').ids],
+        })
 
         _logger.info('Sent notification to Main warehouse users for picking: %s', picking.name)
 
@@ -308,21 +338,24 @@ class StockPicking(models.Model):
 
         if notification_type == 'approved':
             message = _(
-                '<p><strong>Stock Request Approved</strong></p>'
+                '<p><strong>✅ Stock Request Approved</strong></p>'
                 '<p>Your stock request has been approved by <strong>%s</strong>:</p>'
                 '<ul>%s</ul>'
                 '<p>Transfer Reference: <strong>%s</strong></p>'
-                '<p><strong>Action Required:</strong> Please validate the receipt transfer to complete the stock transfer and update your inventory.</p>'
+                '<p><strong>⚠️ Action Required:</strong> Please validate the receipt transfer <a href="/web#id=%s&model=stock.picking&view_type=form">%s</a> to complete the stock transfer and update your inventory.</p>'
             ) % (
                           source_warehouse_name,
                           ''.join(['<li>%s</li>' % line for line in product_lines]),
+                          picking.name,
+                          picking.id,
                           picking.name
                       )
-            subject = _('Stock Request Approved - %s') % picking.name
+            subject = _('✅ Stock Request Approved - %s') % picking.name
         else:
             message = _('Stock transfer notification')
             subject = _('Stock Transfer Update')
 
+        # Method 1: Post message in chatter with notification
         picking.message_post(
             body=message,
             subject=subject,
@@ -330,6 +363,35 @@ class StockPicking(models.Model):
             message_type='notification',
             subtype_xmlid='mail.mt_note',
         )
+
+        # Method 2: Create activity for each warehouse user
+        ActivityModel = self.env['mail.activity'].sudo()
+        activity_type = self.env.ref('mail.mail_activity_data_todo', raise_if_not_found=False)
+
+        for user in warehouse_users:
+            try:
+                ActivityModel.create({
+                    'res_id': picking.id,
+                    'res_model_id': self.env['ir.model']._get('stock.picking').id,
+                    'activity_type_id': activity_type.id if activity_type else 1,
+                    'summary': _('Action Required: Validate Receipt %s') % picking.name,
+                    'note': message,
+                    'user_id': user.id,
+                    'date_deadline': fields.Date.today(),
+                })
+            except Exception as e:
+                _logger.warning('Could not create activity for user %s: %s', user.name, str(e))
+
+        # Method 3: Send internal message (inbox notification)
+        self.env['mail.message'].sudo().create({
+            'subject': subject,
+            'body': message,
+            'model': 'stock.picking',
+            'res_id': picking.id,
+            'message_type': 'notification',
+            'partner_ids': [(4, pid) for pid in warehouse_users.mapped('partner_id').ids],
+            'needaction_partner_ids': [(4, pid) for pid in warehouse_users.mapped('partner_id').ids],
+        })
 
         _logger.info('Sent approval notification to %s users for picking: %s', dest_warehouse.name, picking.name)
 
@@ -396,12 +458,6 @@ class StockPicking(models.Model):
 
 
 
-
-
-
-
-
-
 # # -*- coding: utf-8 -*-
 # from odoo import models, fields, api, _
 # from odoo.exceptions import UserError
@@ -452,7 +508,7 @@ class StockPicking(models.Model):
 #         # Call parent validation
 #         res = super(StockPicking, self).button_validate()
 #
-#         # Process automation AFTER validation
+#         # Process automation AFTER validation with sudo to bypass record rules
 #         for picking in pickings_to_automate:
 #             # Double-check the picking is actually done and receipt not created
 #             if picking.state == 'done' and not picking.auto_receipt_created:
@@ -461,8 +517,8 @@ class StockPicking(models.Model):
 #                     picking.write({'auto_receipt_created': True})
 #                     self.env.cr.commit()  # Commit immediately to prevent race conditions
 #
-#                     # Auto-create the second transfer (receipt)
-#                     new_picking = self._create_receipt_transfer(picking)
+#                     # Use sudo to bypass record rules when creating receipt
+#                     new_picking = self.sudo()._create_receipt_transfer(picking)
 #
 #                     # Send notification to requesting warehouse AFTER creating receipt
 #                     if new_picking:
@@ -492,8 +548,13 @@ class StockPicking(models.Model):
 #
 #     def _create_receipt_transfer(self, picking):
 #         """Auto-create the second transfer from transit to warehouse stock"""
+#         # Use sudo() context to bypass record rules
+#         StockPicking = self.env['stock.picking'].sudo()
+#         StockMove = self.env['stock.move'].sudo()
+#         StockMoveLine = self.env['stock.move.line'].sudo()
+#
 #         # Check if receipt already exists for this picking
-#         existing_receipt = self.env['stock.picking'].search([
+#         existing_receipt = StockPicking.search([
 #             ('origin', '=', picking.name),
 #             ('location_id.usage', '=', 'transit')
 #         ], limit=1)
@@ -510,7 +571,7 @@ class StockPicking(models.Model):
 #             return False
 #
 #         # Find the receiving operation type
-#         receiving_type = self.env['stock.picking.type'].search([
+#         receiving_type = self.env['stock.picking.type'].sudo().search([
 #             ('warehouse_id', '=', dest_warehouse.id),
 #             ('code', '=', 'internal'),
 #             ('default_location_src_id', '=', transit_loc.id)
@@ -518,7 +579,7 @@ class StockPicking(models.Model):
 #
 #         if not receiving_type:
 #             # Try alternative: find any internal transfer in destination warehouse
-#             receiving_type = self.env['stock.picking.type'].search([
+#             receiving_type = self.env['stock.picking.type'].sudo().search([
 #                 ('warehouse_id', '=', dest_warehouse.id),
 #                 ('code', '=', 'internal')
 #             ], limit=1)
@@ -535,7 +596,7 @@ class StockPicking(models.Model):
 #
 #         # If no default, try to find the main stock location of the warehouse
 #         if not dest_location:
-#             dest_location = self.env['stock.location'].search([
+#             dest_location = self.env['stock.location'].sudo().search([
 #                 ('warehouse_id', '=', dest_warehouse.id),
 #                 ('usage', '=', 'internal'),
 #                 ('location_id.usage', '=', 'view')
@@ -554,15 +615,20 @@ class StockPicking(models.Model):
 #             'partner_id': picking.partner_id.id if picking.partner_id else False,
 #         }
 #
-#         new_picking = self.env['stock.picking'].create(new_picking_vals)
+#         new_picking = StockPicking.create(new_picking_vals)
+#         _logger.info('Created new picking %s in state: %s', new_picking.name, new_picking.state)
 #
 #         # Copy move lines with proper product quantities
 #         for move in picking.move_ids:
-#             # Use the actual done quantity from move_line_ids (this is the real validated quantity)
-#             done_qty = sum(move.move_line_ids.mapped('quantity')) if move.move_line_ids else move.product_uom_qty
+#             # Get the actual done quantity from the validated picking
+#             done_qty = 0
+#             if move.move_line_ids:
+#                 done_qty = sum(move.move_line_ids.mapped('quantity'))
 #
 #             if done_qty <= 0:
 #                 done_qty = move.product_uom_qty
+#
+#             _logger.info('Creating move for product %s with quantity: %s', move.product_id.name, done_qty)
 #
 #             move_vals = {
 #                 'name': move.name,
@@ -575,36 +641,44 @@ class StockPicking(models.Model):
 #                 'description_picking': move.description_picking,
 #                 'company_id': move.company_id.id,
 #                 'date': fields.Datetime.now(),
+#                 'state': 'draft',
 #             }
-#             created_move = self.env['stock.move'].create(move_vals)
+#             created_move = StockMove.create(move_vals)
 #
-#             # Force the move to confirmed state
-#             created_move._action_confirm()
-#
-#         # Confirm the new picking
+#         # Confirm the picking to create moves
 #         new_picking.action_confirm()
+#         _logger.info('After confirm, picking %s state: %s', new_picking.name, new_picking.state)
 #
-#         # Force availability check
-#         new_picking.action_assign()
+#         # Now manually create move lines and reserve quantities
+#         for move in new_picking.move_ids:
+#             _logger.info('Processing move %s, state: %s', move.product_id.name, move.state)
 #
-#         # If not ready, force reserve the quantities manually
-#         if new_picking.state != 'assigned':
-#             for move in new_picking.move_ids:
-#                 if move.state not in ['assigned', 'done']:
-#                     # Create stock move lines manually to force reservation
-#                     self.env['stock.move.line'].create({
-#                         'move_id': move.id,
-#                         'product_id': move.product_id.id,
-#                         'product_uom_id': move.product_uom.id,
-#                         'location_id': transit_loc.id,
-#                         'location_dest_id': dest_location.id,
-#                         'quantity': move.product_uom_qty,
-#                         'picking_id': new_picking.id,
-#                     })
-#                     move.write({'state': 'assigned'})
+#             # Create move line with reserved quantity
+#             move_line_vals = {
+#                 'move_id': move.id,
+#                 'product_id': move.product_id.id,
+#                 'product_uom_id': move.product_uom.id,
+#                 'location_id': transit_loc.id,
+#                 'location_dest_id': dest_location.id,
+#                 'quantity': move.product_uom_qty,
+#                 'reserved_uom_qty': move.product_uom_qty,  # Reserve the quantity
+#                 'picking_id': new_picking.id,
+#                 'company_id': move.company_id.id,
+#             }
 #
-#             # Force picking to ready state
-#             new_picking.write({'state': 'assigned'})
+#             move_line = StockMoveLine.create(move_line_vals)
+#             _logger.info('Created move line for %s with quantity: %s', move.product_id.name, move.product_uom_qty)
+#
+#             # Update move state to assigned
+#             move.sudo().write({
+#                 'state': 'assigned',
+#                 'reserved_availability': move.product_uom_qty
+#             })
+#
+#         # Force the picking to assigned (Ready) state
+#         new_picking.sudo().write({'state': 'assigned'})
+#
+#         _logger.info('Final picking %s state: %s', new_picking.name, new_picking.state)
 #
 #         # Add message to original picking
 #         picking.message_post(
@@ -618,8 +692,8 @@ class StockPicking(models.Model):
 #                 'This receipt was automatically created from transfer %s. Please validate to receive products.') % picking.name
 #         )
 #
-#         _logger.info('Created receipt transfer %s (state: %s) for warehouse %s from picking %s',
-#                      new_picking.name, new_picking.state, dest_warehouse.name, picking.name)
+#         _logger.info('Successfully created receipt transfer %s in READY state for warehouse %s',
+#                      new_picking.name, dest_warehouse.name)
 #
 #         return new_picking
 #
@@ -771,8 +845,4 @@ class StockPicking(models.Model):
 #             _logger.error('Error getting warehouse users: %s', str(e))
 #             admin = self.env.ref('base.user_admin', raise_if_not_found=False)
 #             return admin if admin else self.env['res.users'].browse([])
-#
-#
-#
-#
 #

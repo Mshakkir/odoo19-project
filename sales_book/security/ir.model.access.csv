@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_sales_book_wizard_user,sales.book.wizard.user,model_sales_book_wizard,sales_team.group_sale_salesman,1,1,1,1
 access_sales_book_wizard_manager,sales.book.wizard.manager,model_sales_book_wizard,sales_team.group_sale_manager,1,1,1,1
+access_sales_book_preview_line_user,sales.book.preview.line.user,model_sales_book_preview_line,sales_team.group_sale_salesman,1,1,1,1
+access_sales_book_preview_line_manager,sales.book.preview.line.manager,model_sales_book_preview_line,sales_team.group_sale_manager,1,1,1,1

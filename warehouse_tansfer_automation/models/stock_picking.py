@@ -248,7 +248,15 @@ class StockPicking(models.Model):
         main_wh_users = self._get_warehouse_users(main_warehouse)
 
         if not main_wh_users:
-            _logger.warning('No users found for Main warehouse notification')
+            _logger.error(
+                '❌ NO USERS FOUND for Main warehouse: %s. Please assign users to the "Main Warehouse User" group!',
+                main_warehouse.name)
+            # Post a message to the picking so the requester knows
+            picking.message_post(
+                body=_(
+                    '⚠️ Warning: Could not send notification to Main warehouse users. No users are assigned to the Main Warehouse User group.'),
+                message_type='comment',
+            )
             return
 
         requesting_warehouse = picking.picking_type_id.warehouse_id
@@ -267,6 +275,9 @@ class StockPicking(models.Model):
                       ''.join(['<li>%s</li>' % line for line in product_lines]),
                       picking.name
                   )
+
+        _logger.info('✅ Sending notification to %d Main warehouse users: %s',
+                     len(main_wh_users), ', '.join(main_wh_users.mapped('name')))
 
         # Method 1: Post message in chatter with notification
         picking.message_post(
@@ -292,6 +303,7 @@ class StockPicking(models.Model):
                     'user_id': user.id,
                     'date_deadline': fields.Date.today(),
                 })
+                _logger.info('✅ Created activity for user: %s', user.name)
             except Exception as e:
                 _logger.warning('Could not create activity for user %s: %s', user.name, str(e))
 
@@ -306,7 +318,7 @@ class StockPicking(models.Model):
             'needaction_partner_ids': [(4, pid) for pid in main_wh_users.mapped('partner_id').ids],
         })
 
-        _logger.info('Sent notification to Main warehouse users for picking: %s', picking.name)
+        _logger.info('✅ Notification sent successfully to Main warehouse users for picking: %s', picking.name)
 
     def _notify_warehouse_user(self, picking, notification_type):
         """Send notification to warehouse users"""
@@ -322,7 +334,14 @@ class StockPicking(models.Model):
         warehouse_users = self._get_warehouse_users(dest_warehouse)
 
         if not warehouse_users:
-            _logger.warning('No users found for warehouse notification: %s', dest_warehouse.name)
+            _logger.error('❌ NO USERS FOUND for warehouse: %s. Please assign users to the "%s Warehouse User" group!',
+                          dest_warehouse.name, dest_warehouse.name)
+            # Post a message to the picking
+            picking.message_post(
+                body=_(
+                    '⚠️ Warning: Could not send notification to %s users. No users are assigned to the warehouse user group.') % dest_warehouse.name,
+                message_type='comment',
+            )
             return
 
         source_warehouse_name = 'Main Office'
@@ -355,6 +374,9 @@ class StockPicking(models.Model):
             message = _('Stock transfer notification')
             subject = _('Stock Transfer Update')
 
+        _logger.info('✅ Sending notification to %d %s warehouse users: %s',
+                     len(warehouse_users), dest_warehouse.name, ', '.join(warehouse_users.mapped('name')))
+
         # Method 1: Post message in chatter with notification
         picking.message_post(
             body=message,
@@ -379,6 +401,7 @@ class StockPicking(models.Model):
                     'user_id': user.id,
                     'date_deadline': fields.Date.today(),
                 })
+                _logger.info('✅ Created activity for user: %s', user.name)
             except Exception as e:
                 _logger.warning('Could not create activity for user %s: %s', user.name, str(e))
 
@@ -393,61 +416,58 @@ class StockPicking(models.Model):
             'needaction_partner_ids': [(4, pid) for pid in warehouse_users.mapped('partner_id').ids],
         })
 
-        _logger.info('Sent approval notification to %s users for picking: %s', dest_warehouse.name, picking.name)
+        _logger.info('✅ Notification sent successfully to %s warehouse users for picking: %s', dest_warehouse.name,
+                     picking.name)
 
     def _get_warehouse_users(self, warehouse):
         """Get users who have access to this warehouse"""
         try:
+            # Map warehouse names to group XML IDs
             warehouse_group_mapping = {
-                'Main Office': ['Main WH', 'Main Office'],
-                'Dammam': ['Dammam WH', 'Dammam'],
-                'Baladiya': ['Baladiya WH', 'Baladiya'],
+                'SSAOCO-Main Office': 'warehouse_tansfer_automation.group_main_warehouse',
+                'Main Office': 'warehouse_tansfer_automation.group_main_warehouse',
+                'SSAOCO - Dammam': 'warehouse_tansfer_automation.group_dammam_warehouse',
+                'Dammam': 'warehouse_tansfer_automation.group_dammam_warehouse',
+                'SSAOCO - Baladiya': 'warehouse_tansfer_automation.group_baladiya_warehouse',
+                'Baladiya': 'warehouse_tansfer_automation.group_baladiya_warehouse',
             }
 
-            group_names = []
-            for key, values in warehouse_group_mapping.items():
-                if key.lower() in warehouse.name.lower():
-                    group_names = values
+            # Find the matching group XML ID
+            group_xmlid = None
+            for key, xmlid in warehouse_group_mapping.items():
+                if key in warehouse.name or warehouse.name in key:
+                    group_xmlid = xmlid
                     break
 
-            if group_names:
-                warehouse_groups = self.env['res.groups'].search([
-                    '|', ('name', 'in', group_names),
-                    ('name', 'ilike', warehouse.name.split(' ')[0])
-                ])
+            if group_xmlid:
+                try:
+                    warehouse_group = self.env.ref(group_xmlid, raise_if_not_found=False)
+                    if warehouse_group:
+                        # Get users who are in this specific warehouse group
+                        warehouse_users = self.env['res.users'].search([
+                            ('groups_id', 'in', warehouse_group.id),
+                            ('active', '=', True),
+                            ('share', '=', False)  # Exclude portal users
+                        ])
+                        if warehouse_users:
+                            _logger.info('Found %d users for warehouse %s (group: %s)',
+                                         len(warehouse_users), warehouse.name, group_xmlid)
+                            return warehouse_users
+                        else:
+                            _logger.warning('No users found in group %s for warehouse %s',
+                                            group_xmlid, warehouse.name)
+                except Exception as e:
+                    _logger.error('Error getting group %s: %s', group_xmlid, str(e))
 
-                if warehouse_groups:
-                    warehouse_users = self.env['res.users'].search([
-                        ('groups_id', 'in', warehouse_groups.ids),
-                        ('active', '=', True),
-                        ('share', '=', False)
-                    ])
-                    if warehouse_users:
-                        _logger.info('Found %d users for warehouse %s', len(warehouse_users), warehouse.name)
-                        return warehouse_users
+            # If no specific group found, log warning
+            _logger.warning('Could not find warehouse group for warehouse: %s', warehouse.name)
 
-            inventory_group = self.env.ref('stock.group_stock_user', raise_if_not_found=False)
-            if inventory_group:
-                all_users = self.env['res.users'].search([
-                    ('groups_id', 'in', inventory_group.id),
-                    ('active', '=', True),
-                    ('share', '=', False)
-                ])
-                if all_users:
-                    _logger.info('Using fallback: Found %d inventory users', len(all_users))
-                    return all_users
-
-            admin = self.env.ref('base.user_admin', raise_if_not_found=False)
-            if admin:
-                return admin
-
+            # Return empty recordset instead of admin - let calling function handle it
             return self.env['res.users'].browse([])
 
         except Exception as e:
             _logger.error('Error getting warehouse users: %s', str(e))
-            admin = self.env.ref('base.user_admin', raise_if_not_found=False)
-            return admin if admin else self.env['res.users'].browse([])
-
+            return self.env['res.users'].browse([])
 
 
 

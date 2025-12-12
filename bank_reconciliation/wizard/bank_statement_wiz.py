@@ -215,6 +215,7 @@
 
 
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 import logging
@@ -225,6 +226,7 @@ _logger = logging.getLogger(__name__)
 class BankStatement(models.Model):
     _name = 'bank.statement'
     _description = 'Bank Statement Reconciliation'
+    _order = 'date_from desc, id desc'
 
     journal_id = fields.Many2one(
         'account.journal',
@@ -242,7 +244,6 @@ class BankStatement(models.Model):
     date_from = fields.Date(string='Date From', required=True)
     date_to = fields.Date(string='Date To', required=True)
 
-    # Use IDs field instead of One2many for better control
     line_ids = fields.Many2many(
         'account.move.line',
         'bank_statement_line_rel',
@@ -329,138 +330,60 @@ class BankStatement(models.Model):
                 }
             }
 
-        _logger.info("=" * 80)
-        _logger.info("BANK RECONCILIATION DEBUG INFO - DETAILED")
-        _logger.info("=" * 80)
-        _logger.info(f"Journal: {self.journal_id.name} (ID: {self.journal_id.id})")
-        _logger.info(f"Account: {self.account_id.name} (ID: {self.account_id.id})")
-        _logger.info(f"Date From: {self.date_from}")
-        _logger.info(f"Date To: {self.date_to}")
-
-        # Search for ALL lines in this account and examine them
-        all_lines_domain = [('account_id', '=', self.account_id.id)]
-        all_lines = self.env['account.move.line'].search(all_lines_domain, limit=10)
-
-        _logger.info(f"\nFound {len(all_lines)} lines in account. Examining each:")
-        _logger.info("-" * 80)
-
-        for line in all_lines:
-            _logger.info(f"Line ID: {line.id}")
-            _logger.info(f"  Date: {line.date}")
-            _logger.info(f"  Move: {line.move_id.name}")
-            _logger.info(f"  Debit: {line.debit}, Credit: {line.credit}")
-            _logger.info(f"  Statement Date: {line.statement_date}")
-
-            # Check all possible state fields
-            if hasattr(line, 'parent_state'):
-                _logger.info(f"  parent_state: {line.parent_state}")
-            if hasattr(line, 'state'):
-                _logger.info(f"  state: {line.state}")
-            if hasattr(line.move_id, 'state'):
-                _logger.info(f"  move_id.state: {line.move_id.state}")
-
-            _logger.info("-" * 40)
-
-        # Try different domain combinations
-        _logger.info("\nTrying different search criteria:")
-
-        # Try without parent_state
-        domain1 = [
-            ('account_id', '=', self.account_id.id),
-            ('statement_date', '=', False),
-            ('date', '>=', self.date_from),
-            ('date', '<=', self.date_to),
-        ]
-        lines1 = self.env['account.move.line'].search(domain1)
-        _logger.info(f"Without parent_state check: {len(lines1)} lines")
-
-        # Try with move_id.state
-        domain2 = [
+        # Build domain - Use move_id.state for Odoo 19 compatibility
+        domain = [
             ('account_id', '=', self.account_id.id),
             ('statement_date', '=', False),
             ('move_id.state', '=', 'posted'),
             ('date', '>=', self.date_from),
             ('date', '<=', self.date_to),
         ]
-        lines2 = self.env['account.move.line'].search(domain2)
-        _logger.info(f"With move_id.state = 'posted': {len(lines2)} lines")
 
-        # Try with parent_state
-        domain3 = [
-            ('account_id', '=', self.account_id.id),
-            ('statement_date', '=', False),
-            ('parent_state', '=', 'posted'),
-            ('date', '>=', self.date_from),
-            ('date', '<=', self.date_to),
-        ]
-        try:
-            lines3 = self.env['account.move.line'].search(domain3)
-            _logger.info(f"With parent_state = 'posted': {len(lines3)} lines")
-        except Exception as e:
-            _logger.info(f"parent_state field doesn't exist: {e}")
-            lines3 = self.env['account.move.line']
+        lines = self.env['account.move.line'].search(domain)
 
-        _logger.info("=" * 80)
-
-        # Use the domain that returns results
-        if lines2:
-            lines = lines2
+        if lines:
             self.line_ids = [(6, 0, lines.ids)]
-            return
-        elif lines1:
-            lines = lines1
-            self.line_ids = [(6, 0, lines.ids)]
-            return
+            _logger.info(f"Loaded {len(lines)} unreconciled transactions for {self.journal_id.name}")
         else:
             self.line_ids = [(5, 0, 0)]
-            return {
-                'warning': {
-                    'title': _('No Transactions Found'),
-                    'message': _('No unreconciled transactions found. Check the logs for details.')
-                }
-            }
+            _logger.warning(f"No unreconciled transactions found for {self.journal_id.name} "
+                            f"between {self.date_from} and {self.date_to}")
 
     @api.depends('line_ids.statement_date', 'account_id', 'date_to')
     def _compute_amount(self):
         """Calculate GL balance, bank balance, and difference"""
         for record in self:
-            gl_balance = 0.0
-            bank_balance = 0.0
-            current_update = 0.0
-
             if not record.account_id:
                 record.gl_balance = 0.0
                 record.bank_balance = 0.0
                 record.balance_difference = 0.0
                 continue
 
-            # Calculate GL balance - try move_id.state first
-            domain = [
+            # Calculate GL balance (all posted entries)
+            domain_gl = [
                 ('account_id', '=', record.account_id.id),
                 ('move_id.state', '=', 'posted')
             ]
-
             if record.date_to:
-                domain.append(('date', '<=', record.date_to))
+                domain_gl.append(('date', '<=', record.date_to))
 
-            lines = self.env['account.move.line'].search(domain)
-            gl_balance = sum(line.debit - line.credit for line in lines)
+            gl_lines = self.env['account.move.line'].search(domain_gl)
+            gl_balance = sum(line.debit - line.credit for line in gl_lines)
 
             # Calculate bank balance (previously reconciled entries)
-            domain = [
+            domain_bank = [
                 ('account_id', '=', record.account_id.id),
                 ('id', 'not in', record.line_ids.ids),
                 ('statement_date', '!=', False),
                 ('move_id.state', '=', 'posted')
             ]
-
             if record.date_to:
-                domain.append(('statement_date', '<=', record.date_to))
+                domain_bank.append(('statement_date', '<=', record.date_to))
 
-            lines = self.env['account.move.line'].search(domain)
-            bank_balance = sum(line.balance for line in lines)
+            bank_lines = self.env['account.move.line'].search(domain_bank)
+            bank_balance = sum(line.balance for line in bank_lines)
 
-            # Add currently updated entries
+            # Add currently reconciled entries in this statement
             current_update = sum(
                 line.debit - line.credit
                 for line in record.line_ids
@@ -481,13 +404,32 @@ class BankStatement(models.Model):
                 line.bank_statement_id = self.id
 
         self.write({'state': 'done'})
-        return {'type': 'ir.actions.act_window_close'}
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Success'),
+                'message': _('Bank reconciliation saved successfully.'),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
 
     def action_load_lines(self):
         """Manual action to reload lines"""
         self.ensure_one()
         self._onchange_load_lines()
-        return True
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Lines Reloaded'),
+                'message': _('%d transactions loaded.') % len(self.line_ids),
+                'type': 'info',
+            }
+        }
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -497,3 +439,18 @@ class BankStatement(models.Model):
                 vals['name'] = self.env['ir.sequence'].next_by_code('bank.statement') or '/'
 
         return super(BankStatement, self).create(vals_list)
+
+    def action_reopen(self):
+        """Reopen a done statement for editing"""
+        self.ensure_one()
+        self.write({'state': 'draft'})
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Reopened'),
+                'message': _('Statement reopened for editing.'),
+                'type': 'warning',
+            }
+        }

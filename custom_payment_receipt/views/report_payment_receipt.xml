@@ -251,16 +251,14 @@
 
                 <!-- ===== CUSTOM FOOTER ===== -->
                 <div class="footer" style="margin-top: 30px; page-break-inside: avoid;">
-                    <table width="100%"
-                           style="border-collapse: collapse; margin-bottom:5px; font-size:10px; border-top: 2px solid #8B1538; padding-top: 10px;">
+                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                         <tr>
-                            <td style="width:33%; padding:4px; border-right: 1px solid #ccc; vertical-align: top;">
-                                <strong style="color: #8B1538;">Jeddah:</strong>
-                                <br/>
+
+
+                            <td style="width:33%; padding:4px;border-right: 1px solid black;">
+                                <strong>jeddah:</strong>
                                 Jeddah, 7655 Al Fayha
-                                <br/>
                                 Al Fayha Dist. JEDDAH 22244-3108
-                                <br/>
                                 Saudi Arabia
                                 <br/>
                                 Tel:
@@ -268,25 +266,19 @@
                                 Email:
                             </td>
 
-                            <td style="width:33%; padding:4px; border-right: 1px solid #ccc; vertical-align: top;">
-                                <strong style="color: #8B1538;">Baladiya:</strong>
-                                <br/>
-                                Sookul Anwar, Al Baladeah
-                                <br/>
-                                Aziziyah, Jeddah 31303
-                                <br/>
+                            <td style="width:33%; padding:4px;">
+                                <strong>Baladiya:</strong>
+                                Sookul Anwar, Al Baladeah, Aziziyah,
+                                Jeddah 31303
                                 Tel: 0535081008
                                 <br/>
                                 Email: ssaoe.dammam@gmail.com
                             </td>
 
-                            <td style="width:33%; padding:4px; vertical-align: top;">
-                                <strong style="color: #8B1538;">Dammam:</strong>
-                                <br/>
-                                8515, Qutaibah bin Muslim ST
-                                <br/>
+                            <td style="width:33%; padding:4px;border-left: 1px solid black;">
+                                <strong>Dammam:</strong>
+                                8515, Qutaibah bin Muslim ST,
                                 Al Souq, Dammam 4525-32242
-                                <br/>
                                 Saudi Arabia
                                 <br/>
                                 Tel/Mobile: 0535081008

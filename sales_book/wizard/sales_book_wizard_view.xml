@@ -40,7 +40,93 @@
             </field>
         </record>
 
-        <!-- Preview Form - For Short View (without customer/invoice columns) -->
+        <!-- Preview Tree for Short View -->
+        <record id="view_sales_book_preview_tree_short" model="ir.ui.view">
+            <field name="name">sales.book.preview.line.tree.short</field>
+            <field name="model">sales.book.preview.line</field>
+            <field name="arch" type="xml">
+                <tree string="Sales Book Preview" create="false" edit="false" delete="false">
+                    <field name="date"/>
+                    <field name="gross" sum="Total Gross"/>
+                    <field name="trade_disc" sum="Total Trade Disc"/>
+                    <field name="net_total" sum="Total Net"/>
+                    <field name="add_disc" sum="Total Add. Disc"/>
+                    <field name="add_cost" sum="Total Add. Cost"/>
+                    <field name="round_off" sum="Total Round Off"/>
+                    <field name="adj_amount" sum="Total Adj"/>
+                    <field name="tax_amount" sum="Total Tax"/>
+                    <field name="grand_total" sum="Grand Total"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Preview Tree for Short View - Combined Report -->
+        <record id="view_sales_book_preview_tree_short_combined" model="ir.ui.view">
+            <field name="name">sales.book.preview.line.tree.short.combined</field>
+            <field name="model">sales.book.preview.line</field>
+            <field name="arch" type="xml">
+                <tree string="Sales Book Preview - Combined" create="false" edit="false" delete="false">
+                    <field name="date"/>
+                    <field name="transaction_type"/>
+                    <field name="gross" sum="Total Gross"/>
+                    <field name="trade_disc" sum="Total Trade Disc"/>
+                    <field name="net_total" sum="Total Net"/>
+                    <field name="add_disc" sum="Total Add. Disc"/>
+                    <field name="add_cost" sum="Total Add. Cost"/>
+                    <field name="round_off" sum="Total Round Off"/>
+                    <field name="adj_amount" sum="Total Adj"/>
+                    <field name="tax_amount" sum="Total Tax"/>
+                    <field name="grand_total" sum="Grand Total"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Preview Tree for Detail View -->
+        <record id="view_sales_book_preview_tree_detail" model="ir.ui.view">
+            <field name="name">sales.book.preview.line.tree.detail</field>
+            <field name="model">sales.book.preview.line</field>
+            <field name="arch" type="xml">
+                <tree string="Sales Book Preview - Detail" create="false" edit="false" delete="false">
+                    <field name="date"/>
+                    <field name="customer"/>
+                    <field name="invoice_ref"/>
+                    <field name="gross" sum="Total Gross"/>
+                    <field name="trade_disc" sum="Total Trade Disc"/>
+                    <field name="net_total" sum="Total Net"/>
+                    <field name="add_disc" sum="Total Add. Disc"/>
+                    <field name="add_cost" sum="Total Add. Cost"/>
+                    <field name="round_off" sum="Total Round Off"/>
+                    <field name="adj_amount" sum="Total Adj"/>
+                    <field name="tax_amount" sum="Total Tax"/>
+                    <field name="grand_total" sum="Grand Total"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Preview Tree for Detail View - Combined Report -->
+        <record id="view_sales_book_preview_tree_detail_combined" model="ir.ui.view">
+            <field name="name">sales.book.preview.line.tree.detail.combined</field>
+            <field name="model">sales.book.preview.line</field>
+            <field name="arch" type="xml">
+                <tree string="Sales Book Preview - Detail Combined" create="false" edit="false" delete="false">
+                    <field name="date"/>
+                    <field name="transaction_type"/>
+                    <field name="customer"/>
+                    <field name="invoice_ref"/>
+                    <field name="gross" sum="Total Gross"/>
+                    <field name="trade_disc" sum="Total Trade Disc"/>
+                    <field name="net_total" sum="Total Net"/>
+                    <field name="add_disc" sum="Total Add. Disc"/>
+                    <field name="add_cost" sum="Total Add. Cost"/>
+                    <field name="round_off" sum="Total Round Off"/>
+                    <field name="adj_amount" sum="Total Adj"/>
+                    <field name="tax_amount" sum="Total Tax"/>
+                    <field name="grand_total" sum="Grand Total"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Preview Form -->
         <record id="view_sales_book_wizard_preview_form" model="ir.ui.view">
             <field name="name">sales.book.wizard.preview.form</field>
             <field name="model">sales.book.wizard</field>
@@ -70,45 +156,33 @@
 
                         <notebook>
                             <page string="Preview Data">
-                                <!-- Short View Tree (without customer/invoice) -->
-                                <field name="preview_line_ids" readonly="1" nolabel="1"
-                                       attrs="{'invisible': [('view_type', '=', 'detail')]}">
-                                    <tree string="Sales Book Preview" create="false" edit="false" delete="false">
-                                        <field name="date"/>
-                                        <field name="transaction_type"
-                                               attrs="{'column_invisible': [('parent.report_type', '!=', 'both')]}"/>
-                                        <field name="gross" sum="Total Gross"/>
-                                        <field name="trade_disc" sum="Total Trade Disc"/>
-                                        <field name="net_total" sum="Total Net"/>
-                                        <field name="add_disc" sum="Total Add. Disc"/>
-                                        <field name="add_cost" sum="Total Add. Cost"/>
-                                        <field name="round_off" sum="Total Round Off"/>
-                                        <field name="adj_amount" sum="Total Adj"/>
-                                        <field name="tax_amount" sum="Total Tax"/>
-                                        <field name="grand_total" sum="Grand Total"/>
-                                    </tree>
-                                </field>
+                                <!-- Short View - Sales/Return Only -->
+                                <field name="preview_line_ids"
+                                       readonly="1"
+                                       nolabel="1"
+                                       context="{'tree_view_ref': 'sales_book.view_sales_book_preview_tree_short'}"
+                                       invisible="view_type == 'detail' or report_type == 'both'"/>
 
-                                <!-- Detail View Tree (with customer/invoice) -->
-                                <field name="preview_line_ids" readonly="1" nolabel="1"
-                                       attrs="{'invisible': [('view_type', '=', 'short')]}">
-                                    <tree string="Sales Book Preview - Detail" create="false" edit="false" delete="false">
-                                        <field name="date"/>
-                                        <field name="transaction_type"
-                                               attrs="{'column_invisible': [('parent.report_type', '!=', 'both')]}"/>
-                                        <field name="customer"/>
-                                        <field name="invoice_ref"/>
-                                        <field name="gross" sum="Total Gross"/>
-                                        <field name="trade_disc" sum="Total Trade Disc"/>
-                                        <field name="net_total" sum="Total Net"/>
-                                        <field name="add_disc" sum="Total Add. Disc"/>
-                                        <field name="add_cost" sum="Total Add. Cost"/>
-                                        <field name="round_off" sum="Total Round Off"/>
-                                        <field name="adj_amount" sum="Total Adj"/>
-                                        <field name="tax_amount" sum="Total Tax"/>
-                                        <field name="grand_total" sum="Grand Total"/>
-                                    </tree>
-                                </field>
+                                <!-- Short View - Combined Report -->
+                                <field name="preview_line_ids"
+                                       readonly="1"
+                                       nolabel="1"
+                                       context="{'tree_view_ref': 'sales_book.view_sales_book_preview_tree_short_combined'}"
+                                       invisible="view_type == 'detail' or report_type != 'both'"/>
+
+                                <!-- Detail View - Sales/Return Only -->
+                                <field name="preview_line_ids"
+                                       readonly="1"
+                                       nolabel="1"
+                                       context="{'tree_view_ref': 'sales_book.view_sales_book_preview_tree_detail'}"
+                                       invisible="view_type == 'short' or report_type == 'both'"/>
+
+                                <!-- Detail View - Combined Report -->
+                                <field name="preview_line_ids"
+                                       readonly="1"
+                                       nolabel="1"
+                                       context="{'tree_view_ref': 'sales_book.view_sales_book_preview_tree_detail_combined'}"
+                                       invisible="view_type == 'short' or report_type != 'both'"/>
                             </page>
                         </notebook>
                     </sheet>

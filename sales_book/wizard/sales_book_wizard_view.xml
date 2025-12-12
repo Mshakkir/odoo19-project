@@ -40,12 +40,12 @@
             </field>
         </record>
 
-        <!-- Preview Tree for Short View -->
-        <record id="view_sales_book_preview_tree_short" model="ir.ui.view">
-            <field name="name">sales.book.preview.line.tree.short</field>
+        <!-- Preview List for Short View -->
+        <record id="view_sales_book_preview_list_short" model="ir.ui.view">
+            <field name="name">sales.book.preview.line.list.short</field>
             <field name="model">sales.book.preview.line</field>
             <field name="arch" type="xml">
-                <tree string="Sales Book Preview" create="false" edit="false" delete="false">
+                <list string="Sales Book Preview" create="false" edit="false" delete="false">
                     <field name="date"/>
                     <field name="gross" sum="Total Gross"/>
                     <field name="trade_disc" sum="Total Trade Disc"/>
@@ -56,16 +56,16 @@
                     <field name="adj_amount" sum="Total Adj"/>
                     <field name="tax_amount" sum="Total Tax"/>
                     <field name="grand_total" sum="Grand Total"/>
-                </tree>
+                </list>
             </field>
         </record>
 
-        <!-- Preview Tree for Short View - Combined Report -->
-        <record id="view_sales_book_preview_tree_short_combined" model="ir.ui.view">
-            <field name="name">sales.book.preview.line.tree.short.combined</field>
+        <!-- Preview List for Short View - Combined Report -->
+        <record id="view_sales_book_preview_list_short_combined" model="ir.ui.view">
+            <field name="name">sales.book.preview.line.list.short.combined</field>
             <field name="model">sales.book.preview.line</field>
             <field name="arch" type="xml">
-                <tree string="Sales Book Preview - Combined" create="false" edit="false" delete="false">
+                <list string="Sales Book Preview - Combined" create="false" edit="false" delete="false">
                     <field name="date"/>
                     <field name="transaction_type"/>
                     <field name="gross" sum="Total Gross"/>
@@ -77,16 +77,16 @@
                     <field name="adj_amount" sum="Total Adj"/>
                     <field name="tax_amount" sum="Total Tax"/>
                     <field name="grand_total" sum="Grand Total"/>
-                </tree>
+                </list>
             </field>
         </record>
 
-        <!-- Preview Tree for Detail View -->
-        <record id="view_sales_book_preview_tree_detail" model="ir.ui.view">
-            <field name="name">sales.book.preview.line.tree.detail</field>
+        <!-- Preview List for Detail View -->
+        <record id="view_sales_book_preview_list_detail" model="ir.ui.view">
+            <field name="name">sales.book.preview.line.list.detail</field>
             <field name="model">sales.book.preview.line</field>
             <field name="arch" type="xml">
-                <tree string="Sales Book Preview - Detail" create="false" edit="false" delete="false">
+                <list string="Sales Book Preview - Detail" create="false" edit="false" delete="false">
                     <field name="date"/>
                     <field name="customer"/>
                     <field name="invoice_ref"/>
@@ -99,16 +99,16 @@
                     <field name="adj_amount" sum="Total Adj"/>
                     <field name="tax_amount" sum="Total Tax"/>
                     <field name="grand_total" sum="Grand Total"/>
-                </tree>
+                </list>
             </field>
         </record>
 
-        <!-- Preview Tree for Detail View - Combined Report -->
-        <record id="view_sales_book_preview_tree_detail_combined" model="ir.ui.view">
-            <field name="name">sales.book.preview.line.tree.detail.combined</field>
+        <!-- Preview List for Detail View - Combined Report -->
+        <record id="view_sales_book_preview_list_detail_combined" model="ir.ui.view">
+            <field name="name">sales.book.preview.line.list.detail.combined</field>
             <field name="model">sales.book.preview.line</field>
             <field name="arch" type="xml">
-                <tree string="Sales Book Preview - Detail Combined" create="false" edit="false" delete="false">
+                <list string="Sales Book Preview - Detail Combined" create="false" edit="false" delete="false">
                     <field name="date"/>
                     <field name="transaction_type"/>
                     <field name="customer"/>
@@ -122,7 +122,7 @@
                     <field name="adj_amount" sum="Total Adj"/>
                     <field name="tax_amount" sum="Total Tax"/>
                     <field name="grand_total" sum="Grand Total"/>
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -160,28 +160,28 @@
                                 <field name="preview_line_ids"
                                        readonly="1"
                                        nolabel="1"
-                                       context="{'tree_view_ref': 'sales_book.view_sales_book_preview_tree_short'}"
+                                       context="{'tree_view_ref': 'sales_book.view_sales_book_preview_list_short'}"
                                        invisible="view_type == 'detail' or report_type == 'both'"/>
 
                                 <!-- Short View - Combined Report -->
                                 <field name="preview_line_ids"
                                        readonly="1"
                                        nolabel="1"
-                                       context="{'tree_view_ref': 'sales_book.view_sales_book_preview_tree_short_combined'}"
+                                       context="{'tree_view_ref': 'sales_book.view_sales_book_preview_list_short_combined'}"
                                        invisible="view_type == 'detail' or report_type != 'both'"/>
 
                                 <!-- Detail View - Sales/Return Only -->
                                 <field name="preview_line_ids"
                                        readonly="1"
                                        nolabel="1"
-                                       context="{'tree_view_ref': 'sales_book.view_sales_book_preview_tree_detail'}"
+                                       context="{'tree_view_ref': 'sales_book.view_sales_book_preview_list_detail'}"
                                        invisible="view_type == 'short' or report_type == 'both'"/>
 
                                 <!-- Detail View - Combined Report -->
                                 <field name="preview_line_ids"
                                        readonly="1"
                                        nolabel="1"
-                                       context="{'tree_view_ref': 'sales_book.view_sales_book_preview_tree_detail_combined'}"
+                                       context="{'tree_view_ref': 'sales_book.view_sales_book_preview_list_detail_combined'}"
                                        invisible="view_type == 'short' or report_type != 'both'"/>
                             </page>
                         </notebook>

@@ -422,7 +422,9 @@ class StockPicking(models.Model):
     def _get_warehouse_users(self, warehouse):
         """Get users who have access to this warehouse"""
         try:
-            # Map warehouse names to group XML IDs
+            _logger.info('🔍 Looking for users for warehouse: "%s"', warehouse.name)
+
+            # Map warehouse names to group XML IDs - try multiple variations
             warehouse_group_mapping = {
                 'SSAOCO-Main Office': 'warehouse_tansfer_automation.group_main_warehouse',
                 'Main Office': 'warehouse_tansfer_automation.group_main_warehouse',
@@ -432,43 +434,66 @@ class StockPicking(models.Model):
                 'Baladiya': 'warehouse_tansfer_automation.group_baladiya_warehouse',
             }
 
-            # Find the matching group XML ID
-            group_xmlid = None
-            for key, xmlid in warehouse_group_mapping.items():
-                if key in warehouse.name or warehouse.name in key:
-                    group_xmlid = xmlid
-                    break
+            # Find the matching group XML ID - try exact match first
+            group_xmlid = warehouse_group_mapping.get(warehouse.name)
+
+            # If no exact match, try partial matching
+            if not group_xmlid:
+                for key, xmlid in warehouse_group_mapping.items():
+                    if key.lower() in warehouse.name.lower() or warehouse.name.lower() in key.lower():
+                        group_xmlid = xmlid
+                        _logger.info('  ✓ Matched warehouse "%s" with key "%s"', warehouse.name, key)
+                        break
 
             if group_xmlid:
                 try:
+                    _logger.info('  🔍 Looking for group: %s', group_xmlid)
                     warehouse_group = self.env.ref(group_xmlid, raise_if_not_found=False)
                     if warehouse_group:
+                        _logger.info('  ✓ Group found: %s (ID: %s)', warehouse_group.name, warehouse_group.id)
+
                         # Get users who are in this specific warehouse group
                         warehouse_users = self.env['res.users'].search([
                             ('groups_id', 'in', warehouse_group.id),
                             ('active', '=', True),
                             ('share', '=', False)  # Exclude portal users
                         ])
+
                         if warehouse_users:
-                            _logger.info('Found %d users for warehouse %s (group: %s)',
-                                         len(warehouse_users), warehouse.name, group_xmlid)
+                            _logger.info('  ✅ Found %d users for warehouse %s: %s',
+                                         len(warehouse_users), warehouse.name,
+                                         ', '.join(warehouse_users.mapped('name')))
                             return warehouse_users
                         else:
-                            _logger.warning('No users found in group %s for warehouse %s',
-                                            group_xmlid, warehouse.name)
+                            _logger.warning('  ❌ Group exists but NO USERS in group %s for warehouse %s',
+                                            warehouse_group.name, warehouse.name)
+                    else:
+                        _logger.error('  ❌ Group XML ID %s not found in system', group_xmlid)
                 except Exception as e:
-                    _logger.error('Error getting group %s: %s', group_xmlid, str(e))
+                    _logger.error('  ❌ Error getting group %s: %s', group_xmlid, str(e))
+            else:
+                _logger.error('  ❌ Could not match warehouse name "%s" to any group', warehouse.name)
 
-            # If no specific group found, log warning
-            _logger.warning('Could not find warehouse group for warehouse: %s', warehouse.name)
+            # Log all available warehouse groups for debugging
+            _logger.info('  📋 Available warehouse groups in system:')
+            all_wh_groups = self.env['res.groups'].search([('name', 'like', 'Warehouse User')])
+            for grp in all_wh_groups:
+                users_count = len(self.env['res.users'].search([
+                    ('groups_id', 'in', grp.id),
+                    ('active', '=', True),
+                    ('share', '=', False)
+                ]))
+                _logger.info('    - %s: %d users', grp.name, users_count)
 
-            # Return empty recordset instead of admin - let calling function handle it
+            # Return empty recordset instead of admin
+            _logger.error('  ❌ NO USERS FOUND for warehouse: %s', warehouse.name)
             return self.env['res.users'].browse([])
 
         except Exception as e:
-            _logger.error('Error getting warehouse users: %s', str(e))
+            _logger.error('❌ Error in _get_warehouse_users: %s', str(e))
+            import traceback
+            _logger.error(traceback.format_exc())
             return self.env['res.users'].browse([])
-
 
 
 

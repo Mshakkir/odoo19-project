@@ -454,7 +454,7 @@ class StockPicking(models.Model):
 
                         # Get users who are in this specific warehouse group
                         warehouse_users = self.env['res.users'].search([
-                            ('groups_id', 'in', warehouse_group.id),
+                            ('group_ids', 'in', warehouse_group.id),  # Changed from groups_id to group_ids
                             ('active', '=', True),
                             ('share', '=', False)  # Exclude portal users
                         ])
@@ -479,7 +479,7 @@ class StockPicking(models.Model):
             all_wh_groups = self.env['res.groups'].search([('name', 'like', 'Warehouse User')])
             for grp in all_wh_groups:
                 users_count = len(self.env['res.users'].search([
-                    ('groups_id', 'in', grp.id),
+                    ('group_ids', 'in', grp.id),  # Changed from groups_id to group_ids
                     ('active', '=', True),
                     ('share', '=', False)
                 ]))

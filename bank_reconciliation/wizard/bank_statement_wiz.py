@@ -480,7 +480,6 @@
 
 # -*- coding: utf-8 -*-
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 import logging
@@ -561,12 +560,6 @@ class BankStatement(models.Model):
         ('overdue', 'Overdue'),
         ('done', 'Done'),
     ], string='Status', default='draft', readonly=True, tracking=True)
-
-    # Add a helper field to show line status
-    line_status = fields.Selection([
-        ('cleared', 'Cleared'),
-        ('pending', 'Pending'),
-    ], string='Line Status', compute='_compute_line_status', store=False)
 
     @api.depends('journal_id')
     def _compute_account_id(self):

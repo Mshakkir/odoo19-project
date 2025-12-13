@@ -140,23 +140,6 @@
                         </page>
                         <page string="Summary">
                             <group>
-                                <group string="Statistics">
-                                   <div class="o_form_label">Cleared Transactions</div>
-                                    <div>
-                                        <span class="text-success">
-                                            <i class="fa fa-check-circle"/>
-                                            <field name="line_ids" invisible="1"/>
-                                            <t t-esc="len([l for l in line_ids if l.statement_date])"/> transactions
-                                        </span>
-                                    </div>
-                                    <label string="Pending Transactions"/>
-                                    <div>
-                                        <span class="text-warning">
-                                            <i class="fa fa-clock-o"/>
-                                            <t t-esc="len([l for l in line_ids if not l.statement_date])"/> transactions
-                                        </span>
-                                    </div>
-                                </group>
                                 <group string="Balances">
                                     <field name="gl_balance" widget="monetary"/>
                                     <field name="bank_balance" widget="monetary"/>
@@ -198,10 +181,10 @@
             <p>
                 The color coding helps you identify the status at a glance:
                 <ul>
-                    <li><span class="text-success">■</span> Green - Cleared/Done</li>
-                    <li><span class="text-warning">■</span> Yellow - Pending</li>
-                    <li><span class="text-danger">■</span> Red - Overdue (>7 days)</li>
-                    <li><span class="text-muted">■</span> Gray - Draft</li>
+                    <li><span class="text-success">● </span> Green - Cleared/Done</li>
+                    <li><span class="text-warning">● </span> Yellow - Pending</li>
+                    <li><span class="text-danger">● </span> Red - Overdue (>7 days)</li>
+                    <li><span class="text-muted">● </span> Gray - Draft</li>
                 </ul>
             </p>
         </field>

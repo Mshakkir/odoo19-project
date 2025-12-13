@@ -479,6 +479,7 @@
 #         }
 
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 import logging
@@ -636,13 +637,11 @@ class BankStatement(models.Model):
             gl_lines = self.env['account.move.line'].search(domain_gl)
             gl_balance = sum(line.debit - line.credit for line in gl_lines)
 
-            # Calculate bank balance = Previously reconciled + Currently reconciled
-
             # 1. Get previously reconciled entries (NOT in current statement)
             domain_prev_reconciled = [
                 ('account_id', '=', record.account_id.id),
-                ('id', 'not in', record.line_ids.ids),  # Exclude current statement lines
-                ('statement_date', '!=', False),  # Must have statement date (reconciled)
+                ('id', 'not in', record.line_ids.ids),
+                ('statement_date', '!=', False),
                 ('move_id.state', '=', 'posted')
             ]
             if record.date_to:
@@ -668,16 +667,6 @@ class BankStatement(models.Model):
             record.gl_balance = gl_balance
             record.bank_balance = bank_balance
             record.balance_difference = balance_difference
-
-            # Debug logging
-            _logger.info("=" * 80)
-            _logger.info(f"Bank Reconciliation Calculation - {record.name}")
-            _logger.info(f"GL Balance (all posted): {gl_balance}")
-            _logger.info(f"Previously Reconciled: {prev_reconciled_balance}")
-            _logger.info(f"Currently Reconciled: {current_reconciled_balance}")
-            _logger.info(f"Bank Balance (total reconciled): {bank_balance}")
-            _logger.info(f"Difference (outstanding): {balance_difference}")
-            _logger.info("=" * 80)
 
     def action_save_reconciliation(self):
         """Save the reconciliation and mark as done"""
@@ -758,6 +747,15 @@ class BankStatement(models.Model):
         statements.action_check_overdue()
         return True
 
+    def action_print_report(self):
+        """Print PDF report for bank reconciliation statement"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.report',
+            'report_name': 'bank_reconciliation.bank_reconciliation_report_template',
+            'report_type': 'qweb-pdf',
+        }
+
     def action_reopen(self):
         """Reopen a done statement for editing"""
         self.ensure_one()
@@ -772,11 +770,6 @@ class BankStatement(models.Model):
                 'type': 'warning',
             }
         }
-
-    def action_print_report(self):
-        """Print PDF report"""
-        self.ensure_one()
-        return self.env.ref('bank_reconciliation.report_bank_reconciliation').report_action(self)
 
     @api.model_create_multi
     def create(self, vals_list):

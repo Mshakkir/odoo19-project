@@ -3,7 +3,7 @@
     <!-- Report Action Definition -->
     <record id="report_bank_reconciliation" model="ir.actions.report">
         <field name="name">Bank Reconciliation Report</field>
-        <field name="model_id" ref="model_bank_statement"/>
+        <field name="model">bank.statement</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">bank_reconciliation.bank_reconciliation_report_template</field>
         <field name="print_report_name">'Bank Reconciliation - %s' % (object.name)</field>
@@ -220,3 +220,232 @@
         </t>
     </template>
 </odoo>
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    &lt;!&ndash; Report Action Definition &ndash;&gt;-->
+<!--    <report-->
+<!--        id="report_bank_reconciliation"-->
+<!--        model="bank.statement"-->
+<!--        string="Bank Reconciliation Report"-->
+<!--        report_type="qweb-pdf"-->
+<!--        name="bank_reconciliation.bank_reconciliation_report_template"-->
+<!--        file="bank_reconciliation.bank_reconciliation_report_template"-->
+<!--        print_report_name="'Bank Reconciliation - %s' % (object.name)"-->
+<!--    />-->
+
+<!--    &lt;!&ndash; Report Template &ndash;&gt;-->
+<!--    <template id="bank_reconciliation_report_template">-->
+<!--        <t t-call="web.html_container">-->
+<!--            <t t-foreach="docs" t-as="o">-->
+<!--                <t t-call="web.external_layout">-->
+<!--                    <div class="page">-->
+<!--                        &lt;!&ndash; Header &ndash;&gt;-->
+<!--                        <div class="text-center" style="border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px;">-->
+<!--                            <h2 style="margin: 0; color: #333;">Bank Reconciliation Statement</h2>-->
+<!--                        </div>-->
+
+<!--                        &lt;!&ndash; Statement Info &ndash;&gt;-->
+<!--                        <div class="row mt32 mb32">-->
+<!--                            <div class="col-6">-->
+<!--                                <table style="width: 100%; border: none;">-->
+<!--                                    <tr>-->
+<!--                                        <td style="padding: 5px 0;"><strong>Bank Journal:</strong></td>-->
+<!--                                        <td style="padding: 5px 0;"><span t-field="o.journal_id"/></td>-->
+<!--                                    </tr>-->
+<!--                                    <tr>-->
+<!--                                        <td style="padding: 5px 0;"><strong>Bank Account:</strong></td>-->
+<!--                                        <td style="padding: 5px 0;"><span t-field="o.account_id"/></td>-->
+<!--                                    </tr>-->
+<!--                                    <tr>-->
+<!--                                        <td style="padding: 5px 0;"><strong>Period:</strong></td>-->
+<!--                                        <td style="padding: 5px 0;">-->
+<!--                                            <span t-field="o.date_from"/> to <span t-field="o.date_to"/>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+<!--                                    <tr>-->
+<!--                                        <td style="padding: 5px 0;"><strong>Status:</strong></td>-->
+<!--                                        <td style="padding: 5px 0;">-->
+<!--                                            <span t-if="o.state == 'draft'" style="background: #6c757d; color: white; padding: 2px 8px; border-radius: 3px;">Draft</span>-->
+<!--                                            <span t-elif="o.state == 'pending'" style="background: #ffc107; color: #000; padding: 2px 8px; border-radius: 3px;">Pending</span>-->
+<!--                                            <span t-elif="o.state == 'cleared'" style="background: #28a745; color: white; padding: 2px 8px; border-radius: 3px;">Cleared</span>-->
+<!--                                            <span t-elif="o.state == 'overdue'" style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 3px;">Overdue</span>-->
+<!--                                            <span t-elif="o.state == 'done'" style="background: #28a745; color: white; padding: 2px 8px; border-radius: 3px;">Done</span>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+<!--                                </table>-->
+<!--                            </div>-->
+<!--                            <div class="col-6">-->
+<!--                                <table style="width: 100%; border: none;">-->
+<!--                                    <tr>-->
+<!--                                        <td style="padding: 5px 0;"><strong>Reference:</strong></td>-->
+<!--                                        <td style="padding: 5px 0;"><span t-field="o.name"/></td>-->
+<!--                                    </tr>-->
+<!--                                    <tr>-->
+<!--                                        <td style="padding: 5px 0;"><strong>Company:</strong></td>-->
+<!--                                        <td style="padding: 5px 0;"><span t-field="o.company_id.name"/></td>-->
+<!--                                    </tr>-->
+<!--                                    <tr>-->
+<!--                                        <td style="padding: 5px 0;"><strong>Currency:</strong></td>-->
+<!--                                        <td style="padding: 5px 0;"><span t-field="o.currency_id.name"/></td>-->
+<!--                                    </tr>-->
+<!--                                    <tr>-->
+<!--                                        <td style="padding: 5px 0;"><strong>Date Printed:</strong></td>-->
+<!--                                        <td style="padding: 5px 0;" t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M')"/>-->
+<!--                                    </tr>-->
+<!--                                </table>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+<!--                        &lt;!&ndash; Reconciliation Summary &ndash;&gt;-->
+<!--                        <h3 style="background: #f5f5f5; padding: 8px; margin-top: 30px; border-left: 4px solid #007bff;">Reconciliation Summary</h3>-->
+<!--                        <table class="table table-sm table-bordered" style="margin-bottom: 30px;">-->
+<!--                            <tr style="background-color: #f8f9fa;">-->
+<!--                                <td style="padding: 10px; width: 70%;"><strong>Balance as per Company Books:</strong></td>-->
+<!--                                <td class="text-right" style="padding: 10px;">-->
+<!--                                    <strong style="font-size: 1.1em;">-->
+<!--                                        <span t-field="o.gl_balance" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>-->
+<!--                                    </strong>-->
+<!--                                </td>-->
+<!--                            </tr>-->
+<!--                            <tr>-->
+<!--                                <td style="padding: 10px;">-->
+<!--                                    <strong>Add/Less: Amounts not Reflected in Bank</strong>-->
+<!--                                    <br/>-->
+<!--                                    <small class="text-muted">(Outstanding checks, deposits in transit, etc.)</small>-->
+<!--                                </td>-->
+<!--                                <td class="text-right" style="padding: 10px;">-->
+<!--                                    <span t-field="o.balance_difference" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>-->
+<!--                                </td>-->
+<!--                            </tr>-->
+<!--                            <tr style="background-color: #d4edda; border-top: 3px solid #28a745;">-->
+<!--                                <td style="padding: 12px;"><strong style="font-size: 1.1em;">Balance as per Bank Statement:</strong></td>-->
+<!--                                <td class="text-right" style="padding: 12px;">-->
+<!--                                    <strong style="font-size: 1.3em; color: #28a745;">-->
+<!--                                        <span t-field="o.bank_balance" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>-->
+<!--                                    </strong>-->
+<!--                                </td>-->
+<!--                            </tr>-->
+<!--                        </table>-->
+
+<!--                        &lt;!&ndash; Transaction Details &ndash;&gt;-->
+<!--                        <h3 style="background: #f5f5f5; padding: 8px; margin-top: 30px; border-left: 4px solid #007bff;">Transaction Details</h3>-->
+<!--                        <table class="table table-sm table-bordered o_main_table" style="margin-bottom: 30px;">-->
+<!--                            <thead style="background-color: #343a40; color: white;">-->
+<!--                                <tr>-->
+<!--                                    <th style="padding: 10px;">Date</th>-->
+<!--                                    <th style="padding: 10px;">Reference</th>-->
+<!--                                    <th style="padding: 10px;">Partner</th>-->
+<!--                                    <th class="text-right" style="padding: 10px;">Debit</th>-->
+<!--                                    <th class="text-right" style="padding: 10px;">Credit</th>-->
+<!--                                    <th class="text-right" style="padding: 10px;">Balance</th>-->
+<!--                                    <th class="text-center" style="padding: 10px;">Statement Date</th>-->
+<!--                                    <th class="text-center" style="padding: 10px;">Status</th>-->
+<!--                                </tr>-->
+<!--                            </thead>-->
+<!--                            <tbody>-->
+<!--                                <t t-foreach="o.line_ids" t-as="line">-->
+<!--                                    <tr t-att-style="'background-color: #d4edda;' if line.statement_date else 'background-color: #fff3cd;'">-->
+<!--                                        <td style="padding: 8px;"><span t-field="line.date"/></td>-->
+<!--                                        <td style="padding: 8px;">-->
+<!--                                            <span t-field="line.ref"/>-->
+<!--                                            <t t-if="not line.ref"><span t-field="line.name"/></t>-->
+<!--                                        </td>-->
+<!--                                        <td style="padding: 8px;"><span t-field="line.partner_id"/></td>-->
+<!--                                        <td class="text-right" style="padding: 8px;">-->
+<!--                                            <span t-if="line.debit > 0" t-field="line.debit" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>-->
+<!--                                            <span t-else="">-</span>-->
+<!--                                        </td>-->
+<!--                                        <td class="text-right" style="padding: 8px;">-->
+<!--                                            <span t-if="line.credit > 0" t-field="line.credit" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>-->
+<!--                                            <span t-else="">-</span>-->
+<!--                                        </td>-->
+<!--                                        <td class="text-right" style="padding: 8px; font-weight: bold;">-->
+<!--                                            <span t-esc="line.debit - line.credit" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>-->
+<!--                                        </td>-->
+<!--                                        <td class="text-center" style="padding: 8px;">-->
+<!--                                            <span t-if="line.statement_date" t-field="line.statement_date"/>-->
+<!--                                            <span t-else="" style="color: #6c757d;">Pending</span>-->
+<!--                                        </td>-->
+<!--                                        <td class="text-center" style="padding: 8px;">-->
+<!--                                            <span t-if="line.statement_date" style="color: #28a745; font-weight: bold;">✓ Cleared</span>-->
+<!--                                            <span t-else="" style="color: #ffc107; font-weight: bold;">⏳ Pending</span>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+<!--                                </t>-->
+<!--                            </tbody>-->
+<!--                            <tfoot style="background-color: #f8f9fa; font-weight: bold; border-top: 2px solid #000;">-->
+<!--                                <tr>-->
+<!--                                    <td colspan="3" style="padding: 10px;"><strong>Total:</strong></td>-->
+<!--                                    <td class="text-right" style="padding: 10px;">-->
+<!--                                        <strong>-->
+<!--                                            <span t-esc="sum(o.line_ids.mapped('debit'))" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>-->
+<!--                                        </strong>-->
+<!--                                    </td>-->
+<!--                                    <td class="text-right" style="padding: 10px;">-->
+<!--                                        <strong>-->
+<!--                                            <span t-esc="sum(o.line_ids.mapped('credit'))" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>-->
+<!--                                        </strong>-->
+<!--                                    </td>-->
+<!--                                    <td class="text-right" style="padding: 10px;">-->
+<!--                                        <strong>-->
+<!--                                            <span t-esc="sum(o.line_ids.mapped('debit')) - sum(o.line_ids.mapped('credit'))" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>-->
+<!--                                        </strong>-->
+<!--                                    </td>-->
+<!--                                    <td colspan="2"></td>-->
+<!--                                </tr>-->
+<!--                            </tfoot>-->
+<!--                        </table>-->
+
+<!--                        &lt;!&ndash; Statistics Summary &ndash;&gt;-->
+<!--                        <h3 style="background: #f5f5f5; padding: 8px; margin-top: 30px; border-left: 4px solid #007bff;">Statistics</h3>-->
+<!--                        <div class="row" style="margin-bottom: 30px;">-->
+<!--                            <div class="col-6">-->
+<!--                                <table class="table table-sm table-bordered">-->
+<!--                                    <tr style="background-color: #d4edda;">-->
+<!--                                        <td style="padding: 10px;"><strong>✓ Cleared Transactions:</strong></td>-->
+<!--                                        <td class="text-right" style="padding: 10px;"><strong><span t-esc="cleared_count"/></strong></td>-->
+<!--                                    </tr>-->
+<!--                                    <tr style="background-color: #fff3cd;">-->
+<!--                                        <td style="padding: 10px;"><strong>⏳ Pending Transactions:</strong></td>-->
+<!--                                        <td class="text-right" style="padding: 10px;"><strong><span t-esc="pending_count"/></strong></td>-->
+<!--                                    </tr>-->
+<!--                                </table>-->
+<!--                            </div>-->
+<!--                            <div class="col-6">-->
+<!--                                <table class="table table-sm table-bordered">-->
+<!--                                    <tr style="background-color: #d4edda;">-->
+<!--                                        <td style="padding: 10px;"><strong>Cleared Amount:</strong></td>-->
+<!--                                        <td class="text-right" style="padding: 10px;">-->
+<!--                                            <strong>-->
+<!--                                                <span t-esc="total_cleared" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>-->
+<!--                                            </strong>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+<!--                                    <tr style="background-color: #fff3cd;">-->
+<!--                                        <td style="padding: 10px;"><strong>Pending Amount:</strong></td>-->
+<!--                                        <td class="text-right" style="padding: 10px;">-->
+<!--                                            <strong>-->
+<!--                                                <span t-esc="total_pending" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>-->
+<!--                                            </strong>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+<!--                                </table>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+<!--                        &lt;!&ndash; Footer &ndash;&gt;-->
+<!--                        <div style="margin-top: 30px; text-align: center; font-size: 0.85em; color: #6c757d;">-->
+<!--                            <p style="margin: 0;">This is a computer-generated document.</p>-->
+<!--                            <p style="margin: 5px 0 0 0;">Generated on: <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M:%S')"/></p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </t>-->
+<!--            </t>-->
+<!--        </t>-->
+<!--    </template>-->
+<!--</odoo>-->

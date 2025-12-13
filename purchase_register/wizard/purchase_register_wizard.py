@@ -476,7 +476,7 @@ class PurchaseRegisterWizard(models.TransientModel):
             'name': _('Purchase Register Details'),
             'type': 'ir.actions.act_window',
             'res_model': 'purchase.register.line',
-            'view_mode': 'tree',
+            'view_mode': 'list',
             'domain': [('id', 'in', line_ids)],
             'context': {
                 'create': False,

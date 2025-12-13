@@ -37,7 +37,7 @@
         <field name="name">purchase.register.line.tree</field>
         <field name="model">purchase.register.line</field>
         <field name="arch" type="xml">
-            <tree string="Purchase Register Details" create="false" edit="false" delete="false">
+            <list string="Purchase Register Details" create="false" edit="false" delete="false">
                 <field name="date"/>
                 <field name="document_type"/>
                 <field name="document_number"/>
@@ -58,7 +58,7 @@
                 <field name="paid" sum="Total Paid"/>
                 <field name="balance" sum="Total Balance"/>
                 <field name="currency"/>
-            </tree>
+            </list>
         </field>
     </record>
 

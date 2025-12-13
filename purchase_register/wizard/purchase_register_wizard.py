@@ -328,7 +328,7 @@ class PurchaseRegisterWizard(models.TransientModel):
                     if hasattr(invoice, 'additional_discount') and invoice.additional_discount:
                         if invoice.amount_untaxed > 0:
                             addin_discount = (
-                                                         line.price_subtotal / invoice.amount_untaxed) * invoice.additional_discount
+                                                     line.price_subtotal / invoice.amount_untaxed) * invoice.additional_discount
 
                     # Additional Cost (invoice level freight/charges)
                     addin_cost = 0
@@ -428,6 +428,63 @@ class PurchaseRegisterWizard(models.TransientModel):
         detailed_data.sort(key=lambda x: x['date'])
 
         return detailed_data
+
+    def action_show_details(self):
+        """Show purchase register details in tree view"""
+        self.ensure_one()
+        purchase_data = self._get_purchase_data()
+
+        if not purchase_data:
+            raise UserError(_('No purchase data found for the selected period.'))
+
+        # Create temporary records in the line model
+        PurchaseLine = self.env['purchase.register.line']
+
+        # Delete old records to keep database clean
+        old_lines = PurchaseLine.search([])
+        old_lines.unlink()
+
+        # Create new records
+        line_ids = []
+        for data in purchase_data:
+            line = PurchaseLine.create({
+                'date': data['date'],
+                'document_type': data['document_type'],
+                'document_number': data['document_number'],
+                'supplier_name': data['supplier_name'],
+                'supplier_vat': data['supplier_vat'],
+                'warehouse': data['warehouse'],
+                'product': data['product'],
+                'quantity': data['quantity'],
+                'unit_price': data['unit_price'],
+                'subtotal': data['subtotal'],
+                'trade_discount': data['trade_discount'],
+                'addin_discount': data['addin_discount'],
+                'addin_cost': data['addin_cost'],
+                'taxes': data['taxes'],
+                'tax_amount': data['tax_amount'],
+                'round_off': data['round_off'],
+                'total': data['total'],
+                'paid': data['paid'],
+                'balance': data['balance'],
+                'currency': data['currency'],
+            })
+            line_ids.append(line.id)
+
+        # Return tree view action
+        return {
+            'name': _('Purchase Register Details'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'purchase.register.line',
+            'view_mode': 'tree',
+            'domain': [('id', 'in', line_ids)],
+            'context': {
+                'create': False,
+                'edit': False,
+                'delete': False,
+            },
+            'target': 'current',
+        }
 
     def action_print_pdf(self):
         """Generate PDF Report"""
@@ -581,3 +638,31 @@ class PurchaseRegisterWizard(models.TransientModel):
             'url': f'/web/content/{attachment.id}?download=true',
             'target': 'new',
         }
+
+
+class PurchaseRegisterLine(models.TransientModel):
+    """Temporary model to display purchase register lines in tree view"""
+    _name = 'purchase.register.line'
+    _description = 'Purchase Register Line'
+    _order = 'date desc, id desc'
+
+    date = fields.Date(string='Date')
+    document_type = fields.Char(string='Type')
+    document_number = fields.Char(string='Document No.')
+    supplier_name = fields.Char(string='Supplier')
+    supplier_vat = fields.Char(string='VAT')
+    warehouse = fields.Char(string='Warehouse')
+    product = fields.Char(string='Product')
+    quantity = fields.Float(string='Qty', digits=(16, 2))
+    unit_price = fields.Float(string='Unit Price', digits=(16, 2))
+    subtotal = fields.Float(string='Subtotal', digits=(16, 2))
+    trade_discount = fields.Float(string='Trade Dis', digits=(16, 2))
+    addin_discount = fields.Float(string='AddIn Dis', digits=(16, 2))
+    addin_cost = fields.Float(string='AddIn Cost', digits=(16, 2))
+    taxes = fields.Char(string='Tax')
+    tax_amount = fields.Float(string='Tax Amt', digits=(16, 2))
+    round_off = fields.Float(string='Round Off', digits=(16, 2))
+    total = fields.Float(string='Total', digits=(16, 2))
+    paid = fields.Float(string='Paid', digits=(16, 2))
+    balance = fields.Float(string='Balance', digits=(16, 2))
+    currency = fields.Char(string='Currency')

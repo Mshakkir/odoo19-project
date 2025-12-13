@@ -23,10 +23,42 @@
                     </group>
                 </sheet>
                 <footer>
+                    <button name="action_show_details" string="Show Details" type="object" class="btn-info"/>
                     <button name="action_print_pdf" string="Print PDF" type="object" class="btn-primary"/>
+                    <button name="action_export_excel" string="Export Excel" type="object" class="btn-success"/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
+        </field>
+    </record>
+
+    <!-- Purchase Register Line Tree View -->
+    <record id="view_purchase_register_line_tree" model="ir.ui.view">
+        <field name="name">purchase.register.line.tree</field>
+        <field name="model">purchase.register.line</field>
+        <field name="arch" type="xml">
+            <tree string="Purchase Register Details" create="false" edit="false" delete="false">
+                <field name="date"/>
+                <field name="document_type"/>
+                <field name="document_number"/>
+                <field name="supplier_name"/>
+                <field name="supplier_vat"/>
+                <field name="warehouse"/>
+                <field name="product"/>
+                <field name="quantity" sum="Total Qty"/>
+                <field name="unit_price"/>
+                <field name="subtotal" sum="Total Subtotal"/>
+                <field name="trade_discount" sum="Total Trade Dis"/>
+                <field name="addin_discount" sum="Total AddIn Dis"/>
+                <field name="addin_cost" sum="Total AddIn Cost"/>
+                <field name="taxes"/>
+                <field name="tax_amount" sum="Total Tax"/>
+                <field name="round_off" sum="Total Round Off"/>
+                <field name="total" sum="Grand Total"/>
+                <field name="paid" sum="Total Paid"/>
+                <field name="balance" sum="Total Balance"/>
+                <field name="currency"/>
+            </tree>
         </field>
     </record>
 

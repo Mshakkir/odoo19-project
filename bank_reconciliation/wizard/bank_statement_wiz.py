@@ -216,6 +216,7 @@
 
 # -*- coding: utf-8 -*-
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 import logging
@@ -359,7 +360,7 @@ class BankStatement(models.Model):
                 record.balance_difference = 0.0
                 continue
 
-            # Calculate GL balance (all posted entries)
+            # Calculate GL balance (all posted entries up to date_to)
             domain_gl = [
                 ('account_id', '=', record.account_id.id),
                 ('move_id.state', '=', 'posted')
@@ -370,29 +371,51 @@ class BankStatement(models.Model):
             gl_lines = self.env['account.move.line'].search(domain_gl)
             gl_balance = sum(line.debit - line.credit for line in gl_lines)
 
-            # Calculate bank balance (previously reconciled entries)
-            domain_bank = [
+            # Calculate bank balance = Previously reconciled + Currently reconciled
+
+            # 1. Get previously reconciled entries (NOT in current statement)
+            domain_prev_reconciled = [
                 ('account_id', '=', record.account_id.id),
-                ('id', 'not in', record.line_ids.ids),
-                ('statement_date', '!=', False),
+                ('id', 'not in', record.line_ids.ids),  # Exclude current statement lines
+                ('statement_date', '!=', False),  # Must have statement date (reconciled)
                 ('move_id.state', '=', 'posted')
             ]
             if record.date_to:
-                domain_bank.append(('statement_date', '<=', record.date_to))
+                domain_prev_reconciled.append(('statement_date', '<=', record.date_to))
 
-            bank_lines = self.env['account.move.line'].search(domain_bank)
-            bank_balance = sum(line.balance for line in bank_lines)
+            prev_reconciled_lines = self.env['account.move.line'].search(domain_prev_reconciled)
+            prev_reconciled_balance = sum(line.debit - line.credit for line in prev_reconciled_lines)
 
-            # Add currently reconciled entries in this statement
-            current_update = sum(
+            # 2. Get currently reconciled entries (IN current statement WITH statement_date)
+            current_reconciled_balance = sum(
                 line.debit - line.credit
                 for line in record.line_ids
-                if line.statement_date
+                if line.statement_date and line.statement_date <= (record.date_to or fields.Date.today())
             )
 
+            # Total bank balance = previously reconciled + currently reconciled
+            bank_balance = prev_reconciled_balance + current_reconciled_balance
+
+            # Difference = Company Books - Bank Balance
+            # Positive = Money in books but not in bank (deposits in transit, etc.)
+            # Negative = Money in bank but not in books (shouldn't happen normally)
+            # Or: Checks written but not cashed (outstanding checks)
+            balance_difference = gl_balance - bank_balance
+
+            # Set computed values
             record.gl_balance = gl_balance
-            record.bank_balance = bank_balance + current_update
-            record.balance_difference = record.gl_balance - record.bank_balance
+            record.bank_balance = bank_balance
+            record.balance_difference = balance_difference
+
+            # Debug logging
+            _logger.info("=" * 80)
+            _logger.info(f"Bank Reconciliation Calculation - {record.name}")
+            _logger.info(f"GL Balance (all posted): {gl_balance}")
+            _logger.info(f"Previously Reconciled: {prev_reconciled_balance}")
+            _logger.info(f"Currently Reconciled: {current_reconciled_balance}")
+            _logger.info(f"Bank Balance (total reconciled): {bank_balance}")
+            _logger.info(f"Difference (outstanding): {balance_difference}")
+            _logger.info("=" * 80)
 
     def action_save_reconciliation(self):
         """Save the reconciliation and mark as done"""

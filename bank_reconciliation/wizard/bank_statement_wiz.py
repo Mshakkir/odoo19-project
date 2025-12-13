@@ -750,11 +750,7 @@ class BankStatement(models.Model):
     def action_print_report(self):
         """Print PDF report for bank reconciliation statement"""
         self.ensure_one()
-        return {
-            'type': 'ir.actions.report',
-            'report_name': 'bank_reconciliation.bank_reconciliation_report_template',
-            'report_type': 'qweb-pdf',
-        }
+        return self.env.ref('bank_reconciliation.report_bank_reconciliation').report_action(self)
 
     def action_reopen(self):
         """Reopen a done statement for editing"""

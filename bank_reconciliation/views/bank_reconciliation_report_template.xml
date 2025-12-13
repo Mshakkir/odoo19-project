@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Report Definition -->
+    <!-- Report Action Definition -->
     <report
         id="report_bank_reconciliation"
-        string="Bank Reconciliation Report"
         model="bank.statement"
+        string="Bank Reconciliation Report"
         report_type="qweb-pdf"
         name="bank_reconciliation.bank_reconciliation_report_template"
         file="bank_reconciliation.bank_reconciliation_report_template"
@@ -68,7 +68,7 @@
                                     </tr>
                                     <tr>
                                         <td style="padding: 5px 0;"><strong>Date Printed:</strong></td>
-                                        <td style="padding: 5px 0;"><span t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M')"/></td>
+                                        <td style="padding: 5px 0;" t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M')"/>
                                     </tr>
                                 </table>
                             </div>
@@ -81,8 +81,7 @@
                                 <td style="padding: 10px; width: 70%;"><strong>Balance as per Company Books:</strong></td>
                                 <td class="text-right" style="padding: 10px;">
                                     <strong style="font-size: 1.1em;">
-                                        <span t-field="o.gl_balance"
-                                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        <span t-field="o.gl_balance" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                     </strong>
                                 </td>
                             </tr>
@@ -93,16 +92,14 @@
                                     <small class="text-muted">(Outstanding checks, deposits in transit, etc.)</small>
                                 </td>
                                 <td class="text-right" style="padding: 10px;">
-                                    <span t-field="o.balance_difference"
-                                          t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    <span t-field="o.balance_difference" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                 </td>
                             </tr>
                             <tr style="background-color: #d4edda; border-top: 3px solid #28a745;">
                                 <td style="padding: 12px;"><strong style="font-size: 1.1em;">Balance as per Bank Statement:</strong></td>
                                 <td class="text-right" style="padding: 12px;">
                                     <strong style="font-size: 1.3em; color: #28a745;">
-                                        <span t-field="o.bank_balance"
-                                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        <span t-field="o.bank_balance" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                     </strong>
                                 </td>
                             </tr>
@@ -133,18 +130,15 @@
                                         </td>
                                         <td style="padding: 8px;"><span t-field="line.partner_id"/></td>
                                         <td class="text-right" style="padding: 8px;">
-                                            <span t-if="line.debit > 0" t-field="line.debit"
-                                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                            <span t-if="line.debit > 0" t-field="line.debit" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                             <span t-else="">-</span>
                                         </td>
                                         <td class="text-right" style="padding: 8px;">
-                                            <span t-if="line.credit > 0" t-field="line.credit"
-                                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                            <span t-if="line.credit > 0" t-field="line.credit" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                             <span t-else="">-</span>
                                         </td>
                                         <td class="text-right" style="padding: 8px; font-weight: bold;">
-                                            <span t-esc="line.debit - line.credit"
-                                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                            <span t-esc="line.debit - line.credit" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                         </td>
                                         <td class="text-center" style="padding: 8px;">
                                             <span t-if="line.statement_date" t-field="line.statement_date"/>
@@ -162,20 +156,17 @@
                                     <td colspan="3" style="padding: 10px;"><strong>Total:</strong></td>
                                     <td class="text-right" style="padding: 10px;">
                                         <strong>
-                                            <span t-esc="sum(o.line_ids.mapped('debit'))"
-                                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                            <span t-esc="sum(o.line_ids.mapped('debit'))" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                         </strong>
                                     </td>
                                     <td class="text-right" style="padding: 10px;">
                                         <strong>
-                                            <span t-esc="sum(o.line_ids.mapped('credit'))"
-                                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                            <span t-esc="sum(o.line_ids.mapped('credit'))" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                         </strong>
                                     </td>
                                     <td class="text-right" style="padding: 10px;">
                                         <strong>
-                                            <span t-esc="sum(o.line_ids.mapped('debit')) - sum(o.line_ids.mapped('credit'))"
-                                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                            <span t-esc="sum(o.line_ids.mapped('debit')) - sum(o.line_ids.mapped('credit'))" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                         </strong>
                                     </td>
                                     <td colspan="2"></td>
@@ -204,8 +195,7 @@
                                         <td style="padding: 10px;"><strong>Cleared Amount:</strong></td>
                                         <td class="text-right" style="padding: 10px;">
                                             <strong>
-                                                <span t-esc="total_cleared"
-                                                      t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                                <span t-esc="total_cleared" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                             </strong>
                                         </td>
                                     </tr>
@@ -213,8 +203,7 @@
                                         <td style="padding: 10px;"><strong>Pending Amount:</strong></td>
                                         <td class="text-right" style="padding: 10px;">
                                             <strong>
-                                                <span t-esc="total_pending"
-                                                      t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                                <span t-esc="total_pending" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                             </strong>
                                         </td>
                                     </tr>
@@ -222,45 +211,9 @@
                             </div>
                         </div>
 
-                        <!-- Reconciliation Notes -->
-                        <div style="background: #f8f9fa; padding: 15px; border-left: 4px solid #17a2b8; margin: 20px 0;">
-                            <h4 style="margin-top: 0; color: #17a2b8;">Reconciliation Notes:</h4>
-                            <ul style="margin-bottom: 0;">
-                                <li>All amounts are in <span t-field="o.currency_id.name"/></li>
-                                <li>Cleared transactions have been verified against bank statement</li>
-                                <li>Pending transactions are awaiting bank clearance</li>
-                                <li>The difference represents outstanding items (checks, deposits in transit)</li>
-                            </ul>
-                        </div>
-
-                        <!-- Signatures -->
-                        <div class="row" style="margin-top: 80px; page-break-inside: avoid;">
-                            <div class="col-4">
-                                <div style="border-top: 2px solid #000; padding-top: 5px; text-align: center;">
-                                    <strong>Prepared By</strong>
-                                    <br/>
-                                    <span style="font-size: 0.9em; color: #6c757d;">Name &amp; Signature</span>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div style="border-top: 2px solid #000; padding-top: 5px; text-align: center;">
-                                    <strong>Reviewed By</strong>
-                                    <br/>
-                                    <span style="font-size: 0.9em; color: #6c757d;">Name &amp; Signature</span>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div style="border-top: 2px solid #000; padding-top: 5px; text-align: center;">
-                                    <strong>Approved By</strong>
-                                    <br/>
-                                    <span style="font-size: 0.9em; color: #6c757d;">Name &amp; Signature</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Footer Note -->
+                        <!-- Footer -->
                         <div style="margin-top: 30px; text-align: center; font-size: 0.85em; color: #6c757d;">
-                            <p style="margin: 0;">This is a computer-generated document. No signature is required.</p>
+                            <p style="margin: 0;">This is a computer-generated document.</p>
                             <p style="margin: 5px 0 0 0;">Generated on: <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M:%S')"/></p>
                         </div>
                     </div>

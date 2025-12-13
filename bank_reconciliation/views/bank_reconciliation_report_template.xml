@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Report Action Definition -->
-    <report
-        id="report_bank_reconciliation"
-        model="bank.statement"
-        string="Bank Reconciliation Report"
-        report_type="qweb-pdf"
-        name="bank_reconciliation.bank_reconciliation_report_template"
-        file="bank_reconciliation.bank_reconciliation_report_template"
-        print_report_name="'Bank Reconciliation - %s' % (object.name)"
-    />
+    <record id="report_bank_reconciliation" model="ir.actions.report">
+        <field name="name">Bank Reconciliation Report</field>
+        <field name="model_id" ref="model_bank_statement"/>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">bank_reconciliation.bank_reconciliation_report_template</field>
+        <field name="print_report_name">'Bank Reconciliation - %s' % (object.name)</field>
+    </record>
 
     <!-- Report Template -->
     <template id="bank_reconciliation_report_template">

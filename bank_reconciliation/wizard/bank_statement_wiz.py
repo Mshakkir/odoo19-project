@@ -480,7 +480,6 @@
 
 # -*- coding: utf-8 -*-
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 import logging
@@ -751,18 +750,7 @@ class BankStatement(models.Model):
     def action_print_report(self):
         """Print PDF report for bank reconciliation statement"""
         self.ensure_one()
-        # Render PDF using QWeb template directly
-        pdf_content, _ = self.env['ir.actions.report'].sudo()._render_qweb_pdf(
-            'bank_reconciliation.bank_reconciliation_report_template',
-            res_ids=[self.id]
-        )
-
-        # Return as downloadable file
-        return {
-            'type': 'ir.actions.act_url',
-            'url': f'/report/pdf/bank_reconciliation.bank_reconciliation_report_template/{self.id}',
-            'target': 'new',
-        }
+        return self.env.ref('bank_reconciliation.report_bank_reconciliation').report_action(self)
 
     def action_reopen(self):
         """Reopen a done statement for editing"""

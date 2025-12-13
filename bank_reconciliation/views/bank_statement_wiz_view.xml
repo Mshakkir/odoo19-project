@@ -10,7 +10,8 @@
             <list string="Statement Lines"
                   editable="bottom"
                   default_order="date"
-                  decoration-muted="statement_date != False"
+                  decoration-success="statement_date != False"
+                  decoration-warning="statement_date == False"
                   create="false"
                   delete="true">
                 <field name="date" readonly="1"/>
@@ -32,12 +33,16 @@
         </field>
     </record>
 
-    <!-- List View for Bank Statements -->
+    <!-- List View for Bank Statements with Color Coding -->
     <record id="bank_statement_tree" model="ir.ui.view">
         <field name="name">bank.statement.tree</field>
         <field name="model">bank.statement</field>
         <field name="arch" type="xml">
-            <list string="Bank Reconciliations">
+            <list string="Bank Reconciliations"
+                  decoration-success="state == 'cleared' or state == 'done'"
+                  decoration-warning="state == 'pending'"
+                  decoration-danger="state == 'overdue'"
+                  decoration-muted="state == 'draft'">
                 <field name="name"/>
                 <field name="journal_id"/>
                 <field name="date_from"/>
@@ -45,14 +50,18 @@
                 <field name="gl_balance" widget="monetary"/>
                 <field name="bank_balance" widget="monetary"/>
                 <field name="balance_difference" widget="monetary"/>
-                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'done'"/>
+                <field name="state" widget="badge"
+                       decoration-muted="state == 'draft'"
+                       decoration-warning="state == 'pending'"
+                       decoration-success="state == 'cleared' or state == 'done'"
+                       decoration-danger="state == 'overdue'"/>
                 <field name="currency_id" column_invisible="1"/>
                 <field name="company_id" column_invisible="1"/>
             </list>
         </field>
     </record>
 
-    <!-- Form View -->
+    <!-- Form View with Enhanced Status Management -->
     <record id="bank_statement_wiz" model="ir.ui.view">
         <field name="name">bank.statement.reconciliation</field>
         <field name="model">bank.statement</field>
@@ -64,14 +73,46 @@
                             type="object"
                             class="btn-secondary"
                             invisible="state == 'done'"/>
+                    <button name="action_set_pending"
+                            string="Mark as Pending"
+                            type="object"
+                            class="btn-warning"
+                            invisible="state != 'draft'"/>
+                    <button name="action_set_cleared"
+                            string="Mark as Cleared"
+                            type="object"
+                            class="btn-success"
+                            invisible="state not in ('draft', 'pending')"/>
                     <button name="action_save_reconciliation"
                             string="Save &amp; Close"
                             type="object"
                             class="btn-primary"
                             invisible="state == 'done'"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
+                    <button name="action_reopen"
+                            string="Reopen"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state != 'done'"
+                            groups="account.group_account_manager"/>
+                    <button name="action_print_report"
+                            string="Print Report"
+                            type="object"
+                            class="btn-info"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,pending,cleared,done"/>
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_check_overdue"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-clock-o"
+                                invisible="state not in ('draft', 'pending')">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Check</span>
+                                <span class="o_stat_text">Overdue</span>
+                            </div>
+                        </button>
+                    </div>
                     <div class="oe_title">
                         <h1>
                             <field name="name" readonly="1"/>
@@ -97,6 +138,32 @@
                                    readonly="state == 'done'"
                                    context="{'tree_view_ref': 'bank_reconciliation.view_move_line_tree_bank_statement'}"/>
                         </page>
+                        <page string="Summary">
+                            <group>
+                                <group string="Statistics">
+                                    <label string="Cleared Transactions"/>
+                                    <div>
+                                        <span class="text-success">
+                                            <i class="fa fa-check-circle"/>
+                                            <field name="line_ids" invisible="1"/>
+                                            <t t-esc="len([l for l in line_ids if l.statement_date])"/> transactions
+                                        </span>
+                                    </div>
+                                    <label string="Pending Transactions"/>
+                                    <div>
+                                        <span class="text-warning">
+                                            <i class="fa fa-clock-o"/>
+                                            <t t-esc="len([l for l in line_ids if not l.statement_date])"/> transactions
+                                        </span>
+                                    </div>
+                                </group>
+                                <group string="Balances">
+                                    <field name="gl_balance" widget="monetary"/>
+                                    <field name="bank_balance" widget="monetary"/>
+                                    <field name="balance_difference" widget="monetary"/>
+                                </group>
+                            </group>
+                        </page>
                     </notebook>
 
                     <group class="oe_subtotal_footer oe_right" col="1">
@@ -105,10 +172,16 @@
                         <field name="bank_balance" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                     </group>
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>
 
+    <!-- Action -->
     <record id="action_bank_statement_wiz" model="ir.actions.act_window">
         <field name="name">Bank Statement Reconciliation</field>
         <field name="res_model">bank.statement</field>
@@ -122,9 +195,19 @@
             <p>
                 Reconcile your bank transactions by marking the statement date when they appear in your bank statement.
             </p>
+            <p>
+                The color coding helps you identify the status at a glance:
+                <ul>
+                    <li><span class="text-success">■</span> Green - Cleared/Done</li>
+                    <li><span class="text-warning">■</span> Yellow - Pending</li>
+                    <li><span class="text-danger">■</span> Red - Overdue (>7 days)</li>
+                    <li><span class="text-muted">■</span> Gray - Draft</li>
+                </ul>
+            </p>
         </field>
     </record>
 
+    <!-- Menu -->
     <menuitem
         id="menu_action_bank_reconciliation"
         name="Bank Reconciliation"
@@ -136,10 +219,42 @@
 
 
 
+
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 
-<!--    &lt;!&ndash; Tree View &ndash;&gt;-->
+<!--    &lt;!&ndash; Dedicated list view for move lines in bank statement context &ndash;&gt;-->
+<!--    <record id="view_move_line_tree_bank_statement" model="ir.ui.view">-->
+<!--        <field name="name">account.move.line.tree.bank.statement</field>-->
+<!--        <field name="model">account.move.line</field>-->
+<!--        <field name="priority">16</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <list string="Statement Lines"-->
+<!--                  editable="bottom"-->
+<!--                  default_order="date"-->
+<!--                  decoration-muted="statement_date != False"-->
+<!--                  create="false"-->
+<!--                  delete="true">-->
+<!--                <field name="date" readonly="1"/>-->
+<!--                <field name="move_id" readonly="1" optional="hide"/>-->
+<!--                <field name="name" readonly="1"/>-->
+<!--                <field name="ref" readonly="1" optional="show"/>-->
+<!--                <field name="partner_id" readonly="1"/>-->
+<!--                <field name="debit" readonly="1" sum="Total Debit"/>-->
+<!--                <field name="credit" readonly="1" sum="Total Credit"/>-->
+<!--                <field name="balance" readonly="1" optional="show" sum="Balance"/>-->
+<!--                <field name="amount_currency" readonly="1" optional="hide" groups="base.group_multi_currency"/>-->
+<!--                <field name="currency_id" readonly="1" column_invisible="1"/>-->
+<!--                <field name="date_maturity" readonly="1" optional="hide"/>-->
+<!--                <field name="statement_date"/>-->
+<!--                <field name="company_currency_id" column_invisible="1" readonly="1"/>-->
+<!--                <field name="company_id" column_invisible="1"/>-->
+<!--                <field name="account_id" column_invisible="1"/>-->
+<!--            </list>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; List View for Bank Statements &ndash;&gt;-->
 <!--    <record id="bank_statement_tree" model="ir.ui.view">-->
 <!--        <field name="name">bank.statement.tree</field>-->
 <!--        <field name="model">bank.statement</field>-->
@@ -166,6 +281,16 @@
 <!--        <field name="arch" type="xml">-->
 <!--            <form string="Bank Statement Reconciliation">-->
 <!--                <header>-->
+<!--                    <button name="action_load_lines"-->
+<!--                            string="Reload Lines"-->
+<!--                            type="object"-->
+<!--                            class="btn-secondary"-->
+<!--                            invisible="state == 'done'"/>-->
+<!--                    <button name="action_save_reconciliation"-->
+<!--                            string="Save &amp; Close"-->
+<!--                            type="object"-->
+<!--                            class="btn-primary"-->
+<!--                            invisible="state == 'done'"/>-->
 <!--                    <field name="state" widget="statusbar" statusbar_visible="draft,done"/>-->
 <!--                </header>-->
 <!--                <sheet>-->
@@ -176,20 +301,23 @@
 <!--                    </div>-->
 <!--                    <group>-->
 <!--                        <group>-->
-<!--                            <field name="journal_id"/>-->
+<!--                            <field name="journal_id" readonly="state == 'done'"/>-->
 <!--                            <field name="account_id" readonly="1"/>-->
 <!--                            <field name="currency_id" invisible="1"/>-->
 <!--                            <field name="company_id" invisible="1"/>-->
 <!--                        </group>-->
 <!--                        <group>-->
-<!--                            <field name="date_from"/>-->
-<!--                            <field name="date_to"/>-->
+<!--                            <field name="date_from" readonly="state == 'done'"/>-->
+<!--                            <field name="date_to" readonly="state == 'done'"/>-->
 <!--                        </group>-->
 <!--                    </group>-->
 
 <!--                    <notebook>-->
 <!--                        <page string="Statement Lines">-->
-<!--                            <field name="statement_lines" nolabel="1"/>-->
+<!--                            <field name="line_ids"-->
+<!--                                   nolabel="1"-->
+<!--                                   readonly="state == 'done'"-->
+<!--                                   context="{'tree_view_ref': 'bank_reconciliation.view_move_line_tree_bank_statement'}"/>-->
 <!--                        </page>-->
 <!--                    </notebook>-->
 
@@ -227,3 +355,97 @@
 <!--        sequence="99"/>-->
 
 <!--</odoo>-->
+
+
+
+<!--&lt;!&ndash;<?xml version="1.0" encoding="utf-8"?>&ndash;&gt;-->
+<!--&lt;!&ndash;<odoo>&ndash;&gt;-->
+
+<!--&lt;!&ndash;    &lt;!&ndash; Tree View &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    <record id="bank_statement_tree" model="ir.ui.view">&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="name">bank.statement.tree</field>&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="model">bank.statement</field>&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="arch" type="xml">&ndash;&gt;-->
+<!--&lt;!&ndash;            <list string="Bank Reconciliations">&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="name"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="journal_id"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="date_from"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="date_to"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="gl_balance" widget="monetary"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="bank_balance" widget="monetary"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="balance_difference" widget="monetary"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'done'"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="currency_id" column_invisible="1"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="company_id" column_invisible="1"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            </list>&ndash;&gt;-->
+<!--&lt;!&ndash;        </field>&ndash;&gt;-->
+<!--&lt;!&ndash;    </record>&ndash;&gt;-->
+
+<!--&lt;!&ndash;    &lt;!&ndash; Form View &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    <record id="bank_statement_wiz" model="ir.ui.view">&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="name">bank.statement.reconciliation</field>&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="model">bank.statement</field>&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="arch" type="xml">&ndash;&gt;-->
+<!--&lt;!&ndash;            <form string="Bank Statement Reconciliation">&ndash;&gt;-->
+<!--&lt;!&ndash;                <header>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <field name="state" widget="statusbar" statusbar_visible="draft,done"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                </header>&ndash;&gt;-->
+<!--&lt;!&ndash;                <sheet>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <div class="oe_title">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <h1>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <field name="name" readonly="1"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </h1>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <group>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <group>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <field name="journal_id"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <field name="account_id" readonly="1"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <field name="currency_id" invisible="1"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <field name="company_id" invisible="1"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </group>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <group>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <field name="date_from"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <field name="date_to"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </group>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </group>&ndash;&gt;-->
+
+<!--&lt;!&ndash;                    <notebook>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <page string="Statement Lines">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <field name="statement_lines" nolabel="1"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </page>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </notebook>&ndash;&gt;-->
+
+<!--&lt;!&ndash;                    <group class="oe_subtotal_footer oe_right" col="1">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <field name="gl_balance" widget="monetary" options="{'currency_field': 'currency_id'}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <field name="balance_difference" widget="monetary" options="{'currency_field': 'currency_id'}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <field name="bank_balance" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </group>&ndash;&gt;-->
+<!--&lt;!&ndash;                </sheet>&ndash;&gt;-->
+<!--&lt;!&ndash;            </form>&ndash;&gt;-->
+<!--&lt;!&ndash;        </field>&ndash;&gt;-->
+<!--&lt;!&ndash;    </record>&ndash;&gt;-->
+
+<!--&lt;!&ndash;    <record id="action_bank_statement_wiz" model="ir.actions.act_window">&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="name">Bank Statement Reconciliation</field>&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="res_model">bank.statement</field>&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="type">ir.actions.act_window</field>&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="view_mode">list,form</field>&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="context">{}</field>&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="help" type="html">&ndash;&gt;-->
+<!--&lt;!&ndash;            <p class="o_view_nocontent_smiling_face">&ndash;&gt;-->
+<!--&lt;!&ndash;                Create a Bank Statement Reconciliation&ndash;&gt;-->
+<!--&lt;!&ndash;            </p>&ndash;&gt;-->
+<!--&lt;!&ndash;            <p>&ndash;&gt;-->
+<!--&lt;!&ndash;                Reconcile your bank transactions by marking the statement date when they appear in your bank statement.&ndash;&gt;-->
+<!--&lt;!&ndash;            </p>&ndash;&gt;-->
+<!--&lt;!&ndash;        </field>&ndash;&gt;-->
+<!--&lt;!&ndash;    </record>&ndash;&gt;-->
+
+<!--&lt;!&ndash;    <menuitem&ndash;&gt;-->
+<!--&lt;!&ndash;        id="menu_action_bank_reconciliation"&ndash;&gt;-->
+<!--&lt;!&ndash;        name="Bank Reconciliation"&ndash;&gt;-->
+<!--&lt;!&ndash;        parent="account.menu_finance"&ndash;&gt;-->
+<!--&lt;!&ndash;        action="action_bank_statement_wiz"&ndash;&gt;-->
+<!--&lt;!&ndash;        sequence="99"/>&ndash;&gt;-->
+
+<!--&lt;!&ndash;</odoo>&ndash;&gt;-->

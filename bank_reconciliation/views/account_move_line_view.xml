@@ -25,7 +25,8 @@
                   delete="false"
                   editable="bottom"
                   default_order="date"
-                  decoration-muted="statement_date != False">
+                  decoration-success="statement_date != False"
+                  decoration-warning="statement_date == False">
                 <field name="date" readonly="1"/>
                 <field name="move_id" readonly="1" optional="hide"/>
                 <field name="name" readonly="1"/>
@@ -50,6 +51,7 @@
 
 
 
+
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 
@@ -61,6 +63,7 @@
 <!--        <field name="arch" type="xml">-->
 <!--            <field name="date_maturity" position="after">-->
 <!--                <field name="statement_date"/>-->
+<!--                <field name="bank_statement_id" readonly="1"/>-->
 <!--            </field>-->
 <!--        </field>-->
 <!--    </record>-->
@@ -71,7 +74,12 @@
 <!--        <field name="model">account.move.line</field>-->
 <!--        <field name="priority">20</field>-->
 <!--        <field name="arch" type="xml">-->
-<!--            <list string="Statement Lines" create="false" editable="bottom" default_order="date" decoration-muted="statement_date != False">-->
+<!--            <list string="Statement Lines"-->
+<!--                  create="false"-->
+<!--                  delete="false"-->
+<!--                  editable="bottom"-->
+<!--                  default_order="date"-->
+<!--                  decoration-muted="statement_date != False">-->
 <!--                <field name="date" readonly="1"/>-->
 <!--                <field name="move_id" readonly="1" optional="hide"/>-->
 <!--                <field name="name" readonly="1"/>-->
@@ -86,8 +94,54 @@
 <!--                <field name="statement_date"/>-->
 <!--                <field name="company_currency_id" column_invisible="1" readonly="1"/>-->
 <!--                <field name="company_id" column_invisible="1"/>-->
+<!--                <field name="account_id" column_invisible="1"/>-->
 <!--            </list>-->
 <!--        </field>-->
 <!--    </record>-->
 
 <!--</odoo>-->
+
+
+
+
+<!--&lt;!&ndash;<?xml version="1.0" encoding="utf-8"?>&ndash;&gt;-->
+<!--&lt;!&ndash;<odoo>&ndash;&gt;-->
+
+<!--&lt;!&ndash;    &lt;!&ndash; Add statement_date field to move line form &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    <record id="view_move_line_form" model="ir.ui.view">&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="name">account.move.line.form.inherit.bank.reconciliation</field>&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="model">account.move.line</field>&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="inherit_id" ref="account.view_move_line_form" />&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="arch" type="xml">&ndash;&gt;-->
+<!--&lt;!&ndash;            <field name="date_maturity" position="after">&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="statement_date"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            </field>&ndash;&gt;-->
+<!--&lt;!&ndash;        </field>&ndash;&gt;-->
+<!--&lt;!&ndash;    </record>&ndash;&gt;-->
+
+<!--&lt;!&ndash;    &lt;!&ndash; Tree view for bank statement lines (embedded in One2many) &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    <record id="view_bank_statement_move_line_tree" model="ir.ui.view">&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="name">account.bank.statement.move.line.tree</field>&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="model">account.move.line</field>&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="priority">20</field>&ndash;&gt;-->
+<!--&lt;!&ndash;        <field name="arch" type="xml">&ndash;&gt;-->
+<!--&lt;!&ndash;            <list string="Statement Lines" create="false" editable="bottom" default_order="date" decoration-muted="statement_date != False">&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="date" readonly="1"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="move_id" readonly="1" optional="hide"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="name" readonly="1"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="ref" readonly="1" optional="show"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="partner_id" readonly="1"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="debit" readonly="1" sum="Total Debit"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="credit" readonly="1" sum="Total Credit"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="balance" readonly="1" optional="show" sum="Balance"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="amount_currency" readonly="1" optional="hide" groups="base.group_multi_currency"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="currency_id" readonly="1" column_invisible="1"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="date_maturity" readonly="1" optional="hide"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="statement_date"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="company_currency_id" column_invisible="1" readonly="1"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="company_id" column_invisible="1"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            </list>&ndash;&gt;-->
+<!--&lt;!&ndash;        </field>&ndash;&gt;-->
+<!--&lt;!&ndash;    </record>&ndash;&gt;-->
+
+<!--&lt;!&ndash;</odoo>&ndash;&gt;-->

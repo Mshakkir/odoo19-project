@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Simpler approach: Just add button to journal form view for easy access -->
+    <!-- Add Bank Reconciliation button to journal form view -->
     <record id="view_account_journal_form_inherit_bank_rec" model="ir.ui.view">
         <field name="name">account.journal.form.inherit.bank.reconciliation</field>
         <field name="model">account.journal</field>
@@ -18,3 +18,26 @@
     </record>
 
 </odoo>
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+
+<!--    &lt;!&ndash; Simpler approach: Just add button to journal form view for easy access &ndash;&gt;-->
+<!--    <record id="view_account_journal_form_inherit_bank_rec" model="ir.ui.view">-->
+<!--        <field name="name">account.journal.form.inherit.bank.reconciliation</field>-->
+<!--        <field name="model">account.journal</field>-->
+<!--        <field name="inherit_id" ref="account.view_account_journal_form"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//header" position="inside">-->
+<!--                <button name="create_bank_statement"-->
+<!--                        type="object"-->
+<!--                        string="Bank Reconciliation"-->
+<!--                        class="btn-primary"-->
+<!--                        invisible="type != 'bank'"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--</odoo>-->

@@ -106,7 +106,7 @@
                         <!-- Transaction Details -->
                         <h3 style="background: #f5f5f5; padding: 8px; margin-top: 30px; border-left: 4px solid #007bff;">Transaction Details</h3>
                         <table class="table table-sm table-bordered o_main_table" style="margin-bottom: 30px;">
-                            <thead style="background-color: #343a40; color: white;">
+                            <thead style="background-color: #dce1e6; color: bold;">
                                 <tr>
                                     <th style="padding: 10px;">Date</th>
                                     <th style="padding: 10px;">Reference</th>

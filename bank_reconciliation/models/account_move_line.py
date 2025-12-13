@@ -37,6 +37,7 @@
 
 
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 
 
@@ -54,6 +55,20 @@ class AccountMoveLine(models.Model):
         copy=False,
         help="Date when this transaction was reflected in the bank statement"
     )
+
+    # Add a computed status field for display
+    reconciliation_status = fields.Selection(
+        [('cleared', 'Cleared'), ('pending', 'Pending')],
+        string='Status',
+        compute='_compute_reconciliation_status',
+        store=False
+    )
+
+    @api.depends('statement_date')
+    def _compute_reconciliation_status(self):
+        """Compute reconciliation status based on statement_date"""
+        for record in self:
+            record.reconciliation_status = 'cleared' if record.statement_date else 'pending'
 
     def write(self, vals):
         """Update reconciliation status based on statement_date"""

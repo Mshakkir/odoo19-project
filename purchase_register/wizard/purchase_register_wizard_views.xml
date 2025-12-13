@@ -13,12 +13,13 @@
                             <field name="date_from" required="1" readonly="date_filter != 'custom'"/>
                             <field name="date_to" required="1" readonly="date_filter != 'custom'"/>
                             <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="partner_ids" widget="many2many_tags" placeholder="All Suppliers"/>
                         </group>
                         <group>
                             <field name="data_source"/>
                             <field name="report_type" widget="radio"/>
                             <field name="group_by" invisible="report_type == 'detailed'"/>
-                            <field name="partner_ids" widget="many2many_tags"/>
+                            <field name="analytic_account_ids" widget="many2many_tags" placeholder="All Warehouses"/>
                         </group>
                     </group>
                 </sheet>

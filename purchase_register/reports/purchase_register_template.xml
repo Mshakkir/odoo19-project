@@ -60,6 +60,9 @@
                                 <p t-if="o.partner_ids">
                                     Suppliers: <span t-esc="', '.join(o.partner_ids.mapped('name'))"/>
                                 </p>
+                                <p t-if="o.analytic_account_ids">
+                                    Warehouses/Analytic Accounts: <span t-esc="', '.join(o.analytic_account_ids.mapped('name'))"/>
+                                </p>
                                 <p>
                                     Report Type: <span t-esc="'Summary' if o.report_type == 'summary' else 'Detailed'"/>
                                 </p>
@@ -74,7 +77,7 @@
                             <!-- Check if data exists -->
                             <t t-if="not purchase_data">
                                 <div class="alert alert-warning">
-                                    <strong>No Data Found!</strong> No purchase records found for the selected period.
+                                    <strong>No Data Found!</strong> No purchase records found for the selected criteria.
                                 </div>
                             </t>
 
@@ -186,7 +189,7 @@
                             <!-- Check if data exists -->
                             <t t-if="not detailed_data">
                                 <div class="alert alert-warning">
-                                    <strong>No Data Found!</strong> No purchase records found for the selected period.
+                                    <strong>No Data Found!</strong> No purchase records found for the selected criteria.
                                 </div>
                             </t>
 

@@ -33,6 +33,11 @@ class PurchaseRegisterWizard(models.TransientModel):
         domain=[('supplier_rank', '>', 0)],
         help='Leave empty to include all suppliers'
     )
+    analytic_account_ids = fields.Many2many(
+        'account.analytic.account',
+        string='Analytic Accounts (Warehouses)',
+        help='Leave empty to include all warehouses. Filter by analytic accounts to get warehouse-specific reports.'
+    )
     company_id = fields.Many2one(
         'res.company',
         string='Company',
@@ -157,8 +162,16 @@ class PurchaseRegisterWizard(models.TransientModel):
             for line in po.order_line:
                 # Get warehouse from analytic account
                 warehouse_name = ''
+                analytic_account = None
+
                 if hasattr(line, 'account_analytic_id') and line.account_analytic_id:
-                    warehouse_name = line.account_analytic_id.name
+                    analytic_account = line.account_analytic_id
+                    warehouse_name = analytic_account.name
+
+                # Filter by analytic account if specified
+                if self.analytic_account_ids:
+                    if not analytic_account or analytic_account.id not in self.analytic_account_ids.ids:
+                        continue  # Skip this line if it doesn't match selected analytic accounts
 
                 # Get taxes - handle different field names across Odoo versions
                 taxes = False
@@ -302,6 +315,8 @@ class PurchaseRegisterWizard(models.TransientModel):
 
                     # Get warehouse from analytic account/distribution
                     warehouse_name = ''
+                    analytic_account = None
+
                     if hasattr(line, 'analytic_distribution') and line.analytic_distribution:
                         analytic_ids = [int(k) for k in line.analytic_distribution.keys()]
                         if analytic_ids:
@@ -309,7 +324,13 @@ class PurchaseRegisterWizard(models.TransientModel):
                             if analytic_account:
                                 warehouse_name = analytic_account.name
                     elif hasattr(line, 'analytic_account_id') and line.analytic_account_id:
-                        warehouse_name = line.analytic_account_id.name
+                        analytic_account = line.analytic_account_id
+                        warehouse_name = analytic_account.name
+
+                    # Filter by analytic account if specified
+                    if self.analytic_account_ids:
+                        if not analytic_account or analytic_account.id not in self.analytic_account_ids.ids:
+                            continue  # Skip this line if it doesn't match selected analytic accounts
 
                     taxes = line.tax_ids
 
@@ -435,7 +456,7 @@ class PurchaseRegisterWizard(models.TransientModel):
         purchase_data = self._get_purchase_data()
 
         if not purchase_data:
-            raise UserError(_('No purchase data found for the selected period.'))
+            raise UserError(_('No purchase data found for the selected criteria.'))
 
         # Create temporary records in the line model
         PurchaseLine = self.env['purchase.register.line']

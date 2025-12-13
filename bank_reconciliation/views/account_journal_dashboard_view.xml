@@ -7,17 +7,23 @@
         <field name="model">account.journal</field>
         <field name="inherit_id" ref="account.view_account_journal_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//header" position="inside">
-                <button name="create_bank_statement"
-                        type="object"
-                        string="Bank Reconciliation"
-                        class="btn-primary"
-                        invisible="type != 'bank'"/>
+
+            <!-- Add button inside button box -->
+            <xpath expr="//sheet" position="inside">
+                <div class="oe_button_box" name="button_box">
+                    <button name="create_bank_statement"
+                            type="object"
+                            string="Bank Reconciliation"
+                            icon="fa-exchange"
+                            invisible="type != 'bank'"/>
+                </div>
             </xpath>
+
         </field>
     </record>
 
 </odoo>
+
 
 
 

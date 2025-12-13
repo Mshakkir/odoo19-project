@@ -141,7 +141,7 @@
                         <page string="Summary">
                             <group>
                                 <group string="Statistics">
-                                   <label string="Cleared Transactions" class="o_form_label"/>
+                                   <div class="o_form_label">Cleared Transactions</div>
                                     <div>
                                         <span class="text-success">
                                             <i class="fa fa-check-circle"/>

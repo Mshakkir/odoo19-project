@@ -83,6 +83,9 @@
         </xpath>
 
         <!-- Insert custom quotation -->
+        <xpath expr="//div[@id='header']" position="attributes">
+            <attribute name="style">display:none !important;</attribute>
+        </xpath>
         <xpath expr="//div[@id='content']" position="before">
             <div class="custom-quotation-wrapper">
                 <t t-set="o" t-value="sale_order"/>

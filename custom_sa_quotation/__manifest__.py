@@ -6,6 +6,7 @@
     'depends': ['sale'],
     'data': [
         'report/report.xml',
+'report/portal_quotation_template.xml',
         'report/custom_quotation_template.xml',
         "report/sale_order_view.xml",
 

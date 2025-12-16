@@ -1,166 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Method 1: Override the main portal template completely -->
-    <template id="custom_sale_order_portal_template_override"
-              name="Custom Sale Order Portal Template"
-              inherit_id="sale.sale_order_portal_template"
-              priority="99">
+    <!-- Override portal to show ONLY custom report -->
+    <template id="custom_portal_sale_order" inherit_id="sale.sale_order_portal_content" priority="100">
 
-        <!-- Add custom styles at the top -->
-        <xpath expr="//t[@t-call='portal.portal_layout']" position="before">
-            <style>
-                .breadcrumb { display: none !important; }
-                .o_portal_sidebar { display: none !important; }
-            </style>
+        <!-- Hide the introduction section -->
+        <xpath expr="//div[@id='introduction']" position="attributes">
+            <attribute name="style">display: none !important;</attribute>
         </xpath>
 
-        <!-- Replace the portal content call with custom content -->
-        <xpath expr="//t[@t-call='sale.sale_order_portal_content']" position="replace">
-            <div class="container">
+        <!-- Hide the informations section -->
+        <xpath expr="//div[@id='informations']" position="attributes">
+            <attribute name="style">display: none !important;</attribute>
+        </xpath>
+
+        <!-- Hide the default table -->
+        <xpath expr="//div[@name='sol_table']" position="attributes">
+            <attribute name="style">display: none !important;</attribute>
+        </xpath>
+
+        <!-- Hide the totals -->
+        <xpath expr="//div[@id='total']" position="attributes">
+            <attribute name="style">display: none !important;</attribute>
+        </xpath>
+
+        <!-- Hide signature section if exists -->
+        <xpath expr="//section[@id='signature']" position="attributes">
+            <attribute name="style">display: none !important;</attribute>
+        </xpath>
+
+        <!-- Hide terms section -->
+        <xpath expr="//section[@id='terms']" position="attributes">
+            <attribute name="style">display: none !important;</attribute>
+        </xpath>
+
+        <!-- Add our custom report at the beginning of content -->
+        <xpath expr="//div[@id='content']" position="before">
+            <div class="custom-quotation-wrapper">
                 <t t-set="o" t-value="sale_order"/>
-
-                <!-- CUSTOM HEADER -->
-                <div class="custom-header mb-3">
-                    <table style="width: 100%; margin-bottom: 15px;">
-                        <tr>
-                            <td style="width: 33%; color: #8B1538; font-size: 16px; font-weight: bold;">
-                                SAMEER SHARAF AL OTAIBI TRADING COMPANY
-                            </td>
-                            <td style="width: 34%; text-align: center;">
-                                <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)" style="max-height: 80px;"/>
-                            </td>
-                            <td style="width: 33%; text-align: right; color: #8B1538; font-size: 17px; direction: rtl;">
-                                شركة سمير شرف العتيبي التجارية
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="border-top: 2px solid #8B1538; padding-top: 10px;">
-                                C.R. 4030216154<br/>VAT: 311299944700003
-                            </td>
-                            <td style="border-top: 2px solid #8B1538;"></td>
-                            <td style="border-top: 2px solid #8B1538; text-align: right; padding-top: 10px; direction: rtl;">
-                                س.ت: ٤٠٣٠٢١٦١٥٤<br/>الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
-                            </td>
-                        </tr>
-                    </table>
-
-                    <!-- TITLE -->
-                    <div style="background: #d3d3d3; padding: 10px; text-align: center; font-weight: bold; margin: 15px 0;">
-                        <t t-if="o.state in ('draft', 'sent')">Quotation / عرض سعر</t>
-                        <t t-else="">Sales Order / طلب مبيعات</t>
-                    </div>
-
-                    <!-- CUSTOMER INFO -->
-                    <table width="100%" style="border: 1px solid #000; border-collapse: collapse; margin: 10px 0;">
-                        <tr>
-                            <td width="50%" style="border-right: 1px solid #000; padding: 10px;">
-                                <strong>Customer / العميل</strong><br/>
-                                <span t-esc="o.partner_id.name"/><br/>
-                                <span t-esc="o.partner_id.city"/><br/>
-                                <span t-esc="o.partner_id.phone or ''"/>
-                            </td>
-                            <td width="50%" style="padding: 10px;">
-                                <strong>Order Details / تفاصيل الطلب</strong><br/>
-                                Date: <span t-field="o.date_order"/><br/>
-                                Ref: <span t-esc="o.name"/><br/>
-                                Your Ref: <span t-esc="o.client_order_ref or '-'"/>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-
-                <!-- PRODUCTS TABLE -->
-                <table id="sales_order_table" class="table table-sm" width="100%" border="1" style="border-collapse: collapse; margin: 15px 0;">
-                    <thead style="background: #9e9d9d;">
-                        <tr>
-                            <th style="padding: 8px; text-align: center;">SN</th>
-                            <th style="padding: 8px;">Item Description</th>
-                            <th style="padding: 8px; text-align: center;">QTY</th>
-                            <th style="padding: 8px; text-align: center;">Unit Price</th>
-                            <th style="padding: 8px; text-align: center;">VAT%</th>
-                            <th style="padding: 8px; text-align: right;">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <t t-set="current_subtotal" t-value="0"/>
-                        <t t-foreach="o.order_line" t-as="line">
-                            <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"/>
-                            <tr t-att-data-line-id="line.id">
-                                <td style="padding: 8px; text-align: center;">
-                                    <t t-esc="line_index + 1"/>
-                                </td>
-                                <td style="padding: 8px;" id="product_name">
-                                    <span t-field="line.name"/>
-                                </td>
-                                <td style="padding: 8px; text-align: center;">
-                                    <span t-esc="line.product_uom_qty"/>
-                                    <span t-esc="line.product_uom_id.name"/>
-                                </td>
-                                <td style="padding: 8px; text-align: right;">
-                                    <span t-field="line.price_unit"/> SAR
-                                </td>
-                                <td style="padding: 8px; text-align: center;">
-                                    <t t-if="line.tax_ids">
-                                        <t t-esc="line.tax_ids[0].amount"/>%
-                                    </t>
-                                    <t t-else="">0%</t>
-                                </td>
-                                <td style="padding: 8px; text-align: right;">
-                                    <span t-field="line.price_total"/> SAR
-                                </td>
-                            </tr>
-                        </t>
-                    </tbody>
-                </table>
-
-                <!-- TOTALS -->
-                <div id="total" class="row" style="width: 100%;">
-                    <div class="col-12">
-                        <table style="width: 40%; margin-left: auto; border: 1px solid #000; border-collapse: collapse;">
-                            <tr>
-                                <td style="padding: 8px;">Subtotal</td>
-                                <td style="padding: 8px; text-align: right;">
-                                    <span t-field="o.amount_untaxed"/> SAR
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 8px;">VAT (15%)</td>
-                                <td style="padding: 8px; text-align: right;">
-                                    <span t-field="o.amount_tax"/> SAR
-                                </td>
-                            </tr>
-                            <tr style="background: #d3d3d3; font-weight: bold;">
-                                <td style="padding: 8px;">Net Total</td>
-                                <td style="padding: 8px; text-align: right;">
-                                    <span t-field="o.amount_total"/> SAR
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- TERMS -->
-                <div class="mt-4">
-                    <p><strong>Terms and Conditions:</strong></p>
-                    <p t-if="o.payment_term_id">
-                        Payment Terms: <span t-esc="o.payment_term_id.name"/>
-                    </p>
-                    <p t-if="o.incoterm_id">
-                        Incoterm: <span t-esc="o.incoterm_id.name"/>
-                    </p>
-                    <p t-if="o.note" t-field="o.note"/>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="d-print-none mt-4 text-center mb-4">
-                    <a class="btn btn-primary" t-att-href="o.get_portal_url(report_type='pdf', download=True)">
-                        <i class="fa fa-download"/> Download PDF
-                    </a>
-                    <a class="btn btn-secondary ml-2" t-att-href="o.get_portal_url(report_type='pdf')" target="_blank">
-                        <i class="fa fa-print"/> Print
-                    </a>
-                </div>
+                <t t-set="docs" t-value="[sale_order]"/>
+                <t t-call="custom_sa_quotation.custom_saleorder_report"/>
             </div>
         </xpath>
+
     </template>
 </odoo>

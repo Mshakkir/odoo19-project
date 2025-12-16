@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Inherit the portal quotation/order template to match your PDF design -->
-    <template id="custom_sale_order_portal_content" inherit_id="sale.sale_order_portal_content">
+   <template id="custom_quote_document_layout_preview" inherit_id="sale.quote_document_layout_preview">
 
-        <!-- Replace the entire content section -->
-        <xpath expr="//div[@id='quote_content']" position="replace">
-            <div id="quote_content" class="container">
+        <!-- Replace the t-call to use our custom template -->
+        <xpath expr="//t[@t-call='sale.report_saleorder_document']" position="replace">
+            <t t-call="custom_sa_quotation.custom_saleorder_report"/>
+
 
                 <!-- HEADER SECTION -->
                 <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
@@ -313,7 +314,8 @@
                     </div>
                 </div>
 
-            </div>
+
+
         </xpath>
     </template>
 </odoo>

@@ -51,12 +51,18 @@
                     padding: 20px;
                 }
 
+                /* Remove the breadcrumb and navigation */
+                .breadcrumb {
+                    display: none !important;
+                }
+
                 /* Hide on print */
                 @media print {
                     .o_portal_sale_sidebar,
                     .navbar,
                     footer,
-                    .o_portal_chatter {
+                    .o_portal_chatter,
+                    .breadcrumb {
                         display: none !important;
                     }
 
@@ -67,9 +73,10 @@
             </style>
 
             <div class="custom-quotation-wrapper">
-                <t t-set="o" t-value="sale_order"/>
-                <t t-set="docs" t-value="[sale_order]"/>
-                <t t-call="custom_sa_quotation.custom_saleorder_report"/>
+                <!-- Call your custom report with proper context -->
+                <t t-call="custom_sa_quotation.custom_saleorder_report">
+                    <t t-set="docs" t-value="[sale_order]"/>
+                </t>
             </div>
         </xpath>
 

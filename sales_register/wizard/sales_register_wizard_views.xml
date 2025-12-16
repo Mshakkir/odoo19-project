@@ -144,11 +144,11 @@
                             <field name="partner_ids" widget="many2many_tags"
                                    placeholder="All Customers"/>
                         </group>
-<!--                        <group>-->
-<!--                            <field name="analytic_account_ids" widget="many2many_tags"-->
-<!--                                   placeholder="All Warehouses"-->
-<!--                                   options="{'no_create': True}"/>-->
-<!--                        </group>-->
+                        <group>
+                            <field name="analytic_account_ids" widget="many2many_tags"
+                                   placeholder="All Warehouses"
+                                   options="{'no_create': True}"/>
+                        </group>
                     </group>
                 </sheet>
                 <footer>

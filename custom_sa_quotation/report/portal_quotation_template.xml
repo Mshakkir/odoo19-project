@@ -2,32 +2,23 @@
 <odoo>
 
     <!-- ===================================================== -->
-    <!-- Hide Portal Header & Footer ONLY for /my/orders/ -->
+    <!-- Hide header & footer on portal quotation page -->
     <!-- ===================================================== -->
     <template id="portal_layout_hide_header_footer"
               inherit_id="portal.portal_layout"
               priority="200">
 
-        <!-- Inject CSS safely at ROOT -->
         <xpath expr="." position="inside">
             <t t-if="'/my/orders/' in request.httprequest.path">
                 <style>
-                    /* Header */
                     header,
                     .o_portal_navbar,
                     .o_main_navbar,
-                    .navbar {
-                        display: none !important;
-                    }
-
-                    /* Footer */
                     footer,
-                    #footer,
                     .o_footer {
                         display: none !important;
                     }
 
-                    /* Remove spacing created by navbar */
                     .o_portal_wrap,
                     main {
                         margin-top: 0 !important;
@@ -35,6 +26,25 @@
                     }
                 </style>
             </t>
+        </xpath>
+    </template>
+
+    <!-- ===================================================== -->
+    <!-- REPLACE portal quotation content -->
+    <!-- ===================================================== -->
+    <template id="custom_portal_sale_order"
+              inherit_id="sale.sale_order_portal_content"
+              priority="300">
+
+        <!-- Replace everything -->
+        <xpath expr="." position="replace">
+
+            <t t-set="o" t-value="sale_order"/>
+            <t t-set="docs" t-value="[sale_order]"/>
+
+            <!-- Call your custom Saudi quotation -->
+            <t t-call="custom_sa_quotation.custom_saleorder_report"/>
+
         </xpath>
 
     </template>

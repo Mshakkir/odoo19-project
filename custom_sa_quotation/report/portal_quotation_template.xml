@@ -30,9 +30,8 @@
 
                 <!-- Your custom report -->
                 <div class="custom-report-container">
-                    <t t-set="o" t-value="sale_order"/>
                     <t t-set="docs" t-value="[sale_order]"/>
-                    <t t-call="custom_sa_quotation.custom_saleorder_report"/>
+                    <t t-call="custom_sa_quotation.portal_custom_saleorder_content"/>
                 </div>
 
             </t>

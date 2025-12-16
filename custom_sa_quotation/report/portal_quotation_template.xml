@@ -2,7 +2,7 @@
 <odoo>
 
     <!-- ===================================================== -->
-    <!-- Hide header & footer on portal quotation page -->
+    <!-- Hide header & footer -->
     <!-- ===================================================== -->
     <template id="portal_layout_hide_header_footer"
               inherit_id="portal.portal_layout"
@@ -18,32 +18,30 @@
                     .o_footer {
                         display: none !important;
                     }
-
-                    .o_portal_wrap,
-                    main {
-                        margin-top: 0 !important;
-                        padding-top: 0 !important;
-                    }
                 </style>
             </t>
         </xpath>
     </template>
 
     <!-- ===================================================== -->
-    <!-- REPLACE portal quotation content -->
+    <!-- SAFE portal quotation replacement -->
     <!-- ===================================================== -->
     <template id="custom_portal_sale_order"
               inherit_id="sale.sale_order_portal_content"
               priority="300">
 
-        <!-- Replace everything -->
-        <xpath expr="." position="replace">
+        <!-- Replace content but KEEP root container -->
+        <xpath expr="//div[@id='wrap']" position="replace">
 
-            <t t-set="o" t-value="sale_order"/>
-            <t t-set="docs" t-value="[sale_order]"/>
+            <!-- Disable portal sale JS -->
+            <t t-set="disable_portal_sale_js" t-value="True"/>
 
-            <!-- Call your custom Saudi quotation -->
-            <t t-call="custom_sa_quotation.custom_saleorder_report"/>
+            <div id="wrap">
+                <t t-set="o" t-value="sale_order"/>
+                <t t-set="docs" t-value="[sale_order]"/>
+
+                <t t-call="custom_sa_quotation.custom_saleorder_report"/>
+            </div>
 
         </xpath>
 

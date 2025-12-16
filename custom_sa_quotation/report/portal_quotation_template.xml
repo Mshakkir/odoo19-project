@@ -33,6 +33,39 @@
             <attribute name="style">display: none !important;</attribute>
         </xpath>
 
+        <!-- Add CSS to hide header and footer - MUST come before content -->
+        <xpath expr="//div[@id='content']" position="before">
+            <style type="text/css">
+                /* Hide header and footer on quotation portal page */
+                header,
+                #wrapwrap > header,
+                .o_portal_header,
+                footer,
+                #wrapwrap > footer,
+                #o_shared_blocks {
+                    display: none !important;
+                }
+
+                /* Adjust content spacing */
+                #wrap {
+                    padding-top: 0 !important;
+                    margin-top: 0 !important;
+                }
+
+                /* Make the custom quotation wrapper full width */
+                .custom-quotation-wrapper {
+                    width: 100%;
+                    max-width: 100%;
+                    padding: 20px;
+                }
+
+                /* Remove any top spacing from body */
+                body {
+                    padding-top: 0 !important;
+                }
+            </style>
+        </xpath>
+
         <!-- Add our custom report at the beginning of content -->
         <xpath expr="//div[@id='content']" position="before">
             <div class="custom-quotation-wrapper">
@@ -42,32 +75,5 @@
             </div>
         </xpath>
 
-    </template>
-
-    <!-- Add CSS to hide header and footer using Odoo 19 asset bundle -->
-    <template id="custom_portal_assets" inherit_id="web.assets_frontend_minimal">
-        <xpath expr="." position="inside">
-            <style>
-                /* Hide header and footer on quotation portal page */
-                .o_portal_sale_sidebar header,
-                .o_portal_sale_sidebar #wrapwrap > header,
-                .o_portal_sale_sidebar .o_portal_header,
-                .o_portal_sale_sidebar footer,
-                .o_portal_sale_sidebar #wrapwrap > footer {
-                    display: none !important;
-                }
-
-                /* Adjust content spacing */
-                .o_portal_sale_sidebar #wrap {
-                    padding-top: 0 !important;
-                }
-
-                /* Make the custom quotation wrapper full width */
-                .o_portal_sale_sidebar .custom-quotation-wrapper {
-                    width: 100%;
-                    max-width: none;
-                }
-            </style>
-        </xpath>
     </template>
 </odoo>

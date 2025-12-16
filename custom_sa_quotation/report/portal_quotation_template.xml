@@ -2,17 +2,16 @@
 <odoo>
 
     <!-- ===================================================== -->
-    <!-- SAFE portal override (NO structural XPath) -->
+    <!-- Hide header/footer for Sale Order portal pages -->
     <!-- ===================================================== -->
-    <template id="portal_layout_hide_header_footer"
-              inherit_id="portal.portal_layout"
+    <template id="portal_my_documents_hide_header_footer"
+              inherit_id="portal.portal_my_documents"
               priority="100">
 
-        <!-- Inject CSS safely at root -->
         <xpath expr="." position="inside">
             <t t-if="'/my/orders/' in request.httprequest.path">
                 <style>
-                    /* Hide anything that looks like header */
+                    /* Top portal header */
                     header,
                     .o_portal_navbar,
                     .navbar,
@@ -20,14 +19,14 @@
                         display: none !important;
                     }
 
-                    /* Hide anything that looks like footer */
+                    /* Footer */
                     footer,
                     #footer,
                     .o_footer {
                         display: none !important;
                     }
 
-                    /* Remove top spacing */
+                    /* Remove spacing */
                     body,
                     main {
                         margin-top: 0 !important;

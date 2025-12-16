@@ -28,10 +28,21 @@
                     }
                 </style>
 
-                <!-- Your custom report -->
-                <div class="custom-report-container">
-                    <t t-set="docs" t-value="[sale_order]"/>
-                    <t t-call="custom_sa_quotation.portal_custom_saleorder_content"/>
+                <!-- Test: Inline content first -->
+                <div class="custom-report-container" style="background: yellow; padding: 50px; margin: 20px;">
+                    <h1 style="color: red;">INLINE TEST CONTENT</h1>
+                    <h2>Order: <span t-esc="sale_order.name"/></h2>
+                    <h3>Customer: <span t-esc="sale_order.partner_id.name"/></h3>
+                    <p>Amount: <span t-esc="sale_order.amount_total"/> <span t-esc="sale_order.currency_id.name"/></p>
+
+                    <hr/>
+
+                    <!-- Simple header test -->
+                    <div style="border: 2px solid #8B1538; padding: 20px; margin-top: 20px;">
+                        <h2 style="color: #8B1538;">SAMEER SHARAF AL OTAIBI TRADING COMPANY</h2>
+                        <p>C.R. 4030216154</p>
+                        <p>VAT: 311299944700003</p>
+                    </div>
                 </div>
 
             </t>

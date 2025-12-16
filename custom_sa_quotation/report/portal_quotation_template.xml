@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Override the portal sale order content -->
+    <!-- Simple approach: Hide default content and show our custom template -->
     <template id="custom_portal_sale_order" inherit_id="sale.sale_order_portal_content" priority="100">
 
-        <!-- Replace the entire section with id="details" -->
-        <xpath expr="//section[@id='details']" position="replace">
-            <section id="details" class="mt-4">
+        <!-- Add our custom report BEFORE the details section -->
+        <xpath expr="//section[@id='details']" position="before">
+            <style>
+                /* Hide the default portal content */
+                section#details { display: none !important; }
+            </style>
+
+            <!-- Show our custom report -->
+            <div class="custom-quotation-preview mt-4">
                 <t t-set="o" t-value="sale_order"/>
                 <t t-set="docs" t-value="[sale_order]"/>
-
-                <!-- Call our custom report template -->
                 <t t-call="custom_sa_quotation.custom_saleorder_report"/>
-            </section>
+            </div>
         </xpath>
 
     </template>

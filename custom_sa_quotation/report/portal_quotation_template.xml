@@ -1,32 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Completely replace the portal content template -->
-    <template id="custom_sale_order_portal_content_override" inherit_id="sale.sale_order_portal_content">
+    <!-- Custom portal with your report -->
+    <template id="clean_portal_override" inherit_id="sale.sale_order_portal_content" priority="999">
 
-        <!-- Replace the entire template content -->
+        <!-- Replace everything -->
         <xpath expr="." position="replace">
             <t t-name="sale.sale_order_portal_content">
 
+                <!-- Hidden dummy element to prevent JS errors -->
+                <div style="display: none;">
+                    <table id="sales_order_table" t-att-data-order-id="sale_order.id" t-att-data-token="sale_order.access_token"></table>
+                </div>
+
+                <!-- CSS for full width -->
                 <style>
-                    /* Hide sidebar and make full width */
                     .o_portal_sale_sidebar { display: none !important; }
                     .breadcrumb { display: none !important; }
                     .o_portal .o_portal_wrap .row > div {
                         flex: 0 0 100% !important;
                         max-width: 100% !important;
                     }
+                    .custom-report-container {
+                        max-width: 1200px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        background: white;
+                    }
                 </style>
 
-                <!-- Simple test content -->
-                <div style="background: lightblue; padding: 50px; margin: 20px;">
-                    <h1>PORTAL CONTENT REPLACED SUCCESSFULLY!</h1>
-                    <h2>Order: <span t-esc="sale_order.name"/></h2>
-                    <h3>Customer: <span t-esc="sale_order.partner_id.name"/></h3>
-                    <p>Amount: <span t-esc="sale_order.amount_total"/></p>
-                </div>
-
-                <!-- Now add your custom report -->
-                <div style="background: white; padding: 20px; max-width: 1200px; margin: 0 auto;">
+                <!-- Your custom report -->
+                <div class="custom-report-container">
                     <t t-set="o" t-value="sale_order"/>
                     <t t-set="docs" t-value="[sale_order]"/>
                     <t t-call="custom_sa_quotation.custom_saleorder_report"/>

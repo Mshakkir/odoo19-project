@@ -3,14 +3,22 @@
     <!-- Override portal to show only custom report -->
     <template id="custom_portal_sale_order" inherit_id="sale.sale_order_portal_content" priority="100">
 
-        <!-- Find the card_body and replace it -->
-        <xpath expr="//t[@t-set='card_body']" position="after">
-            <t t-set="card_body">
-                <!-- Show our custom report -->
+        <!-- Hide the default table and totals -->
+        <xpath expr="//div[@name='sol_table']" position="attributes">
+            <attribute name="style">display: none !important;</attribute>
+        </xpath>
+
+        <xpath expr="//div[@id='total']" position="attributes">
+            <attribute name="style">display: none !important;</attribute>
+        </xpath>
+
+        <!-- Add our custom report before the table -->
+        <xpath expr="//div[@name='sol_table']" position="before">
+            <div class="custom-quotation-wrapper">
                 <t t-set="o" t-value="sale_order"/>
                 <t t-set="docs" t-value="[sale_order]"/>
                 <t t-call="custom_sa_quotation.custom_saleorder_report"/>
-            </t>
+            </div>
         </xpath>
 
     </template>

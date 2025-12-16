@@ -213,21 +213,22 @@
                         <table style="width:100%; border-collapse:collapse;">
                             <tr style="background-color:#d3d3d3;">
                                 <!-- Left: Sold To / Supplier -->
-                                <td style="padding:4px 8px; font-weight:bold; border-right:1px solid #999;"
-                                    class="ar">
+                                <td style="padding:4px 8px; font-weight:bold; border-right:1px solid #999;">
                                     <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                        Sold To &#160;&#160;&#160;&#160;&#160;&#160;&#160; اسم العميل
+                                        Sold To &#160;&#160;&#160;&#160;&#160;&#160;&#160;
+                                        <span class="ar">اسم العميل</span>
                                     </t>
                                     <t t-elif="o.move_type in ('in_invoice','in_refund')">
-                                        Supplier &#160;&#160;&#160;&#160;&#160;&#160;&#160; المورد
+                                        Supplier &#160;&#160;&#160;&#160;&#160;&#160;&#160;
+                                        <span class="ar">المورد</span>
                                     </t>
                                 </td>
                                 <!-- Shipping To header - ONLY if shipping address exists AND is different from partner -->
                                 <t t-if="o.partner_shipping_id and o.partner_shipping_id.id != o.partner_id.id">
-                                    <td style="padding:4px 8px; font-weight:bold; width:50%;"
-                                        class="ar">
+                                    <td style="padding:4px 8px; font-weight:bold; width:50%;">
                                         <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                            Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160; عنوان الشحن
+                                            Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160;
+                                            <span class="ar">عنوان الشحن</span>
                                         </t>
                                     </td>
                                 </t>

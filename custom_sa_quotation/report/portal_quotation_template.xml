@@ -1,74 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Override the main portal layout to hide header/footer for sale orders -->
-    <template id="portal_layout_hide_header_footer" inherit_id="portal.portal_layout" priority="100">
-        <xpath expr="//header" position="attributes">
-            <attribute name="t-attf-style">{{ 'display: none !important;' if '/my/orders/' in request.httprequest.path else '' }}</attribute>
+
+    <!-- ========================================================= -->
+    <!-- Hide portal header & footer ONLY for Sale Order pages -->
+    <!-- ========================================================= -->
+    <template id="portal_layout_hide_header_footer"
+              inherit_id="portal.portal_layout"
+              priority="100">
+
+        <!-- Hide portal navbar -->
+        <xpath expr="//header[contains(@class,'o_portal_navbar')]"
+               position="attributes">
+            <attribute name="t-att-style">
+                "'display:none !important;' if '/my/orders/' in request.httprequest.path else ''"
+            </attribute>
         </xpath>
-        <xpath expr="//footer" position="attributes">
-            <attribute name="t-attf-style">{{ 'display: none !important;' if '/my/orders/' in request.httprequest.path else '' }}</attribute>
+
+        <!-- Hide footer -->
+        <xpath expr="//footer[@id='footer']"
+               position="attributes">
+            <attribute name="t-att-style">
+                "'display:none !important;' if '/my/orders/' in request.httprequest.path else ''"
+            </attribute>
         </xpath>
+
+        <!-- Remove top spacing -->
+        <xpath expr="//div[@id='wrapwrap']" position="attributes">
+            <attribute name="t-att-style">
+                "'padding:0;margin:0;' if '/my/orders/' in request.httprequest.path else ''"
+            </attribute>
+        </xpath>
+
     </template>
 
-    <!-- Override portal to show ONLY custom report -->
-    <template id="custom_portal_sale_order" inherit_id="sale.sale_order_portal_content" priority="100">
+    <!-- ========================================================= -->
+    <!-- Custom Sale Order Portal Content -->
+    <!-- ========================================================= -->
+    <template id="custom_portal_sale_order"
+              inherit_id="sale.sale_order_portal_content"
+              priority="100">
 
-        <!-- Hide the introduction section -->
+        <!-- Hide introduction -->
         <xpath expr="//div[@id='introduction']" position="attributes">
-            <attribute name="style">display: none !important;</attribute>
+            <attribute name="style">display:none !important;</attribute>
         </xpath>
 
-        <!-- Hide the informations section -->
-        <xpath expr="//div[@id='informations']" position="attributes">
-            <attribute name="style">display: none !important;</attribute>
-        </xpath>
-
-        <!-- Hide the default table -->
-        <xpath expr="//div[@name='sol_table']" position="attributes">
-            <attribute name="style">display: none !important;</attribute>
-        </xpath>
-
-        <!-- Hide the totals -->
-        <xpath expr="//div[@id='total']" position="attributes">
-            <attribute name="style">display: none !important;</attribute>
-        </xpath>
-
-        <!-- Hide signature section if exists -->
-        <xpath expr="//section[@id='signature']" position="attributes">
-            <attribute name="style">display: none !important;</attribute>
-        </xpath>
-
-        <!-- Hide terms section -->
-        <xpath expr="//section[@id='terms']" position="attributes">
-            <attribute name="style">display: none !important;</attribute>
-        </xpath>
-
-        <!-- Add CSS for clean layout -->
-        <xpath expr="//div[@id='content']" position="before">
-            <style type="text/css">
-                /* Remove padding from wrap */
-                #wrap {
-                    padding-top: 0 !important;
-                    margin-top: 0 !important;
-                }
-
-                /* Make the custom quotation wrapper full width */
-                .custom-quotation-wrapper {
-                    width: 100%;
-                    max-width: 100%;
-                    padding: 20px;
-                }
-            </style>
-        </xpath>
-
-        <!-- Add our custom report at the beginning of content -->
-        <xpath expr="//div[@id='content']" position="before">
-            <div class="custom-quotation-wrapper">
-                <t t-set="o" t-value="sale_order"/>
-                <t t-set="docs" t-value="[sale_order]"/>
-                <t t-call="custom_sa_quotation.custom_saleorder_report"/>
-            </div>
-        </xpath>
-
-    </template>
-</odoo>
+        <!-- Hide informations -->
+        <xpath expr="//div[@id='informations']" position="attributes

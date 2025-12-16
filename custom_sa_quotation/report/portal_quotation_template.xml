@@ -1,40 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Override portal to show ONLY custom report -->
+    <!-- Override portal to show ONLY custom report in full width -->
     <template id="custom_portal_sale_order" inherit_id="sale.sale_order_portal_content" priority="100">
 
-        <!-- Hide the introduction section -->
+        <!-- Hide ALL default content sections -->
         <xpath expr="//div[@id='introduction']" position="attributes">
             <attribute name="style">display: none !important;</attribute>
         </xpath>
 
-        <!-- Hide the informations section -->
         <xpath expr="//div[@id='informations']" position="attributes">
             <attribute name="style">display: none !important;</attribute>
         </xpath>
 
-        <!-- Hide the default table -->
         <xpath expr="//div[@name='sol_table']" position="attributes">
             <attribute name="style">display: none !important;</attribute>
         </xpath>
 
-        <!-- Hide the totals -->
         <xpath expr="//div[@id='total']" position="attributes">
             <attribute name="style">display: none !important;</attribute>
         </xpath>
 
-        <!-- Hide signature section if exists -->
         <xpath expr="//section[@id='signature']" position="attributes">
             <attribute name="style">display: none !important;</attribute>
         </xpath>
 
-        <!-- Hide terms section -->
         <xpath expr="//section[@id='terms']" position="attributes">
             <attribute name="style">display: none !important;</attribute>
         </xpath>
 
-        <!-- Add our custom report at the beginning of content -->
+        <!-- Add CSS to make custom report full width and hide sidebar on print -->
         <xpath expr="//div[@id='content']" position="before">
+            <style>
+                /* Full width for custom report */
+                .custom-quotation-wrapper {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    margin: 0 auto;
+                }
+
+                /* Remove container padding */
+                .o_portal_sale_sidebar {
+                    display: none !important;
+                }
+
+                /* Make content full width */
+                .o_portal .o_portal_wrap {
+                    max-width: 100% !important;
+                }
+
+                /* Print styles */
+                @media print {
+                    .o_portal_sale_sidebar,
+                    .o_portal_chatter,
+                    nav,
+                    footer,
+                    .navbar {
+                        display: none !important;
+                    }
+                }
+            </style>
+
             <div class="custom-quotation-wrapper">
                 <t t-set="o" t-value="sale_order"/>
                 <t t-set="docs" t-value="[sale_order]"/>
@@ -42,5 +67,12 @@
             </div>
         </xpath>
 
+    </template>
+
+    <!-- Hide the sidebar wrapper in portal layout -->
+    <template id="hide_portal_sidebar" inherit_id="portal.portal_record_layout" priority="99">
+        <xpath expr="//aside" position="attributes">
+            <attribute name="class">d-none</attribute>
+        </xpath>
     </template>
 </odoo>

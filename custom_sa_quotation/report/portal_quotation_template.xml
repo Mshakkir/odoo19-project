@@ -1,120 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Override the main portal order page -->
-    <template id="portal_my_orders_order_custom" inherit_id="sale.portal_my_orders_order" priority="99">
+    <!-- Override the portal order page - Odoo 19 compatible -->
+    <template id="portal_my_orders_order_custom" inherit_id="sale.portal_order_page" priority="99">
 
-        <!-- Replace the portal_record_layout call -->
-        <xpath expr="//t[@t-call='portal.portal_record_layout']" position="replace">
-            <t t-call="portal.portal_layout">
+        <!-- Replace the main content area -->
+        <xpath expr="//div[hasclass('o_portal_sale_sidebar')]" position="replace"/>
 
-                <style>
-                    .breadcrumb, .o_portal_sidebar { display: none !important; }
-                    .custom-quotation { max-width: 1200px; margin: 20px auto; padding: 20px; background: white; }
-                </style>
+        <xpath expr="//t[@t-call='portal.portal_layout']" position="inside">
+            <t t-set="o_portal_fullwidth_alert" t-value="True"/>
 
-                <div class="custom-quotation">
-                    <t t-set="o" t-value="sale_order"/>
+            <style>
+                .breadcrumb, .o_portal_sidebar { display: none !important; }
+                .custom-quotation { max-width: 1200px; margin: 20px auto; padding: 20px; background: white; }
+            </style>
 
-                    <!-- HEADER -->
-                    <table style="width: 100%; margin-bottom: 15px;">
-                        <tr>
-                            <td style="width: 50%; color: #8B1538; font-size: 16px; font-weight: bold;">
-                                SAMEER SHARAF AL OTAIBI TRADING COMPANY
-                            </td>
-                            <td style="width: 50%; text-align: right; color: #8B1538; font-size: 17px; direction: rtl;">
-                                شركة سمير شرف العتيبي التجارية
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="border-top: 2px solid #8B1538; padding-top: 10px;">
-                                C.R. 4030216154<br/>VAT: 311299944700003
-                            </td>
-                            <td style="border-top: 2px solid #8B1538; text-align: center; padding-top: 10px;">
-                                <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)" style="max-height: 80px;"/>
-                            </td>
-                            <td style="border-top: 2px solid #8B1538; text-align: right; padding-top: 10px; direction: rtl;">
-                                س.ت: ٤٠٣٠٢١٦١٥٤<br/>الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
-                            </td>
-                        </tr>
-                    </table>
+            <div class="custom-quotation">
+                <t t-set="o" t-value="sale_order"/>
 
-                    <!-- TITLE -->
-                    <div style="background: #d3d3d3; padding: 10px; text-align: center; font-weight: bold; margin: 15px 0;">
-                        <t t-if="o.state in ('draft', 'sent')">Quotation / عرض سعر</t>
-                        <t t-else="">Sales Order / طلب مبيعات</t>
-                    </div>
+                <!-- HEADER -->
+                <table style="width: 100%; margin-bottom: 15px;">
+                    <tr>
+                        <td style="width: 50%; color: #8B1538; font-size: 16px; font-weight: bold;">
+                            SAMEER SHARAF AL OTAIBI TRADING COMPANY
+                        </td>
+                        <td style="width: 50%; text-align: right; color: #8B1538; font-size: 17px; direction: rtl;">
+                            شركة سمير شرف العتيبي التجارية
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border-top: 2px solid #8B1538; padding-top: 10px;">
+                            C.R. 4030216154<br/>VAT: 311299944700003
+                        </td>
+                        <td style="border-top: 2px solid #8B1538; text-align: center; padding-top: 10px;">
+                            <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)" style="max-height: 80px;"/>
+                        </td>
+                        <td style="border-top: 2px solid #8B1538; text-align: right; padding-top: 10px; direction: rtl;">
+                            س.ت: ٤٠٣٠٢١٦١٥٤<br/>الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
+                        </td>
+                    </tr>
+                </table>
 
-                    <!-- CUSTOMER INFO -->
-                    <table width="100%" style="border: 1px solid #000; border-collapse: collapse; margin: 10px 0;">
-                        <tr>
-                            <td width="50%" style="border-right: 1px solid #000; padding: 10px;">
-                                <strong>Customer / العميل</strong><br/>
-                                <span t-esc="o.partner_id.name"/><br/>
-                                <span t-esc="o.partner_id.city"/><br/>
-                                <span t-esc="o.partner_id.phone or ''"/>
-                            </td>
-                            <td width="50%" style="padding: 10px;">
-                                <strong>Order Details / تفاصيل الطلب</strong><br/>
-                                Date: <span t-field="o.date_order"/><br/>
-                                Ref: <span t-esc="o.name"/><br/>
-                                Your Ref: <span t-esc="o.client_order_ref or '-'"/>
-                            </td>
-                        </tr>
-                    </table>
-
-                    <!-- PRODUCTS TABLE -->
-                    <table width="100%" border="1" style="border-collapse: collapse; margin: 15px 0;">
-                        <thead style="background: #9e9d9d;">
-                            <tr>
-                                <th style="padding: 8px;">SN</th>
-                                <th style="padding: 8px;">Item Description</th>
-                                <th style="padding: 8px;">QTY</th>
-                                <th style="padding: 8px;">Unit Price</th>
-                                <th style="padding: 8px;">VAT%</th>
-                                <th style="padding: 8px;">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr t-foreach="o.order_line" t-as="line">
-                                <td style="padding: 8px; text-align: center;"><t t-esc="line_index + 1"/></td>
-                                <td style="padding: 8px;"><span t-field="line.name"/></td>
-                                <td style="padding: 8px; text-align: center;"><span t-field="line.product_uom_qty"/> <span t-esc="line.product_uom_id.name"/></td>
-                                <td style="padding: 8px; text-align: right;"><span t-field="line.price_unit"/> SAR</td>
-                                <td style="padding: 8px; text-align: center;"><t t-esc="line.tax_ids and line.tax_ids[0].amount or 0"/>%</td>
-                                <td style="padding: 8px; text-align: right;"><span t-field="line.price_total"/> SAR</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <!-- TOTALS -->
-                    <div style="width: 100%;">
-                        <table style="width: 40%; margin-left: auto; border: 1px solid #000; border-collapse: collapse;">
-                            <tr>
-                                <td style="padding: 8px;">Subtotal</td>
-                                <td style="padding: 8px; text-align: right;"><span t-field="o.amount_untaxed"/> SAR</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 8px;">VAT (15%)</td>
-                                <td style="padding: 8px; text-align: right;"><span t-field="o.amount_tax"/> SAR</td>
-                            </tr>
-                            <tr style="background: #d3d3d3; font-weight: bold;">
-                                <td style="padding: 8px;">Net Total</td>
-                                <td style="padding: 8px; text-align: right;"><span t-field="o.amount_total"/> SAR</td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <!-- TERMS -->
-                    <div style="margin-top: 20px;">
-                        <p><strong>Terms and Conditions:</strong></p>
-                        <p t-if="o.payment_term_id">Payment Terms: <span t-esc="o.payment_term_id.name"/></p>
-                        <p t-if="o.incoterm">Incoterm: <span t-esc="o.incoterm.name"/></p>
-                        <p t-field="o.note"/>
-                    </div>
+                <!-- TITLE -->
+                <div style="background: #d3d3d3; padding: 10px; text-align: center; font-weight: bold; margin: 15px 0;">
+                    <t t-if="o.state in ('draft', 'sent')">Quotation / عرض سعر</t>
+                    <t t-else="">Sales Order / طلب مبيعات</t>
                 </div>
 
-            </t>
-        </xpath>
+                <!-- CUSTOMER INFO -->
+                <table width="100%" style="border: 1px solid #000; border-collapse: collapse; margin: 10px 0;">
+                    <tr>
+                        <td width="50%" style="border-right: 1px solid #000; padding: 10px;">
+                            <strong>Customer / العميل</strong><br/>
+                            <span t-esc="o.partner_id.name"/><br/>
+                            <span t-esc="o.partner_id.city"/><br/>
+                            <span t-esc="o.partner_id.phone or ''"/>
+                        </td>
+                        <td width="50%" style="padding: 10px;">
+                            <strong>Order Details / تفاصيل الطلب</strong><br/>
+                            Date: <span t-field="o.date_order"/><br/>
+                            Ref: <span t-esc="o.name"/><br/>
+                            Your Ref: <span t-esc="o.client_order_ref or '-'"/>
+                        </td>
+                    </tr>
+                </table>
 
+                <!-- PRODUCTS TABLE -->
+                <table width="100%" border="1" style="border-collapse: collapse; margin: 15px 0;">
+                    <thead style="background: #9e9d9d;">
+                        <tr>
+                            <th style="padding: 8px;">SN</th>
+                            <th style="padding: 8px;">Item Description</th>
+                            <th style="padding: 8px;">QTY</th>
+                            <th style="padding: 8px;">Unit Price</th>
+                            <th style="padding: 8px;">VAT%</th>
+                            <th style="padding: 8px;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="o.order_line" t-as="line">
+                            <td style="padding: 8px; text-align: center;"><t t-esc="line_index + 1"/></td>
+                            <td style="padding: 8px;"><span t-field="line.name"/></td>
+                            <td style="padding: 8px; text-align: center;"><span t-field="line.product_uom_qty"/> <span t-esc="line.product_uom.name"/></td>
+                            <td style="padding: 8px; text-align: right;"><span t-field="line.price_unit"/> SAR</td>
+                            <td style="padding: 8px; text-align: center;"><t t-esc="line.tax_id and line.tax_id[0].amount or 0"/>%</td>
+                            <td style="padding: 8px; text-align: right;"><span t-field="line.price_total"/> SAR</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- TOTALS -->
+                <div style="width: 100%;">
+                    <table style="width: 40%; margin-left: auto; border: 1px solid #000; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 8px;">Subtotal</td>
+                            <td style="padding: 8px; text-align: right;"><span t-field="o.amount_untaxed"/> SAR</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;">VAT (15%)</td>
+                            <td style="padding: 8px; text-align: right;"><span t-field="o.amount_tax"/> SAR</td>
+                        </tr>
+                        <tr style="background: #d3d3d3; font-weight: bold;">
+                            <td style="padding: 8px;">Net Total</td>
+                            <td style="padding: 8px; text-align: right;"><span t-field="o.amount_total"/> SAR</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- TERMS -->
+                <div style="margin-top: 20px;">
+                    <p><strong>Terms and Conditions:</strong></p>
+                    <p t-if="o.payment_term_id">Payment Terms: <span t-esc="o.payment_term_id.name"/></p>
+                    <p t-if="o.incoterm">Incoterm: <span t-esc="o.incoterm.name"/></p>
+                    <p t-field="o.note"/>
+                </div>
+            </div>
+        </xpath>
     </template>
 </odoo>

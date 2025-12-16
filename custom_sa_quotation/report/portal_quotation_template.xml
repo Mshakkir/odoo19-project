@@ -2,13 +2,14 @@
 <odoo>
 
     <!-- ===================================================== -->
-    <!-- Hide Header & Footer ONLY for Portal Orders Page -->
+    <!-- Hide Portal Header & Footer ONLY for /my/orders/ -->
     <!-- ===================================================== -->
     <template id="portal_layout_hide_header_footer"
               inherit_id="portal.portal_layout"
               priority="200">
 
-        <xpath expr="//body" position="inside">
+        <!-- Inject CSS safely at ROOT -->
+        <xpath expr="." position="inside">
             <t t-if="'/my/orders/' in request.httprequest.path">
                 <style>
                     /* Header */
@@ -26,10 +27,9 @@
                         display: none !important;
                     }
 
-                    /* Fix spacing */
-                    body,
-                    main,
-                    .o_portal_wrap {
+                    /* Remove spacing created by navbar */
+                    .o_portal_wrap,
+                    main {
                         margin-top: 0 !important;
                         padding-top: 0 !important;
                     }

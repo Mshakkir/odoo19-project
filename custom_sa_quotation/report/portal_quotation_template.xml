@@ -3,7 +3,7 @@
     <data>
 
         <!-- ===================================================== -->
-        <!-- Hide Portal Header & Footer ONLY for Quotations -->
+        <!-- Hide Header & Footer -->
         <!-- ===================================================== -->
         <template id="portal_layout_hide_header_footer"
                   inherit_id="portal.portal_layout"
@@ -14,12 +14,10 @@
                     <style>
                         header,
                         .o_portal_navbar,
-                        .o_main_navbar,
                         footer,
                         .o_footer {
                             display: none !important;
                         }
-
                         #wrapwrap {
                             padding-top: 0 !important;
                         }
@@ -31,18 +29,20 @@
 
 
         <!-- ===================================================== -->
-        <!-- Replace Portal Sale Order Content -->
+        <!-- Portal Sale Order: KEEP DOM, HIDE IT -->
         <!-- ===================================================== -->
         <template id="custom_portal_sale_order"
                   inherit_id="sale.sale_order_portal_content"
                   priority="200">
 
-            <xpath expr="//div[@id='content']" position="replace">
+            <!-- Hide default content (DO NOT remove) -->
+            <xpath expr="//div[@id='content']" position="attributes">
+                <attribute name="style">display:none !important;</attribute>
+            </xpath>
 
-                <!-- Prevent portal sale JS crash -->
-                <t t-set="disable_portal_sale_js" t-value="True"/>
-
-                <div id="content" class="custom-quotation-wrapper">
+            <!-- Inject custom quotation AFTER default content -->
+            <xpath expr="//div[@id='content']" position="after">
+                <div class="custom-quotation-wrapper">
 
                     <t t-set="o" t-value="sale_order"/>
                     <t t-set="docs" t-value="[sale_order]"/>
@@ -50,7 +50,6 @@
                     <t t-call="custom_sa_quotation.custom_saleorder_report"/>
 
                 </div>
-
             </xpath>
 
         </template>

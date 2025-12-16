@@ -1,41 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Completely override portal content -->
+    <!-- Override portal to show only custom report -->
     <template id="custom_portal_sale_order" inherit_id="sale.sale_order_portal_content" priority="100">
 
-        <!-- Disable the sale update line button interaction -->
-        <xpath expr="//div[@id='portal_sale_content']" position="attributes">
-            <attribute name="t-attf-class">d-none</attribute>
-        </xpath>
-
-        <!-- Add our custom report after the portal_sale_content -->
-        <xpath expr="//div[@id='portal_sale_content']" position="after">
-
-            <!-- Disable JavaScript interactions -->
-            <script type="text/javascript">
-                document.addEventListener('DOMContentLoaded', function() {
-                    // Hide default portal content
-                    const portalContent = document.querySelector('#portal_sale_content');
-                    if (portalContent) {
-                        portalContent.style.display = 'none';
-                    }
-
-                    // Hide any default tables
-                    const defaultTables = document.querySelectorAll('section#details table.table');
-                    defaultTables.forEach(table => {
-                        if (!table.closest('.custom-quotation-wrapper')) {
-                            table.style.display = 'none';
-                        }
-                    });
-                });
-            </script>
-
-            <!-- Show our custom report -->
-            <div class="custom-quotation-wrapper container mt-4">
+        <!-- Find the card_body and replace it -->
+        <xpath expr="//t[@t-set='card_body']" position="after">
+            <t t-set="card_body">
+                <!-- Show our custom report -->
                 <t t-set="o" t-value="sale_order"/>
                 <t t-set="docs" t-value="[sale_order]"/>
                 <t t-call="custom_sa_quotation.custom_saleorder_report"/>
-            </div>
+            </t>
         </xpath>
 
     </template>

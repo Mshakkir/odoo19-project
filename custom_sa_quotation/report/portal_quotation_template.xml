@@ -28,34 +28,40 @@
             <attribute name="style">display: none !important;</attribute>
         </xpath>
 
-        <!-- Add CSS to make custom report full width and hide sidebar on print -->
+        <!-- Add CSS and custom report -->
         <xpath expr="//div[@id='content']" position="before">
             <style>
-                /* Full width for custom report */
-                .custom-quotation-wrapper {
-                    width: 100% !important;
-                    max-width: 100% !important;
-                    margin: 0 auto;
-                }
-
-                /* Remove container padding */
-                .o_portal_sale_sidebar {
+                /* Hide the sidebar completely */
+                .o_portal_sale_sidebar,
+                aside.o_portal_sidebar {
                     display: none !important;
                 }
 
-                /* Make content full width */
-                .o_portal .o_portal_wrap {
+                /* Make content area full width */
+                .o_portal .o_portal_wrap .row > div:not(.o_portal_sale_sidebar) {
+                    flex: 0 0 100% !important;
                     max-width: 100% !important;
                 }
 
-                /* Print styles */
+                /* Full width for custom report */
+                .custom-quotation-wrapper {
+                    width: 100% !important;
+                    max-width: 1200px !important;
+                    margin: 0 auto !important;
+                    padding: 20px;
+                }
+
+                /* Hide on print */
                 @media print {
                     .o_portal_sale_sidebar,
-                    .o_portal_chatter,
-                    nav,
+                    .navbar,
                     footer,
-                    .navbar {
+                    .o_portal_chatter {
                         display: none !important;
+                    }
+
+                    .custom-quotation-wrapper {
+                        padding: 0 !important;
                     }
                 }
             </style>
@@ -67,12 +73,5 @@
             </div>
         </xpath>
 
-    </template>
-
-    <!-- Hide the sidebar wrapper in portal layout -->
-    <template id="hide_portal_sidebar" inherit_id="portal.portal_record_layout" priority="99">
-        <xpath expr="//aside" position="attributes">
-            <attribute name="class">d-none</attribute>
-        </xpath>
     </template>
 </odoo>

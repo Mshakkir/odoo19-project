@@ -1,50 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<template id="portal_layout_hide_header_footer"
+          inherit_id="portal.portal_layout"
+          priority="100">
 
-    <!-- ===================================================== -->
-    <!-- Hide header & footer -->
-    <!-- ===================================================== -->
-    <template id="portal_layout_hide_header_footer"
-              inherit_id="portal.portal_layout"
-              priority="200">
+    <xpath expr="." position="inside">
+        <t t-if="'/my/orders/' in request.httprequest.path">
+            <style>
+                header,
+                .o_portal_navbar,
+                .o_main_navbar,
+                footer,
+                .o_footer {
+                    display: none !important;
+                }
 
-        <xpath expr="." position="inside">
-            <t t-if="'/my/orders/' in request.httprequest.path">
-                <style>
-                    header,
-                    .o_portal_navbar,
-                    .o_main_navbar,
-                    footer,
-                    .o_footer {
-                        display: none !important;
-                    }
-                </style>
-            </t>
-        </xpath>
-    </template>
+                #wrapwrap {
+                    padding-top: 0 !important;
+                }
+            </style>
+        </t>
+    </xpath>
 
-    <!-- ===================================================== -->
-    <!-- SAFE portal quotation replacement -->
-    <!-- ===================================================== -->
-    <template id="custom_portal_sale_order"
-              inherit_id="sale.sale_order_portal_content"
-              priority="300">
-
-        <!-- Replace content but KEEP root container -->
-        <xpath expr="//div[@id='wrap']" position="replace">
-
-            <!-- Disable portal sale JS -->
-            <t t-set="disable_portal_sale_js" t-value="True"/>
-
-            <div id="wrap">
-                <t t-set="o" t-value="sale_order"/>
-                <t t-set="docs" t-value="[sale_order]"/>
-
-                <t t-call="custom_sa_quotation.custom_saleorder_report"/>
-            </div>
-
-        </xpath>
-
-    </template>
-
-</odoo>
+</template>

@@ -1,101 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Override portal to show custom report -->
-    <template id="custom_portal_sale_order" inherit_id="sale.sale_order_portal_content" priority="100">
+    <!-- Completely replace the portal content template -->
+    <template id="sale_order_portal_content" inherit_id="sale.sale_order_portal_content">
 
-        <!-- Hide ALL default content sections -->
-        <xpath expr="//div[@id='introduction']" position="attributes">
-            <attribute name="style">display: none !important;</attribute>
-        </xpath>
+        <!-- Replace everything with our custom content -->
+        <xpath expr="." position="replace">
+            <t t-name="sale.sale_order_portal_content">
 
-        <xpath expr="//div[@id='informations']" position="attributes">
-            <attribute name="style">display: none !important;</attribute>
-        </xpath>
+                <style>
+                    /* Hide sidebar and make full width */
+                    .o_portal_sale_sidebar { display: none !important; }
+                    .breadcrumb { display: none !important; }
+                    .o_portal .o_portal_wrap .row > div {
+                        flex: 0 0 100% !important;
+                        max-width: 100% !important;
+                    }
+                </style>
 
-        <xpath expr="//div[@name='sol_table']" position="attributes">
-            <attribute name="style">display: none !important;</attribute>
-        </xpath>
+                <!-- Simple test content -->
+                <div style="background: lightblue; padding: 50px; margin: 20px;">
+                    <h1>PORTAL CONTENT REPLACED SUCCESSFULLY!</h1>
+                    <h2>Order: <span t-esc="sale_order.name"/></h2>
+                    <h3>Customer: <span t-esc="sale_order.partner_id.name"/></h3>
+                    <p>Amount: <span t-esc="sale_order.amount_total"/></p>
+                </div>
 
-        <xpath expr="//div[@id='total']" position="attributes">
-            <attribute name="style">display: none !important;</attribute>
-        </xpath>
-
-        <xpath expr="//section[@id='signature']" position="attributes">
-            <attribute name="style">display: none !important;</attribute>
-        </xpath>
-
-        <xpath expr="//section[@id='terms']" position="attributes">
-            <attribute name="style">display: none !important;</attribute>
-        </xpath>
-
-        <!-- Add CSS and custom report -->
-        <xpath expr="//div[@id='content']" position="before">
-            <style>
-                /* Hide the sidebar completely */
-                .o_portal_sale_sidebar,
-                aside.o_portal_sidebar {
-                    display: none !important;
-                }
-
-                /* Make content area full width */
-                .o_portal .o_portal_wrap .row > div:not(.o_portal_sale_sidebar) {
-                    flex: 0 0 100% !important;
-                    max-width: 100% !important;
-                }
-
-                /* Full width for custom report */
-                .custom-quotation-wrapper {
-                    width: 100% !important;
-                    max-width: 1200px !important;
-                    margin: 0 auto !important;
-                    padding: 20px;
-                    background: white;
-                }
-
-                /* Remove the breadcrumb */
-                .breadcrumb {
-                    display: none !important;
-                }
-            </style>
-
-            <!-- TEST: Simple output first -->
-            <div class="custom-quotation-wrapper" style="background: white; padding: 20px; min-height: 500px;">
-                <h1>TEST - Custom Report Loading...</h1>
-                <p>Order: <t t-esc="sale_order.name"/></p>
-                <p>Customer: <t t-esc="sale_order.partner_id.name"/></p>
-
-                <hr/>
-
-                <!-- Now try to load the actual custom template -->
-                <div style="border: 2px solid red; padding: 10px;">
-                    <h3>Trying to load custom template:</h3>
+                <!-- Now add your custom report -->
+                <div style="background: white; padding: 20px; max-width: 1200px; margin: 0 auto;">
                     <t t-set="o" t-value="sale_order"/>
                     <t t-set="docs" t-value="[sale_order]"/>
-
-                    <!-- Direct content from your PDF template without the wrappers -->
-                    <div class="page">
-                        <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
-                            <table style="width: 100%; border-collapse: collapse;border:none">
-                                <tr>
-                                    <td style="width: 50%; padding: 10px 20px; text-align: left;">
-                                        <div style="color: #8B1538; font-size: 16px; font-weight: bold;">
-                                            SAMEER SHARAF AL OTAIBI TRADING COMPANY
-                                        </div>
-                                    </td>
-                                    <td style="width: 50%; padding: 10px 20px; text-align: right;">
-                                        <div style="color: #8B1538; font-size: 17px; font-weight: 900; direction: rtl;">
-                                            شركة سمير شرف العتيبي التجارية
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <h2>Order: <t t-esc="o.name"/></h2>
-                            <p>Customer: <t t-esc="o.partner_id.name"/></p>
-                        </div>
-                    </div>
+                    <t t-call="custom_sa_quotation.custom_saleorder_report"/>
                 </div>
-            </div>
+
+            </t>
         </xpath>
 
     </template>

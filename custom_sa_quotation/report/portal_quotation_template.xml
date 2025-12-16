@@ -1,40 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Show only our custom template in portal preview -->
+    <!-- Completely override portal content -->
     <template id="custom_portal_sale_order" inherit_id="sale.sale_order_portal_content" priority="100">
 
-        <!-- Replace the details section -->
-        <xpath expr="//section[@id='details']" position="replace">
-            <section id="details" class="mt-4">
+        <!-- Disable the sale update line button interaction -->
+        <xpath expr="//div[@id='portal_sale_content']" position="attributes">
+            <attribute name="t-attf-class">d-none</attribute>
+        </xpath>
 
-                <!-- Add dummy element to prevent JS errors (hidden) -->
-                <div style="display: none;">
-                    <div id="portal_sale_content" data-order-id="fake">
-                        <table class="table"></table>
-                    </div>
-                </div>
+        <!-- Add our custom report after the portal_sale_content -->
+        <xpath expr="//div[@id='portal_sale_content']" position="after">
 
-                <!-- CSS to hide any default content that might still appear -->
-                <style>
-                    /* Hide default portal tables */
-                    section#details > div:not(.custom-quotation-wrapper) {
-                        display: none !important;
+            <!-- Disable JavaScript interactions -->
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Hide default portal content
+                    const portalContent = document.querySelector('#portal_sale_content');
+                    if (portalContent) {
+                        portalContent.style.display = 'none';
                     }
-                    table.table.table-sm {
-                        display: none !important;
-                    }
-                    .row.justify-content-end.total {
-                        display: none !important;
-                    }
-                </style>
 
-                <!-- Show ONLY our custom report -->
-                <div class="custom-quotation-wrapper">
-                    <t t-set="o" t-value="sale_order"/>
-                    <t t-set="docs" t-value="[sale_order]"/>
-                    <t t-call="custom_sa_quotation.custom_saleorder_report"/>
-                </div>
-            </section>
+                    // Hide any default tables
+                    const defaultTables = document.querySelectorAll('section#details table.table');
+                    defaultTables.forEach(table => {
+                        if (!table.closest('.custom-quotation-wrapper')) {
+                            table.style.display = 'none';
+                        }
+                    });
+                });
+            </script>
+
+            <!-- Show our custom report -->
+            <div class="custom-quotation-wrapper container mt-4">
+                <t t-set="o" t-value="sale_order"/>
+                <t t-set="docs" t-value="[sale_order]"/>
+                <t t-call="custom_sa_quotation.custom_saleorder_report"/>
+            </div>
         </xpath>
 
     </template>

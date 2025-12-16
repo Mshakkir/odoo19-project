@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Completely replace the portal content template -->
-    <template id="sale_order_portal_content" inherit_id="sale.sale_order_portal_content">
+    <template id="custom_sale_order_portal_content_override" inherit_id="sale.sale_order_portal_content">
 
-        <!-- Replace everything with our custom content -->
+        <!-- Replace the entire template content -->
         <xpath expr="." position="replace">
             <t t-name="sale.sale_order_portal_content">
 

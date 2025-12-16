@@ -127,12 +127,12 @@
             <form string="Sales Register Report">
                 <sheet>
                     <group>
-<!--                        <group string="Date Range">-->
+                        <group string="Date Range">
 <!--                            <field name="date_filter" widget="radio"/>-->
-<!--                            <field name="date_from" required="1" readonly="date_filter != 'custom'"/>-->
-<!--                            <field name="date_to" required="1" readonly="date_filter != 'custom'"/>-->
-<!--                            <field name="company_id" groups="base.group_multi_company"/>-->
-<!--                        </group>-->
+                            <field name="date_from" required="1" readonly="date_filter != 'custom'"/>
+                            <field name="date_to" required="1" readonly="date_filter != 'custom'"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
                         <group string="Report Options">
                             <field name="data_source"/>
                             <field name="report_type" widget="radio"/>

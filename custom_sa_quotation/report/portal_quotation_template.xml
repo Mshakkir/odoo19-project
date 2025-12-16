@@ -1,101 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-<!--    &lt;!&ndash; Override portal to show ONLY custom report &ndash;&gt;-->
-<!--    <template id="custom_portal_sale_order" inherit_id="sale.sale_order_portal_content" priority="100">-->
-<!--        -->
-<!--        &lt;!&ndash; Hide the introduction section &ndash;&gt;-->
-<!--        <xpath expr="//div[@id='introduction']" position="attributes">-->
-<!--            <attribute name="style">display: none !important;</attribute>-->
-<!--        </xpath>-->
-<!--        -->
-<!--        &lt;!&ndash; Hide the informations section &ndash;&gt;-->
-<!--        <xpath expr="//div[@id='informations']" position="attributes">-->
-<!--            <attribute name="style">display: none !important;</attribute>-->
-<!--        </xpath>-->
-<!--        -->
-<!--        &lt;!&ndash; Hide the default table &ndash;&gt;-->
-<!--        <xpath expr="//div[@name='sol_table']" position="attributes">-->
-<!--            <attribute name="style">display: none !important;</attribute>-->
-<!--        </xpath>-->
-<!--        -->
-<!--        &lt;!&ndash; Hide the totals &ndash;&gt;-->
-<!--        <xpath expr="//div[@id='total']" position="attributes">-->
-<!--            <attribute name="style">display: none !important;</attribute>-->
-<!--        </xpath>-->
-<!--        -->
-<!--        &lt;!&ndash; Hide signature section if exists &ndash;&gt;-->
-<!--        <xpath expr="//section[@id='signature']" position="attributes">-->
-<!--            <attribute name="style">display: none !important;</attribute>-->
-<!--        </xpath>-->
-<!--        -->
-<!--        &lt;!&ndash; Hide terms section &ndash;&gt;-->
-<!--        <xpath expr="//section[@id='terms']" position="attributes">-->
-<!--            <attribute name="style">display: none !important;</attribute>-->
-<!--        </xpath>-->
-<!--        -->
-<!--        &lt;!&ndash; Add our custom report at the beginning of content &ndash;&gt;-->
-<!--        <xpath expr="//div[@id='content']" position="before">-->
-<!--            <div class="custom-quotation-wrapper">-->
-<!--                <t t-set="o" t-value="sale_order"/>-->
-<!--                <t t-set="docs" t-value="[sale_order]"/>-->
-<!--                <t t-call="custom_sa_quotation.custom_saleorder_report"/>-->
-<!--            </div>-->
-<!--        </xpath>-->
-<!--        -->
-<!--    </template>-->
-<!--</odoo>-->
-
-
 <odoo>
+    <!-- Override portal to show ONLY custom report -->
+    <template id="custom_portal_sale_order" inherit_id="sale.sale_order_portal_content" priority="100">
 
-    <!-- ==================================================
-         Sale Order Portal Preview Override
-         ================================================== -->
-
-    <template id="custom_portal_sale_order"
-              inherit_id="sale.sale_order_portal_content"
-              priority="100">
-
-        <!-- Hide default portal blocks -->
+        <!-- Hide the introduction section -->
         <xpath expr="//div[@id='introduction']" position="attributes">
-            <attribute name="style">display:none !important;</attribute>
+            <attribute name="style">display: none !important;</attribute>
         </xpath>
 
+        <!-- Hide the informations section -->
         <xpath expr="//div[@id='informations']" position="attributes">
-            <attribute name="style">display:none !important;</attribute>
+            <attribute name="style">display: none !important;</attribute>
         </xpath>
 
+        <!-- Hide the default table -->
         <xpath expr="//div[@name='sol_table']" position="attributes">
-            <attribute name="style">display:none !important;</attribute>
+            <attribute name="style">display: none !important;</attribute>
         </xpath>
 
+        <!-- Hide the totals -->
         <xpath expr="//div[@id='total']" position="attributes">
-            <attribute name="style">display:none !important;</attribute>
+            <attribute name="style">display: none !important;</attribute>
         </xpath>
 
+        <!-- Hide signature section if exists -->
         <xpath expr="//section[@id='signature']" position="attributes">
-            <attribute name="style">display:none !important;</attribute>
+            <attribute name="style">display: none !important;</attribute>
         </xpath>
 
+        <!-- Hide terms section -->
         <xpath expr="//section[@id='terms']" position="attributes">
-            <attribute name="style">display:none !important;</attribute>
+            <attribute name="style">display: none !important;</attribute>
         </xpath>
 
-        <!-- Insert custom quotation -->
-        <xpath expr="//div[@id='header']" position="attributes">
-            <attribute name="style">display:none !important;</attribute>
-        </xpath>
+        <!-- Add our custom report at the beginning of content -->
         <xpath expr="//div[@id='content']" position="before">
             <div class="custom-quotation-wrapper">
                 <t t-set="o" t-value="sale_order"/>
                 <t t-set="docs" t-value="[sale_order]"/>
-
-                <!-- Call custom report -->
                 <t t-call="custom_sa_quotation.custom_saleorder_report"/>
             </div>
         </xpath>
 
     </template>
 
+    <!-- Add CSS to hide header and footer ONLY on quotation pages -->
+    <template id="custom_portal_assets" inherit_id="web.assets_frontend">
+        <xpath expr="." position="inside">
+            <style>
+                /* Target only sale order portal pages */
+                .o_portal_sale_sidebar header,
+                .o_portal_sale_sidebar #wrapwrap > header,
+                .o_portal_sale_sidebar .o_portal_header,
+                .o_portal_sale_sidebar footer,
+                .o_portal_sale_sidebar #wrapwrap > footer {
+                    display: none !important;
+                }
+
+                /* Adjust content spacing */
+                .o_portal_sale_sidebar #wrap {
+                    padding-top: 0 !important;
+                }
+
+                /* Make the custom quotation wrapper full width */
+                .o_portal_sale_sidebar .custom-quotation-wrapper {
+                    width: 100%;
+                    max-width: none;
+                }
+            </style>
+        </xpath>
+    </template>
 </odoo>

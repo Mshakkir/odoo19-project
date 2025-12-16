@@ -17,6 +17,12 @@
                             body {
                             font-family: 'DejaVu Sans', Arial, sans-serif;
                             }
+                            /* Hide header and footer in screen preview only */
+                            @media screen {
+                            .header, .footer {
+                            display: none !important;
+                            }
+                            }
 
                             .ar {
                             font-family: 'Noto Naskh Arabic', 'DejaVu Sans', Arial, sans-serif !important;
@@ -98,109 +104,107 @@
                         </div>
                     </div>
 
-                     </t>
-<t t-if="o.move_type in ('out_invoice','out_refund')">
-                <div class="footer"
-                     style=" font-size:13px; background:#fff;width:848px;margin-top:10px;padding-top:10px;">
+                </t>
+                <t t-if="o.move_type in ('out_invoice','out_refund')">
+                    <div class="footer"
+                         style=" font-size:13px; background:#fff;width:848px;margin-top:10px;padding-top:10px;">
 
 
-                    <!-- ===== Bank Details ===== -->
-                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
-                        <tr>
-                            <td class="ar" style="padding:2px; text-align:left;width:50%;">
-                                Sameer Sharaf Al Otaibi Trading Company
-                                <br/>
-                                شركة سمير شرف العتيبي التجارية
-                                <br/>
-                                Alrajhi Bank – مصرف الراجحي
-                                <br/>
-                                Account Number:رقم الحساب:123000010006080143917
-                                <br/>
-                                IBAN: SA7880000123608010143917 :رقم الحساب الدولي
-                            </td>
+                        <!-- ===== Bank Details ===== -->
+                        <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
+                            <tr>
+                                <td class="ar" style="padding:2px; text-align:left;width:50%;">
+                                    Sameer Sharaf Al Otaibi Trading Company
+                                    <br/>
+                                    شركة سمير شرف العتيبي التجارية
+                                    <br/>
+                                    Alrajhi Bank – مصرف الراجحي
+                                    <br/>
+                                    Account Number:رقم الحساب:123000010006080143917
+                                    <br/>
+                                    IBAN: SA7880000123608010143917 :رقم الحساب الدولي
+                                </td>
 
 
-                            <!-- English Column -->
-                            <td class="ar" style="padding:2px; text-align:right;width:50%;">
-                                Sameer Sharaf Al Otaibi Trading Company
-                                <br/>
-                                شركة سمير شرف العتيبي التجارية
-                                <br/>
-                                SNB - Saudi National Bank/البنك الأهلي السعودي
-                                <br/>
-                                Account Number at SNB: 13200000678707 :رقم الحساب
-                                <br/>
-                                (IBAN): SA2110000013200000678707 :رقم الحساب الدولي
-                            </td>
-                        </tr>
+                                <!-- English Column -->
+                                <td class="ar" style="padding:2px; text-align:right;width:50%;">
+                                    Sameer Sharaf Al Otaibi Trading Company
+                                    <br/>
+                                    شركة سمير شرف العتيبي التجارية
+                                    <br/>
+                                    SNB - Saudi National Bank/البنك الأهلي السعودي
+                                    <br/>
+                                    Account Number at SNB: 13200000678707 :رقم الحساب
+                                    <br/>
+                                    (IBAN): SA2110000013200000678707 :رقم الحساب الدولي
+                                </td>
+                            </tr>
 
-                    </table>
-
-
-                    <!-- ===== Branch Details ===== -->
-                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
-                        <tr>
+                        </table>
 
 
-                            <td style="width:33%; padding:4px;border-right: 1px solid black;">
-                                <strong>jeddah:</strong>
-                                Jeddah, 7655 Al Fayha
-                                Al Fayha Dist. JEDDAH 22244-3108
-                                Saudi Arabia
-                                <br/>
-                                Tel:
-                                <br/>
-                                Email:
-                            </td>
+                        <!-- ===== Branch Details ===== -->
+                        <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
+                            <tr>
 
-                            <td style="width:33%; padding:4px;">
-                                <strong>Baladiya:</strong>
-                                Sookul Anwar, Al Baladeah, Aziziyah,
-                                Jeddah 31303
-                                Tel: 0535081008
-                                <br/>
-                                Email: ssaoe.dammam@gmail.com
-                            </td>
 
-                            <td style="width:33%; padding:4px;border-left: 1px solid black;">
-                                <strong>Dammam:</strong>
-                                8515, Qutaibah bin Muslim ST,
-                                Al Souq, Dammam 4525-32242
-                                Saudi Arabia
-                                <br/>
-                                Tel/Mobile: 0535081008
-                                <br/>
-                                Email: ssaoe.dammam@gmail.com
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-</t>
+                                <td style="width:33%; padding:4px;border-right: 1px solid black;">
+                                    <strong>jeddah:</strong>
+                                    Jeddah, 7655 Al Fayha
+                                    Al Fayha Dist. JEDDAH 22244-3108
+                                    Saudi Arabia
+                                    <br/>
+                                    Tel:
+                                    <br/>
+                                    Email:
+                                </td>
+
+                                <td style="width:33%; padding:4px;">
+                                    <strong>Baladiya:</strong>
+                                    Sookul Anwar, Al Baladeah, Aziziyah,
+                                    Jeddah 31303
+                                    Tel: 0535081008
+                                    <br/>
+                                    Email: ssaoe.dammam@gmail.com
+                                </td>
+
+                                <td style="width:33%; padding:4px;border-left: 1px solid black;">
+                                    <strong>Dammam:</strong>
+                                    8515, Qutaibah bin Muslim ST,
+                                    Al Souq, Dammam 4525-32242
+                                    Saudi Arabia
+                                    <br/>
+                                    Tel/Mobile: 0535081008
+                                    <br/>
+                                    Email: ssaoe.dammam@gmail.com
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
                 <t t-if="o.move_type in ('in_invoice','in_refund')">
                     <!-- empty -->
                 </t>
 
             </t>
             <t t-foreach="docs" t-as="o">
-<!--               <t t-call="web.external_layout">-->
-                <div class="page">
-
+                <t t-call="web.external_layout">
                     <div style="padding-top:5px;">
                         <div style="background-color:#d3d3d3; color:black; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
                             <t t-if="o.move_type in ('out_invoice','out_refund')">
                                 Tax Invoice /
-                                <span  style="font-weight:900; "
-                                       class="ar">فاتورة ضريبية</span>
+                                <span style="font-weight:900; "
+                                      class="ar">فاتورة ضريبية
+                                </span>
                             </t>
                             <t t-elif="o.move_type in ('in_invoice','in_refund')">
                                 Purchase Invoice /
                                 <span style="font-family:'Tajawal',sans-serif;font-weight:900;"
-                                class="ar">فاتورة مشتريات
+                                      class="ar">فاتورة مشتريات
                                 </span>
                             </t>
                         </div>
                     </div>
-
 
 
                     <!-- ===== Dynamic Title Section ===== -->
@@ -221,7 +225,7 @@
                                 <!-- Shipping To header - ONLY if shipping address exists AND is different from partner -->
                                 <t t-if="o.partner_shipping_id and o.partner_shipping_id.id != o.partner_id.id">
                                     <td style="padding:4px 8px; font-weight:bold; width:50%;"
-                                    class="ar">
+                                        class="ar">
                                         <t t-if="o.move_type in ('out_invoice','out_refund')">
                                             Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160; عنوان الشحن
                                         </t>
@@ -346,7 +350,7 @@
                     </div>
 
                     <!-- =====  ===== -->
-                                        <t t-set="total_discount_amount"
+                    <t t-set="total_discount_amount"
                        t-value="sum(line.quantity * line.price_unit * (line.discount or 0.0)/100.0 for line in o.invoice_line_ids)"/>
                     <t t-set="subtotal_before_discount"
                        t-value="sum(line.quantity * line.price_unit for line in o.invoice_line_ids)"/>
@@ -404,7 +408,7 @@
                                 </th>
                             </tr>
                         </thead>
-                     <tbody>
+                        <tbody>
                             <tr t-foreach="enumerate(o.invoice_line_ids, start=1)" t-as="l">
                                 <td style="text-align:center; width:35px; padding: 10px 8px;">
                                     <t t-esc="l[0]"/>
@@ -556,7 +560,8 @@
                             <td colspan="4"
                                 style="border: 1px solid #ccc; padding: 10px; background: #fafafa; font-weight: bold; text-align: center;">
                                 <!-- Arabic Amount in Words -->
-                                <div style="direction: rtl; line-height:1.5; font-weight:900; font-size: 13px;" class="ar">
+                                <div style="direction: rtl; line-height:1.5; font-weight:900; font-size: 13px;"
+                                     class="ar">
                                     فقط
                                     <span style="line-height:1.5; font-weight:900;"
                                           t-esc="o.amount_to_text_arabic(o.amount_total)" class="ar"/>
@@ -570,7 +575,7 @@
                         </tr>
                     </table>
 
-                </div>
+                </t>
             </t>
         </xpath>
 

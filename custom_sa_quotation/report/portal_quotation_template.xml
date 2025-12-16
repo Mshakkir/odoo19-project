@@ -3,21 +3,37 @@
     <!-- Show only our custom template in portal preview -->
     <template id="custom_portal_sale_order" inherit_id="sale.sale_order_portal_content" priority="100">
 
-        <!-- Replace the details section content -->
+        <!-- Replace the details section -->
         <xpath expr="//section[@id='details']" position="replace">
             <section id="details" class="mt-4">
+
+                <!-- Add dummy element to prevent JS errors (hidden) -->
+                <div style="display: none;">
+                    <div id="portal_sale_content" data-order-id="fake">
+                        <table class="table"></table>
+                    </div>
+                </div>
+
+                <!-- CSS to hide any default content that might still appear -->
                 <style>
-                    /* Hide any remaining default sale order tables/content that might appear */
-                    #portal_sale_content table.table,
-                    .o_portal_html_view {
+                    /* Hide default portal tables */
+                    section#details > div:not(.custom-quotation-wrapper) {
+                        display: none !important;
+                    }
+                    table.table.table-sm {
+                        display: none !important;
+                    }
+                    .row.justify-content-end.total {
                         display: none !important;
                     }
                 </style>
 
                 <!-- Show ONLY our custom report -->
-                <t t-set="o" t-value="sale_order"/>
-                <t t-set="docs" t-value="[sale_order]"/>
-                <t t-call="custom_sa_quotation.custom_saleorder_report"/>
+                <div class="custom-quotation-wrapper">
+                    <t t-set="o" t-value="sale_order"/>
+                    <t t-set="docs" t-value="[sale_order]"/>
+                    <t t-call="custom_sa_quotation.custom_saleorder_report"/>
+                </div>
             </section>
         </xpath>
 

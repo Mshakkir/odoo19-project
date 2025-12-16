@@ -1,52 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Custom portal with your report -->
-    <template id="clean_portal_override" inherit_id="sale.sale_order_portal_content" priority="999">
+    <!-- Simple approach: Just add CSS to hide default and insert custom content -->
+    <template id="portal_sale_order_custom" inherit_id="sale.sale_order_portal_content" priority="100">
 
-        <!-- Replace everything -->
-        <xpath expr="." position="replace">
-            <t t-name="sale.sale_order_portal_content">
+        <!-- Add CSS and custom content at the very beginning -->
+        <xpath expr="//t[@t-name='sale.sale_order_portal_content']" position="before">
+            <style>
+                /* Hide all default portal sale content */
+                t[t-name="sale.sale_order_portal_content"] {
+                    display: none !important;
+                }
+            </style>
+        </xpath>
 
-                <!-- Hidden dummy element to prevent JS errors -->
-                <div style="display: none;">
-                    <table id="sales_order_table" t-att-data-order-id="sale_order.id" t-att-data-token="sale_order.access_token"></table>
-                </div>
+    </template>
 
-                <!-- CSS for full width -->
+    <!-- Create a completely separate portal template -->
+    <template id="sale_order_portal_content" name="Sale Order Portal Content" inherit_id="sale.portal_my_orders_order">
+        <xpath expr="//t[@t-call='portal.portal_record_layout']" position="replace">
+            <t t-call="portal.portal_layout">
                 <style>
-                    .o_portal_sale_sidebar { display: none !important; }
                     .breadcrumb { display: none !important; }
-                    .o_portal .o_portal_wrap .row > div {
-                        flex: 0 0 100% !important;
-                        max-width: 100% !important;
-                    }
-                    .custom-report-container {
+                    .custom-portal-report {
                         max-width: 1200px;
-                        margin: 0 auto;
+                        margin: 20px auto;
                         padding: 20px;
                         background: white;
                     }
                 </style>
 
-                <!-- Test: Inline content first -->
-                <div class="custom-report-container" style="background: yellow; padding: 50px; margin: 20px;">
-                    <h1 style="color: red;">INLINE TEST CONTENT</h1>
-                    <h2>Order: <span t-esc="sale_order.name"/></h2>
-                    <h3>Customer: <span t-esc="sale_order.partner_id.name"/></h3>
-                    <p>Amount: <span t-esc="sale_order.amount_total"/> <span t-esc="sale_order.currency_id.name"/></p>
+                <div class="custom-portal-report">
+                    <!-- Direct inline custom report content -->
+                    <t t-set="o" t-value="sale_order"/>
 
-                    <hr/>
+                    <!-- Header -->
+                    <div style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 50%; text-align: left;">
+                                    <div style="color: #8B1538; font-size: 16px; font-weight: bold;">
+                                        SAMEER SHARAF AL OTAIBI TRADING COMPANY
+                                    </div>
+                                </td>
+                                <td style="width: 50%; text-align: right;">
+                                    <div style="color: #8B1538; font-size: 17px; font-weight: 900; direction: rtl;">
+                                        شركة سمير شرف العتيبي التجارية
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
 
-                    <!-- Simple header test -->
-                    <div style="border: 2px solid #8B1538; padding: 20px; margin-top: 20px;">
-                        <h2 style="color: #8B1538;">SAMEER SHARAF AL OTAIBI TRADING COMPANY</h2>
-                        <p>C.R. 4030216154</p>
-                        <p>VAT: 311299944700003</p>
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <tr>
+                                <td style="width: 33%; border-bottom: 2px solid #8B1538;">
+                                    C.R. 4030216154<br/>VAT Regd: 311299944700003
+                                </td>
+                                <td style="width: 34%; text-align: center; border-bottom: 2px solid #8B1538;">
+                                    <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)" style="max-height: 100px;"/>
+                                </td>
+                                <td style="width: 33%; text-align: right; direction: rtl; border-bottom: 2px solid #8B1538;">
+                                    س.ت: ٤٠٣٠٢١٦١٥٤<br/>الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
+                                </td>
+                            </tr>
+                        </table>
                     </div>
-                </div>
 
+                    <!-- Title -->
+                    <div style="background-color:#d3d3d3; padding:8px; text-align:center; margin:10px 0; font-weight:bold;">
+                        <t t-if="o.state in ('draft', 'sent')">Quotation / عرض سعر</t>
+                        <t t-if="o.state in ('sale', 'done')">Sales Order / طلب مبيعات</t>
+                    </div>
+
+                    <!-- Info -->
+                    <table width="100%" style="border: 1px solid #000; border-collapse: collapse; margin: 10px 0;">
+                        <tr>
+                            <td width="50%" style="border-right: 1px solid #000; padding: 10px;">
+                                <strong>Customer:</strong> <span t-esc="o.partner_id.name"/><br/>
+                                <span t-esc="o.partner_id.city"/><br/>
+                                <span t-esc="o.partner_id.phone or ''"/>
+                            </td>
+                            <td width="50%" style="padding: 10px;">
+                                <strong>Date:</strong> <span t-field="o.date_order"/><br/>
+                                <strong>Reference:</strong> <span t-esc="o.name"/><br/>
+                                <strong>Your Ref:</strong> <span t-esc="o.client_order_ref or '-'"/>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- Products -->
+                    <table width="100%" border="1" style="border-collapse: collapse; margin: 10px 0;">
+                        <thead style="background: #9e9d9d;">
+                            <tr>
+                                <th style="padding: 5px;">SN</th>
+                                <th style="padding: 5px;">Description</th>
+                                <th style="padding: 5px;">QTY</th>
+                                <th style="padding: 5px;">Unit Price</th>
+                                <th style="padding: 5px;">VAT%</th>
+                                <th style="padding: 5px;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="o.order_line" t-as="line">
+                                <td style="padding: 5px; text-align: center;"><t t-esc="line_index + 1"/></td>
+                                <td style="padding: 5px;"><span t-field="line.name"/></td>
+                                <td style="padding: 5px; text-align: center;"><span t-field="line.product_uom_qty"/></td>
+                                <td style="padding: 5px; text-align: right;"><span t-field="line.price_unit"/></td>
+                                <td style="padding: 5px; text-align: center;"><t t-esc="line.tax_ids and line.tax_ids[0].amount or 0"/>%</td>
+                                <td style="padding: 5px; text-align: right;"><span t-field="line.price_total"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Totals -->
+                    <table style="width: 40%; margin-left: auto; border: 1px solid #000; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 5px;">Gross Total</td>
+                            <td style="padding: 5px; text-align: right;"><span t-field="o.amount_untaxed"/> SAR</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px;">VAT (15%)</td>
+                            <td style="padding: 5px; text-align: right;"><span t-field="o.amount_tax"/> SAR</td>
+                        </tr>
+                        <tr style="background: #d3d3d3;">
+                            <td style="padding: 5px;"><strong>Net Total</strong></td>
+                            <td style="padding: 5px; text-align: right;"><strong><span t-field="o.amount_total"/> SAR</strong></td>
+                        </tr>
+                    </table>
+
+                </div>
             </t>
         </xpath>
-
     </template>
 </odoo>

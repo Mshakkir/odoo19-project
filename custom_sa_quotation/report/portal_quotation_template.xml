@@ -44,11 +44,11 @@
 
     </template>
 
-    <!-- Add CSS to hide header and footer ONLY on quotation pages -->
-    <template id="custom_portal_assets" inherit_id="web.assets_frontend">
+    <!-- Add CSS to hide header and footer using Odoo 19 asset bundle -->
+    <template id="custom_portal_assets" inherit_id="web.assets_frontend_minimal">
         <xpath expr="." position="inside">
             <style>
-                /* Target only sale order portal pages */
+                /* Hide header and footer on quotation portal page */
                 .o_portal_sale_sidebar header,
                 .o_portal_sale_sidebar #wrapwrap > header,
                 .o_portal_sale_sidebar .o_portal_header,

@@ -33,21 +33,27 @@
             <attribute name="style">display: none !important;</attribute>
         </xpath>
 
-        <!-- Add CSS to hide header and footer - MUST come before content -->
+        <!-- Add JavaScript and CSS to hide header and footer -->
         <xpath expr="//div[@id='content']" position="before">
             <style type="text/css">
-                /* Hide header and footer on quotation portal page */
-                header,
-                #wrapwrap > header,
-                .o_portal_header,
-                footer,
-                #wrapwrap > footer,
-                #o_shared_blocks {
+                /* Hide header and footer */
+                body header,
+                body #wrapwrap > header,
+                body .o_portal_header,
+                body footer,
+                body #wrapwrap > footer,
+                body #o_shared_blocks,
+                header#top,
+                #top,
+                div#top {
                     display: none !important;
+                    visibility: hidden !important;
+                    height: 0 !important;
+                    overflow: hidden !important;
                 }
 
                 /* Adjust content spacing */
-                #wrap {
+                body, #wrapwrap, #wrap {
                     padding-top: 0 !important;
                     margin-top: 0 !important;
                 }
@@ -58,12 +64,55 @@
                     max-width: 100%;
                     padding: 20px;
                 }
-
-                /* Remove any top spacing from body */
-                body {
-                    padding-top: 0 !important;
-                }
             </style>
+
+            <script type="text/javascript">
+                // Hide header and footer on page load
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Hide all possible header elements
+                    var headers = document.querySelectorAll('header, #top, div[id="top"], #wrapwrap > header');
+                    headers.forEach(function(header) {
+                        if (header) {
+                            header.style.display = 'none';
+                            header.style.visibility = 'hidden';
+                            header.style.height = '0';
+                        }
+                    });
+
+                    // Hide all possible footer elements
+                    var footers = document.querySelectorAll('footer, #wrapwrap > footer, #footer');
+                    footers.forEach(function(footer) {
+                        if (footer) {
+                            footer.style.display = 'none';
+                            footer.style.visibility = 'hidden';
+                            footer.style.height = '0';
+                        }
+                    });
+
+                    // Remove top padding from body
+                    document.body.style.paddingTop = '0';
+
+                    // Remove top margin/padding from wrap elements
+                    var wraps = document.querySelectorAll('#wrapwrap, #wrap');
+                    wraps.forEach(function(wrap) {
+                        if (wrap) {
+                            wrap.style.paddingTop = '0';
+                            wrap.style.marginTop = '0';
+                        }
+                    });
+                });
+
+                // Also hide immediately (backup)
+                window.onload = function() {
+                    var elementsToHide = ['header', 'footer', '#top', '#wrapwrap > header', '#wrapwrap > footer'];
+                    elementsToHide.forEach(function(selector) {
+                        var elements = document.querySelectorAll(selector);
+                        elements.forEach(function(el) {
+                            if (el) el.style.display = 'none';
+                        });
+                    });
+                };
+            </script>
         </xpath>
 
         <!-- Add our custom report at the beginning of content -->

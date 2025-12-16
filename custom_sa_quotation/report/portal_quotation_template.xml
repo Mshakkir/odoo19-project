@@ -85,13 +85,16 @@
                                 <td style="padding: 8px;"><span t-field="line.name"/></td>
                                 <td style="padding: 8px; text-align: center;">
                                     <span t-field="line.product_uom_qty"/>
-                                    <span t-esc="line.product_uom.name"/>
+                                    <span t-esc="line.product_uom_id.name"/>
                                 </td>
                                 <td style="padding: 8px; text-align: right;">
                                     <span t-field="line.price_unit"/> SAR
                                 </td>
                                 <td style="padding: 8px; text-align: center;">
-                                    <t t-esc="line.tax_id and line.tax_id[0].amount or 0"/>%
+                                    <t t-if="line.tax_ids">
+                                        <t t-esc="line.tax_ids[0].amount"/>%
+                                    </t>
+                                    <t t-else="">0%</t>
                                 </td>
                                 <td style="padding: 8px; text-align: right;">
                                     <span t-field="line.price_total"/> SAR

@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Completely override the preview template -->
-    <template id="quote_document_layout_preview" inherit_id="sale.quote_document_layout_preview">
+    <!-- Override the preview template with a unique ID -->
+    <template id="custom_quote_preview_override" inherit_id="sale.quote_document_layout_preview" priority="100">
 
-        <!-- Replace everything inside the template -->
-        <xpath expr="." position="replace">
-            <t t-name="sale.quote_document_layout_preview">
-                <t t-call="web.html_preview_container">
-                    <t t-set="body">
-                        <!-- Call our custom report template -->
-                        <t t-foreach="docs" t-as="doc">
-                            <t t-call="custom_sa_quotation.custom_saleorder_report">
-                                <t t-set="o" t-value="doc"/>
-                            </t>
-                        </t>
-                    </t>
-                </t>
+        <!-- Find and replace the t-call to report_saleorder_document -->
+        <xpath expr="//t[@t-call='sale.report_saleorder_document']" position="replace">
+            <t t-call="custom_sa_quotation.custom_saleorder_report">
+                <t t-set="docs" t-value="[doc]"/>
             </t>
         </xpath>
 

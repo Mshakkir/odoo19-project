@@ -128,7 +128,7 @@
                 <sheet>
                     <group>
                         <group string="Date Range">
-<!--                            <field name="date_filter" widget="radio"/>-->
+                            <field name="date_filter" widget="radio"/>
                             <field name="date_from" required="1" readonly="date_filter != 'custom'"/>
                             <field name="date_to" required="1" readonly="date_filter != 'custom'"/>
                             <field name="company_id" groups="base.group_multi_company"/>

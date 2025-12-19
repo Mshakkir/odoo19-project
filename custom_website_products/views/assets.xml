@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="assets_frontend" inherit_id="web.assets_frontend">
+        <xpath expr="//link[last()]" position="after">
+            <link rel="stylesheet" href="/custom_website_products/static/css/custom_products.css"/>
+        </xpath>
+    </template>
+
+    <template id="assets_common" inherit_id="web.assets_common">
+        <xpath expr="//script[last()]" position="after">
+            <script type="text/javascript" src="/custom_website_products/static/js/custom_products.js"/>
+        </xpath>
+    </template>
+</odoo>

@@ -1,6 +1,6 @@
 {
     'name': 'Custom Website Products',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.',
     'summary': 'Customized products page for website',
     'category': 'Website',
     'author': 'Your Company',

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <template id="custom_products_list" inherit_id="website_sale.products_item" name="Custom Products List">
+            <xpath expr="//div[@id='wrap']" position="attributes">
+                <attribute name="class">wrap</attribute>
+            </xpath>
+            <xpath expr="//h5" position="after">
+                <div class="stock-badge mt-2">
+                    <t t-if="product.qty_available > 10">
+                        <span class="badge badge-success">In Stock</span>
+                    </t>
+                    <t t-elif="product.qty_available > 0">
+                        <span class="badge badge-warning">Low Stock</span>
+                    </t>
+                    <t t-else="">
+                        <span class="badge badge-danger">Out of Stock</span>
+                    </t>
+                    <span class="ms-2" t-if="product.qty_available > 0">
+                        (<span t-esc="int(product.qty_available)"/> available)
+                    </span>
+                </div>
+            </xpath>
+        </template>
+    </data>
+</odoo>
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <template id="custom_products_list" inherit_id="website_sale.products_item">-->
+<!--        <xpath expr="//div[@id='wrap']" position="before">-->
+<!--            <style>-->
+<!--                .product-item-custom { border: 1px solid #ddd; border-radius: 8px; padding: 15px; }-->
+<!--                .stock-badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; }-->
+<!--                .stock-in { background: #28a745; color: white; }-->
+<!--                .stock-low { background: #ffc107; color: black; }-->
+<!--                .stock-out { background: #dc3545; color: white; }-->
+<!--            </style>-->
+<!--        </xpath>-->
+
+<!--        <xpath expr="//h5[@class='card-title']" position="after">-->
+<!--            <div class="stock-badge" t-if="product.inventory_status == 'in_stock'" t-attf-class="stock-badge stock-in">-->
+<!--                In Stock (<span t-field="product.qty_available"/>)-->
+<!--            </div>-->
+<!--            <div class="stock-badge" t-elif="product.inventory_status == 'low_stock'" t-attf-class="stock-badge stock-low">-->
+<!--                Low Stock (<span t-field="product.qty_available"/>)-->
+<!--            </div>-->
+<!--            <div class="stock-badge" t-else="" t-attf-class="stock-badge stock-out">-->
+<!--                Out of Stock-->
+<!--            </div>-->
+<!--        </xpath>-->
+<!--    </template>-->
+
+<!--    <template id="custom_product_detail" inherit_id="website_sale.product_detail">-->
+<!--        <xpath expr="//div[@id='product_details']" position="inside">-->
+<!--            <div class="row mt-4">-->
+<!--                <div class="col-md-6">-->
+<!--                    <h5>Inventory Information</h5>-->
+<!--                    <div class="inventory-info">-->
+<!--                        <p><strong>Available Quantity:</strong> <span t-field="product.qty_available"/> units</p>-->
+<!--                        <p><strong>Status:</strong>-->
+<!--                            <span t-if="product_status == 'in_stock'" class="badge badge-success">In Stock</span>-->
+<!--                            <span t-elif="product_status == 'low_stock'" class="badge badge-warning">Low Stock</span>-->
+<!--                            <span t-else="" class="badge badge-danger">Out of Stock</span>-->
+<!--                        </p>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                <div class="col-md-6" t-if="warehouse_stock">-->
+<!--                    <h5>Warehouse Stock</h5>-->
+<!--                    <table class="table table-sm">-->
+<!--                        <thead>-->
+<!--                            <tr>-->
+<!--                                <th>Warehouse</th>-->
+<!--                                <th>Quantity</th>-->
+<!--                            </tr>-->
+<!--                        </thead>-->
+<!--                        <tbody>-->
+<!--                            <tr t-foreach="warehouse_stock.items()" t-as="item">-->
+<!--                                <td t-esc="item[0]"/>-->
+<!--                                <td t-esc="item[1]"/>-->
+<!--                            </tr>-->
+<!--                        </tbody>-->
+<!--                    </table>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </xpath>-->
+<!--    </template>-->
+<!--</odoo>-->

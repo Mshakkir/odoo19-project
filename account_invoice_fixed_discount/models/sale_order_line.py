@@ -101,9 +101,6 @@
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
-# Copyright 2017 ForgeFlow S.L.
-# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
-
 from odoo import api, fields, models
 from odoo.tools.float_utils import float_is_zero
 
@@ -123,15 +120,12 @@ class SaleOrderLine(models.Model):
 
     @api.depends("product_uom_qty", "discount", "price_unit", "tax_ids", "discount_fixed")
     def _compute_amount(self):
-        """Compute line amounts with fixed discount support."""
+        """Compute the amounts of the SO line with fixed discount support."""
         for line in self:
-            currency = line.currency_id or line.order_id.currency_id or line.company_id.currency_id
-            rounding = currency.rounding if currency else 0.01
-
             # Check if we have a fixed discount
             has_fixed_discount = line.discount_fixed and not float_is_zero(
                 line.discount_fixed,
-                precision_rounding=rounding
+                precision_rounding=line.currency_id.rounding if line.currency_id else 0.01
             )
 
             if has_fixed_discount:
@@ -141,20 +135,16 @@ class SaleOrderLine(models.Model):
                 # Apply fixed discount to the total
                 subtotal_after_discount = subtotal_before_discount - line.discount_fixed
 
-                # Ensure we don't go negative
-                subtotal_after_discount = max(0, subtotal_after_discount)
-
                 # Calculate effective price per unit after discount
                 if line.product_uom_qty and not float_is_zero(
                         line.product_uom_qty,
-                        precision_rounding=rounding
+                        precision_rounding=line.currency_id.rounding if line.currency_id else 0.01
                 ):
                     effective_price_unit = subtotal_after_discount / line.product_uom_qty
                 else:
                     effective_price_unit = line.price_unit
 
                 if line.tax_ids:
-                    # Calculate taxes based on the discounted price
                     taxes = line.tax_ids.compute_all(
                         effective_price_unit,
                         line.order_id.currency_id,
@@ -173,34 +163,34 @@ class SaleOrderLine(models.Model):
                 # Use standard Odoo computation for lines without fixed discount
                 super(SaleOrderLine, line)._compute_amount()
 
-    @api.onchange('discount_fixed')
+    @api.onchange('discount_fixed', 'price_unit', 'product_uom_qty')
     def _onchange_discount_fixed(self):
-        """Update discount percentage when fixed discount changes."""
+        """Auto-calculate and display the percentage discount when fixed discount is entered."""
         currency = self.currency_id or self.order_id.currency_id or self.company_id.currency_id
-        rounding = currency.rounding if currency else 0.01
 
-        if self.discount_fixed and not float_is_zero(self.discount_fixed, precision_rounding=rounding):
-            # Calculate and show the equivalent percentage discount
-            calculated_discount = self._get_discount_from_fixed_discount()
-            self.discount = calculated_discount
-        else:
-            # Clear discount when fixed discount is removed
+        # Check if discount_fixed is zero or empty
+        if not self.discount_fixed or float_is_zero(
+                self.discount_fixed,
+                precision_rounding=currency.rounding if currency else 0.01
+        ):
+            # Clear the percentage discount when fixed discount is removed
             self.discount = 0.0
+            # Force recalculation by calling compute
+            self._compute_amount()
+            return
 
-    @api.onchange('price_unit', 'product_uom_qty')
-    def _onchange_price_or_qty_with_fixed_discount(self):
-        """Recalculate discount percentage when price or quantity changes."""
-        currency = self.currency_id or self.order_id.currency_id or self.company_id.currency_id
-        rounding = currency.rounding if currency else 0.01
-
-        if self.discount_fixed and not float_is_zero(self.discount_fixed, precision_rounding=rounding):
-            calculated_discount = self._get_discount_from_fixed_discount()
-            self.discount = calculated_discount
+        # Calculate the percentage discount for display purposes
+        calculated_discount = self._get_discount_from_fixed_discount()
+        # Update discount percentage WITHOUT clearing discount_fixed
+        self.discount = calculated_discount
+        # Force recalculation
+        self._compute_amount()
 
     def _get_discount_from_fixed_discount(self):
-        """Calculate the discount percentage from fixed discount amount."""
+        """Calculate the discount percentage from the fixed total discount amount."""
         self.ensure_one()
         currency = self.currency_id or self.order_id.currency_id or self.company_id.currency_id
+
         rounding = currency.rounding if currency else 0.01
 
         if float_is_zero(self.discount_fixed, precision_rounding=rounding):
@@ -214,7 +204,7 @@ class SaleOrderLine(models.Model):
         return (self.discount_fixed / subtotal) * 100
 
     def _prepare_invoice_line(self, **optional_values):
-        """Pass fixed discount to invoice when order is invoiced."""
+        """Pass the fixed discount to the invoice line."""
         res = super()._prepare_invoice_line(**optional_values)
         res["discount_fixed"] = self.discount_fixed
         return res

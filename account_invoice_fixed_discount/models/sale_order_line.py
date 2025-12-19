@@ -100,6 +100,8 @@
 
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
+# Copyright 2017 ForgeFlow S.L.
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
 from odoo import api, fields, models
 from odoo.tools.float_utils import float_is_zero
@@ -134,6 +136,9 @@ class SaleOrderLine(models.Model):
 
                 # Apply fixed discount to the total
                 subtotal_after_discount = subtotal_before_discount - line.discount_fixed
+
+                # Ensure we don't go negative
+                subtotal_after_discount = max(0, subtotal_after_discount)
 
                 # Calculate effective price per unit after discount
                 if line.product_uom_qty and not float_is_zero(
@@ -175,16 +180,12 @@ class SaleOrderLine(models.Model):
         ):
             # Clear the percentage discount when fixed discount is removed
             self.discount = 0.0
-            # Force recalculation by calling compute
-            self._compute_amount()
             return
 
         # Calculate the percentage discount for display purposes
         calculated_discount = self._get_discount_from_fixed_discount()
         # Update discount percentage WITHOUT clearing discount_fixed
         self.discount = calculated_discount
-        # Force recalculation
-        self._compute_amount()
 
     def _get_discount_from_fixed_discount(self):
         """Calculate the discount percentage from the fixed total discount amount."""
@@ -208,3 +209,12 @@ class SaleOrderLine(models.Model):
         res = super()._prepare_invoice_line(**optional_values)
         res["discount_fixed"] = self.discount_fixed
         return res
+
+    @api.onchange('discount_fixed')
+    def _onchange_discount_fixed_update_display(self):
+        """Update the discount percentage display immediately when fixed discount changes."""
+        if self.discount_fixed:
+            calculated_discount = self._get_discount_from_fixed_discount()
+            self.discount = calculated_discount
+            # Trigger amount recalculation
+            self._compute_amount()

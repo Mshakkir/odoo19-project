@@ -16,33 +16,64 @@
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title" t-esc="product_data['product'].name"/>
 
-                                <div class="inventory-info mt-2 p-2 bg-light rounded">
-                                    <div class="d-flex justify-content-between mb-2">
-                                        <strong class="text-success">
-                                            <t t-esc="product_data['inventory']['total_quantity']"/> in stock
-                                        </strong>
-                                        <strong class="text-primary">
-                                            <t t-esc="product_data['currency'].symbol"/>
+                                <div class="mb-2">
+                                    <small class="text-muted d-block">
+                                        SKU: <t t-esc="product_data['product'].default_code or 'N/A'"/>
+                                    </small>
+                                </div>
+
+                                <!-- Inventory Information -->
+                                <div class="inventory-info mt-2 p-3 bg-light rounded">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge bg-success">
+                                            Stock: <t t-esc="product_data['inventory']['total_quantity']"/>
+                                        </span>
+                                        <span class="text-primary fw-bold h5 mb-0">
                                             <t t-esc="format_decimalized_amount(product_data['price'], product_data['currency'])"/>
-                                        </strong>
+                                        </span>
+                                    </div>
+
+                                    <!-- Location Details -->
+                                    <div class="small text-muted mt-2">
+                                        <t t-if="product_data['inventory']['locations'] and product_data['inventory']['locations'][0]">
+                                            <div class="mb-1">
+                                                <i class="fa fa-warehouse me-1"></i>
+                                                <span t-esc="product_data['inventory']['locations'][0]['location']"/>
+                                                <span class="badge bg-warning text-dark ms-1">
+                                                    <t t-esc="product_data['inventory']['locations'][0]['quantity']"/>
+                                                </span>
+                                            </div>
+                                            <t t-if="len(product_data['inventory']['locations']) > 1">
+                                                <small>
+                                                    + <t t-esc="len(product_data['inventory']['locations']) - 1"/> more locations
+                                                </small>
+                                            </t>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="text-danger">
+                                                <i class="fa fa-exclamation-circle me-1"></i>
+                                                No stock available
+                                            </span>
+                                        </t>
                                     </div>
                                 </div>
 
+                                <!-- Product Actions -->
                                 <div class="mt-auto pt-3">
                                     <div class="d-flex justify-content-between">
                                         <a t-att-href="'/shop/product/%s' % product_data['product'].id"
-                                           class="btn btn-primary btn-sm">
-                                            View Details
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fa fa-eye me-1"></i>View
                                         </a>
                                         <t t-if="product_data['inventory']['total_quantity'] > 0">
                                             <a t-attf-href="/shop/cart?add=#{product_data['product'].id}"
                                                class="btn btn-success btn-sm">
-                                                Add to Cart
+                                                <i class="fa fa-cart-plus me-1"></i>Add to Cart
                                             </a>
                                         </t>
                                         <t t-else="">
-                                            <span class="btn btn-secondary btn-sm" style="cursor: not-allowed;">
-                                                Out of Stock
+                                            <span class="btn btn-secondary btn-sm disabled">
+                                                <i class="fa fa-times me-1"></i>Out of Stock
                                             </span>
                                         </t>
                                     </div>
@@ -57,7 +88,8 @@
 
     <!-- Inherit the main products page -->
     <template id="inherit_products_page" name="Custom Products Page" inherit_id="website_sale.products">
-        <xpath expr="//div[hasclass('oe_website_sale')]" position="after">
+        <!-- Try different XPath expressions -->
+        <xpath expr="//div[contains(@class, 'products')]" position="after">
             <t t-if="products_with_inventory">
                 <t t-call="custom_product_display.custom_product_display_template"/>
             </t>

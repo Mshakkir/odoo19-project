@@ -4,7 +4,7 @@
     'summary': 'Customized products page for website',
     'category': 'Website',
     'author': 'Your Company',
-    'depends': ['website', 'website_sale', 'inventory', 'sale'],
+    'depends': ['website', 'website_sale', 'stock', 'sale'],
     'data': [
         'views/product_templates.xml',
         'views/assets.xml',

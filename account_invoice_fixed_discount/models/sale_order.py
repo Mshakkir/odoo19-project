@@ -1,9 +1,6 @@
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
-# Copyright 2017 ForgeFlow S.L.
-# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
-
 from odoo import api, fields, models
 from odoo.tools.float_utils import float_is_zero
 
@@ -32,23 +29,24 @@ class SaleOrder(models.Model):
             for line in self.order_line:
                 line.discount_fixed = 0.0
                 line.discount = 0.0
+                # Trigger recomputation to reset amounts
+                line._compute_amount()
             return
 
-        # Calculate total before any discount (only for product lines)
-        product_lines = self.order_line.filtered(lambda l: l.product_id)
-        total_before_discount = sum(line.product_uom_qty * line.price_unit for line in product_lines)
+        # Calculate total before any discount
+        total_before_discount = sum(line.product_uom_qty * line.price_unit for line in self.order_line)
 
         if float_is_zero(total_before_discount, precision_rounding=currency.rounding):
             return
 
         # Distribute global discount proportionally
-        for line in product_lines:
+        for line in self.order_line:
             line_subtotal = line.product_uom_qty * line.price_unit
             if not float_is_zero(line_subtotal, precision_rounding=currency.rounding):
                 # Calculate proportional discount for this line
                 line_proportion = line_subtotal / total_before_discount
                 line.discount_fixed = self.global_discount_fixed * line_proportion
-                # Trigger the onchange to update discount percentage
+                # Trigger the onchange to update discount percentage and amounts
                 line._onchange_discount_fixed()
 
     def write(self, vals):
@@ -67,15 +65,15 @@ class SaleOrder(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         """Ensure global discount is applied when creating."""
-        moves = super().create(vals_list)
+        orders = super().create(vals_list)
 
-        for order in moves:
+        for order in orders:
             if order.global_discount_fixed:
                 order._onchange_global_discount_fixed()
                 # Force recalculation of order totals
                 order.order_line._compute_amount()
 
-        return moves
+        return orders
 
     def _prepare_invoice(self):
         """Pass the global discount to the invoice."""

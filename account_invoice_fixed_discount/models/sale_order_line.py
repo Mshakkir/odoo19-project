@@ -100,8 +100,6 @@
 
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
-# Copyright 2017 ForgeFlow S.L.
-# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
 # Copyright 2017 ForgeFlow S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
@@ -125,12 +123,12 @@ class SaleOrderLine(models.Model):
 
     @api.depends("product_uom_qty", "discount", "price_unit", "tax_ids", "discount_fixed")
     def _compute_amount(self):
-        """Compute the amounts of the SO line with fixed discount support."""
+        """Compute line amounts with fixed discount support."""
         for line in self:
-            # Check if we have a fixed discount
             currency = line.currency_id or line.order_id.currency_id or line.company_id.currency_id
             rounding = currency.rounding if currency else 0.01
 
+            # Check if we have a fixed discount
             has_fixed_discount = line.discount_fixed and not float_is_zero(
                 line.discount_fixed,
                 precision_rounding=rounding
@@ -156,7 +154,7 @@ class SaleOrderLine(models.Model):
                     effective_price_unit = line.price_unit
 
                 if line.tax_ids:
-                    # For taxes, use the effective price per unit (already discounted)
+                    # Calculate taxes based on the discounted price
                     taxes = line.tax_ids.compute_all(
                         effective_price_unit,
                         line.order_id.currency_id,
@@ -177,15 +175,16 @@ class SaleOrderLine(models.Model):
 
     @api.onchange('discount_fixed')
     def _onchange_discount_fixed(self):
-        """Handle changes to fixed discount - update percentage and trigger recomputation."""
+        """Update discount percentage when fixed discount changes."""
         currency = self.currency_id or self.order_id.currency_id or self.company_id.currency_id
         rounding = currency.rounding if currency else 0.01
 
-        # Always update the display percentage
         if self.discount_fixed and not float_is_zero(self.discount_fixed, precision_rounding=rounding):
+            # Calculate and show the equivalent percentage discount
             calculated_discount = self._get_discount_from_fixed_discount()
             self.discount = calculated_discount
         else:
+            # Clear discount when fixed discount is removed
             self.discount = 0.0
 
     @api.onchange('price_unit', 'product_uom_qty')
@@ -194,13 +193,12 @@ class SaleOrderLine(models.Model):
         currency = self.currency_id or self.order_id.currency_id or self.company_id.currency_id
         rounding = currency.rounding if currency else 0.01
 
-        # If there's a fixed discount, recalculate the percentage
         if self.discount_fixed and not float_is_zero(self.discount_fixed, precision_rounding=rounding):
             calculated_discount = self._get_discount_from_fixed_discount()
             self.discount = calculated_discount
 
     def _get_discount_from_fixed_discount(self):
-        """Calculate the discount percentage from the fixed total discount amount."""
+        """Calculate the discount percentage from fixed discount amount."""
         self.ensure_one()
         currency = self.currency_id or self.order_id.currency_id or self.company_id.currency_id
         rounding = currency.rounding if currency else 0.01
@@ -216,7 +214,7 @@ class SaleOrderLine(models.Model):
         return (self.discount_fixed / subtotal) * 100
 
     def _prepare_invoice_line(self, **optional_values):
-        """Pass the fixed discount to the invoice line."""
+        """Pass fixed discount to invoice when order is invoiced."""
         res = super()._prepare_invoice_line(**optional_values)
         res["discount_fixed"] = self.discount_fixed
         return res

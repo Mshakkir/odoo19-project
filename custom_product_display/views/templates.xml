@@ -16,29 +16,34 @@
                             <div class="card h-100 shadow-sm border-0">
                                 <!-- Product Image -->
                                 <div style="height: 200px; overflow: hidden;">
-                                    <img t-att-src="product_data.image_url"
+                                    <!-- FIX: Use dictionary access [] instead of dot notation -->
+                                    <img t-att-src="product_data['image_url']"
                                          class="img-fluid w-100 h-100"
                                          style="object-fit: cover;"
-                                         t-att-alt="product_data.product.name"/>
+                                         t-att-alt="product_data['product'].name"/>
                                 </div>
 
                                 <div class="card-body d-flex flex-column">
                                     <!-- Product Name -->
+                                    <!-- FIX: Use dictionary access -->
                                     <h6 class="card-title fw-bold text-truncate"
-                                        t-esc="product_data.product.name"/>
+                                        t-esc="product_data['product'].name"/>
 
                                     <!-- SKU -->
-                                    <small class="text-muted mb-2" t-esc="product_data.product.default_code or ''"/>
+                                    <!-- FIX: Use dictionary access -->
+                                    <small class="text-muted mb-2"
+                                           t-esc="product_data['product'].default_code or ''"/>
 
                                     <!-- Stock Status -->
                                     <div class="mb-3">
-                                        <t t-if="product_data.inventory.total_quantity > 0">
+                                        <!-- FIX: Use dictionary access -->
+                                        <t t-if="product_data['inventory']['total_quantity'] > 0">
                                             <span class="badge bg-success">
                                                 <i class="fa fa-check me-1"></i>
                                                 In Stock
                                             </span>
                                             <small class="text-muted ms-2">
-                                                (Qty: <t t-esc="product_data.inventory.total_quantity"/>)
+                                                (Qty: <t t-esc="product_data['inventory']['total_quantity']"/>)
                                             </small>
                                         </t>
                                         <t t-else="">
@@ -52,20 +57,23 @@
                                     <!-- Price -->
                                     <div class="mb-3">
                                         <h5 class="text-primary mb-0">
-                                            <t t-esc="product_data.currency.symbol"/>
-                                            <t t-esc="product_data.price"/>
+                                            <!-- FIX: Use dictionary access -->
+                                            <t t-esc="product_data['currency'].symbol"/>
+                                            <t t-esc="product_data['price']"/>
                                         </h5>
                                     </div>
 
                                     <!-- Buttons -->
                                     <div class="mt-auto">
                                         <div class="d-flex justify-content-between">
-                                            <a t-att-href="'/shop/product/%s' % product_data.product.id"
+                                            <!-- FIX: Use dictionary access -->
+                                            <a t-att-href="'/shop/product/%s' % product_data['product'].id"
                                                class="btn btn-outline-primary btn-sm">
                                                 View
                                             </a>
-                                            <t t-if="product_data.inventory.total_quantity > 0">
-                                                <a t-attf-href="/shop/cart?add=#{product_data.product.id}"
+                                            <!-- FIX: Use dictionary access -->
+                                            <t t-if="product_data['inventory']['total_quantity'] > 0">
+                                                <a t-attf-href="/shop/cart?add=#{product_data['product'].id}"
                                                    class="btn btn-success btn-sm">
                                                     Add to Cart
                                                 </a>
@@ -81,7 +89,7 @@
         </section>
     </template>
 
-    <!-- Inherit the main products page - Simple XPath -->
+    <!-- Inherit the main products page -->
     <template id="inherit_products_page" name="Custom Products Page" inherit_id="website_sale.products">
         <xpath expr="//div[contains(@class, 'container')]" position="inside">
             <t t-if="products_with_inventory">
@@ -103,101 +111,98 @@
 
 
 
+
+
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 <!--    &lt;!&ndash; Template for Product Cards with Inventory Info &ndash;&gt;-->
 <!--    <template id="custom_product_display_template" name="Custom Product Display">-->
-<!--        <div class="container mt-4">-->
-<!--            <h2 class="text-center mb-4">Products with Available Inventory</h2>-->
-<!--            <div class="row" id="products_with_inventory">-->
-<!--                <t t-foreach="products_with_inventory" t-as="product_data">-->
-<!--                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">-->
-<!--                        <div class="card product-card h-100">-->
-<!--                            <img t-att-src="product_data['image_url']"-->
-<!--                                 class="card-img-top"-->
-<!--                                 t-att-alt="product_data['product'].name"-->
-<!--                                 style="height: 200px; object-fit: cover;"/>-->
+<!--        <section class="mt-4 mb-5">-->
+<!--            <div class="container">-->
+<!--                <div class="row mb-4">-->
+<!--                    <div class="col-12">-->
+<!--                        <h2 class="text-center">Available Products</h2>-->
+<!--                    </div>-->
+<!--                </div>-->
 
-<!--                            <div class="card-body d-flex flex-column">-->
-<!--                                <h5 class="card-title" t-esc="product_data['product'].name"/>-->
-
-<!--                                <div class="mb-2">-->
-<!--                                    <small class="text-muted d-block">-->
-<!--                                        SKU: <t t-esc="product_data['product'].default_code or 'N/A'"/>-->
-<!--                                    </small>-->
+<!--                <div class="row">-->
+<!--                    <t t-foreach="products_with_inventory" t-as="product_data">-->
+<!--                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">-->
+<!--                            <div class="card h-100 shadow-sm border-0">-->
+<!--                                &lt;!&ndash; Product Image &ndash;&gt;-->
+<!--                                <div style="height: 200px; overflow: hidden;">-->
+<!--                                    <img t-att-src="product_data.image_url"-->
+<!--                                         class="img-fluid w-100 h-100"-->
+<!--                                         style="object-fit: cover;"-->
+<!--                                         t-att-alt="product_data.product.name"/>-->
 <!--                                </div>-->
 
-<!--                                &lt;!&ndash; Inventory Information &ndash;&gt;-->
-<!--                                <div class="inventory-info mt-2 p-3 bg-light rounded">-->
-<!--                                    <div class="d-flex justify-content-between align-items-center mb-2">-->
-<!--                                        <span class="badge bg-success">-->
-<!--                                            Stock: <t t-esc="product_data['inventory']['total_quantity']"/>-->
-<!--                                        </span>-->
-<!--                                        <span class="text-primary fw-bold h5 mb-0">-->
-<!--                                            <t t-esc="format_decimalized_amount(product_data['price'], product_data['currency'])"/>-->
-<!--                                        </span>-->
-<!--                                    </div>-->
+<!--                                <div class="card-body d-flex flex-column">-->
+<!--                                    &lt;!&ndash; Product Name &ndash;&gt;-->
+<!--                                    <h6 class="card-title fw-bold text-truncate"-->
+<!--                                        t-esc="product_data.product.name"/>-->
 
-<!--                                    &lt;!&ndash; Location Details &ndash;&gt;-->
-<!--                                    <div class="small text-muted mt-2">-->
-<!--                                        <t t-if="product_data['inventory']['locations'] and product_data['inventory']['locations'][0]">-->
-<!--                                            <div class="mb-1">-->
-<!--                                                <i class="fa fa-warehouse me-1"></i>-->
-<!--                                                <span t-esc="product_data['inventory']['locations'][0]['location']"/>-->
-<!--                                                <span class="badge bg-warning text-dark ms-1">-->
-<!--                                                    <t t-esc="product_data['inventory']['locations'][0]['quantity']"/>-->
-<!--                                                </span>-->
-<!--                                            </div>-->
-<!--                                            <t t-if="len(product_data['inventory']['locations']) > 1">-->
-<!--                                                <small>-->
-<!--                                                    + <t t-esc="len(product_data['inventory']['locations']) - 1"/> more locations-->
-<!--                                                </small>-->
-<!--                                            </t>-->
+<!--                                    &lt;!&ndash; SKU &ndash;&gt;-->
+<!--                                    <small class="text-muted mb-2" t-esc="product_data.product.default_code or ''"/>-->
+
+<!--                                    &lt;!&ndash; Stock Status &ndash;&gt;-->
+<!--                                    <div class="mb-3">-->
+<!--                                        <t t-if="product_data.inventory.total_quantity > 0">-->
+<!--                                            <span class="badge bg-success">-->
+<!--                                                <i class="fa fa-check me-1"></i>-->
+<!--                                                In Stock-->
+<!--                                            </span>-->
+<!--                                            <small class="text-muted ms-2">-->
+<!--                                                (Qty: <t t-esc="product_data.inventory.total_quantity"/>)-->
+<!--                                            </small>-->
 <!--                                        </t>-->
 <!--                                        <t t-else="">-->
-<!--                                            <span class="text-danger">-->
-<!--                                                <i class="fa fa-exclamation-circle me-1"></i>-->
-<!--                                                No stock available-->
+<!--                                            <span class="badge bg-danger">-->
+<!--                                                <i class="fa fa-times me-1"></i>-->
+<!--                                                Out of Stock-->
 <!--                                            </span>-->
 <!--                                        </t>-->
 <!--                                    </div>-->
-<!--                                </div>-->
 
-<!--                                &lt;!&ndash; Product Actions &ndash;&gt;-->
-<!--                                <div class="mt-auto pt-3">-->
-<!--                                    <div class="d-flex justify-content-between">-->
-<!--                                        <a t-att-href="'/shop/product/%s' % product_data['product'].id"-->
-<!--                                           class="btn btn-outline-primary btn-sm">-->
-<!--                                            <i class="fa fa-eye me-1"></i>View-->
-<!--                                        </a>-->
-<!--                                        <t t-if="product_data['inventory']['total_quantity'] > 0">-->
-<!--                                            <a t-attf-href="/shop/cart?add=#{product_data['product'].id}"-->
-<!--                                               class="btn btn-success btn-sm">-->
-<!--                                                <i class="fa fa-cart-plus me-1"></i>Add to Cart-->
+<!--                                    &lt;!&ndash; Price &ndash;&gt;-->
+<!--                                    <div class="mb-3">-->
+<!--                                        <h5 class="text-primary mb-0">-->
+<!--                                            <t t-esc="product_data.currency.symbol"/>-->
+<!--                                            <t t-esc="product_data.price"/>-->
+<!--                                        </h5>-->
+<!--                                    </div>-->
+
+<!--                                    &lt;!&ndash; Buttons &ndash;&gt;-->
+<!--                                    <div class="mt-auto">-->
+<!--                                        <div class="d-flex justify-content-between">-->
+<!--                                            <a t-att-href="'/shop/product/%s' % product_data.product.id"-->
+<!--                                               class="btn btn-outline-primary btn-sm">-->
+<!--                                                View-->
 <!--                                            </a>-->
-<!--                                        </t>-->
-<!--                                        <t t-else="">-->
-<!--                                            <span class="btn btn-secondary btn-sm disabled">-->
-<!--                                                <i class="fa fa-times me-1"></i>Out of Stock-->
-<!--                                            </span>-->
-<!--                                        </t>-->
+<!--                                            <t t-if="product_data.inventory.total_quantity > 0">-->
+<!--                                                <a t-attf-href="/shop/cart?add=#{product_data.product.id}"-->
+<!--                                                   class="btn btn-success btn-sm">-->
+<!--                                                    Add to Cart-->
+<!--                                                </a>-->
+<!--                                            </t>-->
+<!--                                        </div>-->
 <!--                                    </div>-->
 <!--                                </div>-->
 <!--                            </div>-->
 <!--                        </div>-->
-<!--                    </div>-->
-<!--                </t>-->
+<!--                    </t>-->
+<!--                </div>-->
 <!--            </div>-->
-<!--        </div>-->
+<!--        </section>-->
 <!--    </template>-->
 
-<!--    &lt;!&ndash; Inherit the main products page &ndash;&gt;-->
+<!--    &lt;!&ndash; Inherit the main products page - Simple XPath &ndash;&gt;-->
 <!--    <template id="inherit_products_page" name="Custom Products Page" inherit_id="website_sale.products">-->
-<!--        &lt;!&ndash; Try different XPath expressions &ndash;&gt;-->
-<!--        <xpath expr="//div[contains(@class, 'products')]" position="after">-->
+<!--        <xpath expr="//div[contains(@class, 'container')]" position="inside">-->
 <!--            <t t-if="products_with_inventory">-->
 <!--                <t t-call="custom_product_display.custom_product_display_template"/>-->
 <!--            </t>-->
 <!--        </xpath>-->
 <!--    </template>-->
 <!--</odoo>-->
+

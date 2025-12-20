@@ -1,5 +1,6 @@
-/* Custom Product Template Styles */
+/* Custom Product Template Styles - Works with existing Odoo structure */
 
+/* Shop Header */
 .custom_shop_header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -14,83 +15,135 @@
     }
 }
 
-.product_card {
-    transition: all 0.3s ease;
-    border: 1px solid #e0e0e0;
-
-    &:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+/* Product Grid Container */
+.custom_products_grid {
+    .row {
+        row-gap: 1.5rem;
     }
+}
 
-    .product_image_container {
+/* Style existing Odoo product items */
+.oe_product {
+    .oe_product_image {
+        position: relative;
         overflow: hidden;
+        border-radius: 8px 8px 0 0;
 
-        .product_image {
+        img {
             transition: transform 0.3s ease;
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
         }
 
-        &:hover .product_image {
-            transform: scale(1.1);
+        &:hover img {
+            transform: scale(1.05);
         }
     }
 
-    .product_name {
+    /* Product card styling */
+    > div, > form > div {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+
+        &:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+    }
+
+    /* Product info section */
+    .o_wsale_product_information {
+        padding: 1rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Product name */
+    h6, .o_wsale_products_item_title {
         font-size: 1rem;
         font-weight: 600;
         line-height: 1.4;
+        margin-bottom: 0.5rem;
+        min-height: 48px;
 
         a {
+            color: #2d3748;
+            text-decoration: none;
+
             &:hover {
-                color: #667eea !important;
+                color: #667eea;
             }
         }
     }
 
-    .product_price {
+    /* Price styling */
+    .product_price, .o_wsale_product_information_price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-top: auto;
+
         del {
             font-size: 0.875rem;
+            color: #999;
+            margin-right: 0.5rem;
+        }
+    }
+
+    /* Add to cart button */
+    .btn-primary, .a-submit {
+        background-color: #667eea;
+        border-color: #667eea;
+
+        &:hover {
+            background-color: #5568d3;
+            border-color: #5568d3;
         }
     }
 
     .btn-outline-primary {
+        color: #667eea;
+        border-color: #667eea;
+
         &:hover {
             background-color: #667eea;
             border-color: #667eea;
+            color: white;
         }
     }
 }
 
+/* Featured Products Section */
 .s_custom_products {
     h2 {
         font-weight: 700;
         color: #2d3748;
     }
-}
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .custom_shop_header {
-        padding: 2rem 0 !important;
+    .card {
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.3s ease;
 
-        h1 {
-            font-size: 2rem;
+        &:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
         }
-    }
 
-    .product_card {
-        .card-body {
-            padding: 1rem;
+        img {
+            transition: transform 0.3s ease;
         }
-    }
-}
 
-/* Product Detail Page Enhancements */
-#product_detail {
-    .product_price {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #667eea;
+        &:hover img {
+            transform: scale(1.05);
+        }
     }
 }
 
@@ -98,6 +151,7 @@
 .breadcrumb {
     background-color: transparent;
     padding: 0;
+    margin-bottom: 1rem;
 
     .breadcrumb-item {
         a {
@@ -112,5 +166,87 @@
         &.active {
             color: #6c757d;
         }
+
+        + .breadcrumb-item::before {
+            color: #6c757d;
+        }
     }
+}
+
+/* Related Products */
+.related_products_section {
+    .card {
+        border-radius: 8px;
+        overflow: hidden;
+
+        &:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .custom_shop_header {
+        padding: 2rem 0 !important;
+
+        h1 {
+            font-size: 2rem;
+        }
+    }
+
+    .oe_product {
+        .oe_product_image img {
+            height: 200px;
+        }
+
+        h6, .o_wsale_products_item_title {
+            min-height: auto;
+        }
+    }
+}
+
+/* Add animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.oe_product {
+    animation: fadeInUp 0.5s ease-out;
+    animation-fill-mode: both;
+
+    @for $i from 1 through 12 {
+        &:nth-child(#{$i}) {
+            animation-delay: #{$i * 0.05}s;
+        }
+    }
+}
+
+/* Product badges */
+.o_ribbon {
+    &.o_ribbon_left {
+        background-color: #dc3545;
+    }
+}
+
+/* Category badges */
+.badge {
+    font-weight: 500;
+    padding: 0.35rem 0.65rem;
+}
+
+/* Stock status */
+.text-success i.fa-check-circle {
+    margin-right: 4px;
+}
+
+.text-danger i.fa-times-circle {
+    margin-right: 4px;
 }

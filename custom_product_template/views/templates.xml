@@ -1,83 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Add custom CSS classes to products page -->
-    <template id="products_custom_wrapper" inherit_id="website_sale.products" name="Custom Products Wrapper">
-        <xpath expr="//div[@id='products_grid']" position="attributes">
-            <attribute name="class" add="custom_products_grid" separator=" "/>
+    <!-- Method 1: Add custom CSS to existing product items -->
+    <template id="products_add_custom_class" inherit_id="website_sale.products_item" name="Add Custom CSS Classes" priority="99">
+        <!-- Just add a CSS class without changing structure -->
+        <xpath expr="." position="attributes">
+            <attribute name="class" add="custom_product_item" separator=" "/>
         </xpath>
     </template>
 
-    <!-- Customize individual product item styling -->
-    <template id="products_item_custom" inherit_id="website_sale.products_item" name="Custom Product Item">
-
-        <!-- Add custom wrapper class to product -->
-        <xpath expr="//form" position="attributes">
-            <attribute name="class" add="product_card_wrapper h-100" separator=" "/>
-        </xpath>
-
-        <!-- Enhance product image section -->
-        <xpath expr="//div[hasclass('o_wsale_product_image')]" position="attributes">
-            <attribute name="class" add="product_image_container position-relative" separator=" "/>
-        </xpath>
-
-        <!-- Add sale badge after image -->
-        <xpath expr="//div[hasclass('o_wsale_product_image')]" position="inside">
-            <t t-if="product.compare_list_price and product.compare_list_price &gt; product.list_price">
-                <span class="badge bg-danger position-absolute top-0 end-0 m-2" style="z-index: 1;">
-                    Sale
-                </span>
-            </t>
-        </xpath>
-
-        <!-- Add category information before product name -->
-        <xpath expr="//h6[hasclass('o_wsale_products_item_title')]" position="before">
-            <div class="product_category text-muted small mb-1">
-                <t t-if="product.public_categ_ids">
-                    <i class="fa fa-tag me-1"/>
-                    <span t-field="product.public_categ_ids[0].name"/>
-                </t>
-                <t t-elif="product.categ_id">
-                    <i class="fa fa-tag me-1"/>
-                    <span t-field="product.categ_id.name"/>
-                </t>
-            </div>
-        </xpath>
-
-        <!-- Add stock indicator after price -->
-        <xpath expr="//div[hasclass('o_wsale_product_information')]" position="inside">
-            <div class="product_stock_info mt-2">
-                <t t-if="product.detailed_type == 'product'">
-                    <t t-if="product.virtual_available &gt; 0">
-                        <small class="text-success">
-                            <i class="fa fa-check-circle"/> In Stock
-                        </small>
-                    </t>
-                    <t t-else="">
-                        <small class="text-danger">
-                            <i class="fa fa-times-circle"/> Out of Stock
-                        </small>
-                    </t>
-                </t>
-                <t t-else="">
-                    <small class="text-success">
-                        <i class="fa fa-check-circle"/> Available
-                    </small>
-                </t>
-            </div>
-        </xpath>
-
-    </template>
-
-    <!-- Add custom header to shop page -->
-    <template id="shop_custom_header" inherit_id="website_sale.products" name="Shop Custom Header">
+    <!-- Method 2: Add custom shop header before products -->
+    <template id="shop_header_custom" inherit_id="website_sale.products" name="Custom Shop Header" priority="10">
         <xpath expr="//div[@id='products_grid']" position="before">
-            <div class="custom_shop_header py-4 mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="custom_shop_header py-5 mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <div class="container">
                     <div class="row">
-                        <div class="col-lg-12 text-center text-white">
-                            <h1 class="display-5 mb-2 fw-bold">Our Products</h1>
-                            <p class="lead mb-0" style="opacity: 0.9;">Discover our wide range of quality products</p>
+                        <div class="col-12 text-center text-white">
+                            <h1 class="display-4 mb-3 fw-bold">Our Products</h1>
+                            <p class="lead" style="color: rgba(255, 255, 255, 0.9);">Discover our wide range of quality products</p>
                         </div>
                     </div>
                 </div>
@@ -85,53 +25,59 @@
         </xpath>
     </template>
 
-    <!-- Enhance Product Detail Page -->
-    <template id="product_detail_custom" inherit_id="website_sale.product" name="Custom Product Detail">
+    <!-- Method 3: Customize products grid container -->
+    <template id="products_grid_custom" inherit_id="website_sale.products" name="Custom Products Grid Style" priority="15">
+        <xpath expr="//div[@id='products_grid']" position="attributes">
+            <attribute name="class" add="custom_products_grid" separator=" "/>
+            <attribute name="style">padding: 20px 0;</attribute>
+        </xpath>
+    </template>
 
-        <!-- Add breadcrumb -->
+    <!-- Product Detail Page - Add Breadcrumb -->
+    <template id="product_detail_breadcrumb" inherit_id="website_sale.product" name="Product Detail Breadcrumb" priority="10">
         <xpath expr="//div[@id='product_detail']" position="before">
             <div class="container my-3">
                 <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb bg-transparent px-0">
-                        <li class="breadcrumb-item"><a href="/">Home</a></li>
-                        <li class="breadcrumb-item"><a href="/shop">Shop</a></li>
+                    <ol class="breadcrumb mb-0" style="background-color: transparent; padding: 0;">
+                        <li class="breadcrumb-item"><a href="/" style="color: #667eea; text-decoration: none;">Home</a></li>
+                        <li class="breadcrumb-item"><a href="/shop" style="color: #667eea; text-decoration: none;">Shop</a></li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            <span t-field="product.name"/>
+                            <t t-out="product.name"/>
                         </li>
                     </ol>
                 </nav>
             </div>
         </xpath>
+    </template>
 
-        <!-- Add Related Products Section -->
+    <!-- Product Detail Page - Add Related Products -->
+    <template id="product_detail_related" inherit_id="website_sale.product" name="Related Products Section" priority="20">
         <xpath expr="//div[@id='product_detail']" position="after">
             <div class="container my-5">
                 <t t-set="related_products" t-value="request.env['product.template'].sudo().search([('is_published', '=', True), ('id', '!=', product.id), ('categ_id', '=', product.categ_id.id)], limit=4)"/>
                 <t t-if="related_products">
-                    <h3 class="mb-4 fw-bold">Related Products</h3>
+                    <h3 class="mb-4">Related Products</h3>
                     <div class="row g-4">
                         <t t-foreach="related_products" t-as="rel_product">
                             <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-                                <div class="card h-100 shadow-sm border-0">
-                                    <a t-attf-href="/shop/product/#{ slug(rel_product) }" class="text-decoration-none">
-                                        <span t-field="rel_product.image_512"
-                                              t-options="{'widget': 'image', 'class': 'card-img-top', 'style': 'height: 200px; object-fit: cover;'}"/>
+                                <div class="card h-100 shadow-sm">
+                                    <a t-attf-href="/shop/product/#{ slug(rel_product) }">
+                                        <img t-attf-src="/web/image/product.template/#{rel_product.id}/image_512"
+                                             class="card-img-top"
+                                             style="height: 200px; object-fit: cover;"
+                                             t-att-alt="rel_product.name"/>
                                     </a>
                                     <div class="card-body">
-                                        <h6 class="card-title mb-2">
+                                        <h6 class="card-title">
                                             <a t-attf-href="/shop/product/#{ slug(rel_product) }"
                                                class="text-decoration-none text-dark">
-                                                <span t-field="rel_product.name"/>
+                                                <t t-out="rel_product.name"/>
                                             </a>
                                         </h6>
-                                        <p class="text-primary fw-bold mb-2">
-                                            <span t-field="rel_product.list_price"
-                                                  t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+                                        <p class="text-primary fw-bold mb-0">
+                                            <t t-out="'%.2f' % rel_product.list_price"/>
+                                            <t t-out="website.currency_id.symbol"/>
                                         </p>
-                                        <a t-attf-href="/shop/product/#{ slug(rel_product) }"
-                                           class="btn btn-sm btn-outline-primary w-100">
-                                            View Details
-                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -140,16 +86,15 @@
                 </t>
             </div>
         </xpath>
-
     </template>
 
-    <!-- Featured Products Snippet for Homepage -->
-    <template id="s_custom_products" name="Featured Products Section">
+    <!-- Homepage Featured Products Snippet -->
+    <template id="s_custom_products" name="Featured Products">
         <section class="s_custom_products py-5" style="background-color: #f8f9fa;">
             <div class="container">
                 <div class="row mb-4">
                     <div class="col-12 text-center">
-                        <h2 class="display-5 mb-3 fw-bold">Featured Products</h2>
+                        <h2 class="display-5 mb-3 fw-bold" style="color: #2d3748;">Featured Products</h2>
                         <p class="lead text-muted">Check out our latest arrivals</p>
                     </div>
                 </div>
@@ -157,24 +102,26 @@
                     <t t-set="featured_products" t-value="request.env['product.template'].sudo().search([('is_published', '=', True)], limit=4, order='create_date desc')"/>
                     <t t-foreach="featured_products" t-as="product">
                         <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                            <div class="card h-100 shadow-sm border-0">
+                            <div class="card h-100 shadow-sm">
                                 <a t-attf-href="/shop/product/#{ slug(product) }">
-                                    <span t-field="product.image_512"
-                                          t-options="{'widget': 'image', 'class': 'card-img-top', 'style': 'height: 250px; object-fit: cover;'}"/>
+                                    <img t-attf-src="/web/image/product.template/#{product.id}/image_512"
+                                         class="card-img-top"
+                                         style="height: 250px; object-fit: cover;"
+                                         t-att-alt="product.name"/>
                                 </a>
                                 <div class="card-body text-center">
-                                    <h5 class="card-title mb-2">
+                                    <h5 class="card-title">
                                         <a t-attf-href="/shop/product/#{ slug(product) }"
                                            class="text-decoration-none text-dark">
-                                            <span t-field="product.name"/>
+                                            <t t-out="product.name"/>
                                         </a>
                                     </h5>
-                                    <p class="text-primary h5 mb-3 fw-bold">
-                                        <span t-field="product.list_price"
-                                              t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+                                    <p class="text-primary h5 mb-3">
+                                        <t t-out="'%.2f' % product.list_price"/>
+                                        <t t-out="website.currency_id.symbol"/>
                                     </p>
                                     <a t-attf-href="/shop/product/#{ slug(product) }"
-                                       class="btn btn-primary btn-sm px-4">
+                                       class="btn btn-primary btn-sm">
                                         View Product
                                     </a>
                                 </div>
@@ -182,9 +129,9 @@
                         </div>
                     </t>
                 </div>
-                <div class="row mt-5">
+                <div class="row mt-4">
                     <div class="col-12 text-center">
-                        <a href="/shop" class="btn btn-outline-primary btn-lg px-5">View All Products</a>
+                        <a href="/shop" class="btn btn-outline-primary">View All Products</a>
                     </div>
                 </div>
             </div>

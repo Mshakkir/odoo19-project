@@ -1,17 +1,33 @@
 /* Custom Product Template Styles - Non-intrusive */
 
-/* Hide Price Range Filter */
-.o_wsale_products_searchbar_form {
-    .accordion-item:has(h2:contains("Price Range")),
-    .accordion-item:has([data-bs-target="#o_wsale_offcanvas_price_filter"]) {
+/* Hide Price Range Filter - Multiple methods */
+/* Method 1: Hide the accordion item containing Price Range */
+.accordion-item {
+    &:has(.accordion-button[aria-label*="Price"]),
+    &:has(.accordion-button[aria-label*="price"]) {
         display: none !important;
     }
 }
 
-/* Alternative - Hide by ID if above doesn't work */
-#o_wsale_offcanvas_price_filter,
-[data-bs-target="#o_wsale_offcanvas_price_filter"] {
+/* Method 2: Target by data attribute */
+[data-bs-target="#o_wsale_offcanvas_price_filter"],
+#o_wsale_offcanvas_price_filter {
     display: none !important;
+}
+
+/* Method 3: Hide parent of price range elements */
+.o_wsale_apply_range {
+    display: none !important;
+}
+
+/* Method 4: Hide by text content (fallback) */
+.accordion-button {
+    &:contains("Price Range"),
+    &:contains("price range") {
+        & {
+            display: none !important;
+        }
+    }
 }
 
 /* Shop Header - Half Width with rounded corners */

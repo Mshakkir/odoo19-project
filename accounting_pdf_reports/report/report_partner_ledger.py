@@ -198,6 +198,49 @@ class ReportPartnerLedger(models.AbstractModel):
             result = contemp[0] or 0.0
         return result
 
+    def _get_partner_type_info(self, data, docs):
+        """
+        Determine what type of partners are in the report
+        """
+        if not docs:
+            return {
+                'has_customers': False,
+                'has_vendors': False,
+                'display_label': 'Partners',
+                'count': 0
+            }
+
+        account_ids = data.get('computed', {}).get('account_ids', [])
+
+        if not account_ids:
+            return {
+                'has_customers': False,
+                'has_vendors': False,
+                'display_label': 'Partners',
+                'count': len(docs)
+            }
+
+        accounts = self.env['account.account'].browse(account_ids)
+
+        has_receivable = any(acc.account_type == 'asset_receivable' for acc in accounts)
+        has_payable = any(acc.account_type == 'liability_payable' for acc in accounts)
+
+        if has_receivable and has_payable:
+            display_label = 'Customers & Vendors'
+        elif has_receivable:
+            display_label = 'Customers'
+        elif has_payable:
+            display_label = 'Vendors'
+        else:
+            display_label = 'Partners'
+
+        return {
+            'has_customers': has_receivable,
+            'has_vendors': has_payable,
+            'display_label': display_label,
+            'count': len(docs)
+        }
+
     @api.model
     def _get_report_values(self, docids, data=None):
         if not data.get('form'):
@@ -264,6 +307,9 @@ class ReportPartnerLedger(models.AbstractModel):
         partners = obj_partner.browse(partner_ids)
         partners = sorted(partners, key=lambda x: (x.ref or '', x.name or ''))
 
+        # Get partner type information
+        partner_type_info = self._get_partner_type_info(data, partners)
+
         return {
             'doc_ids': partner_ids,
             'doc_model': self.env['res.partner'],
@@ -272,4 +318,5 @@ class ReportPartnerLedger(models.AbstractModel):
             'time': time,
             'lines': self._lines,
             'sum_partner': self._sum_partner,
+            'partner_type_info': partner_type_info,
         }

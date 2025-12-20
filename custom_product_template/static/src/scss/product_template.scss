@@ -1,9 +1,24 @@
 /* Custom Product Template Styles - Non-intrusive */
 
-/* Shop Header */
+/* Hide Price Range Filter */
+.o_wsale_products_searchbar_form {
+    .accordion-item:has(h2:contains("Price Range")),
+    .accordion-item:has([data-bs-target="#o_wsale_offcanvas_price_filter"]) {
+        display: none !important;
+    }
+}
+
+/* Alternative - Hide by ID if above doesn't work */
+#o_wsale_offcanvas_price_filter,
+[data-bs-target="#o_wsale_offcanvas_price_filter"] {
+    display: none !important;
+}
+
+/* Shop Header - Half Width with rounded corners */
 .custom_shop_header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
+    border-radius: 12px;
 
     h1 {
         color: white;

@@ -1,19 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Add custom shop header before products grid -->
+    <!-- Add custom shop header before products grid - Half width -->
     <template id="shop_header_custom" inherit_id="website_sale.products" name="Custom Shop Header" priority="10">
         <xpath expr="//div[@id='products_grid']" position="before">
-            <div class="custom_shop_header py-5 mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-12 text-center text-white">
-                            <h1 class="display-4 mb-3 fw-bold">Our Products</h1>
-                            <p class="lead" style="color: rgba(255, 255, 255, 0.9);">Discover our wide range of quality products</p>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-6 col-md-8 col-12 mx-auto">
+                        <div class="custom_shop_header py-5 mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;">
+                            <div class="text-center text-white px-4">
+                                <h1 class="display-4 mb-3 fw-bold">Our Products</h1>
+                                <p class="lead" style="color: rgba(255, 255, 255, 0.9);">Discover our wide range of quality products</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </xpath>
+    </template>
+
+    <!-- Hide Price Range Filter -->
+    <template id="hide_price_range" inherit_id="website_sale.products" name="Hide Price Range Filter" priority="5">
+        <xpath expr="//form[@class='js_attributes o_wsale_products_searchbar_form']//div[contains(@class, 'accordion-item')]//h2[contains(., 'Price Range') or contains(., 'price')]/.." position="attributes">
+            <attribute name="style">display: none !important;</attribute>
+        </xpath>
+    </template>
+
+    <!-- Alternative: Hide entire left sidebar if you want -->
+    <template id="hide_left_sidebar" inherit_id="website_sale.products" name="Hide Left Sidebar" active="False" priority="5">
+        <xpath expr="//div[@id='o_shop_collapse_category']" position="attributes">
+            <attribute name="style">display: none !important;</attribute>
         </xpath>
     </template>
 
@@ -68,7 +84,6 @@
     </template>
 
 </odoo>
-
 
 
 

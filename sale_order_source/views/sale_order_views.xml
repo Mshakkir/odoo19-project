@@ -54,7 +54,7 @@
                 <filter name="ecommerce_orders" string="eCommerce Orders"
                         domain="[('order_source', '=', 'ecommerce')]"/>
             </xpath>
-            <xpath expr="//group[@name='groupby']" position="inside">
+            <xpath expr="//filter[@name='salesperson']" position="after">
                 <filter name="group_by_source" string="Order Source"
                         context="{'group_by': 'order_source'}"/>
             </xpath>

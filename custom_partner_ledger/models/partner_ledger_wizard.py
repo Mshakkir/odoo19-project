@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# File: custom_partner_ledger/wizard/partner_ledger_wizard.py
+# File: custom_partner_ledger/models/partner_ledger_wizard.py
 from odoo import fields, models, api, _
 import logging
 
@@ -55,28 +55,21 @@ class AccountPartnerLedgerCustom(models.TransientModel):
 
     def _get_report_data(self, data):
         """
-        Override to ensure reconciled flag is properly passed
+        Override to add analytic account data - MUST call super() first
         """
-        _logger.info(f"=== WIZARD DEBUG === self.reconciled = {self.reconciled}")
+        _logger.info(f"=== WIZARD DEBUG START === self.reconciled = {self.reconciled}")
 
-        data = self.pre_print_report(data)
+        # IMPORTANT: Call parent method first - this sets reconciled and amount_currency
+        data = super()._get_report_data(data)
 
-        # CRITICAL FIX: Explicitly set reconciled value
+        _logger.info(f"=== WIZARD DEBUG AFTER SUPER === data['form']['reconciled'] = {data['form'].get('reconciled')}")
+
+        # Now add our custom analytic account data
         data['form'].update({
-            'reconciled': self.reconciled,
-            'amount_currency': self.amount_currency,
             'analytic_account_ids': self.analytic_account_ids.ids,
         })
 
-        _logger.info(f"=== WIZARD DEBUG === data['form']['reconciled'] = {data['form']['reconciled']}")
-        _logger.info(f"=== WIZARD DEBUG === Full data: {data}")
+        _logger.info(
+            f"=== WIZARD DEBUG FINAL === reconciled={data['form']['reconciled']}, analytic_ids={data['form']['analytic_account_ids']}")
 
         return data
-
-    def _print_report(self, data):
-        """
-        Override to pass analytic account data to the report
-        """
-        data = self._get_report_data(data)
-        return self.env.ref('accounting_pdf_reports.action_report_partnerledger').with_context(
-            landscape=True).report_action(self, data=data)

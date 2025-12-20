@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# File: custom_partner_ledger/wizard/partner_ledger_wizard.py
 from odoo import fields, models, api, _
 
 
@@ -49,12 +50,22 @@ class AccountPartnerLedgerCustom(models.TransientModel):
             'target': 'current',
         }
 
+    def _get_report_data(self, data):
+        """
+        Override to ensure reconciled flag is properly passed
+        """
+        data = self.pre_print_report(data)
+        # CRITICAL FIX: Explicitly set reconciled value
+        data['form'].update({
+            'reconciled': self.reconciled,
+            'amount_currency': self.amount_currency,
+            'analytic_account_ids': self.analytic_account_ids.ids,
+        })
+        return data
+
     def _print_report(self, data):
         """
         Override to pass analytic account data to the report
         """
-        data = self.pre_print_report(data)
-        data['form'].update({
-            'analytic_account_ids': self.analytic_account_ids.ids,
-        })
-        return self.env.ref('accounting_pdf_reports.action_report_partnerledger').report_action(self, data=data)
+        data = self._get_report_data(data)
+        return self.env.ref('accounting_pdf_reports.action_report_partnerledger').with_context(landscape=True).report_action(self, data=data)

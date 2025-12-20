@@ -11,21 +11,26 @@ class CustomWebsiteSale(WebsiteSale):
             min_price=min_price, max_price=max_price, ppg=ppg, **post
         )
 
-        # Get products with inventory
         website = http.request.website
 
-        # Make sure this method exists in your model
-        # It should be either get_products_with_inventory() or get_products_with_inventory_safe()
-        # Choose ONE and be consistent
+        # Simple method - get some products
+        products = http.request.env['product.product'].search([
+            ('sale_ok', '=', True),
+            ('website_published', '=', True),
+        ], limit=12)
 
-        # Option 1: If your model has get_products_with_inventory()
-        products_with_inventory = website.get_products_with_inventory(limit=100)
+        # Format data for template
+        product_data = []
+        for product in products:
+            product_data.append({
+                'product': product,
+                'price': product.list_price,
+                'qty_available': product.qty_available or 0,
+                'image_url': '/web/image/product.product/%s/image_1024' % product.id if product.image_1920 else '/website/static/src/img/product_image_placeholder.svg',
+            })
 
-        # Option 2: If your model has get_products_with_inventory_safe()
-        # products_with_inventory = website.get_products_with_inventory_safe(limit=100)
-
-        if response.qcontext and products_with_inventory:
-            response.qcontext['products_with_inventory'] = products_with_inventory
+        if response.qcontext:
+            response.qcontext['products_with_inventory'] = product_data
 
         return response
 

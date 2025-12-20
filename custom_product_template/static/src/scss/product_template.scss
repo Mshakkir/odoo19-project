@@ -30,11 +30,26 @@
     }
 }
 
-/* Shop Header - Half Width with rounded corners */
+/* Hide left sidebar completely on shop page */
+#o_shop_collapse_category {
+    display: none !important;
+}
+
+/* Make products grid take full width */
+.o_wsale_products_main_row {
+    .col-lg-9, .col-lg-8 {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Shop Header - Centered with max width */
 .custom_shop_header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border-radius: 12px;
+    max-width: 800px;
+    margin: 0 auto;
 
     h1 {
         color: white;

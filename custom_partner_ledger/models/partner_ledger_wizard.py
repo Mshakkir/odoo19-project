@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-# File: custom_partner_ledger/models/partner_ledger_wizard.py
 from odoo import fields, models, api, _
-import logging
-
-_logger = logging.getLogger(__name__)
 
 
 class AccountPartnerLedgerCustom(models.TransientModel):
@@ -53,23 +49,12 @@ class AccountPartnerLedgerCustom(models.TransientModel):
             'target': 'current',
         }
 
-    def _get_report_data(self, data):
+    def _print_report(self, data):
         """
-        Override to add analytic account data - MUST call super() first
+        Override to pass analytic account data to the report
         """
-        _logger.info(f"=== WIZARD DEBUG START === self.reconciled = {self.reconciled}")
-
-        # IMPORTANT: Call parent method first - this sets reconciled and amount_currency
-        data = super()._get_report_data(data)
-
-        _logger.info(f"=== WIZARD DEBUG AFTER SUPER === data['form']['reconciled'] = {data['form'].get('reconciled')}")
-
-        # Now add our custom analytic account data
+        data = self.pre_print_report(data)
         data['form'].update({
             'analytic_account_ids': self.analytic_account_ids.ids,
         })
-
-        _logger.info(
-            f"=== WIZARD DEBUG FINAL === reconciled={data['form']['reconciled']}, analytic_ids={data['form']['analytic_account_ids']}")
-
-        return data
+        return self.env.ref('accounting_pdf_reports.action_report_partnerledger').report_action(self, data=data)

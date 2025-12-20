@@ -1,45 +1,32 @@
-from odoo import models, fields, api
+from odoo import models
 
 
 class Website(models.Model):
     _inherit = 'website'
 
+    # Method 1: Basic method
     def get_products_with_inventory(self, limit=50):
-        """Get products with inventory details"""
-        # Use sudo() to avoid permission issues
-        products = self.env['product.product'].sudo().search([
+        """Get products for website display"""
+        products = self.env['product.product'].search([
             ('sale_ok', '=', True),
             ('website_published', '=', True),
-            ('active', '=', True),
         ], limit=limit)
 
         product_data = []
         for product in products:
-            # Safely get image URL
-            image_url = '/web/image/product.product/%s/image_1024' % product.id if product.image_1920 else '/website/static/src/img/product_image_placeholder.svg'
-
-            # Get quantity safely
-            qty_available = product.qty_available or 0
-
             product_data.append({
-                'product': product,  # The actual product object
-                'inventory': {
-                    'total_quantity': qty_available,
-                    'has_inventory': qty_available > 0,
-                },
+                'product': product,
                 'price': product.list_price,
-                'currency': self.env.company.currency_id,
-                'image_url': image_url,
+                'qty_available': product.qty_available or 0,
+                'image_url': '/web/image/product.product/%s/image_1024' % product.id if product.image_1920 else '/website/static/src/img/product_image_placeholder.svg',
             })
 
         return product_data
 
-    # Add this method if controller calls get_products_with_inventory_safe
+    # Method 2: Safe method (alias)
     def get_products_with_inventory_safe(self, limit=50):
-        """Alias for get_products_with_inventory for compatibility"""
+        """Alias for compatibility"""
         return self.get_products_with_inventory(limit=limit)
-
-
 
 
 

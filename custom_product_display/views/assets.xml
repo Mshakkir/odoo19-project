@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <!-- No need for assets_frontend inheritance in Odoo 19 - use manifest assets -->
-</odoo>

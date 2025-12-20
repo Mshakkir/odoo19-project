@@ -53,8 +53,23 @@ class AccountPartnerLedgerCustom(models.TransientModel):
         """
         Override to pass analytic account data to the report
         """
-        data = self.pre_print_report(data)
+        # Call parent method to get properly formatted data
+        data = super()._print_report(data)
+
+        # This won't work because parent returns an action, not data
+        # So we need to use a different approach
+        return data
+
+    def _get_report_data(self, data):
+        """
+        Override to add analytic account data
+        """
+        # Call parent method first
+        data = super()._get_report_data(data)
+
+        # Add analytic account data
         data['form'].update({
             'analytic_account_ids': self.analytic_account_ids.ids,
         })
-        return self.env.ref('accounting_pdf_reports.action_report_partnerledger').report_action(self, data=data)
+
+        return data

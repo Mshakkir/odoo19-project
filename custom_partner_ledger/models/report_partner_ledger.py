@@ -1,23 +1,43 @@
+# -*- coding: utf-8 -*-
+# File: custom_partner_ledger/models/report_partner_ledger.py
 import time
-from odoo import api, models, _
+from odoo import api, models, fields, _
 from odoo.exceptions import UserError
 
 
-class ReportPartnerLedger(models.AbstractModel):
-    _name = 'report.accounting_pdf_reports.report_partnerledger'
-    _description = 'Partner Ledger Report'
+class ReportPartnerLedgerCustom(models.AbstractModel):
+    _inherit = 'report.accounting_pdf_reports.report_partnerledger'
+    _description = 'Custom Partner Ledger Report'
 
     def _lines(self, data, partner):
+        """
+        Override the _lines method to filter by analytic accounts
+        """
         full_account = []
         currency = self.env['res.currency']
-        query_get_data = self.env['account.move.line'].with_context(data['form'].get('used_context', {}))._query_get()
+        query_get_data = self.env['account.move.line'].with_context(
+            data['form'].get('used_context', {})
+        )._query_get()
         # FIX: Use .get() with default value instead of direct access
-        reconcile_clause = "" if data['form'].get('reconciled',
-                                                  False) else ' AND "account_move_line".full_reconcile_id IS NULL '
-        params = [partner.id, tuple(data['computed']['move_state']), tuple(data['computed']['account_ids'])] + \
-                 query_get_data[2]
+        reconcile_clause = "" if data['form'].get('reconciled', False) else ' AND "account_move_line".full_reconcile_id IS NULL '
+
+        # Get analytic account filter
+        analytic_account_ids = data['form'].get('analytic_account_ids', [])
+        analytic_clause = ""
+
+        if analytic_account_ids:
+            # We'll filter by analytic_distribution in Python since it's a JSON field
+            analytic_clause = ' AND "account_move_line".analytic_distribution IS NOT NULL '
+
+        params = [partner.id, tuple(data['computed']['move_state']),
+                  tuple(data['computed']['account_ids'])] + query_get_data[2]
+
         query = """
-            SELECT "account_move_line".id, "account_move_line".date, j.code, acc.name->>'en_US' as a_name, "account_move_line".ref, m.name as move_name, "account_move_line".name, "account_move_line".debit, "account_move_line".credit, "account_move_line".amount_currency,"account_move_line".currency_id, c.symbol AS currency_code
+            SELECT "account_move_line".id, "account_move_line".date, j.code, acc.code as a_code, acc.name as a_name,
+                   "account_move_line".ref, m.name as move_name, "account_move_line".name,
+                   "account_move_line".debit, "account_move_line".credit, "account_move_line".amount_currency,
+                   "account_move_line".currency_id, c.symbol AS currency_code,
+                   "account_move_line".analytic_distribution
             FROM """ + query_get_data[0] + """
             LEFT JOIN account_journal j ON ("account_move_line".journal_id = j.id)
             LEFT JOIN account_account acc ON ("account_move_line".account_id = acc.id)
@@ -25,111 +45,139 @@ class ReportPartnerLedger(models.AbstractModel):
             LEFT JOIN account_move m ON (m.id="account_move_line".move_id)
             WHERE "account_move_line".partner_id = %s
                 AND m.state IN %s
-                AND "account_move_line".account_id IN %s AND """ + query_get_data[1] + reconcile_clause + """
-                ORDER BY "account_move_line".date"""
+                AND "account_move_line".account_id IN %s AND """ + query_get_data[
+            1] + reconcile_clause + analytic_clause + """
+            ORDER BY "account_move_line".date
+        """
+
         self.env.cr.execute(query, tuple(params))
         res = self.env.cr.dictfetchall()
-        sum = 0.0
+
+        # Filter by analytic accounts if specified
+        if analytic_account_ids:
+            filtered_res = []
+            for line in res:
+                if line.get('analytic_distribution'):
+                    import json
+                    try:
+                        distribution = json.loads(line['analytic_distribution']) if isinstance(
+                            line['analytic_distribution'], str) else line['analytic_distribution']
+                        line_analytic_ids = [int(k) for k in distribution.keys()]
+                        if any(analytic_id in line_analytic_ids for analytic_id in analytic_account_ids):
+                            filtered_res.append(line)
+                    except:
+                        pass
+            res = filtered_res
+
+        sum_debit = sum_credit = 0.0
         lang_code = self.env.context.get('lang') or 'en_US'
         lang = self.env['res.lang']
         lang_id = lang._lang_get(lang_code)
         date_format = lang_id.date_format
+
         for r in res:
-            r['date'] = r['date']
+            sum_debit += r['debit']
+            sum_credit += r['credit']
+            r['progress'] = sum_debit - sum_credit
             r['displayed_name'] = '-'.join(
                 r[field_name] for field_name in ('move_name', 'ref', 'name')
                 if r[field_name] not in (None, '', '/')
             )
-            sum += r['debit'] - r['credit']
-            r['progress'] = sum
-            r['currency_id'] = currency.browse(r.get('currency_id'))
+            r['a_code_name'] = r['a_code'] + ' - ' + r['a_name']
             full_account.append(r)
+
         return full_account
 
     def _sum_partner(self, data, partner, field):
+        """
+        Override the _sum_partner method to filter by analytic accounts
+        """
         if field not in ['debit', 'credit', 'debit - credit']:
             return
-        result = 0.0
-        query_get_data = self.env['account.move.line'].with_context(data['form'].get('used_context', {}))._query_get()
-        # FIX: Use .get() with default value instead of direct access
-        reconcile_clause = "" if data['form'].get('reconciled',
-                                                  False) else ' AND "account_move_line".full_reconcile_id IS NULL '
 
-        params = [partner.id, tuple(data['computed']['move_state']), tuple(data['computed']['account_ids'])] + \
-                 query_get_data[2]
-        query = """SELECT sum(""" + field + """)
+        # Get analytic account filter
+        analytic_account_ids = data['form'].get('analytic_account_ids', [])
+        analytic_clause = ""
+
+        if analytic_account_ids:
+            analytic_clause = ' AND "account_move_line".analytic_distribution IS NOT NULL '
+
+        query_get_data = self.env['account.move.line'].with_context(
+            data['form'].get('used_context', {})
+        )._query_get()
+        # FIX: Use .get() with default value instead of direct access
+        reconcile_clause = "" if data['form'].get('reconciled', False) else ' AND "account_move_line".full_reconcile_id IS NULL '
+
+        params = [partner.id, tuple(data['computed']['move_state']),
+                  tuple(data['computed']['account_ids'])] + query_get_data[2]
+
+        query = """SELECT sum(debit), sum(credit)
                 FROM """ + query_get_data[0] + """, account_move AS m
                 WHERE "account_move_line".partner_id = %s
                     AND m.id = "account_move_line".move_id
                     AND m.state IN %s
                     AND account_id IN %s
-                    AND """ + query_get_data[1] + reconcile_clause
-        self.env.cr.execute(query, tuple(params))
+                    AND """ + query_get_data[1] + reconcile_clause + analytic_clause
 
-        contemp = self.env.cr.fetchone()
-        if contemp is not None:
-            result = contemp[0] or 0.0
-        return result
+        self.env.cr.execute(query, tuple(params))
+        res = self.env.cr.fetchone()
+
+        # If analytic filter is applied, we need to filter the results
+        if analytic_account_ids:
+            query_lines = """SELECT id, analytic_distribution, debit, credit
+                    FROM """ + query_get_data[0] + """, account_move AS m
+                    WHERE "account_move_line".partner_id = %s
+                        AND m.id = "account_move_line".move_id
+                        AND m.state IN %s
+                        AND account_id IN %s
+                        AND """ + query_get_data[1] + reconcile_clause + analytic_clause
+
+            self.env.cr.execute(query_lines, tuple(params))
+            lines = self.env.cr.dictfetchall()
+
+            total_debit = total_credit = 0.0
+            for line in lines:
+                if line.get('analytic_distribution'):
+                    import json
+                    try:
+                        distribution = json.loads(line['analytic_distribution']) if isinstance(
+                            line['analytic_distribution'], str) else line['analytic_distribution']
+                        line_analytic_ids = [int(k) for k in distribution.keys()]
+                        if any(analytic_id in line_analytic_ids for analytic_id in analytic_account_ids):
+                            total_debit += line['debit']
+                            total_credit += line['credit']
+                    except:
+                        pass
+            res = (total_debit, total_credit)
+
+        debit = res[0] if res and res[0] else 0.0
+        credit = res[1] if res and res[1] else 0.0
+
+        if field == 'debit':
+            return debit
+        elif field == 'credit':
+            return credit
+        else:
+            return debit - credit
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        if not data.get('form'):
-            raise UserError(_("Form content is missing, this report cannot be printed."))
-
-        # FIX: Ensure 'reconciled' key exists with default value
-        if 'reconciled' not in data['form']:
+        """
+        Override the main report method to add custom values
+        """
+        # FIX: Ensure 'reconciled' key exists with default value before calling parent
+        if data and data.get('form') and 'reconciled' not in data['form']:
             data['form']['reconciled'] = False
 
-        data['computed'] = {}
+        # Get parent report values
+        res = super()._get_report_values(docids, data)
 
-        obj_partner = self.env['res.partner']
-        query_get_data = self.env['account.move.line'].with_context(data['form'].get('used_context', {}))._query_get()
-        data['computed']['move_state'] = ['draft', 'posted']
-        if data['form'].get('target_move', 'all') == 'posted':
-            data['computed']['move_state'] = ['posted']
-        result_selection = data['form'].get('result_selection', 'customer')
-        if result_selection == 'supplier':
-            data['computed']['ACCOUNT_TYPE'] = ['liability_payable']
-        elif result_selection == 'customer':
-            data['computed']['ACCOUNT_TYPE'] = ['asset_receivable']
-        else:
-            data['computed']['ACCOUNT_TYPE'] = ['asset_receivable', 'liability_payable']
+        # Add analytic account names if filtered (optional, for future use)
+        analytic_names = []
+        if data and data.get('form', {}).get('analytic_account_ids'):
+            analytic_ids = data['form']['analytic_account_ids']
+            analytic_accounts = self.env['account.analytic.account'].browse(analytic_ids)
+            analytic_names = analytic_accounts.mapped('name')
+            res['analytic_account_names'] = analytic_names
 
-        self.env.cr.execute("""
-            SELECT a.id
-            FROM account_account a
-            WHERE a.account_type IN %s
-            AND a.active""", (tuple(data['computed']['ACCOUNT_TYPE']),))
-        data['computed']['account_ids'] = [a for (a,) in self.env.cr.fetchall()]
-        params = [tuple(data['computed']['move_state']), tuple(data['computed']['account_ids'])] + query_get_data[2]
-        # FIX: Use .get() with default value instead of direct access
-        reconcile_clause = "" if data['form'].get('reconciled',
-                                                  False) else ' AND "account_move_line".full_reconcile_id IS NULL '
-        query = """
-            SELECT DISTINCT "account_move_line".partner_id
-            FROM """ + query_get_data[0] + """, account_account AS account, account_move AS am
-            WHERE "account_move_line".partner_id IS NOT NULL
-                AND "account_move_line".account_id = account.id
-                AND am.id = "account_move_line".move_id
-                AND am.state IN %s
-                AND "account_move_line".account_id IN %s
-                AND account.active
-                AND """ + query_get_data[1] + reconcile_clause
-        self.env.cr.execute(query, tuple(params))
-        if data['form']['partner_ids']:
-            partner_ids = data['form']['partner_ids']
-        else:
-            partner_ids = [res['partner_id'] for res in
-                           self.env.cr.dictfetchall()]
-        partners = obj_partner.browse(partner_ids)
-        partners = sorted(partners, key=lambda x: (x.ref or '', x.name or ''))
-
-        return {
-            'doc_ids': partner_ids,
-            'doc_model': self.env['res.partner'],
-            'data': data,
-            'docs': partners,
-            'time': time,
-            'lines': self._lines,
-            'sum_partner': self._sum_partner,
-        }
+        return res

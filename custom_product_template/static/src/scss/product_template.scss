@@ -1,0 +1,116 @@
+/* Custom Product Template Styles */
+
+.custom_shop_header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+
+    h1 {
+        color: white;
+        font-weight: 700;
+    }
+
+    p {
+        color: rgba(255, 255, 255, 0.9);
+    }
+}
+
+.product_card {
+    transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+
+    .product_image_container {
+        overflow: hidden;
+
+        .product_image {
+            transition: transform 0.3s ease;
+        }
+
+        &:hover .product_image {
+            transform: scale(1.1);
+        }
+    }
+
+    .product_name {
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.4;
+
+        a {
+            &:hover {
+                color: #667eea !important;
+            }
+        }
+    }
+
+    .product_price {
+        del {
+            font-size: 0.875rem;
+        }
+    }
+
+    .btn-outline-primary {
+        &:hover {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+    }
+}
+
+.s_custom_products {
+    h2 {
+        font-weight: 700;
+        color: #2d3748;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .custom_shop_header {
+        padding: 2rem 0 !important;
+
+        h1 {
+            font-size: 2rem;
+        }
+    }
+
+    .product_card {
+        .card-body {
+            padding: 1rem;
+        }
+    }
+}
+
+/* Product Detail Page Enhancements */
+#product_detail {
+    .product_price {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #667eea;
+    }
+}
+
+/* Breadcrumb styling */
+.breadcrumb {
+    background-color: transparent;
+    padding: 0;
+
+    .breadcrumb-item {
+        a {
+            color: #667eea;
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+
+        &.active {
+            color: #6c757d;
+        }
+    }
+}

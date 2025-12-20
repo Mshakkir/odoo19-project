@@ -1,64 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Override the partner ledger template with unique ID -->
-    <template id="report_partnerledger_custom" inherit_id="accounting_pdf_reports.report_partnerledger" priority="99">
+    <!-- Inherit and customize the partner ledger template -->
+    <template id="report_partnerledger_custom"
+              inherit_id="accounting_pdf_reports.report_partnerledger">
 
-        <xpath expr="//t[@t-call='web.internal_layout']" position="replace">
-            <t t-call="web.internal_layout">
-                <t t-set="data_report_margin_top" t-value="12"/>
-                <t t-set="data_report_header_spacing" t-value="9"/>
-                <t t-set="data_report_dpi" t-value="110"/>
+        <xpath expr="//t[@t-call='web.html_container']" position="replace">
+            <t t-call="web.html_container">
+                <t t-call="web.basic_layout">
 
-                <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;900&amp;display=swap');
+                    <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;900&amp;display=swap');
 
-                    .ar {
-                        font-family: 'Noto Sans Arabic', Arial, sans-serif !important;
-                    }
-
-                    .header {
-                        page-break-inside: avoid;
-                    }
-
-                    .report-params {
-                        page-break-inside: avoid !important;
-                        page-break-after: avoid !important;
-                    }
-
-                    .ledger-table thead {
-                        display: table-header-group !important;
-                    }
-
-                    .ledger-table tbody {
-                        display: table-row-group !important;
-                    }
-
-                    .ledger-table tbody tr {
-                        page-break-inside: avoid !important;
-                        page-break-after: auto;
-                    }
-
-                    @media print {
-                        .page {
-                            padding-top: 10px !important;
-                        }
-
-                        table {
-                            border-collapse: collapse !important;
+                        .ar {
+                            font-family: 'Noto Sans Arabic', Arial, sans-serif !important;
                         }
 
                         .header {
-                            margin-bottom: 15px !important;
+                            page-break-inside: avoid;
                         }
 
                         .report-params {
-                            margin-bottom: 10px !important;
+                            page-break-inside: avoid !important;
+                            page-break-after: avoid !important;
                         }
-                    }
-                </style>
 
-                <div class="page">
+                        /* Force table header to repeat on every page */
+                        .ledger-table thead {
+                            display: table-header-group !important;
+                        }
+
+                        .ledger-table tbody {
+                            display: table-row-group !important;
+                        }
+
+                        /* Prevent rows from breaking across pages */
+                        .ledger-table tbody tr {
+                            page-break-inside: avoid !important;
+                            page-break-after: auto;
+                        }
+
+                        /* Reduce spacing for better fit */
+                        @media print {
+                            .page {
+                                padding-top: 10px !important;
+                            }
+
+                            table {
+                                border-collapse: collapse !important;
+                            }
+
+                            .header {
+                                margin-bottom: 15px !important;
+                            }
+
+                            .report-params {
+                                margin-bottom: 10px !important;
+                            }
+                        }
+                    </style>
+
                     <!-- Custom Header -->
                     <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 25px; padding: 15px 0;">
                         <table style="width: 100%; border-collapse: collapse; border:none; margin-bottom: 0px;">
@@ -118,67 +119,126 @@
                     </div>
 
                     <!-- Report Parameters -->
-                    <div class="report-params">
-                        <div class="row" style="margin-bottom: 8px;">
-                            <div class="col-3">
-                                <strong>Company:</strong>
-                                <p t-esc="res_company.name" style="margin: 3px 0;"/>
-                            </div>
-                            <div class="col-3">
-                                <t t-if="data['form'].get('date_from')">
-                                    <strong>Date from:</strong>
-                                    <p t-esc="data['form']['date_from']" style="margin: 3px 0;"/>
-                                </t>
-                            </div>
-                            <div class="col-3">
-                                <t t-if="data['form'].get('date_to')">
-                                    <strong>Date to:</strong>
-                                    <p t-esc="data['form']['date_to']" style="margin: 3px 0;"/>
-                                </t>
-                            </div>
-                            <div class="col-3">
-                                <strong>Generated By:</strong>
-                                <p t-esc="user.name" style="margin: 3px 0;"/>
-                            </div>
-                        </div>
+<!--                    <div class="report-params">-->
+<!--                        <div class="row" style="margin-bottom: 8px;">-->
+<!--                            <div class="col-3">-->
+<!--                                <strong>Company:</strong>-->
+<!--                                <p t-esc="res_company.name" style="margin: 3px 0;"/>-->
+<!--                            </div>-->
+<!--                            <div class="col-3">-->
+<!--                                <t t-if="data['form']['date_from']">-->
+<!--                                    <strong>Date from:</strong>-->
+<!--                                    <p t-esc="data['form']['date_from']" style="margin: 3px 0;"/>-->
+<!--                                </t>-->
+<!--                            </div>-->
+<!--                            <div class="col-3">-->
+<!--                                <t t-if="data['form']['date_to']">-->
+<!--                                    <strong>Date to:</strong>-->
+<!--                                    <p t-esc="data['form']['date_to']" style="margin: 3px 0;"/>-->
+<!--                                </t>-->
+<!--                            </div>-->
+<!--                            <div class="col-3">-->
+<!--                                <strong>Generated By:</strong>-->
+<!--                                <p t-esc="user.name" style="margin: 3px 0;"/>-->
+<!--                            </div>-->
+<!--                        </div>-->
 
-                        <div class="row" style="margin-bottom: 15px;">
-                            <div class="col-3">
-                                <strong>Target Moves:</strong>
-                                <p style="margin: 3px 0;">
-                                    <span t-if="data['form'].get('target_move') == 'all'">All Entries</span>
-                                    <span t-if="data['form'].get('target_move') == 'posted'">All Posted Entries</span>
-                                </p>
-                            </div>
-                            <div class="col-3">
-                                <strong><t t-esc="partner_type_info.get('display_label', 'Partners') if partner_type_info else 'Partners'"/></strong>:
-                                <p t-esc="partner_type_info.get('count', 0) if partner_type_info else 0" style="margin: 3px 0;"/>
-                            </div>
-                            <div class="col-3">
-                                <strong>Currency Display:</strong>
-                                <p style="margin: 3px 0;">
-                                    <span t-if="data['form'].get('amount_currency')">Enabled</span>
-                                    <span t-else="">Disabled</span>
-                                </p>
-                            </div>
-                            <div class="col-3">
-                                <strong>Reconciled Items:</strong>
-                                <p style="margin: 3px 0;">
-                                    <span t-if="data['form'].get('reconciled')">Included</span>
-                                    <span t-else="">Excluded</span>
-                                </p>
-                            </div>
-                        </div>
+<!--                        <div class="row" style="margin-bottom: 15px;">-->
+<!--                            <div class="col-3">-->
+<!--                                <strong>Target Moves:</strong>-->
+<!--                                <p style="margin: 3px 0;">-->
+<!--                                    <span t-if="data['form']['target_move'] == 'all'">All Entries</span>-->
+<!--                                    <span t-if="data['form']['target_move'] == 'posted'">All Posted Entries</span>-->
+<!--                                </p>-->
+<!--                            </div>-->
+<!--                            <div class="col-3">-->
+<!--                                &lt;!&ndash; Display dynamic label based on account type &ndash;&gt;-->
+<!--                                <strong t-esc="partner_type_info['display_label']"/>:-->
+<!--                                <p t-esc="partner_type_info['count']" style="margin: 3px 0;"/>-->
+<!--                            </div>-->
+<!--                            <div class="col-3">-->
+<!--                                <strong>Currency Display:</strong>-->
+<!--                                <p style="margin: 3px 0;">-->
+<!--                                    <span t-if="data['form']['amount_currency']">Enabled</span>-->
+<!--                                    <span t-else="">Disabled</span>-->
+<!--                                </p>-->
+<!--                            </div>-->
+<!--                            <div class="col-3">-->
+<!--                                <strong>Reconciled Items:</strong>-->
+<!--                                <p style="margin: 3px 0;">-->
+<!--                                    <span t-if="data['form']['reconciled']">Included</span>-->
+<!--                                    <span t-else="">Excluded</span>-->
+<!--                                </p>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
 
-                        <div class="row" style="margin-bottom: 15px;" t-if="analytic_account_names">
-                            <div class="col-12">
-                                <strong>Filtered by Warehouses/Analytic Accounts:</strong>
-                                <p style="margin: 3px 0;">
-                                    <span t-esc="', '.join(analytic_account_names)"/>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Add this section in the Report Parameters section of your template -->
+<!-- Replace the existing report parameters section with this updated version -->
+
+<div class="report-params">
+    <div class="row" style="margin-bottom: 8px;">
+        <div class="col-3">
+            <strong>Company:</strong>
+            <p t-esc="res_company.name" style="margin: 3px 0;"/>
+        </div>
+        <div class="col-3">
+            <t t-if="data['form']['date_from']">
+                <strong>Date from:</strong>
+                <p t-esc="data['form']['date_from']" style="margin: 3px 0;"/>
+            </t>
+        </div>
+        <div class="col-3">
+            <t t-if="data['form']['date_to']">
+                <strong>Date to:</strong>
+                <p t-esc="data['form']['date_to']" style="margin: 3px 0;"/>
+            </t>
+        </div>
+        <div class="col-3">
+            <strong>Generated By:</strong>
+            <p t-esc="user.name" style="margin: 3px 0;"/>
+        </div>
+    </div>
+
+    <div class="row" style="margin-bottom: 15px;">
+        <div class="col-3">
+            <strong>Target Moves:</strong>
+            <p style="margin: 3px 0;">
+                <span t-if="data['form']['target_move'] == 'all'">All Entries</span>
+                <span t-if="data['form']['target_move'] == 'posted'">All Posted Entries</span>
+            </p>
+        </div>
+        <div class="col-3">
+            <!-- Display dynamic label based on account type -->
+            <strong t-esc="partner_type_info['display_label']"/>:
+            <p t-esc="partner_type_info['count']" style="margin: 3px 0;"/>
+        </div>
+        <div class="col-3">
+            <strong>Currency Display:</strong>
+            <p style="margin: 3px 0;">
+                <span t-if="data['form']['amount_currency']">Enabled</span>
+                <span t-else="">Disabled</span>
+            </p>
+        </div>
+        <div class="col-3">
+            <strong>Reconciled Items:</strong>
+            <p style="margin: 3px 0;">
+                <span t-if="data['form']['reconciled']">Included</span>
+                <span t-else="">Excluded</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- New row for Analytic Accounts/Warehouses -->
+    <div class="row" style="margin-bottom: 15px;" t-if="analytic_account_names">
+        <div class="col-12">
+            <strong>Filtered by Warehouses/Analytic Accounts:</strong>
+            <p style="margin: 3px 0;">
+                <span t-esc="', '.join(analytic_account_names)"/>
+            </p>
+        </div>
+    </div>
+</div>
 
                     <!-- Partner Ledger Table -->
                     <table class="table table-sm table-bordered ledger-table"
@@ -192,15 +252,17 @@
                                 <th style="padding: 6px; text-align: right; border: 1px solid #ddd;">Debit</th>
                                 <th style="padding: 6px; text-align: right; border: 1px solid #ddd;">Credit</th>
                                 <th style="padding: 6px; text-align: right; border: 1px solid #ddd;">Balance</th>
-                                <th t-if="data['form'].get('amount_currency')"
+                                <th t-if="data['form']['amount_currency']"
                                     style="padding: 6px; text-align: right; border: 1px solid #ddd;">Currency</th>
                             </tr>
                         </thead>
                         <t t-foreach="docs" t-as="o">
                             <tbody>
+                                <!-- Partner Header Row with dynamic label -->
                                 <tr style="background-color: #f8f9fa; border-top: 2px solid #8B1538;">
                                     <td colspan="4" style="padding: 10px; border: 1px solid #ddd;">
-                                        <strong><t t-if="get_partner_label" t-esc="get_partner_label(data, o)"/><t t-else="">Partner</t></strong>:
+                                        <!-- Dynamic label: Customer or Vendor -->
+                                        <strong t-esc="get_partner_label(data, o)"/>:
                                         <span t-esc="o.ref" t-if="o.ref"/>
                                         <span t-if="o.ref"> - </span>
                                         <strong t-esc="o.name"/>
@@ -218,21 +280,22 @@
                                         <strong t-esc="sum_partner(data, o, 'debit - credit')"
                                                 t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
-                                    <td t-if="data['form'].get('amount_currency')" style="padding: 10px; border: 1px solid #ddd;"/>
+                                    <td t-if="data['form']['amount_currency']" style="padding: 10px; border: 1px solid #ddd;"/>
                                 </tr>
 
+                                <!-- Partner Transaction Lines -->
                                 <tr t-foreach="lines(data, o)" t-as="line">
                                     <td style="padding: 5px; border: 1px solid #ddd;">
                                         <span t-esc="line['date']"/>
                                     </td>
                                     <td style="padding: 5px; border: 1px solid #ddd;">
-                                        <span t-esc="line.get('code', '')"/>
+                                        <span t-esc="line['code']"/>
                                     </td>
                                     <td style="padding: 5px; border: 1px solid #ddd;">
-                                        <span t-esc="line.get('a_name', '')"/>
+                                        <span t-esc="line['a_name']"/>
                                     </td>
                                     <td style="padding: 5px; border: 1px solid #ddd;">
-                                        <span t-esc="line.get('displayed_name', '')"/>
+                                        <span t-esc="line['displayed_name']"/>
                                     </td>
                                     <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">
                                         <span t-esc="line['debit']"
@@ -246,9 +309,9 @@
                                         <span t-esc="line['progress']"
                                               t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
-                                    <td class="text-end" t-if="data['form'].get('amount_currency')"
+                                    <td class="text-end" t-if="data['form']['amount_currency']"
                                         style="padding: 5px; border: 1px solid #ddd;">
-                                        <t t-if="line.get('currency_id')">
+                                        <t t-if="line['currency_id']">
                                             <span t-esc="line['amount_currency']"
                                                   t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
                                         </t>
@@ -273,7 +336,9 @@
                             </small>
                         </div>
                     </div>
-                </div>
+
+                </t>
+
             </t>
         </xpath>
 

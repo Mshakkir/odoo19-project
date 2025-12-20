@@ -333,6 +333,7 @@
 
 # -*- coding: utf-8 -*-
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import time
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError
@@ -357,7 +358,6 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
         # Get analytic account filter
         analytic_account_ids = data['form'].get('analytic_account_ids', [])
         analytic_clause = ""
-        analytic_params = []
 
         if analytic_account_ids:
             analytic_clause = ' AND "account_move_line".analytic_distribution IS NOT NULL '
@@ -571,9 +571,14 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
         """
         Override the main report method to add custom values
         """
-        # CRITICAL FIX: Ensure 'reconciled' key exists with default value BEFORE calling parent
-        if data and data.get('form') and 'reconciled' not in data['form']:
-            data['form']['reconciled'] = False
+        # Initialize missing form fields BEFORE calling parent
+        if data and data.get('form'):
+            if 'reconciled' not in data['form']:
+                data['form']['reconciled'] = False
+            if 'amount_currency' not in data['form']:
+                data['form']['amount_currency'] = False
+            if 'partner_ids' not in data['form']:
+                data['form']['partner_ids'] = []
 
         # Get parent report values
         res = super()._get_report_values(docids, data)

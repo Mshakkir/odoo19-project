@@ -198,9 +198,13 @@ class ReportPartnerLedger(models.AbstractModel):
         if not data.get('form'):
             raise UserError(_("Form content is missing, this report cannot be printed."))
 
-        # CRITICAL FIX: Ensure 'reconciled' key exists with default value
+        # Initialize missing form fields with safe defaults
         if 'reconciled' not in data['form']:
             data['form']['reconciled'] = False
+        if 'amount_currency' not in data['form']:
+            data['form']['amount_currency'] = False
+        if 'partner_ids' not in data['form']:
+            data['form']['partner_ids'] = []
 
         data['computed'] = {}
 

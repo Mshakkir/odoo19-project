@@ -13,11 +13,18 @@ class CustomWebsiteSale(WebsiteSale):
 
         # Get products with inventory
         website = http.request.website
-        # Use either method, but be consistent
-        products_with_inventory = website.get_products_with_inventory(limit=100)
-        # OR: products_with_inventory = website.get_products_with_inventory_safe(limit=100)
 
-        if response.qcontext:
+        # Make sure this method exists in your model
+        # It should be either get_products_with_inventory() or get_products_with_inventory_safe()
+        # Choose ONE and be consistent
+
+        # Option 1: If your model has get_products_with_inventory()
+        products_with_inventory = website.get_products_with_inventory(limit=100)
+
+        # Option 2: If your model has get_products_with_inventory_safe()
+        # products_with_inventory = website.get_products_with_inventory_safe(limit=100)
+
+        if response.qcontext and products_with_inventory:
             response.qcontext['products_with_inventory'] = products_with_inventory
 
         return response

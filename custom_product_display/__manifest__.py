@@ -11,8 +11,9 @@
     'website': 'https://yourwebsite.com',
     'depends': ['website', 'website_sale', 'stock'],
     'data': [
+        'security/ir.model.access.csv',
         'views/templates.xml',
-        'views/assets.xml',
+        # 'views/assets.xml',
     ],
     'demo': [],
     'assets': {

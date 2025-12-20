@@ -1,21 +1,19 @@
 {
     'name': 'Custom Product Display',
-    'version': '19.0.1.0.0',
+    'version': '1.0.0',
     'category': 'Website',
-    'summary': 'Display product details from inventory on website',
+    'summary': 'Display product inventory on website shop',
     'description': """
-        Custom module to override products page and display product details from inventory.
-        Shows available stock quantities and locations for products.
+    Custom module to show product inventory details on website products page.
+    Displays stock quantities and availability information.
     """,
     'author': 'Your Company',
     'website': 'https://yourwebsite.com',
-    'depends': ['website', 'website_sale', 'stock'],
+    'depends': ['website_sale', 'stock'],
     'data': [
         'security/ir.model.access.csv',
         'views/templates.xml',
-        # 'views/assets.xml',
     ],
-    'demo': [],
     'assets': {
         'web.assets_frontend': [
             'custom_product_display/static/src/css/custom_product.css',

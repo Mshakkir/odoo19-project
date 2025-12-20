@@ -333,6 +333,7 @@
 
 # -*- coding: utf-8 -*-
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import time
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError
@@ -352,9 +353,9 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
             data['form'].get('used_context', {})
         )._query_get()
 
-        # SAFE: Use .get() with default False
-        reconcile_clause = "" if data['form'].get('reconciled',
-                                                  False) else ' AND "account_move_line".full_reconcile_id IS NULL '
+        # CORRECT: Show ALL entries by default, filter only when specifically requested
+        reconcile_clause = ' AND "account_move_line".full_reconcile_id IS NULL ' if data['form'].get(
+            'reconciled') == 'unreconciled' else ""
 
         analytic_account_ids = data['form'].get('analytic_account_ids', [])
         analytic_clause = ""
@@ -438,9 +439,9 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
             data['form'].get('used_context', {})
         )._query_get()
 
-        # SAFE: Use .get() with default False
-        reconcile_clause = "" if data['form'].get('reconciled',
-                                                  False) else ' AND "account_move_line".full_reconcile_id IS NULL '
+        # CORRECT: Show ALL entries by default, filter only when specifically requested
+        reconcile_clause = ' AND "account_move_line".full_reconcile_id IS NULL ' if data['form'].get(
+            'reconciled') == 'unreconciled' else ""
 
         params = [partner.id, tuple(data['computed']['move_state']),
                   tuple(data['computed']['account_ids'])] + query_get_data[2]
@@ -616,9 +617,9 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
             data['form'].get('used_context', {})
         )._query_get()
 
-        # SAFE: Use .get() with default False
-        reconcile_clause = "" if data['form'].get('reconciled', False) else \
-            ' AND "account_move_line".full_reconcile_id IS NULL '
+        # CORRECT: Show ALL entries by default, filter only when specifically requested
+        reconcile_clause = ' AND "account_move_line".full_reconcile_id IS NULL ' if data['form'].get(
+            'reconciled') == 'unreconciled' else ""
 
         date_from = data['form'].get('date_from')
         date_clause = ""

@@ -1,4 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--<odoo>-->
+
+<!--    &lt;!&ndash; List View &ndash;&gt;-->
+<!--    <record id="view_partner_ledger_detail_tree" model="ir.ui.view">-->
+<!--        <field name="name">partner.ledger.detail.list</field>-->
+<!--        <field name="model">partner.ledger.detail</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <list string="Partner Ledger Details" default_order="date asc">-->
+<!--                <field name="partner_id"/>-->
+<!--                <field name="date"/>-->
+<!--                <field name="move_id"/>-->
+<!--                <field name="journal_id"/>-->
+<!--                <field name="account_id"/>-->
+<!--                <field name="name"/>-->
+<!--                <field name="ref"/>-->
+<!--                <field name="debit"/>-->
+<!--                <field name="credit"/>-->
+<!--                <field name="balance"/>-->
+<!--            </list>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Search View &ndash;&gt;-->
+<!--    <record id="view_partner_ledger_detail_search" model="ir.ui.view">-->
+<!--        <field name="name">partner.ledger.detail.search</field>-->
+<!--        <field name="model">partner.ledger.detail</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <search>-->
+<!--                <field name="partner_id"/>-->
+<!--                <field name="journal_id"/>-->
+<!--                <filter name="group_partner" string="Group by Partner"-->
+<!--                        context="{'group_by': 'partner_id'}"/>-->
+<!--            </search>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--</odoo>-->
+
+
 <odoo>
 
     <!-- List View -->
@@ -14,7 +53,6 @@
                 <field name="move_id" optional="hide"/>
                 <field name="journal_id"/>
                 <field name="account_id"/>
-                <field name="analytic_account_id" optional="show"/>
                 <field name="name"/>
                 <field name="ref"/>
                 <field name="debit" sum="Total Debit"/>
@@ -44,15 +82,10 @@
             <search>
                 <field name="partner_id"/>
                 <field name="journal_id"/>
-                <field name="analytic_account_id"/>
 
                 <filter name="group_partner"
                         string="Group by Partner"
                         context="{'group_by': 'partner_id'}"/>
-
-                <filter name="group_analytic"
-                        string="Group by Analytic Account"
-                        context="{'group_by': 'analytic_account_id'}"/>
             </search>
         </field>
     </record>

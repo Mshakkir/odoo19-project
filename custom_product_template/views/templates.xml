@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Add custom CSS class to product items -->
-    <template id="products_add_custom_class" inherit_id="website_sale.products_item" name="Add Custom CSS Classes" priority="99">
-        <xpath expr="." position="attributes">
-            <attribute name="class" add="custom_product_item" separator=" "/>
-        </xpath>
-    </template>
-
     <!-- Add custom shop header before products grid -->
     <template id="shop_header_custom" inherit_id="website_sale.products" name="Custom Shop Header" priority="10">
         <xpath expr="//div[@id='products_grid']" position="before">
@@ -21,14 +14,6 @@
                     </div>
                 </div>
             </div>
-        </xpath>
-    </template>
-
-    <!-- Customize products grid container -->
-    <template id="products_grid_custom" inherit_id="website_sale.products" name="Custom Products Grid Style" priority="15">
-        <xpath expr="//div[@id='products_grid']" position="attributes">
-            <attribute name="class" add="custom_products_grid" separator=" "/>
-            <attribute name="style">padding: 20px 0;</attribute>
         </xpath>
     </template>
 
@@ -83,3 +68,92 @@
     </template>
 
 </odoo>
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+
+<!--    &lt;!&ndash; Add custom CSS class to product items &ndash;&gt;-->
+<!--    <template id="products_add_custom_class" inherit_id="website_sale.products_item" name="Add Custom CSS Classes" priority="99">-->
+<!--        <xpath expr="." position="attributes">-->
+<!--            <attribute name="class" add="custom_product_item" separator=" "/>-->
+<!--        </xpath>-->
+<!--    </template>-->
+
+<!--    &lt;!&ndash; Add custom shop header before products grid &ndash;&gt;-->
+<!--    <template id="shop_header_custom" inherit_id="website_sale.products" name="Custom Shop Header" priority="10">-->
+<!--        <xpath expr="//div[@id='products_grid']" position="before">-->
+<!--            <div class="custom_shop_header py-5 mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">-->
+<!--                <div class="container">-->
+<!--                    <div class="row">-->
+<!--                        <div class="col-12 text-center text-white">-->
+<!--                            <h1 class="display-4 mb-3 fw-bold">Our Products</h1>-->
+<!--                            <p class="lead" style="color: rgba(255, 255, 255, 0.9);">Discover our wide range of quality products</p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </xpath>-->
+<!--    </template>-->
+
+<!--    &lt;!&ndash; Customize products grid container &ndash;&gt;-->
+<!--    <template id="products_grid_custom" inherit_id="website_sale.products" name="Custom Products Grid Style" priority="15">-->
+<!--        <xpath expr="//div[@id='products_grid']" position="attributes">-->
+<!--            <attribute name="class" add="custom_products_grid" separator=" "/>-->
+<!--            <attribute name="style">padding: 20px 0;</attribute>-->
+<!--        </xpath>-->
+<!--    </template>-->
+
+<!--    &lt;!&ndash; Homepage Featured Products Snippet &ndash;&gt;-->
+<!--    <template id="s_custom_products" name="Featured Products">-->
+<!--        <section class="s_custom_products py-5" style="background-color: #f8f9fa;">-->
+<!--            <div class="container">-->
+<!--                <div class="row mb-4">-->
+<!--                    <div class="col-12 text-center">-->
+<!--                        <h2 class="display-5 mb-3 fw-bold" style="color: #2d3748;">Featured Products</h2>-->
+<!--                        <p class="lead text-muted">Check out our latest arrivals</p>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="row g-4">-->
+<!--                    <t t-set="featured_products" t-value="request.env['product.template'].sudo().search([('is_published', '=', True)], limit=4, order='create_date desc')"/>-->
+<!--                    <t t-foreach="featured_products" t-as="product">-->
+<!--                        <div class="col-lg-3 col-md-6 col-sm-6 col-12">-->
+<!--                            <div class="card h-100 shadow-sm">-->
+<!--                                <a t-attf-href="/shop/product/#{ slug(product) }">-->
+<!--                                    <img t-attf-src="/web/image/product.template/#{product.id}/image_512"-->
+<!--                                         class="card-img-top"-->
+<!--                                         style="height: 250px; object-fit: cover;"-->
+<!--                                         t-att-alt="product.name"/>-->
+<!--                                </a>-->
+<!--                                <div class="card-body text-center">-->
+<!--                                    <h5 class="card-title">-->
+<!--                                        <a t-attf-href="/shop/product/#{ slug(product) }"-->
+<!--                                           class="text-decoration-none text-dark">-->
+<!--                                            <t t-out="product.name"/>-->
+<!--                                        </a>-->
+<!--                                    </h5>-->
+<!--                                    <p class="text-primary h5 mb-3">-->
+<!--                                        <t t-out="'%.2f' % product.list_price"/>-->
+<!--                                        <t t-out="website.currency_id.symbol"/>-->
+<!--                                    </p>-->
+<!--                                    <a t-attf-href="/shop/product/#{ slug(product) }"-->
+<!--                                       class="btn btn-primary btn-sm">-->
+<!--                                        View Product-->
+<!--                                    </a>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </t>-->
+<!--                </div>-->
+<!--                <div class="row mt-4">-->
+<!--                    <div class="col-12 text-center">-->
+<!--                        <a href="/shop" class="btn btn-outline-primary">View All Products</a>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </section>-->
+<!--    </template>-->
+
+<!--</odoo>-->

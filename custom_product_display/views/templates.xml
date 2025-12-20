@@ -1,95 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Template for Product Cards with Inventory Info -->
+    <!-- Simple Product Display Template -->
     <template id="custom_product_display_template" name="Custom Product Display">
-        <section class="mt-4 mb-5">
-            <div class="container">
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <h2 class="text-center">Available Products</h2>
-                    </div>
-                </div>
+        <div class="container my-5">
+            <h2 class="text-center mb-4">Available Products</h2>
+            <div class="row">
+                <t t-foreach="products_with_inventory" t-as="item">
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="card h-100">
+                            <!-- Image with safe access -->
+                            <div style="height: 200px; overflow: hidden; background: #f8f9fa;">
+                                <t t-set="img_src" t-value="item.get('image_url', '/website/static/src/img/product_image_placeholder.svg')"/>
+                                <img t-att-src="img_src"
+                                     class="card-img-top h-100 w-100"
+                                     style="object-fit: contain;"
+                                     t-att-alt="item['product'].name if isinstance(item.get('product'), models.Model) else item.get('product', {}).get('name', 'Product')"
+                                     onerror="this.onerror=null; this.src='/website/static/src/img/product_image_placeholder.svg';"/>
+                            </div>
 
-                <div class="row">
-                    <t t-foreach="products_with_inventory" t-as="product_data">
-                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                            <div class="card h-100 shadow-sm border-0">
-                                <!-- Product Image -->
-                                <div style="height: 200px; overflow: hidden;">
-                                    <!-- FIX: Use dictionary access [] instead of dot notation -->
-                                    <img t-att-src="product_data['image_url']"
-                                         class="img-fluid w-100 h-100"
-                                         style="object-fit: cover;"
-                                         t-att-alt="product_data['product'].name"/>
+                            <div class="card-body d-flex flex-column">
+                                <!-- Product Name -->
+                                <h6 class="card-title fw-bold">
+                                    <t t-esc="item['product'].name if isinstance(item.get('product'), models.Model) else item.get('product', {}).get('name', 'Product')"/>
+                                </h6>
+
+                                <!-- SKU -->
+                                <small class="text-muted mb-2">
+                                    <t t-esc="item['product'].default_code or '' if isinstance(item.get('product'), models.Model) else item.get('product', {}).get('default_code', '')"/>
+                                </small>
+
+                                <!-- Stock Status -->
+                                <div class="mb-3">
+                                    <t t-set="qty" t-value="item.get('inventory', {}).get('total_quantity', 0)"/>
+                                    <t t-if="qty > 0">
+                                        <span class="badge bg-success">
+                                            <i class="fa fa-check me-1"></i>
+                                            In Stock: <t t-esc="qty"/>
+                                        </span>
+                                    </t>
+                                    <t t-else="">
+                                        <span class="badge bg-danger">
+                                            <i class="fa fa-times me-1"></i>
+                                            Out of Stock
+                                        </span>
+                                    </t>
                                 </div>
 
-                                <div class="card-body d-flex flex-column">
-                                    <!-- Product Name -->
-                                    <!-- FIX: Use dictionary access -->
-                                    <h6 class="card-title fw-bold text-truncate"
-                                        t-esc="product_data['product'].name"/>
+                                <!-- Price -->
+                                <div class="mb-3">
+                                    <h5 class="text-primary mb-0">
+                                        <t t-esc="item.get('currency', {}).symbol if isinstance(item.get('currency'), models.Model) else item.get('currency', {}).get('symbol', '$')"/>
+                                        <t t-esc="item.get('price', 0)"/>
+                                    </h5>
+                                </div>
 
-                                    <!-- SKU -->
-                                    <!-- FIX: Use dictionary access -->
-                                    <small class="text-muted mb-2"
-                                           t-esc="product_data['product'].default_code or ''"/>
+                                <!-- Buttons -->
+                                <div class="mt-auto">
+                                    <div class="d-flex justify-content-between">
+                                        <t t-set="product_id" t-value="item['product'].id if isinstance(item.get('product'), models.Model) else item.get('product', {}).get('id', 0)"/>
+                                        <a t-att-href="'/shop/product/%s' % product_id"
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fa fa-eye me-1"></i> View
+                                        </a>
 
-                                    <!-- Stock Status -->
-                                    <div class="mb-3">
-                                        <!-- FIX: Use dictionary access -->
-                                        <t t-if="product_data['inventory']['total_quantity'] > 0">
-                                            <span class="badge bg-success">
-                                                <i class="fa fa-check me-1"></i>
-                                                In Stock
-                                            </span>
-                                            <small class="text-muted ms-2">
-                                                (Qty: <t t-esc="product_data['inventory']['total_quantity']"/>)
-                                            </small>
-                                        </t>
-                                        <t t-else="">
-                                            <span class="badge bg-danger">
-                                                <i class="fa fa-times me-1"></i>
-                                                Out of Stock
-                                            </span>
-                                        </t>
-                                    </div>
-
-                                    <!-- Price -->
-                                    <div class="mb-3">
-                                        <h5 class="text-primary mb-0">
-                                            <!-- FIX: Use dictionary access -->
-                                            <t t-esc="product_data['currency'].symbol"/>
-                                            <t t-esc="product_data['price']"/>
-                                        </h5>
-                                    </div>
-
-                                    <!-- Buttons -->
-                                    <div class="mt-auto">
-                                        <div class="d-flex justify-content-between">
-                                            <!-- FIX: Use dictionary access -->
-                                            <a t-att-href="'/shop/product/%s' % product_data['product'].id"
-                                               class="btn btn-outline-primary btn-sm">
-                                                View
+                                        <t t-if="item.get('inventory', {}).get('total_quantity', 0) > 0">
+                                            <a t-attf-href="/shop/cart?add=#{product_id}"
+                                               class="btn btn-success btn-sm">
+                                                <i class="fa fa-cart-plus me-1"></i> Add to Cart
                                             </a>
-                                            <!-- FIX: Use dictionary access -->
-                                            <t t-if="product_data['inventory']['total_quantity'] > 0">
-                                                <a t-attf-href="/shop/cart?add=#{product_data['product'].id}"
-                                                   class="btn btn-success btn-sm">
-                                                    Add to Cart
-                                                </a>
-                                            </t>
-                                        </div>
+                                        </t>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </t>
-                </div>
+                    </div>
+                </t>
             </div>
-        </section>
+        </div>
     </template>
 
-    <!-- Inherit the main products page -->
+    <!-- Inherit products page -->
     <template id="inherit_products_page" name="Custom Products Page" inherit_id="website_sale.products">
         <xpath expr="//div[contains(@class, 'container')]" position="inside">
             <t t-if="products_with_inventory">
@@ -98,7 +88,6 @@
         </xpath>
     </template>
 </odoo>
-
 
 
 

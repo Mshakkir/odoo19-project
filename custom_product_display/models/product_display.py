@@ -1,4 +1,4 @@
-from odoo import models
+from odoo import models, fields, api
 
 
 class Website(models.Model):
@@ -6,7 +6,8 @@ class Website(models.Model):
 
     def get_products_with_inventory(self, limit=50):
         """Get products with inventory details"""
-        products = self.env['product.product'].search([
+        # Use sudo() to avoid permission issues
+        products = self.env['product.product'].sudo().search([
             ('sale_ok', '=', True),
             ('website_published', '=', True),
             ('active', '=', True),
@@ -14,26 +15,29 @@ class Website(models.Model):
 
         product_data = []
         for product in products:
-            # Get product image or placeholder
+            # Safely get image URL
             image_url = '/web/image/product.product/%s/image_1024' % product.id if product.image_1920 else '/website/static/src/img/product_image_placeholder.svg'
 
-            # Get inventory info
+            # Get quantity safely
             qty_available = product.qty_available or 0
 
             product_data.append({
-                'product': product,  # This is the product object
+                'product': product,  # The actual product object
                 'inventory': {
                     'total_quantity': qty_available,
                     'has_inventory': qty_available > 0,
                 },
                 'price': product.list_price,
                 'currency': self.env.company.currency_id,
-                'image_url': image_url,  # Make sure this key exists
+                'image_url': image_url,
             })
 
         return product_data
 
-
+    # Add this method if controller calls get_products_with_inventory_safe
+    def get_products_with_inventory_safe(self, limit=50):
+        """Alias for get_products_with_inventory for compatibility"""
+        return self.get_products_with_inventory(limit=limit)
 
 
 

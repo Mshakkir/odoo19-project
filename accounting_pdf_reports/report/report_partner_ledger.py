@@ -135,8 +135,11 @@ class ReportPartnerLedger(models.AbstractModel):
         full_account = []
         currency = self.env['res.currency']
         query_get_data = self.env['account.move.line'].with_context(data['form'].get('used_context', {}))._query_get()
+
+        # SAFE: Use .get() with default False
         reconcile_clause = "" if data['form'].get('reconciled',
                                                   False) else ' AND "account_move_line".full_reconcile_id IS NULL '
+
         params = [partner.id, tuple(data['computed']['move_state']), tuple(data['computed']['account_ids'])] + \
                  query_get_data[2]
         query = """
@@ -174,6 +177,8 @@ class ReportPartnerLedger(models.AbstractModel):
             return
         result = 0.0
         query_get_data = self.env['account.move.line'].with_context(data['form'].get('used_context', {}))._query_get()
+
+        # SAFE: Use .get() with default False
         reconcile_clause = "" if data['form'].get('reconciled',
                                                   False) else ' AND "account_move_line".full_reconcile_id IS NULL '
 
@@ -198,18 +203,29 @@ class ReportPartnerLedger(models.AbstractModel):
         if not data.get('form'):
             raise UserError(_("Form content is missing, this report cannot be printed."))
 
-        # CRITICAL FIX: Ensure 'reconciled' key exists with default value
-        if 'reconciled' not in data['form']:
-            data['form']['reconciled'] = False
+        # CRITICAL: Initialize all missing form fields with safe defaults
+        form = data.get('form', {})
+        if 'reconciled' not in form:
+            form['reconciled'] = False
+        if 'amount_currency' not in form:
+            form['amount_currency'] = False
+        if 'partner_ids' not in form:
+            form['partner_ids'] = []
+        if 'used_context' not in form:
+            form['used_context'] = {}
+        if 'target_move' not in form:
+            form['target_move'] = 'all'
+        if 'result_selection' not in form:
+            form['result_selection'] = 'customer'
 
         data['computed'] = {}
 
         obj_partner = self.env['res.partner']
-        query_get_data = self.env['account.move.line'].with_context(data['form'].get('used_context', {}))._query_get()
+        query_get_data = self.env['account.move.line'].with_context(form.get('used_context', {}))._query_get()
         data['computed']['move_state'] = ['draft', 'posted']
-        if data['form'].get('target_move', 'all') == 'posted':
+        if form.get('target_move', 'all') == 'posted':
             data['computed']['move_state'] = ['posted']
-        result_selection = data['form'].get('result_selection', 'customer')
+        result_selection = form.get('result_selection', 'customer')
         if result_selection == 'supplier':
             data['computed']['ACCOUNT_TYPE'] = ['liability_payable']
         elif result_selection == 'customer':
@@ -224,8 +240,11 @@ class ReportPartnerLedger(models.AbstractModel):
             AND a.active""", (tuple(data['computed']['ACCOUNT_TYPE']),))
         data['computed']['account_ids'] = [a for (a,) in self.env.cr.fetchall()]
         params = [tuple(data['computed']['move_state']), tuple(data['computed']['account_ids'])] + query_get_data[2]
-        reconcile_clause = "" if data['form'].get('reconciled',
-                                                  False) else ' AND "account_move_line".full_reconcile_id IS NULL '
+
+        # SAFE: Use .get() with default False
+        reconcile_clause = "" if form.get('reconciled',
+                                          False) else ' AND "account_move_line".full_reconcile_id IS NULL '
+
         query = """
             SELECT DISTINCT "account_move_line".partner_id
             FROM """ + query_get_data[0] + """, account_account AS account, account_move AS am
@@ -237,8 +256,8 @@ class ReportPartnerLedger(models.AbstractModel):
                 AND account.active
                 AND """ + query_get_data[1] + reconcile_clause
         self.env.cr.execute(query, tuple(params))
-        if data['form']['partner_ids']:
-            partner_ids = data['form']['partner_ids']
+        if form.get('partner_ids'):
+            partner_ids = form['partner_ids']
         else:
             partner_ids = [res['partner_id'] for res in
                            self.env.cr.dictfetchall()]

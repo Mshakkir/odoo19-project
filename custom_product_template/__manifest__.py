@@ -21,7 +21,6 @@
     'assets': {
         'web.assets_frontend': [
             'custom_product_template/static/src/scss/product_template.scss',
-            'custom_product_template/static/src/js/hide_price_range.js',
         ],
     },
     'installable': True,

@@ -332,6 +332,7 @@
 
 
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import time
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError
@@ -350,7 +351,6 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
         query_get_data = self.env['account.move.line'].with_context(
             data['form'].get('used_context', {})
         )._query_get()
-        # FIX: Use .get() with default value
         reconcile_clause = "" if data['form'].get('reconciled',
                                                   False) else ' AND "account_move_line".full_reconcile_id IS NULL '
 
@@ -438,7 +438,6 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
         query_get_data = self.env['account.move.line'].with_context(
             data['form'].get('used_context', {})
         )._query_get()
-        # FIX: Use .get() with default value
         reconcile_clause = "" if data['form'].get('reconciled',
                                                   False) else ' AND "account_move_line".full_reconcile_id IS NULL '
 
@@ -572,7 +571,7 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
         """
         Override the main report method to add custom values
         """
-        # FIX: Ensure 'reconciled' key exists with default value before calling parent
+        # CRITICAL FIX: Ensure 'reconciled' key exists with default value BEFORE calling parent
         if data and data.get('form') and 'reconciled' not in data['form']:
             data['form']['reconciled'] = False
 
@@ -615,7 +614,6 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
             data['form'].get('used_context', {})
         )._query_get()
 
-        # FIX: Use .get() with default value
         reconcile_clause = "" if data['form'].get('reconciled', False) else \
             ' AND "account_move_line".full_reconcile_id IS NULL '
 

@@ -135,7 +135,6 @@ class ReportPartnerLedger(models.AbstractModel):
         full_account = []
         currency = self.env['res.currency']
         query_get_data = self.env['account.move.line'].with_context(data['form'].get('used_context', {}))._query_get()
-        # FIX: Use .get() with default value instead of direct access
         reconcile_clause = "" if data['form'].get('reconciled',
                                                   False) else ' AND "account_move_line".full_reconcile_id IS NULL '
         params = [partner.id, tuple(data['computed']['move_state']), tuple(data['computed']['account_ids'])] + \
@@ -175,7 +174,6 @@ class ReportPartnerLedger(models.AbstractModel):
             return
         result = 0.0
         query_get_data = self.env['account.move.line'].with_context(data['form'].get('used_context', {}))._query_get()
-        # FIX: Use .get() with default value instead of direct access
         reconcile_clause = "" if data['form'].get('reconciled',
                                                   False) else ' AND "account_move_line".full_reconcile_id IS NULL '
 
@@ -200,7 +198,7 @@ class ReportPartnerLedger(models.AbstractModel):
         if not data.get('form'):
             raise UserError(_("Form content is missing, this report cannot be printed."))
 
-        # FIX: Ensure 'reconciled' key exists with default value
+        # CRITICAL FIX: Ensure 'reconciled' key exists with default value
         if 'reconciled' not in data['form']:
             data['form']['reconciled'] = False
 
@@ -226,7 +224,6 @@ class ReportPartnerLedger(models.AbstractModel):
             AND a.active""", (tuple(data['computed']['ACCOUNT_TYPE']),))
         data['computed']['account_ids'] = [a for (a,) in self.env.cr.fetchall()]
         params = [tuple(data['computed']['move_state']), tuple(data['computed']['account_ids'])] + query_get_data[2]
-        # FIX: Use .get() with default value instead of direct access
         reconcile_clause = "" if data['form'].get('reconciled',
                                                   False) else ' AND "account_move_line".full_reconcile_id IS NULL '
         query = """

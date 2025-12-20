@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Method 1: Add custom CSS to existing product items -->
+    <!-- Add custom CSS class to product items -->
     <template id="products_add_custom_class" inherit_id="website_sale.products_item" name="Add Custom CSS Classes" priority="99">
-        <!-- Just add a CSS class without changing structure -->
         <xpath expr="." position="attributes">
             <attribute name="class" add="custom_product_item" separator=" "/>
         </xpath>
     </template>
 
-    <!-- Method 2: Add custom shop header before products -->
+    <!-- Add custom shop header before products grid -->
     <template id="shop_header_custom" inherit_id="website_sale.products" name="Custom Shop Header" priority="10">
         <xpath expr="//div[@id='products_grid']" position="before">
             <div class="custom_shop_header py-5 mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
@@ -25,66 +24,11 @@
         </xpath>
     </template>
 
-    <!-- Method 3: Customize products grid container -->
+    <!-- Customize products grid container -->
     <template id="products_grid_custom" inherit_id="website_sale.products" name="Custom Products Grid Style" priority="15">
         <xpath expr="//div[@id='products_grid']" position="attributes">
             <attribute name="class" add="custom_products_grid" separator=" "/>
             <attribute name="style">padding: 20px 0;</attribute>
-        </xpath>
-    </template>
-
-    <!-- Product Detail Page - Add Breadcrumb -->
-    <template id="product_detail_breadcrumb" inherit_id="website_sale.product" name="Product Detail Breadcrumb" priority="10">
-        <xpath expr="//div[@id='product_detail']" position="before">
-            <div class="container my-3">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0" style="background-color: transparent; padding: 0;">
-                        <li class="breadcrumb-item"><a href="/" style="color: #667eea; text-decoration: none;">Home</a></li>
-                        <li class="breadcrumb-item"><a href="/shop" style="color: #667eea; text-decoration: none;">Shop</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            <t t-out="product.name"/>
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </xpath>
-    </template>
-
-    <!-- Product Detail Page - Add Related Products -->
-    <template id="product_detail_related" inherit_id="website_sale.product" name="Related Products Section" priority="20">
-        <xpath expr="//div[@id='product_detail']" position="after">
-            <div class="container my-5">
-                <t t-set="related_products" t-value="request.env['product.template'].sudo().search([('is_published', '=', True), ('id', '!=', product.id), ('categ_id', '=', product.categ_id.id)], limit=4)"/>
-                <t t-if="related_products">
-                    <h3 class="mb-4">Related Products</h3>
-                    <div class="row g-4">
-                        <t t-foreach="related_products" t-as="rel_product">
-                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-                                <div class="card h-100 shadow-sm">
-                                    <a t-attf-href="/shop/product/#{ slug(rel_product) }">
-                                        <img t-attf-src="/web/image/product.template/#{rel_product.id}/image_512"
-                                             class="card-img-top"
-                                             style="height: 200px; object-fit: cover;"
-                                             t-att-alt="rel_product.name"/>
-                                    </a>
-                                    <div class="card-body">
-                                        <h6 class="card-title">
-                                            <a t-attf-href="/shop/product/#{ slug(rel_product) }"
-                                               class="text-decoration-none text-dark">
-                                                <t t-out="rel_product.name"/>
-                                            </a>
-                                        </h6>
-                                        <p class="text-primary fw-bold mb-0">
-                                            <t t-out="'%.2f' % rel_product.list_price"/>
-                                            <t t-out="website.currency_id.symbol"/>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </t>
-                    </div>
-                </t>
-            </div>
         </xpath>
     </template>
 

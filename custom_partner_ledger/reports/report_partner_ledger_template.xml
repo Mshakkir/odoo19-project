@@ -216,7 +216,7 @@
         <div class="col-3">
             <strong>Currency Display:</strong>
             <p style="margin: 3px 0;">
-                <span t-if="data['form']['amount_currency']">Enabled</span>
+                <span t-if="data.get('form', {}).get('amount_currency')">Enabled</span>
                 <span t-else="">Disabled</span>
             </p>
         </div>

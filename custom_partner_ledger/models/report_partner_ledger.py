@@ -333,6 +333,7 @@
 
 # -*- coding: utf-8 -*-
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import time
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError
@@ -366,7 +367,7 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
                   tuple(data['computed']['account_ids'])] + query_get_data[2]
 
         query = """
-            SELECT "account_move_line".id, "account_move_line".date, j.code, acc.code as a_code, acc.name as a_name, 
+            SELECT "account_move_line".id, "account_move_line".date, j.code, COALESCE(acc.code, '') as a_code, acc.name as a_name, 
                    "account_move_line".ref, m.name as move_name, "account_move_line".name, 
                    "account_move_line".debit, "account_move_line".credit, "account_move_line".amount_currency,
                    "account_move_line".currency_id, c.symbol AS currency_code,
@@ -415,7 +416,9 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
                 r[field_name] for field_name in ('move_name', 'ref', 'name')
                 if r[field_name] not in (None, '', '/')
             )
-            r['a_code_name'] = r['a_code'] + ' - ' + r['a_name']
+            a_code = r.get('a_code', '')
+            a_name = r.get('a_name', '')
+            r['a_code_name'] = (a_code + ' - ' + a_name if a_code else a_name)
             full_account.append(r)
 
         return full_account

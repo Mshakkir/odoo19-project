@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add Order Source column to tree view -->
+    <record id="view_quotation_tree_with_source" model="ir.ui.view">
+        <field name="name">sale.order.tree.source</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree_with_onboarding"/>
+        <field name="arch" type="xml">
+            <!-- Add source column after customer -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="order_source" optional="show" widget="badge"
+                       decoration-success="order_source == 'ecommerce'"
+                       decoration-info="order_source == 'erp'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add Order Source column to sale order tree view -->
+    <record id="view_order_tree_with_source" model="ir.ui.view">
+        <field name="name">sale.order.tree.source.confirmed</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="order_source" optional="show" widget="badge"
+                       decoration-success="order_source == 'ecommerce'"
+                       decoration-info="order_source == 'erp'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add to form view (optional) -->
+    <record id="view_order_form_with_source" model="ir.ui.view">
+        <field name="name">sale.order.form.source</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="order_source" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add search filter -->
+    <record id="view_sales_order_filter_source" model="ir.ui.view">
+        <field name="name">sale.order.search.source</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
+                <separator/>
+                <filter name="erp_orders" string="ERP Orders"
+                        domain="[('order_source', '=', 'erp')]"/>
+                <filter name="ecommerce_orders" string="eCommerce Orders"
+                        domain="[('order_source', '=', 'ecommerce')]"/>
+            </xpath>
+            <xpath expr="//group[@name='groupby']" position="inside">
+                <filter name="group_by_source" string="Order Source"
+                        context="{'group_by': 'order_source'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

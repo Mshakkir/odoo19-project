@@ -284,9 +284,14 @@ class ReportPartnerLedger(models.AbstractModel):
         data['computed']['account_ids'] = [a for (a,) in self.env.cr.fetchall()]
         params = [tuple(data['computed']['move_state']), tuple(data['computed']['account_ids'])] + query_get_data[2]
 
-        # CORRECT: Show ALL entries by default, filter only when specifically requested
-        reconcile_clause = ' AND "account_move_line".full_reconcile_id IS NULL ' if form.get(
-            'reconciled') == 'unreconciled' else ""
+        # Handle reconciliation filter
+        reconciled_filter = form.get('reconciled', 'all')
+        if reconciled_filter == 'unreconciled':
+            reconcile_clause = ' AND "account_move_line".full_reconcile_id IS NULL '
+        elif reconciled_filter == 'reconciled':
+            reconcile_clause = ' AND "account_move_line".full_reconcile_id IS NOT NULL '
+        else:  # 'all' or any other value
+            reconcile_clause = ""
 
         query = """
             SELECT DISTINCT "account_move_line".partner_id

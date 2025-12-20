@@ -333,7 +333,6 @@
 
 # -*- coding: utf-8 -*-
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
 import time
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError
@@ -353,9 +352,14 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
             data['form'].get('used_context', {})
         )._query_get()
 
-        # CORRECT: Show ALL entries by default, filter only when specifically requested
-        reconcile_clause = ' AND "account_move_line".full_reconcile_id IS NULL ' if data['form'].get(
-            'reconciled') == 'unreconciled' else ""
+        # Handle reconciliation filter
+        reconciled_filter = data['form'].get('reconciled', 'all')
+        if reconciled_filter == 'unreconciled':
+            reconcile_clause = ' AND "account_move_line".full_reconcile_id IS NULL '
+        elif reconciled_filter == 'reconciled':
+            reconcile_clause = ' AND "account_move_line".full_reconcile_id IS NOT NULL '
+        else:  # 'all' or any other value
+            reconcile_clause = ""
 
         analytic_account_ids = data['form'].get('analytic_account_ids', [])
         analytic_clause = ""
@@ -439,9 +443,14 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
             data['form'].get('used_context', {})
         )._query_get()
 
-        # CORRECT: Show ALL entries by default, filter only when specifically requested
-        reconcile_clause = ' AND "account_move_line".full_reconcile_id IS NULL ' if data['form'].get(
-            'reconciled') == 'unreconciled' else ""
+        # Handle reconciliation filter
+        reconciled_filter = data['form'].get('reconciled', 'all')
+        if reconciled_filter == 'unreconciled':
+            reconcile_clause = ' AND "account_move_line".full_reconcile_id IS NULL '
+        elif reconciled_filter == 'reconciled':
+            reconcile_clause = ' AND "account_move_line".full_reconcile_id IS NOT NULL '
+        else:  # 'all' or any other value
+            reconcile_clause = ""
 
         params = [partner.id, tuple(data['computed']['move_state']),
                   tuple(data['computed']['account_ids'])] + query_get_data[2]

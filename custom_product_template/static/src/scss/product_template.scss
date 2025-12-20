@@ -1,7 +1,45 @@
-/* Custom Product Template Styles - Non-intrusive */
+/* Custom Product Template Styles - Full Width Products */
 
-/* Hide Price Range Filter - Multiple methods */
-/* Method 1: Hide the accordion item containing Price Range */
+/* ===== HIDE LEFT SIDEBAR COMPLETELY ===== */
+/* Hide all possible sidebar variations */
+#o_shop_collapse_category,
+.o_wsale_products_searchbar_form,
+#wsale_products_categories_collapse,
+.o_wsale_sidebar,
+aside.o_wsale_sidebar {
+    display: none !important;
+}
+
+/* Hide the parent column of sidebar */
+.o_wsale_products_main_row > .col-lg-3,
+.o_wsale_products_main_row > div:first-child:not(:only-child) {
+    display: none !important;
+}
+
+/* Make products grid take full width */
+.o_wsale_products_main_row {
+    > .col-lg-9,
+    > .col-lg-8,
+    > div:last-child {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+}
+
+/* Additional targeting for Odoo 19 structure */
+.oe_website_sale {
+    .o_wsale_products_main_row {
+        display: block !important;
+
+        > div {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+    }
+}
+
+/* Hide Price Range Filter */
 .accordion-item {
     &:has(.accordion-button[aria-label*="Price"]),
     &:has(.accordion-button[aria-label*="price"]) {
@@ -9,41 +47,16 @@
     }
 }
 
-/* Method 2: Target by data attribute */
 [data-bs-target="#o_wsale_offcanvas_price_filter"],
 #o_wsale_offcanvas_price_filter {
     display: none !important;
 }
 
-/* Method 3: Hide parent of price range elements */
 .o_wsale_apply_range {
     display: none !important;
 }
 
-/* Method 4: Hide by text content (fallback) */
-.accordion-button {
-    &:contains("Price Range"),
-    &:contains("price range") {
-        & {
-            display: none !important;
-        }
-    }
-}
-
-/* Hide left sidebar completely on shop page */
-#o_shop_collapse_category {
-    display: none !important;
-}
-
-/* Make products grid take full width */
-.o_wsale_products_main_row {
-    .col-lg-9, .col-lg-8 {
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
-    }
-}
-
-/* Shop Header - Centered with max width */
+/* ===== SHOP HEADER STYLING ===== */
 .custom_shop_header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -61,14 +74,17 @@
     }
 }
 
-/* Enhanced styling for Odoo product cards - non-breaking */
+/* ===== PRODUCT CARD ENHANCEMENTS ===== */
 .o_wsale_products_grid_table_wrapper {
+    width: 100% !important;
+
     .oe_product {
         margin-bottom: 1.5rem;
 
         /* Product card hover effect */
         .card, > div, > form > div {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 8px;
 
             &:hover {
                 transform: translateY(-5px);
@@ -80,6 +96,7 @@
         .oe_product_image, .o_wsale_product_image {
             overflow: hidden;
             position: relative;
+            border-radius: 8px 8px 0 0;
 
             img {
                 transition: transform 0.3s ease;
@@ -130,7 +147,7 @@
     }
 }
 
-/* Featured Products Section */
+/* ===== FEATURED PRODUCTS SECTION ===== */
 .s_custom_products {
     h2 {
         font-weight: 700;
@@ -164,7 +181,7 @@
     }
 }
 
-/* Responsive adjustments */
+/* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
     .custom_shop_header {
         padding: 2rem 0 !important;
@@ -172,10 +189,18 @@
         h1 {
             font-size: 2rem;
         }
+
+        p {
+            font-size: 1rem;
+        }
+    }
+
+    .oe_product {
+        margin-bottom: 1rem;
     }
 }
 
-/* Smooth entrance animation */
+/* ===== SMOOTH ENTRANCE ANIMATION ===== */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -190,4 +215,10 @@
 .oe_product {
     animation: fadeInUp 0.6s ease-out;
     animation-fill-mode: both;
+}
+
+/* Ensure full width container */
+#products_grid {
+    width: 100% !important;
+    max-width: 100% !important;
 }

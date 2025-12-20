@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Add custom shop header before products grid - Half width centered -->
+    <!-- Add custom shop header before products grid -->
     <template id="shop_header_custom" inherit_id="website_sale.products" name="Custom Shop Header" priority="10">
         <xpath expr="//div[@id='products_grid']" position="before">
-            <div class="container">
+            <div class="container mb-4">
                 <div class="row">
                     <div class="col-12">
-                        <div class="custom_shop_header py-5 mb-4 mx-auto" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; max-width: 800px;">
+                        <div class="custom_shop_header py-5 mx-auto" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; max-width: 800px;">
                             <div class="text-center text-white px-4">
                                 <h1 class="display-4 mb-3 fw-bold">Our Products</h1>
-                                <p class="lead" style="color: rgba(255, 255, 255, 0.9);">Discover our wide range of quality products</p>
+                                <p class="lead mb-0" style="color: rgba(255, 255, 255, 0.9);">Discover our wide range of quality products</p>
                             </div>
                         </div>
                     </div>
@@ -19,29 +19,7 @@
         </xpath>
     </template>
 
-    <!-- Make products grid full width by modifying the layout -->
-    <template id="products_layout_fullwidth" inherit_id="website_sale.products" name="Full Width Products Layout" priority="11">
-        <!-- Modify the main container to be full width -->
-        <xpath expr="//div[@id='products_grid']/.." position="attributes">
-            <attribute name="class">col-lg-12</attribute>
-        </xpath>
-    </template>
-
-    <!-- Hide the left sidebar (categories and filters) -->
-    <template id="hide_left_sidebar" inherit_id="website_sale.products" name="Hide Left Sidebar" priority="5">
-        <xpath expr="//div[@id='o_shop_collapse_category']" position="replace">
-            <div id="o_shop_collapse_category" style="display: none;"/>
-        </xpath>
-    </template>
-
-    <!-- Alternative: Make the layout responsive - hide sidebar on shop page -->
-    <template id="shop_layout_no_sidebar" inherit_id="website_sale.products" name="Shop Layout Without Sidebar" priority="12">
-        <xpath expr="//div[hasclass('o_wsale_products_main_row')]" position="attributes">
-            <attribute name="class" add="flex-column" separator=" "/>
-        </xpath>
-    </template>
-
-    <!-- Homepage Featured Products Snippet (this is separate - for homepage only) -->
+    <!-- Homepage Featured Products Snippet -->
     <template id="s_custom_products" name="Featured Products">
         <section class="s_custom_products py-5" style="background-color: #f8f9fa;">
             <div class="container">

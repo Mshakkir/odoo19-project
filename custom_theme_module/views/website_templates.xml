@@ -2,11 +2,7 @@
 <odoo>
     <data>
          Modern Header Layout
-                <template id="custom_layout_header" inherit_id="website.layout" name="Modern Header Layout">
-                    <xpath expr="//header" position="attributes">
-                        <attribute name="class" add="modern_navbar_wrapper" separator=" "/>
-                    </xpath>
-                </template>
+
 
         <!-- Modern Footer Layout -->
         <template id="custom_layout_footer" inherit_id="website.layout" name="Modern Footer Layout">

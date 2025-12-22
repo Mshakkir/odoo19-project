@@ -1,367 +1,448 @@
 /* ============================================
-   MODERN NAVBAR & FOOTER STYLES
-   Brand Colors: #198dff (Primary), #ffffff (White)
+   PROFESSIONAL NAVBAR FOR ODOO 19
+   Clean, Modern, No Duplicate Buttons
    ============================================ */
 
 :root {
-    --brand-primary: #198dff;
-    --brand-primary-dark: #0d7ae5;
-    --brand-primary-light: #e6f4ff;
-    --text-dark: #1a202c;
-    --text-gray: #4a5568;
-    --text-light: #718096;
-    --bg-dark: #0f172a;
-    --bg-darker: #0a0f1a;
-    --border-color: rgba(255, 255, 255, 0.1);
+    --brand-primary: #198dff !important;
+    --brand-primary-dark: #0d7ae5 !important;
+    --brand-primary-light: #f0f9ff !important;
+    --text-dark: #1a202c !important;
+    --text-gray: #4a5568 !important;
+    --bg-dark: #0f172a !important;
 }
 
 /* ============================================
-   TOP INFO BAR
+   TOP BAR STYLING
    ============================================ */
 .top_info_bar {
-    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
-    border-bottom: 1px solid var(--border-color);
-    font-size: 14px;
-    position: relative;
-    z-index: 1000;
+    background: var(--bg-dark) !important;
+    color: white !important;
+    font-size: 14px !important;
+    padding: 10px 0 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-.top_info_bar::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg,
-        transparent 0%,
-        var(--brand-primary) 50%,
-        transparent 100%);
-    opacity: 0.5;
+.top_info_bar .container {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
 }
 
 .info_link {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
     color: rgba(255, 255, 255, 0.8) !important;
     text-decoration: none !important;
-    transition: all 0.3s ease;
-    font-weight: 500;
+    transition: all 0.3s ease !important;
+    font-weight: 500 !important;
+    margin-right: 30px !important;
 }
 
 .info_link:hover {
     color: var(--brand-primary) !important;
-    transform: translateY(-1px);
-}
-
-.info_link svg {
-    flex-shrink: 0;
+    transform: translateY(-1px) !important;
 }
 
 .social_icon {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 32px !important;
+    height: 32px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     color: rgba(255, 255, 255, 0.7) !important;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 6px !important;
     text-decoration: none !important;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
+    transition: all 0.3s ease !important;
+    margin-right: 12px !important;
 }
 
 .social_icon:hover {
     color: white !important;
-    background: var(--brand-primary);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(25, 141, 255, 0.4);
+    background: var(--brand-primary) !important;
+    transform: translateY(-2px) !important;
 }
 
 /* ============================================
-   MODERN NAVBAR
+   MAIN NAVBAR - FORCE CLEAN WHITE
    ============================================ */
-header,
-.navbar,
+#wrapwrap > header,
+header.o_header_standard,
+header.modern_navbar_wrapper,
 .o_main_navbar,
-.modern_navbar_wrapper,
-#wrapwrap > header {
+header nav {
     background: white !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
-    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+    border-bottom: none !important;
     padding: 0 !important;
-    position: sticky;
-    top: 0;
-    z-index: 999;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 999 !important;
 }
 
-/* Navbar scrolled effect */
-header.scrolled,
-.navbar.scrolled {
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08) !important;
-    border-bottom-color: #cbd5e0 !important;
-}
-
-/* Navbar container */
 header .container,
-header .container-fluid,
 .o_main_navbar .container {
-    padding-top: 1rem !important;
-    padding-bottom: 1rem !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    min-height: 80px !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
-/* Logo/Brand */
+/* ============================================
+   LOGO STYLING
+   ============================================ */
 header .navbar-brand,
 .o_main_navbar .navbar-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
     color: var(--text-dark) !important;
     font-weight: 700 !important;
     font-size: 1.5rem !important;
     text-decoration: none !important;
-    transition: all 0.3s ease;
     padding: 0 !important;
+    margin-right: 40px !important;
 }
 
-header .navbar-brand:hover {
-    color: var(--brand-primary) !important;
-    transform: translateY(-1px);
-}
-
-header .navbar-brand img,
-.o_main_navbar .navbar-brand img {
-    max-height: 40px !important;
+header .navbar-brand img {
+    max-height: 45px !important;
     width: auto !important;
-    transition: transform 0.3s ease;
     filter: none !important;
 }
 
-header .navbar-brand:hover img {
-    transform: scale(1.05);
+/* ============================================
+   NAVIGATION LINKS - CLEAN STYLE
+   ============================================ */
+header .navbar-nav,
+.o_main_navbar .navbar-nav {
+    display: flex !important;
+    gap: 8px !important;
+    align-items: center !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-/* Navigation Links */
-header,
-header a:not(.navbar-brand):not(.btn),
+header .navbar-nav .nav-link,
 header .nav-link,
-.o_main_navbar a:not(.navbar-brand):not(.btn),
-.o_main_navbar .nav-link,
-header .navbar-nav .nav-link {
+.o_main_navbar .nav-link {
     color: var(--text-gray) !important;
+    text-decoration: none !important;
+    padding: 10px 18px !important;
+    border-radius: 8px !important;
     font-weight: 600 !important;
     font-size: 15px !important;
-    text-decoration: none !important;
     transition: all 0.3s ease !important;
-    padding: 10px 16px !important;
-    border-radius: 8px !important;
-    position: relative;
-}
-
-/* Navigation hover effect */
-header a:not(.navbar-brand):not(.btn):hover,
-header .nav-link:hover,
-.o_main_navbar a:not(.navbar-brand):not(.btn):hover,
-header .navbar-nav .nav-link:hover {
-    color: var(--brand-primary) !important;
-    background-color: var(--brand-primary-light) !important;
-    transform: translateY(-1px);
-}
-
-/* Active navigation link */
-header .nav-link.active,
-.o_main_navbar .nav-link.active {
-    color: var(--brand-primary) !important;
-    background-color: var(--brand-primary-light) !important;
-    font-weight: 700 !important;
-}
-
-/* Modern underline effect for active link */
-header .nav-link.active::after,
-header .nav-link:hover::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 16px;
-    right: 16px;
-    height: 3px;
-    background: var(--brand-primary);
-    border-radius: 2px 2px 0 0;
-    animation: slideIn 0.3s ease;
-}
-
-@keyframes slideIn {
-    from {
-        transform: scaleX(0);
-    }
-    to {
-        transform: scaleX(1);
-    }
-}
-
-/* Contact Button - Modern CTA Style */
-header a[href*="contact"],
-header .btn-contact,
-.o_main_navbar a[href*="/contactus"],
-.navbar .btn-primary {
-    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-dark) 100%) !important;
-    color: white !important;
-    padding: 10px 24px !important;
-    border-radius: 10px !important;
-    font-weight: 700 !important;
+    position: relative !important;
+    background: transparent !important;
     border: none !important;
-    box-shadow: 0 4px 12px rgba(25, 141, 255, 0.3) !important;
-    transition: all 0.3s ease !important;
+}
+
+/* SIMPLE HOVER EFFECT - Just color and background */
+header .navbar-nav .nav-link:hover,
+header .nav-link:hover {
+    color: var(--brand-primary) !important;
+    background: var(--brand-primary-light) !important;
+}
+
+/* ACTIVE LINK STYLE - Clean underline */
+header .navbar-nav .nav-link.active,
+header .nav-link.active {
+    color: var(--brand-primary) !important;
+    background: #e6f4ff !important;
+}
+
+header .nav-link.active::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 18px !important;
+    right: 18px !important;
+    height: 2px !important;
+    background: var(--brand-primary) !important;
+    border-radius: 2px !important;
+}
+
+/* ============================================
+   REMOVE ALL DUPLICATE CONTACT BUTTONS
+   ============================================ */
+/* Hide any contact buttons that look like CTAs */
+header .btn-primary:has([href*="contact"]),
+header a.btn:has([href*="contact"]),
+header .btn-contact,
+.o_main_navbar .btn-primary,
+.o_main_navbar .btn-info,
+header .navbar-nav .btn {
+    display: none !important;
+}
+
+/* Make Contact Us a normal nav link */
+header a[href*="contact"],
+header a[href*="contactus"] {
+    color: var(--text-gray) !important;
+    background: transparent !important;
+    padding: 10px 18px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+    border: none !important;
+    box-shadow: none !important;
     text-transform: none !important;
 }
 
-header a[href*="contact"]:hover,
-header .btn-contact:hover,
-.navbar .btn-primary:hover {
-    background: linear-gradient(135deg, var(--brand-primary-dark) 0%, #0861c7 100%) !important;
-    color: white !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(25, 141, 255, 0.4) !important;
+header a[href*="contact"]:hover {
+    color: var(--brand-primary) !important;
+    background: var(--brand-primary-light) !important;
 }
 
-header a[href*="contact"]::after,
-header .btn-contact::after {
+header a[href*="contact"]::after {
     display: none !important;
 }
 
-/* Shopping Cart Icon */
-header .my_cart_quantity,
-header .o_wsale_my_cart,
-header a[href*="/shop/cart"] {
-    position: relative;
-    color: var(--text-gray) !important;
-    padding: 10px !important;
+/* ============================================
+   HIDE PHONE NUMBER
+   ============================================ */
+header a[href^="tel"],
+header .phone-number,
+header .o_header_contact,
+.o_main_navbar a[href^="tel"],
+.navbar a[href^="tel:"] {
+    display: none !important;
+}
+
+/* ============================================
+   SEARCH BAR - FULL INPUT FIELD
+   ============================================ */
+header .o_wsale_search,
+header .o_searchbar_form,
+header form[action="/shop"] {
+    position: relative !important;
+    width: 280px !important;
+    margin: 0 16px !important;
+}
+
+header .o_wsale_search input,
+header .o_searchbar_form input,
+header input[name="search"],
+header .search-query {
+    width: 100% !important;
+    padding: 10px 40px 10px 16px !important;
+    border: 1.5px solid #e2e8f0 !important;
     border-radius: 10px !important;
-    background: var(--brand-primary-light) !important;
+    font-size: 14px !important;
+    background: #f8fafc !important;
     transition: all 0.3s ease !important;
 }
 
-header .my_cart_quantity:hover,
-header .o_wsale_my_cart:hover {
-    color: var(--brand-primary) !important;
-    background: var(--brand-primary-light) !important;
-    transform: scale(1.05);
+header .o_wsale_search input:focus,
+header input[name="search"]:focus {
+    outline: none !important;
+    border-color: var(--brand-primary) !important;
+    background: white !important;
+    box-shadow: 0 0 0 3px rgba(25, 141, 255, 0.1) !important;
 }
 
-.my_cart_quantity .badge,
-.o_wsale_my_cart .badge {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    background: var(--brand-primary) !important;
-    color: white !important;
-    border-radius: 50%;
-    min-width: 18px;
-    height: 18px;
-    font-size: 11px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(25, 141, 255, 0.4);
+header .o_wsale_search input::placeholder {
+    color: #94a3b8 !important;
 }
 
-/* Search Icon */
-header .fa-search,
+/* Search icon positioning */
+header .o_wsale_search .fa-search,
 header .search-icon,
-header .o_search_icon {
-    color: var(--text-gray) !important;
-    font-size: 18px !important;
-    transition: all 0.3s ease;
+header button[type="submit"] {
+    position: absolute !important;
+    right: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    background: none !important;
+    border: none !important;
+    color: #64748b !important;
+    padding: 0 !important;
+    font-size: 16px !important;
 }
 
-header .fa-search:hover,
-header .search-icon:hover {
-    color: var(--brand-primary) !important;
-    transform: scale(1.1);
+/* Remove old search icon-only style */
+header .fa-search:not(button .fa-search) {
+    background: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
 }
 
-/* Language Selector */
+/* ============================================
+   LANGUAGE SELECTOR - FLAGS INSTEAD OF TEXT
+   ============================================ */
+header .js_language_selector,
 header .dropdown-toggle,
-header .js_language_selector {
-    color: var(--text-gray) !important;
-    padding: 10px 16px !important;
+.o_main_navbar .js_language_selector {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 8px 12px !important;
+    border: 1.5px solid #e2e8f0 !important;
     border-radius: 8px !important;
-    transition: all 0.3s ease;
+    background: white !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    font-size: 14px !important;
+    color: var(--text-gray) !important;
+    font-weight: 500 !important;
 }
 
-header .dropdown-toggle:hover {
+header .js_language_selector:hover {
+    border-color: var(--brand-primary) !important;
+    background: var(--brand-primary-light) !important;
+}
+
+/* Style flag images */
+header .js_language_selector img,
+.dropdown-menu img {
+    width: 24px !important;
+    height: 18px !important;
+    border-radius: 3px !important;
+    object-fit: cover !important;
+}
+
+/* Language dropdown */
+header .dropdown-menu {
+    border-radius: 10px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+    border: none !important;
+    padding: 4px !important;
+    min-width: 180px !important;
+}
+
+header .dropdown-menu .dropdown-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 10px 12px !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+    font-size: 14px !important;
+}
+
+header .dropdown-menu .dropdown-item:hover {
     background: var(--brand-primary-light) !important;
     color: var(--brand-primary) !important;
 }
 
 /* ============================================
-   HIDE SIGN IN BUTTON - COMPREHENSIVE
+   CART ICON - MODERN STYLE
+   ============================================ */
+header .o_wsale_my_cart,
+header a[href*="/shop/cart"] {
+    position: relative !important;
+    padding: 10px !important;
+    border-radius: 10px !important;
+    background: var(--brand-primary-light) !important;
+    color: var(--brand-primary) !important;
+    transition: all 0.3s ease !important;
+    margin-left: 16px !important;
+}
+
+header .o_wsale_my_cart:hover {
+    background: #e6f4ff !important;
+    transform: scale(1.05) !important;
+}
+
+.my_cart_quantity,
+.o_wsale_my_cart .my_cart_quantity {
+    position: absolute !important;
+    top: 4px !important;
+    right: 4px !important;
+    background: var(--brand-primary) !important;
+    color: white !important;
+    border-radius: 50% !important;
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* ============================================
+   HIDE SIGN IN BUTTON
    ============================================ */
 header a[href*="/web/login"],
 header a[href*="/web/signin"],
-header a[href*="/my/account"],
-header a[href="/web/login"],
-.o_main_navbar a[href*="/web/login"],
-.navbar a[href*="/web/login"],
-nav a[href*="/web/login"],
 .o_portal_sign_in,
 .o_sign_in_link,
-.o_login_btn,
-.sign-in-button,
-.btn-sign-in,
-header .o_portal_my_account,
-.o_portal_navbar .o_portal_sign_in,
-header li:has(a[href*="/web/login"]),
-.navbar-nav li:has(a[href*="/web/login"]),
-.o_main_navbar li:has(a[href*="/web/login"]),
-.nav-item.o_no_autohide:has(a[href*="login"]) {
+header .o_portal_my_account {
     display: none !important;
     visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-    width: 0 !important;
-    height: 0 !important;
-    overflow: hidden !important;
-    position: absolute !important;
-    left: -9999px !important;
 }
 
 /* ============================================
-   MOBILE MENU
+   MOBILE RESPONSIVE
    ============================================ */
-.navbar-toggler {
-    border: none !important;
-    padding: 8px !important;
-    border-radius: 8px !important;
-    background: var(--brand-primary-light) !important;
-    transition: all 0.3s ease;
-}
-
-.navbar-toggler:focus {
-    box-shadow: 0 0 0 3px rgba(25, 141, 255, 0.2) !important;
-}
-
-.navbar-toggler-icon {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23198dff' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
-}
-
-/* Mobile menu dropdown */
 @media (max-width: 991px) {
-    .navbar-collapse {
-        margin-top: 1rem;
-        padding: 1rem;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    .top_info_bar {
+        display: none !important;
+    }
+
+    header .container {
+        min-height: 70px !important;
+    }
+
+    header .o_wsale_search,
+    header .o_searchbar_form {
+        width: 200px !important;
     }
 
     header .navbar-nav .nav-link {
-        margin: 4px 0;
+        padding: 8px 14px !important;
+        font-size: 14px !important;
     }
+}
+
+@media (max-width: 768px) {
+    header .o_wsale_search,
+    header .o_searchbar_form {
+        width: 100% !important;
+        margin: 10px 0 !important;
+    }
+
+    header .navbar-collapse {
+        margin-top: 1rem !important;
+        padding: 1rem !important;
+        background: white !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    header .navbar-nav {
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 4px !important;
+    }
+
+    header .navbar-nav .nav-link {
+        width: 100% !important;
+        text-align: left !important;
+        padding: 12px 18px !important;
+    }
+}
+
+/* ============================================
+   SMOOTH ANIMATIONS
+   ============================================ */
+html {
+    scroll-behavior: smooth !important;
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+header a:focus,
+header button:focus,
+header input:focus {
+    outline: 2px solid var(--brand-primary) !important;
+    outline-offset: 2px !important;
 }
 
 /* ============================================

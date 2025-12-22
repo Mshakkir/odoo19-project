@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Hide Default Odoo Header -->
+        <!-- Hide Default Odoo Header - Method 1 (Recommended) -->
         <template id="hide_default_header" inherit_id="website.layout" name="Hide Default Header">
             <xpath expr="//header[@id='top']" position="attributes">
                 <attribute name="style">display: none !important;</attribute>
             </xpath>
         </template>
 
-        <!-- Alternative Method: Using CSS -->
-        <template id="custom_header_styles" inherit_id="website.assets_frontend" name="Custom Header Styles">
+        <!-- Add Custom CSS - Method 2 (For Odoo 19) -->
+        <template id="custom_header_styles" inherit_id="web.assets_frontend" name="Custom Header Styles">
             <xpath expr="." position="inside">
                 <style>
                     /* Hide default Odoo header */
-                    header#top {
+                    header#top,
+                    header.o_header_standard {
                         display: none !important;
                     }
 
@@ -24,14 +25,21 @@
                     }
 
                     /* Adjust main content margin if needed */
-                    main {
+                    main,
+                    #wrapwrap > main {
                         margin-top: 0 !important;
+                        padding-top: 0 !important;
+                    }
+
+                    /* Fix for any spacing issues */
+                    #wrapwrap {
+                        padding-top: 0 !important;
                     }
                 </style>
             </xpath>
         </template>
 
-        <!-- Your existing Modern Header Layout (keep your existing code) -->
+        <!-- Your Custom Top Info Bar and Navbar -->
         <template id="top_info_bar" inherit_id="website.layout" name="Top Info Bar">
             <xpath expr="//header" position="before">
                 <!-- Top Bar -->
@@ -87,7 +95,7 @@
                 <!-- Main Navbar -->
                 <nav class="main_navbar">
                     <div class="container">
-                        <a href="#" class="logo">
+                        <a href="/" class="logo">
                             <div class="logo_icon">YC</div>
                             <span>YourCompany</span>
                         </a>
@@ -100,16 +108,16 @@
 
                         <ul class="nav_menu" id="navMenu">
                             <li>
-                                <a href="#" class="nav_link active">Home</a>
+                                <a href="/" class="nav_link active">Home</a>
                             </li>
                             <li>
-                                <a href="#" class="nav_link">About Us</a>
+                                <a href="/page/aboutus" class="nav_link">About Us</a>
                             </li>
                             <li>
-                                <a href="#" class="nav_link">Shop</a>
+                                <a href="/shop" class="nav_link">Shop</a>
                             </li>
                             <li>
-                                <a href="#" class="nav_link">Contact Us</a>
+                                <a href="/contactus" class="nav_link">Contact Us</a>
                             </li>
                         </ul>
 
@@ -159,22 +167,27 @@
                     </div>
                 </nav>
             </xpath>
-            <script>
-                function toggleMenu() {
-                    const menu = document.getElementById('navMenu');
-                    menu.classList.toggle('active');
-                }
+        </template>
 
-                // Close mobile menu when clicking outside
-                document.addEventListener('click', function(event) {
-                    const menu = document.getElementById('navMenu');
-                    const toggle = document.querySelector('.mobile_toggle');
-
-                    if (!menu.contains(event.target) &amp;&amp; !toggle.contains(event.target)) {
-                        menu.classList.remove('active');
+        <template id="custom_navbar_script" inherit_id="website.layout" name="Custom Navbar Script">
+            <xpath expr="//body" position="inside">
+                <script>
+                    function toggleMenu() {
+                        const menu = document.getElementById('navMenu');
+                        menu.classList.toggle('active');
                     }
-                });
-            </script>
+
+                    // Close mobile menu when clicking outside
+                    document.addEventListener('click', function(event) {
+                        const menu = document.getElementById('navMenu');
+                        const toggle = document.querySelector('.mobile_toggle');
+
+                        if (menu &amp;&amp; toggle &amp;&amp; !menu.contains(event.target) &amp;&amp; !toggle.contains(event.target)) {
+                            menu.classList.remove('active');
+                        }
+                    });
+                </script>
+            </xpath>
         </template>
 
     </data>

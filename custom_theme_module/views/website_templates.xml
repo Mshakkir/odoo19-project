@@ -4,20 +4,6 @@
         <!-- Hide Default Odoo Header -->
         <template id="hide_default_header" inherit_id="website.layout" name="Hide Default Header">
             <xpath expr="//header[@id='top']" position="replace">
-                <!-- Empty - This removes the default header completely -->
-            </xpath>
-        </template>
-
-        <!-- Modern Footer Layout -->
-        <template id="custom_layout_footer" inherit_id="website.layout" name="Modern Footer Layout">
-            <xpath expr="//footer" position="attributes">
-                <attribute name="class" add="modern_footer_wrapper" separator=" "/>
-            </xpath>
-        </template>
-
-        <!-- Add top info bar and custom navbar -->
-        <template id="top_info_bar" inherit_id="website.layout" name="Top Info Bar">
-            <xpath expr="//body" position="inside">
                 <!-- Top Bar -->
                 <div class="top_bar">
                     <div class="container">
@@ -161,6 +147,20 @@
                         }
                     });
                 </script>
+            </xpath>
+        </template>
+
+        <!-- Modern Footer Layout -->
+        <template id="custom_layout_footer" inherit_id="website.layout" name="Modern Footer Layout">
+            <xpath expr="//footer" position="attributes">
+                <attribute name="class" add="modern_footer_wrapper" separator=" "/>
+            </xpath>
+        </template>
+
+        <!-- Add top info bar and custom navbar -->
+        <template id="top_info_bar" inherit_id="website.layout" name="Top Info Bar">
+            <xpath expr="//body" position="inside">
+
             </xpath>
         </template>
 

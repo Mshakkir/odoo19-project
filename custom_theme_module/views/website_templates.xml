@@ -58,8 +58,8 @@
                 <nav class="main_navbar">
                     <div class="container">
                         <a href="/" class="logo">
-                            <div class="logo_icon">YC</div>
-                            <span>YourCompany</span>
+                            <div class="logo_icon">AX</div>
+                            <span>Airmixs</span>
                         </a>
 
                         <button class="mobile_toggle" onclick="toggleMenu()">
@@ -73,7 +73,7 @@
                                 <a href="/" class="nav_link active">Home</a>
                             </li>
                             <li>
-                                <a href="/page/aboutus" class="nav_link">About Us</a>
+                                <a href="/aboutus" class="nav_link">About Us</a>
                             </li>
                             <li>
                                 <a href="/shop" class="nav_link">Shop</a>
@@ -116,15 +116,15 @@
                                 </div>
                             </div>
 
-                            <div class="cart_icon">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                     stroke-width="2">
-                                    <circle cx="9" cy="21" r="1"></circle>
-                                    <circle cx="20" cy="21" r="1"></circle>
-                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                                </svg>
-                                <span class="cart_badge">3</span>
-                            </div>
+<!--                            <div class="cart_icon">-->
+<!--                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"-->
+<!--                                     stroke-width="2">-->
+<!--                                    <circle cx="9" cy="21" r="1"></circle>-->
+<!--                                    <circle cx="20" cy="21" r="1"></circle>-->
+<!--                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>-->
+<!--                                </svg>-->
+<!--                                <span class="cart_badge">3</span>-->
+<!--                            </div>-->
                         </div>
                     </div>
                 </nav>

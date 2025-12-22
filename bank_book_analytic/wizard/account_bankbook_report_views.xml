@@ -4,7 +4,7 @@
     <record id="account_bankbook_report_view_form_inherit" model="ir.ui.view">
         <field name="name">account.bankbook.report.form.inherit</field>
         <field name="model">account.bankbook.report</field>
-        <field name="inherit_id" ref="om_account_daily_reports.account_bankbook_report_view"/>
+        <field name="inherit_id" ref="om_account_daily_reports.view_account_bankbook_report"/>
         <field name="arch" type="xml">
             <!-- Add fields after the existing fields -->
             <xpath expr="//field[@name='display_account']" position="after">

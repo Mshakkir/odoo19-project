@@ -1,13 +1,32 @@
+/** @odoo-module **/
+
+import { Component } from "@odoo/owl";
+
 /* Custom Header JavaScript */
 
 (function() {
     'use strict';
 
     // Wait for DOM to be fully loaded
-    document.addEventListener('DOMContentLoaded', function() {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCustomTheme);
+    } else {
+        initCustomTheme();
+    }
+
+    function initCustomTheme() {
+        console.log('Custom Theme Module: Initializing...');
+
         hideSignInButton();
         addStickyHeaderEffect();
-    });
+
+        // Run hide function again after delays to catch dynamic content
+        setTimeout(hideSignInButton, 1000);
+        setTimeout(hideSignInButton, 2000);
+        setTimeout(hideSignInButton, 3000);
+
+        console.log('Custom Theme Module: Loaded successfully');
+    }
 
     /**
      * Hide Sign In button using multiple methods
@@ -30,28 +49,44 @@
                 element.style.display = 'none';
                 element.style.visibility = 'hidden';
                 element.style.opacity = '0';
+                element.style.position = 'absolute';
+                element.style.left = '-9999px';
+
                 // Also hide parent li if exists
                 const parentLi = element.closest('li');
                 if (parentLi) {
                     parentLi.style.display = 'none';
                 }
+
+                // Also hide parent nav-item
+                const parentNavItem = element.closest('.nav-item');
+                if (parentNavItem) {
+                    parentNavItem.style.display = 'none';
+                }
             });
         });
 
         // Method 2: Hide by text content
-        const headerLinks = document.querySelectorAll('header a, .navbar a, .o_main_navbar a');
+        const headerLinks = document.querySelectorAll('header a, .navbar a, .o_main_navbar a, nav a');
         headerLinks.forEach(function(link) {
             const text = link.textContent.trim().toLowerCase();
-            if (text === 'sign in' || text === 'login' || text === 'log in') {
+            if (text === 'sign in' || text === 'login' || text === 'log in' || text === 'signin') {
                 link.style.display = 'none';
+                link.style.visibility = 'hidden';
+
                 const parentLi = link.closest('li');
                 if (parentLi) {
                     parentLi.style.display = 'none';
                 }
+
+                const parentNavItem = link.closest('.nav-item');
+                if (parentNavItem) {
+                    parentNavItem.style.display = 'none';
+                }
             }
         });
 
-        console.log('Sign-in buttons hidden successfully');
+        console.log('Custom Theme: Sign-in buttons hidden');
     }
 
     /**
@@ -60,7 +95,10 @@
     function addStickyHeaderEffect() {
         const header = document.querySelector('header, .o_main_navbar');
 
-        if (!header) return;
+        if (!header) {
+            console.log('Custom Theme: Header element not found');
+            return;
+        }
 
         window.addEventListener('scroll', function() {
             const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
@@ -72,11 +110,25 @@
             }
         });
 
-        console.log('Sticky header effect activated');
+        console.log('Custom Theme: Sticky header effect activated');
     }
 
-    // Run hide function again after a delay to catch dynamically loaded content
-    setTimeout(hideSignInButton, 1000);
-    setTimeout(hideSignInButton, 2000);
+    // MutationObserver to watch for dynamically added content
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.addedNodes.length) {
+                hideSignInButton();
+            }
+        });
+    });
+
+    // Start observing the header for changes
+    const headerElement = document.querySelector('header, .o_main_navbar');
+    if (headerElement) {
+        observer.observe(headerElement, {
+            childList: true,
+            subtree: true
+        });
+    }
 
 })();

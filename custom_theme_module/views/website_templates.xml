@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Inherit website layout to hide sign in button -->
+        <template id="custom_layout_header" inherit_id="website.layout" name="Custom Header Layout">
+            <xpath expr="//header" position="attributes">
+                <attribute name="class" add="custom_theme_header" separator=" "/>
+            </xpath>
+        </template>
+
+        <!-- Inherit footer layout -->
+        <template id="custom_layout_footer" inherit_id="website.layout" name="Custom Footer Layout">
+            <xpath expr="//footer" position="attributes">
+                <attribute name="class" add="custom_theme_footer" separator=" "/>
+            </xpath>
+        </template>
+
+        <!-- Remove sign in link from portal -->
+        <template id="portal_layout_no_signin" inherit_id="portal.portal_layout" name="Remove Sign In Link">
+            <xpath expr="//a[@href='/web/login']" position="replace"/>
+        </template>
+    </data>
+</odoo>

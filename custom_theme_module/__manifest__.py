@@ -1,18 +1,29 @@
 {
     'name': 'Custom Header Footer Theme',
     'version': '1.0.0',
-    'category': 'Website',
-    'summary': 'Customize header/footer colors and hide sign in button',
+    'category': 'Website/Website',
+    'sequence': 100,
+    'summary': 'Custom header/footer colors and hide sign in button',
     'description': """
-        Custom module to:
-        - Change header and footer color themes
-        - Hide the default sign in button
-        - Apply custom styling to website
+Custom Header Footer Theme Module
+==================================
+This module provides:
+    * Custom header background color (#2c3e50)
+    * Custom footer background color (#34495e)
+    * Hides the sign-in/login button from header
+    * White text styling for header
+    * Blue accent colors for links
+    * Responsive design support
     """,
-    'author': 'Your Name',
+    'author': 'Your Company',
     'website': 'https://www.yourwebsite.com',
-    'depends': ['website'],
-    'data': [],
+    'depends': [
+        'website',
+        'web',
+    ],
+    'data': [
+        'views/website_templates.xml',
+    ],
     'assets': {
         'web.assets_frontend': [
             'custom_theme_module/static/src/css/custom_style.css',

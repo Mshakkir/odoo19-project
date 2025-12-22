@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Modern Header Layout -->
-        <!--        <template id="custom_layout_header" inherit_id="website.layout" name="Modern Header Layout">-->
-        <!--            <xpath expr="//header" position="attributes">-->
-        <!--                <attribute name="class" add="modern_navbar_wrapper" separator=" "/>-->
-        <!--            </xpath>-->
-        <!--        </template>-->
+         Modern Header Layout
+                <template id="custom_layout_header" inherit_id="website.layout" name="Modern Header Layout">
+                    <xpath expr="//header" position="attributes">
+                        <attribute name="class" add="modern_navbar_wrapper" separator=" "/>
+                    </xpath>
+                </template>
 
         <!-- Modern Footer Layout -->
         <template id="custom_layout_footer" inherit_id="website.layout" name="Modern Footer Layout">
@@ -163,23 +163,3 @@
 
     </data>
 </odoo>
-
-
-        <!--<?xml version="1.0" encoding="utf-8"?>-->
-        <!--<odoo>-->
-        <!--    <data>-->
-        <!--        &lt;!&ndash; Inherit website layout to add custom classes &ndash;&gt;-->
-        <!--        <template id="custom_layout_header" inherit_id="website.layout" name="Custom Header Layout">-->
-        <!--            <xpath expr="//header" position="attributes">-->
-        <!--                <attribute name="class" add="custom_theme_header" separator=" "/>-->
-        <!--            </xpath>-->
-        <!--        </template>-->
-
-        <!--        &lt;!&ndash; Inherit footer layout to add custom classes &ndash;&gt;-->
-        <!--        <template id="custom_layout_footer" inherit_id="website.layout" name="Custom Footer Layout">-->
-        <!--            <xpath expr="//footer" position="attributes">-->
-        <!--                <attribute name="class" add="custom_theme_footer" separator=" "/>-->
-        <!--            </xpath>-->
-        <!--        </template>-->
-        <!--    </data>-->
-        <!--</odoo>-->

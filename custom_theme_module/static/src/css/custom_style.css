@@ -1,82 +1,324 @@
 /* ============================================
-   CUSTOM HEADER STYLING
+   MODERN NAVBAR & FOOTER STYLES
+   Brand Colors: #198dff (Primary), #ffffff (White)
    ============================================ */
 
-/* Header Background and Base Styles */
+:root {
+    --brand-primary: #198dff;
+    --brand-primary-dark: #0d7ae5;
+    --brand-primary-light: #e6f4ff;
+    --text-dark: #1a202c;
+    --text-gray: #4a5568;
+    --text-light: #718096;
+    --bg-dark: #0f172a;
+    --bg-darker: #0a0f1a;
+    --border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   TOP INFO BAR
+   ============================================ */
+.top_info_bar {
+    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 14px;
+    position: relative;
+    z-index: 1000;
+}
+
+.top_info_bar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        var(--brand-primary) 50%,
+        transparent 100%);
+    opacity: 0.5;
+}
+
+.info_link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.8) !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.info_link:hover {
+    color: var(--brand-primary) !important;
+    transform: translateY(-1px);
+}
+
+.info_link svg {
+    flex-shrink: 0;
+}
+
+.social_icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.7) !important;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    text-decoration: none !important;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.social_icon:hover {
+    color: white !important;
+    background: var(--brand-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(25, 141, 255, 0.4);
+}
+
+/* ============================================
+   MODERN NAVBAR
+   ============================================ */
 header,
 .navbar,
 .o_main_navbar,
-.custom_theme_header,
+.modern_navbar_wrapper,
 #wrapwrap > header {
-    background-color: #198dff !important;
-    border-bottom: 3px solid #1a252f !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+    background: white !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
     transition: all 0.3s ease !important;
+    padding: 0 !important;
+    position: sticky;
+    top: 0;
+    z-index: 999;
 }
 
-/* Header Text and Links */
-header,
-header a,
-header .nav-link,
+/* Navbar scrolled effect */
+header.scrolled,
+.navbar.scrolled {
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08) !important;
+    border-bottom-color: #cbd5e0 !important;
+}
+
+/* Navbar container */
+header .container,
+header .container-fluid,
+.o_main_navbar .container {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+}
+
+/* Logo/Brand */
 header .navbar-brand,
-.o_main_navbar a,
-.o_main_navbar .nav-link,
-header .navbar-nav .nav-link {
-    color: #ffffff !important;
-    font-weight: 500 !important;
+.o_main_navbar .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-dark) !important;
+    font-weight: 700 !important;
+    font-size: 1.5rem !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease;
+    padding: 0 !important;
 }
 
-/* Navigation Links Hover Effect */
-header a:hover,
-header .nav-link:hover,
-.o_main_navbar a:hover,
-header .navbar-nav .nav-link:hover {
-    color: #3498db !important;
-    background-color: rgba(52, 152, 219, 0.1) !important;
-    border-radius: 4px !important;
-    transition: all 0.3s ease !important;
+header .navbar-brand:hover {
+    color: var(--brand-primary) !important;
+    transform: translateY(-1px);
 }
 
-/* Active Navigation Link */
-header .nav-link.active,
-.o_main_navbar .nav-link.active {
-    color: #3498db !important;
-    border-bottom: 2px solid #3498db !important;
-}
-
-/* Logo styling */
 header .navbar-brand img,
 .o_main_navbar .navbar-brand img {
-    filter: brightness(1.2) !important;
+    max-height: 40px !important;
+    width: auto !important;
+    transition: transform 0.3s ease;
+    filter: none !important;
 }
 
-/* Header Contact Info */
-header .o_header_contact,
-header .phone-number,
-header .fa-phone,
-header a[href^="tel:"] {
-    color: #ecf0f1 !important;
+header .navbar-brand:hover img {
+    transform: scale(1.05);
 }
 
-/* Search Icon in Header */
+/* Navigation Links */
+header,
+header a:not(.navbar-brand):not(.btn),
+header .nav-link,
+.o_main_navbar a:not(.navbar-brand):not(.btn),
+.o_main_navbar .nav-link,
+header .navbar-nav .nav-link {
+    color: var(--text-gray) !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+    padding: 10px 16px !important;
+    border-radius: 8px !important;
+    position: relative;
+}
+
+/* Navigation hover effect */
+header a:not(.navbar-brand):not(.btn):hover,
+header .nav-link:hover,
+.o_main_navbar a:not(.navbar-brand):not(.btn):hover,
+header .navbar-nav .nav-link:hover {
+    color: var(--brand-primary) !important;
+    background-color: var(--brand-primary-light) !important;
+    transform: translateY(-1px);
+}
+
+/* Active navigation link */
+header .nav-link.active,
+.o_main_navbar .nav-link.active {
+    color: var(--brand-primary) !important;
+    background-color: var(--brand-primary-light) !important;
+    font-weight: 700 !important;
+}
+
+/* Modern underline effect for active link */
+header .nav-link.active::after,
+header .nav-link:hover::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 16px;
+    right: 16px;
+    height: 3px;
+    background: var(--brand-primary);
+    border-radius: 2px 2px 0 0;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: scaleX(1);
+    }
+}
+
+/* Contact Button - Modern CTA Style */
+header a[href*="contact"],
+header .btn-contact,
+.o_main_navbar a[href*="/contactus"],
+.navbar .btn-primary {
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-dark) 100%) !important;
+    color: white !important;
+    padding: 10px 24px !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(25, 141, 255, 0.3) !important;
+    transition: all 0.3s ease !important;
+    text-transform: none !important;
+}
+
+header a[href*="contact"]:hover,
+header .btn-contact:hover,
+.navbar .btn-primary:hover {
+    background: linear-gradient(135deg, var(--brand-primary-dark) 0%, #0861c7 100%) !important;
+    color: white !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(25, 141, 255, 0.4) !important;
+}
+
+header a[href*="contact"]::after,
+header .btn-contact::after {
+    display: none !important;
+}
+
+/* Shopping Cart Icon */
+header .my_cart_quantity,
+header .o_wsale_my_cart,
+header a[href*="/shop/cart"] {
+    position: relative;
+    color: var(--text-gray) !important;
+    padding: 10px !important;
+    border-radius: 10px !important;
+    background: var(--brand-primary-light) !important;
+    transition: all 0.3s ease !important;
+}
+
+header .my_cart_quantity:hover,
+header .o_wsale_my_cart:hover {
+    color: var(--brand-primary) !important;
+    background: var(--brand-primary-light) !important;
+    transform: scale(1.05);
+}
+
+.my_cart_quantity .badge,
+.o_wsale_my_cart .badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: var(--brand-primary) !important;
+    color: white !important;
+    border-radius: 50%;
+    min-width: 18px;
+    height: 18px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(25, 141, 255, 0.4);
+}
+
+/* Search Icon */
 header .fa-search,
 header .search-icon,
 header .o_search_icon {
-    color: #ffffff !important;
+    color: var(--text-gray) !important;
+    font-size: 18px !important;
+    transition: all 0.3s ease;
+}
+
+header .fa-search:hover,
+header .search-icon:hover {
+    color: var(--brand-primary) !important;
+    transform: scale(1.1);
+}
+
+/* Language Selector */
+header .dropdown-toggle,
+header .js_language_selector {
+    color: var(--text-gray) !important;
+    padding: 10px 16px !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease;
+}
+
+header .dropdown-toggle:hover {
+    background: var(--brand-primary-light) !important;
+    color: var(--brand-primary) !important;
 }
 
 /* ============================================
    HIDE SIGN IN BUTTON - COMPREHENSIVE
    ============================================ */
-
-/* Method 1: Hide by URL patterns */
 header a[href*="/web/login"],
 header a[href*="/web/signin"],
 header a[href*="/my/account"],
 header a[href="/web/login"],
 .o_main_navbar a[href*="/web/login"],
 .navbar a[href*="/web/login"],
-nav a[href*="/web/login"] {
+nav a[href*="/web/login"],
+.o_portal_sign_in,
+.o_sign_in_link,
+.o_login_btn,
+.sign-in-button,
+.btn-sign-in,
+header .o_portal_my_account,
+.o_portal_navbar .o_portal_sign_in,
+header li:has(a[href*="/web/login"]),
+.navbar-nav li:has(a[href*="/web/login"]),
+.o_main_navbar li:has(a[href*="/web/login"]),
+.nav-item.o_no_autohide:has(a[href*="login"]) {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
@@ -88,54 +330,90 @@ nav a[href*="/web/login"] {
     left: -9999px !important;
 }
 
-/* Method 2: Hide Odoo specific classes */
-.o_portal_sign_in,
-.o_sign_in_link,
-.o_login_btn,
-.sign-in-button,
-.btn-sign-in,
-header .o_portal_my_account,
-.o_portal_navbar .o_portal_sign_in {
-    display: none !important;
-    visibility: hidden !important;
+/* ============================================
+   MOBILE MENU
+   ============================================ */
+.navbar-toggler {
+    border: none !important;
+    padding: 8px !important;
+    border-radius: 8px !important;
+    background: var(--brand-primary-light) !important;
+    transition: all 0.3s ease;
 }
 
-/* Method 3: Hide by list item containing login */
-header li:has(a[href*="/web/login"]),
-.navbar-nav li:has(a[href*="/web/login"]),
-.o_main_navbar li:has(a[href*="/web/login"]) {
-    display: none !important;
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 3px rgba(25, 141, 255, 0.2) !important;
 }
 
-/* Method 4: Target specific navigation items */
-.nav-item.o_no_autohide:has(a[href*="login"]) {
-    display: none !important;
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23198dff' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
 }
 
-/* Method 5: Hide by text content (backup) */
-header a:contains("Sign in"),
-header a:contains("Login"),
-header a:contains("Log in") {
-    display: none !important;
+/* Mobile menu dropdown */
+@media (max-width: 991px) {
+    .navbar-collapse {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    header .navbar-nav .nav-link {
+        margin: 4px 0;
+    }
 }
 
 /* ============================================
-   FOOTER STYLING
+   MODERN FOOTER
    ============================================ */
-
-/* Footer Background */
 footer,
 .o_footer,
-.custom_theme_footer,
-#wrapwrap > footer,
-.o_footer_copyright_name {
-    background-color: #34495e !important;
-    color: #ecf0f1 !important;
-    padding: 40px 0 20px 0 !important;
-    border-top: 3px solid #2c3e50 !important;
+.modern_footer_wrapper,
+#wrapwrap > footer {
+    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    padding: 0 !important;
+    border-top: 1px solid var(--border-color) !important;
+    position: relative;
+    overflow: hidden;
 }
 
-/* Footer Headings */
+/* Footer decorative elements */
+footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        var(--brand-primary) 50%,
+        transparent 100%);
+}
+
+footer::after {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(25, 141, 255, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* Footer main content */
+.o_footer > .container,
+footer > .container {
+    padding-top: 4rem !important;
+    padding-bottom: 2rem !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* Footer headings */
 footer h1,
 footer h2,
 footer h3,
@@ -144,122 +422,311 @@ footer h5,
 footer h6,
 .o_footer h3,
 .o_footer h4 {
-    color: #ffffff !important;
-    margin-bottom: 15px !important;
-    font-weight: 600 !important;
+    color: white !important;
+    margin-bottom: 1.5rem !important;
+    font-weight: 700 !important;
+    font-size: 1.125rem !important;
+    letter-spacing: -0.3px;
+    position: relative;
+    padding-bottom: 0.75rem;
 }
 
-/* Footer Links */
+footer h3::after,
+footer h4::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 3px;
+    background: var(--brand-primary);
+    border-radius: 2px;
+}
+
+/* Footer links */
 footer a,
 .o_footer a,
 footer .nav-link {
-    color: #3498db !important;
-    transition: color 0.3s ease !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    transition: all 0.3s ease !important;
     text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 0 !important;
+    font-weight: 500;
+    position: relative;
 }
 
-footer a:hover,
-.o_footer a:hover {
-    color: #5dade2 !important;
-    text-decoration: underline !important;
+footer a::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 4px;
+    width: 0;
+    height: 2px;
+    background: var(--brand-primary);
+    transition: width 0.3s ease;
 }
 
-/* Footer Paragraphs and Text */
-footer p,
-footer span,
-footer div,
+footer a:hover {
+    color: var(--brand-primary) !important;
+    transform: translateX(4px);
+}
+
+footer a:hover::before {
+    width: 100%;
+}
+
+/* Footer lists */
+footer ul,
+.o_footer ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
 footer li,
+.o_footer li {
+    margin-bottom: 0.75rem;
+}
+
+/* Footer text */
+footer p,
+footer span:not(.badge),
+footer div:not(.container):not(.row):not(.col-md-3):not(.col-md-4):not(.col-md-6),
 .o_footer p,
-.o_footer span {
-    color: #bdc3c7 !important;
-    line-height: 1.6 !important;
+.o_footer span:not(.badge) {
+    color: rgba(255, 255, 255, 0.7) !important;
+    line-height: 1.7 !important;
+    font-size: 14px;
 }
 
-/* Footer Bottom Section */
-.footer-bottom,
-.o_footer_copyright,
-footer .container-fluid:last-child {
-    background-color: #2c3e50 !important;
-    color: #95a5a6 !important;
-    padding: 15px 0 !important;
-    margin-top: 30px !important;
-    border-top: 1px solid #1a252f !important;
+/* Footer logo/brand */
+footer .navbar-brand,
+footer .footer-logo {
+    margin-bottom: 1rem;
+    display: inline-block;
 }
 
-/* Footer Social Icons */
+footer .navbar-brand img {
+    filter: brightness(0) invert(1);
+    max-height: 40px;
+}
+
+/* Footer social icons */
+footer .social-icons,
+footer .social-links {
+    display: flex;
+    gap: 12px;
+    margin-top: 1.5rem;
+}
+
 footer .social-icons a,
-.o_footer .social-link,
-footer .fa,
-footer .fab {
-    color: #ffffff !important;
+footer .social-link,
+.o_footer .social-link {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.7) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 10px;
+    text-decoration: none !important;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+footer .social-icons a::before {
+    display: none !important;
 }
 
 footer .social-icons a:hover,
-.o_footer .social-link:hover {
-    color: #3498db !important;
-    transform: translateY(-3px) !important;
+footer .social-link:hover {
+    color: white !important;
+    background: var(--brand-primary) !important;
+    transform: translateY(-4px) !important;
+    box-shadow: 0 6px 20px rgba(25, 141, 255, 0.4);
+    border-color: var(--brand-primary);
+}
+
+footer .fa,
+footer .fab,
+footer svg {
+    font-size: 18px;
+}
+
+/* Footer bottom/copyright section */
+.footer-bottom,
+.o_footer_copyright,
+.o_footer_copyright_name,
+footer .container-fluid:last-child,
+footer > div:last-child {
+    background: rgba(0, 0, 0, 0.2) !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+    padding: 1.5rem 0 !important;
+    margin-top: 3rem !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    font-size: 14px;
+}
+
+.o_footer_copyright p,
+.footer-bottom p {
+    margin: 0 !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.o_footer_copyright a {
+    color: var(--brand-primary) !important;
+    font-weight: 600;
+}
+
+/* Newsletter signup */
+footer .newsletter-form,
+footer .input-group {
+    margin-top: 1rem;
+}
+
+footer input[type="email"],
+footer .form-control {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    padding: 12px 16px !important;
+    border-radius: 10px !important;
+}
+
+footer input[type="email"]::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+footer input[type="email"]:focus {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--brand-primary) !important;
+    box-shadow: 0 0 0 3px rgba(25, 141, 255, 0.2) !important;
+    outline: none !important;
+}
+
+footer .btn-subscribe,
+footer .newsletter-form .btn {
+    background: var(--brand-primary) !important;
+    color: white !important;
+    border: none !important;
+    padding: 12px 24px !important;
+    border-radius: 10px !important;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+footer .btn-subscribe:hover {
+    background: var(--brand-primary-dark) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(25, 141, 255, 0.4);
 }
 
 /* ============================================
    RESPONSIVE DESIGN
    ============================================ */
+@media (max-width: 991px) {
+    .top_info_bar {
+        display: none;
+    }
+
+    header .container,
+    header .container-fluid {
+        padding-top: 0.75rem !important;
+        padding-bottom: 0.75rem !important;
+    }
+}
 
 @media (max-width: 768px) {
     header,
     .o_main_navbar {
-        padding: 10px 15px !important;
+        padding: 0 !important;
     }
 
-    footer {
-        padding: 30px 15px 15px 15px !important;
+    footer h3::after,
+    footer h4::after {
+        margin-bottom: 1rem;
     }
 
-    /* Ensure sign in is hidden on mobile too */
+    footer .o_footer > .container,
+    footer > .container {
+        padding-top: 3rem !important;
+        padding-bottom: 1.5rem !important;
+    }
+
+    footer .social-icons {
+        justify-content: flex-start;
+    }
+
+    /* Ensure sign in is hidden on mobile */
     .navbar-toggler ~ .navbar-collapse a[href*="/web/login"] {
         display: none !important;
     }
 }
 
-/* ============================================
-   CONTACT US BUTTON STYLING
-   ============================================ */
+@media (max-width: 576px) {
+    .hero_title {
+        font-size: 1.75rem;
+    }
 
-/* Style the Contact Us button differently */
-header a[href*="contact"],
-header .btn-contact,
-.o_main_navbar a[href*="/contactus"] {
-    background-color: #8b4513 !important;
-    color: #ffffff !important;
-    padding: 8px 20px !important;
-    border-radius: 4px !important;
-    font-weight: 600 !important;
-    border: none !important;
-}
-
-header a[href*="contact"]:hover,
-header .btn-contact:hover {
-    background-color: #6d3410 !important;
-    color: #ffffff !important;
+    footer .social-icons a,
+    footer .social-link {
+        width: 36px;
+        height: 36px;
+    }
 }
 
 /* ============================================
-   ADDITIONAL HEADER ELEMENTS
+   SMOOTH SCROLLING & ANIMATIONS
    ============================================ */
-
-/* Phone number styling */
-header a[href^="tel"] {
-    color: #ffffff !important;
-    text-decoration: none !important;
+html {
+    scroll-behavior: smooth;
 }
 
-/* Language selector if present */
-header .dropdown-toggle,
-header .js_language_selector {
-    color: #ffffff !important;
+/* Fade in animation for footer sections */
+footer .row > div {
+    animation: fadeInUp 0.6s ease-out backwards;
 }
 
-/* Shopping cart icon */
-header .my_cart_quantity,
-header .o_wsale_my_cart {
-    color: #ffffff !important;
+footer .row > div:nth-child(1) { animation-delay: 0.1s; }
+footer .row > div:nth-child(2) { animation-delay: 0.2s; }
+footer .row > div:nth-child(3) { animation-delay: 0.3s; }
+footer .row > div:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+header a:focus,
+footer a:focus,
+.navbar-toggler:focus,
+footer input:focus,
+footer button:focus {
+    outline: 2px solid var(--brand-primary) !important;
+    outline-offset: 2px !important;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+    .top_info_bar,
+    header,
+    .navbar,
+    .social-icons {
+        display: none !important;
+    }
 }

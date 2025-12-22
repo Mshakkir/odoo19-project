@@ -1,449 +1,426 @@
-/* ============================================
-   PROFESSIONAL NAVBAR FOR ODOO 19
-   Clean, Modern, No Duplicate Buttons
-   ============================================ */
+* {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-:root {
-    --brand-primary: #198dff !important;
-    --brand-primary-dark: #0d7ae5 !important;
-    --brand-primary-light: #f0f9ff !important;
-    --text-dark: #1a202c !important;
-    --text-gray: #4a5568 !important;
-    --bg-dark: #0f172a !important;
-}
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
 
-/* ============================================
-   TOP BAR STYLING
-   ============================================ */
-.top_info_bar {
-    background: var(--bg-dark) !important;
-    color: white !important;
-    font-size: 14px !important;
-    padding: 10px 0 !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
+        /* Top Bar */
+        .top_bar {
+            background: #0f172a;
+            color: white;
+            font-size: 14px;
+            padding: 10px 0;
+        }
 
-.top_info_bar .container {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-}
+        .top_bar .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-.info_link {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    color: rgba(255, 255, 255, 0.8) !important;
-    text-decoration: none !important;
-    transition: all 0.3s ease !important;
-    font-weight: 500 !important;
-    margin-right: 30px !important;
-}
+        .contact_info {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
 
-.info_link:hover {
-    color: var(--brand-primary) !important;
-    transform: translateY(-1px) !important;
-}
+        .contact_item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
 
-.social_icon {
-    width: 32px !important;
-    height: 32px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    color: rgba(255, 255, 255, 0.7) !important;
-    background: rgba(255, 255, 255, 0.05) !important;
-    border-radius: 6px !important;
-    text-decoration: none !important;
-    transition: all 0.3s ease !important;
-    margin-right: 12px !important;
-}
+        .contact_item:hover {
+            color: #198dff;
+        }
 
-.social_icon:hover {
-    color: white !important;
-    background: var(--brand-primary) !important;
-    transform: translateY(-2px) !important;
-}
+        .social_links {
+            display: flex;
+            gap: 12px;
+        }
 
-/* ============================================
-   MAIN NAVBAR - FORCE CLEAN WHITE
-   ============================================ */
-#wrapwrap > header,
-header.o_header_standard,
-header.modern_navbar_wrapper,
-.o_main_navbar,
-header nav {
-    background: white !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
-    border-bottom: none !important;
-    padding: 0 !important;
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 999 !important;
-}
+        .social_link {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
 
-header .container,
-.o_main_navbar .container {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    min-height: 80px !important;
-    display: flex !important;
-    align-items: center !important;
-}
+        .social_link:hover {
+            background: #198dff;
+            color: white;
+            transform: translateY(-2px);
+        }
 
-/* ============================================
-   LOGO STYLING
-   ============================================ */
-header .navbar-brand,
-.o_main_navbar .navbar-brand {
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-    color: var(--text-dark) !important;
-    font-weight: 700 !important;
-    font-size: 1.5rem !important;
-    text-decoration: none !important;
-    padding: 0 !important;
-    margin-right: 40px !important;
-}
+        /* Main Navbar */
+        .main_navbar {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
 
-header .navbar-brand img {
-    max-height: 45px !important;
-    width: auto !important;
-    filter: none !important;
-}
+        .main_navbar .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+        }
 
-/* ============================================
-   NAVIGATION LINKS - CLEAN STYLE
-   ============================================ */
-header .navbar-nav,
-.o_main_navbar .navbar-nav {
-    display: flex !important;
-    gap: 8px !important;
-    align-items: center !important;
-    list-style: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
+        /* Logo */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #1a202c;
+            font-weight: 700;
+            font-size: 24px;
+        }
 
-header .navbar-nav .nav-link,
-header .nav-link,
-.o_main_navbar .nav-link {
-    color: var(--text-gray) !important;
-    text-decoration: none !important;
-    padding: 10px 18px !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    font-size: 15px !important;
-    transition: all 0.3s ease !important;
-    position: relative !important;
-    background: transparent !important;
-    border: none !important;
-}
+        .logo_icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #198dff, #0d7ae5);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: 800;
+        }
 
-/* SIMPLE HOVER EFFECT - Just color and background */
-header .navbar-nav .nav-link:hover,
-header .nav-link:hover {
-    color: var(--brand-primary) !important;
-    background: var(--brand-primary-light) !important;
-}
+        /* Navigation */
+        .nav_menu {
+            display: flex;
+            list-style: none;
+            gap: 8px;
+            align-items: center;
+        }
 
-/* ACTIVE LINK STYLE - Clean underline */
-header .navbar-nav .nav-link.active,
-header .nav-link.active {
-    color: var(--brand-primary) !important;
-    background: #e6f4ff !important;
-}
+        .nav_link {
+            color: #4a5568;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
 
-header .nav-link.active::after {
-    content: '' !important;
-    position: absolute !important;
-    bottom: 0 !important;
-    left: 18px !important;
-    right: 18px !important;
-    height: 2px !important;
-    background: var(--brand-primary) !important;
-    border-radius: 2px !important;
-}
+        .nav_link:hover {
+            color: #198dff;
+            background: #f0f9ff;
+        }
 
-/* ============================================
-   REMOVE ALL DUPLICATE CONTACT BUTTONS
-   ============================================ */
-/* Hide any contact buttons that look like CTAs */
-header .btn-primary:has([href*="contact"]),
-header a.btn:has([href*="contact"]),
-header .btn-contact,
-.o_main_navbar .btn-primary,
-.o_main_navbar .btn-info,
-header .navbar-nav .btn {
-    display: none !important;
-}
+        .nav_link.active {
+            color: #198dff;
+            background: #e6f4ff;
+        }
 
-/* Make Contact Us a normal nav link */
-header a[href*="contact"],
-header a[href*="contactus"] {
-    color: var(--text-gray) !important;
-    background: transparent !important;
-    padding: 10px 18px !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    font-size: 15px !important;
-    border: none !important;
-    box-shadow: none !important;
-    text-transform: none !important;
-}
+        .nav_link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 18px;
+            right: 18px;
+            height: 2px;
+            background: #198dff;
+            border-radius: 2px;
+        }
 
-header a[href*="contact"]:hover {
-    color: var(--brand-primary) !important;
-    background: var(--brand-primary-light) !important;
-}
+        /* Right Section */
+        .nav_right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
 
-header a[href*="contact"]::after {
-    display: none !important;
-}
+        /* Search Bar */
+        .search_container {
+            position: relative;
+            width: 280px;
+        }
 
-/* ============================================
-   HIDE PHONE NUMBER
-   ============================================ */
-header a[href^="tel"],
-header .phone-number,
-header .o_header_contact,
-.o_main_navbar a[href^="tel"],
-.navbar a[href^="tel:"] {
-    display: none !important;
-}
+        .search_bar {
+            width: 100%;
+            padding: 10px 40px 10px 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
 
-/* ============================================
-   SEARCH BAR - FULL INPUT FIELD
-   ============================================ */
-header .o_wsale_search,
-header .o_searchbar_form,
-header form[action="/shop"] {
-    position: relative !important;
-    width: 280px !important;
-    margin: 0 16px !important;
-}
+        .search_bar:focus {
+            outline: none;
+            border-color: #198dff;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(25, 141, 255, 0.1);
+        }
 
-header .o_wsale_search input,
-header .o_searchbar_form input,
-header input[name="search"],
-header .search-query {
-    width: 100% !important;
-    padding: 10px 40px 10px 16px !important;
-    border: 1.5px solid #e2e8f0 !important;
-    border-radius: 10px !important;
-    font-size: 14px !important;
-    background: #f8fafc !important;
-    transition: all 0.3s ease !important;
-}
+        .search_bar::placeholder {
+            color: #94a3b8;
+        }
 
-header .o_wsale_search input:focus,
-header input[name="search"]:focus {
-    outline: none !important;
-    border-color: var(--brand-primary) !important;
-    background: white !important;
-    box-shadow: 0 0 0 3px rgba(25, 141, 255, 0.1) !important;
-}
+        .search_icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            pointer-events: none;
+        }
 
-header .o_wsale_search input::placeholder {
-    color: #94a3b8 !important;
-}
+        /* Language Selector */
+        .language_selector {
+            position: relative;
+        }
 
-/* Search icon positioning */
-header .o_wsale_search .fa-search,
-header .search-icon,
-header button[type="submit"] {
-    position: absolute !important;
-    right: 12px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    background: none !important;
-    border: none !important;
-    color: #64748b !important;
-    padding: 0 !important;
-    font-size: 16px !important;
-}
+        .language_toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            color: #4a5568;
+            font-weight: 500;
+        }
 
-/* Remove old search icon-only style */
-header .fa-search:not(button .fa-search) {
-    background: none !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
-}
+        .language_toggle:hover {
+            border-color: #198dff;
+            background: #f0f9ff;
+        }
 
-/* ============================================
-   LANGUAGE SELECTOR - FLAGS INSTEAD OF TEXT
-   ============================================ */
-header .js_language_selector,
-header .dropdown-toggle,
-.o_main_navbar .js_language_selector {
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    padding: 8px 12px !important;
-    border: 1.5px solid #e2e8f0 !important;
-    border-radius: 8px !important;
-    background: white !important;
-    cursor: pointer !important;
-    transition: all 0.3s ease !important;
-    font-size: 14px !important;
-    color: var(--text-gray) !important;
-    font-weight: 500 !important;
-}
+        .flag_icon {
+            width: 24px;
+            height: 18px;
+            border-radius: 3px;
+            object-fit: cover;
+        }
 
-header .js_language_selector:hover {
-    border-color: var(--brand-primary) !important;
-    background: var(--brand-primary-light) !important;
-}
+        .dropdown_arrow {
+            width: 12px;
+            height: 12px;
+            transition: transform 0.3s ease;
+        }
 
-/* Style flag images */
-header .js_language_selector img,
-.dropdown-menu img {
-    width: 24px !important;
-    height: 18px !important;
-    border-radius: 3px !important;
-    object-fit: cover !important;
-}
+        .language_dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
 
-/* Language dropdown */
-header .dropdown-menu {
-    border-radius: 10px !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-    border: none !important;
-    padding: 4px !important;
-    min-width: 180px !important;
-}
+        .language_selector:hover .language_dropdown,
+        .language_dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
 
-header .dropdown-menu .dropdown-item {
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-    padding: 10px 12px !important;
-    border-radius: 8px !important;
-    transition: all 0.3s ease !important;
-    font-size: 14px !important;
-}
+        .language_option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #4a5568;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
 
-header .dropdown-menu .dropdown-item:hover {
-    background: var(--brand-primary-light) !important;
-    color: var(--brand-primary) !important;
-}
+        .language_option:first-child {
+            border-radius: 10px 10px 0 0;
+        }
 
-/* ============================================
-   CART ICON - MODERN STYLE
-   ============================================ */
-header .o_wsale_my_cart,
-header a[href*="/shop/cart"] {
-    position: relative !important;
-    padding: 10px !important;
-    border-radius: 10px !important;
-    background: var(--brand-primary-light) !important;
-    color: var(--brand-primary) !important;
-    transition: all 0.3s ease !important;
-    margin-left: 16px !important;
-}
+        .language_option:last-child {
+            border-radius: 0 0 10px 10px;
+        }
 
-header .o_wsale_my_cart:hover {
-    background: #e6f4ff !important;
-    transform: scale(1.05) !important;
-}
+        .language_option:hover {
+            background: #f0f9ff;
+            color: #198dff;
+        }
 
-.my_cart_quantity,
-.o_wsale_my_cart .my_cart_quantity {
-    position: absolute !important;
-    top: 4px !important;
-    right: 4px !important;
-    background: var(--brand-primary) !important;
-    color: white !important;
-    border-radius: 50% !important;
-    width: 18px !important;
-    height: 18px !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
+        .language_option.active {
+            background: #e6f4ff;
+            color: #198dff;
+        }
 
-/* ============================================
-   HIDE SIGN IN BUTTON
-   ============================================ */
-header a[href*="/web/login"],
-header a[href*="/web/signin"],
-.o_portal_sign_in,
-.o_sign_in_link,
-header .o_portal_my_account {
-    display: none !important;
-    visibility: hidden !important;
-}
+        /* Cart Icon */
+        .cart_icon {
+            position: relative;
+            padding: 10px;
+            border-radius: 10px;
+            background: #f0f9ff;
+            color: #198dff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-/* ============================================
-   MOBILE RESPONSIVE
-   ============================================ */
-@media (max-width: 991px) {
-    .top_info_bar {
-        display: none !important;
-    }
+        .cart_icon:hover {
+            background: #e6f4ff;
+            transform: scale(1.05);
+        }
 
-    header .container {
-        min-height: 70px !important;
-    }
+        .cart_badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: #198dff;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    header .o_wsale_search,
-    header .o_searchbar_form {
-        width: 200px !important;
-    }
+        /* Mobile Toggle */
+        .mobile_toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+        }
 
-    header .navbar-nav .nav-link {
-        padding: 8px 14px !important;
-        font-size: 14px !important;
-    }
-}
+        .mobile_toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: #4a5568;
+            margin: 5px 0;
+            transition: 0.3s;
+        }
 
-@media (max-width: 768px) {
-    header .o_wsale_search,
-    header .o_searchbar_form {
-        width: 100% !important;
-        margin: 10px 0 !important;
-    }
+        /* Demo Content */
+        .demo_content {
+            padding: 60px 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
 
-    header .navbar-collapse {
-        margin-top: 1rem !important;
-        padding: 1rem !important;
-        background: white !important;
-        border-radius: 12px !important;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
-    }
+        .demo_content h1 {
+            font-size: 2.5rem;
+            color: #1a202c;
+            margin-bottom: 16px;
+        }
 
-    header .navbar-nav {
-        flex-direction: column !important;
-        width: 100% !important;
-        gap: 4px !important;
-    }
+        .demo_content p {
+            font-size: 1.125rem;
+            color: #4a5568;
+            max-width: 600px;
+            margin: 0 auto;
+        }
 
-    header .navbar-nav .nav-link {
-        width: 100% !important;
-        text-align: left !important;
-        padding: 12px 18px !important;
-    }
-}
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .search_container {
+                width: 200px;
+            }
 
-/* ============================================
-   SMOOTH ANIMATIONS
-   ============================================ */
-html {
-    scroll-behavior: smooth !important;
-}
+            .nav_menu {
+                gap: 4px;
+            }
 
-/* ============================================
-   ACCESSIBILITY
-   ============================================ */
-header a:focus,
-header button:focus,
-header input:focus {
-    outline: 2px solid var(--brand-primary) !important;
-    outline-offset: 2px !important;
-}
+            .nav_link {
+                padding: 8px 14px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top_bar {
+                display: none;
+            }
+
+            .main_navbar .container {
+                height: 70px;
+            }
+
+            .mobile_toggle {
+                display: block;
+            }
+
+            .nav_menu {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background: white;
+                flex-direction: column;
+                padding: 20px;
+                transition: left 0.3s ease;
+                gap: 0;
+            }
+
+            .nav_menu.active {
+                left: 0;
+            }
+
+            .nav_link {
+                width: 100%;
+                text-align: left;
+                padding: 14px 18px;
+            }
+
+            .search_container {
+                width: 100%;
+                margin-bottom: 16px;
+            }
+
+            .nav_right {
+                position: relative;
+            }
+
+            .language_selector,
+            .cart_icon {
+                order: 1;
+            }
+        }
 
 /* ============================================
    MODERN FOOTER

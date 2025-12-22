@@ -11,10 +11,8 @@
     """,
     'author': 'Your Name',
     'website': 'https://www.yourwebsite.com',
-    'depends': ['website', 'web'],
-    'data': [
-        'views/assets.xml',
-    ],
+    'depends': ['website'],
+    'data': [],
     'assets': {
         'web.assets_frontend': [
             'custom_theme_module/static/src/css/custom_style.css',

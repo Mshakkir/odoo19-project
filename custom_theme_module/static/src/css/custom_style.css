@@ -8,7 +8,7 @@ header,
 .o_main_navbar,
 .custom_theme_header,
 #wrapwrap > header {
-    background-color: #2c3e50 !important;
+    background-color: #198dff !important;
     border-bottom: 3px solid #1a252f !important;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
     transition: all 0.3s ease !important;

@@ -8,37 +8,6 @@
             </xpath>
         </template>
 
-        <!-- Add CSS to ensure default header is hidden -->
-        <template id="custom_header_styles" inherit_id="web.assets_frontend" name="Custom Header Styles">
-            <xpath expr="." position="inside">
-                <style>
-                    /* Hide default Odoo header completely */
-                    header#top,
-                    header.o_header_standard,
-                    .o_main_navbar {
-                        display: none !important;
-                    }
-
-                    /* Ensure your custom navbar is visible */
-                    .top_bar,
-                    .main_navbar {
-                        display: block !important;
-                    }
-
-                    /* Remove extra spacing */
-                    main,
-                    #wrapwrap > main {
-                        margin-top: 0 !important;
-                        padding-top: 0 !important;
-                    }
-
-                    #wrapwrap {
-                        padding-top: 0 !important;
-                    }
-                </style>
-            </xpath>
-        </template>
-
         <!-- Modern Footer Layout -->
         <template id="custom_layout_footer" inherit_id="website.layout" name="Modern Footer Layout">
             <xpath expr="//footer" position="attributes">
@@ -197,7 +166,6 @@
 
     </data>
 </odoo>
-
 
 
 

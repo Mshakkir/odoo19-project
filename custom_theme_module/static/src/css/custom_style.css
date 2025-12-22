@@ -76,6 +76,9 @@
             top: 0;
             z-index: 999;
         }
+        .main_navbar .nav_link:hover{
+          text-decoration: none;
+        }
 
         .main_navbar .container {
             max-width: 1400px;

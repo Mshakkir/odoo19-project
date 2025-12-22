@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Hide Default Odoo Header - Method 1 (Recommended) -->
+        <!-- Hide Default Odoo Header -->
         <template id="hide_default_header" inherit_id="website.layout" name="Hide Default Header">
-            <xpath expr="//header[@id='top']" position="attributes">
-                <attribute name="style">display: none !important;</attribute>
+            <xpath expr="//header[@id='top']" position="replace">
+                <!-- Empty - This removes the default header completely -->
             </xpath>
         </template>
 
-        <!-- Add Custom CSS - Method 2 (For Odoo 19) -->
+        <!-- Add CSS to ensure default header is hidden -->
         <template id="custom_header_styles" inherit_id="web.assets_frontend" name="Custom Header Styles">
             <xpath expr="." position="inside">
                 <style>
-                    /* Hide default Odoo header */
+                    /* Hide default Odoo header completely */
                     header#top,
-                    header.o_header_standard {
+                    header.o_header_standard,
+                    .o_main_navbar {
                         display: none !important;
                     }
 
@@ -24,14 +25,13 @@
                         display: block !important;
                     }
 
-                    /* Adjust main content margin if needed */
+                    /* Remove extra spacing */
                     main,
                     #wrapwrap > main {
                         margin-top: 0 !important;
                         padding-top: 0 !important;
                     }
 
-                    /* Fix for any spacing issues */
                     #wrapwrap {
                         padding-top: 0 !important;
                     }
@@ -39,9 +39,16 @@
             </xpath>
         </template>
 
-        <!-- Your Custom Top Info Bar and Navbar -->
+        <!-- Modern Footer Layout -->
+        <template id="custom_layout_footer" inherit_id="website.layout" name="Modern Footer Layout">
+            <xpath expr="//footer" position="attributes">
+                <attribute name="class" add="modern_footer_wrapper" separator=" "/>
+            </xpath>
+        </template>
+
+        <!-- Add top info bar and custom navbar -->
         <template id="top_info_bar" inherit_id="website.layout" name="Top Info Bar">
-            <xpath expr="//header" position="before">
+            <xpath expr="//body" position="inside">
                 <!-- Top Bar -->
                 <div class="top_bar">
                     <div class="container">
@@ -166,15 +173,13 @@
                         </div>
                     </div>
                 </nav>
-            </xpath>
-        </template>
 
-        <template id="custom_navbar_script" inherit_id="website.layout" name="Custom Navbar Script">
-            <xpath expr="//body" position="inside">
                 <script>
                     function toggleMenu() {
                         const menu = document.getElementById('navMenu');
-                        menu.classList.toggle('active');
+                        if (menu) {
+                            menu.classList.toggle('active');
+                        }
                     }
 
                     // Close mobile menu when clicking outside
@@ -214,6 +219,11 @@
 <!--<odoo>-->
 <!--    <data>-->
 <!--         Modern Header Layout-->
+<!--   <template id="custom_layout_header" inherit_id="website.layout" name="Modern Header Layout">&ndash;&gt;-->
+<!--            <xpath expr="//header" position="attributes">-->
+<!--                <attribute name="class" add="modern_navbar_wrapper" separator=" "/>-->
+<!--            </xpath>-->
+<!--        </template>-->
 
 
 <!--        &lt;!&ndash; Modern Footer Layout &ndash;&gt;-->

@@ -1,0 +1,205 @@
+/* ============================================
+   CUSTOM HEADER STYLING
+   ============================================ */
+
+/* Header Background and Base Styles */
+header,
+.navbar,
+.o_main_navbar,
+#wrapwrap > header {
+    background-color: #2c3e50 !important;
+    border-bottom: 3px solid #1a252f !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+    transition: all 0.3s ease !important;
+}
+
+/* Header Text and Links */
+header,
+header a,
+header .nav-link,
+header .navbar-brand,
+.o_main_navbar a,
+.o_main_navbar .nav-link {
+    color: #ffffff !important;
+    font-weight: 500 !important;
+}
+
+/* Navigation Links Hover Effect */
+header a:hover,
+header .nav-link:hover,
+.o_main_navbar a:hover {
+    color: #3498db !important;
+    background-color: rgba(52, 152, 219, 0.1) !important;
+    border-radius: 4px !important;
+    transition: all 0.3s ease !important;
+}
+
+/* Active Navigation Link */
+header .nav-link.active,
+.o_main_navbar .nav-link.active {
+    color: #3498db !important;
+    border-bottom: 2px solid #3498db !important;
+}
+
+/* Header Contact Info */
+header .o_header_contact,
+header .phone-number {
+    color: #ecf0f1 !important;
+}
+
+/* Search Icon in Header */
+header .fa-search,
+header .search-icon {
+    color: #ffffff !important;
+}
+
+/* ============================================
+   HIDE SIGN IN BUTTON
+   ============================================ */
+
+/* Hide Sign In Button - Multiple Selectors */
+header a[href*="/web/login"],
+header a[href*="/web/signin"],
+header a[href*="sign-in"],
+header a[href*="signin"],
+.o_main_navbar a[href*="/web/login"],
+.nav-item.o_no_autohide a[href*="login"],
+#wrapwrap header a:contains("Sign in"),
+.o_portal_sign_in,
+.sign-in-button,
+.btn-sign-in,
+a.o_login_btn {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Odoo Specific Sign In Links */
+.o_main_navbar .o_sign_in_link,
+.o_header_standard .o_sign_in {
+    display: none !important;
+}
+
+/* ============================================
+   FOOTER STYLING
+   ============================================ */
+
+/* Footer Background */
+footer,
+.o_footer,
+#wrapwrap > footer {
+    background-color: #34495e !important;
+    color: #ecf0f1 !important;
+    padding: 40px 0 20px 0 !important;
+    border-top: 3px solid #2c3e50 !important;
+}
+
+/* Footer Headings */
+footer h3,
+footer h4,
+footer h5,
+.o_footer h3,
+.o_footer h4 {
+    color: #ffffff !important;
+    margin-bottom: 15px !important;
+    font-weight: 600 !important;
+}
+
+/* Footer Links */
+footer a,
+.o_footer a {
+    color: #3498db !important;
+    transition: color 0.3s ease !important;
+}
+
+footer a:hover,
+.o_footer a:hover {
+    color: #5dade2 !important;
+    text-decoration: underline !important;
+}
+
+/* Footer Paragraphs and Text */
+footer p,
+footer span,
+.o_footer p {
+    color: #bdc3c7 !important;
+    line-height: 1.6 !important;
+}
+
+/* Footer Bottom Section */
+.footer-bottom,
+.o_footer_copyright {
+    background-color: #2c3e50 !important;
+    color: #95a5a6 !important;
+    padding: 15px 0 !important;
+    margin-top: 30px !important;
+    border-top: 1px solid #1a252f !important;
+}
+
+/* Footer Social Icons */
+footer .social-icons a,
+.o_footer .social-link {
+    background-color: #2c3e50 !important;
+    color: #ffffff !important;
+    width: 35px !important;
+    height: 35px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    margin: 0 5px !important;
+    transition: all 0.3s ease !important;
+}
+
+footer .social-icons a:hover,
+.o_footer .social-link:hover {
+    background-color: #3498db !important;
+    transform: translateY(-3px) !important;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+    header,
+    .o_main_navbar {
+        padding: 10px 15px !important;
+    }
+
+    footer {
+        padding: 30px 15px 15px 15px !important;
+    }
+}
+
+/* ============================================
+   BUTTON STYLING (Optional Enhancement)
+   ============================================ */
+
+header .btn,
+header .btn-primary {
+    background-color: #3498db !important;
+    border-color: #2980b9 !important;
+    color: #ffffff !important;
+}
+
+header .btn:hover,
+header .btn-primary:hover {
+    background-color: #2980b9 !important;
+    border-color: #21618c !important;
+}
+
+/* Contact Us Button Styling */
+header .btn-contact,
+header a[href*="contact"] {
+    background-color: #8b4513 !important;
+    color: #ffffff !important;
+    padding: 8px 20px !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+}
+
+header .btn-contact:hover {
+    background-color: #6d3410 !important;
+}

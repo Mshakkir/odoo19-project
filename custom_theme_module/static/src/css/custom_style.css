@@ -76,7 +76,7 @@
             top: 0;
             z-index: 999;
         }
-        .main_navbar .nav_link:hover{
+        .main_navbar .nav_link:hover, .logo span, .logo_icon {
           text-decoration: none;
         }
 
@@ -135,12 +135,12 @@
 
         .nav_link:hover {
             color: #198dff;
-            background: #f0f9ff;
+
         }
 
         .nav_link.active {
             color: #198dff;
-            background: #e6f4ff;
+
         }
 
         .nav_link.active::after {
@@ -150,7 +150,7 @@
             left: 18px;
             right: 18px;
             height: 2px;
-            background: #198dff;
+
             border-radius: 2px;
         }
 

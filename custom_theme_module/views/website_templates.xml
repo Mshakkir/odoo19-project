@@ -156,214 +156,210 @@
             <xpath expr="//footer" position="replace">
 
 
-                        <div id="footer" class="oe_structure oe_structure_solo">
-                            <footer class="modern_ecommerce_footer">
+                <div id="footer" class="oe_structure oe_structure_solo">
+                    <footer class="modern_ecommerce_footer">
 
 
-                                <div class="footer-top">
-                                    <div class="container">
-                                        <div class="row">
+                        <div class="footer-top">
+                            <div class="container">
+                                <div class="row">
 
-                                            <!-- Column 1: Company Info & Logo -->
-                                            <div class="col-lg-4 col-md-6 footer-column">
-                                                <div class="footer-logo-wrapper">
-                                                    <a href="/" class="footer-logo">
-                                                        <img src="/logo.png" alt="Company Logo" class="img-fluid"/>
-                                                    </a>
-                                                </div>
-                                                <div class="footer-description">
-                                                    <p>Your trusted partner for premium products. We deliver quality and
-                                                        excellence in everything we do.
-                                                    </p>
-                                                </div>
-
-                                                <!-- Social Media Links -->
-                                                <div class="footer-social">
-                                                    <div class="footer-social-icons">
-                                                        <a href="#" class="footer-social-link" aria-label="Facebook">
-                                                            <i class="fa fa-facebook"></i>
-                                                        </a>
-                                                        <a href="#" class="footer-social-link" aria-label="Twitter">
-                                                            <i class="fa fa-twitter"></i>
-                                                        </a>
-                                                        <a href="#" class="footer-social-link" aria-label="Instagram">
-                                                            <i class="fa fa-instagram"></i>
-                                                        </a>
-                                                        <a href="#" class="footer-social-link" aria-label="LinkedIn">
-                                                            <i class="fa fa-linkedin"></i>
-                                                        </a>
-                                                        <a href="#" class="footer-social-link" aria-label="YouTube">
-                                                            <i class="fa fa-youtube"></i>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Column 2: Quick Links -->
-                                            <div class="col-lg-2 col-md-6 col-6 footer-column">
-                                                <h4 class="footer-heading">Shop</h4>
-                                                <ul class="footer-links">
-                                                    <li>
-                                                        <a href="/shop" class="footer-link">All Products</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="/shop/category/new-arrivals" class="footer-link">New
-                                                            Arrivals
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="/shop/category/best-sellers" class="footer-link">Best
-                                                            Sellers
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="/shop/category/sale" class="footer-link">Sale</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="/shop/category/featured" class="footer-link">Featured
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-
-                                            <!-- Column 3: Customer Service -->
-                                            <div class="col-lg-2 col-md-6 col-6 footer-column">
-                                                <h4 class="footer-heading">Support</h4>
-                                                <ul class="footer-links">
-                                                    <li>
-                                                        <a href="/contactus" class="footer-link">Contact Us</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="/page/faq" class="footer-link">FAQ</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="/page/shipping" class="footer-link">Shipping Info</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="/page/returns" class="footer-link">Returns</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="/shop/tracking" class="footer-link">Track Order</a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-
-                                            <!-- Column 4: Newsletter -->
-                                            <div class="col-lg-4 col-md-6 footer-column">
-                                                <h4 class="footer-heading">Newsletter</h4>
-                                                <div class="footer-newsletter">
-                                                    <p>Subscribe to get special offers, free giveaways, and updates.</p>
-                                                    <form class="newsletter-form js_subscribe" method="post"
-                                                          action="/website_mass_mailing/subscribe">
-                                                        <input type="hidden" name="csrf_token"
-                                                               t-att-value="request.csrf_token()"/>
-                                                        <input type="hidden" name="list_id" value="1"/>
-                                                        <div class="input-group">
-                                                            <input type="email" name="email"
-                                                                   class="form-control newsletter-input"
-                                                                   placeholder="Enter your email" required="required"/>
-                                                            <button type="submit" class="btn btn-subscribe">
-                                                                Subscribe
-                                                            </button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-
-                                                <!-- Payment Methods -->
-                                                <div class="footer-payment">
-                                                    <div class="footer-payment-title">We Accept</div>
-                                                    <div class="payment-icons">
-                                                        <div class="payment-icon" title="Visa">
-                                                            <i class="fa fa-cc-visa fa-2x"></i>
-                                                        </div>
-                                                        <div class="payment-icon" title="Mastercard">
-                                                            <i class="fa fa-cc-mastercard fa-2x"></i>
-                                                        </div>
-                                                        <div class="payment-icon" title="PayPal">
-                                                            <i class="fa fa-cc-paypal fa-2x"></i>
-                                                        </div>
-                                                        <div class="payment-icon" title="American Express">
-                                                            <i class="fa fa-cc-amex fa-2x"></i>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
+                                    <!-- Column 1: Company Info & Logo -->
+                                    <div class="col-lg-4 col-md-6 footer-column">
+                                        <div class="footer-logo-wrapper">
+                                            <a href="/" class="logo">
+                                                <div class="logo_icon">AX</div>
+                                                <span>Airmixs</span>
+                                            </a>
+                                            <!--                                                    <a href="/" class="footer-logo">-->
+                                            <!--                                                        <img src="/logo.png" alt="Company Logo" class="img-fluid"/>-->
+                                            <!--                                                    </a>-->
                                         </div>
-                                    </div>
-                                </div>
-
-                                <!-- Footer Middle - Trust Features -->
-                                <div class="footer-middle">
-                                    <div class="container">
-                                        <div class="footer-features">
-
-                                            <div class="footer-feature">
-                                                <div class="footer-feature-icon">
-                                                    <i class="fa fa-truck"></i>
-                                                </div>
-                                                <div class="footer-feature-content">
-                                                    <h4>Free Shipping</h4>
-                                                    <p>On orders over $50</p>
-                                                </div>
-                                            </div>
-
-                                            <div class="footer-feature">
-                                                <div class="footer-feature-icon">
-                                                    <i class="fa fa-refresh"></i>
-                                                </div>
-                                                <div class="footer-feature-content">
-                                                    <h4>Easy Returns</h4>
-                                                    <p>30-day return policy</p>
-                                                </div>
-                                            </div>
-
-                                            <div class="footer-feature">
-                                                <div class="footer-feature-icon">
-                                                    <i class="fa fa-lock"></i>
-                                                </div>
-                                                <div class="footer-feature-content">
-                                                    <h4>Secure Payment</h4>
-                                                    <p>100% secure transactions</p>
-                                                </div>
-                                            </div>
-
-                                            <div class="footer-feature">
-                                                <div class="footer-feature-icon">
-                                                    <i class="fa fa-headphones"></i>
-                                                </div>
-                                                <div class="footer-feature-content">
-                                                    <h4>24/7 Support</h4>
-                                                    <p>Dedicated customer service</p>
-                                                </div>
-                                            </div>
-
+                                        <div class="footer-description">
+                                            <p>Your trusted partner for premium products. We deliver quality and
+                                                excellence in everything we do.
+                                            </p>
                                         </div>
-                                    </div>
-                                </div>
 
-                                <!-- Footer Bottom - Copyright -->
-                                <div class="footer-bottom">
-                                    <div class="container">
-                                        <div class="footer-bottom-content">
-                                            <div class="footer-copyright">
-                                                <p>© <span t-field="res_company.name">Company Name</span>
-                                                    <span t-esc="datetime.datetime.now().year"/>
-                                                    - All Rights Reserved
-                                                </p>
-                                            </div>
-                                            <div class="footer-links-bottom">
-                                                <a href="/page/privacy-policy">Privacy Policy</a>
-                                                <a href="/page/terms-conditions">Terms &amp; Conditions</a>
-                                                <a href="/sitemap">Sitemap</a>
+                                        <!-- Social Media Links -->
+                                        <!--                                                <div class="footer-social">-->
+                                        <!--                                                    <div class="footer-social-icons">-->
+                                        <!--                                                        <a href="#" class="footer-social-link" aria-label="Facebook">-->
+                                        <!--                                                            <i class="fa fa-facebook"></i>-->
+                                        <!--                                                        </a>-->
+                                        <!--                                                        <a href="#" class="footer-social-link" aria-label="Twitter">-->
+                                        <!--                                                            <i class="fa fa-twitter"></i>-->
+                                        <!--                                                        </a>-->
+                                        <!--                                                        <a href="#" class="footer-social-link" aria-label="Instagram">-->
+                                        <!--                                                            <i class="fa fa-instagram"></i>-->
+                                        <!--                                                        </a>-->
+                                        <!--                                                        <a href="#" class="footer-social-link" aria-label="LinkedIn">-->
+                                        <!--                                                            <i class="fa fa-linkedin"></i>-->
+                                        <!--                                                        </a>-->
+                                        <!--                                                        <a href="#" class="footer-social-link" aria-label="YouTube">-->
+                                        <!--                                                            <i class="fa fa-youtube"></i>-->
+                                        <!--                                                        </a>-->
+                                        <!--                                                    </div>-->
+                                        <!--                                                </div>-->
+                                    </div>
+
+                                    <!-- Column 2: Quick Links -->
+                                    <div class="col-lg-2 col-md-6 col-6 footer-column">
+                                        <h4 class="footer-heading">Market Place</h4>
+                                        <ul class="footer-links">
+                                            <li>
+                                                <a href="/shop" class="footer-link">All Products</a>
+                                            </li>
+                                            <li>
+                                                <a href="/shop/category/new-arrivals" class="footer-link">New
+                                                    Arrivals
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="/shop/category/best-sellers" class="footer-link">Cart
+                                                </a>
+                                            </li>
+
+                                        </ul>
+                                    </div>
+
+                                    <!-- Column 3: Customer Service -->
+                                    <div class="col-lg-2 col-md-6 col-6 footer-column">
+                                        <h4 class="footer-heading">Support</h4>
+                                        <ul class="footer-links">
+                                            <li>
+                                                <a href="/contactus" class="footer-link">Contact Us</a>
+                                            </li>
+                                            <li>
+                                                <a href="/page/faq" class="footer-link">FAQ</a>
+                                            </li>
+                                            <li>
+                                                <a href="/page/shipping" class="footer-link">Shipping Info</a>
+                                            </li>
+                                            <li>
+                                                <a href="/page/returns" class="footer-link">Returns</a>
+                                            </li>
+
+                                        </ul>
+                                    </div>
+
+                                    <!-- Column 4: Newsletter -->
+                                    <div class="col-lg-4 col-md-6 footer-column">
+                                        <h4 class="footer-heading">Newsletter</h4>
+                                        <div class="footer-newsletter">
+                                            <p>Subscribe to get special offers, free giveaways, and updates.</p>
+                                            <form class="newsletter-form js_subscribe" method="post"
+                                                  action="/website_mass_mailing/subscribe">
+                                                <input type="hidden" name="csrf_token"
+                                                       t-att-value="request.csrf_token()"/>
+                                                <input type="hidden" name="list_id" value="1"/>
+                                                <div class="input-group">
+                                                    <input type="email" name="email"
+                                                           class="form-control newsletter-input"
+                                                           placeholder="Enter your email" required="required"/>
+                                                    <button type="submit" class="btn btn-subscribe">
+                                                        Subscribe
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+
+                                        <!-- Payment Methods -->
+                                        <div class="footer-payment">
+                                            <div class="footer-payment-title">We Accept</div>
+                                            <div class="payment-icons">
+                                                <div class="payment-icon" title="Visa">
+                                                    <i class="fa fa-cc-visa fa-2x"></i>
+                                                </div>
+                                                <div class="payment-icon" title="Mastercard">
+                                                    <i class="fa fa-cc-mastercard fa-2x"></i>
+                                                </div>
+                                                <div class="payment-icon" title="PayPal">
+                                                    <i class="fa fa-cc-paypal fa-2x"></i>
+                                                </div>
+                                                <div class="payment-icon" title="American Express">
+                                                    <i class="fa fa-cc-amex fa-2x"></i>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
-                            </footer>
+                            </div>
                         </div>
-                    </xpath>
-                </template>
+
+                        <!-- Footer Middle - Trust Features -->
+                        <div class="footer-middle">
+                            <div class="container">
+                                <div class="footer-features">
+
+                                    <div class="footer-feature">
+                                        <div class="footer-feature-icon">
+                                            <i class="fa fa-truck"></i>
+                                        </div>
+                                        <div class="footer-feature-content">
+                                            <h4>Free Shipping</h4>
+                                            <p>On orders over $50</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="footer-feature">
+                                        <div class="footer-feature-icon">
+                                            <i class="fa fa-refresh"></i>
+                                        </div>
+                                        <div class="footer-feature-content">
+                                            <h4>Easy Returns</h4>
+                                            <p>30-day return policy</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="footer-feature">
+                                        <div class="footer-feature-icon">
+                                            <i class="fa fa-lock"></i>
+                                        </div>
+                                        <div class="footer-feature-content">
+                                            <h4>Secure Payment</h4>
+                                            <p>100% secure transactions</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="footer-feature">
+                                        <div class="footer-feature-icon">
+                                            <i class="fa fa-headphones"></i>
+                                        </div>
+                                        <div class="footer-feature-content">
+                                            <h4>24/7 Support</h4>
+                                            <p>Dedicated customer service</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer Bottom - Copyright -->
+                        <div class="footer-bottom">
+                            <div class="container">
+                                <div class="footer-bottom-content">
+                                    <div class="footer-copyright">
+                                        <p>©
+                                            <span>Airmixs</span>
+                                            <span t-esc="datetime.datetime.now().year"/>
+                                            - All Rights Reserved
+                                        </p>
+                                    </div>
+                                    <div class="footer-links-bottom">
+                                        <a href="/page/privacy-policy">Privacy Policy</a>
+                                        <a href="/page/terms-conditions">Terms &amp; Conditions</a>
+                                        <a href="/sitemap">Sitemap</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            </xpath>
+        </template>
 
 
     </data>

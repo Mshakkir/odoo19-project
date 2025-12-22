@@ -13,8 +13,7 @@
     'website': 'https://www.yourwebsite.com',
     'depends': ['website', 'web'],
     'data': [
-        'views/templates.xml',
-        'views/header_footer_views.xml',
+        'views/assets.xml',
     ],
     'assets': {
         'web.assets_frontend': [

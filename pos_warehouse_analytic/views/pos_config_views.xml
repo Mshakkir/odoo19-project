@@ -8,14 +8,18 @@
         <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add warehouse in Accounting section or create new group -->
-            <xpath expr="//group[@name='accounting']" position="inside">
-                <group string="Warehouse &amp; Analytics" name="warehouse_analytics">
-                    <field name="warehouse_id"
-                           options="{'no_create': True, 'no_open': True}"/>
-                    <field name="analytic_account_id"
-                           options="{'no_create': True, 'no_open': True}"/>
-                </group>
+            <!-- Add warehouse fields in a new page/group -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Warehouse &amp; Analytics" name="warehouse_analytics">
+                    <group>
+                        <group string="Warehouse Configuration">
+                            <field name="warehouse_id"
+                                   options="{'no_create': True, 'no_open': True}"/>
+                            <field name="analytic_account_id"
+                                   options="{'no_create': True, 'no_open': True}"/>
+                        </group>
+                    </group>
+                </page>
             </xpath>
 
         </field>

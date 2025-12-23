@@ -23,12 +23,10 @@ This module provides:
     ],
     'data': [
         'views/website_templates.xml',
-        'views/about_template.xml',
     ],
     'assets': {
         'web.assets_frontend': [
             'custom_theme_module/static/src/css/custom_style.css',
-            'custom_theme_module/static/src/css/about_style.css',
             'custom_theme_module/static/src/js/custom_header.js',
         ],
     },

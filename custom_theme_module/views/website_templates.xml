@@ -73,7 +73,7 @@
                                 <a href="/" class="nav_link active">Home</a>
                             </li>
                             <li>
-                                <a href="/about-us" class="nav_link">About Us</a>
+                                <a href="/aboutus" class="nav_link">About Us</a>
                             </li>
                             <li>
                                 <a href="/shop" class="nav_link">Shop</a>

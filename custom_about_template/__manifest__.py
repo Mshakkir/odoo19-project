@@ -18,6 +18,8 @@ offerings, values, industries served, and CTA section.
     ],
     "assets": {
         "web.assets_frontend": [
+            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
+
             "custom_about_template/static/src/css/aboutstyle.css",
         ],
     },

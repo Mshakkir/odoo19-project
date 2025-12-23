@@ -1,5 +1,5 @@
 {
-    "name": "Airmixs Custom Contact Page",
+    "name": "Custom Contact Page",
     "version": "1.0.0",
     "category": "Website",
     "summary": "Custom Contact Us page",

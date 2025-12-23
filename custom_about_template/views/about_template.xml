@@ -2,12 +2,12 @@
 <odoo>
     <data>
 
-        <!-- ALTERNATIVE METHOD: Replace entire about-us template -->
+        <!-- Deactivate default About Us template -->
         <record id="website.aboutus" model="ir.ui.view">
             <field name="active">False</field>
         </record>
 
-        <!-- Create completely new About Us page -->
+        <!-- Create NEW About Us Template -->
         <template id="airmixs_aboutus" name="About Us - Airmixs">
             <t t-call="website.layout">
                 <div id="wrap" class="airmixs_about_page">
@@ -25,21 +25,21 @@
                                         <div style="display: flex; gap: 40px; flex-wrap: wrap;">
                                             <div>
                                                 <h3 style="font-size: 2.5rem; color: white; font-weight: 800; margin-bottom: 5px;">500+</h3>
-                                                <p style="color: rgba(255, 255, 255, 0.8);">Products</p>
+                                                <p style="color: rgba(255, 255, 255, 0.8); margin: 0;">Products</p>
                                             </div>
                                             <div>
                                                 <h3 style="font-size: 2.5rem; color: white; font-weight: 800; margin-bottom: 5px;">1000+</h3>
-                                                <p style="color: rgba(255, 255, 255, 0.8);">Happy Clients</p>
+                                                <p style="color: rgba(255, 255, 255, 0.8); margin: 0;">Happy Clients</p>
                                             </div>
                                             <div>
                                                 <h3 style="font-size: 2.5rem; color: white; font-weight: 800; margin-bottom: 5px;">24/7</h3>
-                                                <p style="color: rgba(255, 255, 255, 0.8);">Support</p>
+                                                <p style="color: rgba(255, 255, 255, 0.8); margin: 0;">Support</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
-                                    <img src="/web/image/website.library_image_03" alt="Industrial Automation" class="img-fluid rounded shadow-lg"/>
+                                    <img src="/web/image/website.library_image_03" alt="Industrial Automation" class="img-fluid rounded shadow-lg" style="box-shadow: 0 20px 60px rgba(0,0,0,0.3) !important;"/>
                                 </div>
                             </div>
                         </div>
@@ -54,8 +54,8 @@
                                         <div style="width: 60px; height: 60px; background: #198dff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
                                             <i class="fa fa-bullseye" style="color: white; font-size: 28px;"></i>
                                         </div>
-                                        <h2 class="mb-3">Our Mission</h2>
-                                        <p>To empower industries with cutting-edge automation solutions that drive efficiency, productivity, and innovation. We are committed to delivering exceptional products and services that exceed our clients' expectations.</p>
+                                        <h2 class="mb-3" style="font-weight: 700;">Our Mission</h2>
+                                        <p style="color: #4a5568; line-height: 1.7;">To empower industries with cutting-edge automation solutions that drive efficiency, productivity, and innovation. We are committed to delivering exceptional products and services that exceed our clients' expectations.</p>
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
@@ -63,8 +63,8 @@
                                         <div style="width: 60px; height: 60px; background: #198dff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
                                             <i class="fa fa-eye" style="color: white; font-size: 28px;"></i>
                                         </div>
-                                        <h2 class="mb-3">Our Vision</h2>
-                                        <p>To be the most trusted and preferred industrial automation supply center in the region, recognized for quality, reliability, and customer-centric approach in every aspect of our business operations.</p>
+                                        <h2 class="mb-3" style="font-weight: 700;">Our Vision</h2>
+                                        <p style="color: #4a5568; line-height: 1.7;">To be the most trusted and preferred industrial automation supply center in the region, recognized for quality, reliability, and customer-centric approach in every aspect of our business operations.</p>
                                     </div>
                                 </div>
                             </div>
@@ -80,14 +80,14 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <span style="display: inline-block; padding: 6px 16px; background: #e6f4ff; color: #198dff; border-radius: 50px; font-size: 14px; font-weight: 700; margin-bottom: 15px;">Our Story</span>
-                                    <h2 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 20px;">Building Excellence in Industrial Automation</h2>
-                                    <p class="mb-3">Founded with a vision to revolutionize industrial automation supply, Airmixs has grown into a comprehensive trading center serving diverse industries across the region.</p>
-                                    <p>We specialize in providing high-quality automation components, control systems, sensors, actuators, and complete industrial solutions.</p>
+                                    <h2 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 20px; color: #1a202c;">Building Excellence in Industrial Automation</h2>
+                                    <p class="mb-3" style="color: #4a5568; line-height: 1.7;">Founded with a vision to revolutionize industrial automation supply, Airmixs has grown into a comprehensive trading center serving diverse industries across the region.</p>
+                                    <p style="color: #4a5568; line-height: 1.7;">We specialize in providing high-quality automation components, control systems, sensors, actuators, and complete industrial solutions.</p>
                                     <div class="mt-4">
-                                        <div class="mb-2"><i class="fa fa-check-circle text-primary me-2"></i> Quality Assured Products</div>
-                                        <div class="mb-2"><i class="fa fa-check-circle text-primary me-2"></i> Expert Technical Support</div>
-                                        <div class="mb-2"><i class="fa fa-check-circle text-primary me-2"></i> Competitive Pricing</div>
-                                        <div class="mb-2"><i class="fa fa-check-circle text-primary me-2"></i> Fast Delivery</div>
+                                        <div class="mb-2"><i class="fa fa-check-circle me-2" style="color: #198dff;"></i> Quality Assured Products</div>
+                                        <div class="mb-2"><i class="fa fa-check-circle me-2" style="color: #198dff;"></i> Expert Technical Support</div>
+                                        <div class="mb-2"><i class="fa fa-check-circle me-2" style="color: #198dff;"></i> Competitive Pricing</div>
+                                        <div class="mb-2"><i class="fa fa-check-circle me-2" style="color: #198dff;"></i> Fast Delivery</div>
                                     </div>
                                 </div>
                             </div>
@@ -99,62 +99,110 @@
                         <div class="container">
                             <div class="text-center mb-5">
                                 <span style="display: inline-block; padding: 6px 16px; background: #e6f4ff; color: #198dff; border-radius: 50px; font-size: 14px; font-weight: 700; margin-bottom: 15px;">What We Offer</span>
-                                <h2 style="font-size: 2.25rem; font-weight: 800;">Comprehensive Automation Solutions</h2>
-                                <p class="text-muted">From individual components to complete system integration</p>
+                                <h2 style="font-size: 2.25rem; font-weight: 800; color: #1a202c;">Comprehensive Automation Solutions</h2>
+                                <p style="color: #4a5568;">From individual components to complete system integration</p>
                             </div>
                             <div class="row g-4">
                                 <div class="col-lg-4 col-md-6">
-                                    <div class="p-4 bg-white rounded shadow-sm">
+                                    <div class="p-4 bg-white rounded shadow-sm h-100">
                                         <div style="width: 60px; height: 60px; background: #e6f4ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
                                             <i class="fa fa-microchip" style="color: #198dff; font-size: 28px;"></i>
                                         </div>
-                                        <h3 class="h5 mb-3">Control Systems</h3>
-                                        <p class="text-muted">PLCs, DCS, SCADA systems, and controllers from leading manufacturers.</p>
+                                        <h3 class="h5 mb-3" style="font-weight: 700;">Control Systems</h3>
+                                        <p style="color: #4a5568;">PLCs, DCS, SCADA systems, and controllers from leading manufacturers.</p>
                                     </div>
                                 </div>
                                 <div class="col-lg-4 col-md-6">
-                                    <div class="p-4 bg-white rounded shadow-sm">
+                                    <div class="p-4 bg-white rounded shadow-sm h-100">
                                         <div style="width: 60px; height: 60px; background: #e6f4ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
                                             <i class="fa fa-gauge" style="color: #198dff; font-size: 28px;"></i>
                                         </div>
-                                        <h3 class="h5 mb-3">Sensors &amp; Instruments</h3>
-                                        <p class="text-muted">Wide range of sensors and measuring instruments.</p>
+                                        <h3 class="h5 mb-3" style="font-weight: 700;">Sensors &amp; Instruments</h3>
+                                        <p style="color: #4a5568;">Wide range of sensors and measuring instruments.</p>
                                     </div>
                                 </div>
                                 <div class="col-lg-4 col-md-6">
-                                    <div class="p-4 bg-white rounded shadow-sm">
+                                    <div class="p-4 bg-white rounded shadow-sm h-100">
                                         <div style="width: 60px; height: 60px; background: #e6f4ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
                                             <i class="fa fa-gear" style="color: #198dff; font-size: 28px;"></i>
                                         </div>
-                                        <h3 class="h5 mb-3">Actuators &amp; Drives</h3>
-                                        <p class="text-muted">Motors and drives for motion control systems.</p>
+                                        <h3 class="h5 mb-3" style="font-weight: 700;">Actuators &amp; Drives</h3>
+                                        <p style="color: #4a5568;">Motors and drives for motion control systems.</p>
                                     </div>
                                 </div>
                                 <div class="col-lg-4 col-md-6">
-                                    <div class="p-4 bg-white rounded shadow-sm">
+                                    <div class="p-4 bg-white rounded shadow-sm h-100">
                                         <div style="width: 60px; height: 60px; background: #e6f4ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
                                             <i class="fa fa-bolt" style="color: #198dff; font-size: 28px;"></i>
                                         </div>
-                                        <h3 class="h5 mb-3">Power Supplies</h3>
-                                        <p class="text-muted">Industrial power supplies and UPS systems.</p>
+                                        <h3 class="h5 mb-3" style="font-weight: 700;">Power Supplies</h3>
+                                        <p style="color: #4a5568;">Industrial power supplies and UPS systems.</p>
                                     </div>
                                 </div>
                                 <div class="col-lg-4 col-md-6">
-                                    <div class="p-4 bg-white rounded shadow-sm">
+                                    <div class="p-4 bg-white rounded shadow-sm h-100">
                                         <div style="width: 60px; height: 60px; background: #e6f4ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
                                             <i class="fa fa-network-wired" style="color: #198dff; font-size: 28px;"></i>
                                         </div>
-                                        <h3 class="h5 mb-3">Communication</h3>
-                                        <p class="text-muted">Industrial networking solutions.</p>
+                                        <h3 class="h5 mb-3" style="font-weight: 700;">Communication</h3>
+                                        <p style="color: #4a5568;">Industrial networking solutions.</p>
                                     </div>
                                 </div>
                                 <div class="col-lg-4 col-md-6">
-                                    <div class="p-4 bg-white rounded shadow-sm">
+                                    <div class="p-4 bg-white rounded shadow-sm h-100">
                                         <div style="width: 60px; height: 60px; background: #e6f4ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
                                             <i class="fa fa-tools" style="color: #198dff; font-size: 28px;"></i>
                                         </div>
-                                        <h3 class="h5 mb-3">Technical Support</h3>
-                                        <p class="text-muted">Expert consultation and support.</p>
+                                        <h3 class="h5 mb-3" style="font-weight: 700;">Technical Support</h3>
+                                        <p style="color: #4a5568;">Expert consultation and support.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Values Section -->
+                    <section class="py-5">
+                        <div class="container">
+                            <div class="text-center mb-5">
+                                <span style="display: inline-block; padding: 6px 16px; background: #e6f4ff; color: #198dff; border-radius: 50px; font-size: 14px; font-weight: 700; margin-bottom: 15px;">Our Values</span>
+                                <h2 style="font-size: 2.25rem; font-weight: 800; color: #1a202c;">What Drives Us Forward</h2>
+                            </div>
+                            <div class="row g-4">
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="text-center p-4">
+                                        <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #198dff, #0d7ae5); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                                            <i class="fa fa-star" style="color: white; font-size: 30px;"></i>
+                                        </div>
+                                        <h4 style="font-weight: 700; margin-bottom: 10px;">Quality</h4>
+                                        <p style="color: #4a5568;">We never compromise on product quality.</p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="text-center p-4">
+                                        <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #198dff, #0d7ae5); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                                            <i class="fa fa-handshake" style="color: white; font-size: 30px;"></i>
+                                        </div>
+                                        <h4 style="font-weight: 700; margin-bottom: 10px;">Integrity</h4>
+                                        <p style="color: #4a5568;">Honest and transparent dealings.</p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="text-center p-4">
+                                        <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #198dff, #0d7ae5); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                                            <i class="fa fa-lightbulb" style="color: white; font-size: 30px;"></i>
+                                        </div>
+                                        <h4 style="font-weight: 700; margin-bottom: 10px;">Innovation</h4>
+                                        <p style="color: #4a5568;">Adapting to new technologies.</p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="text-center p-4">
+                                        <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #198dff, #0d7ae5); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                                            <i class="fa fa-users" style="color: white; font-size: 30px;"></i>
+                                        </div>
+                                        <h4 style="font-weight: 700; margin-bottom: 10px;">Customer Focus</h4>
+                                        <p style="color: #4a5568;">Your success is our priority.</p>
                                     </div>
                                 </div>
                             </div>
@@ -164,10 +212,10 @@
                     <!-- CTA Section -->
                     <section style="background: linear-gradient(135deg, #198dff 0%, #0d7ae5 100%); padding: 60px 0;">
                         <div class="container text-center">
-                            <h2 class="text-white mb-3">Ready to Transform Your Operations?</h2>
-                            <p class="text-white mb-4">Let's discuss how Airmixs can help achieve your automation goals</p>
-                            <a href="/shop" class="btn btn-light btn-lg me-3"><i class="fa fa-shopping-cart"></i> Browse Products</a>
-                            <a href="/contactus" class="btn btn-outline-light btn-lg"><i class="fa fa-envelope"></i> Contact Us</a>
+                            <h2 class="text-white mb-3" style="font-size: 2.5rem; font-weight: 800;">Ready to Transform Your Operations?</h2>
+                            <p class="text-white mb-4" style="font-size: 1.25rem;">Let's discuss how Airmixs can help achieve your automation goals</p>
+                            <a href="/shop" class="btn btn-light btn-lg me-3" style="padding: 14px 32px; font-weight: 700; border-radius: 10px;"><i class="fa fa-shopping-cart"></i> Browse Products</a>
+                            <a href="/contactus" class="btn btn-outline-light btn-lg" style="padding: 14px 32px; font-weight: 700; border-radius: 10px; border: 2px solid white;"><i class="fa fa-envelope"></i> Contact Us</a>
                         </div>
                     </section>
 
@@ -175,16 +223,8 @@
             </t>
         </template>
 
-        <!-- Update the About Us menu to point to new template -->
-        <record id="website.menu_aboutus" model="website.menu">
-            <field name="name">About Us</field>
-            <field name="url">/aboutus</field>
-            <field name="parent_id" ref="website.main_menu"/>
-            <field name="sequence" type="int">40</field>
-        </record>
-
-        <!-- Create page record -->
-        <record id="website.aboutus_page" model="website.page">
+        <!-- Create NEW page record pointing to our template -->
+        <record id="aboutus_page_airmixs" model="website.page">
             <field name="name">About Us</field>
             <field name="website_published">True</field>
             <field name="url">/aboutus</field>

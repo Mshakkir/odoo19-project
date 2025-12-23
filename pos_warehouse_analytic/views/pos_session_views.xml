@@ -12,10 +12,10 @@
             <xpath expr="//field[@name='config_id']" position="after">
                 <field name="warehouse_id"
                        options="{'no_create': True, 'no_open': True}"
-                       attrs="{'readonly': [('state', '!=', 'opening_control')]}"/>
+                       readonly="state != 'opening_control'"/>
                 <field name="analytic_account_id"
                        options="{'no_create': True, 'no_open': True}"
-                       attrs="{'readonly': [('state', '!=', 'opening_control')]}"/>
+                       readonly="state != 'opening_control'"/>
             </xpath>
 
         </field>

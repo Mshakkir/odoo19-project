@@ -26,7 +26,7 @@
                 <footer>
                     <button name="action_show_details" string="Show Details" type="object" class="btn-info"/>
                     <button name="action_print_pdf" string="Print PDF" type="object" class="btn-primary"/>
-                    <button name="action_export_excel" string="Export Excel" type="object" class="btn-success"/>
+<!--                    <button name="action_export_excel" string="Export Excel" type="object" class="btn-success"/>-->
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>

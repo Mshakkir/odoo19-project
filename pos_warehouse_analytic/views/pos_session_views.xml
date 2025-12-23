@@ -44,8 +44,8 @@
         <field name="inherit_id" ref="point_of_sale.view_pos_session_search"/>
         <field name="arch" type="xml">
 
-            <!-- Add warehouse filter -->
-            <xpath expr="//filter[@name='config']" position="after">
+            <!-- Add warehouse filter in group by section -->
+            <xpath expr="//search" position="inside">
                 <filter string="Warehouse" name="warehouse"
                         context="{'group_by': 'warehouse_id'}"/>
                 <filter string="Analytic Account" name="analytic"

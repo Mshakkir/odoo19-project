@@ -1,3 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
 <template id="airmixs_about_us" name="Airmixs About Us">
     <t t-call="website.layout">
         <div id="wrap" class="airmixs_about_page">
@@ -291,3 +294,5 @@
         </div>
     </t>
 </template>
+        </data>
+</odoo>

@@ -15,6 +15,7 @@
         'security/stock_warehouse_orderpoint_security.xml',
         'security/ir.model.access.csv',
         'data/mail_activity_type_data.xml',
+        'data/warehouse_groups_and_rules_data.xml',
         'views/stock_warehouse_orderpoint_views.xml',
         'views/stock_warehouse_orderpoint_actions.xml',
     ],

@@ -1,298 +1,337 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-<template id="airmixs_about_us" name="Airmixs About Us">
-    <t t-call="website.layout">
-        <div id="wrap" class="airmixs_about_page">
 
-            <!-- Hero Section -->
-            <section class="about_hero">
-                <div class="about_hero_overlay"></div>
-                <div class="about_hero_content">
-                    <div class="container">
-                        <div class="row align-items-center">
-                            <div class="col-lg-6">
-                                <div class="about_hero_text">
-                                    <span class="about_label">About Airmixs</span>
-                                    <h1 class="about_title">Leading the Future of Industrial Automation</h1>
-                                    <p class="about_subtitle">Your trusted partner for comprehensive industrial automation solutions, supplying quality products and expert trading services since inception.</p>
-                                    <div class="about_hero_stats">
-                                        <div class="stat_item">
-                                            <h3>500+</h3>
-                                            <p>Products</p>
+        <!-- Override default About Us page -->
+        <template id="airmixs_about_us"
+                  inherit_id="website.aboutus"
+                  name="Airmixs Custom About Us">
+
+            <xpath expr="//div[@id='wrap']" position="replace">
+
+                <div id="wrap" class="airmixs_about_page">
+
+                    <!-- Hero Section -->
+                    <section class="about_hero">
+                        <div class="about_hero_overlay"></div>
+                        <div class="about_hero_content">
+                            <div class="container">
+                                <div class="row align-items-center">
+                                    <div class="col-lg-6">
+                                        <div class="about_hero_text">
+                                            <span class="about_label">About Airmixs</span>
+                                            <h1 class="about_title">Leading the Future of Industrial Automation</h1>
+                                            <p class="about_subtitle">Your trusted partner for comprehensive industrial
+                                                automation solutions, supplying quality products and expert trading
+                                                services since inception.
+                                            </p>
+                                            <div class="about_hero_stats">
+                                                <div class="stat_item">
+                                                    <h3>500+</h3>
+                                                    <p>Products</p>
+                                                </div>
+                                                <div class="stat_item">
+                                                    <h3>1000+</h3>
+                                                    <p>Happy Clients</p>
+                                                </div>
+                                                <div class="stat_item">
+                                                    <h3>24/7</h3>
+                                                    <p>Support</p>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="stat_item">
-                                            <h3>1000+</h3>
-                                            <p>Happy Clients</p>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="about_hero_image">
+                                            <img src="/web/image/website.library_image_03" alt="Industrial Automation"
+                                                 class="img-fluid"/>
+                                            <div class="image_badge">
+                                                <i class="fa fa-certificate"></i>
+                                                <span>Certified Partner</span>
+                                            </div>
                                         </div>
-                                        <div class="stat_item">
-                                            <h3>24/7</h3>
-                                            <p>Support</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Mission & Vision Section -->
+                    <section class="mission_vision_section">
+                        <div class="container">
+                            <div class="row g-4">
+                                <div class="col-lg-6">
+                                    <div class="mission_card">
+                                        <div class="mission_icon">
+                                            <i class="fa fa-bullseye"></i>
+                                        </div>
+                                        <h2>Our Mission</h2>
+                                        <p>To empower industries with cutting-edge automation solutions that drive
+                                            efficiency, productivity, and innovation. We are committed to delivering
+                                            exceptional products and services that exceed our clients' expectations.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="vision_card">
+                                        <div class="vision_icon">
+                                            <i class="fa fa-eye"></i>
+                                        </div>
+                                        <h2>Our Vision</h2>
+                                        <p>To be the most trusted and preferred industrial automation supply center in
+                                            the region, recognized for quality, reliability, and customer-centric
+                                            approach in every aspect of our business operations.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Company Story Section -->
+                    <section class="company_story_section">
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-lg-6">
+                                    <div class="story_image_wrapper">
+                                        <img src="/web/image/website.library_image_10" alt="Our Story"
+                                             class="img-fluid"/>
+                                        <div class="story_badge">
+                                            <span class="badge_year">Est. 2020</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="story_content">
+                                        <span class="section_label">Our Story</span>
+                                        <h2 class="section_title">Building Excellence in Industrial Automation</h2>
+                                        <p>Founded with a vision to revolutionize industrial automation supply, Airmixs
+                                            has grown into a comprehensive trading center serving diverse industries
+                                            across the region.
+                                        </p>
+                                        <p>We specialize in providing high-quality automation components, control
+                                            systems, sensors, actuators, and complete industrial solutions. Our
+                                            expertise spans across multiple sectors including manufacturing, processing,
+                                            packaging, and more.
+                                        </p>
+                                        <div class="story_features">
+                                            <div class="feature_item">
+                                                <i class="fa fa-check-circle"></i>
+                                                <span>Quality Assured Products</span>
+                                            </div>
+                                            <div class="feature_item">
+                                                <i class="fa fa-check-circle"></i>
+                                                <span>Expert Technical Support</span>
+                                            </div>
+                                            <div class="feature_item">
+                                                <i class="fa fa-check-circle"></i>
+                                                <span>Competitive Pricing</span>
+                                            </div>
+                                            <div class="feature_item">
+                                                <i class="fa fa-check-circle"></i>
+                                                <span>Fast Delivery</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-6">
-                                <div class="about_hero_image">
-                                    <img src="/web/image/website.library_image_03" alt="Industrial Automation" class="img-fluid"/>
-                                    <div class="image_badge">
-                                        <i class="fa fa-certificate"></i>
-                                        <span>Certified Partner</span>
+                        </div>
+                    </section>
+
+                    <!-- What We Offer Section -->
+                    <section class="offerings_section">
+                        <div class="container">
+                            <div class="section_header text-center">
+                                <span class="section_label">What We Offer</span>
+                                <h2 class="section_title">Comprehensive Automation Solutions</h2>
+                                <p class="section_subtitle">From individual components to complete system integration
+                                </p>
+                            </div>
+                            <div class="row g-4">
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="offering_card">
+                                        <div class="offering_icon">
+                                            <i class="fa fa-microchip"></i>
+                                        </div>
+                                        <h3>Control Systems</h3>
+                                        <p>PLCs, DCS, SCADA systems, and controllers from leading manufacturers for
+                                            precise industrial control.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="offering_card">
+                                        <div class="offering_icon">
+                                            <i class="fa fa-gauge"></i>
+                                        </div>
+                                        <h3>Sensors &amp; Instruments</h3>
+                                        <p>Wide range of sensors, transmitters, and measuring instruments for accurate
+                                            process monitoring.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="offering_card">
+                                        <div class="offering_icon">
+                                            <i class="fa fa-gear"></i>
+                                        </div>
+                                        <h3>Actuators &amp; Drives</h3>
+                                        <p>Motors, drives, pneumatic and hydraulic actuators for reliable motion control
+                                            systems.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="offering_card">
+                                        <div class="offering_icon">
+                                            <i class="fa fa-bolt"></i>
+                                        </div>
+                                        <h3>Power Supplies</h3>
+                                        <p>Industrial power supplies, UPS systems, and power distribution equipment for
+                                            stable operations.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="offering_card">
+                                        <div class="offering_icon">
+                                            <i class="fa fa-network-wired"></i>
+                                        </div>
+                                        <h3>Communication</h3>
+                                        <p>Industrial networking solutions, fieldbus systems, and communication
+                                            protocols.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="offering_card">
+                                        <div class="offering_icon">
+                                            <i class="fa fa-tools"></i>
+                                        </div>
+                                        <h3>Technical Support</h3>
+                                        <p>Expert consultation, installation guidance, and after-sales support for all
+                                            products.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </section>
+                    </section>
 
-            <!-- Mission & Vision Section -->
-            <section class="mission_vision_section">
-                <div class="container">
-                    <div class="row g-4">
-                        <div class="col-lg-6">
-                            <div class="mission_card">
-                                <div class="mission_icon">
-                                    <i class="fa fa-bullseye"></i>
-                                </div>
-                                <h2>Our Mission</h2>
-                                <p>To empower industries with cutting-edge automation solutions that drive efficiency, productivity, and innovation. We are committed to delivering exceptional products and services that exceed our clients' expectations.</p>
+                    <!-- Core Values Section -->
+                    <section class="values_section">
+                        <div class="container">
+                            <div class="section_header text-center">
+                                <span class="section_label">Our Values</span>
+                                <h2 class="section_title">What Drives Us Forward</h2>
                             </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="vision_card">
-                                <div class="vision_icon">
-                                    <i class="fa fa-eye"></i>
+                            <div class="row g-4">
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="value_card">
+                                        <div class="value_icon">
+                                            <i class="fa fa-star"></i>
+                                        </div>
+                                        <h4>Quality</h4>
+                                        <p>We never compromise on product quality and service excellence.</p>
+                                    </div>
                                 </div>
-                                <h2>Our Vision</h2>
-                                <p>To be the most trusted and preferred industrial automation supply center in the region, recognized for quality, reliability, and customer-centric approach in every aspect of our business operations.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Company Story Section -->
-            <section class="company_story_section">
-                <div class="container">
-                    <div class="row align-items-center">
-                        <div class="col-lg-6">
-                            <div class="story_image_wrapper">
-                                <img src="/web/image/website.library_image_10" alt="Our Story" class="img-fluid"/>
-                                <div class="story_badge">
-                                    <span class="badge_year">Est. 2020</span>
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="value_card">
+                                        <div class="value_icon">
+                                            <i class="fa fa-handshake"></i>
+                                        </div>
+                                        <h4>Integrity</h4>
+                                        <p>Honest and transparent in all our business dealings.</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="story_content">
-                                <span class="section_label">Our Story</span>
-                                <h2 class="section_title">Building Excellence in Industrial Automation</h2>
-                                <p>Founded with a vision to revolutionize industrial automation supply, Airmixs has grown into a comprehensive trading center serving diverse industries across the region.</p>
-                                <p>We specialize in providing high-quality automation components, control systems, sensors, actuators, and complete industrial solutions. Our expertise spans across multiple sectors including manufacturing, processing, packaging, and more.</p>
-                                <div class="story_features">
-                                    <div class="feature_item">
-                                        <i class="fa fa-check-circle"></i>
-                                        <span>Quality Assured Products</span>
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="value_card">
+                                        <div class="value_icon">
+                                            <i class="fa fa-lightbulb"></i>
+                                        </div>
+                                        <h4>Innovation</h4>
+                                        <p>Continuously adapting to new technologies and solutions.</p>
                                     </div>
-                                    <div class="feature_item">
-                                        <i class="fa fa-check-circle"></i>
-                                        <span>Expert Technical Support</span>
-                                    </div>
-                                    <div class="feature_item">
-                                        <i class="fa fa-check-circle"></i>
-                                        <span>Competitive Pricing</span>
-                                    </div>
-                                    <div class="feature_item">
-                                        <i class="fa fa-check-circle"></i>
-                                        <span>Fast Delivery</span>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="value_card">
+                                        <div class="value_icon">
+                                            <i class="fa fa-users"></i>
+                                        </div>
+                                        <h4>Customer Focus</h4>
+                                        <p>Your success is our priority in everything we do.</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </section>
+                    </section>
 
-            <!-- What We Offer Section -->
-            <section class="offerings_section">
-                <div class="container">
-                    <div class="section_header text-center">
-                        <span class="section_label">What We Offer</span>
-                        <h2 class="section_title">Comprehensive Automation Solutions</h2>
-                        <p class="section_subtitle">From individual components to complete system integration</p>
-                    </div>
-                    <div class="row g-4">
-                        <div class="col-lg-4 col-md-6">
-                            <div class="offering_card">
-                                <div class="offering_icon">
-                                    <i class="fa fa-microchip"></i>
+                    <!-- Industries Served Section -->
+                    <section class="industries_section">
+                        <div class="container">
+                            <div class="section_header text-center">
+                                <span class="section_label">Industries We Serve</span>
+                                <h2 class="section_title">Powering Diverse Sectors</h2>
+                            </div>
+                            <div class="industries_grid">
+                                <div class="industry_item">
+                                    <i class="fa fa-industry"></i>
+                                    <span>Manufacturing</span>
                                 </div>
-                                <h3>Control Systems</h3>
-                                <p>PLCs, DCS, SCADA systems, and controllers from leading manufacturers for precise industrial control.</p>
+                                <div class="industry_item">
+                                    <i class="fa fa-flask"></i>
+                                    <span>Chemical Processing</span>
+                                </div>
+                                <div class="industry_item">
+                                    <i class="fa fa-utensils"></i>
+                                    <span>Food &amp; Beverage</span>
+                                </div>
+                                <div class="industry_item">
+                                    <i class="fa fa-prescription-bottle"></i>
+                                    <span>Pharmaceuticals</span>
+                                </div>
+                                <div class="industry_item">
+                                    <i class="fa fa-oil-can"></i>
+                                    <span>Oil &amp; Gas</span>
+                                </div>
+                                <div class="industry_item">
+                                    <i class="fa fa-box"></i>
+                                    <span>Packaging</span>
+                                </div>
+                                <div class="industry_item">
+                                    <i class="fa fa-water"></i>
+                                    <span>Water Treatment</span>
+                                </div>
+                                <div class="industry_item">
+                                    <i class="fa fa-building"></i>
+                                    <span>Building Automation</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="offering_card">
-                                <div class="offering_icon">
-                                    <i class="fa fa-gauge"></i>
-                                </div>
-                                <h3>Sensors &amp; Instruments</h3>
-                                <p>Wide range of sensors, transmitters, and measuring instruments for accurate process monitoring.</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="offering_card">
-                                <div class="offering_icon">
-                                    <i class="fa fa-gear"></i>
-                                </div>
-                                <h3>Actuators &amp; Drives</h3>
-                                <p>Motors, drives, pneumatic and hydraulic actuators for reliable motion control systems.</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="offering_card">
-                                <div class="offering_icon">
-                                    <i class="fa fa-bolt"></i>
-                                </div>
-                                <h3>Power Supplies</h3>
-                                <p>Industrial power supplies, UPS systems, and power distribution equipment for stable operations.</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="offering_card">
-                                <div class="offering_icon">
-                                    <i class="fa fa-network-wired"></i>
-                                </div>
-                                <h3>Communication</h3>
-                                <p>Industrial networking solutions, fieldbus systems, and communication protocols.</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="offering_card">
-                                <div class="offering_icon">
-                                    <i class="fa fa-tools"></i>
-                                </div>
-                                <h3>Technical Support</h3>
-                                <p>Expert consultation, installation guidance, and after-sales support for all products.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                    </section>
 
-            <!-- Core Values Section -->
-            <section class="values_section">
-                <div class="container">
-                    <div class="section_header text-center">
-                        <span class="section_label">Our Values</span>
-                        <h2 class="section_title">What Drives Us Forward</h2>
-                    </div>
-                    <div class="row g-4">
-                        <div class="col-lg-3 col-md-6">
-                            <div class="value_card">
-                                <div class="value_icon">
-                                    <i class="fa fa-star"></i>
+                    <!-- CTA Section -->
+                    <section class="cta_section">
+                        <div class="container">
+                            <div class="cta_content">
+                                <h2>Ready to Transform Your Industrial Operations?</h2>
+                                <p>Let's discuss how Airmixs can help you achieve your automation goals</p>
+                                <div class="cta_buttons">
+                                    <a href="/shop" class="btn btn-primary btn-lg">
+                                        <i class="fa fa-shopping-cart"></i>
+                                        Browse Products
+                                    </a>
+                                    <a href="/contactus" class="btn btn-outline-light btn-lg">
+                                        <i class="fa fa-envelope"></i>
+                                        Contact Us
+                                    </a>
                                 </div>
-                                <h4>Quality</h4>
-                                <p>We never compromise on product quality and service excellence.</p>
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-6">
-                            <div class="value_card">
-                                <div class="value_icon">
-                                    <i class="fa fa-handshake"></i>
-                                </div>
-                                <h4>Integrity</h4>
-                                <p>Honest and transparent in all our business dealings.</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <div class="value_card">
-                                <div class="value_icon">
-                                    <i class="fa fa-lightbulb"></i>
-                                </div>
-                                <h4>Innovation</h4>
-                                <p>Continuously adapting to new technologies and solutions.</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <div class="value_card">
-                                <div class="value_icon">
-                                    <i class="fa fa-users"></i>
-                                </div>
-                                <h4>Customer Focus</h4>
-                                <p>Your success is our priority in everything we do.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                    </section>
 
-            <!-- Industries Served Section -->
-            <section class="industries_section">
-                <div class="container">
-                    <div class="section_header text-center">
-                        <span class="section_label">Industries We Serve</span>
-                        <h2 class="section_title">Powering Diverse Sectors</h2>
-                    </div>
-                    <div class="industries_grid">
-                        <div class="industry_item">
-                            <i class="fa fa-industry"></i>
-                            <span>Manufacturing</span>
-                        </div>
-                        <div class="industry_item">
-                            <i class="fa fa-flask"></i>
-                            <span>Chemical Processing</span>
-                        </div>
-                        <div class="industry_item">
-                            <i class="fa fa-utensils"></i>
-                            <span>Food &amp; Beverage</span>
-                        </div>
-                        <div class="industry_item">
-                            <i class="fa fa-prescription-bottle"></i>
-                            <span>Pharmaceuticals</span>
-                        </div>
-                        <div class="industry_item">
-                            <i class="fa fa-oil-can"></i>
-                            <span>Oil &amp; Gas</span>
-                        </div>
-                        <div class="industry_item">
-                            <i class="fa fa-box"></i>
-                            <span>Packaging</span>
-                        </div>
-                        <div class="industry_item">
-                            <i class="fa fa-water"></i>
-                            <span>Water Treatment</span>
-                        </div>
-                        <div class="industry_item">
-                            <i class="fa fa-building"></i>
-                            <span>Building Automation</span>
-                        </div>
-                    </div>
                 </div>
-            </section>
-
-            <!-- CTA Section -->
-            <section class="cta_section">
-                <div class="container">
-                    <div class="cta_content">
-                        <h2>Ready to Transform Your Industrial Operations?</h2>
-                        <p>Let's discuss how Airmixs can help you achieve your automation goals</p>
-                        <div class="cta_buttons">
-                            <a href="/shop" class="btn btn-primary btn-lg">
-                                <i class="fa fa-shopping-cart"></i> Browse Products
-                            </a>
-                            <a href="/contactus" class="btn btn-outline-light btn-lg">
-                                <i class="fa fa-envelope"></i> Contact Us
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-        </div>
-    </t>
-</template>
-        </data>
+            </xpath>
+        </template>
+    </data>
 </odoo>

@@ -8,37 +8,49 @@ class ProductTemplate(models.Model):
         string='WH/Stock',
         compute='_compute_warehouse_quantities',
         digits='Product Unit of Measure',
+        store=True,  # Added store
     )
     qty_dw_stock = fields.Float(
         string='DW/Stock',
         compute='_compute_warehouse_quantities',
         digits='Product Unit of Measure',
+        store=True,  # Added store
     )
     qty_balad_stock = fields.Float(
         string='Balad/Stock',
         compute='_compute_warehouse_quantities',
         digits='Product Unit of Measure',
+        store=True,  # Added store
     )
 
-    @api.depends('product_variant_ids', 'product_variant_ids.stock_quant_ids')
+    @api.depends('product_variant_ids', 'product_variant_ids.stock_quant_ids',
+                 'product_variant_ids.stock_quant_ids.quantity', 'product_variant_ids.stock_quant_ids.location_id')
     def _compute_warehouse_quantities(self):
         for product in self:
             qty_wh = 0.0
             qty_dw = 0.0
             qty_balad = 0.0
+
             if product.product_variant_ids:
                 quants = self.env['stock.quant'].sudo().search([
                     ('product_id', 'in', product.product_variant_ids.ids),
                     ('location_id.usage', '=', 'internal'),
                 ])
+
                 for quant in quants:
+                    # Get complete location name (includes parent locations)
                     loc_name = quant.location_id.complete_name or ''
-                    if 'WH/' in loc_name:
+
+                    # More flexible matching - case insensitive and checks if substring exists
+                    loc_name_upper = loc_name.upper()
+
+                    if 'WH/' in loc_name_upper or loc_name_upper.startswith('WH'):
                         qty_wh += quant.quantity
-                    elif 'DW/' in loc_name:
+                    elif 'DW/' in loc_name_upper or loc_name_upper.startswith('DW'):
                         qty_dw += quant.quantity
-                    elif 'Balad/' in loc_name:
+                    elif 'BALAD/' in loc_name_upper or loc_name_upper.startswith('BALAD'):
                         qty_balad += quant.quantity
+
             product.qty_wh_stock = qty_wh
             product.qty_dw_stock = qty_dw
             product.qty_balad_stock = qty_balad
@@ -51,36 +63,47 @@ class ProductProduct(models.Model):
         string='WH/Stock',
         compute='_compute_warehouse_quantities_variant',
         digits='Product Unit of Measure',
+        store=True,  # Added store
     )
     qty_dw_stock = fields.Float(
         string='DW/Stock',
         compute='_compute_warehouse_quantities_variant',
         digits='Product Unit of Measure',
+        store=True,  # Added store
     )
     qty_balad_stock = fields.Float(
         string='Balad/Stock',
         compute='_compute_warehouse_quantities_variant',
         digits='Product Unit of Measure',
+        store=True,  # Added store
     )
 
-    @api.depends('stock_quant_ids')
+    @api.depends('stock_quant_ids', 'stock_quant_ids.quantity', 'stock_quant_ids.location_id')
     def _compute_warehouse_quantities_variant(self):
         for product in self:
             qty_wh = 0.0
             qty_dw = 0.0
             qty_balad = 0.0
+
             quants = self.env['stock.quant'].sudo().search([
                 ('product_id', '=', product.id),
                 ('location_id.usage', '=', 'internal'),
             ])
+
             for quant in quants:
+                # Get complete location name
                 loc_name = quant.location_id.complete_name or ''
-                if 'WH/' in loc_name:
+
+                # More flexible matching
+                loc_name_upper = loc_name.upper()
+
+                if 'WH/' in loc_name_upper or loc_name_upper.startswith('WH'):
                     qty_wh += quant.quantity
-                elif 'DW/' in loc_name:
+                elif 'DW/' in loc_name_upper or loc_name_upper.startswith('DW'):
                     qty_dw += quant.quantity
-                elif 'Balad/' in loc_name:
+                elif 'BALAD/' in loc_name_upper or loc_name_upper.startswith('BALAD'):
                     qty_balad += quant.quantity
+
             product.qty_wh_stock = qty_wh
             product.qty_dw_stock = qty_dw
             product.qty_balad_stock = qty_balad

@@ -6,7 +6,7 @@
         <field name="priority">100</field>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='standard_price']" position="after">
-                <field name="qty_wh_stock" string="WH/Stocked" optional="show"/>
+                <field name="qty_wh_stock" string="WH/Stock" optional="show"/>
                 <field name="qty_dw_stock" string="DW/Stock" optional="show"/>
                 <field name="qty_balad_stock" string="Balad/Stock" optional="show"/>
             </xpath>

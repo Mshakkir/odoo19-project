@@ -5,10 +5,10 @@
         <!-- Override default About Us page -->
         <template id="airmixs_about_us"
                   inherit_id="website.aboutus"
-                  name="Airmixs Custom About Us">
+                  name="Airmixs Custom About Us"
+                  priority="99">
 
             <xpath expr="//div[@id='wrap']" position="replace">
-
                 <div id="wrap" class="airmixs_about_page">
 
                     <!-- Hero Section -->
@@ -56,7 +56,7 @@
                         </div>
                     </section>
 
-                    <!-- Mission & Vision Section -->
+                    <!-- Mission Vision Section -->
                     <section class="mission_vision_section">
                         <div class="container">
                             <div class="row g-4">
@@ -332,6 +332,7 @@
 
                 </div>
             </xpath>
+
         </template>
     </data>
 </odoo>

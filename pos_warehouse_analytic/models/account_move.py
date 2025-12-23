@@ -14,7 +14,7 @@ class AccountMove(models.Model):
         pos_order = self.env['pos.order'].search([('account_move', '=', self.id)], limit=1)
 
         if pos_order and pos_order.analytic_account_id:
-            # Add analytic account to all lines
+            # Add analytic distribution to all lines
             for line_vals in lines_vals_list:
                 line_vals['analytic_distribution'] = {
                     str(pos_order.analytic_account_id.id): 100
@@ -26,20 +26,21 @@ class AccountMove(models.Model):
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
 
-    @api.model
-    def create(self, vals):
+    @api.model_create_multi
+    def create(self, vals_list):
         """Add analytic account to move lines created from POS"""
-        line = super(AccountMoveLine, self).create(vals)
+        lines = super(AccountMoveLine, self).create(vals_list)
 
-        # If this line is from a POS-related move, add analytic account
-        if line.move_id and not line.analytic_distribution:
-            pos_order = self.env['pos.order'].search([
-                ('account_move', '=', line.move_id.id)
-            ], limit=1)
+        for line in lines:
+            # If this line is from a POS-related move, add analytic distribution
+            if line.move_id and not line.analytic_distribution:
+                pos_order = self.env['pos.order'].search([
+                    ('account_move', '=', line.move_id.id)
+                ], limit=1)
 
-            if pos_order and pos_order.analytic_account_id:
-                line.analytic_distribution = {
-                    str(pos_order.analytic_account_id.id): 100
-                }
+                if pos_order and pos_order.analytic_account_id:
+                    line.analytic_distribution = {
+                        str(pos_order.analytic_account_id.id): 100
+                    }
 
-        return line
+        return lines

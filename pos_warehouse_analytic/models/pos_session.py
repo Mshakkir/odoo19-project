@@ -48,23 +48,24 @@ class PosSession(models.Model):
                     }
                 }
 
-    @api.model
-    def create(self, vals):
+    @api.model_create_multi
+    def create(self, vals_list):
         """Set default warehouse from POS config if not provided"""
-        if 'warehouse_id' not in vals or not vals.get('warehouse_id'):
-            config_id = vals.get('config_id')
-            if config_id:
-                config = self.env['pos.config'].browse(config_id)
-                if config.warehouse_id:
-                    vals['warehouse_id'] = config.warehouse_id.id
-                    # Auto-set analytic account
-                    analytic = self.env['account.analytic.account'].search([
-                        ('name', '=', config.warehouse_id.name)
-                    ], limit=1)
-                    if analytic:
-                        vals['analytic_account_id'] = analytic.id
+        for vals in vals_list:
+            if 'warehouse_id' not in vals or not vals.get('warehouse_id'):
+                config_id = vals.get('config_id')
+                if config_id:
+                    config = self.env['pos.config'].browse(config_id)
+                    if config.warehouse_id:
+                        vals['warehouse_id'] = config.warehouse_id.id
+                        # Auto-set analytic account
+                        analytic = self.env['account.analytic.account'].search([
+                            ('name', '=', config.warehouse_id.name)
+                        ], limit=1)
+                        if analytic:
+                            vals['analytic_account_id'] = analytic.id
 
-        return super(PosSession, self).create(vals)
+        return super(PosSession, self).create(vals_list)
 
     @api.constrains('warehouse_id')
     def _check_warehouse_id(self):

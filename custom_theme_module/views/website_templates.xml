@@ -2,313 +2,154 @@
 <odoo>
     <data>
         <!-- Hide Default Odoo Header -->
-
         <template id="hide_default_header" inherit_id="website.layout" name="Hide Default Header">
-    <xpath expr="//header[@id='top']" position="replace">
-        <!-- Top Bar -->
-        <div class="top_bar">
-            <div class="container">
-                <div class="contact_info">
-                    <a href="tel:+1234567890" class="contact_item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                             stroke-width="2">
-                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                        </svg>
-                        <span>+123 456 7890</span>
-                    </a>
-                    <a href="mailto:info@yourcompany.com" class="contact_item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                             stroke-width="2">
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                            <polyline points="22,6 12,13 2,6"></polyline>
-                        </svg>
-                        <span>info@yourcompany.com</span>
-                    </a>
-                </div>
-                <div class="social_links">
-                    <a href="#" class="social_link" aria-label="Facebook">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-                        </svg>
-                    </a>
-                    <a href="#" class="social_link" aria-label="Twitter">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
-                        </svg>
-                    </a>
-                    <a href="#" class="social_link" aria-label="Instagram">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                             stroke-width="2">
-                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                        </svg>
-                    </a>
-                    <a href="#" class="social_link" aria-label="LinkedIn">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-                            <rect x="2" y="9" width="4" height="12"></rect>
-                            <circle cx="4" cy="4" r="2"></circle>
-                        </svg>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Navbar -->
-        <nav class="main_navbar">
-            <div class="container">
-                <a href="/" class="logo">
-                    <img src="/custom_theme_module/static/src/img/logo.png" alt="Airmixs Logo"
-                         class="logo_image"/>
-                </a>
-
-                <button class="mobile_toggle" onclick="toggleMenu()">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-
-                <ul class="nav_menu" id="navMenu">
-                    <li>
-                        <a href="/" class="nav_link active">Home</a>
-                    </li>
-                    <li>
-                        <a href="/aboutus" class="nav_link">About Us</a>
-                    </li>
-                    <li>
-                        <a href="/shop" class="nav_link">Shop</a>
-                    </li>
-                    <li>
-                        <a href="/contactus" class="nav_link">Contact Us</a>
-                    </li>
-                </ul>
-
-                <div class="nav_right">
-                    <div class="search_container">
-                        <input type="text" class="search_bar" placeholder="Search products..."/>
-                        <svg class="search_icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <path d="m21 21-4.35-4.35"></path>
-                        </svg>
-                    </div>
-
-                    <!-- Language Selector with Odoo Integration -->
-                    <div class="language_selector">
-                        <div class="language_toggle" onclick="toggleLanguageDropdown()">
-                            <t t-set="current_lang" t-value="request.env['res.lang']._lang_get(request.env.context.get('lang', 'en_US'))"/>
-                            <img t-att-src="'/web/image/res.lang/%s/image' % current_lang.id"
-                                 t-att-alt="current_lang.name"
-                                 class="flag_icon"
-                                 onerror="this.style.display='none'"/>
-                            <span t-esc="current_lang.code[:2].upper()"/>
-                            <svg class="dropdown_arrow" viewBox="0 0 12 12" fill="currentColor">
-                                <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"/>
-                            </svg>
+            <xpath expr="//header[@id='top']" position="replace">
+                <!-- Top Bar -->
+                <div class="top_bar">
+                    <div class="container">
+                        <div class="contact_info">
+                            <a href="tel:+1234567890" class="contact_item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                </svg>
+                                <span>+123 456 7890</span>
+                            </a>
+                            <a href="mailto:info@yourcompany.com" class="contact_item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                    <polyline points="22,6 12,13 2,6"></polyline>
+                                </svg>
+                                <span>info@yourcompany.com</span>
+                            </a>
                         </div>
-                        <div class="language_dropdown" id="languageDropdown">
-                            <t t-foreach="request.website.language_ids" t-as="lang">
-                                <a t-att-href="'/website/lang/%s?r=%s' % (lang.url_code, request.httprequest.path)"
-                                   class="language_option"
-                                   t-att-class="'active' if lang.code == request.env.context.get('lang') else ''">
-                                    <img t-att-src="'/web/image/res.lang/%s/image' % lang.id"
-                                         t-att-alt="lang.name"
-                                         class="flag_icon"
-                                         onerror="this.style.display='none'"/>
-                                    <span t-esc="lang.name"/>
-                                </a>
-                            </t>
+                        <div class="social_links">
+                            <a href="#" class="social_link" aria-label="Facebook">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                                </svg>
+                            </a>
+                            <a href="#" class="social_link" aria-label="Twitter">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                                </svg>
+                            </a>
+                            <a href="#" class="social_link" aria-label="Instagram">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                                </svg>
+                            </a>
+                            <a href="#" class="social_link" aria-label="LinkedIn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                                    <rect x="2" y="9" width="4" height="12"></rect>
+                                    <circle cx="4" cy="4" r="2"></circle>
+                                </svg>
+                            </a>
                         </div>
                     </div>
                 </div>
-            </div>
-        </nav>
 
-        <script>
-            function toggleMenu() {
-                const menu = document.getElementById('navMenu');
-                if (menu) {
+                <!-- Main Navbar -->
+                <nav class="main_navbar">
+                    <div class="container">
+                        <a href="/" class="logo">
+                            <img src="/custom_theme_module/static/src/img/logo.png" alt="Airmixs Logo"
+                                 class="logo_image"/>
+                        </a>
+
+                        <button class="mobile_toggle" onclick="toggleMenu()">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
+
+                        <ul class="nav_menu" id="navMenu">
+                            <li>
+                                <a href="/" class="nav_link active">Home</a>
+                            </li>
+                            <li>
+                                <a href="/aboutus" class="nav_link">About Us</a>
+                            </li>
+                            <li>
+                                <a href="/shop" class="nav_link">Shop</a>
+                            </li>
+                            <li>
+                                <a href="/contactus" class="nav_link">Contact Us</a>
+                            </li>
+                        </ul>
+
+                        <div class="nav_right">
+                            <div class="search_container">
+                                <input type="text" class="search_bar" placeholder="Search products..."/>
+                                <svg class="search_icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                     stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="m21 21-4.35-4.35"></path>
+                                </svg>
+                            </div>
+
+                            <div class="language_selector">
+                                <div class="language_toggle">
+                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30'%3E%3Cpath fill='%23012169' d='M0 0h60v30H0z'/%3E%3Cpath stroke='%23fff' stroke-width='6' d='M0 0l60 30m0-30L0 30'/%3E%3Cpath stroke='%23C8102E' stroke-width='4' d='M0 0l60 30m0-30L0 30'/%3E%3Cpath stroke='%23fff' stroke-width='10' d='M30 0v30M0 15h60'/%3E%3Cpath stroke='%23C8102E' stroke-width='6' d='M30 0v30M0 15h60'/%3E%3C/svg%3E"
+                                         alt="UK" class="flag_icon"/>
+                                    <span>EN</span>
+                                    <svg class="dropdown_arrow" viewBox="0 0 12 12" fill="currentColor">
+                                        <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"/>
+                                    </svg>
+                                </div>
+                                <div class="language_dropdown">
+                                    <a href="#" class="language_option active">
+                                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30'%3E%3Cpath fill='%23012169' d='M0 0h60v30H0z'/%3E%3Cpath stroke='%23fff' stroke-width='6' d='M0 0l60 30m0-30L0 30'/%3E%3Cpath stroke='%23C8102E' stroke-width='4' d='M0 0l60 30m0-30L0 30'/%3E%3Cpath stroke='%23fff' stroke-width='10' d='M30 0v30M0 15h60'/%3E%3Cpath stroke='%23C8102E' stroke-width='6' d='M30 0v30M0 15h60'/%3E%3C/svg%3E"
+                                             alt="UK" class="flag_icon"/>
+                                        <span>English (UK)</span>
+                                    </a>
+                                    <a href="#" class="language_option">
+                                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 600'%3E%3Cpath fill='%23165d31' d='M0 0h900v600H0z'/%3E%3Cpath fill='%23fff' d='M0 200h900v200H0z'/%3E%3Cpath fill='%23fff' d='M267 100v400'/%3E%3Ccircle cx='450' cy='300' r='80' fill='%23fff'/%3E%3Ctext x='450' y='340' font-size='90' text-anchor='middle' fill='%23165d31' font-family='Arial'%3Eالله%3C/text%3E%3C/svg%3E"
+                                             alt="Saudi Arabia" class="flag_icon"/>
+                                        <span>العربية (SA)</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!--                            <div class="cart_icon">-->
+                            <!--                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"-->
+                            <!--                                     stroke-width="2">-->
+                            <!--                                    <circle cx="9" cy="21" r="1"></circle>-->
+                            <!--                                    <circle cx="20" cy="21" r="1"></circle>-->
+                            <!--                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>-->
+                            <!--                                </svg>-->
+                            <!--                                <span class="cart_badge">3</span>-->
+                            <!--                            </div>-->
+                        </div>
+                    </div>
+                </nav>
+
+                <script>
+                    function toggleMenu() {
+                    const menu = document.getElementById('navMenu');
+                    if (menu) {
                     menu.classList.toggle('active');
-                }
-            }
+                    }
+                    }
 
-            function toggleLanguageDropdown() {
-                const dropdown = document.getElementById('languageDropdown');
-                if (dropdown) {
-                    dropdown.classList.toggle('show');
-                }
-            }
+                    // Close mobile menu when clicking outside
+                    document.addEventListener('click', function(event) {
+                    const menu = document.getElementById('navMenu');
+                    const toggle = document.querySelector('.mobile_toggle');
 
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', function(event) {
-                const menu = document.getElementById('navMenu');
-                const toggle = document.querySelector('.mobile_toggle');
-                const langDropdown = document.getElementById('languageDropdown');
-                const langToggle = document.querySelector('.language_toggle');
-
-                // Close mobile menu
-                if (menu &amp; toggle &amp; !menu.contains(event.target) &amp; !toggle.contains(event.target)) {
+                    if (menu &amp;&amp; toggle &amp;&amp; !menu.contains(event.target) &amp;&amp;
+                    !toggle.contains(event.target)) {
                     menu.classList.remove('active');
-                }
-
-                // Close language dropdown
-                if (langDropdown &amp; langToggle &amp; !langDropdown.contains(event.target) &amp; !langToggle.contains(event.target)) {
-                    langDropdown.classList.remove('show');
-                }
-            });
-        </script>
-    </xpath>
-</template>
-
-<!--        <template id="hide_default_header" inherit_id="website.layout" name="Hide Default Header">-->
-<!--            <xpath expr="//header[@id='top']" position="replace">-->
-<!--                &lt;!&ndash; Top Bar &ndash;&gt;-->
-<!--                <div class="top_bar">-->
-<!--                    <div class="container">-->
-<!--                        <div class="contact_info">-->
-<!--                            <a href="tel:+1234567890" class="contact_item">-->
-<!--                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"-->
-<!--                                     stroke-width="2">-->
-<!--                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>-->
-<!--                                </svg>-->
-<!--                                <span>+123 456 7890</span>-->
-<!--                            </a>-->
-<!--                            <a href="mailto:info@yourcompany.com" class="contact_item">-->
-<!--                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"-->
-<!--                                     stroke-width="2">-->
-<!--                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>-->
-<!--                                    <polyline points="22,6 12,13 2,6"></polyline>-->
-<!--                                </svg>-->
-<!--                                <span>info@yourcompany.com</span>-->
-<!--                            </a>-->
-<!--                        </div>-->
-<!--                        <div class="social_links">-->
-<!--                            <a href="#" class="social_link" aria-label="Facebook">-->
-<!--                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">-->
-<!--                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>-->
-<!--                                </svg>-->
-<!--                            </a>-->
-<!--                            <a href="#" class="social_link" aria-label="Twitter">-->
-<!--                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">-->
-<!--                                    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>-->
-<!--                                </svg>-->
-<!--                            </a>-->
-<!--                            <a href="#" class="social_link" aria-label="Instagram">-->
-<!--                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"-->
-<!--                                     stroke-width="2">-->
-<!--                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>-->
-<!--                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>-->
-<!--                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>-->
-<!--                                </svg>-->
-<!--                            </a>-->
-<!--                            <a href="#" class="social_link" aria-label="LinkedIn">-->
-<!--                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">-->
-<!--                                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>-->
-<!--                                    <rect x="2" y="9" width="4" height="12"></rect>-->
-<!--                                    <circle cx="4" cy="4" r="2"></circle>-->
-<!--                                </svg>-->
-<!--                            </a>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-
-<!--                &lt;!&ndash; Main Navbar &ndash;&gt;-->
-<!--                <nav class="main_navbar">-->
-<!--                    <div class="container">-->
-<!--                        <a href="/" class="logo">-->
-<!--                            <img src="/custom_theme_module/static/src/img/logo.png" alt="Airmixs Logo"-->
-<!--                                 class="logo_image"/>-->
-<!--                        </a>-->
-
-<!--                        <button class="mobile_toggle" onclick="toggleMenu()">-->
-<!--                            <span></span>-->
-<!--                            <span></span>-->
-<!--                            <span></span>-->
-<!--                        </button>-->
-
-<!--                        <ul class="nav_menu" id="navMenu">-->
-<!--                            <li>-->
-<!--                                <a href="/" class="nav_link active">Home</a>-->
-<!--                            </li>-->
-<!--                            <li>-->
-<!--                                <a href="/aboutus" class="nav_link">About Us</a>-->
-<!--                            </li>-->
-<!--                            <li>-->
-<!--                                <a href="/shop" class="nav_link">Shop</a>-->
-<!--                            </li>-->
-<!--                            <li>-->
-<!--                                <a href="/contactus" class="nav_link">Contact Us</a>-->
-<!--                            </li>-->
-<!--                        </ul>-->
-
-<!--                        <div class="nav_right">-->
-<!--                            <div class="search_container">-->
-<!--                                <input type="text" class="search_bar" placeholder="Search products..."/>-->
-<!--                                <svg class="search_icon" width="18" height="18" viewBox="0 0 24 24" fill="none"-->
-<!--                                     stroke="currentColor" stroke-width="2">-->
-<!--                                    <circle cx="11" cy="11" r="8"></circle>-->
-<!--                                    <path d="m21 21-4.35-4.35"></path>-->
-<!--                                </svg>-->
-<!--                            </div>-->
-
-<!--                            <div class="language_selector">-->
-<!--                                <div class="language_toggle">-->
-<!--                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30'%3E%3Cpath fill='%23012169' d='M0 0h60v30H0z'/%3E%3Cpath stroke='%23fff' stroke-width='6' d='M0 0l60 30m0-30L0 30'/%3E%3Cpath stroke='%23C8102E' stroke-width='4' d='M0 0l60 30m0-30L0 30'/%3E%3Cpath stroke='%23fff' stroke-width='10' d='M30 0v30M0 15h60'/%3E%3Cpath stroke='%23C8102E' stroke-width='6' d='M30 0v30M0 15h60'/%3E%3C/svg%3E"-->
-<!--                                         alt="UK" class="flag_icon"/>-->
-<!--                                    <span>EN</span>-->
-<!--                                    <svg class="dropdown_arrow" viewBox="0 0 12 12" fill="currentColor">-->
-<!--                                        <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"/>-->
-<!--                                    </svg>-->
-<!--                                </div>-->
-<!--                                <div class="language_dropdown">-->
-<!--                                    <a href="#" class="language_option active">-->
-<!--                                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30'%3E%3Cpath fill='%23012169' d='M0 0h60v30H0z'/%3E%3Cpath stroke='%23fff' stroke-width='6' d='M0 0l60 30m0-30L0 30'/%3E%3Cpath stroke='%23C8102E' stroke-width='4' d='M0 0l60 30m0-30L0 30'/%3E%3Cpath stroke='%23fff' stroke-width='10' d='M30 0v30M0 15h60'/%3E%3Cpath stroke='%23C8102E' stroke-width='6' d='M30 0v30M0 15h60'/%3E%3C/svg%3E"-->
-<!--                                             alt="UK" class="flag_icon"/>-->
-<!--                                        <span>English (UK)</span>-->
-<!--                                    </a>-->
-<!--                                    <a href="#" class="language_option">-->
-<!--                                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 600'%3E%3Cpath fill='%23165d31' d='M0 0h900v600H0z'/%3E%3Cpath fill='%23fff' d='M0 200h900v200H0z'/%3E%3Cpath fill='%23fff' d='M267 100v400'/%3E%3Ccircle cx='450' cy='300' r='80' fill='%23fff'/%3E%3Ctext x='450' y='340' font-size='90' text-anchor='middle' fill='%23165d31' font-family='Arial'%3Eالله%3C/text%3E%3C/svg%3E"-->
-<!--                                             alt="Saudi Arabia" class="flag_icon"/>-->
-<!--                                        <span>العربية (SA)</span>-->
-<!--                                    </a>-->
-<!--                                </div>-->
-<!--                            </div>-->
-
-<!--                            &lt;!&ndash;                            <div class="cart_icon">&ndash;&gt;-->
-<!--                            &lt;!&ndash;                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"&ndash;&gt;-->
-<!--                            &lt;!&ndash;                                     stroke-width="2">&ndash;&gt;-->
-<!--                            &lt;!&ndash;                                    <circle cx="9" cy="21" r="1"></circle>&ndash;&gt;-->
-<!--                            &lt;!&ndash;                                    <circle cx="20" cy="21" r="1"></circle>&ndash;&gt;-->
-<!--                            &lt;!&ndash;                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>&ndash;&gt;-->
-<!--                            &lt;!&ndash;                                </svg>&ndash;&gt;-->
-<!--                            &lt;!&ndash;                                <span class="cart_badge">3</span>&ndash;&gt;-->
-<!--                            &lt;!&ndash;                            </div>&ndash;&gt;-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </nav>-->
-
-<!--                <script>-->
-<!--                    function toggleMenu() {-->
-<!--                    const menu = document.getElementById('navMenu');-->
-<!--                    if (menu) {-->
-<!--                    menu.classList.toggle('active');-->
-<!--                    }-->
-<!--                    }-->
-
-<!--                    // Close mobile menu when clicking outside-->
-<!--                    document.addEventListener('click', function(event) {-->
-<!--                    const menu = document.getElementById('navMenu');-->
-<!--                    const toggle = document.querySelector('.mobile_toggle');-->
-
-<!--                    if (menu &amp;&amp; toggle &amp;&amp; !menu.contains(event.target) &amp;&amp;-->
-<!--                    !toggle.contains(event.target)) {-->
-<!--                    menu.classList.remove('active');-->
-<!--                    }-->
-<!--                    });-->
-<!--                </script>-->
-<!--            </xpath>-->
-<!--        </template>-->
+                    }
+                    });
+                </script>
+            </xpath>
+        </template>
 
         <!-- Modern Footer Layout -->
         <template id="custom_layout_footer" inherit_id="website.layout" name="Modern Footer Layout">

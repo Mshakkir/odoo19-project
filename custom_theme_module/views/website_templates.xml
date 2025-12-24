@@ -167,13 +167,13 @@
                                     <!-- Column 1: Company Info & Logo -->
                                     <div class="col-lg-4 col-md-6 footer-column">
                                         <div class="footer-logo-wrapper">
-                                            <a href="/" class="logo">
-                                                <div class="logo_icon">AX</div>
-                                                <span style="color:#ffff">Airmixs</span>
+<!--                                            <a href="/" class="logo">-->
+<!--                                                <div class="logo_icon">AX</div>-->
+<!--                                                <span>Airmixs</span>-->
+<!--                                            </a>-->
+                                            <a href="/" class="footer-logo">
+                                                <img src="/logo.png" alt="Company Logo" class="img-fluid"/>
                                             </a>
-                                            <!--                                                    <a href="/" class="footer-logo">-->
-                                            <!--                                                        <img src="/logo.png" alt="Company Logo" class="img-fluid"/>-->
-                                            <!--                                                    </a>-->
                                         </div>
                                         <div class="footer-description">
                                             <p>Your trusted partner for premium products. We deliver quality and

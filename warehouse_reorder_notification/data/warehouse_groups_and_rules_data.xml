@@ -41,7 +41,7 @@
         <record id="rule_activity_main_warehouse" model="ir.rule">
             <field name="name">Stock User: Main Warehouse Activities</field>
             <field name="model_id" ref="mail.model_mail_activity"/>
-            <field name="domain_force">['|', ('res_model', '!=', 'stock.warehouse.orderpoint'), '&amp;', ('res_model', '=', 'stock.warehouse.orderpoint'), ('res_id.warehouse_id.name', '=', 'SSAOCO-Main')]</field>
+            <field name="domain_force">['|', ('res_model', '!=', 'stock.warehouse.orderpoint'), '&', ('res_model', '=', 'stock.warehouse.orderpoint'), ('res_id.warehouse_id.name', '=', 'SSAOCO-Main')]</field>
             <field name="groups" eval="[(4, ref('warehouse_reorder_notification.group_warehouse_ssaoco_main_users'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -69,7 +69,7 @@
         <record id="rule_activity_baladiya_warehouse" model="ir.rule">
             <field name="name">Stock User: Baladiya Warehouse Activities</field>
             <field name="model_id" ref="mail.model_mail_activity"/>
-            <field name="domain_force">['|', ('res_model', '!=', 'stock.warehouse.orderpoint'), '&amp;', ('res_model', '=', 'stock.warehouse.orderpoint'), ('res_id.warehouse_id.name', '=', 'SSAOCO-Baladiya')]</field>
+            <field name="domain_force">['|', ('res_model', '!=', 'stock.warehouse.orderpoint'), '&', ('res_model', '=', 'stock.warehouse.orderpoint'), ('res_id.warehouse_id.name', '=', 'SSAOCO-Baladiya')]</field>
             <field name="groups" eval="[(4, ref('warehouse_reorder_notification.group_warehouse_ssaoco_baladiya_users'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -97,7 +97,7 @@
         <record id="rule_activity_dammam_warehouse" model="ir.rule">
             <field name="name">Stock User: Dammam Warehouse Activities</field>
             <field name="model_id" ref="mail.model_mail_activity"/>
-            <field name="domain_force">['|', ('res_model', '!=', 'stock.warehouse.orderpoint'), '&amp;', ('res_model', '=', 'stock.warehouse.orderpoint'), ('res_id.warehouse_id.name', '=', 'SSAOCO-Dammam')]</field>
+            <field name="domain_force">['|', ('res_model', '!=', 'stock.warehouse.orderpoint'), '&', ('res_model', '=', 'stock.warehouse.orderpoint'), ('res_id.warehouse_id.name', '=', 'SSAOCO-Dammam')]</field>
             <field name="groups" eval="[(4, ref('warehouse_reorder_notification.group_warehouse_ssaoco_dammam_users'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>

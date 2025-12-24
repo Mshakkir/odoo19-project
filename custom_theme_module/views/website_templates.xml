@@ -58,8 +58,9 @@
                 <nav class="main_navbar">
                     <div class="container">
                         <a href="/" class="logo">
-                            <div class="logo_icon">AX</div>
-                            <span>Airmixs</span>
+                            <img src="/custom_theme_module/static/src/img/airmixslogo.png" alt="Airmixs Logo"
+                                 class="logo_image"/>
+                            <span class="logo_text_navbar">Airmixs</span>
                         </a>
 
                         <button class="mobile_toggle" onclick="toggleMenu()">
@@ -168,8 +169,9 @@
                                     <div class="col-lg-4 col-md-6 footer-column">
                                         <div class="footer-logo-wrapper">
                                             <a href="/" class="logo">
-                                                <div class="logo_icon">AX</div>
-                                                <span>Airmixs</span>
+                                                <img src="/custom_theme_module/static/src/img/airmxslogo.png"
+                                                     alt="Airmixs Logo" class="logo_image"/>
+                                                <span class="logo_text_footer">Airmixs</span>
                                             </a>
                                         </div>
                                         <div class="footer-description">

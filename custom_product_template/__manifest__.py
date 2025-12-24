@@ -16,7 +16,7 @@
         'stock',
     ],
     'data': [
-        'views/templates.xml',
+        # 'views/templates.xml',
     ],
     'assets': {
         'web.assets_frontend': [

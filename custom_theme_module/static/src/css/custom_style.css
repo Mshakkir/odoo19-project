@@ -1029,3 +1029,31 @@ footer.modern_ecommerce_footer {
         color: black !important;
     }
 }
+/* Fix for footer logo */
+.modern_ecommerce_footer .logo span,
+.footer-logo-wrapper .logo span {
+    display: inline !important;
+    color: var(--footer-heading) !important;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.footer-logo-wrapper .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.footer-logo-wrapper .logo_icon {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #198dff, #0d7ae5);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    font-weight: 800;
+}

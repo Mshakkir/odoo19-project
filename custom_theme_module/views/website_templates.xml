@@ -169,7 +169,7 @@
                                         <div class="footer-logo-wrapper">
                                             <a href="/" class="logo">
                                                 <div class="logo_icon">AX</div>
-                                                <span>Airmixs</span>
+                                                <span style="color:#ffff">Airmixs</span>
                                             </a>
                                             <!--                                                    <a href="/" class="footer-logo">-->
                                             <!--                                                        <img src="/logo.png" alt="Company Logo" class="img-fluid"/>-->

@@ -1053,3 +1053,124 @@ footer.modern_ecommerce_footer {
         color: black !important;
     }
 }
+
+
+
+/* Language Selector Styles */
+.language_selector {
+    position: relative;
+    z-index: 1000;
+}
+
+.language_toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.language_toggle:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.flag_icon {
+    width: 20px;
+    height: 14px;
+    object-fit: cover;
+    border-radius: 2px;
+}
+
+.dropdown_arrow {
+    width: 12px;
+    height: 12px;
+    transition: transform 0.3s ease;
+}
+
+.language_toggle:hover .dropdown_arrow {
+    transform: translateY(2px);
+}
+
+.language_dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 200px;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.language_dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.language_option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    color: #333;
+    text-decoration: none;
+    transition: background 0.2s ease;
+    font-size: 14px;
+}
+
+.language_option:hover {
+    background: #f8f9fa;
+}
+
+.language_option.active {
+    background: #e7f3ff;
+    color: #0066cc;
+    font-weight: 500;
+}
+
+.language_option.active::after {
+    content: '✓';
+    margin-left: auto;
+    font-weight: bold;
+}
+
+/* RTL Support for Arabic */
+html[lang="ar"],
+html[dir="rtl"] {
+    direction: rtl;
+}
+
+html[lang="ar"] .language_dropdown,
+html[dir="rtl"] .language_dropdown {
+    right: auto;
+    left: 0;
+}
+
+html[lang="ar"] .language_option,
+html[dir="rtl"] .language_option {
+    flex-direction: row-reverse;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .language_selector {
+        margin-top: 10px;
+    }
+
+    .language_dropdown {
+        right: 0;
+        left: 0;
+        min-width: 100%;
+    }
+}

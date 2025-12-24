@@ -160,6 +160,7 @@
         </script>
     </xpath>
 </template>
+
 <!--        <template id="hide_default_header" inherit_id="website.layout" name="Hide Default Header">-->
 <!--            <xpath expr="//header[@id='top']" position="replace">-->
 <!--                &lt;!&ndash; Top Bar &ndash;&gt;-->

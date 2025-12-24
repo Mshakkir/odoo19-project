@@ -121,7 +121,7 @@ body {
 
 /* Logo Image Styles */
 .logo_image {
-    height: 45px;
+    height: 70px;
     width: auto;
     object-fit: contain;
 }
@@ -449,7 +449,10 @@ body {
 /* ============================================
    PROFESSIONAL E-COMMERCE FOOTER
    ============================================ */
-
+#footlogo {
+height:110px;
+width:auto;
+}
 :root {
     --footer-bg: #0a0e27;
     --footer-bg-secondary: #131834;

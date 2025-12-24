@@ -60,7 +60,6 @@
                         <a href="/" class="logo">
                             <img src="/custom_theme_module/static/src/img/logo.png" alt="Airmixs Logo"
                                  class="logo_image"/>
-                            <span class="logo_text_navbar">Airmixs</span>
                         </a>
 
                         <button class="mobile_toggle" onclick="toggleMenu()">
@@ -171,7 +170,6 @@
                                             <a href="/" class="logo">
                                                 <img src="/custom_theme_module/static/src/img/logo.png"
                                                      alt="Airmixs Logo" class="logo_image"/>
-                                                <span class="logo_text_footer">Airmixs</span>
                                             </a>
                                         </div>
                                         <div class="footer-description">

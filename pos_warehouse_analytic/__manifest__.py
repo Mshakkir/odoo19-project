@@ -15,6 +15,7 @@
         'point_of_sale',
         'stock',
         'analytic',
+        'purchase'
     ],
     'data': [
         'views/pos_session_views.xml',

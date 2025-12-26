@@ -41,7 +41,7 @@
         * Dashboard integration
         * Automatic overdue detection
     """,
-    'depends': ['account'],
+    'depends': ['account', 'point_of_sale'],
     'data': [
         'security/ir.model.access.csv',
         'data/sequence_data.xml',

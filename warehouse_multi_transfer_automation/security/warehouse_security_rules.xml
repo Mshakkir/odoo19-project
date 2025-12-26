@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Main Warehouse: Can see all stock picking operations -->
+        <record id="stock_picking_main_wh_rule" model="ir.rule">
+            <field name="name">Main Warehouse: See all transfers</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="groups" eval="[(4, ref('warehouse_multi_transfer_automation.group_warehouse_main'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Dammam Warehouse: See transfers involving Dammam only -->
+        <record id="stock_picking_dammam_wh_rule" model="ir.rule">
+            <field name="name">Dammam Warehouse: See Dammam transfers only</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="groups" eval="[(4, ref('warehouse_multi_transfer_automation.group_warehouse_dammam'))]"/>
+            <field name="domain_force">[
+                '|', '|', '|', '|',
+                ('source_warehouse_id.name', 'like', 'Dammam'),
+                ('dest_warehouse_id.name', 'like', 'Dammam'),
+                ('location_id.warehouse_id.name', 'like', 'Dammam'),
+                ('location_dest_id.warehouse_id.name', 'like', 'Dammam'),
+                ('location_dest_id.usage', '=', 'transit')
+            ]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Baladiya Warehouse: See transfers involving Baladiya only -->
+        <record id="stock_picking_baladiya_wh_rule" model="ir.rule">
+            <field name="name">Baladiya Warehouse: See Baladiya transfers only</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="groups" eval="[(4, ref('warehouse_multi_transfer_automation.group_warehouse_baladiya'))]"/>
+            <field name="domain_force">[
+                '|', '|', '|', '|',
+                ('source_warehouse_id.name', 'like', 'Baladiya'),
+                ('dest_warehouse_id.name', 'like', 'Baladiya'),
+                ('location_id.warehouse_id.name', 'like', 'Baladiya'),
+                ('location_dest_id.warehouse_id.name', 'like', 'Baladiya'),
+                ('location_dest_id.usage', '=', 'transit')
+            ]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Stock Location Rules - All warehouses see relevant locations -->
+        <record id="stock_location_wh_rule" model="ir.rule">
+            <field name="name">Stock Location: See warehouse locations</field>
+            <field name="model_id" ref="stock.model_stock_location"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Operation Types: Users can see relevant operation types -->
+        <record id="stock_picking_type_wh_rule" model="ir.rule">
+            <field name="name">Stock Picking Type: See warehouse operation types</field>
+            <field name="model_id" ref="stock.model_stock_picking_type"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View Enhancement -->
+    <record id="view_picking_form_inherit_multi_wh" model="ir.ui.view">
+        <field name="name">stock.picking.form.multi.warehouse</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <!-- Add tracking fields invisible -->
+            <xpath expr="//field[@name='state']" position="before">
+                <field name="transfer_type" invisible="1"/>
+                <field name="is_multi_wh_transfer" invisible="1"/>
+                <field name="source_warehouse_id" invisible="1"/>
+                <field name="dest_warehouse_id" invisible="1"/>
+                <field name="auto_receipt_created" invisible="1"/>
+                <field name="related_picking_id" invisible="1"/>
+            </xpath>
+
+            <!-- Banner for outgoing requests -->
+            <xpath expr="//sheet" position="before">
+                <div class="alert alert-warning text-center" role="alert"
+                     invisible="transfer_type != 'outgoing' or state != 'assigned'">
+                    <strong>📤 OUTGOING REQUEST</strong><br/>
+                    This is a stock request being sent to
+                    <field name="dest_warehouse_id" readonly="1"/>
+                    <br/>Validate to send the request for processing.
+                </div>
+
+                <div class="alert alert-info text-center" role="alert"
+                     invisible="transfer_type != 'incoming' or state == 'done'">
+                    <strong>📥 INCOMING RECEIPT</strong><br/>
+                    This receipt was auto-created from transfer
+                    <field name="origin" readonly="1"/>
+                    <br/>Validate to receive products and increase your inventory.
+                </div>
+
+                <div class="alert alert-success text-center" role="alert"
+                     invisible="transfer_type != 'incoming' or state != 'done'">
+                    <strong>✅ RECEIPT COMPLETED</strong><br/>
+                    Stock has been successfully received and your inventory increased.
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Tree View Enhancement -->
+    <record id="view_picking_tree_inherit_multi_wh" model="ir.ui.view">
+        <field name="name">stock.picking.tree.multi.warehouse</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_tree"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="transfer_type"/>
+                <field name="source_warehouse_id"/>
+                <field name="dest_warehouse_id"/>
+            </field>
+        </field>
+    </record>
+</odoo>

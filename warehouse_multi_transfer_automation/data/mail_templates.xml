@@ -6,7 +6,7 @@
         <record id="mail_template_outgoing_request" model="mail.template">
             <field name="name">Outgoing Stock Request</field>
             <field name="model_id" ref="stock.model_stock_picking"/>
-            <field name="subject">📤 Stock Request from {{ object.source_warehouse_id.name }}</field>
+            <field name="subject">Stock Request from {{ object.picking_type_id.warehouse_id.name }}</field>
             <field name="email_from">{{ (object.create_uid.email_formatted or user.email_formatted) }}</field>
             <field name="body_html" type="html">
                 <div style="font-family: Arial, sans-serif; font-size: 14px;">
@@ -41,7 +41,7 @@
         <record id="mail_template_request_approved" model="mail.template">
             <field name="name">Stock Request Approved</field>
             <field name="model_id" ref="stock.model_stock_picking"/>
-            <field name="subject">✅ Your Stock Request Approved - {{ object.name }}</field>
+            <field name="subject">Stock Request Approved - {{ object.name }}</field>
             <field name="email_from">{{ (object.create_uid.email_formatted or user.email_formatted) }}</field>
             <field name="body_html" type="html">
                 <div style="font-family: Arial, sans-serif; font-size: 14px;">

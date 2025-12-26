@@ -45,30 +45,3 @@ class MailFollowers(models.Model):
             else:
                 # Re-raise if it's a different IntegrityError
                 raise
-
-    def _add_followers(self, res_model, res_ids, partner_ids,
-                       subtypes=None, customer_ids=None, check_existing=True):
-        """
-        Additional safeguard for the _add_followers method
-        """
-        try:
-            return super(MailFollowers, self)._add_followers(
-                res_model=res_model,
-                res_ids=res_ids,
-                partner_ids=partner_ids,
-                subtypes=subtypes,
-                customer_ids=customer_ids,
-                check_existing=check_existing
-            )
-        except IntegrityError as e:
-            error_message = str(e)
-            if 'mail_followers' in error_message and 'duplicate key' in error_message:
-                _logger.warning(
-                    'Duplicate follower in _add_followers for model %s. '
-                    'Ignoring. Error: %s',
-                    res_model, error_message
-                )
-                self.env.cr.rollback()
-                return self.browse()
-            else:
-                raise

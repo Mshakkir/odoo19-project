@@ -39,11 +39,8 @@ class AccountMove(models.Model):
 
         # Check if there are stockable products
         # In Odoo, 'product' type means storable/goods, 'consu' means consumable, 'service' means service
-        # Check both 'type' and 'detailed_type' for compatibility
         stockable_lines = self.invoice_line_ids.filtered(
-            lambda l: l.product_id and
-                      (l.product_id.type == 'product' or l.product_id.detailed_type == 'product') and
-                      l.quantity > 0
+            lambda l: l.product_id and l.product_id.type == 'product' and l.quantity > 0
         )
 
         if not stockable_lines:
@@ -51,8 +48,7 @@ class AccountMove(models.Model):
             # Log product types for debugging
             for line in self.invoice_line_ids:
                 if line.product_id:
-                    _logger.info(
-                        f"Product: {line.product_id.name}, Type: {line.product_id.type}, Detailed Type: {line.product_id.detailed_type}")
+                    _logger.info(f"Product: {line.product_id.name}, Type: {line.product_id.type}")
             raise UserError(
                 _('No stockable products found in this invoice. Please add products with type "Storable Product" (Goods).'))
 

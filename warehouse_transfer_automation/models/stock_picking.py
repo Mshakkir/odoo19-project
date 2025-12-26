@@ -390,9 +390,9 @@ class StockPicking(models.Model):
 
             # Updated mapping with correct warehouse names
             warehouse_group_mapping = {
-                'SSAOCO-Main': 'warehouse_tansfer_automation.group_main_warehouse',
-                'SSAOCO-Dammam': 'warehouse_tansfer_automation.group_dammam_warehouse',
-                'SSAOCO-Baladiya': 'warehouse_tansfer_automation.group_baladiya_warehouse',
+                'SSAOCO-Main': 'warehouse_transfer_automation.group_main_warehouse',
+                'SSAOCO-Dammam': 'warehouse_transfer_automation.group_dammam_warehouse',
+                'SSAOCO-Baladiya': 'warehouse_transfer_automation.group_baladiya_warehouse',
             }
 
             group_xmlid = warehouse_group_mapping.get(warehouse.name)
@@ -887,12 +887,12 @@ class StockPicking(models.Model):
 #
 #             # Map warehouse names to group XML IDs - try multiple variations
 #             warehouse_group_mapping = {
-#                 'SSAOCO-Main Office': 'warehouse_tansfer_automation.group_main_warehouse',
-#                 'Main Office': 'warehouse_tansfer_automation.group_main_warehouse',
-#                 'SSAOCO - Dammam': 'warehouse_tansfer_automation.group_dammam_warehouse',
-#                 'Dammam': 'warehouse_tansfer_automation.group_dammam_warehouse',
-#                 'SSAOCO - Baladiya': 'warehouse_tansfer_automation.group_baladiya_warehouse',
-#                 'Baladiya': 'warehouse_tansfer_automation.group_baladiya_warehouse',
+#                 'SSAOCO-Main Office': 'warehouse_transfer_automation.group_main_warehouse',
+#                 'Main Office': 'warehouse_transfer_automation.group_main_warehouse',
+#                 'SSAOCO - Dammam': 'warehouse_transfer_automation.group_dammam_warehouse',
+#                 'Dammam': 'warehouse_transfer_automation.group_dammam_warehouse',
+#                 'SSAOCO - Baladiya': 'warehouse_transfer_automation.group_baladiya_warehouse',
+#                 'Baladiya': 'warehouse_transfer_automation.group_baladiya_warehouse',
 #             }
 #
 #             # Find the matching group XML ID - try exact match first

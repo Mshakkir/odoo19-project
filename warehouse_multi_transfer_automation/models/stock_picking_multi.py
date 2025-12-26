@@ -1,3 +1,6 @@
+# ============================================
+# FILE: models/stock_picking_multi.py (FIXED)
+# ============================================
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
@@ -167,19 +170,21 @@ class StockPicking(models.Model):
         ], limit=1)
 
         if existing_receipt:
-            _logger.warning('Receipt already exists for %s', picking.name)
+            _logger.warning('📋 Receipt already exists for %s: %s', picking.name, existing_receipt.name)
             return existing_receipt
 
         transit_loc = picking.location_dest_id
         dest_warehouse = transit_loc.warehouse_id
 
         if not dest_warehouse:
-            _logger.error('No destination warehouse for transit location: %s', transit_loc.name)
+            _logger.error('❌ No destination warehouse for transit location: %s', transit_loc.name)
             picking.message_post(
                 body=_('❌ Error: Could not determine destination warehouse for receipt'),
                 message_type='comment'
             )
             return False
+
+        _logger.info('📍 Creating receipt for warehouse: %s', dest_warehouse.name)
 
         # Find receiving operation type
         receiving_type = self.env['stock.picking.type'].sudo().search([
@@ -188,7 +193,11 @@ class StockPicking(models.Model):
         ], limit=1)
 
         if not receiving_type:
-            _logger.error('No receiving operation type for warehouse: %s', dest_warehouse.name)
+            _logger.error('❌ No receiving operation type for warehouse: %s', dest_warehouse.name)
+            picking.message_post(
+                body=_('⚠️ Warning: Could not find receiving operation type. Create internal transfer type first.'),
+                message_type='comment'
+            )
             return False
 
         dest_location = receiving_type.default_location_dest_id
@@ -199,7 +208,7 @@ class StockPicking(models.Model):
             ], limit=1)
 
         if not dest_location:
-            _logger.error('No destination location for warehouse: %s', dest_warehouse.name)
+            _logger.error('❌ No destination location for warehouse: %s', dest_warehouse.name)
             return False
 
         # Create receipt picking
@@ -215,7 +224,7 @@ class StockPicking(models.Model):
         picking.write({'related_picking_id': new_picking.id})
         new_picking.write({'related_picking_id': picking.id})
 
-        _logger.info('Created receipt %s for %s', new_picking.name, picking.name)
+        _logger.info('✅ Created receipt %s for %s', new_picking.name, picking.name)
 
         # Copy moves from outgoing transfer
         for move in picking.move_ids:
@@ -261,14 +270,14 @@ class StockPicking(models.Model):
         new_picking.sudo().write({'state': 'assigned'})
 
         picking.message_post(
-            body=_('✅ Receipt transfer %s auto-created for %s') % (new_picking.name, dest_warehouse.name)
+            body=_('✅ Receipt transfer %s auto-created for warehouse %s') % (new_picking.name, dest_warehouse.name)
         )
 
         new_picking.message_post(
             body=_('📥 This receipt was auto-created from transfer %s. Validate to receive products.') % picking.name
         )
 
-        _logger.info('Receipt %s ready for validation', new_picking.name)
+        _logger.info('✅ Receipt %s ready for validation in warehouse %s', new_picking.name, dest_warehouse.name)
         return new_picking
 
     def _notify_source_warehouse(self, picking, notification_type):
@@ -276,7 +285,7 @@ class StockPicking(models.Model):
         source_warehouse = picking.source_warehouse_id
 
         if not source_warehouse:
-            _logger.warning('No source warehouse found for picking: %s', picking.name)
+            _logger.warning('⚠️ No source warehouse found for picking: %s', picking.name)
             return
 
         source_users = self._get_warehouse_users(source_warehouse)
@@ -298,8 +307,8 @@ class StockPicking(models.Model):
             )
 
         message = _(
-            '<p><strong>📤 Outgoing Request Received</strong></p>'
-            '<p>Warehouse <strong>%s</strong> has requested products from your warehouse:</p>'
+            '<p><strong>📤 Outgoing Request Confirmed</strong></p>'
+            '<p>Warehouse <strong>%s</strong> has confirmed request for products:</p>'
             '<ul>%s</ul>'
             '<p><strong>Transfer:</strong> %s</p>'
             '<p>Please validate to process the stock transfer.</p>'
@@ -310,14 +319,14 @@ class StockPicking(models.Model):
                   )
 
         self._create_notifications(picking, source_users, message,
-                                   'Request from ' + (dest_warehouse.name if dest_warehouse else 'Unknown'))
+                                   'Request Confirmed - ' + (dest_warehouse.name if dest_warehouse else 'Unknown'))
 
     def _notify_destination_warehouse(self, outgoing_picking, incoming_picking, notification_type):
         """Notify destination warehouse when transfer is approved"""
         dest_warehouse = incoming_picking.dest_warehouse_id
 
         if not dest_warehouse:
-            _logger.warning('No destination warehouse found')
+            _logger.warning('⚠️ No destination warehouse found')
             return
 
         dest_users = self._get_warehouse_users(dest_warehouse)
@@ -351,14 +360,15 @@ class StockPicking(models.Model):
                       incoming_picking.name
                   )
 
-        self._create_notifications(incoming_picking, dest_users, message, 'Request Approved - Action Required')
+        self._create_notifications(incoming_picking, dest_users, message, '✅ Request Approved - Action Required')
 
     def _create_notifications(self, picking, users, message, subject):
         """Create multiple notification methods"""
         if not users:
             return
 
-        _logger.info('📢 Sending notification to %d users: %s', len(users), ', '.join(users.mapped('name')))
+        _logger.info('📢 Sending notification to %d users for %s: %s',
+                     len(users), picking.name, ', '.join(users.mapped('name')))
 
         # Message in chatter
         picking.message_post(
@@ -384,8 +394,9 @@ class StockPicking(models.Model):
                     'user_id': user.id,
                     'date_deadline': fields.Date.today(),
                 })
+                _logger.info('✅ Activity created for user: %s', user.name)
             except Exception as e:
-                _logger.warning('Could not create activity for %s: %s', user.name, str(e))
+                _logger.warning('⚠️ Could not create activity for %s: %s', user.name, str(e))
 
         # Internal message
         self.env['mail.message'].sudo().create({
@@ -399,16 +410,25 @@ class StockPicking(models.Model):
         })
 
     def _get_warehouse_users(self, warehouse):
-        """Get users for a specific warehouse"""
+        """Get users for a specific warehouse by name matching"""
         try:
             _logger.info('🔍 Looking for users of warehouse: "%s"', warehouse.name)
 
-            # Search for group by warehouse name
+            # Search for group by warehouse name (SSAOCO-Main, SSAOCO-Dammam, SSAOCO-Baladiya)
             warehouse_group = self.env['res.groups'].search([
                 ('name', 'like', warehouse.name)
             ], limit=1)
 
+            if not warehouse_group:
+                _logger.warning('⚠️ No group found with name like "%s"', warehouse.name)
+                # Try alternative matching
+                warehouse_group = self.env['res.groups'].search([
+                    ('name', 'ilike', warehouse.name.replace('SSAOCO-', ''))
+                ], limit=1)
+
             if warehouse_group:
+                _logger.info('✅ Found group: %s', warehouse_group.name)
+
                 warehouse_users = self.env['res.users'].search([
                     ('group_ids', 'in', warehouse_group.id),
                     ('active', '=', True),
@@ -416,16 +436,23 @@ class StockPicking(models.Model):
                 ])
 
                 if warehouse_users:
-                    _logger.info('✅ Found %d users for %s', len(warehouse_users), warehouse.name)
+                    _logger.info('✅ Found %d users for warehouse %s: %s',
+                                 len(warehouse_users), warehouse.name,
+                                 ', '.join(warehouse_users.mapped('name')))
                     return warehouse_users
                 else:
-                    _logger.warning('⚠️ Group exists but no users assigned to %s', warehouse_group.name)
+                    _logger.warning('⚠️ Group %s exists but has NO USERS assigned', warehouse_group.name)
             else:
-                _logger.warning('⚠️ No group found for warehouse: %s', warehouse.name)
+                _logger.error('❌ Could not find group for warehouse: %s', warehouse.name)
+                # Log all available groups for debugging
+                all_groups = self.env['res.groups'].search([('name', 'ilike', 'SSAOCO')])
+                _logger.info('📋 Available SSAOCO groups: %s', ', '.join([g.name for g in all_groups]))
 
             _logger.error('❌ NO USERS FOUND for warehouse: %s', warehouse.name)
             return self.env['res.users'].browse([])
 
         except Exception as e:
             _logger.error('❌ Error getting warehouse users: %s', str(e))
+            import traceback
+            _logger.error(traceback.format_exc())
             return self.env['res.users'].browse([])

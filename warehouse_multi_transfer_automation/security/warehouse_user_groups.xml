@@ -2,24 +2,25 @@
 <odoo>
     <data noupdate="0">
 
-        <!-- Groups for each warehouse - customize with your warehouse names -->
-        <record id="group_warehouse_main" model="res.groups">
-            <field name="name">Main Warehouse User</field>
+        <!-- Security Groups for SSAOCO Warehouses -->
+
+        <!-- Main Warehouse Group -->
+        <record id="group_warehouse_ssaoco_main" model="res.groups">
+            <field name="name">SSAOCO-Main User</field>
             <field name="implied_ids" eval="[(4, ref('stock.group_stock_user'))]"/>
         </record>
 
-        <record id="group_warehouse_dammam" model="res.groups">
-            <field name="name">Dammam Warehouse User</field>
+        <!-- Baladiya Warehouse Group -->
+        <record id="group_warehouse_ssaoco_baladiya" model="res.groups">
+            <field name="name">SSAOCO-Baladiya User</field>
             <field name="implied_ids" eval="[(4, ref('stock.group_stock_user'))]"/>
         </record>
 
-        <record id="group_warehouse_baladiya" model="res.groups">
-            <field name="name">Baladiya Warehouse User</field>
+        <!-- Dammam Warehouse Group -->
+        <record id="group_warehouse_ssaoco_dammam" model="res.groups">
+            <field name="name">SSAOCO-Dammam User</field>
             <field name="implied_ids" eval="[(4, ref('stock.group_stock_user'))]"/>
         </record>
-
-        <!-- Additional warehouse groups can be added dynamically -->
-        <!-- The system now searches for groups containing warehouse names -->
 
     </data>
 </odoo>

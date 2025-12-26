@@ -1,6 +1,3 @@
-# ============================================
-# FILE: models/stock_picking_multi.py (FIXED)
-# ============================================
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError

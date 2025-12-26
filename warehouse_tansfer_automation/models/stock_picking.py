@@ -411,11 +411,15 @@ class StockPicking(models.Model):
                     if warehouse_group:
                         _logger.info('  ✓ Group found: %s (ID: %s)', warehouse_group.name, warehouse_group.id)
 
-                        warehouse_users = self.env['res.users'].search([
-                            ('groups_id', 'in', warehouse_group.id),
+                        # Search for users in this group
+                        warehouse_users = self.env['res.users'].sudo().search([
+                            ('groups_id', 'in', [warehouse_group.id]),
                             ('active', '=', True),
                             ('share', '=', False)
                         ])
+
+                        _logger.info('  🔍 Search criteria: groups_id in [%s], active=True, share=False',
+                                     warehouse_group.id)
 
                         if warehouse_users:
                             _logger.info('  ✅ Found %d users for warehouse %s: %s',
@@ -450,8 +454,6 @@ class StockPicking(models.Model):
             import traceback
             _logger.error(traceback.format_exc())
             return self.env['res.users'].browse([])
-
-
 
 
 

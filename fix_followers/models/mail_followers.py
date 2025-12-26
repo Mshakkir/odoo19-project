@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models
+from odoo import models, api
 from psycopg2 import IntegrityError
 import logging
 
@@ -10,65 +10,59 @@ _logger = logging.getLogger(__name__)
 class MailFollowers(models.Model):
     _inherit = 'mail.followers'
 
+    @api.model_create_multi
     def create(self, vals_list):
         """
-        Override create to catch duplicate follower errors.
-        This is a safer approach that doesn't depend on internal method signatures.
+        Override create to prevent duplicate follower errors.
+        Before creating, check if followers already exist and skip them.
         """
-        try:
-            return super(MailFollowers, self).create(vals_list)
-        except IntegrityError as e:
-            error_message = str(e)
-            if 'mail_followers_unique_idx' in error_message or \
-                    'duplicate key' in error_message or \
-                    'mail_followers_res_partner_res_model_id_uniq' in error_message:
-                _logger.warning(
-                    'Duplicate follower detected during create. '
-                    'Ignoring duplicate insertion. Error: %s',
-                    error_message
-                )
-                # Rollback the failed transaction
-                self.env.cr.rollback()
+        if not isinstance(vals_list, list):
+            vals_list = [vals_list]
 
-                # Try to return existing followers instead
-                if isinstance(vals_list, dict):
-                    vals_list = [vals_list]
+        # Filter out vals that would create duplicates
+        filtered_vals = []
+        existing_followers = self.browse()
 
-                existing_followers = self.env['mail.followers']
-                for vals in vals_list:
-                    if 'res_model' in vals and 'res_id' in vals and 'partner_id' in vals:
-                        existing = self.search([
-                            ('res_model', '=', vals['res_model']),
-                            ('res_id', '=', vals['res_id']),
-                            ('partner_id', '=', vals['partner_id'])
-                        ], limit=1)
-                        if existing:
-                            existing_followers |= existing
+        for vals in vals_list:
+            res_model = vals.get('res_model')
+            res_id = vals.get('res_id')
+            partner_id = vals.get('partner_id')
 
-                return existing_followers or self.browse()
+            if res_model and res_id and partner_id:
+                # Check if this follower already exists
+                existing = self.sudo().search([
+                    ('res_model', '=', res_model),
+                    ('res_id', '=', res_id),
+                    ('partner_id', '=', partner_id)
+                ], limit=1)
+
+                if existing:
+                    _logger.info(
+                        'Follower already exists for %s(%s), partner %s. Skipping creation.',
+                        res_model, res_id, partner_id
+                    )
+                    existing_followers |= existing
+                else:
+                    # Safe to create this one
+                    filtered_vals.append(vals)
             else:
-                # Re-raise if it's a different IntegrityError
-                raise
+                # No risk of duplicate, keep it
+                filtered_vals.append(vals)
 
+        # Create only the non-duplicate followers
+        new_followers = self.browse()
+        if filtered_vals:
+            try:
+                new_followers = super(MailFollowers, self).create(filtered_vals)
+            except IntegrityError as e:
+                # Last resort - if somehow a duplicate still gets through
+                error_message = str(e)
+                if 'mail_followers' in error_message and 'duplicate key' in error_message:
+                    _logger.warning('Duplicate follower error during create: %s', error_message)
+                    # Return empty recordset to avoid breaking the transaction
+                    return self.browse()
+                else:
+                    raise
 
-class MailThread(models.AbstractModel):
-    _inherit = 'mail.thread'
-
-    def _message_auto_subscribe_followers(self, updated_values, default_subtype_ids):
-        """
-        Additional safety layer to catch errors during auto-subscription
-        """
-        try:
-            return super(MailThread, self)._message_auto_subscribe_followers(
-                updated_values, default_subtype_ids
-            )
-        except IntegrityError as e:
-            if 'mail_followers' in str(e) and 'duplicate key' in str(e):
-                _logger.warning(
-                    'Duplicate follower in auto-subscribe. Ignoring. Error: %s',
-                    str(e)
-                )
-                self.env.cr.rollback()
-                return []
-            else:
-                raise
+        # Return combination of new and existing followers
+        return new_followers | existing_followers

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, api
+from odoo import models
 from psycopg2 import IntegrityError
 import logging
 
@@ -10,47 +10,65 @@ _logger = logging.getLogger(__name__)
 class MailFollowers(models.Model):
     _inherit = 'mail.followers'
 
-    @api.model
-    def _insert_followers(self, res_model, res_ids, partner_data,
-                          customer_ids=None, check_existing=True,
-                          existing_policy='skip', **kwargs):
+    def create(self, vals_list):
         """
-        Override to catch and handle duplicate follower insertion errors.
-        This prevents the 'duplicate key value violates unique constraint' error
-        when trying to add followers that already exist.
-
-        Added **kwargs to handle any additional parameters like 'subtypes'
-        that may be passed by different Odoo versions or modules.
+        Override create to catch duplicate follower errors.
+        This is a safer approach that doesn't depend on internal method signatures.
         """
         try:
-            return super(MailFollowers, self)._insert_followers(
-                res_model=res_model,
-                res_ids=res_ids,
-                partner_data=partner_data,
-                customer_ids=customer_ids,
-                check_existing=check_existing,
-                existing_policy=existing_policy,
-                **kwargs  # Pass through any additional parameters
-            )
+            return super(MailFollowers, self).create(vals_list)
         except IntegrityError as e:
             error_message = str(e)
             if 'mail_followers_unique_idx' in error_message or \
                     'duplicate key' in error_message or \
                     'mail_followers_res_partner_res_model_id_uniq' in error_message:
                 _logger.warning(
-                    'Duplicate follower detected for model %s, IDs %s. '
+                    'Duplicate follower detected during create. '
                     'Ignoring duplicate insertion. Error: %s',
-                    res_model, res_ids, error_message
+                    error_message
                 )
                 # Rollback the failed transaction
                 self.env.cr.rollback()
-                # Return empty recordset
-                return self.browse()
+
+                # Try to return existing followers instead
+                if isinstance(vals_list, dict):
+                    vals_list = [vals_list]
+
+                existing_followers = self.env['mail.followers']
+                for vals in vals_list:
+                    if 'res_model' in vals and 'res_id' in vals and 'partner_id' in vals:
+                        existing = self.search([
+                            ('res_model', '=', vals['res_model']),
+                            ('res_id', '=', vals['res_id']),
+                            ('partner_id', '=', vals['partner_id'])
+                        ], limit=1)
+                        if existing:
+                            existing_followers |= existing
+
+                return existing_followers or self.browse()
             else:
                 # Re-raise if it's a different IntegrityError
-                _logger.error('Non-duplicate IntegrityError: %s', error_message)
                 raise
-        except TypeError as e:
-            # Handle parameter mismatch errors gracefully
-            _logger.error('TypeError in _insert_followers: %s. Args: %s', e, kwargs)
-            raise
+
+
+class MailThread(models.AbstractModel):
+    _inherit = 'mail.thread'
+
+    def _message_auto_subscribe_followers(self, updated_values, default_subtype_ids):
+        """
+        Additional safety layer to catch errors during auto-subscription
+        """
+        try:
+            return super(MailThread, self)._message_auto_subscribe_followers(
+                updated_values, default_subtype_ids
+            )
+        except IntegrityError as e:
+            if 'mail_followers' in str(e) and 'duplicate key' in str(e):
+                _logger.warning(
+                    'Duplicate follower in auto-subscribe. Ignoring. Error: %s',
+                    str(e)
+                )
+                self.env.cr.rollback()
+                return []
+            else:
+                raise

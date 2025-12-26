@@ -1,0 +1,74 @@
+# -*- coding: utf-8 -*-
+
+from odoo import models, api
+from psycopg2 import IntegrityError
+import logging
+
+_logger = logging.getLogger(__name__)
+
+
+class MailFollowers(models.Model):
+    _inherit = 'mail.followers'
+
+    @api.model
+    def _insert_followers(self, res_model, res_ids, partner_data,
+                         customer_ids=None, check_existing=True,
+                         existing_policy='skip'):
+        """
+        Override to catch and handle duplicate follower insertion errors.
+        This prevents the 'duplicate key value violates unique constraint' error
+        when trying to add followers that already exist.
+        """
+        try:
+            return super(MailFollowers, self)._insert_followers(
+                res_model=res_model,
+                res_ids=res_ids,
+                partner_data=partner_data,
+                customer_ids=customer_ids,
+                check_existing=check_existing,
+                existing_policy=existing_policy
+            )
+        except IntegrityError as e:
+            error_message = str(e)
+            if 'mail_followers_unique_idx' in error_message or \
+               'duplicate key' in error_message or \
+               'mail_followers_res_partner_res_model_id_uniq' in error_message:
+                _logger.warning(
+                    'Duplicate follower detected for model %s, IDs %s. '
+                    'Ignoring duplicate insertion. Error: %s',
+                    res_model, res_ids, error_message
+                )
+                # Rollback the failed transaction
+                self.env.cr.rollback()
+                # Return empty recordset
+                return self.browse()
+            else:
+                # Re-raise if it's a different IntegrityError
+                raise
+
+    def _add_followers(self, res_model, res_ids, partner_ids,
+                       subtypes=None, customer_ids=None, check_existing=True):
+        """
+        Additional safeguard for the _add_followers method
+        """
+        try:
+            return super(MailFollowers, self)._add_followers(
+                res_model=res_model,
+                res_ids=res_ids,
+                partner_ids=partner_ids,
+                subtypes=subtypes,
+                customer_ids=customer_ids,
+                check_existing=check_existing
+            )
+        except IntegrityError as e:
+            error_message = str(e)
+            if 'mail_followers' in error_message and 'duplicate key' in error_message:
+                _logger.warning(
+                    'Duplicate follower in _add_followers for model %s. '
+                    'Ignoring. Error: %s',
+                    res_model, error_message
+                )
+                self.env.cr.rollback()
+                return self.browse()
+            else:
+                raise

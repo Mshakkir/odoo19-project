@@ -23,11 +23,12 @@
                 </button>
             </xpath>
 
-            <!-- Add checkbox to enable delivery creation -->
-            <xpath expr="//field[@name='invoice_date']" position="after">
+            <!-- Add checkbox in header area for better visibility -->
+            <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="create_delivery"
-                       invisible="move_type != 'out_invoice' or state != 'draft'"
-                       string="Auto Create Delivery"/>
+                       invisible="move_type != 'out_invoice'"
+                       widget="boolean_toggle"
+                       string="🚚 Auto Create Delivery Order"/>
             </xpath>
 
         </field>

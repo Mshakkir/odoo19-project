@@ -11,18 +11,16 @@ class MailFollowers(models.Model):
     _inherit = 'mail.followers'
 
     @api.model
-    def _add_followers(self, res_model, res_ids, partner_ids, subtypes=None, customer_ids=None, check_existing=True,
-                       **kwargs):
+    def _add_followers(self, res_model, res_ids, partner_ids, subtypes=None, **kwargs):
         """
         Override _add_followers to skip partners that are already following.
         This prevents the duplicate key error from happening in the first place.
         Works for ALL models (account.move, stock.picking, sale.order, etc.)
 
-        **kwargs catches any additional parameters like 'existing_policy' that may be passed
+        Using **kwargs to handle all possible parameters flexibly
         """
         if partner_ids:
             # Always check for existing followers to prevent duplicates
-            # Get existing followers for these records
             existing = self.sudo().search([
                 ('res_model', '=', res_model),
                 ('res_id', 'in', res_ids),
@@ -49,16 +47,10 @@ class MailFollowers(models.Model):
                     )
                     return existing
 
-        # Call parent method with filtered partner_ids and all kwargs
+        # Call parent method - let it handle all parameters
         try:
             return super(MailFollowers, self)._add_followers(
-                res_model=res_model,
-                res_ids=res_ids,
-                partner_ids=partner_ids,
-                subtypes=subtypes,
-                customer_ids=customer_ids,
-                check_existing=check_existing,
-                **kwargs  # Pass through all extra parameters
+                res_model, res_ids, partner_ids, subtypes, **kwargs
             )
         except IntegrityError as e:
             # Extra safety net in case duplicates still slip through
@@ -68,7 +60,7 @@ class MailFollowers(models.Model):
                     'IntegrityError caught for %s(%s): %s. Searching for existing followers.',
                     res_model, res_ids, error_message
                 )
-                # Don't rollback - just search for existing
+                # Search for existing
                 existing = self.sudo().search([
                     ('res_model', '=', res_model),
                     ('res_id', 'in', res_ids),

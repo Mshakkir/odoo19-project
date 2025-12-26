@@ -20,8 +20,9 @@
             <field name="model_id" ref="stock.model_stock_picking"/>
             <field name="groups" eval="[(4, ref('warehouse_multi_transfer_automation.group_warehouse_ssaoco_dammam'))]"/>
             <field name="domain_force">[
-                '|', '|', '|',
+                '|',
                 ('location_id.warehouse_id.name', '=', 'SSAOCO-Dammam'),
+                '|',
                 ('location_dest_id.warehouse_id.name', '=', 'SSAOCO-Dammam'),
                 ('picking_type_id.warehouse_id.name', '=', 'SSAOCO-Dammam')
             ]</field>
@@ -37,8 +38,9 @@
             <field name="model_id" ref="stock.model_stock_picking"/>
             <field name="groups" eval="[(4, ref('warehouse_multi_transfer_automation.group_warehouse_ssaoco_baladiya'))]"/>
             <field name="domain_force">[
-                '|', '|', '|',
+                '|',
                 ('location_id.warehouse_id.name', '=', 'SSAOCO-Baladiya'),
+                '|',
                 ('location_dest_id.warehouse_id.name', '=', 'SSAOCO-Baladiya'),
                 ('picking_type_id.warehouse_id.name', '=', 'SSAOCO-Baladiya')
             ]</field>

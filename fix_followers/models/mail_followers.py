@@ -12,12 +12,15 @@ class MailFollowers(models.Model):
 
     @api.model
     def _insert_followers(self, res_model, res_ids, partner_data,
-                         customer_ids=None, check_existing=True,
-                         existing_policy='skip'):
+                          customer_ids=None, check_existing=True,
+                          existing_policy='skip', **kwargs):
         """
         Override to catch and handle duplicate follower insertion errors.
         This prevents the 'duplicate key value violates unique constraint' error
         when trying to add followers that already exist.
+
+        Added **kwargs to handle any additional parameters like 'subtypes'
+        that may be passed by different Odoo versions or modules.
         """
         try:
             return super(MailFollowers, self)._insert_followers(
@@ -26,13 +29,14 @@ class MailFollowers(models.Model):
                 partner_data=partner_data,
                 customer_ids=customer_ids,
                 check_existing=check_existing,
-                existing_policy=existing_policy
+                existing_policy=existing_policy,
+                **kwargs  # Pass through any additional parameters
             )
         except IntegrityError as e:
             error_message = str(e)
             if 'mail_followers_unique_idx' in error_message or \
-               'duplicate key' in error_message or \
-               'mail_followers_res_partner_res_model_id_uniq' in error_message:
+                    'duplicate key' in error_message or \
+                    'mail_followers_res_partner_res_model_id_uniq' in error_message:
                 _logger.warning(
                     'Duplicate follower detected for model %s, IDs %s. '
                     'Ignoring duplicate insertion. Error: %s',
@@ -44,4 +48,9 @@ class MailFollowers(models.Model):
                 return self.browse()
             else:
                 # Re-raise if it's a different IntegrityError
+                _logger.error('Non-duplicate IntegrityError: %s', error_message)
                 raise
+        except TypeError as e:
+            # Handle parameter mismatch errors gracefully
+            _logger.error('TypeError in _insert_followers: %s. Args: %s', e, kwargs)
+            raise

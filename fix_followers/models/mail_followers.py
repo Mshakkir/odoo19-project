@@ -11,11 +11,14 @@ class MailFollowers(models.Model):
     _inherit = 'mail.followers'
 
     @api.model
-    def _add_followers(self, res_model, res_ids, partner_ids, subtypes=None, customer_ids=None, check_existing=True):
+    def _add_followers(self, res_model, res_ids, partner_ids, subtypes=None, customer_ids=None, check_existing=True,
+                       **kwargs):
         """
         Override _add_followers to skip partners that are already following.
         This prevents the duplicate key error from happening in the first place.
         Works for ALL models (account.move, stock.picking, sale.order, etc.)
+
+        **kwargs catches any additional parameters like 'existing_policy' that may be passed
         """
         if partner_ids:
             # Always check for existing followers to prevent duplicates
@@ -46,7 +49,7 @@ class MailFollowers(models.Model):
                     )
                     return existing
 
-        # Call parent method with filtered partner_ids
+        # Call parent method with filtered partner_ids and all kwargs
         try:
             return super(MailFollowers, self)._add_followers(
                 res_model=res_model,
@@ -54,7 +57,8 @@ class MailFollowers(models.Model):
                 partner_ids=partner_ids,
                 subtypes=subtypes,
                 customer_ids=customer_ids,
-                check_existing=check_existing
+                check_existing=check_existing,
+                **kwargs  # Pass through all extra parameters
             )
         except IntegrityError as e:
             # Extra safety net in case duplicates still slip through
@@ -68,7 +72,7 @@ class MailFollowers(models.Model):
                 existing = self.sudo().search([
                     ('res_model', '=', res_model),
                     ('res_id', 'in', res_ids),
-                    ('partner_id', 'in', partner_ids)
+                    ('partner_id', 'in', partner_ids) if partner_ids else ('id', '!=', False)
                 ])
                 return existing if existing else self.browse()
             else:

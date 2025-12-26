@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 {
     'name': 'Multi-Warehouse Transfer Automation',
     'version': '19.0.1.0.0',
@@ -14,7 +15,7 @@
         * Support for unlimited warehouses
     """,
     'author': 'Your Company',
-    'website': 'https://www.airmixs.com',
+    'website': 'https://www.yourcompany.com',
     'depends': ['stock', 'mail'],
     'data': [
         'security/warehouse_user_groups.xml',

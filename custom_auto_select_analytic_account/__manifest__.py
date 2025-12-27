@@ -9,7 +9,7 @@
         Warehouses must have the same name as analytic accounts.
     """,
     'author': 'Your Name',
-    'depends': ['sale_stock', 'analytic'],
+    'depends': ['sale_stock', 'analytic','purchase_stock'],
     'data': [],
     'installable': True,
     'application': False,

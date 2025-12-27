@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_stock_picking_warehouse_user,stock.picking.warehouse.user,stock.model_stock_picking,stock.group_stock_user,1,1,1,0
+access_mail_activity_warehouse_user,mail.activity.warehouse.user,mail.model_mail_activity,stock.group_stock_user,1,1,1,0
+access_mail_activity_type_warehouse_user,mail.activity.type.warehouse.user,mail.model_mail_activity_type,stock.group_stock_user,1,0,0,0
+access_stock_location_warehouse_user,stock.location.warehouse.user,stock.model_stock_location,stock.group_stock_user,1,1,1,0
+access_stock_picking_type_warehouse_user,stock.picking.type.warehouse.user,stock.model_stock_picking_type,stock.group_stock_user,1,1,1,0

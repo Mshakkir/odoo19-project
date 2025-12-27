@@ -8,9 +8,9 @@ class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
 
     @api.onchange('analytic_distribution')
-    def _onchange_analytic_distribution_set_destination(self):
+    def _onchange_analytic_distribution_set_picking_type(self):
         """
-        Auto-select destination location (Deliver To) based on analytic account
+        Auto-select picking type (operation type) based on analytic account
         in analytic distribution for purchase order lines.
         """
         if not self.analytic_distribution:
@@ -31,46 +31,42 @@ class PurchaseOrderLine(models.Model):
                 analytic_account = self.env['account.analytic.account'].browse(main_analytic_id)
 
                 if analytic_account.exists() and analytic_account.name:
-                    location_name = analytic_account.name
+                    warehouse_name = analytic_account.name
 
-                    # Search for stock location with matching name
-                    # Looking for locations of type 'internal' (warehouse locations)
-                    location = self.env['stock.location'].search([
-                        ('name', '=', location_name),
-                        ('usage', '=', 'internal'),
+                    # Search for warehouse with matching name
+                    warehouse = self.env['stock.warehouse'].search([
+                        ('name', '=', warehouse_name),
                         '|',
                         ('company_id', '=', self.order_id.company_id.id),
                         ('company_id', '=', False)
                     ], limit=1)
 
-                    if location:
-                        # Update destination location on the purchase order
-                        self.order_id.dest_address_id = location.id
-                        _logger.info(
-                            f"Delivery location '{location.name}' auto-selected based on "
-                            f"analytic account '{analytic_account.name}'"
-                        )
-                    else:
-                        # If no location found, try finding by warehouse
-                        warehouse = self.env['stock.warehouse'].search([
-                            ('name', '=', location_name)
+                    if warehouse:
+                        # Get the incoming picking type (Receipts) for this warehouse
+                        picking_type = self.env['stock.picking.type'].search([
+                            ('warehouse_id', '=', warehouse.id),
+                            ('code', '=', 'incoming')  # Incoming = Receipts
                         ], limit=1)
 
-                        if warehouse and warehouse.lot_stock_id:
-                            # Use warehouse's main stock location
-                            self.order_id.dest_address_id = warehouse.lot_stock_id.id
+                        if picking_type:
+                            # Update picking type on the purchase order
+                            self.order_id.picking_type_id = picking_type.id
                             _logger.info(
-                                f"Warehouse location '{warehouse.name}' auto-selected based on "
-                                f"analytic account '{analytic_account.name}'"
+                                f"Picking type '{picking_type.name}' for warehouse '{warehouse.name}' "
+                                f"auto-selected based on analytic account '{analytic_account.name}'"
                             )
                         else:
                             _logger.warning(
-                                f"No location or warehouse found with name '{location_name}' "
-                                f"matching analytic account"
+                                f"No incoming picking type found for warehouse '{warehouse_name}'"
                             )
+                    else:
+                        _logger.warning(
+                            f"No warehouse found with name '{warehouse_name}' "
+                            f"matching analytic account"
+                        )
 
         except Exception as e:
-            _logger.error(f"Error in auto-selecting delivery location: {str(e)}")
+            _logger.error(f"Error in auto-selecting picking type: {str(e)}")
 
 
 class PurchaseOrder(models.Model):
@@ -79,7 +75,7 @@ class PurchaseOrder(models.Model):
     @api.onchange('order_line', 'order_line.analytic_distribution')
     def _onchange_order_line_analytic_distribution(self):
         """
-        Monitor line changes and update delivery location at order level
+        Monitor line changes and update picking type at order level
         """
         if self.order_line:
             for line in self.order_line:
@@ -91,20 +87,19 @@ class PurchaseOrder(models.Model):
                         analytic = self.env['account.analytic.account'].browse(analytic_id)
 
                         if analytic.exists() and analytic.name:
-                            # Try to find location first
-                            location = self.env['stock.location'].search([
-                                ('name', '=', analytic.name),
-                                ('usage', '=', 'internal')
+                            # Find warehouse
+                            warehouse = self.env['stock.warehouse'].search([
+                                ('name', '=', analytic.name)
                             ], limit=1)
 
-                            if not location:
-                                # Try warehouse
-                                warehouse = self.env['stock.warehouse'].search([
-                                    ('name', '=', analytic.name)
+                            if warehouse:
+                                # Get incoming picking type
+                                picking_type = self.env['stock.picking.type'].search([
+                                    ('warehouse_id', '=', warehouse.id),
+                                    ('code', '=', 'incoming')
                                 ], limit=1)
-                                if warehouse:
-                                    location = warehouse.lot_stock_id
 
-                            if location and self.dest_address_id != location:
-                                self.dest_address_id = location.id
-                                return
+                                if picking_type and self.picking_type_id != picking_type:
+                                    self.picking_type_id = picking_type.id
+                                    return
+

@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_warehouse_transfer_request_user,warehouse.transfer.request.user,model_warehouse_transfer_request,stock.group_stock_user,1,1,1,0
+access_warehouse_transfer_request_manager,warehouse.transfer.request.manager,model_warehouse_transfer_request,stock.group_stock_manager,1,1,1,1
+access_warehouse_transfer_request_line_user,warehouse.transfer.request.line.user,model_warehouse_transfer_request_line,stock.group_stock_user,1,1,1,0
+access_warehouse_transfer_request_line_manager,warehouse.transfer.request.line.manager,model_warehouse_transfer_request_line,stock.group_stock_manager,1,1,1,1

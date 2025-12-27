@@ -45,24 +45,29 @@ class AccountMove(models.Model):
                          f"Quantity: {line.quantity}, Display Type: {line.display_type}")
 
         # Check for products that should create delivery orders
-        # Since this Odoo has custom product types (Goods/Service/Combo),
-        # we'll accept products that are NOT services and have quantity > 0
-        stockable_lines = self.invoice_line_ids.filtered(
-            lambda l: l.product_id and
-                      not l.display_type and
-                      l.product_id.type != 'service' and  # Exclude only services
-                      l.quantity > 0
-        )
+        # Accept ALL products except services
+        stockable_lines = []
+        for line in self.invoice_line_ids:
+            _logger.info(f"Checking line: Product={line.product_id.name if line.product_id else 'None'}, "
+                         f"Type={line.product_id.type if line.product_id else 'N/A'}, "
+                         f"Display_Type={line.display_type}, Qty={line.quantity}")
 
-        _logger.info(f"Products found for delivery: {len(stockable_lines)}")
+            if (line.product_id and
+                    line.product_id.type != 'service' and
+                    line.quantity > 0 and
+                    not line.display_type):
+                stockable_lines.append(line)
+                _logger.info(f"✓ Line accepted for delivery: {line.product_id.name}")
+
+        _logger.info(f"Total products found for delivery: {len(stockable_lines)}")
 
         if not stockable_lines:
             _logger.error(f"No products found for delivery in invoice {self.name}")
             error_msg = 'No products found for delivery creation. Details:\n'
             for line in self.invoice_line_ids:
                 if line.product_id:
-                    error_msg += f"- {line.product_id.name}: Type={line.product_id.type}, Qty={line.quantity}\n"
-            error_msg += '\nNote: Only non-service products will create deliveries.'
+                    error_msg += f"- {line.product_id.name}: Type={line.product_id.type}, Qty={line.quantity}, Display={line.display_type}\n"
+            error_msg += '\nDebug: Check logs for detailed filtering information.'
             raise UserError(_(error_msg))
 
         _logger.info(f"Found {len(stockable_lines)} stockable lines")

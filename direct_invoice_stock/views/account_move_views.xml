@@ -23,23 +23,33 @@
                 </button>
             </xpath>
 
-            <!-- Add checkbox and warehouse selector -->
-            <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="create_delivery"
-                       invisible="move_type != 'out_invoice'"
-                       widget="boolean_toggle"
-                       string="🚚 Auto Create Delivery Order"/>
+            <!-- Add checkbox after partner_shipping_id -->
+            <xpath expr="//field[@name='partner_shipping_id']" position="after">
+                <label for="create_delivery"
+                       string="🚚 Auto Create Delivery"
+                       invisible="move_type != 'out_invoice'"/>
+                <div invisible="move_type != 'out_invoice'">
+                    <field name="create_delivery"
+                           widget="boolean_toggle"
+                           nolabel="1"/>
+                </div>
+            </xpath>
+
+            <!-- Add warehouse field after create_delivery -->
+            <xpath expr="//field[@name='create_delivery']" position="after">
                 <field name="warehouse_id"
                        invisible="not create_delivery or move_type != 'out_invoice'"
                        options="{'no_create': True, 'no_open': True}"
                        placeholder="Auto-selected from Analytic Account"
-                       help="This will be automatically set when you select an analytic account in invoice lines. You can also change it manually."/>
+                       string="Delivery Warehouse"/>
             </xpath>
 
         </field>
     </record>
 
 </odoo>
+
+<!--stock reduce issue solve below code usage-->
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 

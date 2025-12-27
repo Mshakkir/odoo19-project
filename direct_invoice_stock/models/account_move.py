@@ -44,36 +44,25 @@ class AccountMove(models.Model):
                          f"Product Type: {line.product_id.type if line.product_id else 'N/A'}, "
                          f"Quantity: {line.quantity}, Display Type: {line.display_type}")
 
-        # Check if there are products with inventory tracking enabled
-        # This works with custom product type fields (like Goods/Service/Combo)
-        # We check if the product has 'Track Inventory' enabled instead of checking type
+        # Check for products that should create delivery orders
+        # Since this Odoo has custom product types (Goods/Service/Combo),
+        # we'll accept products that are NOT services and have quantity > 0
         stockable_lines = self.invoice_line_ids.filtered(
             lambda l: l.product_id and
                       not l.display_type and
-                      l.product_id.tracking != 'none' and  # Product has inventory tracking
+                      l.product_id.type != 'service' and  # Exclude only services
                       l.quantity > 0
         )
 
-        # If no tracking field, fallback to checking if product type is 'product' OR if it's not a service
-        if not stockable_lines:
-            stockable_lines = self.invoice_line_ids.filtered(
-                lambda l: l.product_id and
-                          not l.display_type and
-                          l.product_id.type in ['product', 'consu'] and  # Accept both product and consu (for Goods)
-                          hasattr(l.product_id, 'invoice_policy') and  # Has sales configuration
-                          l.quantity > 0
-            )
-
-        _logger.info(f"Stockable lines found: {len(stockable_lines)}")
+        _logger.info(f"Products found for delivery: {len(stockable_lines)}")
 
         if not stockable_lines:
             _logger.error(f"No products found for delivery in invoice {self.name}")
             error_msg = 'No products found for delivery creation. Details:\n'
             for line in self.invoice_line_ids:
                 if line.product_id:
-                    tracking = getattr(line.product_id, 'tracking', 'N/A')
-                    error_msg += f"- {line.product_id.name}: Type={line.product_id.type}, Tracking={tracking}, Qty={line.quantity}\n"
-            error_msg += '\nPlease ensure "Track Inventory" is enabled on your products.'
+                    error_msg += f"- {line.product_id.name}: Type={line.product_id.type}, Qty={line.quantity}\n"
+            error_msg += '\nNote: Only non-service products will create deliveries.'
             raise UserError(_(error_msg))
 
         _logger.info(f"Found {len(stockable_lines)} stockable lines")

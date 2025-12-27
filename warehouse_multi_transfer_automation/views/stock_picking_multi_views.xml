@@ -1,38 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Form View Enhancement - Use inside sheet instead of before -->
+    <!-- TEMPORARY: Empty view to allow installation -->
     <record id="view_picking_form_inherit_multi_wh" model="ir.ui.view">
         <field name="name">stock.picking.form.multi.warehouse</field>
         <field name="model">stock.picking</field>
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
-            <!-- Add fields inside the sheet where other fields are -->
-            <xpath expr="//field[@name='scheduled_date']" position="after">
-                <field name="transfer_type" widget="radio"
-                       attrs="{'invisible': [('is_multi_wh_transfer', '=', False)]}"/>
-                <field name="source_warehouse_id" readonly="1"
-                       attrs="{'invisible': [('is_multi_wh_transfer', '=', False)]}"/>
-                <field name="dest_warehouse_id" readonly="1"
-                       attrs="{'invisible': [('is_multi_wh_transfer', '=', False)]}"/>
-                <field name="auto_receipt_created" invisible="1"/>
-                <field name="related_picking_id" invisible="1"/>
-                <field name="is_multi_wh_transfer" invisible="1"/>
+            <!-- This will be populated AFTER installation -->
+            <xpath expr="//form" position="inside">
+                <!-- No fields yet -->
             </xpath>
         </field>
     </record>
 
-    <!-- Tree/List View Enhancement -->
+    <!-- TEMPORARY: Empty tree view -->
     <record id="view_picking_tree_inherit_multi_wh" model="ir.ui.view">
         <field name="name">stock.picking.tree.multi.warehouse</field>
         <field name="model">stock.picking</field>
         <field name="inherit_id" ref="stock.vpicktree"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='name']" position="after">
-                <field name="transfer_type" widget="selection" optional="show"/>
-                <field name="source_warehouse_id" optional="hide"/>
-                <field name="dest_warehouse_id" optional="hide"/>
-            </xpath>
+            <!-- No fields yet -->
         </field>
     </record>
 

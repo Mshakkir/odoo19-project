@@ -203,7 +203,6 @@
 #             'res_id': self.picking_id.id,
 #             'view_mode': 'form',
 #             'target': 'current',
-#         }
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 import logging
@@ -301,19 +300,27 @@ class AccountMove(models.Model):
 
         _logger.info(f"Using warehouse: {warehouse.name}")
 
-        # Get stock locations - use the correct output location from warehouse
-        # This is critical - we must use the warehouse's proper output location
+        # Get stock location
+        location_id = warehouse.lot_stock_id.id
+
+        # Get customer location
+        customer_location = self.env.ref('stock.stock_location_customers', raise_if_not_found=False)
+        if not customer_location:
+            # Fallback: search for customer location
+            customer_location = self.env['stock.location'].search([
+                ('usage', '=', 'customer')
+            ], limit=1)
+
+        if not customer_location:
+            raise UserError(_('Customer location not found. Please check your stock configuration.'))
+
+        location_dest_id = customer_location.id
+
+        # Create picking (delivery order)
         picking_type = warehouse.out_type_id
 
         if not picking_type:
             raise UserError(_('Delivery operation type not found in warehouse %s') % warehouse.name)
-
-        # Use the picking type's default locations
-        location_id = picking_type.default_location_src_id.id
-        location_dest_id = picking_type.default_location_dest_id.id
-
-        _logger.info(f"Using locations - Source: {picking_type.default_location_src_id.name}, "
-                     f"Destination: {picking_type.default_location_dest_id.name}")
 
         _logger.info(f"Creating picking with type: {picking_type.name}")
 

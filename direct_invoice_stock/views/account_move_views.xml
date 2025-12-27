@@ -23,12 +23,16 @@
                 </button>
             </xpath>
 
-            <!-- Add checkbox in header area for better visibility -->
+            <!-- Add checkbox and warehouse selector -->
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="create_delivery"
                        invisible="move_type != 'out_invoice'"
                        widget="boolean_toggle"
                        string="🚚 Auto Create Delivery Order"/>
+                <field name="warehouse_id"
+                       invisible="not create_delivery or move_type != 'out_invoice'"
+                       options="{'no_create': True, 'no_open': True}"
+                       placeholder="Auto-detect from Analytic Account or use default"/>
             </xpath>
 
         </field>

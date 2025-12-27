@@ -14,6 +14,11 @@
 #         default=False,
 #         help='Check this to automatically create delivery order on invoice validation'
 #     )
+#     warehouse_id = fields.Many2one(
+#         'stock.warehouse',
+#         string='Warehouse',
+#         help='Select warehouse for stock reduction. If not set, default warehouse will be used.'
+#     )
 #
 #     def action_post(self):
 #         """Override the post method to create delivery order after invoice validation"""
@@ -203,6 +208,7 @@
 #             'res_id': self.picking_id.id,
 #             'view_mode': 'form',
 #             'target': 'current',
+#         }
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 import logging
@@ -255,8 +261,6 @@ class AccountMove(models.Model):
                          f"Quantity: {line.quantity}, Display Type: {line.display_type}")
 
         # Check for products that should create delivery orders
-        # Accept ALL products except services
-        # Note: display_type can be 'product', 'line_section', 'line_note', or False
         stockable_lines = []
         for line in self.invoice_line_ids:
             _logger.info(f"Checking line: Product={line.product_id.name if line.product_id else 'None'}, "
@@ -267,7 +271,7 @@ class AccountMove(models.Model):
             if (line.product_id and
                     line.product_id.type != 'service' and
                     line.quantity > 0 and
-                    line.display_type not in ['line_section', 'line_note']):  # Allow 'product' and False
+                    line.display_type not in ['line_section', 'line_note']):
                 stockable_lines.append(line)
                 _logger.info(f"✓ Line accepted for delivery: {line.product_id.name}")
             else:
@@ -288,20 +292,45 @@ class AccountMove(models.Model):
 
         _logger.info(f"Found {len(stockable_lines)} stockable lines")
 
-        # Get warehouse
-        warehouse = self.env['stock.warehouse'].search([
-            ('company_id', '=', self.company_id.id)
-        ], limit=1)
+        # Get warehouse - USE THE SELECTED WAREHOUSE OR DEFAULT
+        if self.warehouse_id:
+            warehouse = self.warehouse_id
+            _logger.info(f"Using user-selected warehouse: {warehouse.name}")
+        else:
+            # Try to get warehouse from analytic account if available
+            warehouse = None
+            if self.invoice_line_ids and self.invoice_line_ids[0].analytic_distribution:
+                # Get first analytic account ID from distribution
+                analytic_dict = self.invoice_line_ids[0].analytic_distribution
+                if analytic_dict:
+                    analytic_id = int(list(analytic_dict.keys())[0])
+                    analytic_account = self.env['account.analytic.account'].browse(analytic_id)
+                    if analytic_account:
+                        # Search for warehouse with matching name
+                        warehouse = self.env['stock.warehouse'].search([
+                            ('name', 'ilike', analytic_account.name),
+                            ('company_id', '=', self.company_id.id)
+                        ], limit=1)
+                        if warehouse:
+                            _logger.info(f"Found warehouse from analytic account: {warehouse.name}")
+
+            # Fallback to default warehouse
+            if not warehouse:
+                warehouse = self.env['stock.warehouse'].search([
+                    ('company_id', '=', self.company_id.id)
+                ], limit=1)
+                _logger.info(f"Using default warehouse: {warehouse.name}")
 
         if not warehouse:
             _logger.error(f"No warehouse found for company {self.company_id.name}")
             raise UserError(
                 _('No warehouse found for company %s. Please create a warehouse first.') % self.company_id.name)
 
-        _logger.info(f"Using warehouse: {warehouse.name}")
+        _logger.info(f"Final warehouse selection: {warehouse.name} (ID: {warehouse.id})")
 
-        # Get stock location
+        # Get stock location FROM THE SELECTED WAREHOUSE
         location_id = warehouse.lot_stock_id.id
+        _logger.info(f"Using stock location: {warehouse.lot_stock_id.name} (ID: {location_id})")
 
         # Get customer location
         customer_location = self.env.ref('stock.stock_location_customers', raise_if_not_found=False)
@@ -316,7 +345,7 @@ class AccountMove(models.Model):
 
         location_dest_id = customer_location.id
 
-        # Create picking (delivery order)
+        # Create picking (delivery order) FROM THE SELECTED WAREHOUSE
         picking_type = warehouse.out_type_id
 
         if not picking_type:
@@ -335,12 +364,13 @@ class AccountMove(models.Model):
         }
 
         picking = self.env['stock.picking'].create(picking_vals)
-        _logger.info(f"Created picking: {picking.name}")
+        _logger.info(f"Created picking: {picking.name} from warehouse: {warehouse.name}")
 
         # Create stock moves for each invoice line
         moves_created = 0
         for line in stockable_lines:
-            _logger.info(f"Creating move for product: {line.product_id.name}, qty: {line.quantity}")
+            _logger.info(
+                f"Creating move for product: {line.product_id.name}, qty: {line.quantity} from location: {warehouse.lot_stock_id.name}")
 
             move_vals = {
                 'product_id': line.product_id.id,
@@ -351,11 +381,12 @@ class AccountMove(models.Model):
                 'location_dest_id': location_dest_id,
                 'company_id': self.company_id.id,
                 'picking_type_id': picking_type.id,
+                'name': line.product_id.name,
             }
 
             move = self.env['stock.move'].create(move_vals)
             moves_created += 1
-            _logger.info(f"Created stock move: {move.id}")
+            _logger.info(f"Created stock move: {move.id} - {line.product_id.name}")
 
         if moves_created == 0:
             picking.unlink()
@@ -398,7 +429,8 @@ class AccountMove(models.Model):
         _logger.info(f"Successfully linked picking {picking.name} to invoice {self.name}")
 
         # Show success message
-        message = _('Delivery order %s has been created and validated automatically.') % picking.name
+        message = _('Delivery order %s has been created and validated automatically from warehouse %s.') % (
+            picking.name, warehouse.name)
         self.message_post(body=message)
 
         return picking

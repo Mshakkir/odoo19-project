@@ -164,15 +164,10 @@ class AccountMove(models.Model):
 
         # Auto-validate the picking (set quantities done)
         for move in picking.move_ids:
-            for move_line in move.move_line_ids:
-                move_line.quantity = move_line.reserved_uom_qty
-            # If no move lines, create them
-            if not move.move_line_ids:
-                move._action_assign()
-                for move_line in move.move_line_ids:
-                    move_line.quantity = move_line.reserved_uom_qty
+            # Set the quantity done directly on the move
+            move.quantity = move.product_uom_qty
 
-        _logger.info("Set quantities done on move lines")
+        _logger.info("Set quantities done on moves")
 
         # Validate the picking
         try:

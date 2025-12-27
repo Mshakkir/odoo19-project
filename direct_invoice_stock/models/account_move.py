@@ -46,18 +46,24 @@ class AccountMove(models.Model):
 
         # Check for products that should create delivery orders
         # Accept ALL products except services
+        # Note: display_type can be 'product', 'line_section', 'line_note', or False
         stockable_lines = []
         for line in self.invoice_line_ids:
             _logger.info(f"Checking line: Product={line.product_id.name if line.product_id else 'None'}, "
                          f"Type={line.product_id.type if line.product_id else 'N/A'}, "
                          f"Display_Type={line.display_type}, Qty={line.quantity}")
 
+            # Exclude section and note lines, but include 'product' display_type
             if (line.product_id and
                     line.product_id.type != 'service' and
                     line.quantity > 0 and
-                    not line.display_type):
+                    line.display_type not in ['line_section', 'line_note']):  # Allow 'product' and False
                 stockable_lines.append(line)
                 _logger.info(f"✓ Line accepted for delivery: {line.product_id.name}")
+            else:
+                _logger.info(
+                    f"✗ Line rejected - Service={line.product_id.type == 'service' if line.product_id else 'N/A'}, "
+                    f"Display={line.display_type}")
 
         _logger.info(f"Total products found for delivery: {len(stockable_lines)}")
 

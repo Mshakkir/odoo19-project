@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Form View Enhancement -->
+    <!-- Form View Enhancement - Use inside sheet instead of before -->
     <record id="view_picking_form_inherit_multi_wh" model="ir.ui.view">
         <field name="name">stock.picking.form.multi.warehouse</field>
         <field name="model">stock.picking</field>
-        <!-- ✅ stock.view_picking_form still EXISTS in Odoo 19 -->
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//sheet" position="before">
-                <field name="transfer_type" invisible="1"/>
-                <field name="is_multi_wh_transfer" invisible="1"/>
-                <field name="source_warehouse_id" invisible="1"/>
-                <field name="dest_warehouse_id" invisible="1"/>
+            <!-- Add fields inside the sheet where other fields are -->
+            <xpath expr="//field[@name='scheduled_date']" position="after">
+                <field name="transfer_type" widget="radio"
+                       attrs="{'invisible': [('is_multi_wh_transfer', '=', False)]}"/>
+                <field name="source_warehouse_id" readonly="1"
+                       attrs="{'invisible': [('is_multi_wh_transfer', '=', False)]}"/>
+                <field name="dest_warehouse_id" readonly="1"
+                       attrs="{'invisible': [('is_multi_wh_transfer', '=', False)]}"/>
                 <field name="auto_receipt_created" invisible="1"/>
                 <field name="related_picking_id" invisible="1"/>
+                <field name="is_multi_wh_transfer" invisible="1"/>
             </xpath>
         </field>
     </record>
@@ -23,15 +26,10 @@
     <record id="view_picking_tree_inherit_multi_wh" model="ir.ui.view">
         <field name="name">stock.picking.tree.multi.warehouse</field>
         <field name="model">stock.picking</field>
-
-        <!-- ✅ FIX FOR ODOO 19 -->
-        <!-- ❌ stock.view_picking_tree (REMOVED) -->
-        <!-- ✅ stock.vpicktree (CORRECT) -->
         <field name="inherit_id" ref="stock.vpicktree"/>
-
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
-                <field name="transfer_type" optional="show"/>
+                <field name="transfer_type" widget="selection" optional="show"/>
                 <field name="source_warehouse_id" optional="hide"/>
                 <field name="dest_warehouse_id" optional="hide"/>
             </xpath>
@@ -39,6 +37,57 @@
     </record>
 
 </odoo>
+
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+
+<!--    &lt;!&ndash; Form View Enhancement &ndash;&gt;-->
+<!--    <record id="view_picking_form_inherit_multi_wh" model="ir.ui.view">-->
+<!--        <field name="name">stock.picking.form.multi.warehouse</field>-->
+<!--        <field name="model">stock.picking</field>-->
+<!--        &lt;!&ndash; ✅ stock.view_picking_form still EXISTS in Odoo 19 &ndash;&gt;-->
+<!--        <field name="inherit_id" ref="stock.view_picking_form"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//sheet" position="before">-->
+<!--                <field name="transfer_type" invisible="1"/>-->
+<!--                <field name="is_multi_wh_transfer" invisible="1"/>-->
+<!--                <field name="source_warehouse_id" invisible="1"/>-->
+<!--                <field name="dest_warehouse_id" invisible="1"/>-->
+<!--                <field name="auto_receipt_created" invisible="1"/>-->
+<!--                <field name="related_picking_id" invisible="1"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Tree/List View Enhancement &ndash;&gt;-->
+<!--    <record id="view_picking_tree_inherit_multi_wh" model="ir.ui.view">-->
+<!--        <field name="name">stock.picking.tree.multi.warehouse</field>-->
+<!--        <field name="model">stock.picking</field>-->
+
+<!--        &lt;!&ndash; ✅ FIX FOR ODOO 19 &ndash;&gt;-->
+<!--        &lt;!&ndash; ❌ stock.view_picking_tree (REMOVED) &ndash;&gt;-->
+<!--        &lt;!&ndash; ✅ stock.vpicktree (CORRECT) &ndash;&gt;-->
+<!--        <field name="inherit_id" ref="stock.vpicktree"/>-->
+
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//field[@name='name']" position="after">-->
+<!--                <field name="transfer_type" optional="show"/>-->
+<!--                <field name="source_warehouse_id" optional="hide"/>-->
+<!--                <field name="dest_warehouse_id" optional="hide"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--</odoo>-->
 
 
 

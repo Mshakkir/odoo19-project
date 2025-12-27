@@ -133,7 +133,6 @@ class AccountMove(models.Model):
             _logger.info(f"Creating move for product: {line.product_id.name}, qty: {line.quantity}")
 
             move_vals = {
-                'name': line.product_id.name or '/',
                 'product_id': line.product_id.id,
                 'product_uom_qty': line.quantity,
                 'product_uom': line.product_uom_id.id,
@@ -146,7 +145,7 @@ class AccountMove(models.Model):
 
             move = self.env['stock.move'].create(move_vals)
             moves_created += 1
-            _logger.info(f"Created stock move: {move.name}")
+            _logger.info(f"Created stock move: {move.id}")
 
         if moves_created == 0:
             picking.unlink()

@@ -381,7 +381,6 @@ class AccountMove(models.Model):
                 'location_dest_id': location_dest_id,
                 'company_id': self.company_id.id,
                 'picking_type_id': picking_type.id,
-                'name': line.product_id.name,
             }
 
             move = self.env['stock.move'].create(move_vals)

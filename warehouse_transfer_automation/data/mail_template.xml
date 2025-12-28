@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Email Template for Stock Request -->
+        <record id="mail_template_warehouse_request" model="mail.template">
+            <field name="name">Inter-Warehouse Stock Request</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="subject">New Stock Request: {{ object.dest_warehouse_id.name }} → {{ object.source_warehouse_id.name }}</field>
+            <field name="email_from">{{ (object.create_uid.email_formatted or user.email_formatted) }}</field>
+            <field name="body_html" type="html">
+                <div style="font-family: Arial, sans-serif; font-size: 14px; padding: 20px;">
+                    <h2 style="color: #1f77b4;">🔔 New Stock Request</h2>
+                    <p>Hello,</p>
+                    <p>
+                        <strong>{{ object.dest_warehouse_id.name }}</strong> warehouse has requested stock from
+                        <strong>{{ object.source_warehouse_id.name }}</strong> warehouse.
+                    </p>
+
+                    <h3 style="margin-top: 20px;">Requested Products:</h3>
+                    <table style="border-collapse: collapse; width: 100%; margin-top: 10px;">
+                        <thead>
+                            <tr style="background-color: #f2f2f2;">
+                                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Product</th>
+                                <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="object.move_ids" t-as="move">
+                                <tr>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">
+                                        <t t-esc="move.product_id.name"/>
+                                    </td>
+                                    <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                        <t t-esc="move.product_uom_qty"/>
+                                        <t t-esc="move.product_uom.name"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 20px; padding: 15px; background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                        <strong>Transfer Reference:</strong> <t t-esc="object.name"/><br/>
+                        <strong>Scheduled Date:</strong> <t t-esc="object.scheduled_date"/>
+                    </div>
+
+                    <p style="margin-top: 20px;">
+                        Please review and validate this request in Odoo.
+                    </p>
+
+                    <p>Thank you!</p>
+                </div>
+            </field>
+        </record>
+
+        <!-- Email Template for Approved Request -->
+        <record id="mail_template_warehouse_approval" model="mail.template">
+            <field name="name">Inter-Warehouse Request Approved</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="subject">✅ Stock Request Approved - {{ object.name }}</field>
+            <field name="email_from">{{ (object.create_uid.email_formatted or user.email_formatted) }}</field>
+            <field name="body_html" type="html">
+                <div style="font-family: Arial, sans-serif; font-size: 14px; padding: 20px;">
+                    <h2 style="color: #28a745;">✅ Stock Request Approved</h2>
+                    <p>Good news!</p>
+                    <p>Your stock request has been approved and products are ready for receipt.</p>
+
+                    <h3 style="margin-top: 20px;">Products Ready:</h3>
+                    <table style="border-collapse: collapse; width: 100%; margin-top: 10px;">
+                        <thead>
+                            <tr style="background-color: #f2f2f2;">
+                                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Product</th>
+                                <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="object.move_ids" t-as="move">
+                                <tr>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">
+                                        <t t-esc="move.product_id.name"/>
+                                    </td>
+                                    <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                        <t t-esc="move.product_uom_qty"/>
+                                        <t t-esc="move.product_uom.name"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 20px; padding: 15px; background-color: #d4edda; border-left: 4px solid #28a745;">
+                        <strong>⚠️ Action Required:</strong><br/>
+                        Please validate receipt <strong><t t-esc="object.name"/></strong> in Odoo to complete the stock transfer.
+                    </div>
+
+                    <p style="margin-top: 20px;">Thank you!</p>
+                </div>
+            </field>
+        </record>
+    </data>
+</odoo>

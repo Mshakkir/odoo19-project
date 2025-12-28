@@ -34,8 +34,8 @@
                 ('picking_type_id.warehouse_id.name', '=', 'SSAOCO-Dammam'),
                 ('location_id.warehouse_id.name', '=', 'SSAOCO-Dammam'),
                 ('location_dest_id.warehouse_id.name', '=', 'SSAOCO-Dammam'),
-                '&amp;', ('location_id.usage', '=', 'transit'), ('location_dest_id.warehouse_id.name', '=', 'SSAOCO-Dammam'),
-                '&amp;', ('location_dest_id.usage', '=', 'transit'), ('source_warehouse_id.name', '=', 'SSAOCO-Dammam')
+                '&', ('location_id.usage', '=', 'transit'), ('location_dest_id.warehouse_id.name', '=', 'SSAOCO-Dammam'),
+                '&', ('location_dest_id.usage', '=', 'transit'), ('source_warehouse_id.name', '=', 'SSAOCO-Dammam')
             ]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -53,8 +53,8 @@
                 ('picking_type_id.warehouse_id.name', '=', 'SSAOCO-Baladiya'),
                 ('location_id.warehouse_id.name', '=', 'SSAOCO-Baladiya'),
                 ('location_dest_id.warehouse_id.name', '=', 'SSAOCO-Baladiya'),
-                '&amp;', ('location_id.usage', '=', 'transit'), ('location_dest_id.warehouse_id.name', '=', 'SSAOCO-Baladiya'),
-                '&amp;', ('location_dest_id.usage', '=', 'transit'), ('source_warehouse_id.name', '=', 'SSAOCO-Baladiya')
+                '&', ('location_id.usage', '=', 'transit'), ('location_dest_id.warehouse_id.name', '=', 'SSAOCO-Baladiya'),
+                '&', ('location_dest_id.usage', '=', 'transit'), ('source_warehouse_id.name', '=', 'SSAOCO-Baladiya')
             ]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>

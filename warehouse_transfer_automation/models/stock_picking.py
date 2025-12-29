@@ -275,14 +275,14 @@ class StockPicking(models.Model):
                 done_qty = move.product_uom_qty
 
             move_vals = {
-                'name': move.name,
+                'name': move.product_id.display_name or move.product_id.name,
                 'product_id': move.product_id.id,
                 'product_uom_qty': done_qty,
                 'product_uom': move.product_uom.id,
                 'picking_id': new_picking.id,
                 'location_id': transit_loc.id,
                 'location_dest_id': dest_location.id,
-                'description_picking': move.description_picking,
+                'description_picking': move.description_picking if hasattr(move, 'description_picking') else False,
                 'company_id': move.company_id.id,
                 'date': fields.Datetime.now(),
                 'state': 'draft',
@@ -512,6 +512,9 @@ class StockPicking(models.Model):
         except Exception as e:
             _logger.error('❌ Error in _get_warehouse_users: %s', str(e))
             return self.env['res.users'].browse([])
+
+
+
 
 
 

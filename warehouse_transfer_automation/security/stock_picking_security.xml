@@ -83,41 +83,21 @@
         </record>
 
         <!-- ========================================== -->
-        <!-- OPERATION TYPE ACCESS RULES -->
+        <!-- OPERATION TYPE ACCESS RULES - RELAXED -->
         <!-- ========================================== -->
 
-        <!-- Main Warehouse: See only Main operation types -->
-        <record id="stock_picking_type_main_warehouse_rule" model="ir.rule">
-            <field name="name">Main Warehouse: See only Main operation types</field>
+        <!-- ALL Stock Users: Can see all operation types (read-only for others) -->
+        <record id="stock_picking_type_all_warehouses_read" model="ir.rule">
+            <field name="name">All Warehouse Users: See all operation types (read-only)</field>
             <field name="model_id" ref="stock.model_stock_picking_type"/>
-            <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_main_warehouse'))]"/>
-            <field name="domain_force">[('warehouse_id.name', 'in', ['SSAOCO-Main', 'MAIN'])]</field>
+            <field name="groups" eval="[
+                (4, ref('warehouse_transfer_automation.group_main_warehouse')),
+                (4, ref('warehouse_transfer_automation.group_dammam_warehouse')),
+                (4, ref('warehouse_transfer_automation.group_baladiya_warehouse'))
+            ]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
-        </record>
-
-        <!-- Dammam Warehouse: See only Dammam operation types -->
-        <record id="stock_picking_type_dammam_warehouse_rule" model="ir.rule">
-            <field name="name">Dammam Warehouse: See only Dammam operation types</field>
-            <field name="model_id" ref="stock.model_stock_picking_type"/>
-            <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_dammam_warehouse'))]"/>
-            <field name="domain_force">[('warehouse_id.name', 'in', ['SSAOCO-Dammam', 'DAMMAM', 'DAMMA'])]</field>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
-        </record>
-
-        <!-- Baladiya Warehouse: See only Baladiya operation types -->
-        <record id="stock_picking_type_baladiya_warehouse_rule" model="ir.rule">
-            <field name="name">Baladiya Warehouse: See only Baladiya operation types</field>
-            <field name="model_id" ref="stock.model_stock_picking_type"/>
-            <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_baladiya_warehouse'))]"/>
-            <field name="domain_force">[('warehouse_id.name', 'in', ['SSAOCO-Baladiya', 'BALADIYA', 'BALAD'])]</field>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
+            <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
         </record>

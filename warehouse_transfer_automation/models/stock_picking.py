@@ -240,11 +240,26 @@ class StockPicking(models.Model):
         _logger.info('✅ Creating receipt in SOURCE warehouse (requester): %s', receiving_warehouse.name)
 
         # Find appropriate receiving operation type IN THE SOURCE WAREHOUSE
+        # Priority: Look for "Receive Stock" operation type first
+        _logger.info('🔍 Looking for receiving operation type in warehouse: %s', receiving_warehouse.name)
+
+        # First try: Receive Stock operation type
         receiving_type = self.env['stock.picking.type'].sudo().search([
             ('warehouse_id', '=', receiving_warehouse.id),
             ('code', '=', 'internal'),
-            ('default_location_src_id', '=', transit_loc.id)
+            ('name', 'ilike', 'receive')
         ], limit=1)
+
+        if receiving_type:
+            _logger.info('✅ Found "Receive Stock" operation type: %s', receiving_type.name)
+
+        if not receiving_type:
+            _logger.info('⚠️ No "Receive Stock" type, searching for internal type with specific transit location...')
+            receiving_type = self.env['stock.picking.type'].sudo().search([
+                ('warehouse_id', '=', receiving_warehouse.id),
+                ('code', '=', 'internal'),
+                ('default_location_src_id', '=', transit_loc.id)
+            ], limit=1)
 
         if not receiving_type:
             _logger.info('⚠️ No receiving type with specific transit location, searching for any internal type...')

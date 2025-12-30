@@ -106,7 +106,7 @@ body {
     height: 80px;
 }
 
-/* Logo with Background */
+/* Logo - FIXED */
 .logo {
     display: flex;
     align-items: center;
@@ -123,7 +123,8 @@ body {
     width: auto;
     object-fit: contain;
     max-width: 180px;
-    filter: brightness(0) invert(1);
+    display: block;
+    /* FIXED: Removed filter that was hiding the logo */
 }
 
 /* Mobile Social Links - Hidden on Desktop */
@@ -159,12 +160,11 @@ body {
 
 .nav_link:hover {
     color: #3b82f6;
-       text-decoration: none;
+    text-decoration: none;
 }
 
 .nav_link.active {
     color: #3b82f6;
-
 }
 
 /* Mobile Toggle Button */
@@ -212,22 +212,13 @@ body {
     --footer-border: #e5e7eb;
 }
 
-/* Footer Logo Background */
-.footer_logo_wrapper {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    padding: 12px 20px;
-    border-radius: 10px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-}
-
+/* Footer Logo - FIXED */
 #footlogo {
     height: 70px;
     width: auto;
     max-width: 100%;
-    filter: brightness(0) invert(1);
+    display: block;
+    /* FIXED: Removed filter that was hiding the logo */
 }
 
 /* Main Footer Container */
@@ -251,6 +242,11 @@ footer.modern_ecommerce_footer {
 
 .footer-column {
     margin-bottom: 2rem;
+}
+
+/* Footer Logo Wrapper */
+.footer-logo-wrapper {
+    margin-bottom: 1.5rem;
 }
 
 /* Footer Headings */
@@ -519,10 +515,6 @@ footer.modern_ecommerce_footer {
         height: 70px;
     }
 
-    .logo_wrapper {
-        padding: 6px 12px;
-    }
-
     .logo_image {
         height: 45px;
     }
@@ -539,10 +531,6 @@ footer.modern_ecommerce_footer {
     .footer-features {
         grid-template-columns: repeat(2, 1fr);
         gap: 1.5rem;
-    }
-
-    .footer_logo_wrapper {
-        padding: 10px 16px;
     }
 
     #footlogo {
@@ -575,10 +563,6 @@ footer.modern_ecommerce_footer {
     .main_navbar .container {
         height: 65px;
         position: relative;
-    }
-
-    .logo_wrapper {
-        padding: 5px 10px;
     }
 
     .logo_image {
@@ -710,10 +694,6 @@ footer.modern_ecommerce_footer {
         gap: 1rem;
     }
 
-    .footer_logo_wrapper {
-        padding: 8px 14px;
-    }
-
     #footlogo {
         height: 55px;
     }
@@ -728,10 +708,6 @@ footer.modern_ecommerce_footer {
     .main_navbar .container {
         padding: 0 15px;
         height: 60px;
-    }
-
-    .logo_wrapper {
-        padding: 4px 8px;
     }
 
     .logo_image {
@@ -833,10 +809,6 @@ footer.modern_ecommerce_footer {
         align-items: center;
     }
 
-    .footer_logo_wrapper {
-        padding: 6px 12px;
-    }
-
     #footlogo {
         height: 50px;
     }
@@ -854,10 +826,6 @@ footer.modern_ecommerce_footer {
 
 /* Extra small devices (max-width: 400px) */
 @media (max-width: 400px) {
-    .logo_wrapper {
-        padding: 3px 6px;
-    }
-
     .logo_image {
         height: 32px;
     }
@@ -878,10 +846,6 @@ footer.modern_ecommerce_footer {
 
     .footer-middle {
         padding: 1.5rem 0;
-    }
-
-    .footer_logo_wrapper {
-        padding: 5px 10px;
     }
 
     #footlogo {

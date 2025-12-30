@@ -118,16 +118,6 @@ body {
     z-index: 1001;
 }
 
-.logo_wrapper {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    padding: 8px 16px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-}
-
 .logo_image {
     height: 50px;
     width: auto;

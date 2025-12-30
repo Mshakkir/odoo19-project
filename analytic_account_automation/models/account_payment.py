@@ -72,10 +72,12 @@ class AccountPayment(models.Model):
             _logger.info(f"=" * 80)
             return
 
-        # Apply to receivable/payable lines that don't have analytic
+        # Apply to ALL payment lines (bank, receivable, payable)
         lines_updated = 0
         for line in self.move_id.line_ids:
-            if line.account_id.account_type in ('asset_receivable', 'liability_payable'):
+            # Include bank, cash, receivable, and payable accounts
+            if line.account_id.account_type in ('asset_cash', 'liability_credit_card',
+                                                'asset_receivable', 'liability_payable'):
                 if not line.analytic_distribution:
                     line.analytic_distribution = analytic_distribution
                     lines_updated += 1

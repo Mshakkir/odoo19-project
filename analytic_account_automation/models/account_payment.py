@@ -43,29 +43,41 @@ class AccountPayment(models.Model):
         """
         self.ensure_one()
 
+        _logger.info(f"=" * 80)
+        _logger.info(f"Getting analytic for payment: {self.name if self.name != '/' else 'NEW'}")
+
         # Get invoices being paid (for customer/supplier payments)
         invoices = self.reconciled_invoice_ids
+        _logger.info(f"Reconciled invoices: {invoices.mapped('name')}")
 
         if not invoices:
             # If no reconciled invoices yet, try to get from context (during payment registration)
             invoice_ids = self._context.get('active_ids', [])
+            _logger.info(f"Context active_ids: {invoice_ids}, active_model: {self._context.get('active_model')}")
+
             if invoice_ids and self._context.get('active_model') == 'account.move':
                 invoices = self.env['account.move'].browse(invoice_ids)
+                _logger.info(f"Found invoices from context: {invoices.mapped('name')}")
 
         if not invoices:
+            _logger.warning(f"No invoices found for payment!")
             return False
 
         # Get the first invoice
         invoice = invoices[0]
+        _logger.info(f"Checking invoice: {invoice.name}")
 
         # Get analytic from invoice product lines (not receivable/payable lines)
         product_lines = invoice.invoice_line_ids.filtered(
             lambda l: l.display_type == 'product' and l.analytic_distribution
         )
 
+        _logger.info(f"Product lines with analytic: {len(product_lines)}")
+
         if product_lines:
             analytic_dist = product_lines[0].analytic_distribution
-            _logger.info(f"Found analytic from invoice {invoice.name}: {analytic_dist}")
+            _logger.info(f"✓ Found analytic from invoice {invoice.name}: {analytic_dist}")
+            _logger.info(f"=" * 80)
             return analytic_dist
 
         # Fallback: try to get from receivable/payable line if it has analytic
@@ -73,11 +85,16 @@ class AccountPayment(models.Model):
             lambda l: l.account_id.account_type in ('asset_receivable', 'liability_payable')
         )
 
+        _logger.info(f"Receivable/payable lines: {len(receivable_payable_lines)}")
+
         if receivable_payable_lines and receivable_payable_lines[0].analytic_distribution:
             analytic_dist = receivable_payable_lines[0].analytic_distribution
-            _logger.info(f"Found analytic from receivable/payable line: {analytic_dist}")
+            _logger.info(f"✓ Found analytic from receivable/payable line: {analytic_dist}")
+            _logger.info(f"=" * 80)
             return analytic_dist
 
+        _logger.warning(f"✗ No analytic distribution found for invoice {invoice.name}")
+        _logger.info(f"=" * 80)
         return False
 
     def action_post(self):

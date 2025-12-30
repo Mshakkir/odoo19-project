@@ -106,7 +106,7 @@ body {
     height: 80px;
 }
 
-/* Logo - FIXED */
+/* Logo - MATCHING FOOTER LOGO SIZE */
 .logo {
     display: flex;
     align-items: center;
@@ -118,19 +118,14 @@ body {
     z-index: 1001;
 }
 
-/* Target logo image directly */
+/* Navbar Logo - SAME AS FOOTER LOGO */
 .logo img,
 .logo .logo_image,
 img.logo_image {
-   /* height: 60px !important;
+    height: 80px !important;
     width: auto !important;
-    object-fit: contain !important;
     max-width: 300px !important;
     min-width: 200px !important;
-    display: block !important;*/
-    height: 90px !important;
-    width: 180px !important;
-
     display: block !important;
 }
 
@@ -219,7 +214,7 @@ img.logo_image {
     --footer-border: #e5e7eb;
 }
 
-/* Footer Logo - FIXED - Target directly */
+/* Footer Logo - Target directly */
 #footlogo,
 img#footlogo,
 .footer-logo-wrapper img {
@@ -314,6 +309,10 @@ footer.modern_ecommerce_footer {
 .footer-description {
     max-width: 100%;
     margin-bottom: 1.5rem;
+}
+
+.footer-description p {
+    margin-top: 10px;
 }
 
 /* Newsletter */
@@ -513,9 +512,6 @@ footer.modern_ecommerce_footer {
     color: var(--footer-accent) !important;
     transform: none !important;
 }
-.footer-description p {
-margin-top:10px;
-}
 
 /* ============================================
    RESPONSIVE DESIGN
@@ -530,7 +526,7 @@ margin-top:10px;
     .logo img,
     .logo .logo_image,
     img.logo_image {
-        height: 55px !important;
+        height: 70px !important;
         min-width: 180px !important;
     }
 
@@ -586,7 +582,7 @@ margin-top:10px;
     .logo img,
     .logo .logo_image,
     img.logo_image {
-        height: 50px !important;
+        height: 65px !important;
         min-width: 160px !important;
     }
 
@@ -737,7 +733,7 @@ margin-top:10px;
     .logo img,
     .logo .logo_image,
     img.logo_image {
-        height: 45px !important;
+        height: 60px !important;
         min-width: 140px !important;
     }
 
@@ -859,7 +855,7 @@ margin-top:10px;
     .logo img,
     .logo .logo_image,
     img.logo_image {
-        height: 40px !important;
+        height: 55px !important;
         min-width: 120px !important;
     }
 

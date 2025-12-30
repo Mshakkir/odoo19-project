@@ -267,15 +267,18 @@ class StockPicking(models.Model):
         new_picking = StockPicking.create(new_picking_vals)
         _logger.info('✅ Created receipt picking %s for warehouse %s', new_picking.name, dest_warehouse.name)
 
-        # Create moves based on validated quantities
+        # Create moves based on validated quantities from original picking
         for move in picking.move_ids:
+            # Get done quantity from move lines
             done_qty = sum(move.move_line_ids.mapped('quantity')) if move.move_line_ids else move.product_uom_qty
 
             if done_qty <= 0:
                 done_qty = move.product_uom_qty
 
+            _logger.info('📦 Creating move for product %s with qty %s', move.product_id.name, done_qty)
+
+            # FIXED: Removed 'name' field - stock.move doesn't have this in Odoo 19
             move_vals = {
-                'name': move.product_id.display_name or move.product_id.name,
                 'product_id': move.product_id.id,
                 'product_uom_qty': done_qty,
                 'product_uom': move.product_uom.id,
@@ -287,12 +290,14 @@ class StockPicking(models.Model):
                 'date': fields.Datetime.now(),
                 'state': 'draft',
             }
-            StockMove.create(move_vals)
+            new_move = StockMove.create(move_vals)
+            _logger.info('✅ Created move: %s', new_move.id)
 
-        # Confirm and assign
+        # Confirm the picking
         new_picking.action_confirm()
+        _logger.info('✅ Confirmed receipt picking: %s', new_picking.name)
 
-        # Create move lines to make it ready
+        # Create move lines and assign quantities
         for move in new_picking.move_ids:
             move_line_vals = {
                 'move_id': move.id,
@@ -306,13 +311,17 @@ class StockPicking(models.Model):
                 'company_id': move.company_id.id,
             }
             StockMoveLine.create(move_line_vals)
+            _logger.info('✅ Created move line for move %s', move.id)
 
+            # Update move state
             move.sudo().write({
                 'state': 'assigned',
                 'reserved_availability': move.product_uom_qty
             })
 
+        # Mark picking as assigned
         new_picking.sudo().write({'state': 'assigned'})
+        _logger.info('✅ Receipt picking set to assigned state')
 
         # Post messages
         picking.message_post(
@@ -512,8 +521,6 @@ class StockPicking(models.Model):
         except Exception as e:
             _logger.error('❌ Error in _get_warehouse_users: %s', str(e))
             return self.env['res.users'].browse([])
-
-
 
 
 

@@ -120,9 +120,9 @@ body {
 
 .logo_image {
     height: 50px;
-    width: 100%;
+    width: auto;
     object-fit: contain;
-
+    max-width: 250px;
     display: block;
     /* FIXED: Removed filter that was hiding the logo */
 }
@@ -215,8 +215,8 @@ body {
 /* Footer Logo - FIXED */
 #footlogo {
     height: 70px;
-    width: 100%;
-
+    width: auto;
+    max-width: 250px;
     display: block;
     /* FIXED: Removed filter that was hiding the logo */
 }
@@ -245,7 +245,7 @@ footer.modern_ecommerce_footer {
 }
 
 /* Footer Logo Wrapper */
-.footer-logo {
+.footer-logo-wrapper {
     margin-bottom: 1.5rem;
 }
 

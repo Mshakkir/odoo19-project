@@ -204,12 +204,10 @@
                                 <div class="row">
                                     <!-- Column 1: Company Info & Logo -->
                                     <div class="col-lg-4 col-md-6 col-sm-12 footer-column">
-                                        <div class="footer-logo-wrapper">
+                                        <div class="footer-logo">
                                             <a href="/" class="logo">
-<!--                                                <div class="footer_logo_wrapper">-->
                                                     <img id="footlogo" src="/custom_theme_module/static/src/img/logo.png"
                                                          alt="Airmixs Logo" class="logo_image"/>
-<!--                                                </div>-->
                                             </a>
                                         </div>
                                         <div class="footer-description">

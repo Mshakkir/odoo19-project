@@ -59,7 +59,7 @@
                     <div class="container">
                         <a href="/" class="logo">
 <!--                            <div class="logo_wrapper">-->
-                                <img src="/custom_theme_module/static/src/img/newlogo.png" alt="Airmixs Logo"
+                                <img src="/custom_theme_module/static/src/img/logo.png" alt="Airmixs Logo"
                                      class="logo_image"/>
 <!--                            </div>-->
                         </a>

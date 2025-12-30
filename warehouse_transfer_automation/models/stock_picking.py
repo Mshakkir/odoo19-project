@@ -513,12 +513,6 @@ class StockPicking(models.Model):
             _logger.error('❌ Error in _get_warehouse_users: %s', str(e))
             return self.env['res.users'].browse([])
 
-
-
-
-
-
-
 # # -*- coding: utf-8 -*-
 # from odoo import models, fields, api, _
 # from odoo.exceptions import UserError
@@ -568,8 +562,39 @@ class StockPicking(models.Model):
 #                 picking.source_warehouse_id = False
 #
 #             # Destination warehouse - check transit location first
-#             if picking.location_dest_id.usage == 'transit' and picking.location_dest_id.warehouse_id:
-#                 picking.dest_warehouse_id = picking.location_dest_id.warehouse_id
+#             if picking.location_dest_id.usage == 'transit':
+#                 # First try to get from transit location's warehouse field
+#                 if picking.location_dest_id.warehouse_id:
+#                     picking.dest_warehouse_id = picking.location_dest_id.warehouse_id
+#                 else:
+#                     # Fallback: Try to parse from location name
+#                     # e.g., "virtual locations/Inter-warehouse Transit/DAMMA/Input"
+#                     location_name = picking.location_dest_id.complete_name or picking.location_dest_id.name
+#                     _logger.info('🔍 Parsing warehouse from location name: %s', location_name)
+#
+#                     # Try to find warehouse by matching name
+#                     if 'DAMMA' in location_name.upper() or 'DAMMAM' in location_name.upper():
+#                         wh = self.env['stock.warehouse'].sudo().search([
+#                             '|', ('name', 'ilike', 'damma'),
+#                             ('name', 'ilike', 'dammam')
+#                         ], limit=1)
+#                         picking.dest_warehouse_id = wh if wh else False
+#                     elif 'BALAD' in location_name.upper() or 'BALADIYA' in location_name.upper():
+#                         wh = self.env['stock.warehouse'].sudo().search([
+#                             '|', ('name', 'ilike', 'balad'),
+#                             ('name', 'ilike', 'baladiya')
+#                         ], limit=1)
+#                         picking.dest_warehouse_id = wh if wh else False
+#                     elif 'MAIN' in location_name.upper():
+#                         wh = self.env['stock.warehouse'].sudo().search([
+#                             ('name', 'ilike', 'main')
+#                         ], limit=1)
+#                         picking.dest_warehouse_id = wh if wh else False
+#                     else:
+#                         picking.dest_warehouse_id = False
+#
+#                     _logger.info('📍 Found warehouse from name parsing: %s',
+#                                  picking.dest_warehouse_id.name if picking.dest_warehouse_id else 'None')
 #             elif picking.location_dest_id.warehouse_id:
 #                 picking.dest_warehouse_id = picking.location_dest_id.warehouse_id
 #             else:
@@ -579,25 +604,63 @@ class StockPicking(models.Model):
 #     def _compute_is_inter_warehouse_transfer(self):
 #         """Identify if this is an inter-warehouse transfer"""
 #         for picking in self:
-#             if (picking.source_warehouse_id and
-#                     picking.dest_warehouse_id and
-#                     picking.source_warehouse_id != picking.dest_warehouse_id and
-#                     picking.location_dest_id.usage == 'transit'):
-#                 picking.is_inter_warehouse_transfer = True
-#             else:
-#                 picking.is_inter_warehouse_transfer = False
+#             is_inter_wh = False
+#
+#             # Check if destination is transit location
+#             if picking.location_dest_id.usage == 'transit':
+#                 # Parse warehouse from destination location name
+#                 dest_loc_name = picking.location_dest_id.complete_name or picking.location_dest_id.name
+#
+#                 # Check if this is an inter-warehouse transit
+#                 if 'DAMMA' in dest_loc_name.upper() or 'BALAD' in dest_loc_name.upper() or 'MAIN' in dest_loc_name.upper():
+#                     # Source must be different warehouse
+#                     source_wh_name = ''
+#                     if picking.location_id.warehouse_id:
+#                         source_wh_name = picking.location_id.warehouse_id.name.upper()
+#                     elif picking.location_id.complete_name:
+#                         source_wh_name = picking.location_id.complete_name.upper()
+#
+#                     # Check if source and destination are different
+#                     if source_wh_name:
+#                         if ('DAMMA' in dest_loc_name.upper() and 'DAMMA' not in source_wh_name) or \
+#                                 ('BALAD' in dest_loc_name.upper() and 'BALAD' not in source_wh_name) or \
+#                                 ('MAIN' in dest_loc_name.upper() and 'MAIN' not in source_wh_name):
+#                             is_inter_wh = True
+#                     else:
+#                         # If can't determine source, assume it's inter-warehouse if going to transit
+#                         is_inter_wh = True
+#
+#                     _logger.info('🔍 Checking inter-WH for %s: dest_loc=%s, source=%s, result=%s',
+#                                  picking.name if picking.name else 'NEW',
+#                                  dest_loc_name, source_wh_name, is_inter_wh)
+#
+#             picking.is_inter_warehouse_transfer = is_inter_wh
 #
 #     def button_validate(self):
 #         """Override validate to add auto-receipt creation"""
 #         pickings_to_automate = []
 #
 #         for picking in self:
+#             _logger.info('🔍 Checking picking for automation: %s', picking.name)
+#             _logger.info('   - is_inter_warehouse_transfer: %s', picking.is_inter_warehouse_transfer)
+#             _logger.info('   - location_dest usage: %s', picking.location_dest_id.usage)
+#             _logger.info('   - auto_receipt_created: %s', picking.auto_receipt_created)
+#             _logger.info('   - state: %s', picking.state)
+#
 #             # Check if this needs automation (outgoing to transit)
-#             if (picking.is_inter_warehouse_transfer and
-#                     picking.location_dest_id.usage == 'transit' and
+#             if (picking.location_dest_id.usage == 'transit' and
 #                     not picking.auto_receipt_created and
 #                     picking.state in ['assigned', 'confirmed']):
-#                 pickings_to_automate.append(picking)
+#
+#                 # Additional check: is this going to an inter-warehouse transit?
+#                 dest_loc_name = picking.location_dest_id.complete_name or picking.location_dest_id.name
+#                 if any(wh in dest_loc_name.upper() for wh in ['DAMMA', 'BALAD', 'MAIN']):
+#                     pickings_to_automate.append(picking)
+#                     _logger.info('✅ Picking %s WILL BE automated', picking.name)
+#                 else:
+#                     _logger.info('⚠️ Picking %s skipped - not inter-warehouse transit', picking.name)
+#             else:
+#                 _logger.info('⚠️ Picking %s skipped - conditions not met', picking.name)
 #
 #         # Call parent validation
 #         res = super(StockPicking, self).button_validate()
@@ -606,6 +669,13 @@ class StockPicking(models.Model):
 #         for picking in pickings_to_automate:
 #             if picking.state == 'done' and not picking.auto_receipt_created:
 #                 try:
+#                     _logger.info('🚀 Starting automation for picking: %s', picking.name)
+#                     _logger.info('   Source warehouse: %s',
+#                                  picking.source_warehouse_id.name if picking.source_warehouse_id else 'None')
+#                     _logger.info('   Dest warehouse: %s',
+#                                  picking.dest_warehouse_id.name if picking.dest_warehouse_id else 'None')
+#                     _logger.info('   Transit location: %s', picking.location_dest_id.complete_name)
+#
 #                     # Mark as processed
 #                     picking.write({'auto_receipt_created': True})
 #                     self.env.cr.commit()
@@ -614,11 +684,17 @@ class StockPicking(models.Model):
 #                     new_picking = self.sudo()._create_receipt_transfer(picking)
 #
 #                     if new_picking:
+#                         _logger.info('✅ Auto-receipt created: %s', new_picking.name)
 #                         # Notify destination warehouse users
 #                         self._notify_destination_warehouse(picking, new_picking)
+#                     else:
+#                         _logger.error('❌ Failed to create auto-receipt for: %s', picking.name)
+#                         picking.write({'auto_receipt_created': False})
 #
 #                 except Exception as e:
-#                     _logger.error('Error in warehouse automation for %s: %s', picking.name, str(e))
+#                     _logger.error('❌ Error in warehouse automation for %s: %s', picking.name, str(e))
+#                     import traceback
+#                     _logger.error(traceback.format_exc())
 #                     picking.write({'auto_receipt_created': False})
 #
 #         return res
@@ -714,14 +790,14 @@ class StockPicking(models.Model):
 #                 done_qty = move.product_uom_qty
 #
 #             move_vals = {
-#                 'name': move.name,
+#                 'name': move.product_id.display_name or move.product_id.name,
 #                 'product_id': move.product_id.id,
 #                 'product_uom_qty': done_qty,
 #                 'product_uom': move.product_uom.id,
 #                 'picking_id': new_picking.id,
 #                 'location_id': transit_loc.id,
 #                 'location_dest_id': dest_location.id,
-#                 'description_picking': move.description_picking,
+#                 'description_picking': move.description_picking if hasattr(move, 'description_picking') else False,
 #                 'company_id': move.company_id.id,
 #                 'date': fields.Datetime.now(),
 #                 'state': 'draft',

@@ -106,7 +106,7 @@ body {
     height: 80px;
 }
 
-/* Logo - MATCHING FOOTER LOGO SIZE */
+/* Logo - UPDATED TO MATCH FOOTER */
 .logo {
     display: flex;
     align-items: center;
@@ -118,7 +118,7 @@ body {
     z-index: 1001;
 }
 
-/* Navbar Logo - SAME AS FOOTER LOGO */
+/* Target logo image directly - SAME AS FOOTER */
 .logo img,
 .logo .logo_image,
 img.logo_image {
@@ -127,6 +127,7 @@ img.logo_image {
     max-width: 300px !important;
     min-width: 200px !important;
     display: block !important;
+    object-fit: contain !important;
 }
 
 /* Mobile Social Links - Hidden on Desktop */
@@ -214,7 +215,7 @@ img.logo_image {
     --footer-border: #e5e7eb;
 }
 
-/* Footer Logo - Target directly */
+/* Footer Logo - SAME AS NAVBAR */
 #footlogo,
 img#footlogo,
 .footer-logo-wrapper img {
@@ -223,6 +224,7 @@ img#footlogo,
     max-width: 300px !important;
     min-width: 200px !important;
     display: block !important;
+    object-fit: contain !important;
 }
 
 /* Main Footer Container */
@@ -309,10 +311,6 @@ footer.modern_ecommerce_footer {
 .footer-description {
     max-width: 100%;
     margin-bottom: 1.5rem;
-}
-
-.footer-description p {
-    margin-top: 10px;
 }
 
 /* Newsletter */
@@ -511,6 +509,10 @@ footer.modern_ecommerce_footer {
 .footer-links-bottom a:hover {
     color: var(--footer-accent) !important;
     transform: none !important;
+}
+
+.footer-description p {
+    margin-top: 10px;
 }
 
 /* ============================================

@@ -122,9 +122,14 @@ body {
 .logo img,
 .logo .logo_image,
 img.logo_image {
-    height: 60px !important;
+   /* height: 60px !important;
     width: auto !important;
     object-fit: contain !important;
+    max-width: 300px !important;
+    min-width: 200px !important;
+    display: block !important;*/
+    height: 80px !important;
+    width: auto !important;
     max-width: 300px !important;
     min-width: 200px !important;
     display: block !important;
@@ -508,6 +513,9 @@ footer.modern_ecommerce_footer {
 .footer-links-bottom a:hover {
     color: var(--footer-accent) !important;
     transform: none !important;
+}
+.footer-description p {
+margin-top:5px;
 }
 
 /* ============================================

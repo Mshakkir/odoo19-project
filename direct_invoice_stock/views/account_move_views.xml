@@ -18,7 +18,7 @@
                         groups="stock.group_stock_user">
                     <field name="picking_id" invisible="1"/>
                     <div class="o_field_widget o_stat_info">
-                        <span class="o_stat_text">Delivery</span>
+                        <span class="o_stat_text">Delivery/Return</span>
                     </div>
                 </button>
             </xpath>
@@ -27,21 +27,27 @@
             <xpath expr="//field[@name='partner_shipping_id']" position="after">
                 <label for="create_delivery"
                        string="🚚 Auto Create Delivery"
-                       invisible="move_type != 'out_invoice'"/>
-                <div invisible="move_type != 'out_invoice'">
+                       invisible="move_type not in ['out_invoice', 'out_refund']"/>
+                <div invisible="move_type not in ['out_invoice', 'out_refund']">
                     <field name="create_delivery"
                            widget="boolean_toggle"
                            nolabel="1"/>
+                    <div class="text-muted" invisible="not create_delivery">
+                        <small>
+                            • Invoice: Creates delivery &amp; reduces stock<br/>
+                            • Credit Note: Creates return &amp; adds stock back
+                        </small>
+                    </div>
                 </div>
             </xpath>
 
             <!-- Add warehouse field after create_delivery -->
             <xpath expr="//field[@name='create_delivery']" position="after">
                 <field name="warehouse_id"
-                       invisible="not create_delivery or move_type != 'out_invoice'"
+                       invisible="not create_delivery or move_type not in ['out_invoice', 'out_refund']"
                        options="{'no_create': True, 'no_open': True}"
                        placeholder="Auto-selected from Analytic Account"
-                       string="Delivery Warehouse"/>
+                       string="Warehouse"/>
             </xpath>
 
         </field>

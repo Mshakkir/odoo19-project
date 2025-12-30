@@ -53,6 +53,7 @@ body {
 
 .contact_item:hover {
     color: #3b82f6;
+    text-decoration: none;
 }
 
 .contact_item svg {

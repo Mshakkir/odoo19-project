@@ -347,10 +347,13 @@ class StockPicking(models.Model):
             _logger.warning('Missing warehouse info for picking: %s', picking.name)
             return
 
+        _logger.info('📢 Starting source warehouse notification for picking: %s', picking.name)
+        _logger.info('   Source: %s, Destination: %s', source_warehouse.name, dest_warehouse.name)
+
         source_users = self._get_warehouse_users(source_warehouse)
 
         if not source_users:
-            _logger.error('❌ NO USERS FOUND for %s warehouse', source_warehouse.name)
+            _logger.error('❌ NO USERS FOUND for %s warehouse - Notifications cannot be sent', source_warehouse.name)
             picking.message_post(
                 body=_('⚠️ Warning: Could not send notification to %s warehouse users. '
                        'No users assigned to the warehouse group.') % source_warehouse.name,
@@ -382,6 +385,9 @@ class StockPicking(models.Model):
         _logger.info('✅ Sending notification to %d %s warehouse users',
                      len(source_users), source_warehouse.name)
 
+        for user in source_users:
+            _logger.info('   → Notifying user: %s', user.name)
+
         # Post message
         picking.message_post(
             body=message,
@@ -395,7 +401,7 @@ class StockPicking(models.Model):
         self._create_activities(picking, source_users, message,
                                 _('Stock Request: %s') % dest_warehouse.name)
 
-        _logger.info('✅ Notification sent to %s warehouse users', source_warehouse.name)
+        _logger.info('✅ Notification and activities sent to %s warehouse users', source_warehouse.name)
 
     def _notify_destination_warehouse(self, origin_picking, receipt_picking):
         """Send notification to destination warehouse users about approved request"""
@@ -406,10 +412,14 @@ class StockPicking(models.Model):
             _logger.warning('No destination warehouse for picking: %s', receipt_picking.name)
             return
 
+        _logger.info('📢 Starting destination warehouse notification for receipt: %s', receipt_picking.name)
+        _logger.info('   Source: %s, Destination: %s', source_warehouse.name if source_warehouse else 'None',
+                     dest_warehouse.name)
+
         dest_users = self._get_warehouse_users(dest_warehouse)
 
         if not dest_users:
-            _logger.error('❌ NO USERS FOUND for %s warehouse', dest_warehouse.name)
+            _logger.error('❌ NO USERS FOUND for %s warehouse - Notifications cannot be sent', dest_warehouse.name)
             receipt_picking.message_post(
                 body=_('⚠️ Warning: Could not send notification to %s warehouse users.') % dest_warehouse.name,
                 message_type='comment',
@@ -441,6 +451,9 @@ class StockPicking(models.Model):
         _logger.info('✅ Sending approval notification to %d %s warehouse users',
                      len(dest_users), dest_warehouse.name)
 
+        for user in dest_users:
+            _logger.info('   → Notifying user: %s', user.name)
+
         # Post message
         receipt_picking.message_post(
             body=message,
@@ -454,16 +467,22 @@ class StockPicking(models.Model):
         self._create_activities(receipt_picking, dest_users, message,
                                 _('Action Required: Validate Receipt %s') % receipt_picking.name)
 
-        _logger.info('✅ Approval notification sent to %s warehouse', dest_warehouse.name)
+        _logger.info('✅ Approval notification and activities sent to %s warehouse', dest_warehouse.name)
 
     def _create_activities(self, picking, users, message, summary):
         """Create activities for users"""
         ActivityModel = self.env['mail.activity'].sudo()
         activity_type = self.env.ref('mail.mail_activity_data_todo', raise_if_not_found=False)
 
+        _logger.info('📋 Creating activities for %d users on picking %s', len(users), picking.name)
+
+        if not activity_type:
+            _logger.warning('⚠️ Activity type not found, using default')
+
         for user in users:
             try:
-                ActivityModel.create({
+                _logger.info('   Creating activity for user: %s (ID: %s)', user.name, user.id)
+                activity = ActivityModel.create({
                     'res_id': picking.id,
                     'res_model_id': self.env['ir.model']._get('stock.picking').id,
                     'activity_type_id': activity_type.id if activity_type else 1,
@@ -472,55 +491,80 @@ class StockPicking(models.Model):
                     'user_id': user.id,
                     'date_deadline': fields.Date.today(),
                 })
+                _logger.info('   ✅ Activity created (ID: %s)', activity.id)
             except Exception as e:
-                _logger.warning('Could not create activity for user %s: %s', user.name, str(e))
+                _logger.error('❌ Could not create activity for user %s: %s', user.name, str(e))
+                import traceback
+                _logger.error(traceback.format_exc())
 
     def _get_warehouse_users(self, warehouse):
         """Get users assigned to specific warehouse"""
         try:
             _logger.info('🔍 Looking for users for warehouse: "%s"', warehouse.name)
+            _logger.info('   Warehouse ID: %s', warehouse.id)
 
-            # Warehouse to group mapping
+            # Warehouse to group mapping - matching different name formats
             warehouse_group_mapping = {
-                'SSAOCO-Main': 'warehouse_transfer_automation.group_main_warehouse',
-                'SSAOCO-Dammam': 'warehouse_transfer_automation.group_dammam_warehouse',
-                'SSAOCO-Baladiya': 'warehouse_transfer_automation.group_baladiya_warehouse',
+                'main': 'warehouse_transfer_automation.group_main_warehouse',
+                'dammam': 'warehouse_transfer_automation.group_dammam_warehouse',
+                'damma': 'warehouse_transfer_automation.group_dammam_warehouse',
+                'baladiya': 'warehouse_transfer_automation.group_baladiya_warehouse',
+                'balad': 'warehouse_transfer_automation.group_baladiya_warehouse',
             }
 
-            group_xmlid = warehouse_group_mapping.get(warehouse.name)
+            group_xmlid = None
+            warehouse_name_lower = warehouse.name.lower()
+
+            # Try exact match first
+            for key, xmlid in warehouse_group_mapping.items():
+                if key in warehouse_name_lower:
+                    group_xmlid = xmlid
+                    _logger.info('✓ Matched warehouse "%s" with key "%s"', warehouse.name, key)
+                    break
 
             if not group_xmlid:
-                # Fuzzy match
-                for key, xmlid in warehouse_group_mapping.items():
-                    if key.lower() in warehouse.name.lower() or warehouse.name.lower() in key.lower():
-                        group_xmlid = xmlid
-                        _logger.info('✓ Matched warehouse "%s" with key "%s"', warehouse.name, key)
-                        break
+                _logger.error('❌ Could not match warehouse "%s" to any group', warehouse.name)
+                return self.env['res.users'].browse([])
 
-            if group_xmlid:
-                warehouse_group = self.env.ref(group_xmlid, raise_if_not_found=False)
-                if warehouse_group:
-                    warehouse_users = self.env['res.users'].sudo().search([
-                        ('groups_id', 'in', [warehouse_group.id]),
-                        ('active', '=', True),
-                        ('share', '=', False)
-                    ])
+            # Get the warehouse group
+            _logger.info('   Looking for group: %s', group_xmlid)
+            warehouse_group = self.env.ref(group_xmlid, raise_if_not_found=False)
 
-                    if warehouse_users:
-                        _logger.info('✅ Found %d users for %s', len(warehouse_users), warehouse.name)
-                        return warehouse_users
-                    else:
-                        _logger.warning('❌ No users in group %s', warehouse_group.name)
-                else:
-                    _logger.error('❌ Group %s not found', group_xmlid)
+            if not warehouse_group:
+                _logger.error('❌ Group %s not found in system', group_xmlid)
+                return self.env['res.users'].browse([])
+
+            _logger.info('   Found group: %s (ID: %s)', warehouse_group.name, warehouse_group.id)
+
+            # Search for users in this group
+            warehouse_users = self.env['res.users'].sudo().search([
+                ('groups_id', 'in', [warehouse_group.id]),
+                ('active', '=', True),
+                ('share', '=', False)
+            ])
+
+            _logger.info('   Search criteria - Group IDs: [%s], Active: True, Share: False', warehouse_group.id)
+            _logger.info('✅ Found %d users for %s warehouse', len(warehouse_users), warehouse.name)
+
+            if warehouse_users:
+                for user in warehouse_users:
+                    _logger.info('   - User: %s (ID: %s) - Email: %s', user.name, user.id, user.email)
+                return warehouse_users
             else:
-                _logger.error('❌ Could not match warehouse "%s"', warehouse.name)
-
-            return self.env['res.users'].browse([])
+                _logger.warning('⚠️ No users found in group %s for warehouse %s', warehouse_group.name, warehouse.name)
+                return self.env['res.users'].browse([])
 
         except Exception as e:
             _logger.error('❌ Error in _get_warehouse_users: %s', str(e))
+            import traceback
+            _logger.error(traceback.format_exc())
             return self.env['res.users'].browse([])
+
+
+
+
+
+
 
 
 
@@ -797,15 +841,18 @@ class StockPicking(models.Model):
 #         new_picking = StockPicking.create(new_picking_vals)
 #         _logger.info('✅ Created receipt picking %s for warehouse %s', new_picking.name, dest_warehouse.name)
 #
-#         # Create moves based on validated quantities
+#         # Create moves based on validated quantities from original picking
 #         for move in picking.move_ids:
+#             # Get done quantity from move lines
 #             done_qty = sum(move.move_line_ids.mapped('quantity')) if move.move_line_ids else move.product_uom_qty
 #
 #             if done_qty <= 0:
 #                 done_qty = move.product_uom_qty
 #
+#             _logger.info('📦 Creating move for product %s with qty %s', move.product_id.name, done_qty)
+#
+#             # FIXED: Removed 'name' field - stock.move doesn't have this in Odoo 19
 #             move_vals = {
-#                 'name': move.product_id.display_name or move.product_id.name,
 #                 'product_id': move.product_id.id,
 #                 'product_uom_qty': done_qty,
 #                 'product_uom': move.product_uom.id,
@@ -817,12 +864,14 @@ class StockPicking(models.Model):
 #                 'date': fields.Datetime.now(),
 #                 'state': 'draft',
 #             }
-#             StockMove.create(move_vals)
+#             new_move = StockMove.create(move_vals)
+#             _logger.info('✅ Created move: %s', new_move.id)
 #
-#         # Confirm and assign
+#         # Confirm the picking
 #         new_picking.action_confirm()
+#         _logger.info('✅ Confirmed receipt picking: %s', new_picking.name)
 #
-#         # Create move lines to make it ready
+#         # Create move lines and assign quantities
 #         for move in new_picking.move_ids:
 #             move_line_vals = {
 #                 'move_id': move.id,
@@ -836,13 +885,17 @@ class StockPicking(models.Model):
 #                 'company_id': move.company_id.id,
 #             }
 #             StockMoveLine.create(move_line_vals)
+#             _logger.info('✅ Created move line for move %s', move.id)
 #
+#             # Update move state
 #             move.sudo().write({
 #                 'state': 'assigned',
 #                 'reserved_availability': move.product_uom_qty
 #             })
 #
+#         # Mark picking as assigned
 #         new_picking.sudo().write({'state': 'assigned'})
+#         _logger.info('✅ Receipt picking set to assigned state')
 #
 #         # Post messages
 #         picking.message_post(
@@ -1042,3 +1095,4 @@ class StockPicking(models.Model):
 #         except Exception as e:
 #             _logger.error('❌ Error in _get_warehouse_users: %s', str(e))
 #             return self.env['res.users'].browse([])
+

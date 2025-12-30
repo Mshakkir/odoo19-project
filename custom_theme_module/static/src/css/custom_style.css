@@ -129,9 +129,8 @@ img.logo_image {
     min-width: 200px !important;
     display: block !important;*/
     height: 80px !important;
-    width: auto !important;
-    max-width: 300px !important;
-    min-width: 200px !important;
+    width: 180px !important;
+
     display: block !important;
 }
 
@@ -515,7 +514,7 @@ footer.modern_ecommerce_footer {
     transform: none !important;
 }
 .footer-description p {
-margin-top:5px;
+margin-top:10px;
 }
 
 /* ============================================

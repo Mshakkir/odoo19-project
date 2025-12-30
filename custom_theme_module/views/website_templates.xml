@@ -259,7 +259,7 @@
                                         <div class="footer-newsletter">
                                             <p>Subscribe to get special offers, free giveaways, and updates.</p>
                                             <form class="newsletter-form js_subscribe" method="post"
-                                                  action="/website_mass_mailing/subscribe">
+                                                  action="/mail-subscribe">
                                                 <input type="hidden" name="csrf_token"
                                                        t-att-value="request.csrf_token()"/>
                                                 <input type="hidden" name="list_id" value="1"/>

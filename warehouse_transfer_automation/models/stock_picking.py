@@ -513,6 +513,14 @@ class StockPicking(models.Model):
             _logger.error('❌ Error in _get_warehouse_users: %s', str(e))
             return self.env['res.users'].browse([])
 
+
+
+
+
+
+
+
+
 # # -*- coding: utf-8 -*-
 # from odoo import models, fields, api, _
 # from odoo.exceptions import UserError

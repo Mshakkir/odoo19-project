@@ -7,15 +7,15 @@ _logger = logging.getLogger(__name__)
 class AccountPayment(models.Model):
     _inherit = 'account.payment'
 
-    def _prepare_move_line_default_vals(self, write_off_line_vals=None, force_balance=None, line_ids=None):
+    def _prepare_move_line_default_vals(self, write_off_line_vals=None, **kwargs):
         """
         Override to copy analytic distribution from invoice to payment journal entry
         This ensures payment lines inherit the same analytic account as the invoice
         """
+        # Call parent method with all kwargs
         line_vals_list = super()._prepare_move_line_default_vals(
             write_off_line_vals=write_off_line_vals,
-            force_balance=force_balance,
-            line_ids=line_ids
+            **kwargs
         )
 
         # Get analytic distribution from the invoice being paid

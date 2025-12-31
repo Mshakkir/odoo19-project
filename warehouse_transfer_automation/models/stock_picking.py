@@ -548,7 +548,7 @@ class StockPicking(models.Model):
             _logger.info('🔍 Looking for users for warehouse: "%s"', warehouse.name)
             _logger.info('   Warehouse ID: %s', warehouse.id)
 
-            # Warehouse to group mapping - matching different name formats
+            # Warehouse to group mapping
             warehouse_group_mapping = {
                 'main': 'warehouse_transfer_automation.group_main_warehouse',
                 'dammam': 'warehouse_transfer_automation.group_dammam_warehouse',
@@ -560,7 +560,7 @@ class StockPicking(models.Model):
             group_xmlid = None
             warehouse_name_lower = warehouse.name.lower()
 
-            # Try exact match first
+            # Match warehouse name to group
             for key, xmlid in warehouse_group_mapping.items():
                 if key in warehouse_name_lower:
                     group_xmlid = xmlid
@@ -581,23 +581,30 @@ class StockPicking(models.Model):
 
             _logger.info('   Found group: %s (ID: %s)', warehouse_group.name, warehouse_group.id)
 
-            # FIXED: Use correct Odoo 19 syntax for Many2many field search
-            # Search for users in this group using the correct domain syntax
+            # FIXED: Use has_group method which is the most reliable in Odoo 19
             warehouse_users = self.env['res.users'].sudo().search([
                 ('active', '=', True),
                 ('share', '=', False),
             ])
 
-            # Filter users that have the warehouse group
-            warehouse_users = warehouse_users.filtered(lambda u: warehouse_group in u.groups_id)
+            # Filter users using has_group method
+            filtered_users = self.env['res.users'].browse()
+            for user in warehouse_users:
+                try:
+                    # has_group is the most reliable method in Odoo 19
+                    if user.has_group(group_xmlid):
+                        filtered_users |= user
+                        _logger.info('   + User %s has group %s', user.name, warehouse_group.name)
+                except Exception as user_error:
+                    _logger.warning('   Warning checking user %s: %s', user.name, str(user_error))
+                    continue
 
-            _logger.info('   Search completed for group %s', warehouse_group.name)
-            _logger.info('✅ Found %d users for %s warehouse', len(warehouse_users), warehouse.name)
+            _logger.info('✅ Found %d users for %s warehouse', len(filtered_users), warehouse.name)
 
-            if warehouse_users:
-                for user in warehouse_users:
-                    _logger.info('   - User: %s (ID: %s) - Email: %s', user.name, user.id, user.email)
-                return warehouse_users
+            if filtered_users:
+                for user in filtered_users:
+                    _logger.info('   ✓ User: %s (ID: %s) - Email: %s', user.name, user.id, user.email)
+                return filtered_users
             else:
                 _logger.warning('⚠️ No users found in group %s for warehouse %s', warehouse_group.name, warehouse.name)
                 return self.env['res.users'].browse([])

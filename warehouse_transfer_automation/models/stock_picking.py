@@ -273,23 +273,20 @@ class StockPicking(models.Model):
         _logger.info('✅ Created receipt picking %s for warehouse %s', new_picking.name, dest_warehouse.name)
 
         for move in picking.move_ids:
-            # FIXED: Get done quantity correctly from move_line_ids
-            done_qty = 0
-            if move.move_line_ids:
-                # Sum only the quantities that were actually moved
-                done_qty = sum(move.move_line_ids.mapped('quantity'))
+            # CRITICAL FIX: Get the ACTUAL confirmed/done quantity from the original move
+            # The move.product_uom_qty is what was requested/planned
+            # We need to use this exact quantity for the receipt
 
-            # If no move lines or zero quantity, use the original requested quantity
-            if done_qty <= 0:
-                done_qty = move.product_uom_qty
+            # When a picking is confirmed, the product_uom_qty is the quantity that was confirmed
+            # Don't sum move_lines as they may have reserved differently
+            done_qty = move.product_uom_qty
 
-            _logger.info('📦 Creating move for product %s with qty %s (from move_line: %s)',
-                         move.product_id.name, done_qty,
-                         sum(move.move_line_ids.mapped('quantity')) if move.move_line_ids else 0)
+            _logger.info('📦 Creating move for product %s with qty %s (original request qty)',
+                         move.product_id.name, done_qty)
 
             move_vals = {
                 'product_id': move.product_id.id,
-                'product_uom_qty': done_qty,  # Use the actual done quantity
+                'product_uom_qty': done_qty,  # Use the exact confirmed quantity
                 'product_uom': move.product_uom.id,
                 'picking_id': new_picking.id,
                 'location_id': transit_loc.id,

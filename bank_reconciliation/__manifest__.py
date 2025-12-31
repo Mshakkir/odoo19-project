@@ -47,6 +47,8 @@
         'data/sequence_data.xml',
         'data/cron_data.xml',
         'views/account_move_line_view.xml',
+        'views/account_move_view.xml',  # ADD THIS for unique identity reconcile
+        'views/account_payment_view.xml',  # ADD THIS for unique identity reconcile
         'views/account_journal_dashboard_view.xml',
         'views/bank_statement_wiz_view.xml',
         'views/bank_reconciliation_report_template.xml',

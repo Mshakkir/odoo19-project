@@ -93,31 +93,48 @@ class StockPicking(models.Model):
 
             # Check if destination is transit location
             if picking.location_dest_id.usage == 'transit':
-                # Parse warehouse from destination location name
                 dest_loc_name = picking.location_dest_id.complete_name or picking.location_dest_id.name
+                source_loc_name = picking.location_id.complete_name or picking.location_id.name
 
-                # Check if this is an inter-warehouse transit
-                if 'DAMMA' in dest_loc_name.upper() or 'BALAD' in dest_loc_name.upper() or 'MAIN' in dest_loc_name.upper():
-                    # Source must be different warehouse
-                    source_wh_name = ''
-                    if picking.location_id.warehouse_id:
-                        source_wh_name = picking.location_id.warehouse_id.name.upper()
-                    elif picking.location_id.complete_name:
-                        source_wh_name = picking.location_id.complete_name.upper()
+                _logger.info('🔍 Analyzing inter-WH transfer: %s', picking.name if picking.name else 'NEW')
+                _logger.info('   Source: %s', source_loc_name)
+                _logger.info('   Dest: %s', dest_loc_name)
 
-                    # Check if source and destination are different
-                    if source_wh_name:
-                        if ('DAMMA' in dest_loc_name.upper() and 'DAMMA' not in source_wh_name) or \
-                                ('BALAD' in dest_loc_name.upper() and 'BALAD' not in source_wh_name) or \
-                                ('MAIN' in dest_loc_name.upper() and 'MAIN' not in source_wh_name):
-                            is_inter_wh = True
-                    else:
-                        # If can't determine source, assume it's inter-warehouse if going to transit
-                        is_inter_wh = True
+                # Check if both source and dest contain warehouse keywords
+                source_keywords = ['main', 'damma', 'dammam', 'balad', 'baladiya']
+                dest_keywords = ['main', 'damma', 'dammam', 'balad', 'baladiya']
 
-                    _logger.info('🔍 Checking inter-WH for %s: dest_loc=%s, source=%s, result=%s',
-                                 picking.name if picking.name else 'NEW',
-                                 dest_loc_name, source_wh_name, is_inter_wh)
+                # Get source and destination warehouse identifiers
+                source_wh_key = None
+                dest_wh_key = None
+
+                source_upper = source_loc_name.upper()
+                dest_upper = dest_loc_name.upper()
+
+                # Identify source warehouse
+                if 'MAIN' in source_upper:
+                    source_wh_key = 'main'
+                elif 'DAMMA' in source_upper or 'DAMMAM' in source_upper:
+                    source_wh_key = 'damma'
+                elif 'BALAD' in source_upper or 'BALADIYA' in source_upper:
+                    source_wh_key = 'balad'
+
+                # Identify destination warehouse
+                if 'MAIN' in dest_upper:
+                    dest_wh_key = 'main'
+                elif 'DAMMA' in dest_upper or 'DAMMAM' in dest_upper:
+                    dest_wh_key = 'damma'
+                elif 'BALAD' in dest_upper or 'BALADIYA' in dest_upper:
+                    dest_wh_key = 'balad'
+
+                _logger.info('   Source WH Key: %s, Dest WH Key: %s', source_wh_key, dest_wh_key)
+
+                # Inter-warehouse if both have warehouse keys and they're different
+                if source_wh_key and dest_wh_key and source_wh_key != dest_wh_key:
+                    is_inter_wh = True
+                    _logger.info('   ✅ Inter-warehouse transfer detected')
+                else:
+                    _logger.info('   ⚠️ Not inter-warehouse (same or missing warehouse info)')
 
             picking.is_inter_warehouse_transfer = is_inter_wh
 
@@ -323,10 +340,9 @@ class StockPicking(models.Model):
             StockMoveLine.create(move_line_vals)
             _logger.info('✅ Created move line for move %s', move.id)
 
-            # Update move state
+            # Update move state - FIXED: removed 'reserved_availability' field
             move.sudo().write({
                 'state': 'assigned',
-                'reserved_availability': move.product_uom_qty
             })
 
         # Mark picking as assigned

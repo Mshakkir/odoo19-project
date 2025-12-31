@@ -581,14 +581,17 @@ class StockPicking(models.Model):
 
             _logger.info('   Found group: %s (ID: %s)', warehouse_group.name, warehouse_group.id)
 
-            # Search for users in this group
+            # FIXED: Use correct Odoo 19 syntax for Many2many field search
+            # Search for users in this group using the correct domain syntax
             warehouse_users = self.env['res.users'].sudo().search([
-                ('groups_id', 'in', [warehouse_group.id]),
                 ('active', '=', True),
-                ('share', '=', False)
+                ('share', '=', False),
             ])
 
-            _logger.info('   Search criteria - Group IDs: [%s], Active: True, Share: False', warehouse_group.id)
+            # Filter users that have the warehouse group
+            warehouse_users = warehouse_users.filtered(lambda u: warehouse_group in u.groups_id)
+
+            _logger.info('   Search completed for group %s', warehouse_group.name)
             _logger.info('✅ Found %d users for %s warehouse', len(warehouse_users), warehouse.name)
 
             if warehouse_users:

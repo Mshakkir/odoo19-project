@@ -9,7 +9,7 @@
         <field name="arch" type="xml">
             <!-- Add reconciliation indicator -->
             <field name="state" position="after">
-                <field name="move_id" invisible="1"/>
+                <field name="move_id" column_invisible="1"/>
                 <field name="is_bank_reconciled"
                        string="Bank Rec"
                        widget="boolean_toggle"
@@ -25,14 +25,14 @@
         <field name="inherit_id" ref="account.view_account_payment_form"/>
         <field name="arch" type="xml">
             <xpath expr="//form/sheet" position="before">
+                <field name="is_bank_reconciled" invisible="1"/>
                 <div class="alert alert-success text-center"
                      role="alert"
-                     attrs="{'invisible': [('is_bank_reconciled', '=', False)]}"
+                     invisible="is_bank_reconciled == False"
                      style="margin-bottom: 0px;">
                     <i class="fa fa-check-circle"/>
                     <strong>Reconciled with Bank Statement:</strong>
                     <field name="bank_reconciliation_ref" readonly="1" class="oe_inline"/>
-                    <field name="is_bank_reconciled" invisible="1"/>
                 </div>
             </xpath>
         </field>

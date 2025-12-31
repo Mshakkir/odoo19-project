@@ -9,13 +9,13 @@
         <field name="arch" type="xml">
             <!-- Add indicator after name field -->
             <field name="name" position="after">
-                <field name="has_manual_reconciliation" invisible="1"/>
+                <field name="has_manual_reconciliation" column_invisible="1"/>
                 <field name="reconciliation_info"
                        string="Bank Rec"
                        optional="show"
                        widget="badge"
-                       decoration-success="has_manual_reconciliation"
-                       attrs="{'invisible': [('has_manual_reconciliation', '=', False)]}"/>
+                       decoration-success="has_manual_reconciliation == True"
+                       invisible="has_manual_reconciliation == False"/>
             </field>
         </field>
     </record>
@@ -28,14 +28,14 @@
         <field name="arch" type="xml">
             <!-- Add alert banner at top of form -->
             <xpath expr="//form/sheet" position="before">
+                <field name="has_manual_reconciliation" invisible="1"/>
                 <div class="alert alert-success text-center"
                      role="alert"
-                     attrs="{'invisible': [('has_manual_reconciliation', '=', False)]}"
+                     invisible="has_manual_reconciliation == False"
                      style="margin-bottom: 0px;">
                     <i class="fa fa-check-circle"/>
                     <strong>Manually Reconciled with Bank Statement:</strong>
                     <field name="reconciliation_info" readonly="1" class="oe_inline"/>
-                    <field name="has_manual_reconciliation" invisible="1"/>
                 </div>
             </xpath>
         </field>

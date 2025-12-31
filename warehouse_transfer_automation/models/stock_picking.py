@@ -186,14 +186,25 @@ class StockPicking(models.Model):
 
     def action_confirm(self):
         """Override confirm to send notification to source warehouse"""
+        _logger.info('📋 action_confirm called for picking: %s', self.name if self.name else 'NEW')
+
         res = super(StockPicking, self).action_confirm()
 
         for picking in self:
+            _logger.info('   Checking if notification needed:')
+            _logger.info('     - is_inter_warehouse_transfer: %s', picking.is_inter_warehouse_transfer)
+            _logger.info('     - location_dest.usage: %s', picking.location_dest_id.usage)
+
             if picking.is_inter_warehouse_transfer and picking.location_dest_id.usage == 'transit':
+                _logger.info('   ✅ Sending notification to source warehouse')
                 try:
                     self._notify_source_warehouse(picking)
                 except Exception as e:
-                    _logger.error('Error sending notification to source warehouse: %s', str(e))
+                    _logger.error('❌ Error sending notification to source warehouse: %s', str(e))
+                    import traceback
+                    _logger.error(traceback.format_exc())
+            else:
+                _logger.info('   ⚠️ Notification not sent - conditions not met')
 
         return res
 
@@ -306,7 +317,6 @@ class StockPicking(models.Model):
                 'location_id': transit_loc.id,
                 'location_dest_id': dest_location.id,
                 'quantity': move.product_uom_qty,
-                'reserved_uom_qty': move.product_uom_qty,
                 'picking_id': new_picking.id,
                 'company_id': move.company_id.id,
             }
@@ -405,6 +415,10 @@ class StockPicking(models.Model):
 
     def _notify_destination_warehouse(self, origin_picking, receipt_picking):
         """Send notification to destination warehouse users about approved request"""
+        _logger.info('=' * 80)
+        _logger.info('📢 _notify_destination_warehouse called for: %s', receipt_picking.name)
+        _logger.info('=' * 80)
+
         source_warehouse = origin_picking.source_warehouse_id
         dest_warehouse = origin_picking.dest_warehouse_id
 
@@ -425,6 +439,8 @@ class StockPicking(models.Model):
                 message_type='comment',
             )
             return
+
+        _logger.info('✅ Found %d users for %s warehouse', len(dest_users), dest_warehouse.name)
 
         # Build product list
         product_lines = []
@@ -452,22 +468,35 @@ class StockPicking(models.Model):
                      len(dest_users), dest_warehouse.name)
 
         for user in dest_users:
-            _logger.info('   → Notifying user: %s', user.name)
+            _logger.info('   → Notifying user: %s (ID: %s, Email: %s)', user.name, user.id, user.email)
 
-        # Post message
-        receipt_picking.message_post(
-            body=message,
-            subject=_('✅ Stock Request Approved - %s') % receipt_picking.name,
-            partner_ids=dest_users.mapped('partner_id').ids,
-            message_type='notification',
-            subtype_xmlid='mail.mt_note',
-        )
+        # Post message on receipt
+        try:
+            receipt_picking.message_post(
+                body=message,
+                subject=_('✅ Stock Request Approved - %s') % receipt_picking.name,
+                partner_ids=dest_users.mapped('partner_id').ids,
+                message_type='notification',
+                subtype_xmlid='mail.mt_note',
+            )
+            _logger.info('✅ Message posted on receipt')
+        except Exception as e:
+            _logger.error('❌ Error posting message: %s', str(e))
+            import traceback
+            _logger.error(traceback.format_exc())
 
         # Create activities
-        self._create_activities(receipt_picking, dest_users, message,
-                                _('Action Required: Validate Receipt %s') % receipt_picking.name)
+        try:
+            self._create_activities(receipt_picking, dest_users, message,
+                                    _('Action Required: Validate Receipt %s') % receipt_picking.name)
+            _logger.info('✅ Activities created')
+        except Exception as e:
+            _logger.error('❌ Error creating activities: %s', str(e))
+            import traceback
+            _logger.error(traceback.format_exc())
 
         _logger.info('✅ Approval notification and activities sent to %s warehouse', dest_warehouse.name)
+        _logger.info('=' * 80)
 
     def _create_activities(self, picking, users, message, summary):
         """Create activities for users"""

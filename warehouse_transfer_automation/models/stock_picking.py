@@ -167,6 +167,9 @@ class StockPicking(models.Model):
         _logger.info('📋 action_confirm STARTING for: %s', self.name if self.name else 'NEW')
         _logger.info('=' * 80)
 
+        # CRITICAL FIX: Recompute is_inter_warehouse_transfer to ensure it's up-to-date
+        self._compute_is_inter_warehouse_transfer()
+
         # Log picking details BEFORE confirm
         for picking in self:
             _logger.info('   Picking Details BEFORE super().action_confirm():')
@@ -270,16 +273,23 @@ class StockPicking(models.Model):
         _logger.info('✅ Created receipt picking %s for warehouse %s', new_picking.name, dest_warehouse.name)
 
         for move in picking.move_ids:
-            done_qty = sum(move.move_line_ids.mapped('quantity')) if move.move_line_ids else move.product_uom_qty
+            # FIXED: Get done quantity correctly from move_line_ids
+            done_qty = 0
+            if move.move_line_ids:
+                # Sum only the quantities that were actually moved
+                done_qty = sum(move.move_line_ids.mapped('quantity'))
 
+            # If no move lines or zero quantity, use the original requested quantity
             if done_qty <= 0:
                 done_qty = move.product_uom_qty
 
-            _logger.info('📦 Creating move for product %s with qty %s', move.product_id.name, done_qty)
+            _logger.info('📦 Creating move for product %s with qty %s (from move_line: %s)',
+                         move.product_id.name, done_qty,
+                         sum(move.move_line_ids.mapped('quantity')) if move.move_line_ids else 0)
 
             move_vals = {
                 'product_id': move.product_id.id,
-                'product_uom_qty': done_qty,
+                'product_uom_qty': done_qty,  # Use the actual done quantity
                 'product_uom': move.product_uom.id,
                 'picking_id': new_picking.id,
                 'location_id': transit_loc.id,
@@ -290,7 +300,7 @@ class StockPicking(models.Model):
                 'state': 'draft',
             }
             new_move = StockMove.create(move_vals)
-            _logger.info('✅ Created move: %s', new_move.id)
+            _logger.info('✅ Created move: %s with qty %s', new_move.id, done_qty)
 
         new_picking.action_confirm()
         _logger.info('✅ Confirmed receipt picking: %s', new_picking.name)
@@ -587,7 +597,6 @@ class StockPicking(models.Model):
             import traceback
             _logger.error(traceback.format_exc())
             return self.env['res.users'].browse([])
-
 
 
 

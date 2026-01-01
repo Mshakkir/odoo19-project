@@ -190,18 +190,40 @@
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
                     <div style="padding-top:5px;">
+<!--                        <div style="background-color:#d3d3d3; color:black; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">-->
+<!--                            <t t-if="o.move_type in ('out_invoice','out_refund')">-->
+<!--                                Tax Invoice /-->
+<!--                                <span style="font-weight:900; "-->
+<!--                                      class="ar">فاتورة ضريبية-->
+<!--                                </span>-->
+<!--                            </t>-->
+<!--                            <t t-elif="o.move_type in ('in_invoice','in_refund')">-->
+<!--                                Purchase Invoice /-->
+<!--                                <span style="font-family:'Tajawal',sans-serif;font-weight:900;"-->
+<!--                                      class="ar">فاتورة مشتريات-->
+<!--                                </span>-->
+<!--                            </t>-->
+<!--                        </div>-->
                         <div style="background-color:#d3d3d3; color:black; padding:8px; text-align:center; margin-bottom:10px; font-weight:bold; font-size:16px;">
-                            <t t-if="o.move_type in ('out_invoice','out_refund')">
+                            <!-- Sales Invoice -->
+                            <t t-if="o.move_type == 'out_invoice'">
                                 Tax Invoice /
-                                <span style="font-weight:900; "
-                                      class="ar">فاتورة ضريبية
-                                </span>
+                                <span style="font-weight:900;" class="ar">فاتورة ضريبية</span>
                             </t>
-                            <t t-elif="o.move_type in ('in_invoice','in_refund')">
+                            <!-- Credit Note (Customer Refund) -->
+                            <t t-elif="o.move_type == 'out_refund'">
+                                Credit Note /
+                                <span style="font-weight:900;" class="ar">إشعار دائن</span>
+                            </t>
+                            <!-- Purchase Invoice -->
+                            <t t-elif="o.move_type == 'in_invoice'">
                                 Purchase Invoice /
-                                <span style="font-family:'Tajawal',sans-serif;font-weight:900;"
-                                      class="ar">فاتورة مشتريات
-                                </span>
+                                <span style="font-weight:900;" class="ar">فاتورة مشتريات</span>
+                            </t>
+                            <!-- Debit Note (Vendor Refund) -->
+                            <t t-elif="o.move_type == 'in_refund'">
+                                Debit Note /
+                                <span style="font-weight:900;" class="ar">إشعار مدين</span>
                             </t>
                         </div>
                     </div>

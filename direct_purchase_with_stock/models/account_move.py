@@ -257,6 +257,203 @@ class AccountMove(models.Model):
 
         return picking
 
+    # def _create_return_from_refund(self):
+    #     """
+    #     Create stock return for vendor refunds (return to vendor)
+    #     Removes products from warehouse inventory
+    #     """
+    #     self.ensure_one()
+    #
+    #     _logger.info(f"Starting return creation for vendor refund: {self.name}")
+    #
+    #     # Filter stockable products
+    #     stockable_lines = []
+    #     for line in self.invoice_line_ids:
+    #         if (line.product_id and
+    #                 line.product_id.type != 'service' and
+    #                 line.quantity > 0 and
+    #                 line.display_type not in ['line_section', 'line_note']):
+    #             stockable_lines.append(line)
+    #
+    #     if not stockable_lines:
+    #         raise UserError(_('No stockable products found for return creation'))
+    #
+    #     # Get warehouse
+    #     if self.purchase_warehouse_id:
+    #         warehouse = self.purchase_warehouse_id
+    #     else:
+    #         warehouse = None
+    #         if self.invoice_line_ids and self.invoice_line_ids[0].analytic_distribution:
+    #             analytic_dict = self.invoice_line_ids[0].analytic_distribution
+    #             if analytic_dict:
+    #                 analytic_id = int(list(analytic_dict.keys())[0])
+    #                 analytic_account = self.env['account.analytic.account'].browse(analytic_id)
+    #                 if analytic_account:
+    #                     warehouse = self.env['stock.warehouse'].search([
+    #                         ('name', 'ilike', analytic_account.name),
+    #                         ('company_id', '=', self.company_id.id)
+    #                     ], limit=1)
+    #
+    #         if not warehouse:
+    #             warehouse = self.env['stock.warehouse'].search([
+    #                 ('company_id', '=', self.company_id.id)
+    #             ], limit=1)
+    #
+    #     if not warehouse:
+    #         raise UserError(_('No warehouse found for company %s') % self.company_id.name)
+    #
+    #     # ════════════════════════════════════════════════════════
+    #     # STOCK AVAILABILITY CHECK - Check before returning
+    #     # ════════════════════════════════════════════════════════
+    #     stock_warnings = []
+    #     is_stock_manager = self.env.user.has_group('stock.group_stock_manager')
+    #
+    #     location_id = warehouse.lot_stock_id.id
+    #
+    #     for line in stockable_lines:
+    #         # Get available quantity at warehouse location
+    #         available_qty = line.product_id.with_context(
+    #             location=location_id
+    #         ).qty_available
+    #
+    #         if available_qty < line.quantity:
+    #             shortage = line.quantity - available_qty
+    #             warning_msg = _(
+    #                 "⚠️ INSUFFICIENT STOCK FOR RETURN\n"
+    #                 "┌───────────────────────────────┐\n"
+    #                 "Product: %s\n"
+    #                 "Available Stock: %.2f %s\n"
+    #                 "Return Quantity: %.2f %s\n"
+    #                 "Shortage: %.2f %s\n"
+    #                 "Warehouse: %s\n"
+    #                 "└───────────────────────────────┘"
+    #             ) % (
+    #                               line.product_id.name,
+    #                               available_qty, line.product_uom_id.name,
+    #                               line.quantity, line.product_uom_id.name,
+    #                               shortage, line.product_uom_id.name,
+    #                               warehouse.name
+    #                           )
+    #
+    #             stock_warnings.append({
+    #                 'product': line.product_id.name,
+    #                 'available': available_qty,
+    #                 'requested': line.quantity,
+    #                 'shortage': shortage,
+    #                 'message': warning_msg
+    #             })
+    #
+    #     # Handle stock warnings
+    #     if stock_warnings:
+    #         if not is_stock_manager:
+    #             # BLOCK regular users from creating negative stock
+    #             error_messages = "\n\n".join([w['message'] for w in stock_warnings])
+    #             raise UserError(_(
+    #                 "%s\n\n"
+    #                 "❌ CANNOT CREATE RETURN\n"
+    #                 "┌───────────────────────────────┐\n"
+    #                 "You don't have permission to return more stock than available.\n\n"
+    #                 "Please contact your Inventory Manager or:\n"
+    #                 "• Reduce refund quantities\n"
+    #                 "• Check if products are in correct warehouse\n"
+    #                 "• Verify stock before processing refund"
+    #             ) % error_messages)
+    #         else:
+    #             # WARN managers but allow to proceed
+    #             warning_summary = "⚠️ NEGATIVE STOCK WARNING - Manager Override\n\n"
+    #             for w in stock_warnings:
+    #                 warning_summary += f"• {w['product']}: Short by {w['shortage']:.2f}\n"
+    #
+    #             self.message_post(
+    #                 body=warning_summary,
+    #                 message_type='notification',
+    #                 subtype_xmlid='mail.mt_note'
+    #             )
+    #             _logger.warning(f"Negative stock allowed by manager for refund {self.name}: {warning_summary}")
+    #
+    #     # For returns: Warehouse → Vendor location
+    #     location_id = warehouse.lot_stock_id.id
+    #
+    #     vendor_location = self.env.ref('stock.stock_location_suppliers', raise_if_not_found=False)
+    #     if not vendor_location:
+    #         vendor_location = self.env['stock.location'].search([
+    #             ('usage', '=', 'supplier')
+    #         ], limit=1)
+    #
+    #     if not vendor_location:
+    #         raise UserError(_('Vendor location not found'))
+    #
+    #     location_dest_id = vendor_location.id
+    #
+    #     # Use outgoing picking type for returns to vendor
+    #     picking_type = warehouse.out_type_id
+    #
+    #     if not picking_type:
+    #         raise UserError(_('Delivery operation type not found in warehouse %s') % warehouse.name)
+    #
+    #     # Create return picking
+    #     picking_vals = {
+    #         'picking_type_id': picking_type.id,
+    #         'partner_id': self.partner_id.id,
+    #         'origin': self.name + ' (Return to Vendor)',
+    #         'location_id': location_id,
+    #         'location_dest_id': location_dest_id,
+    #         'move_type': 'direct',
+    #         'company_id': self.company_id.id,
+    #     }
+    #
+    #     picking = self.env['stock.picking'].create(picking_vals)
+    #     _logger.info(f"Created return picking: {picking.name} for vendor refund {self.name}")
+    #
+    #     # Create stock moves
+    #     moves_created = 0
+    #     for line in stockable_lines:
+    #         move_vals = {
+    #             'product_id': line.product_id.id,
+    #             'product_uom_qty': line.quantity,
+    #             'product_uom': line.product_uom_id.id,
+    #             'picking_id': picking.id,
+    #             'location_id': location_id,
+    #             'location_dest_id': location_dest_id,
+    #             'company_id': self.company_id.id,
+    #             'picking_type_id': picking_type.id,
+    #         }
+    #
+    #         move = self.env['stock.move'].create(move_vals)
+    #         moves_created += 1
+    #
+    #     if moves_created == 0:
+    #         picking.unlink()
+    #         raise UserError(_('No stock moves could be created for return'))
+    #
+    #     # Confirm and validate
+    #     picking.action_confirm()
+    #
+    #     if picking.state != 'assigned':
+    #         picking.action_assign()
+    #
+    #     for move in picking.move_ids:
+    #         move.quantity = move.product_uom_qty
+    #
+    #     try:
+    #         result = picking.button_validate()
+    #
+    #         if isinstance(result, dict) and result.get('res_model') == 'stock.backorder.confirmation':
+    #             backorder_wizard = self.env['stock.backorder.confirmation'].browse(result.get('res_id'))
+    #             backorder_wizard.process_cancel_backorder()
+    #     except Exception as e:
+    #         _logger.error(f"Error validating return: {str(e)}")
+    #         raise UserError(_(f"Error validating return: {str(e)}"))
+    #
+    #     # Link return to refund
+    #     self.receipt_id = picking.id
+    #
+    #     message = _('✅ Return %s created and validated. Products returned to vendor from warehouse %s') % (
+    #         picking.name, warehouse.name)
+    #     self.message_post(body=message)
+    #
+    #     return picking
+
     def _create_return_from_refund(self):
         """
         Create stock return for vendor refunds (return to vendor)
@@ -302,18 +499,15 @@ class AccountMove(models.Model):
         if not warehouse:
             raise UserError(_('No warehouse found for company %s') % self.company_id.name)
 
-        # ════════════════════════════════════════════════════════
-        # STOCK AVAILABILITY CHECK - Check before returning
-        # ════════════════════════════════════════════════════════
+        # Stock availability check
         stock_warnings = []
         is_stock_manager = self.env.user.has_group('stock.group_stock_manager')
 
-        location_id = warehouse.lot_stock_id.id
+        source_location_id = warehouse.lot_stock_id.id
 
         for line in stockable_lines:
-            # Get available quantity at warehouse location
             available_qty = line.product_id.with_context(
-                location=location_id
+                location=source_location_id
             ).qty_available
 
             if available_qty < line.quantity:
@@ -343,10 +537,8 @@ class AccountMove(models.Model):
                     'message': warning_msg
                 })
 
-        # Handle stock warnings
         if stock_warnings:
             if not is_stock_manager:
-                # BLOCK regular users from creating negative stock
                 error_messages = "\n\n".join([w['message'] for w in stock_warnings])
                 raise UserError(_(
                     "%s\n\n"
@@ -359,7 +551,6 @@ class AccountMove(models.Model):
                     "• Verify stock before processing refund"
                 ) % error_messages)
             else:
-                # WARN managers but allow to proceed
                 warning_summary = "⚠️ NEGATIVE STOCK WARNING - Manager Override\n\n"
                 for w in stock_warnings:
                     warning_summary += f"• {w['product']}: Short by {w['shortage']:.2f}\n"
@@ -370,6 +561,24 @@ class AccountMove(models.Model):
                     subtype_xmlid='mail.mt_note'
                 )
                 _logger.warning(f"Negative stock allowed by manager for refund {self.name}: {warning_summary}")
+
+        # ═══════════════════════════════════════════════════════
+        # CRITICAL FIX: Use INTERNAL transfer type
+        # ═══════════════════════════════════════════════════════
+
+        # Get internal picking type for returns
+        picking_type = self.env['stock.picking.type'].search([
+            ('code', '=', 'internal'),
+            ('warehouse_id', '=', warehouse.id),
+        ], limit=1)
+
+        if not picking_type:
+            # Fallback to outgoing type
+            picking_type = warehouse.out_type_id
+            _logger.warning(f"No internal picking type found, using outgoing type for warehouse {warehouse.name}")
+
+        if not picking_type:
+            raise UserError(_('No suitable operation type found in warehouse %s') % warehouse.name)
 
         # For returns: Warehouse → Vendor location
         location_id = warehouse.lot_stock_id.id
@@ -385,11 +594,7 @@ class AccountMove(models.Model):
 
         location_dest_id = vendor_location.id
 
-        # Use outgoing picking type for returns to vendor
-        picking_type = warehouse.out_type_id
-
-        if not picking_type:
-            raise UserError(_('Delivery operation type not found in warehouse %s') % warehouse.name)
+        _logger.info(f"Creating return from {warehouse.lot_stock_id.name} to {vendor_location.name}")
 
         # Create return picking
         picking_vals = {
@@ -409,6 +614,7 @@ class AccountMove(models.Model):
         moves_created = 0
         for line in stockable_lines:
             move_vals = {
+                'name': f'Return: {line.product_id.name}',
                 'product_id': line.product_id.id,
                 'product_uom_qty': line.quantity,
                 'product_uom': line.product_uom_id.id,
@@ -421,32 +627,48 @@ class AccountMove(models.Model):
 
             move = self.env['stock.move'].create(move_vals)
             moves_created += 1
+            _logger.info(
+                f"Created return move: {move.id} for {line.product_id.name} "
+                f"qty {line.quantity} from {location_id} to {location_dest_id}"
+            )
 
         if moves_created == 0:
             picking.unlink()
             raise UserError(_('No stock moves could be created for return'))
 
+        _logger.info(f"Total return moves created: {moves_created}")
+
         # Confirm and validate
         picking.action_confirm()
+        _logger.info(f"Return picking confirmed, state: {picking.state}")
 
         if picking.state != 'assigned':
             picking.action_assign()
+            _logger.info(f"Return picking assigned, state: {picking.state}")
 
+        # Set quantities done
         for move in picking.move_ids:
             move.quantity = move.product_uom_qty
+            _logger.info(
+                f"Set quantity done for {move.product_id.name}: {move.quantity} "
+                f"(from {move.location_id.name} to {move.location_dest_id.name})"
+            )
 
         try:
             result = picking.button_validate()
+            _logger.info(f"Return picking validation result: {result}")
 
             if isinstance(result, dict) and result.get('res_model') == 'stock.backorder.confirmation':
                 backorder_wizard = self.env['stock.backorder.confirmation'].browse(result.get('res_id'))
                 backorder_wizard.process_cancel_backorder()
+                _logger.info("Processed backorder wizard for return")
         except Exception as e:
             _logger.error(f"Error validating return: {str(e)}")
             raise UserError(_(f"Error validating return: {str(e)}"))
 
         # Link return to refund
         self.receipt_id = picking.id
+        _logger.info(f"Successfully linked return picking {picking.name} to refund {self.name}")
 
         message = _('✅ Return %s created and validated. Products returned to vendor from warehouse %s') % (
             picking.name, warehouse.name)

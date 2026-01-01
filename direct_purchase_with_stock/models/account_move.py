@@ -856,7 +856,7 @@ class AccountMove(models.Model):
         moves_created = 0
         for line in stockable_lines:
             move_vals = {
-                'name': f'{picking.origin}: {line.product_id.name}',
+                # 'name' is auto-computed in Odoo 19 - DO NOT SET IT
                 'product_id': line.product_id.id,
                 'product_uom_qty': line.quantity,
                 'product_uom': line.product_uom_id.id,

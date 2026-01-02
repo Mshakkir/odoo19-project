@@ -8,6 +8,13 @@
             <t t-set="data_report_dpi" t-value="110"/>
             <t t-call="web.internal_layout">
                 <div class="page">
+                                    <div class="alert alert-info" style="background-color: #d1ecf1; padding: 10px; margin-bottom: 20px;">
+                    <strong>DEBUG INFO:</strong><br/>
+                    Data: <span t-esc="data"/><br/>
+                    Accounts count: <span t-esc="len(Accounts or [])"/><br/>
+                    Print Journal: <span t-esc="print_journal"/><br/>
+                    Analytic Accounts: <span t-esc="analytic_accounts"/><br/>
+                </div>
                     <h2><span t-esc="res_company.name"/>: Trial Balance</h2>
 
                     <div class="row mt32">

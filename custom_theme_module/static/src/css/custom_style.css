@@ -106,7 +106,7 @@ body {
     height: 80px;
 }
 
-/* Logo - UPDATED TO MATCH FOOTER */
+/* Logo */
 .logo {
     display: flex;
     align-items: center;
@@ -118,7 +118,6 @@ body {
     z-index: 1001;
 }
 
-/* Target logo image directly - SAME AS FOOTER */
 .logo img,
 .logo .logo_image,
 img.logo_image {
@@ -140,13 +139,16 @@ img.logo_image {
     display: none;
 }
 
-/* Navigation Menu */
+/* Navigation Menu - CENTERED */
 .nav_menu {
     display: flex;
     list-style: none;
     gap: 8px;
     align-items: center;
     margin: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .nav_link {
@@ -168,6 +170,34 @@ img.logo_image {
 
 .nav_link.active {
     color: #3b82f6;
+}
+
+/* Cart Icon - Desktop */
+.nav_cart_icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: #3b82f6;
+    border-radius: 50%;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    margin-left: auto;
+    z-index: 1001;
+}
+
+.nav_cart_icon:hover {
+    background: #2563eb;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.nav_cart_icon svg {
+    width: 20px;
+    height: 20px;
 }
 
 /* Mobile Toggle Button */
@@ -215,7 +245,6 @@ img.logo_image {
     --footer-border: #e5e7eb;
 }
 
-/* Footer Logo - SAME AS NAVBAR */
 #footlogo,
 img#footlogo,
 .footer-logo-wrapper img {
@@ -227,7 +256,6 @@ img#footlogo,
     object-fit: contain !important;
 }
 
-/* Main Footer Container */
 .modern_ecommerce_footer,
 footer.modern_ecommerce_footer {
     background: var(--footer-bg) !important;
@@ -240,7 +268,6 @@ footer.modern_ecommerce_footer {
     border-top: 1px solid var(--footer-border);
 }
 
-/* Footer Top Section */
 .footer-top {
     padding: 4rem 0 3rem;
     position: relative;
@@ -250,12 +277,10 @@ footer.modern_ecommerce_footer {
     margin-bottom: 2rem;
 }
 
-/* Footer Logo Wrapper */
 .footer-logo-wrapper {
     margin-bottom: 1.5rem;
 }
 
-/* Footer Headings */
 .modern_ecommerce_footer h1,
 .modern_ecommerce_footer h2,
 .modern_ecommerce_footer h3,
@@ -271,7 +296,6 @@ footer.modern_ecommerce_footer {
     margin-bottom: 1.5rem !important;
 }
 
-/* Footer Links */
 .modern_ecommerce_footer ul,
 .footer-links {
     list-style: none;
@@ -299,7 +323,6 @@ footer.modern_ecommerce_footer {
     transform: translateX(4px);
 }
 
-/* Footer Text */
 .modern_ecommerce_footer p,
 .footer-description p {
     color: var(--footer-text) !important;
@@ -313,7 +336,6 @@ footer.modern_ecommerce_footer {
     margin-bottom: 1.5rem;
 }
 
-/* Newsletter */
 .footer-newsletter {
     margin-top: 1.5rem;
 }
@@ -375,7 +397,6 @@ footer.modern_ecommerce_footer {
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
-/* Payment Methods */
 .footer-payment {
     margin-top: 1.5rem;
 }
@@ -418,7 +439,6 @@ footer.modern_ecommerce_footer {
     opacity: 1;
 }
 
-/* Footer Middle - Info Bar */
 .footer-middle {
     background: #f9fafb;
     border-top: 1px solid var(--footer-border);
@@ -466,7 +486,6 @@ footer.modern_ecommerce_footer {
     margin: 0 !important;
 }
 
-/* Footer Bottom - Copyright */
 .footer-bottom {
     background: #ffffff !important;
     padding: 1.5rem 0 !important;
@@ -556,23 +575,21 @@ footer.modern_ecommerce_footer {
 
 /* Mobile devices (max-width: 768px) */
 @media (max-width: 768px) {
-    /* Hide Top Bar Contact Info on Mobile */
-    .top_bar .contact_info {
-        display: none;
-    }
-
-    /* Top Bar - Only Social Links Centered */
+    /* Top Bar - Keep visible on mobile */
     .top_bar {
         padding: 8px 0;
     }
 
     .top_bar .container {
-        justify-content: center;
+        justify-content: space-between;
+    }
+
+    .top_bar .contact_info {
+        display: flex;
     }
 
     .top_bar .social_links {
-        justify-content: center;
-        width: 100%;
+        display: flex;
     }
 
     /* Navbar */
@@ -588,17 +605,22 @@ footer.modern_ecommerce_footer {
         min-width: 160px !important;
     }
 
-    /* Show Mobile Social Links next to Toggle */
+    /* Hide mobile social links in navbar */
     .mobile_social_links {
-        display: flex;
-        gap: 6px;
-        align-items: center;
+        display: none;
+    }
+
+    /* Show cart icon before toggle */
+    .nav_cart_icon {
+        width: 40px;
+        height: 40px;
+        margin-left: 0;
         margin-right: 10px;
     }
 
-    .mobile_social_links .social_link {
-        width: 34px;
-        height: 34px;
+    .nav_cart_icon svg {
+        width: 18px;
+        height: 18px;
     }
 
     .mobile_toggle {
@@ -608,50 +630,30 @@ footer.modern_ecommerce_footer {
     /* Mobile Menu */
     .nav_menu {
         position: fixed;
-        top: 65px;
+        top: 0;
         left: -100%;
-        width: 100%;
-        height: calc(100vh - 65px);
+        width: 280px;
+        height: 100vh;
         background: white;
         flex-direction: column;
-        padding: 20px;
+        padding: 80px 20px 20px;
         transition: left 0.3s ease;
         gap: 0;
         box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
         overflow-y: auto;
         align-items: stretch;
+        transform: none;
+        position: fixed;
+        z-index: 1000;
     }
 
     .nav_menu.active {
         left: 0;
     }
 
-    /* Show Mobile Contact Section in Menu */
+    /* HIDE mobile contact section in nav menu */
     .mobile_contact_section {
-        display: block !important;
-        width: 100%;
-        margin-bottom: 20px;
-        padding-bottom: 20px;
-        border-bottom: 2px solid #e5e7eb;
-    }
-
-    .mobile_contact_info {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        width: 100%;
-    }
-
-    .mobile_contact_info .contact_item {
-        padding: 12px;
-        background: #f9fafb;
-        border-radius: 8px;
-        font-size: 15px;
-        transition: all 0.3s ease;
-    }
-
-    .mobile_contact_info .contact_item:hover {
-        background: #eff6ff;
+        display: none !important;
     }
 
     .nav_menu li {
@@ -679,7 +681,6 @@ footer.modern_ecommerce_footer {
         max-width: 100%;
     }
 
-    /* Newsletter Form - Full Width on Mobile */
     .newsletter-form .input-group {
         flex-direction: column;
         gap: 0.75rem;
@@ -739,9 +740,15 @@ footer.modern_ecommerce_footer {
         min-width: 140px !important;
     }
 
-    .mobile_social_links .social_link {
-        width: 32px;
-        height: 32px;
+    .nav_cart_icon {
+        width: 38px;
+        height: 38px;
+        margin-right: 8px;
+    }
+
+    .nav_cart_icon svg {
+        width: 17px;
+        height: 17px;
     }
 
     .mobile_toggle {
@@ -754,19 +761,13 @@ footer.modern_ecommerce_footer {
     }
 
     .nav_menu {
-        top: 60px;
-        height: calc(100vh - 60px);
-        padding: 15px;
+        width: 260px;
+        padding: 70px 15px 15px;
     }
 
     .nav_link {
         padding: 12px 15px;
         font-size: 14px;
-    }
-
-    .mobile_contact_info .contact_item {
-        font-size: 14px;
-        padding: 10px;
     }
 
     .social_link {
@@ -861,14 +862,15 @@ footer.modern_ecommerce_footer {
         min-width: 120px !important;
     }
 
-    .mobile_social_links {
-        gap: 4px;
+    .nav_cart_icon {
+        width: 36px;
+        height: 36px;
         margin-right: 6px;
     }
 
-    .mobile_social_links .social_link {
-        width: 30px;
-        height: 30px;
+    .nav_cart_icon svg {
+        width: 16px;
+        height: 16px;
     }
 
     .footer-top {

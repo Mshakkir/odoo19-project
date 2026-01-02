@@ -15,6 +15,7 @@
     'data': [
         'report/report.xml',
         'report/report_templates.xml',
+        'report/credit_note_templates.xml',
     ],
     'assets': {},
     'installable': True,

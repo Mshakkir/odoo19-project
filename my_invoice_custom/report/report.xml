@@ -8,4 +8,14 @@
         file="my_invoice_custom.report_invoice_document"
         print_report_name="'Custom Invoice - %s' % (object.name)"
     />
+    <!-- CREDIT NOTE REPORT ACTION -->
+    <report
+        id="custom_credit_note_pdf"
+        model="account.move"
+        string="Custom Credit Note"
+        report_type="qweb-pdf"
+        name="my_invoice_custom.custom_credit_note_report"
+        file="my_invoice_custom.custom_credit_note_report"
+        print_report_name="'Credit Note - %s' % (object.name)"
+    />
 </odoo>

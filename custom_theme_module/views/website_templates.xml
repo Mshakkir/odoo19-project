@@ -83,20 +83,21 @@
                             </li>
                         </ul>
 
-                        <!-- Cart Icon -->
-                        <a href="/shop/cart" class="nav_cart_icon" aria-label="Shopping Cart">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="9" cy="21" r="1"></circle>
-                                <circle cx="20" cy="21" r="1"></circle>
-                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                            </svg>
-                        </a>
+                        <div class="nav_right_section">
+                            <a href="/shop/cart" class="cart_icon" aria-label="Shopping Cart">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="9" cy="21" r="1"></circle>
+                                    <circle cx="20" cy="21" r="1"></circle>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                </svg>
+                            </a>
 
-                        <button class="mobile_toggle" onclick="toggleMenu()" aria-label="Toggle Menu">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </button>
+                            <button class="mobile_toggle" onclick="toggleMenu()" aria-label="Toggle Menu">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </button>
+                        </div>
                     </div>
                 </nav>
 
@@ -169,8 +170,8 @@
                                     <div class="col-lg-4 col-md-6 col-sm-12 footer-column">
                                         <div class="footer-logo">
                                             <a href="/" class="logo">
-                                                    <img id="footlogo" src="/custom_theme_module/static/src/img/newlogo.png"
-                                                         alt="Airmixs Logo" class="logo_image"/>
+                                                <img id="footlogo" src="/custom_theme_module/static/src/img/newlogo.png"
+                                                     alt="Airmixs Logo" class="logo_image"/>
                                             </a>
                                         </div>
                                         <div class="footer-description">

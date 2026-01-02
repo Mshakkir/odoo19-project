@@ -131,6 +131,12 @@
                                 <a href="/shop" class="nav_link">Shop</a>
                             </li>
                             <li>
+                                <a href="/category" class="nav_link">Categories</a>
+                            </li>
+                            <li>
+                                <a href="/blog" class="nav_link">Blogs</a>
+                            </li>
+                            <li>
                                 <a href="/contactus" class="nav_link">Contact Us</a>
                             </li>
                         </ul>
@@ -224,10 +230,13 @@
                                                 <a href="/shop" class="footer-link">All Products</a>
                                             </li>
                                             <li>
-                                                <a href="/shop/category/new-arrivals" class="footer-link">New Arrivals</a>
+                                                <a href="/shop" class="footer-link">New Arrivals</a>
                                             </li>
                                             <li>
-                                                <a href="/shop/category/best-sellers" class="footer-link">Cart</a>
+                                                <a href="/shop/cart" class="footer-link">Cart</a>
+                                            </li>
+                                            <li>
+                                                <a href="/blog" class="footer-link">Our Blogs</a>
                                             </li>
                                         </ul>
                                     </div>
@@ -356,7 +365,6 @@
                                     <div class="footer-links-bottom">
                                         <a href="/page/privacy-policy">Privacy Policy</a>
                                         <a href="/page/terms-conditions">Terms &amp; Conditions</a>
-                                        <a href="/sitemap">Sitemap</a>
                                     </div>
                                 </div>
                             </div>

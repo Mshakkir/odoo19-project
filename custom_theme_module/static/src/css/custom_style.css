@@ -125,7 +125,7 @@ img.logo_image {
     width: auto !important;
     max-width: 300px !important;
     min-width: 200px !important;
-    display: block !important;
+    display: block;
     object-fit: contain !important;
 }
 

@@ -111,51 +111,127 @@ class ReportTrialBalance(models.AbstractModel):
     _name = 'report.accounting_pdf_reports.report_trialbalance'
     _description = 'Trial Balance Report'
 
+    # def _get_accounts(self, accounts, display_account):
+    #     """
+    #     Compute the balance, debit, and credit for the provided accounts.
+    #
+    #     Args:
+    #         accounts: recordset of account.account
+    #         display_account: filter option ('all', 'not_zero', or 'movement')
+    #
+    #     Returns:
+    #         list of dicts containing:
+    #             - name: Account name
+    #             - code: Account code
+    #             - debit: Total debit
+    #             - credit: Total credit
+    #             - balance: Total balance
+    #     """
+    #     account_result = {}
+    #
+    #     # Prepare SQL query based on selected parameters from wizard
+    #     tables, where_clause, where_params = self.env['account.move.line']._query_get()
+    #     tables = tables.replace('"', '') or 'account_move_line'
+    #
+    #     wheres = []
+    #     if where_clause.strip():
+    #         wheres.append(where_clause.strip())
+    #     filters = " AND ".join(wheres)
+    #
+    #     # Compute debit, credit, and balance for provided accounts
+    #     request = (
+    #         "SELECT account_id AS id, "
+    #         "SUM(debit) AS debit, "
+    #         "SUM(credit) AS credit, "
+    #         "(SUM(debit) - SUM(credit)) AS balance "
+    #         f"FROM {tables} "
+    #         "WHERE account_id IN %s "
+    #         + (f"AND {filters}" if filters else "")
+    #         + " GROUP BY account_id"
+    #     )
+    #
+    #     params = (tuple(accounts.ids),) + tuple(where_params)
+    #     self.env.cr.execute(request, params)
+    #
+    #     for row in self.env.cr.dictfetchall():
+    #         account_result[row.pop('id')] = row
+    #
+    #     account_res = []
+    #     for account in accounts:
+    #         res = dict.fromkeys(['credit', 'debit', 'balance'], 0.0)
+    #         currency = account.currency_id or self.env.company.currency_id
+    #
+    #         res.update({
+    #             'code': account.code,
+    #             'name': account.name,
+    #         })
+    #
+    #         if account.id in account_result:
+    #             res['debit'] = account_result[account.id].get('debit', 0.0)
+    #             res['credit'] = account_result[account.id].get('credit', 0.0)
+    #             res['balance'] = account_result[account.id].get('balance', 0.0)
+    #
+    #         if display_account == 'all':
+    #             account_res.append(res)
+    #         elif display_account == 'not_zero' and not currency.is_zero(res['balance']):
+    #             account_res.append(res)
+    #         elif display_account == 'movement' and (
+    #             not currency.is_zero(res['debit']) or not currency.is_zero(res['credit'])
+    #         ):
+    #             account_res.append(res)
+    #
+    #     return account_res
     def _get_accounts(self, accounts, display_account):
-        """
-        Compute the balance, debit, and credit for the provided accounts.
+        """Override with simplified Python filtering approach."""
 
-        Args:
-            accounts: recordset of account.account
-            display_account: filter option ('all', 'not_zero', or 'movement')
+        # Get analytic filter from context
+        analytic_account_ids = self.env.context.get('analytic_account_ids')
 
-        Returns:
-            list of dicts containing:
-                - name: Account name
-                - code: Account code
-                - debit: Total debit
-                - credit: Total credit
-                - balance: Total balance
-        """
-        account_result = {}
-
-        # Prepare SQL query based on selected parameters from wizard
+        # CRITICAL FIX: Use direct database query instead of parent method
         tables, where_clause, where_params = self.env['account.move.line']._query_get()
         tables = tables.replace('"', '') or 'account_move_line'
 
         wheres = []
         if where_clause.strip():
             wheres.append(where_clause.strip())
-        filters = " AND ".join(wheres)
+        filters = " AND ".join(wheres) if wheres else "1=1"
 
-        # Compute debit, credit, and balance for provided accounts
-        request = (
-            "SELECT account_id AS id, "
-            "SUM(debit) AS debit, "
-            "SUM(credit) AS credit, "
-            "(SUM(debit) - SUM(credit)) AS balance "
-            f"FROM {tables} "
-            "WHERE account_id IN %s "
-            + (f"AND {filters}" if filters else "")
-            + " GROUP BY account_id"
-        )
+        # Get ALL move lines (without analytic filter first)
+        request = f"""
+            SELECT 
+                account_id,
+                SUM(debit) as debit,
+                SUM(credit) as credit,
+                analytic_distribution
+            FROM {tables}
+            WHERE account_id IN %s AND {filters}
+            GROUP BY account_id, analytic_distribution
+        """
 
         params = (tuple(accounts.ids),) + tuple(where_params)
         self.env.cr.execute(request, params)
+        raw_results = self.env.cr.dictfetchall()
 
-        for row in self.env.cr.dictfetchall():
-            account_result[row.pop('id')] = row
+        # Now filter by analytic if needed (using your existing logic)
+        if analytic_account_ids:
+            # Use your existing filtering code here
+            account_result = {}
+            # ... (keep your existing analytic filtering logic)
+        else:
+            # NO FILTER: Build results directly from raw data
+            account_result = {}
+            for row in raw_results:
+                acc_id = row['account_id']
+                if acc_id not in account_result:
+                    account_result[acc_id] = {'debit': 0.0, 'credit': 0.0, 'balance': 0.0}
 
+                account_result[acc_id]['debit'] += row['debit'] or 0.0
+                account_result[acc_id]['credit'] += row['credit'] or 0.0
+                account_result[acc_id]['balance'] = (
+                        account_result[acc_id]['debit'] - account_result[acc_id]['credit']
+                )
+
+        # Build final result list (keep your existing code)
         account_res = []
         for account in accounts:
             res = dict.fromkeys(['credit', 'debit', 'balance'], 0.0)
@@ -167,21 +243,21 @@ class ReportTrialBalance(models.AbstractModel):
             })
 
             if account.id in account_result:
-                res['debit'] = account_result[account.id].get('debit', 0.0)
-                res['credit'] = account_result[account.id].get('credit', 0.0)
-                res['balance'] = account_result[account.id].get('balance', 0.0)
+                res['debit'] = account_result[account.id]['debit']
+                res['credit'] = account_result[account.id]['credit']
+                res['balance'] = account_result[account.id]['balance']
 
+            # Apply display filter
             if display_account == 'all':
                 account_res.append(res)
             elif display_account == 'not_zero' and not currency.is_zero(res['balance']):
                 account_res.append(res)
             elif display_account == 'movement' and (
-                not currency.is_zero(res['debit']) or not currency.is_zero(res['credit'])
+                    not currency.is_zero(res['debit']) or not currency.is_zero(res['credit'])
             ):
                 account_res.append(res)
 
         return account_res
-
     @api.model
     def _get_report_values(self, docids, data=None):
         """

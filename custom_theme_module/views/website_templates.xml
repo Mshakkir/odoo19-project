@@ -67,7 +67,7 @@
                                 <a href="/" class="nav_link active">Home</a>
                             </li>
                             <li>
-                                <a href="/about-us" class="nav_link">About Us</a>
+                                <a href="/about-us" class="nav_link">About</a>
                             </li>
                             <li>
                                 <a href="/shop" class="nav_link">Shop</a>
@@ -79,7 +79,7 @@
                                 <a href="/blog" class="nav_link">Blogs</a>
                             </li>
                             <li>
-                                <a href="/contactus" class="nav_link">Contact Us</a>
+                                <a href="/contactus" class="nav_link">Contact</a>
                             </li>
                         </ul>
 

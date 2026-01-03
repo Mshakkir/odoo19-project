@@ -5,45 +5,18 @@
     <record id="view_picking_internal_search_warehouse" model="ir.ui.view">
         <field name="name">stock.picking.search.warehouse</field>
         <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_internal_search"/>
         <field name="arch" type="xml">
-            <search string="Picking Lists">
-                <field name="name" string="Transfer" filter_domain="['|', ('name', 'ilike', self), ('origin', 'ilike', self)]"/>
-                <field name="partner_id" filter_domain="[('partner_id', 'child_of', self)]"/>
-                <field name="origin"/>
-                <field name="product_id"/>
-                <field name="warehouse_id"/>
-
-                <filter string="Available" name="available" domain="[('state','=','assigned')]"/>
-                <filter string="Waiting" name="waiting" domain="[('state','in',('confirmed','waiting','assigned'))]"/>
-                <filter string="Done" name="done" domain="[('state','=','done')]"/>
-
+            <search position="inside">
+                <!-- Add Warehouse Filters -->
                 <separator/>
-                <filter string="Urgent" name="urgent" domain="[('is_urgent','=',True)]"/>
-                <filter string="Today" name="today" domain="[('is_today_delivery','=',True)]"/>
-                <filter string="This Week" name="this_week"
-                        domain="[('scheduled_date','&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
-                <filter string="Overdue" name="overdue"
-                        domain="[('scheduled_date','&lt;',context_today().strftime('%Y-%m-%d')), ('state','not in',['done','cancel'])]"/>
-
+                <filter string="Urgent" name="urgent" domain="[('priority','=','2')]"/>
+                <filter string="Today" name="today" domain="[('scheduled_date','=', context_today())]"/>
+                <filter string="Overdue" name="overdue" domain="[('scheduled_date','&lt;', context_today()), ('state','not in',['done','cancel'])]"/>
                 <separator/>
-                <filter string="Pending" name="pending" domain="[('state','in',['confirmed','assigned','waiting'])]"/>
-                <filter string="Ready" name="ready" domain="[('state','=','assigned')]"/>
-
-                <separator/>
-                <filter string="Deliveries" name="picking_type_out" domain="[('picking_type_code','=','outgoing')]"/>
-                <filter string="Receipts" name="picking_type_in" domain="[('picking_type_code','=','incoming')]"/>
-                <filter string="Internal Transfers" name="picking_type_int" domain="[('picking_type_code','=','internal')]"/>
-
-                <separator/>
-                <filter string="Late" name="late" domain="[('scheduled_date','&lt;',context_today()), ('state','not in',['done','cancel'])]"/>
-
                 <group expand="0" string="Group By">
-                    <filter string="Status" name="status" context="{'group_by':'state'}"/>
-                    <filter string="Operation Type" name="picking_type" context="{'group_by':'picking_type_id'}"/>
                     <filter string="Warehouse" name="warehouse" context="{'group_by':'warehouse_id'}"/>
                     <filter string="Priority" name="priority" context="{'group_by':'priority'}"/>
-                    <filter string="Scheduled Date" name="scheduled_date" context="{'group_by':'scheduled_date:day'}"/>
-                    <filter string="Scheduled Month" name="scheduled_month" context="{'group_by':'scheduled_date:month'}"/>
                 </group>
             </search>
         </field>
@@ -55,23 +28,12 @@
         <field name="model">stock.picking</field>
         <field name="inherit_id" ref="stock.vpicktree"/>
         <field name="arch" type="xml">
-            <xpath expr="//tree" position="attributes">
-                <attribute name="decoration-danger">is_urgent == True</attribute>
-                <attribute name="decoration-success">state == 'assigned'</attribute>
-                <attribute name="decoration-warning">is_today_delivery == True and state not in ['done', 'cancel']</attribute>
-                <attribute name="decoration-muted">state in ['done', 'cancel']</attribute>
-                <attribute name="decoration-bf">is_urgent == True</attribute>
-            </xpath>
-            <xpath expr="//field[@name='name']" position="after">
-                <field name="is_urgent" column_invisible="1"/>
-                <field name="is_today_delivery" column_invisible="1"/>
-            </xpath>
-            <xpath expr="//field[@name='partner_id']" position="after">
+            <field name="partner_id" position="after">
                 <field name="warehouse_id" string="Warehouse" optional="show"/>
-            </xpath>
-            <xpath expr="//field[@name='scheduled_date']" position="after">
+            </field>
+            <field name="scheduled_date" position="after">
                 <field name="days_until_delivery" string="Days Until" optional="show"/>
-            </xpath>
+            </field>
         </field>
     </record>
 
@@ -81,20 +43,9 @@
         <field name="model">stock.picking</field>
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
-            <!-- Add Warehouse Info -->
-            <xpath expr="//field[@name='location_id']" position="after">
+            <field name="location_id" position="after">
                 <field name="warehouse_id" readonly="1" force_save="1"/>
-            </xpath>
-
-            <!-- Add Status Badges -->
-            <xpath expr="//sheet" position="before">
-                <div class="alert alert-danger" role="alert" invisible="is_urgent != True">
-                    <strong><i class="fa fa-exclamation-triangle"/> Urgent Delivery!</strong> This delivery has high priority.
-                </div>
-                <div class="alert alert-info" role="alert" invisible="is_today_delivery != True">
-                    <strong><i class="fa fa-calendar"/> Today's Delivery!</strong> This delivery is scheduled for today.
-                </div>
-            </xpath>
+            </field>
         </field>
     </record>
 
@@ -104,12 +55,7 @@
         <field name="model">stock.picking</field>
         <field name="priority">1000</field>
         <field name="arch" type="xml">
-            <tree string="My Deliveries"
-                  decoration-danger="is_urgent == True"
-                  decoration-success="state == 'assigned'"
-                  decoration-warning="is_today_delivery == True and state not in ['done', 'cancel']"
-                  decoration-bf="is_urgent == True"
-                  create="false">
+            <tree string="My Deliveries" create="false">
                 <field name="name"/>
                 <field name="partner_id"/>
                 <field name="origin" optional="show"/>
@@ -117,9 +63,7 @@
                 <field name="scheduled_date"/>
                 <field name="days_until_delivery"/>
                 <field name="priority" widget="priority"/>
-                <field name="state" widget="badge" decoration-success="state == 'assigned'" decoration-info="state in ['confirmed', 'waiting']"/>
-                <field name="is_urgent" column_invisible="1"/>
-                <field name="is_today_delivery" column_invisible="1"/>
+                <field name="state" widget="badge"/>
             </tree>
         </field>
     </record>
@@ -135,8 +79,7 @@
                 <field name="warehouse_id"/>
                 <field name="scheduled_date"/>
                 <field name="state"/>
-                <field name="is_urgent"/>
-                <field name="is_today_delivery"/>
+                <field name="priority"/>
                 <templates>
                     <t t-name="card">
                         <div class="oe_kanban_global_click">
@@ -146,8 +89,7 @@
                                         <field name="name"/>
                                     </strong>
                                 </div>
-                                <span t-if="record.is_urgent.raw_value" class="badge badge-danger">Urgent</span>
-                                <span t-if="record.is_today_delivery.raw_value" class="badge badge-info">Today</span>
+                                <span t-if="record.priority.raw_value == '2'" class="badge badge-danger">Urgent</span>
                             </div>
                             <div class="o_kanban_record_body">
                                 <field name="partner_id"/>
@@ -176,9 +118,6 @@
         <field name="res_model">stock.picking</field>
         <field name="view_mode">tree,kanban,form,calendar,pivot,graph</field>
         <field name="domain">[('picking_type_code','=','outgoing'),('state','in',['confirmed','assigned','waiting'])]</field>
-        <field name="context">{
-            'search_default_pending': 1,
-        }</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No pending deliveries!

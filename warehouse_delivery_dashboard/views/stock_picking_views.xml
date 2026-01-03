@@ -5,7 +5,7 @@
     <record id="view_picking_internal_search_warehouse" model="ir.ui.view">
         <field name="name">stock.picking.search.warehouse</field>
         <field name="model">stock.picking</field>
-        <field name="inherit_id" ref="stock.view_picking_internal_search"/>
+        <field name="inherit_id" ref="stock.stock_picking_view_search"/>
         <field name="arch" type="xml">
             <xpath expr="//search" position="inside">
                 <!-- Add Warehouse Filters -->
@@ -43,7 +43,7 @@
     <record id="view_picking_tree_warehouse" model="ir.ui.view">
         <field name="name">stock.picking.tree.warehouse</field>
         <field name="model">stock.picking</field>
-        <field name="inherit_id" ref="stock.view_picking_tree"/>
+        <field name="inherit_id" ref="stock.vpicktree"/>
         <field name="arch" type="xml">
             <xpath expr="//tree" position="attributes">
                 <attribute name="decoration-danger">is_urgent == True</attribute>
@@ -53,18 +53,14 @@
                 <attribute name="decoration-bf">is_urgent == True</attribute>
             </xpath>
             <xpath expr="//field[@name='name']" position="after">
-                <field name="is_urgent" invisible="1"/>
-                <field name="is_today_delivery" invisible="1"/>
+                <field name="is_urgent" column_invisible="1"/>
+                <field name="is_today_delivery" column_invisible="1"/>
             </xpath>
-            <xpath expr="//field[@name='origin']" position="after">
-                <field name="warehouse_id" string="Warehouse"/>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="warehouse_id" string="Warehouse" optional="show"/>
             </xpath>
             <xpath expr="//field[@name='scheduled_date']" position="after">
                 <field name="days_until_delivery" string="Days Until" optional="show"/>
-            </xpath>
-            <xpath expr="//field[@name='priority']" position="attributes">
-                <attribute name="widget">priority</attribute>
-                <attribute name="optional">show</attribute>
             </xpath>
         </field>
     </record>
@@ -75,15 +71,6 @@
         <field name="model">stock.picking</field>
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
-            <!-- Add Header Button -->
-            <xpath expr="//header" position="inside">
-                <button string="Back to Dashboard"
-                        type="action"
-                        name="%(action_delivery_dashboard)d"
-                        class="btn-secondary"
-                        groups="stock.group_stock_user"/>
-            </xpath>
-
             <!-- Add Warehouse Info -->
             <xpath expr="//field[@name='location_id']" position="after">
                 <field name="warehouse_id" readonly="1" force_save="1"/>
@@ -91,16 +78,12 @@
 
             <!-- Add Status Badges -->
             <xpath expr="//sheet" position="before">
-                <header>
-                    <field name="is_urgent" invisible="1"/>
-                    <field name="is_today_delivery" invisible="1"/>
-                    <div class="alert alert-danger" role="alert" attrs="{'invisible': [('is_urgent', '=', False)]}">
-                        <strong><i class="fa fa-exclamation-triangle"/> Urgent Delivery!</strong> This delivery has high priority.
-                    </div>
-                    <div class="alert alert-info" role="alert" attrs="{'invisible': [('is_today_delivery', '=', False)]}">
-                        <strong><i class="fa fa-calendar"/> Today's Delivery!</strong> This delivery is scheduled for today.
-                    </div>
-                </header>
+                <div class="alert alert-danger" role="alert" invisible="is_urgent != True">
+                    <strong><i class="fa fa-exclamation-triangle"/> Urgent Delivery!</strong> This delivery has high priority.
+                </div>
+                <div class="alert alert-info" role="alert" invisible="is_today_delivery != True">
+                    <strong><i class="fa fa-calendar"/> Today's Delivery!</strong> This delivery is scheduled for today.
+                </div>
             </xpath>
         </field>
     </record>
@@ -119,19 +102,14 @@
                   create="false">
                 <field name="name"/>
                 <field name="partner_id"/>
-                <field name="origin"/>
+                <field name="origin" optional="show"/>
                 <field name="warehouse_id"/>
                 <field name="scheduled_date"/>
                 <field name="days_until_delivery"/>
                 <field name="priority" widget="priority"/>
                 <field name="state" widget="badge" decoration-success="state == 'assigned'" decoration-info="state in ['confirmed', 'waiting']"/>
-                <field name="is_urgent" invisible="1"/>
-                <field name="is_today_delivery" invisible="1"/>
-                <button name="action_open_from_dashboard"
-                        string="Open"
-                        type="object"
-                        icon="fa-external-link"
-                        class="btn-primary"/>
+                <field name="is_urgent" column_invisible="1"/>
+                <field name="is_today_delivery" column_invisible="1"/>
             </tree>
         </field>
     </record>
@@ -145,10 +123,6 @@
         <field name="context">{
             'search_default_pending': 1,
         }</field>
-        <field name="view_ids" eval="[(5, 0, 0),
-            (0, 0, {'view_mode': 'tree', 'view_id': ref('view_picking_tree_dashboard')}),
-            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_delivery_kanban_dashboard')}),
-            (0, 0, {'view_mode': 'form'})]"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No pending deliveries!
@@ -168,7 +142,7 @@
                       date_start="scheduled_date"
                       color="warehouse_id"
                       event_open_popup="true"
-                      quick_add="false"
+                      quick_create="false"
                       mode="month">
                 <field name="name"/>
                 <field name="partner_id"/>

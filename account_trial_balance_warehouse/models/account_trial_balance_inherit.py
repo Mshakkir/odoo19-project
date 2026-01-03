@@ -244,8 +244,6 @@ class ReportTrialBalance(models.AbstractModel):
 
         In Odoo 19, analytic accounts are stored in JSON field 'analytic_distribution'
         Format: {"account_id": percentage} e.g., {"2": 100.0, "3": 50.0}
-
-        SIMPLIFIED VERSION: Uses Python filtering instead of complex SQL
         """
         # Get analytic filter from context
         analytic_account_ids = self.env.context.get('analytic_account_ids')
@@ -254,8 +252,12 @@ class ReportTrialBalance(models.AbstractModel):
         if not analytic_account_ids or (
                 isinstance(analytic_account_ids, (list, tuple)) and len(analytic_account_ids) == 0):
             # No filter - use parent method (show all)
-            _logger.info("No analytic filter - using parent method")
-            return super()._get_accounts(accounts, display_account)
+            _logger.info("=" * 80)
+            _logger.info("NO ANALYTIC FILTER - Using parent method to get all accounts")
+            _logger.info("=" * 80)
+            result = super()._get_accounts(accounts, display_account)
+            _logger.info(f"Parent method returned {len(result)} accounts")
+            return result
 
         # Extract IDs if it's a recordset
         if hasattr(analytic_account_ids, 'ids'):
@@ -266,11 +268,19 @@ class ReportTrialBalance(models.AbstractModel):
 
         # ✅ Double-check after extraction
         if not analytic_ids or len(analytic_ids) == 0:
-            _logger.info("No analytic IDs after extraction - using parent method")
-            return super()._get_accounts(accounts, display_account)
+            _logger.info("=" * 80)
+            _logger.info("NO ANALYTIC IDs after extraction - Using parent method")
+            _logger.info("=" * 80)
+            result = super()._get_accounts(accounts, display_account)
+            _logger.info(f"Parent method returned {len(result)} accounts")
+            return result
 
-        _logger.info(f"=== TRIAL BALANCE ANALYTIC FILTER ACTIVE ===")
+        _logger.info("=" * 80)
+        _logger.info("TRIAL BALANCE ANALYTIC FILTER ACTIVE")
         _logger.info(f"Filtering by analytic account IDs: {analytic_ids}")
+        _logger.info(f"Total accounts to process: {len(accounts)}")
+        _logger.info(f"Display account setting: {display_account}")
+        _logger.info("=" * 80)
 
         # Build SQL query WITHOUT analytic filter first (get all lines)
         tables, where_clause, where_params = self.env['account.move.line']._query_get()
@@ -295,18 +305,30 @@ class ReportTrialBalance(models.AbstractModel):
 
         params = (tuple(accounts.ids),) + tuple(where_params)
 
-        _logger.info(f"Executing SQL query with {len(accounts)} accounts")
+        _logger.info(f"Executing SQL query...")
         _logger.debug(f"SQL: {request}")
+        _logger.debug(f"Params: {params}")
 
         self.env.cr.execute(request, params)
         all_lines = self.env.cr.dictfetchall()
 
-        _logger.info(f"Total move lines found: {len(all_lines)}")
+        _logger.info(f"Total move lines found in database: {len(all_lines)}")
+
+        if len(all_lines) == 0:
+            _logger.warning("⚠️  NO MOVE LINES FOUND! Check your date range and filters.")
+            _logger.warning(
+                f"   Date range from context: {self.env.context.get('date_from')} to {self.env.context.get('date_to')}")
+            _logger.warning(f"   Target move: {self.env.context.get('state')}")
+            return []
 
         # Filter and calculate in Python
         account_result = {}
+        lines_processed = 0
+        lines_with_analytic = 0
+        lines_matched = 0
 
         for line in all_lines:
+            lines_processed += 1
             account_id = line['account_id']
             analytic_dist = line['analytic_distribution']
 
@@ -314,6 +336,8 @@ class ReportTrialBalance(models.AbstractModel):
             if not analytic_dist:
                 _logger.debug(f"Line {line['id']}: No analytic distribution, skipping")
                 continue
+
+            lines_with_analytic += 1
 
             # Calculate percentage for our analytic accounts
             percentage = 0.0
@@ -326,6 +350,8 @@ class ReportTrialBalance(models.AbstractModel):
 
             if percentage == 0:
                 continue
+
+            lines_matched += 1
 
             # Calculate proportional amounts
             proportional_debit = line['debit'] * (percentage / 100.0)
@@ -342,8 +368,12 @@ class ReportTrialBalance(models.AbstractModel):
             account_result[account_id]['balance'] = account_result[account_id]['debit'] - account_result[account_id][
                 'credit']
 
+        _logger.info(f"Lines processed: {lines_processed}")
+        _logger.info(f"Lines with analytic distribution: {lines_with_analytic}")
+        _logger.info(f"Lines matching filter: {lines_matched}")
         _logger.info(f"Accounts with filtered transactions: {len(account_result)}")
-        for acc_id, values in account_result.items():
+
+        for acc_id, values in list(account_result.items())[:10]:  # Show first 10
             _logger.info(
                 f"  Account {acc_id}: Debit={values['debit']:.2f}, Credit={values['credit']:.2f}, Balance={values['balance']:.2f}")
 
@@ -373,14 +403,19 @@ class ReportTrialBalance(models.AbstractModel):
             ):
                 account_res.append(res)
 
-        _logger.info(f"Accounts in final report: {len(account_res)}")
-        _logger.info(f"=== END TRIAL BALANCE ANALYTIC FILTER ===")
+        _logger.info(f"Accounts in final report (after display filter): {len(account_res)}")
+        _logger.info("=" * 80)
 
         return account_res
 
     @api.model
     def _get_report_values(self, docids, data=None):
         """Override to pass analytic accounts to context and display them in report."""
+        _logger.info("=" * 80)
+        _logger.info("_get_report_values called")
+        _logger.info(f"Data received: {data}")
+        _logger.info("=" * 80)
+
         # Get base report values from parent
         res = super()._get_report_values(docids, data=data)
 
@@ -394,5 +429,7 @@ class ReportTrialBalance(models.AbstractModel):
         else:
             res['analytic_accounts'] = []
             _logger.info("Report will show all accounts (no analytic filter)")
+
+        _logger.info(f"Number of accounts in result: {len(res.get('Accounts', []))}")
 
         return res

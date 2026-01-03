@@ -29,7 +29,7 @@
         <field name="name">⏳ Pending Deliveries</field>
         <field name="res_model">stock.picking</field>
         <field name="view_mode">tree,kanban,form</field>
-        <field name="domain">[('picking_type_code','=','outgoing'),('state','in',['confirmed','assigned','waiting']),'|',('warehouse_id','in',uid.warehouse_ids),('warehouse_id','=',uid.default_warehouse_id)]</field>
+        <field name="domain">[('picking_type_code','=','outgoing'),('state','in',['confirmed','assigned','waiting'])]</field>
         <field name="context">{'search_default_pending': 1}</field>
     </record>
 
@@ -37,21 +37,21 @@
         <field name="name">✅ Ready to Deliver</field>
         <field name="res_model">stock.picking</field>
         <field name="view_mode">tree,kanban,form</field>
-        <field name="domain">[('picking_type_code','=','outgoing'),('state','=','assigned'),'|',('warehouse_id','in',uid.warehouse_ids),('warehouse_id','=',uid.default_warehouse_id)]</field>
+        <field name="domain">[('picking_type_code','=','outgoing'),('state','=','assigned')]</field>
     </record>
 
     <record id="action_urgent_deliveries_quick" model="ir.actions.act_window">
         <field name="name">⚠️ Urgent Deliveries</field>
         <field name="res_model">stock.picking</field>
         <field name="view_mode">tree,kanban,form</field>
-        <field name="domain">[('picking_type_code','=','outgoing'),('is_urgent','=',True),('state','in',['confirmed','assigned','waiting']),'|',('warehouse_id','in',uid.warehouse_ids),('warehouse_id','=',uid.default_warehouse_id)]</field>
+        <field name="domain">[('picking_type_code','=','outgoing'),('is_urgent','=',True),('state','in',['confirmed','assigned','waiting'])]</field>
     </record>
 
     <record id="action_today_deliveries_quick" model="ir.actions.act_window">
         <field name="name">📅 Today's Deliveries</field>
         <field name="res_model">stock.picking</field>
         <field name="view_mode">tree,kanban,form</field>
-        <field name="domain">[('picking_type_code','=','outgoing'),('is_today_delivery','=',True),('state','in',['confirmed','assigned','waiting']),'|',('warehouse_id','in',uid.warehouse_ids),('warehouse_id','=',uid.default_warehouse_id)]</field>
+        <field name="domain">[('picking_type_code','=','outgoing'),('is_today_delivery','=',True),('state','in',['confirmed','assigned','waiting'])]</field>
     </record>
 
     <!-- Menu Items for Quick Filters -->

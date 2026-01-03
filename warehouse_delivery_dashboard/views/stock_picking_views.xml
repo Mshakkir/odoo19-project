@@ -5,37 +5,47 @@
     <record id="view_picking_internal_search_warehouse" model="ir.ui.view">
         <field name="name">stock.picking.search.warehouse</field>
         <field name="model">stock.picking</field>
-        <field name="inherit_id" ref="stock.stock_picking_view_search"/>
         <field name="arch" type="xml">
-            <xpath expr="//search" position="inside">
-                <!-- Add Warehouse Filters -->
-                <filter string="My Warehouses" name="my_warehouses"
-                        domain="[]"
-                        help="Show deliveries from my assigned warehouses"/>
+            <search string="Picking Lists">
+                <field name="name" string="Transfer" filter_domain="['|', ('name', 'ilike', self), ('origin', 'ilike', self)]"/>
+                <field name="partner_id" filter_domain="[('partner_id', 'child_of', self)]"/>
+                <field name="origin"/>
+                <field name="product_id"/>
+                <field name="warehouse_id"/>
+
+                <filter string="Available" name="available" domain="[('state','=','assigned')]"/>
+                <filter string="Waiting" name="waiting" domain="[('state','in',('confirmed','waiting','assigned'))]"/>
+                <filter string="Done" name="done" domain="[('state','=','done')]"/>
+
                 <separator/>
-                <filter string="Urgent" name="urgent"
-                        domain="[('is_urgent','=',True)]"/>
-                <filter string="Today" name="today"
-                        domain="[('is_today_delivery','=',True)]"/>
+                <filter string="Urgent" name="urgent" domain="[('is_urgent','=',True)]"/>
+                <filter string="Today" name="today" domain="[('is_today_delivery','=',True)]"/>
                 <filter string="This Week" name="this_week"
                         domain="[('scheduled_date','&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
                 <filter string="Overdue" name="overdue"
                         domain="[('scheduled_date','&lt;',context_today().strftime('%Y-%m-%d')), ('state','not in',['done','cancel'])]"/>
+
                 <separator/>
-                <filter string="Pending" name="pending"
-                        domain="[('state','in',['confirmed','assigned','waiting'])]"/>
-                <filter string="Ready" name="ready"
-                        domain="[('state','=','assigned')]"/>
+                <filter string="Pending" name="pending" domain="[('state','in',['confirmed','assigned','waiting'])]"/>
+                <filter string="Ready" name="ready" domain="[('state','=','assigned')]"/>
+
                 <separator/>
+                <filter string="Deliveries" name="picking_type_out" domain="[('picking_type_code','=','outgoing')]"/>
+                <filter string="Receipts" name="picking_type_in" domain="[('picking_type_code','=','incoming')]"/>
+                <filter string="Internal Transfers" name="picking_type_int" domain="[('picking_type_code','=','internal')]"/>
+
+                <separator/>
+                <filter string="Late" name="late" domain="[('scheduled_date','&lt;',context_today()), ('state','not in',['done','cancel'])]"/>
+
                 <group expand="0" string="Group By">
-                    <filter string="Warehouse" name="warehouse"
-                            context="{'group_by':'warehouse_id'}"/>
-                    <filter string="Priority" name="priority"
-                            context="{'group_by':'priority'}"/>
-                    <filter string="Scheduled Date" name="scheduled_date"
-                            context="{'group_by':'scheduled_date:day'}"/>
+                    <filter string="Status" name="status" context="{'group_by':'state'}"/>
+                    <filter string="Operation Type" name="picking_type" context="{'group_by':'picking_type_id'}"/>
+                    <filter string="Warehouse" name="warehouse" context="{'group_by':'warehouse_id'}"/>
+                    <filter string="Priority" name="priority" context="{'group_by':'priority'}"/>
+                    <filter string="Scheduled Date" name="scheduled_date" context="{'group_by':'scheduled_date:day'}"/>
+                    <filter string="Scheduled Month" name="scheduled_month" context="{'group_by':'scheduled_date:month'}"/>
                 </group>
-            </xpath>
+            </search>
         </field>
     </record>
 
@@ -111,6 +121,52 @@
                 <field name="is_urgent" column_invisible="1"/>
                 <field name="is_today_delivery" column_invisible="1"/>
             </tree>
+        </field>
+    </record>
+
+    <!-- Kanban View for Dashboard -->
+    <record id="view_delivery_kanban_dashboard" model="ir.ui.view">
+        <field name="name">stock.picking.kanban.dashboard</field>
+        <field name="model">stock.picking</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile" sample="1">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="warehouse_id"/>
+                <field name="scheduled_date"/>
+                <field name="state"/>
+                <field name="is_urgent"/>
+                <field name="is_today_delivery"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_record_top mb-2">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                </div>
+                                <span t-if="record.is_urgent.raw_value" class="badge badge-danger">Urgent</span>
+                                <span t-if="record.is_today_delivery.raw_value" class="badge badge-info">Today</span>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <field name="partner_id"/>
+                                <div t-if="record.warehouse_id.raw_value">
+                                    <i class="fa fa-warehouse"/> <field name="warehouse_id"/>
+                                </div>
+                                <div>
+                                    <i class="fa fa-calendar"/> <field name="scheduled_date"/>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <field name="state" widget="label"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
 

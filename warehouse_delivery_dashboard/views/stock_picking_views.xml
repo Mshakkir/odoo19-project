@@ -49,12 +49,160 @@
             <xpath expr="//tree" position="attributes">
                 <attribute name="decoration-danger">is_urgent == True</attribute>
                 <attribute name="decoration-success">state == 'assigned'</attribute>
-                <attribute name="decoration-warning">is_today_delivery == True and state not in ('done','cancel')</attribute>
-                <attribute name="decoration-muted">state in ('done','cancel')</attribute>
+                <attribute name="decoration-warning">is_today_delivery == True and state not in ['done', 'cancel']</attribute>
+                <attribute name="decoration-muted">state in ['done', 'cancel']</attribute>
                 <attribute name="decoration-bf">is_urgent == True</attribute>
             </xpath>
             <xpath expr="//field[@name='name']" position="after">
                 <field name="is_urgent" invisible="1"/>
                 <field name="is_today_delivery" invisible="1"/>
             </xpath>
-            <xpath expr="//field[@name='orig
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="warehouse_id" string="Warehouse"/>
+            </xpath>
+            <xpath expr="//field[@name='scheduled_date']" position="after">
+                <field name="days_until_delivery" string="Days Until" optional="show"/>
+            </xpath>
+            <xpath expr="//field[@name='priority']" position="attributes">
+                <attribute name="widget">priority</attribute>
+                <attribute name="optional">show</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Enhanced Form View -->
+    <record id="view_picking_form_warehouse" model="ir.ui.view">
+        <field name="name">stock.picking.form.warehouse</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <!-- Add Header Button -->
+            <xpath expr="//header" position="inside">
+                <button string="Back to Dashboard"
+                        type="action"
+                        name="%(action_delivery_dashboard)d"
+                        class="btn-secondary"
+                        groups="stock.group_stock_user"/>
+            </xpath>
+
+            <!-- Add Warehouse Info -->
+            <xpath expr="//field[@name='location_id']" position="after">
+                <field name="warehouse_id" readonly="1" force_save="1"/>
+            </xpath>
+
+            <!-- Add Status Badges -->
+            <xpath expr="//sheet" position="before">
+                <header>
+                    <field name="is_urgent" invisible="1"/>
+                    <field name="is_today_delivery" invisible="1"/>
+                    <div class="alert alert-danger" role="alert" attrs="{'invisible': [('is_urgent', '=', False)]}">
+                        <strong><i class="fa fa-exclamation-triangle"/> Urgent Delivery!</strong> This delivery has high priority.
+                    </div>
+                    <div class="alert alert-info" role="alert" attrs="{'invisible': [('is_today_delivery', '=', False)]}">
+                        <strong><i class="fa fa-calendar"/> Today's Delivery!</strong> This delivery is scheduled for today.
+                    </div>
+                </header>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Delivery Dashboard Tree View -->
+    <record id="view_picking_tree_dashboard" model="ir.ui.view">
+        <field name="name">stock.picking.tree.dashboard</field>
+        <field name="model">stock.picking</field>
+        <field name="priority">1000</field>
+        <field name="arch" type="xml">
+            <tree string="My Deliveries"
+                  decoration-danger="is_urgent == True"
+                  decoration-success="state == 'assigned'"
+                  decoration-warning="is_today_delivery == True and state not in ['done', 'cancel']"
+                  decoration-bf="is_urgent == True"
+                  create="false">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="origin"/>
+                <field name="warehouse_id"/>
+                <field name="scheduled_date"/>
+                <field name="days_until_delivery"/>
+                <field name="priority" widget="priority"/>
+                <field name="state" widget="badge" decoration-success="state == 'assigned'" decoration-info="state in ['confirmed', 'waiting']"/>
+                <field name="is_urgent" invisible="1"/>
+                <field name="is_today_delivery" invisible="1"/>
+                <button name="action_open_from_dashboard"
+                        string="Open"
+                        type="object"
+                        icon="fa-external-link"
+                        class="btn-primary"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- My Pending Deliveries Action -->
+    <record id="action_my_pending_deliveries" model="ir.actions.act_window">
+        <field name="name">My Pending Deliveries</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">tree,kanban,form,calendar,pivot,graph</field>
+        <field name="domain">[('picking_type_code','=','outgoing'),('state','in',['confirmed','assigned','waiting']),('warehouse_id.user_ids', 'in', [uid])]</field>
+        <field name="context">{
+            'search_default_my_warehouses': 1,
+            'search_default_pending': 1,
+        }</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('view_picking_tree_dashboard')}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_delivery_kanban_dashboard')}),
+            (0, 0, {'view_mode': 'form'})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No pending deliveries!
+            </p>
+            <p>
+                All your deliveries are up to date.
+            </p>
+        </field>
+    </record>
+
+    <!-- Calendar View for Deliveries -->
+    <record id="view_picking_calendar_dashboard" model="ir.ui.view">
+        <field name="name">stock.picking.calendar.dashboard</field>
+        <field name="model">stock.picking</field>
+        <field name="arch" type="xml">
+            <calendar string="Delivery Schedule"
+                      date_start="scheduled_date"
+                      color="warehouse_id"
+                      event_open_popup="true"
+                      quick_add="false"
+                      mode="month">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="warehouse_id"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Pivot View for Analysis -->
+    <record id="view_picking_pivot_dashboard" model="ir.ui.view">
+        <field name="name">stock.picking.pivot.dashboard</field>
+        <field name="model">stock.picking</field>
+        <field name="arch" type="xml">
+            <pivot string="Delivery Analysis">
+                <field name="warehouse_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="scheduled_date" interval="week" type="col"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View for Analysis -->
+    <record id="view_picking_graph_dashboard" model="ir.ui.view">
+        <field name="name">stock.picking.graph.dashboard</field>
+        <field name="model">stock.picking</field>
+        <field name="arch" type="xml">
+            <graph string="Delivery Analysis" type="bar">
+                <field name="warehouse_id"/>
+                <field name="state"/>
+            </graph>
+        </field>
+    </record>
+
+</odoo>

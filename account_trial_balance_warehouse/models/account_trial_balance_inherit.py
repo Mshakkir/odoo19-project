@@ -21,19 +21,8 @@ class AccountBalanceReport(models.TransientModel):
 
     def _print_report(self, data):
         """Override to pass analytic filter to report."""
-
-        # === FIX: Ensure data structure is correct ===
-        if not data:
-            data = {}
-
         # Get form data including analytic accounts
         data = self.pre_print_report(data)
-
-        # === DEBUG ===
-        _logger.info("=" * 80)
-        _logger.info("PRINT REPORT CALLED")
-        _logger.info(f"Data after pre_print_report: {data}")
-        _logger.info(f"Form data: {data.get('form', {})}")
 
         # Add analytic account IDs to data
         if self.analytic_account_ids:
@@ -43,30 +32,10 @@ class AccountBalanceReport(models.TransientModel):
             data['form']['analytic_account_ids'] = []
             _logger.info("Trial Balance: No analytic filter - showing all warehouses")
 
-        # === FIX: Pass the wizard record itself, not browsed records ===
-        _logger.info(f"Calling report_action with data: {data}")
-        _logger.info("=" * 80)
-
+        records = self.env[data['model']].browse(data.get('ids', []))
         return self.env.ref('accounting_pdf_reports.action_report_trial_balance').report_action(
-            self, data=data  # Changed from 'records' to 'self'
+            records, data=data
         )
-    # def _print_report(self, data):
-    #     """Override to pass analytic filter to report."""
-    #     # Get form data including analytic accounts
-    #     data = self.pre_print_report(data)
-    #
-    #     # Add analytic account IDs to data
-    #     if self.analytic_account_ids:
-    #         data['form']['analytic_account_ids'] = self.analytic_account_ids.ids
-    #         _logger.info(f"Trial Balance: Filtering by analytic accounts {self.analytic_account_ids.ids}")
-    #     else:
-    #         data['form']['analytic_account_ids'] = []
-    #         _logger.info("Trial Balance: No analytic filter - showing all warehouses")
-    #
-    #     records = self.env[data['model']].browse(data.get('ids', []))
-    #     return self.env.ref('accounting_pdf_reports.action_report_trial_balance').report_action(
-    #         records, data=data
-    #     )
 
 
 class ReportTrialBalance(models.AbstractModel):
@@ -207,48 +176,11 @@ class ReportTrialBalance(models.AbstractModel):
 
         return account_res
 
-    # @api.model
-    # def _get_report_values(self, docids, data=None):
-    #     """Override to pass analytic accounts to context and display them in report."""
-    #     # Get base report values from parent
-    #     res = super()._get_report_values(docids, data=data)
-    #
-    #     # Add analytic account names for display in report header
-    #     if data and data.get('form', {}).get('analytic_account_ids'):
-    #         analytic_ids = data['form']['analytic_account_ids']
-    #         analytic_accounts = self.env['account.analytic.account'].browse(analytic_ids)
-    #         res['analytic_accounts'] = [acc.name for acc in analytic_accounts]
-    #         _logger.info(f"Report will show analytic accounts: {res['analytic_accounts']}")
-    #     else:
-    #         res['analytic_accounts'] = []
-    #
-    #     return res
     @api.model
     def _get_report_values(self, docids, data=None):
         """Override to pass analytic accounts to context and display them in report."""
-
-        # === DEBUG LOGGING - ADD THIS ===
-        _logger.info("=" * 80)
-        _logger.info("REPORT VALUES CALLED")
-        _logger.info(f"docids: {docids}")
-        _logger.info(f"data: {data}")
-        _logger.info(f"context: {self.env.context}")
-
-        if data:
-            _logger.info(f"data.form: {data.get('form', {})}")
-            _logger.info(f"analytic_account_ids: {data.get('form', {}).get('analytic_account_ids')}")
-        # === END DEBUG ===
-
         # Get base report values from parent
         res = super()._get_report_values(docids, data=data)
-
-        # === DEBUG LOGGING - ADD THIS ===
-        _logger.info(f"Result from parent: {res.keys() if res else 'None'}")
-        if res and 'Accounts' in res:
-            _logger.info(f"Number of accounts in result: {len(res['Accounts'])}")
-            _logger.info(f"First 3 accounts: {res['Accounts'][:3] if res['Accounts'] else 'Empty'}")
-        _logger.info("=" * 80)
-        # === END DEBUG ===
 
         # Add analytic account names for display in report header
         if data and data.get('form', {}).get('analytic_account_ids'):

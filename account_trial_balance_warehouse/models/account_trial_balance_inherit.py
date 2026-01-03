@@ -215,15 +215,12 @@ class AccountBalanceReport(models.TransientModel):
 
     def _print_report(self, data):
         """Override to pass analytic filter to report."""
-        # Get form data including analytic accounts
         data = self.pre_print_report(data)
 
-        # ✅ Only add the key if there are actually analytic accounts selected
         if self.analytic_account_ids:
             data['form']['analytic_account_ids'] = self.analytic_account_ids.ids
             _logger.info(f"Trial Balance: Filtering by analytic accounts {self.analytic_account_ids.ids}")
         else:
-            # Don't set the key at all - this ensures parent method is used
             data['form'].pop('analytic_account_ids', None)
             _logger.info("Trial Balance: No analytic filter - showing all warehouses")
 
@@ -240,49 +237,41 @@ class ReportTrialBalance(models.AbstractModel):
 
     def _get_accounts(self, accounts, display_account):
         """
-        Override to add analytic account filtering using analytic_distribution.
-
-        In Odoo 19, analytic accounts are stored in JSON field 'analytic_distribution'
-        Format: {"account_id": percentage} e.g., {"2": 100.0, "3": 50.0}
+        Complete rewrite - does NOT call super() to avoid parent method issues.
+        Handles both filtered and unfiltered cases in unified logic.
         """
-        # Get analytic filter from context
         analytic_account_ids = self.env.context.get('analytic_account_ids')
 
-        # ✅ Check for both None and empty list/tuple
-        if not analytic_account_ids or (
-                isinstance(analytic_account_ids, (list, tuple)) and len(analytic_account_ids) == 0):
-            # No filter - use parent method (show all)
-            _logger.info("=" * 80)
-            _logger.info("NO ANALYTIC FILTER - Using parent method to get all accounts")
-            _logger.info("=" * 80)
-            result = super()._get_accounts(accounts, display_account)
-            _logger.info(f"Parent method returned {len(result)} accounts")
-            return result
+        # Check if we have analytic filter
+        has_analytic_filter = False
+        analytic_ids = []
 
-        # Extract IDs if it's a recordset
-        if hasattr(analytic_account_ids, 'ids'):
-            analytic_ids = analytic_account_ids.ids
+        if analytic_account_ids:
+            if hasattr(analytic_account_ids, 'ids'):
+                analytic_ids = analytic_account_ids.ids
+            elif isinstance(analytic_account_ids, (list, tuple)):
+                analytic_ids = list(analytic_account_ids)
+            else:
+                analytic_ids = [analytic_account_ids]
+
+            if analytic_ids and len(analytic_ids) > 0:
+                has_analytic_filter = True
+
+        _logger.info("=" * 80)
+        if has_analytic_filter:
+            _logger.info(f"ANALYTIC FILTER ACTIVE: {analytic_ids}")
         else:
-            analytic_ids = list(analytic_account_ids) if isinstance(analytic_account_ids, (list, tuple)) else [
-                analytic_account_ids]
-
-        # ✅ Double-check after extraction
-        if not analytic_ids or len(analytic_ids) == 0:
-            _logger.info("=" * 80)
-            _logger.info("NO ANALYTIC IDs after extraction - Using parent method")
-            _logger.info("=" * 80)
-            result = super()._get_accounts(accounts, display_account)
-            _logger.info(f"Parent method returned {len(result)} accounts")
-            return result
-
-        _logger.info("=" * 80)
-        _logger.info("TRIAL BALANCE ANALYTIC FILTER ACTIVE")
-        _logger.info(f"Filtering by analytic account IDs: {analytic_ids}")
-        _logger.info(f"Total accounts to process: {len(accounts)}")
+            _logger.info("NO ANALYTIC FILTER - Showing ALL account movements")
         _logger.info(f"Display account setting: {display_account}")
+        _logger.info(f"Processing {len(accounts)} accounts")
+
+        # Log date range from context
+        date_from = self.env.context.get('date_from')
+        date_to = self.env.context.get('date_to')
+        _logger.info(f"Date range: {date_from} to {date_to}")
         _logger.info("=" * 80)
 
-        # Build SQL query WITHOUT analytic filter first (get all lines)
+        # Get SQL query components from context
         tables, where_clause, where_params = self.env['account.move.line']._query_get()
         tables = tables.replace('"', '') or 'account_move_line'
 
@@ -291,73 +280,84 @@ class ReportTrialBalance(models.AbstractModel):
             wheres.append(where_clause.strip())
         filters = " AND ".join(wheres) if wheres else "1=1"
 
-        # Simple SQL: Get all move lines for the accounts
+        _logger.info(f"SQL WHERE clause: {filters}")
+        _logger.info(f"SQL WHERE params: {where_params}")
+
+        # Query to get all move lines
         request = f"""
             SELECT 
                 id,
                 account_id,
                 debit,
                 credit,
-                analytic_distribution
+                analytic_distribution,
+                date
             FROM {tables}
             WHERE account_id IN %s AND {filters}
         """
 
         params = (tuple(accounts.ids),) + tuple(where_params)
 
-        _logger.info(f"Executing SQL query...")
-        _logger.debug(f"SQL: {request}")
-        _logger.debug(f"Params: {params}")
+        _logger.info("Executing SQL query...")
+        _logger.debug(f"Full SQL: {request}")
+        _logger.debug(f"Full params: {params}")
 
         self.env.cr.execute(request, params)
         all_lines = self.env.cr.dictfetchall()
 
-        _logger.info(f"Total move lines found in database: {len(all_lines)}")
+        _logger.info(f"✓ Found {len(all_lines)} move lines in database")
 
         if len(all_lines) == 0:
-            _logger.warning("⚠️  NO MOVE LINES FOUND! Check your date range and filters.")
-            _logger.warning(
-                f"   Date range from context: {self.env.context.get('date_from')} to {self.env.context.get('date_to')}")
-            _logger.warning(f"   Target move: {self.env.context.get('state')}")
+            _logger.warning("⚠️  NO MOVE LINES FOUND!")
+            _logger.warning(f"   This usually means:")
+            _logger.warning(f"   1. No transactions in date range {date_from} to {date_to}")
+            _logger.warning(f"   2. No posted transactions (if target_move='posted')")
+            _logger.warning(f"   3. Wrong journal selection")
+            _logger.warning("=" * 80)
             return []
 
-        # Filter and calculate in Python
+        # Calculate account totals
         account_result = {}
-        lines_processed = 0
-        lines_with_analytic = 0
-        lines_matched = 0
+        lines_included = 0
+        lines_excluded_no_analytic = 0
+        lines_excluded_no_match = 0
 
         for line in all_lines:
-            lines_processed += 1
             account_id = line['account_id']
             analytic_dist = line['analytic_distribution']
 
-            # Check if this line has any of our analytic accounts
-            if not analytic_dist:
-                _logger.debug(f"Line {line['id']}: No analytic distribution, skipping")
-                continue
+            # Determine what percentage to include
+            percentage = 100.0  # Default: include full amount
 
-            lines_with_analytic += 1
+            if has_analytic_filter:
+                # We have a filter - only include if line matches
+                if not analytic_dist:
+                    lines_excluded_no_analytic += 1
+                    _logger.debug(f"Line {line['id']}: Excluded - no analytic distribution")
+                    continue  # Skip lines without analytic distribution
 
-            # Calculate percentage for our analytic accounts
-            percentage = 0.0
-            for analytic_id in analytic_ids:
-                analytic_id_str = str(analytic_id)
-                if analytic_id_str in analytic_dist:
-                    percentage += float(analytic_dist[analytic_id_str])
-                    _logger.debug(
-                        f"Line {line['id']}: Found analytic {analytic_id_str} with {analytic_dist[analytic_id_str]}%")
+                # Calculate matching percentage
+                percentage = 0.0
+                for analytic_id in analytic_ids:
+                    analytic_id_str = str(analytic_id)
+                    if analytic_id_str in analytic_dist:
+                        percentage += float(analytic_dist[analytic_id_str])
+                        _logger.debug(
+                            f"Line {line['id']}: Matched analytic {analytic_id_str} = {analytic_dist[analytic_id_str]}%")
 
-            if percentage == 0:
-                continue
+                if percentage == 0:
+                    lines_excluded_no_match += 1
+                    _logger.debug(f"Line {line['id']}: Excluded - no matching analytic accounts")
+                    continue  # No match, skip this line
 
-            lines_matched += 1
+            lines_included += 1
 
-            # Calculate proportional amounts
+            # Calculate amounts (proportional if filtered)
             proportional_debit = line['debit'] * (percentage / 100.0)
             proportional_credit = line['credit'] * (percentage / 100.0)
 
-            _logger.debug(f"Line {line['id']}: Debit {line['debit']} * {percentage}% = {proportional_debit}")
+            _logger.debug(
+                f"Line {line['id']}: Debit={line['debit']}, Credit={line['credit']}, Percentage={percentage}%")
 
             # Add to account totals
             if account_id not in account_result:
@@ -365,17 +365,21 @@ class ReportTrialBalance(models.AbstractModel):
 
             account_result[account_id]['debit'] += proportional_debit
             account_result[account_id]['credit'] += proportional_credit
-            account_result[account_id]['balance'] = account_result[account_id]['debit'] - account_result[account_id][
-                'credit']
+            account_result[account_id]['balance'] = (
+                    account_result[account_id]['debit'] - account_result[account_id]['credit']
+            )
 
-        _logger.info(f"Lines processed: {lines_processed}")
-        _logger.info(f"Lines with analytic distribution: {lines_with_analytic}")
-        _logger.info(f"Lines matching filter: {lines_matched}")
-        _logger.info(f"Accounts with filtered transactions: {len(account_result)}")
+        _logger.info(f"Lines included in calculation: {lines_included}")
+        if has_analytic_filter:
+            _logger.info(f"Lines excluded (no analytic): {lines_excluded_no_analytic}")
+            _logger.info(f"Lines excluded (no match): {lines_excluded_no_match}")
+        _logger.info(f"Accounts with transactions: {len(account_result)}")
 
-        for acc_id, values in list(account_result.items())[:10]:  # Show first 10
+        # Show sample of results
+        for acc_id in list(account_result.keys())[:5]:
+            vals = account_result[acc_id]
             _logger.info(
-                f"  Account {acc_id}: Debit={values['debit']:.2f}, Credit={values['credit']:.2f}, Balance={values['balance']:.2f}")
+                f"  Account {acc_id}: Debit={vals['debit']:.2f}, Credit={vals['credit']:.2f}, Balance={vals['balance']:.2f}")
 
         # Build result list
         account_res = []
@@ -403,7 +407,7 @@ class ReportTrialBalance(models.AbstractModel):
             ):
                 account_res.append(res)
 
-        _logger.info(f"Accounts in final report (after display filter): {len(account_res)}")
+        _logger.info(f"✓ Accounts in final report (after '{display_account}' filter): {len(account_res)}")
         _logger.info("=" * 80)
 
         return account_res
@@ -413,23 +417,26 @@ class ReportTrialBalance(models.AbstractModel):
         """Override to pass analytic accounts to context and display them in report."""
         _logger.info("=" * 80)
         _logger.info("_get_report_values called")
-        _logger.info(f"Data received: {data}")
+        _logger.info(f"Display account: {data.get('form', {}).get('display_account') if data else 'N/A'}")
+        _logger.info(f"Date from: {data.get('form', {}).get('date_from') if data else 'N/A'}")
+        _logger.info(f"Date to: {data.get('form', {}).get('date_to') if data else 'N/A'}")
         _logger.info("=" * 80)
 
         # Get base report values from parent
         res = super()._get_report_values(docids, data=data)
 
-        # ✅ Add analytic account names for display in report header (only if they exist)
+        # Add analytic account names for display in report header
         analytic_ids = data.get('form', {}).get('analytic_account_ids') if data else None
 
         if analytic_ids and len(analytic_ids) > 0:
             analytic_accounts = self.env['account.analytic.account'].browse(analytic_ids)
             res['analytic_accounts'] = [acc.name for acc in analytic_accounts]
-            _logger.info(f"Report will show analytic accounts: {res['analytic_accounts']}")
+            _logger.info(f"Report header will show analytic filter: {res['analytic_accounts']}")
         else:
             res['analytic_accounts'] = []
-            _logger.info("Report will show all accounts (no analytic filter)")
+            _logger.info("Report header: No analytic filter")
 
-        _logger.info(f"Number of accounts in result: {len(res.get('Accounts', []))}")
+        _logger.info(f"✓ Final result contains {len(res.get('Accounts', []))} accounts")
+        _logger.info("=" * 80)
 
         return res

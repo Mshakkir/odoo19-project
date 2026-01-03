@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Dashboard Form View with Statistics -->
+    <record id="view_res_users_delivery_dashboard_form" model="ir.ui.view">
+        <field name="name">res.users.delivery.dashboard.form</field>
+        <field name="model">res.users</field>
+        <field name="priority">1000</field>
+        <field name="arch" type="xml">
+            <form string="My Delivery Dashboard" create="false" edit="false" delete="false">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                        <h3>Warehouse Delivery Dashboard</h3>
+                    </div>
+
+                    <group>
+                        <group string="My Warehouses">
+                            <field name="warehouse_ids" widget="many2many_tags" readonly="1"/>
+                            <field name="default_warehouse_id" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <!-- Statistics Buttons -->
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <div class="row">
+                                    <!-- Pending Deliveries -->
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <button name="action_view_my_pending_deliveries"
+                                                type="object"
+                                                class="btn btn-primary btn-block oe_stat_button"
+                                                style="height: 120px;">
+                                            <div class="o_field_widget o_stat_info">
+                                                <span class="o_stat_value">
+                                                    <field name="pending_deliveries_count" widget="statinfo"/>
+                                                </span>
+                                                <span class="o_stat_text">Pending</span>
+                                                <span class="o_stat_text">Deliveries</span>
+                                            </div>
+                                            <i class="fa fa-truck fa-3x" style="margin-top: 10px;"/>
+                                        </button>
+                                    </div>
+
+                                    <!-- Ready to Deliver -->
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <button name="action_view_my_ready_deliveries"
+                                                type="object"
+                                                class="btn btn-success btn-block oe_stat_button"
+                                                style="height: 120px;">
+                                            <div class="o_field_widget o_stat_info">
+                                                <span class="o_stat_value">
+                                                    <field name="ready_deliveries_count" widget="statinfo"/>
+                                                </span>
+                                                <span class="o_stat_text">Ready to</span>
+                                                <span class="o_stat_text">Deliver</span>
+                                            </div>
+                                            <i class="fa fa-check-circle fa-3x" style="margin-top: 10px;"/>
+                                        </button>
+                                    </div>
+
+                                    <!-- Urgent Deliveries -->
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <button name="action_view_my_urgent_deliveries"
+                                                type="object"
+                                                class="btn btn-warning btn-block oe_stat_button"
+                                                style="height: 120px;">
+                                            <div class="o_field_widget o_stat_info">
+                                                <span class="o_stat_value">
+                                                    <field name="urgent_deliveries_count" widget="statinfo"/>
+                                                </span>
+                                                <span class="o_stat_text">Urgent</span>
+                                                <span class="o_stat_text">Deliveries</span>
+                                            </div>
+                                            <i class="fa fa-exclamation-triangle fa-3x" style="margin-top: 10px;"/>
+                                        </button>
+                                    </div>
+
+                                    <!-- Today's Deliveries -->
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <button name="action_view_my_today_deliveries"
+                                                type="object"
+                                                class="btn btn-info btn-block oe_stat_button"
+                                                style="height: 120px;">
+                                            <div class="o_field_widget o_stat_info">
+                                                <span class="o_stat_value">
+                                                    <field name="today_deliveries_count" widget="statinfo"/>
+                                                </span>
+                                                <span class="o_stat_text">Today's</span>
+                                                <span class="o_stat_text">Deliveries</span>
+                                            </div>
+                                            <i class="fa fa-calendar fa-3x" style="margin-top: 10px;"/>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Access Buttons -->
+                    <group string="Quick Actions">
+                        <button name="action_view_my_pending_deliveries"
+                                string="View All My Deliveries"
+                                type="object"
+                                class="btn-primary"
+                                icon="fa-list"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Recent Deliveries">
+                            <field name="id" invisible="1"/>
+                            <!-- This will be populated by the action context -->
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Dashboard Action -->
+    <record id="action_delivery_dashboard" model="ir.actions.act_window">
+        <field name="name">My Delivery Dashboard</field>
+        <field name="res_model">res.users</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'form_view_ref': 'warehouse_delivery_dashboard.view_res_users_delivery_dashboard_form'}</field>
+        <field name="domain">[('id', '=', uid)]</field>
+    </record>
+
+    <!-- Alternative: Kanban Dashboard View -->
+    <record id="view_delivery_kanban_dashboard" model="ir.ui.view">
+        <field name="name">stock.picking.kanban.dashboard</field>
+        <field name="model">stock.picking</field>
+        <field name="priority">1000</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile" create="false" delete="false">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="origin"/>
+                <field name="warehouse_id"/>
+                <field name="scheduled_date"/>
+                <field name="state"/>
+                <field name="priority"/>
+                <field name="is_urgent"/>
+                <field name="is_today_delivery"/>
+                <field name="days_until_delivery"/>
+
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click #{record.is_urgent.raw_value ? 'border-danger' : ''}">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                        </strong>
+                                        <span class="o_kanban_record_subtitle">
+                                            <field name="partner_id"/>
+                                        </span>
+                                    </div>
+                                    <div class="o_dropdown_kanban dropdown">
+                                        <a class="dropdown-toggle btn" data-toggle="dropdown" href="#">
+                                            <span class="fa fa-ellipsis-v"/>
+                                        </a>
+                                        <div class="dropdown-menu" role="menu">
+                                            <a role="menuitem" type="edit" class="dropdown-item">Edit</a>
+                                            <a role="menuitem" type="delete" class="dropdown-item">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="o_kanban_record_body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <span><i class="fa fa-shopping-cart"/> <field name="origin"/></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <span><i class="fa fa-warehouse"/> <field name="warehouse_id"/></span>
+                                        </div>
+                                    </div>
+                                    <div class="row mt8">
+                                        <div class="col-12">
+                                            <span><i class="fa fa-clock-o"/>
+                                                <field name="scheduled_date" widget="date"/>
+                                                <t t-if="record.is_today_delivery.raw_value">
+                                                    <span class="badge badge-info">Today</span>
+                                                </t>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <field name="priority" widget="priority"/>
+                                        <t t-if="record.is_urgent.raw_value">
+                                            <span class="badge badge-danger">
+                                                <i class="fa fa-exclamation-triangle"/> Urgent
+                                            </span>
+                                        </t>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <field name="state" widget="label_selection"
+                                               options="{'classes': {'draft': 'default', 'confirmed': 'primary', 'assigned': 'success', 'waiting': 'warning', 'done': 'success', 'cancel': 'danger'}}"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+</odoo>

@@ -10,7 +10,7 @@
             <xpath expr="//search" position="inside">
                 <!-- Add Warehouse Filters -->
                 <filter string="My Warehouses" name="my_warehouses"
-                        domain="[('warehouse_id.user_ids', 'in', [uid])]"
+                        domain="[]"
                         help="Show deliveries from my assigned warehouses"/>
                 <separator/>
                 <filter string="Urgent" name="urgent"
@@ -18,8 +18,7 @@
                 <filter string="Today" name="today"
                         domain="[('is_today_delivery','=',True)]"/>
                 <filter string="This Week" name="this_week"
-                        domain="[('scheduled_date','&gt;=', context_today().strftime('%Y-%m-%d')),
-                                ('scheduled_date','&lt;=', (context_today() + relativedelta(weeks=1)).strftime('%Y-%m-%d'))]"/>
+                        domain="[('scheduled_date','&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
                 <filter string="Overdue" name="overdue"
                         domain="[('scheduled_date','&lt;',context_today().strftime('%Y-%m-%d')), ('state','not in',['done','cancel'])]"/>
                 <separator/>
@@ -142,9 +141,8 @@
         <field name="name">My Pending Deliveries</field>
         <field name="res_model">stock.picking</field>
         <field name="view_mode">tree,kanban,form,calendar,pivot,graph</field>
-        <field name="domain">[('picking_type_code','=','outgoing'),('state','in',['confirmed','assigned','waiting']),('warehouse_id.user_ids', 'in', [uid])]</field>
+        <field name="domain">[('picking_type_code','=','outgoing'),('state','in',['confirmed','assigned','waiting'])]</field>
         <field name="context">{
-            'search_default_my_warehouses': 1,
             'search_default_pending': 1,
         }</field>
         <field name="view_ids" eval="[(5, 0, 0),

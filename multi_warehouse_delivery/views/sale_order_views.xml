@@ -7,15 +7,15 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add warehouse field to the list/tree view of order lines -->
-            <xpath expr="//field[@name='order_line']//tree//field[@name='customer_lead']" position="after">
+            <!-- Add warehouse field to the list view of order lines -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='customer_lead']" position="after">
                 <field name="warehouse_id"
                        optional="show"
                        options="{'no_create': True, 'no_open': True}"/>
             </xpath>
 
             <!-- Add warehouse field to the form view of order lines (popup) -->
-            <xpath expr="//field[@name='order_line']//form//field[@name='customer_lead']" position="after">
+            <xpath expr="//field[@name='order_line']/form//field[@name='customer_lead']" position="after">
                 <field name="warehouse_id"
                        options="{'no_create': True, 'no_open': True}"/>
             </xpath>

@@ -17,12 +17,12 @@
                        options="{'no_create': True, 'no_open': True}"/>
             </xpath>
 
-            <!-- Add warehouse field to the form view of order lines (popup) -->
-            <xpath expr="//field[@name='order_line']//field[@name='product_id']" position="after">
-                <field name="warehouse_id"
-                       readonly="0"
-                       options="{'no_create': True, 'no_open': True}"/>
-            </xpath>
+<!--            &lt;!&ndash; Add warehouse field to the form view of order lines (popup) &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='order_line']//field[@name='product_id']" position="after">-->
+<!--                <field name="warehouse_id"-->
+<!--                       readonly="0"-->
+<!--                       options="{'no_create': True, 'no_open': True}"/>-->
+<!--            </xpath>-->
 
         </field>
     </record>

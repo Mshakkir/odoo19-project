@@ -126,7 +126,6 @@
 #             if picking.move_ids:
 #                 picking.action_confirm()
 #                 picking.action_assign()
-
 from odoo import models, fields, api, _
 from collections import defaultdict
 
@@ -164,9 +163,9 @@ class SaleOrderLine(models.Model):
             if self.order_id and self.order_id.warehouse_id:
                 self.warehouse_id = self.order_id.warehouse_id
 
-    def _prepare_procurement_values(self, group_id=False):
+    def _prepare_procurement_values(self):
         """Override to use line-specific warehouse"""
-        values = super(SaleOrderLine, self)._prepare_procurement_values(group_id=group_id)
+        values = super(SaleOrderLine, self)._prepare_procurement_values()
 
         # Use line's warehouse if set
         if self.warehouse_id:

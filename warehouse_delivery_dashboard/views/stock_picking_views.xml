@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Enhanced Delivery Order Search View -->
-    <record id="view_picking_internal_search_warehouse" model="ir.ui.view">
-        <field name="name">stock.picking.search.warehouse</field>
+    <!-- Delivery Dashboard Tree View -->
+    <record id="view_picking_tree_dashboard" model="ir.ui.view">
+        <field name="name">stock.picking.tree.dashboard</field>
         <field name="model">stock.picking</field>
-        <field name="inherit_id" ref="stock.view_picking_internal_search"/>
         <field name="arch" type="xml">
-            <search position="inside">
-                <!-- Add Warehouse Filters -->
-                <separator/>
-                <filter string="Urgent" name="urgent" domain="[('priority','=','2')]"/>
-                <filter string="Today" name="today" domain="[('scheduled_date','=', context_today())]"/>
-                <filter string="Overdue" name="overdue" domain="[('scheduled_date','&lt;', context_today()), ('state','not in',['done','cancel'])]"/>
-                <separator/>
-                <group expand="0" string="Group By">
-                    <filter string="Warehouse" name="warehouse" context="{'group_by':'warehouse_id'}"/>
-                    <filter string="Priority" name="priority" context="{'group_by':'priority'}"/>
-                </group>
-            </search>
+            <tree string="My Deliveries" create="false">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="origin" optional="show"/>
+                <field name="warehouse_id"/>
+                <field name="scheduled_date"/>
+                <field name="days_until_delivery"/>
+                <field name="priority" widget="priority"/>
+                <field name="state" widget="badge"/>
+            </tree>
         </field>
     </record>
 
@@ -44,27 +41,8 @@
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
             <field name="location_id" position="after">
-                <field name="warehouse_id" readonly="1" force_save="1"/>
+                <field name="warehouse_id" readonly="1"/>
             </field>
-        </field>
-    </record>
-
-    <!-- Delivery Dashboard Tree View -->
-    <record id="view_picking_tree_dashboard" model="ir.ui.view">
-        <field name="name">stock.picking.tree.dashboard</field>
-        <field name="model">stock.picking</field>
-        <field name="priority">1000</field>
-        <field name="arch" type="xml">
-            <tree string="My Deliveries" create="false">
-                <field name="name"/>
-                <field name="partner_id"/>
-                <field name="origin" optional="show"/>
-                <field name="warehouse_id"/>
-                <field name="scheduled_date"/>
-                <field name="days_until_delivery"/>
-                <field name="priority" widget="priority"/>
-                <field name="state" widget="badge"/>
-            </tree>
         </field>
     </record>
 
@@ -73,7 +51,7 @@
         <field name="name">stock.picking.kanban.dashboard</field>
         <field name="model">stock.picking</field>
         <field name="arch" type="xml">
-            <kanban class="o_kanban_mobile" sample="1">
+            <kanban class="o_kanban_mobile">
                 <field name="name"/>
                 <field name="partner_id"/>
                 <field name="warehouse_id"/>
@@ -83,27 +61,21 @@
                 <templates>
                     <t t-name="card">
                         <div class="oe_kanban_global_click">
-                            <div class="o_kanban_record_top mb-2">
-                                <div class="o_kanban_record_headings">
-                                    <strong class="o_kanban_record_title">
-                                        <field name="name"/>
-                                    </strong>
-                                </div>
-                                <span t-if="record.priority.raw_value == '2'" class="badge badge-danger">Urgent</span>
+                            <div class="o_kanban_record_top">
+                                <strong><field name="name"/></strong>
+                                <span t-if="record.priority.raw_value == '2'" class="badge bg-danger">Urgent</span>
                             </div>
-                            <div class="o_kanban_record_body">
+                            <div>
                                 <field name="partner_id"/>
-                                <div t-if="record.warehouse_id.raw_value">
-                                    <i class="fa fa-warehouse"/> <field name="warehouse_id"/>
-                                </div>
-                                <div>
-                                    <i class="fa fa-calendar"/> <field name="scheduled_date"/>
-                                </div>
                             </div>
-                            <div class="o_kanban_record_bottom">
-                                <div class="oe_kanban_bottom_left">
-                                    <field name="state" widget="label"/>
-                                </div>
+                            <div t-if="record.warehouse_id.raw_value">
+                                <field name="warehouse_id"/>
+                            </div>
+                            <div>
+                                <field name="scheduled_date"/>
+                            </div>
+                            <div>
+                                <field name="state" widget="label"/>
                             </div>
                         </div>
                     </t>
@@ -155,7 +127,6 @@
             <pivot string="Delivery Analysis">
                 <field name="warehouse_id" type="row"/>
                 <field name="state" type="col"/>
-                <field name="scheduled_date" interval="week" type="col"/>
             </pivot>
         </field>
     </record>

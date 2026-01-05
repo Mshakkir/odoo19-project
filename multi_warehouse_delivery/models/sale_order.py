@@ -175,54 +175,51 @@ class SaleOrderLine(models.Model):
 
     def _action_launch_stock_rule(self, previous_product_uom_qty=False):
         """
-        Override to handle multiple warehouses by confirming pickings one at a time
+        Override to ensure pickings are confirmed one at a time
         """
-        # Get all warehouses used in these lines
+        # Store context flag to prevent recursive interception
+        if self.env.context.get('multi_warehouse_processing'):
+            return super(SaleOrderLine, self)._action_launch_stock_rule(
+                previous_product_uom_qty=previous_product_uom_qty
+            )
+
+        # Check if we have multiple warehouses
         warehouses = self.filtered(
             lambda l: l.product_id.type in ['product', 'consu'] and l.warehouse_id
         ).mapped('warehouse_id')
 
         if len(warehouses) <= 1:
-            # Single warehouse or no warehouse - use standard flow
+            # Single warehouse - use standard flow
             return super(SaleOrderLine, self)._action_launch_stock_rule(
                 previous_product_uom_qty=previous_product_uom_qty
             )
 
-        # Multiple warehouses - process each warehouse separately
-        pickings_created = self.env['stock.picking']
-
-        for warehouse in warehouses:
-            # Get lines for this warehouse
-            warehouse_lines = self.filtered(lambda l: l.warehouse_id == warehouse)
-
-            if warehouse_lines:
-                # Process this warehouse's lines
-                # This will create pickings for this warehouse only
-                super(SaleOrderLine, warehouse_lines)._action_launch_stock_rule(
-                    previous_product_uom_qty=previous_product_uom_qty
-                )
-
-                # Get the pickings that were just created for these lines
-                new_pickings = warehouse_lines.mapped('move_ids.picking_id').filtered(
-                    lambda p: p.state not in ['done', 'cancel']
-                )
-
-                # Confirm each picking individually to avoid singleton errors
-                for picking in new_pickings:
-                    if picking not in pickings_created:
-                        pickings_created |= picking
-
-        # Handle lines without a specific warehouse
-        lines_without_warehouse = self.filtered(
-            lambda l: l.product_id.type in ['product', 'consu'] and not l.warehouse_id
+        # Multiple warehouses - we need to intercept the picking confirmation
+        # Process lines with a special context that will catch the picking confirmation
+        return super(SaleOrderLine, self.with_context(
+            multi_warehouse_separate_confirm=True
+        ))._action_launch_stock_rule(
+            previous_product_uom_qty=previous_product_uom_qty
         )
 
-        if lines_without_warehouse:
-            super(SaleOrderLine, lines_without_warehouse)._action_launch_stock_rule(
-                previous_product_uom_qty=previous_product_uom_qty
-            )
 
-        return True
+class StockPicking(models.Model):
+    _inherit = 'stock.picking'
+
+    def action_confirm(self):
+        """
+        Override to handle batch confirmation when multiple warehouses are involved
+        Confirm pickings one at a time to avoid singleton errors in other modules
+        """
+        # Check if we're in multi-warehouse mode and have multiple pickings
+        if self.env.context.get('multi_warehouse_separate_confirm') and len(self) > 1:
+            # Confirm each picking individually
+            for picking in self:
+                super(StockPicking, picking).action_confirm()
+            return True
+        else:
+            # Standard confirmation
+            return super(StockPicking, self).action_confirm()
 
 
 class SaleOrder(models.Model):

@@ -79,6 +79,9 @@
                                 <a href="/blog" class="nav_link">Blogs</a>
                             </li>
                             <li>
+                                <a href="/distributors" class="nav_link">Distributors</a>
+                            </li>
+                            <li>
                                 <a href="/contactus" class="nav_link">Contact</a>
                             </li>
                         </ul>

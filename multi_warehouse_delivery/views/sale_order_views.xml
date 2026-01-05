@@ -1,4 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    &lt;!&ndash; Add warehouse field to sale order lines &ndash;&gt;-->
+<!--    <record id="view_order_form_warehouse_field" model="ir.ui.view">-->
+<!--        <field name="name">sale.order.form.warehouse.field</field>-->
+<!--        <field name="model">sale.order</field>-->
+<!--        <field name="inherit_id" ref="sale.view_order_form"/>-->
+<!--        <field name="arch" type="xml">-->
+
+<!--            &lt;!&ndash; Add warehouse field to the list view of order lines &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='order_line']/list/field[@name='customer_lead']" position="after">-->
+<!--                <field name="warehouse_id"-->
+<!--                       optional="show"-->
+<!--                       options="{'no_create': True, 'no_open': True}"/>-->
+<!--            </xpath>-->
+
+<!--            &lt;!&ndash; Add warehouse field to the form view of order lines (popup) &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='order_line']/form//field[@name='customer_lead']" position="after">-->
+<!--                <field name="warehouse_id"-->
+<!--                       options="{'no_create': True, 'no_open': True}"/>-->
+<!--            </xpath>-->
+
+<!--        </field>-->
+<!--    </record>-->
+<!--</odoo>-->
+
+
 <odoo>
     <!-- Add warehouse field to sale order lines -->
     <record id="view_order_form_warehouse_field" model="ir.ui.view">
@@ -11,12 +38,16 @@
             <xpath expr="//field[@name='order_line']/list/field[@name='customer_lead']" position="after">
                 <field name="warehouse_id"
                        optional="show"
+                       readonly="0"
+                       force_save="1"
+                       widget="many2one"
                        options="{'no_create': True, 'no_open': True}"/>
             </xpath>
 
             <!-- Add warehouse field to the form view of order lines (popup) -->
             <xpath expr="//field[@name='order_line']/form//field[@name='customer_lead']" position="after">
                 <field name="warehouse_id"
+                       readonly="0"
                        options="{'no_create': True, 'no_open': True}"/>
             </xpath>
 

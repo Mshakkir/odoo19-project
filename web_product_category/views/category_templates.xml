@@ -1,119 +1,136 @@
-<template id="dynamic_product_categories" name="Dynamic Product Categories">
-    <section class="container my-5">
-        <h2 class="text-center mb-4">Explore Our Product Categories</h2>
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Dynamic Product Categories Template -->
+        <template id="dynamic_product_categories" name="Dynamic Product Categories">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure oe_empty">
+                    <section class="container my-5">
+                        <h2 class="text-center mb-4">Explore Our Product Categories</h2>
 
-        <div class="category-tabs d-flex flex-wrap justify-content-center gap-2 mb-4">
-            <t t-foreach="categories" t-as="category">
-                <button class="cat-btn" t-att-onclick="'showCategory(' + str(category.id) + ')'">
-                    <t t-esc="category.name"/>
-                </button>
-            </t>
-        </div>
-
-        <div class="category-content">
-            <t t-foreach="categories" t-as="category">
-                <div t-att-id="'cat-' + str(category.id)" class="cat-panel">
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <h3><t t-esc="category.name"/></h3>
-                            <div t-if="category.description" class="category-description">
-                                <t t-raw="category.description"/>
-                            </div>
-                            <div t-else="" class="category-description">
-                                <p>Explore our range of <t t-esc="category.name"/> products.</p>
-                            </div>
-                            <div class="mt-3">
-                                <small class="text-muted">
-                                    <i class="fa fa-cube"></i>
-                                    <t t-esc="category.product_count"/> Products in this category
-                                </small>
-                            </div>
-                        </div>
-                        <div class="col-md-6 text-center">
-                            <t t-if="category.image_1920">
-                                <img t-att-src="'data:image/png;base64,' + category.image_1920.decode('utf-8')"
-                                     class="img-fluid rounded category-image"
-                                     t-att-alt="category.name"
-                                     loading="lazy"/>
+                        <div class="category-tabs d-flex flex-wrap justify-content-center gap-2 mb-4">
+                            <t t-foreach="categories" t-as="category">
+                                <button class="cat-btn" t-att-onclick="'showCategory(' + str(category.id) + ')'">
+                                    <t t-esc="category.name"/>
+                                </button>
                             </t>
-                            <t t-else="">
-                                <div class="placeholder-image">
-                                    <i class="fa fa-image fa-5x text-muted"></i>
-                                    <p class="text-muted mt-2">No image available</p>
+                        </div>
+
+                        <div class="category-content">
+                            <t t-foreach="categories" t-as="category">
+                                <div t-att-id="'cat-' + str(category.id)" class="cat-panel">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6">
+                                            <h3><t t-esc="category.name"/></h3>
+                                            <div t-if="category.description" class="category-description">
+                                                <t t-raw="category.description"/>
+                                            </div>
+                                            <div t-else="" class="category-description">
+                                                <p>Explore our range of <t t-esc="category.name"/> products.</p>
+                                            </div>
+                                            <div class="mt-3">
+                                                <small class="text-muted">
+                                                    <i class="fa fa-cube"></i>
+                                                    <t t-esc="category.product_count"/> Products in this category
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 text-center">
+                                            <t t-if="category.image_1920">
+                                                <img t-attf-src="data:image/png;base64,{{category.image_1920}}"
+                                                     class="img-fluid rounded category-image"
+                                                     t-att-alt="category.name"
+                                                     loading="lazy"/>
+                                            </t>
+                                            <t t-else="">
+                                                <div class="placeholder-image">
+                                                    <i class="fa fa-image fa-5x text-muted"></i>
+                                                    <p class="text-muted mt-2">No image available</p>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </div>
                                 </div>
                             </t>
                         </div>
-                    </div>
+                    </section>
                 </div>
             </t>
-        </div>
-    </section>
+        </template>
 
-    <style>
-        .cat-btn {
-            background: #f1f3f5;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 20px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s ease;
-        }
-        .cat-btn:hover, .cat-btn.active {
-            background: #007bff;
-            color: #fff;
-        }
-        .cat-panel {
-            display: none;
-            background: #f8f9fa;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.05);
-            animation: fadeIn 0.3s ease-in;
-        }
-        .cat-panel.active {
-            display: block;
-        }
-        .category-image {
-            max-height: 400px;
-            object-fit: contain;
-        }
-        .placeholder-image {
-            background: #e9ecef;
-            padding: 60px 20px;
-            border-radius: 12px;
-        }
-        .category-description {
-            line-height: 1.6;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+        <!-- CSS Assets -->
+        <template id="dynamic_categories_assets" name="Dynamic Categories Assets" inherit_id="website.assets_frontend">
+            <xpath expr="." position="inside">
+                <style>
+                    .cat-btn {
+                        background: #f1f3f5;
+                        border: none;
+                        padding: 10px 18px;
+                        border-radius: 20px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.25s ease;
+                    }
+                    .cat-btn:hover, .cat-btn.active {
+                        background: #007bff;
+                        color: #fff;
+                    }
+                    .cat-panel {
+                        display: none;
+                        background: #f8f9fa;
+                        padding: 30px;
+                        border-radius: 16px;
+                        box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+                        animation: fadeIn 0.3s ease-in;
+                    }
+                    .cat-panel.active {
+                        display: block;
+                    }
+                    .category-image {
+                        max-height: 400px;
+                        object-fit: contain;
+                    }
+                    .placeholder-image {
+                        background: #e9ecef;
+                        padding: 60px 20px;
+                        border-radius: 12px;
+                    }
+                    .category-description {
+                        line-height: 1.6;
+                    }
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                </style>
+                <script type="text/javascript">
+                    function showCategory(id) {
+                        // Remove active class from all panels and buttons
+                        document.querySelectorAll('.cat-panel').forEach(p => p.classList.remove('active'));
+                        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
 
-    <script type="text/javascript">
-        function showCategory(id) {
-            // Remove active class from all panels and buttons
-            document.querySelectorAll('.cat-panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                        // Add active class to selected panel and button
+                        const panel = document.getElementById('cat-' + id);
+                        if (panel) {
+                            panel.classList.add('active');
+                        }
 
-            // Add active class to selected panel and button
-            const panel = document.getElementById('cat-' + id);
-            if (panel) {
-                panel.classList.add('active');
-            }
+                        // Find and activate the corresponding button
+                        if (event &amp;&amp; event.target) {
+                            event.target.classList.add('active');
+                        }
+                    }
 
-            // Find and activate the corresponding button
-            event.target.classList.add('active');
-        }
+                    // Show first category by default
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const firstPanel = document.querySelector('.cat-panel');
+                        const firstButton = document.querySelector('.cat-btn');
+                        if (firstPanel) firstPanel.classList.add('active');
+                        if (firstButton) firstButton.classList.add('active');
+                    });
+                </script>
+            </xpath>
+        </template>
 
-        // Show first category by default
-        document.addEventListener('DOMContentLoaded', function() {
-            const firstPanel = document.querySelector('.cat-panel');
-            const firstButton = document.querySelector('.cat-btn');
-            if (firstPanel) firstPanel.classList.add('active');
-            if (firstButton) firstButton.classList.add('active');
-        });
-    </script>
-</template>
+    </data>
+</odoo>

@@ -173,110 +173,65 @@ class SaleOrderLine(models.Model):
 
         return values
 
+    def _action_launch_stock_rule(self, previous_product_uom_qty=False):
+        """
+        Override to handle multiple warehouses by confirming pickings one at a time
+        """
+        # Get all warehouses used in these lines
+        warehouses = self.filtered(
+            lambda l: l.product_id.type in ['product', 'consu'] and l.warehouse_id
+        ).mapped('warehouse_id')
+
+        if len(warehouses) <= 1:
+            # Single warehouse or no warehouse - use standard flow
+            return super(SaleOrderLine, self)._action_launch_stock_rule(
+                previous_product_uom_qty=previous_product_uom_qty
+            )
+
+        # Multiple warehouses - process each warehouse separately
+        pickings_created = self.env['stock.picking']
+
+        for warehouse in warehouses:
+            # Get lines for this warehouse
+            warehouse_lines = self.filtered(lambda l: l.warehouse_id == warehouse)
+
+            if warehouse_lines:
+                # Process this warehouse's lines
+                # This will create pickings for this warehouse only
+                super(SaleOrderLine, warehouse_lines)._action_launch_stock_rule(
+                    previous_product_uom_qty=previous_product_uom_qty
+                )
+
+                # Get the pickings that were just created for these lines
+                new_pickings = warehouse_lines.mapped('move_ids.picking_id').filtered(
+                    lambda p: p.state not in ['done', 'cancel']
+                )
+
+                # Confirm each picking individually to avoid singleton errors
+                for picking in new_pickings:
+                    if picking not in pickings_created:
+                        pickings_created |= picking
+
+        # Handle lines without a specific warehouse
+        lines_without_warehouse = self.filtered(
+            lambda l: l.product_id.type in ['product', 'consu'] and not l.warehouse_id
+        )
+
+        if lines_without_warehouse:
+            super(SaleOrderLine, lines_without_warehouse)._action_launch_stock_rule(
+                previous_product_uom_qty=previous_product_uom_qty
+            )
+
+        return True
+
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    def action_confirm(self):
-        """Override to handle multiple warehouses after standard confirmation"""
-        # Call parent first - this will create pickings normally
-        result = super(SaleOrder, self).action_confirm()
-
-        # Now reorganize pickings if multiple warehouses are involved
-        for order in self:
-            # Get unique warehouses from order lines
-            warehouses_in_order = order.order_line.filtered(
-                lambda l: l.product_id.type in ['product', 'consu'] and l.warehouse_id
-            ).mapped('warehouse_id')
-
-            if len(warehouses_in_order) > 1:
-                # Multiple warehouses - need to reorganize pickings
-                order._reorganize_pickings_by_warehouse()
-
+    def _create_delivery_line(self, carrier, price_unit):
+        """Override to prevent issues with delivery lines"""
+        result = super(SaleOrder, self)._create_delivery_line(carrier, price_unit)
+        # Ensure delivery line gets a warehouse
+        if result and not result.warehouse_id:
+            result.warehouse_id = self.warehouse_id
         return result
-
-    def _reorganize_pickings_by_warehouse(self):
-        """Reorganize existing pickings to separate by warehouse"""
-        self.ensure_one()
-
-        # Get all non-done, non-cancelled pickings for this order
-        pickings_to_process = self.picking_ids.filtered(
-            lambda p: p.state not in ['done', 'cancel']
-        )
-
-        if not pickings_to_process:
-            return
-
-        # Group order lines by warehouse
-        lines_by_warehouse = defaultdict(list)
-        for line in self.order_line:
-            if line.product_id.type in ['product', 'consu'] and line.warehouse_id:
-                lines_by_warehouse[line.warehouse_id].append(line)
-
-        if len(lines_by_warehouse) <= 1:
-            return  # Nothing to reorganize
-
-        # Get all moves that need to be reorganized
-        all_moves = pickings_to_process.mapped('move_ids').filtered(
-            lambda m: m.state not in ['done', 'cancel']
-        )
-
-        # Group moves by warehouse (based on their sale line)
-        moves_by_warehouse = defaultdict(list)
-        for move in all_moves:
-            if move.sale_line_id and move.sale_line_id.warehouse_id:
-                warehouse = move.sale_line_id.warehouse_id
-                moves_by_warehouse[warehouse].append(move)
-
-        # Cancel existing pickings (we'll recreate them)
-        for picking in pickings_to_process:
-            picking.action_cancel()
-
-        # Create new picking for each warehouse
-        for warehouse, moves in moves_by_warehouse.items():
-            if not moves:
-                continue
-
-            picking_type = warehouse.out_type_id
-
-            # Create new picking
-            picking_vals = {
-                'picking_type_id': picking_type.id,
-                'partner_id': self.partner_shipping_id.id,
-                'origin': self.name,
-                'location_id': warehouse.lot_stock_id.id,
-                'location_dest_id': self.partner_shipping_id.property_stock_customer.id or
-                                    self.env.ref('stock.stock_location_customers').id,
-                'company_id': self.company_id.id,
-            }
-
-            new_picking = self.env['stock.picking'].create(picking_vals)
-
-            # Recreate moves in the new picking
-            for old_move in moves:
-                if old_move.sale_line_id:
-                    line = old_move.sale_line_id
-
-                    move_vals = {
-                        'name': line.name or line.product_id.name,
-                        'product_id': line.product_id.id,
-                        'product_uom_qty': line.product_uom_qty,
-                        'product_uom': line.product_uom.id,
-                        'picking_id': new_picking.id,
-                        'location_id': warehouse.lot_stock_id.id,
-                        'location_dest_id': self.partner_shipping_id.property_stock_customer.id or
-                                            self.env.ref('stock.stock_location_customers').id,
-                        'sale_line_id': line.id,
-                        'company_id': self.company_id.id,
-                        'origin': self.name,
-                        'picking_type_id': picking_type.id,
-                        'procure_method': old_move.procure_method,
-                        'warehouse_id': warehouse.id,
-                    }
-
-                    self.env['stock.move'].create(move_vals)
-
-            # Confirm and assign the new picking (one at a time to avoid singleton errors)
-            if new_picking.move_ids:
-                new_picking.action_confirm()
-                new_picking.action_assign()

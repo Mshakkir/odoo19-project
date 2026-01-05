@@ -100,8 +100,8 @@
                                 <td class="ar"
                                     style="padding:2px; text-align:left;width:50%; vertical-align: top; position: relative;">
                                     <!-- Bank Logo - Top Left -->
-                                    <div style="position: absolute; top: 0; left: 0;">
-                                        <img src="/my_invoice_custom/static/src/img/Alrajhi.jpg" alt="Alrajhi Bank"
+                                    <div style="position: absolute; top: 0; left: 100;">
+                                        <img src="/my_invoice_custom/static/src/img/Alrajhi logo.png" alt="Alrajhi Bank"
                                              style="width: 100px; height: auto;"/>
                                     </div>
                                     <!-- Bank Details with padding to avoid overlap -->
@@ -132,8 +132,8 @@
                                         (IBAN): SA2110000013200000678707 :رقم الحساب الدولي
                                     </div>
                                     <!-- Bank Logo - Bottom Right -->
-                                    <div style="position: absolute; bottom: 0; right: 0;">
-                                        <img src="/my_invoice_custom/static/src/img/SNB.png" alt="Saudi National Bank"
+                                    <div style="position: absolute; bottom: 0; right: 100;">
+                                        <img src="/my_invoice_custom/static/src/img/Snb logo.png" alt="Saudi National Bank"
                                              style="width: 100px; height: auto;"/>
                                     </div>
                                 </td>

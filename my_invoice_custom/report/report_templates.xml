@@ -97,46 +97,44 @@
                          style="font-size:13px; background:#fff;width:848px;margin-top:10px;padding-top:10px;">
                         <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                             <tr>
-                                <td class="ar" style="padding:2px; text-align:left;width:50%; vertical-align: top;">
-                                    <div style="display: flex; align-items: flex-start; gap: 10px;">
-                                        <!-- Bank Logo -->
-                                        <div style="flex-shrink: 0;">
-                                            <img src="/my_invoice_custom/static/src/img/Alrajhi.jpg" alt="Alrajhi Bank"
-                                                 style="width: 60px; height: auto;"/>
-                                        </div>
-                                        <!-- Bank Details -->
-                                        <div>
-                                            Sameer Sharaf Al Otaibi Trading Company
-                                            <br/>
-                                            شركة سمير شرف العتيبي التجارية
-                                            <br/>
-                                            Alrajhi Bank – مصرف الراجحي
-                                            <br/>
-                                            Account Number:رقم الحساب:123000010006080143917
-                                            <br/>
-                                            IBAN: SA7880000123608010143917 :رقم الحساب الدولي
-                                        </div>
+                                <td class="ar"
+                                    style="padding:2px; text-align:left;width:50%; vertical-align: top; position: relative;">
+                                    <!-- Bank Logo - Top Left -->
+                                    <div style="position: absolute; top: 0; left: 0;">
+                                        <img src="/my_invoice_custom/static/src/img/Alrajhi.jpg" alt="Alrajhi Bank"
+                                             style="width: 100px; height: auto;"/>
+                                    </div>
+                                    <!-- Bank Details with padding to avoid overlap -->
+                                    <div style="padding-top: 10px;">
+                                        Sameer Sharaf Al Otaibi Trading Company
+                                        <br/>
+                                        شركة سمير شرف العتيبي التجارية
+                                        <br/>
+                                        Alrajhi Bank – مصرف الراجحي
+                                        <br/>
+                                        Account Number:رقم الحساب:123000010006080143917
+                                        <br/>
+                                        IBAN: SA7880000123608010143917 :رقم الحساب الدولي
                                     </div>
                                 </td>
-                                <td class="ar" style="padding:2px; text-align:right;width:50%; vertical-align: top;">
-                                    <div style="display: flex; align-items: flex-start; gap: 10px; justify-content: flex-end;">
-                                        <!-- Bank Details -->
-                                        <div style="text-align: right;">
-                                            Sameer Sharaf Alateebi Company Commercial
-                                            <br/>
-                                            شركة سمير شرف العتيبي التجارية
-                                            <br/>
-                                            SNB - Saudi National Bank/البنك الأهلي السعودي
-                                            <br/>
-                                            Account Number at SNB: 13200000678707 :رقم الحساب
-                                            <br/>
-                                            (IBAN): SA2110000013200000678707 :رقم الحساب الدولي
-                                        </div>
-                                        <!-- Bank Logo -->
-                                        <div style="flex-shrink: 0;">
-                                            <img src="/my_invoice_custom/static/src/img/SNB.png"
-                                                 alt="Saudi National Bank" style="width: 60px; height: auto;"/>
-                                        </div>
+                                <td class="ar"
+                                    style="padding:2px; text-align:right;width:50%; vertical-align: top; position: relative;">
+                                    <!-- Bank Details -->
+                                    <div style="padding-top: 10px;">
+                                        Sameer Sharaf Alateebi Company Commercial
+                                        <br/>
+                                        شركة سمير شرف العتيبي التجارية
+                                        <br/>
+                                        SNB - Saudi National Bank/البنك الأهلي السعودي
+                                        <br/>
+                                        Account Number at SNB: 13200000678707 :رقم الحساب
+                                        <br/>
+                                        (IBAN): SA2110000013200000678707 :رقم الحساب الدولي
+                                    </div>
+                                    <!-- Bank Logo - Bottom Right -->
+                                    <div style="position: absolute; bottom: 0; right: 0;">
+                                        <img src="/my_invoice_custom/static/src/img/SNB.png" alt="Saudi National Bank"
+                                             style="width: 100px; height: auto;"/>
                                     </div>
                                 </td>
                             </tr>

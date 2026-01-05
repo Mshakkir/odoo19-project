@@ -1,31 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_order_form_warehouse_field" model="ir.ui.view">
-        <field name="name">sale.order.form.warehouse.field</field>
+    <record id="view_order_form_warehouse_simple" model="ir.ui.view">
+        <field name="name">sale.order.form.warehouse.simple</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <!-- Add to context -->
             <field name="order_line" position="attributes">
                 <attribute name="context">{'default_warehouse_id': warehouse_id}</attribute>
             </field>
-
-            <!-- Try adding after notebook -->
-            <xpath expr="//notebook" position="after">
-                <!-- This is just to ensure view loads -->
-            </xpath>
-        </field>
-    </record>
-
-    <!-- Add a separate computed field if needed -->
-    <record id="sale_order_line_form_warehouse" model="ir.ui.view">
-        <field name="name">sale.order.line.form.warehouse</field>
-        <field name="model">sale.order.line</field>
-        <field name="inherit_id" ref="sale_stock.view_order_form_inherit_sale_stock"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='customer_lead']" position="after">
-                <field name="warehouse_id" options="{'no_create': True}"/>
-            </xpath>
         </field>
     </record>
 </odoo>

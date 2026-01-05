@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Simple view inheritance without specific field positioning -->
-    <record id="view_order_form_warehouse_simple" model="ir.ui.view">
-        <field name="name">sale.order.form.warehouse.simple</field>
-        <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_form"/>
+    <!-- Add warehouse field to sale order line -->
+    <record id="view_order_line_tree_warehouse" model="ir.ui.view">
+        <field name="name">sale.order.line.tree.warehouse</field>
+        <field name="model">sale.order.line</field>
+        <field name="inherit_id" ref="sale.view_order_line_tree"/>
         <field name="arch" type="xml">
-            <field name="order_line" position="attributes">
-                <attribute name="context">{'default_warehouse_id': warehouse_id}</attribute>
+            <field name="product_id" position="after">
+                <field name="warehouse_id" optional="show" options="{'no_create': True, 'no_open': True}"/>
             </field>
         </field>
     </record>

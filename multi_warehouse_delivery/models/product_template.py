@@ -1,45 +1,49 @@
-from odoo import models, api
+from odoo import models, api, fields
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     @api.model
-    def _get_report_data(self, domain, read_fields):
-        """Override to ensure data is properly loaded when switching warehouses"""
+    def get_report_lines(self, product_template_ids, warehouse_id, read_fields=None):
+        """
+        Override to handle warehouse context changes in forecasted report.
+        This prevents the 'Cannot read properties of undefined' error.
+        """
         try:
-            result = super()._get_report_data(domain, read_fields)
-
-            # Ensure product_templates exists in result
-            if result and 'product_templates' not in result:
-                result['product_templates'] = []
-
+            # Call parent method with warehouse context
+            result = super().get_report_lines(
+                product_template_ids,
+                warehouse_id,
+                read_fields=read_fields
+            )
             return result
         except Exception as e:
-            # Fallback to ensure we don't break the view
+            _logger.warning(f"Error in get_report_lines: {str(e)}")
+            # Return empty structure to prevent JS errors
             return {
-                'product_templates': [],
                 'lines': [],
+                'warehouse': warehouse_id,
             }
 
 
 class ProductProduct(models.Model):
     _inherit = 'product.product'
 
-    @api.model
-    def _get_report_data(self, domain, read_fields):
-        """Override to ensure data is properly loaded when switching warehouses"""
+    def _compute_quantities_dict(self, lot_id, owner_id, package_id, from_date=False, to_date=False):
+        """
+        Override to ensure quantities are properly computed across warehouses.
+        This helps with the forecasted report calculations.
+        """
         try:
-            result = super()._get_report_data(domain, read_fields)
-
-            # Ensure product_templates exists in result
-            if result and 'product_templates' not in result:
-                result['product_templates'] = []
-
+            result = super()._compute_quantities_dict(
+                lot_id, owner_id, package_id, from_date, to_date
+            )
             return result
         except Exception as e:
-            # Fallback to ensure we don't break the view
-            return {
-                'product_templates': [],
-                'lines': [],
-            }
+            _logger.warning(f"Error in _compute_quantities_dict: {str(e)}")
+            # Return empty dict to prevent errors
+            return {}

@@ -1,4 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_stock_picking_user,stock.picking user,stock.model_stock_picking,base.group_user,1,0,0,0
-access_stock_picking_warehouse_user,stock.picking warehouse user,stock.model_stock_picking,stock.group_stock_user,1,1,1,0
-access_stock_warehouse_user,stock.warehouse user,stock.model_stock_warehouse,base.group_user,1,0,0,0
+access_stock_picking_multi_warehouse_user,stock.picking multi warehouse user,stock.model_stock_picking,base.group_user,1,0,0,0
+access_stock_warehouse_multi_warehouse_user,stock.warehouse multi warehouse user,stock.model_stock_warehouse,base.group_user,1,0,0,0
+access_stock_move_multi_warehouse_user,stock.move multi warehouse user,stock.model_stock_move,base.group_user,1,0,0,0

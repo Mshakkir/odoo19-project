@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Delivery Dashboard Tree View -->
+    <!-- Delivery Dashboard List View -->
     <record id="view_picking_tree_dashboard" model="ir.ui.view">
         <field name="name">stock.picking.tree.dashboard</field>
         <field name="model">stock.picking</field>
         <field name="arch" type="xml">
-            <tree string="My Deliveries" create="false">
+            <list string="My Deliveries" create="false">
                 <field name="name"/>
                 <field name="partner_id"/>
                 <field name="origin" optional="show"/>
@@ -15,11 +15,11 @@
                 <field name="days_until_delivery"/>
                 <field name="priority" widget="priority"/>
                 <field name="state" widget="badge"/>
-            </tree>
+            </list>
         </field>
     </record>
 
-    <!-- Enhanced Tree View with Warehouse Info -->
+    <!-- Enhanced List View with Warehouse Info -->
     <record id="view_picking_tree_warehouse" model="ir.ui.view">
         <field name="name">stock.picking.tree.warehouse</field>
         <field name="model">stock.picking</field>

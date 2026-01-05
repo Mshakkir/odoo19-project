@@ -100,7 +100,7 @@
                                 <td class="ar"
                                     style="padding:2px; text-align:left;width:50%; vertical-align: top; position: relative;">
                                     <!-- Bank Logo - Top Left -->
-                                    <div style="position: absolute; top: 0; right: 400;">
+                                    <div style="position: absolute; top: 10; right: 400;">
                                         <img src="/my_invoice_custom/static/src/img/Alrajhi logo.png" alt="Alrajhi Bank"
                                              style="width: 100px; height: auto;"/>
                                     </div>

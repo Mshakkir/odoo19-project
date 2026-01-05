@@ -101,8 +101,8 @@
                                     <div style="display: flex; align-items: flex-start; gap: 10px;">
                                         <!-- Bank Logo -->
                                         <div style="flex-shrink: 0;">
-                                            <img src="Alrajhi.png" alt="Alrajhi Bank"
-                                                 style="width: 60px; height: auto;"/>
+                                            <img src="/my_invoice_custom/static/src/img/Alrajhi.jpg" alt="Alrajhi Bank"
+                                                 style="width: 60px; height: auto;">
                                         </div>
                                         <!-- Bank Details -->
                                         <div>
@@ -134,8 +134,8 @@
                                         </div>
                                         <!-- Bank Logo -->
                                         <div style="flex-shrink: 0;">
-                                            <img src="SNB.png" alt="Saudi National Bank"
-                                                 style="width: 60px; height: auto;"/>
+                                            <img src="/my_invoice_custom/static/src/img/SNB.png"
+                                                 alt="Saudi National Bank" style="width: 60px; height: auto;">
                                         </div>
                                     </div>
                                 </td>
@@ -164,7 +164,8 @@
                             <tr>
                                 <td style="width:33%; padding:4px;border-right: 1px solid black;">
                                     <strong>jeddah:</strong>
-                                    Jeddah, 7655 Al Fayha Al Fayha Dist. JEDDAH 22244-3108 Saudi Arabia<br/>Tel:<br/>
+                                    Jeddah, 7655 Al Fayha Al Fayha Dist. JEDDAH 22244-3108 Saudi Arabia<br/>Tel:
+                                    <br/>
                                     Email:
                                 </td>
                                 <td style="width:33%; padding:4px;">
@@ -174,7 +175,8 @@
                                 </td>
                                 <td style="width:33%; padding:4px;border-left: 1px solid black;">
                                     <strong>Dammam:</strong>
-                                    8515, Qutaibah bin Muslim ST, Al Souq, Dammam 4525-32242 Saudi Arabia<br/>
+                                    8515, Qutaibah bin Muslim ST, Al Souq, Dammam 4525-32242 Saudi Arabia
+                                    <br/>
                                     Tel/Mobile: 0535081008<br/>Email: ssaoe.dammam@gmail.com
                                 </td>
                             </tr>

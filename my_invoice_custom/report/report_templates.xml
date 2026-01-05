@@ -120,7 +120,7 @@
                                 <td class="ar"
                                     style="padding:2px; text-align:right;width:50%; vertical-align: top; position: relative;">
                                     <!-- Bank Logo - Bottom Left of right column -->
-                                    <div style="position: absolute; bottom: 0; left: 0;">
+                                    <div style="position: absolute; bottom: 0; left: 35px;">
                                         <img src="/my_invoice_custom/static/src/img/Snb logo.png"
                                              alt="Saudi National Bank"
                                              style="width: 100px; height: auto;"/>

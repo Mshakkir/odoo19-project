@@ -8,7 +8,7 @@
         <field name="arch" type="xml">
 
             <!-- Add warehouse field to the list view of order lines -->
-            <xpath expr="//field[@name='order_line']/tree/field[@name='date_planned']" position="after">
+            <xpath expr="//field[@name='order_line']//field[@name='product_qty']" position="after">
                 <field name="warehouse_id"
                        optional="show"
                        readonly="0"
@@ -18,7 +18,7 @@
             </xpath>
 
             <!-- Add warehouse field to the form view of order lines (popup) -->
-            <xpath expr="//field[@name='order_line']/form//field[@name='date_planned']" position="after">
+            <xpath expr="//field[@name='order_line']//field[@name='product_id']" position="after">
                 <field name="warehouse_id"
                        readonly="0"
                        options="{'no_create': True, 'no_open': True}"/>

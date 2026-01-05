@@ -5,46 +5,41 @@ class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
     @api.onchange('product_id')
-    def _onchange_product_id_copy_analytic(self):
+    def _onchange_product_auto_copy_analytic(self):
         """
         Auto-copy analytic distribution from the first order line
         when adding new products
         """
-        res = super()._onchange_product_id_copy_analytic()
-
-        # Only proceed if this is a new line (no ID yet)
-        if not self.id and self.order_id:
+        # Only proceed if this is a new line being added
+        if self.product_id and not self.analytic_distribution and self.order_id:
             # Get existing order lines that have analytic distribution
+            # Filter out the current line (which doesn't have an ID yet)
             existing_lines = self.order_id.order_line.filtered(
-                lambda l: l.id and l.analytic_distribution
+                lambda l: l.analytic_distribution and l.product_id
             )
 
             # If there are existing lines with analytic distribution
             if existing_lines:
                 # Copy from the first line
                 first_line = existing_lines[0]
-                self.analytic_distribution = first_line.analytic_distribution
+                self.analytic_distribution = first_line.analytic_distribution.copy()
 
-        return res
-
-
-class SaleOrder(models.Model):
-    _inherit = 'sale.order'
-
-    def _create_order_line(self, vals):
+    @api.model_create_multi
+    def create(self, vals_list):
         """
-        Alternative approach: Copy analytic distribution when creating new lines
+        Additional safety: Copy analytic distribution on line creation
         """
-        line = super()._create_order_line(vals)
+        lines = super().create(vals_list)
 
-        # If the new line doesn't have analytic distribution
-        if line and not vals.get('analytic_distribution'):
-            # Get the first line with analytic distribution
-            first_line = self.order_line.filtered(
-                lambda l: l.id != line.id and l.analytic_distribution
-            )[:1]
+        for line in lines:
+            # If line doesn't have analytic distribution
+            if not line.analytic_distribution and line.order_id:
+                # Get the first line with analytic distribution
+                first_line = line.order_id.order_line.filtered(
+                    lambda l: l.id != line.id and l.analytic_distribution
+                )[:1]
 
-            if first_line:
-                line.analytic_distribution = first_line.analytic_distribution
+                if first_line:
+                    line.analytic_distribution = first_line.analytic_distribution.copy()
 
-        return line
+        return lines

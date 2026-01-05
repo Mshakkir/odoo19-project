@@ -102,7 +102,7 @@
                                         <!-- Bank Logo -->
                                         <div style="flex-shrink: 0;">
                                             <img src="/my_invoice_custom/static/src/img/Alrajhi.jpg" alt="Alrajhi Bank"
-                                                 style="width: 60px; height: auto;">
+                                                 style="width: 60px; height: auto;"/>
                                         </div>
                                         <!-- Bank Details -->
                                         <div>
@@ -135,7 +135,7 @@
                                         <!-- Bank Logo -->
                                         <div style="flex-shrink: 0;">
                                             <img src="/my_invoice_custom/static/src/img/SNB.png"
-                                                 alt="Saudi National Bank" style="width: 60px; height: auto;">
+                                                 alt="Saudi National Bank" style="width: 60px; height: auto;"/>
                                         </div>
                                     </div>
                                 </td>

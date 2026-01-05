@@ -4,33 +4,29 @@
     <record id="view_order_form_inherit_warehouse" model="ir.ui.view">
         <field name="name">sale.order.form.inherit.warehouse</field>
         <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale_stock.view_order_form_inherit_sale_stock"/>
+        <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <!-- Add warehouse column to order lines -->
-            <xpath expr="//field[@name='order_line']/tree/field[@name='product_uom']" position="after">
+            <!-- Add warehouse column to order lines tree -->
+            <xpath expr="//field[@name='order_line']//field[@name='price_subtotal']" position="before">
                 <field name="warehouse_id"
                        optional="show"
-                       options="{'no_create': True, 'no_open': True}"/>
-            </xpath>
-
-            <!-- Also add to form view of order lines -->
-            <xpath expr="//field[@name='order_line']/form//field[@name='product_uom']" position="after">
-                <field name="warehouse_id"
+                       string="Warehouse"
                        options="{'no_create': True, 'no_open': True}"/>
             </xpath>
         </field>
     </record>
 
-    <!-- Make warehouse field visible in order line form popup -->
-    <record id="view_sale_order_line_form_warehouse" model="ir.ui.view">
-        <field name="name">sale.order.line.form.warehouse</field>
+    <!-- Add warehouse field to order line form view popup -->
+    <record id="view_order_line_form_inherit_warehouse" model="ir.ui.view">
+        <field name="name">sale.order.line.form.inherit.warehouse</field>
         <field name="model">sale.order.line</field>
         <field name="inherit_id" ref="sale.view_order_line_form"/>
         <field name="arch" type="xml">
-            <field name="product_uom" position="after">
+            <xpath expr="//field[@name='product_uom_qty']" position="after">
                 <field name="warehouse_id"
+                       string="Delivery Warehouse"
                        options="{'no_create': True, 'no_open': True}"/>
-            </field>
+            </xpath>
         </field>
     </record>
 </odoo>

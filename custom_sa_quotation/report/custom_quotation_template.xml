@@ -73,70 +73,76 @@
                     <!-- ===== Bank Details ===== -->
                     <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                         <tr>
-                            <td style="padding:2px; text-align:left;width:50%;">
-                                Sameer Sharaf Al Otaibi Trading Company
-                                <br/>
-                                شركة سمير شرف العتيبي التجارية
-                                <br/>
-                                Alrajhi Bank – مصرف الراجحي
-                                <br/>
-                                Account Number:رقم الحساب:123000010006080143917
-                                <br/>
-                                IBAN: SA7880000123608010143917 :رقم الحساب الدولي
+                            <td class="ar"
+                                style="padding:2px; text-align:left;width:50%; vertical-align: top; position: relative;">
+                                <!-- Bank Logo - Top Right of left column -->
+                                <div style="position: absolute; top: 10px; right: 50px;">
+                                    <img src="/my_invoice_custom/static/src/img/Alrajhi logo.png" alt="Alrajhi Bank"
+                                         style="width: 100px; height: 100px;"/>
+                                </div>
+                                <!-- Bank Details with padding to avoid overlap -->
+                                <div style="padding-top: 5px;">
+                                    Sameer Sharaf Al Otaibi Trading Company
+                                    <br/>
+                                    شركة سمير شرف العتيبي التجارية
+                                    <br/>
+                                    Alrajhi Bank – مصرف الراجحي
+                                    <br/>
+                                    Account Number:رقم الحساب:123000010006080143917
+                                    <br/>
+                                    IBAN: SA7880000123608010143917 :رقم الحساب الدولي
+                                </div>
                             </td>
-
-
-
-                            <td style="padding:2px; text-align:right;width:50%;">
-                                Sameer Sharaf Alateebi Company Commercial
-                                <br/>
-                                شركة سمير شرف العتيبي التجارية
-                                <br/>
-                                SNB - Saudi National Bank/البنك الأهلي السعودي
-                                <br/>
-                                Account Number at SNB: 13200000678707 :رقم الحساب
-                                <br/>
-                                (IBAN): SA2110000013200000678707 :رقم الحساب الدولي
+                            <td class="ar"
+                                style="padding:2px; text-align:right;width:50%; vertical-align: top; position: relative;">
+                                <!-- Bank Logo - Bottom Left of right column -->
+                                <div style="position: absolute; bottom: 0; left: 35px;">
+                                    <img src="/my_invoice_custom/static/src/img/Snb logo.png"
+                                         alt="Saudi National Bank"
+                                         style="width: 100px; height: auto;"/>
+                                </div>
+                                <!-- Bank Details -->
+                                <div style="padding-top: 5px;">
+                                    Sameer Sharaf Alateebi Company Commercial
+                                    <br/>
+                                    شركة سمير شرف العتيبي التجارية
+                                    <br/>
+                                    SNB - Saudi National Bank/البنك الأهلي السعودي
+                                    <br/>
+                                    Account Number at SNB: 13200000678707 :رقم الحساب
+                                    <br/>
+                                    (IBAN): SA2110000013200000678707 :رقم الحساب الدولي
+                                </div>
                             </td>
                         </tr>
-
                     </table>
 
 
                     <!-- ===== Branch Details ===== -->
                     <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                         <tr>
-
-
                             <td style="width:33%; padding:4px;border-right: 1px solid black;">
-                                <strong>jeddah:</strong>
-                                Jeddah, 7655 Al Fayha
-                                Al Fayha Dist. JEDDAH 22244-3108
-                                Saudi Arabia
+                                <strong>Jeddah Al Fayha Branch:</strong>
+                                7655 Al Fayha Al Fayha Dist., Jeddah 22244-3108, Saudi Arabia
                                 <br/>
-                                Tel:
+                                Tel/Mobile: +966 571 313 243
                                 <br/>
-                                Email:
+                                Email: ssaoe.jeddah@gmail.com
                             </td>
-
                             <td style="width:33%; padding:4px;">
-                                <strong>Baladiya:</strong>
-                                Sookul Anwar, Al Baladeah, Aziziyah,
-                                Jeddah 31303
-                                Tel: 0535081008
+                                <strong>Jeddah Baladiya Branch:</strong>
+                                Sookul Anwar, Al Baladeah, Aziziyah, Jeddah 31303, Saudi Arabia
                                 <br/>
-                                Email: ssaoe.dammam@gmail.com
+                                Tel/Mobile: +966 536 122 833
+                                <br/>Email:ssaoe.jeddah@gmail.com
                             </td>
-
-                            <td style="width:33%; padding:4px;border-right: 1px solid black;">
-                                <strong>Dammam:</strong>
-                                8515, Qutaibah bin Muslim ST,
-                                Al Souq, Dammam 4525-32242
-                                Saudi Arabia
+                            <td style="width:33%; padding:4px;border-left: 1px solid black;">
+                                <strong>Dammam Branch:</strong>
+                                8515 Qutaibah bin Muslim St., Al Souq, Dammam 4525-32242, Saudi Arabia
                                 <br/>
-                                Tel/Mobile: 0535081008
+                                Tel/Mobile: +966 535 081 008
                                 <br/>
-                                Email: ssaoe.dammam@gmail.com
+                                Email: ssaoe.jeddah@gmail.com
                             </td>
                         </tr>
                     </table>
@@ -361,81 +367,81 @@
                     </table>
 
 
+                    <div style="width: 100%; text-align: left; margin-top: 10px;">
+                        <table style="width:40%; margin-left:auto; border:1px solid #000; border-collapse:collapse; font-size:13px;">
+
+                            <!-- Subtotal (Before Any Discounts) -->
+                            <tr>
+                                <td style="padding:5px;">Subtotal</td>
+                                <td style="text-align:right; padding:5px;">
+                                    <!-- Calculate total before discounts -->
+                                    <t t-set="total_before_discount"
+                                       t-value="sum(line.product_uom_qty * line.price_unit for line in o.order_line)"/>
+                                    <span t-esc="'%.2f' % total_before_discount"/>
+                                    SAR
+                                </td>
+                            </tr>
+
+                            <!-- Line-level Fixed Discounts Total (if exists) -->
+                            <t t-set="total_line_discounts"
+                               t-value="sum(line.discount_fixed for line in o.order_line if line.discount_fixed)"/>
+                            <tr t-if="total_line_discounts and total_line_discounts > 0">
+                                <td style="padding:5px;">
+                                    Discounts
+                                </td>
+                                <td style="text-align:right; padding:5px;">
+                                    <span style="color: #d9534f;">
+                                        -
+                                        <span t-esc="'%.2f' % total_line_discounts"/>
+                                        SAR
+                                    </span>
+                                </td>
+                            </tr>
 
 
-<div style="width: 100%; text-align: left; margin-top: 10px;">
-    <table style="width:40%; margin-left:auto; border:1px solid #000; border-collapse:collapse; font-size:13px;">
+                            <!-- Freight (Static or update if needed) -->
+                            <tr>
+                                <td style="padding:5px;">Freight</td>
+                                <td style="text-align:right; padding:5px;">- SAR</td>
+                            </tr>
 
-        <!-- Subtotal (Before Any Discounts) -->
-        <tr>
-            <td style="padding:5px;">Subtotal </td>
-            <td style="text-align:right; padding:5px;">
-                <!-- Calculate total before discounts -->
-                <t t-set="total_before_discount" t-value="sum(line.product_uom_qty * line.price_unit for line in o.order_line)"/>
-                <span t-esc="'%.2f' % total_before_discount"/>
-                SAR
-            </td>
-        </tr>
+                            <!-- Gross Total (same as Subtotal after discount unless freight added) -->
+                            <tr>
+                                <td style="padding:5px;">
+                                    <strong>Gross Total</strong>
+                                </td>
+                                <td style="text-align:right; padding:5px;">
+                                    <strong>
+                                        <span t-field="o.amount_untaxed"/>
+                                        SAR
+                                    </strong>
+                                </td>
+                            </tr>
 
-        <!-- Line-level Fixed Discounts Total (if exists) -->
-        <t t-set="total_line_discounts" t-value="sum(line.discount_fixed for line in o.order_line if line.discount_fixed)"/>
-        <tr t-if="total_line_discounts and total_line_discounts > 0">
-            <td style="padding:5px;">
-                Discounts
-            </td>
-            <td style="text-align:right; padding:5px;">
-                <span style="color: #d9534f;">
-                    - <span t-esc="'%.2f' % total_line_discounts"/> SAR
-                </span>
-            </td>
-        </tr>
+                            <!-- VAT (After Discount) -->
+                            <tr>
+                                <td style="padding:5px;">VAT (15%)</td>
+                                <td style="text-align:right; padding:5px;">
+                                    <span t-field="o.amount_tax"/>
+                                    SAR
+                                </td>
+                            </tr>
 
+                            <!-- Net Total -->
+                            <tr style="background-color:#D3D3D3;">
+                                <td style="padding:6px;">
+                                    <strong>Net Total</strong>
+                                </td>
+                                <td style="text-align:right; padding:6px;">
+                                    <strong>
+                                        <span t-field="o.amount_total"/>
+                                        SAR
+                                    </strong>
+                                </td>
+                            </tr>
 
-
-
-        <!-- Freight (Static or update if needed) -->
-        <tr>
-            <td style="padding:5px;">Freight</td>
-            <td style="text-align:right; padding:5px;">- SAR</td>
-        </tr>
-
-        <!-- Gross Total (same as Subtotal after discount unless freight added) -->
-        <tr>
-            <td style="padding:5px;">
-                <strong>Gross Total</strong>
-            </td>
-            <td style="text-align:right; padding:5px;">
-                <strong>
-                    <span t-field="o.amount_untaxed"/>
-                    SAR
-                </strong>
-            </td>
-        </tr>
-
-        <!-- VAT (After Discount) -->
-        <tr>
-            <td style="padding:5px;">VAT (15%) </td>
-            <td style="text-align:right; padding:5px;">
-                <span t-field="o.amount_tax"/>
-                SAR
-            </td>
-        </tr>
-
-        <!-- Net Total -->
-        <tr style="background-color:#D3D3D3;">
-            <td style="padding:6px;">
-                <strong>Net Total</strong>
-            </td>
-            <td style="text-align:right; padding:6px;">
-                <strong>
-                    <span t-field="o.amount_total"/>
-                    SAR
-                </strong>
-            </td>
-        </tr>
-
-    </table>
-</div>
+                        </table>
+                    </div>
 
 
                     <div class="mt-4"
@@ -474,234 +480,233 @@
 </odoo>
 
 
+        <!--<odoo>-->
+        <!--    <template id="custom_saleorder_report" inherit_id="sale.report_saleorder_document">-->
+        <!--        <xpath expr="//t[@t-call='web.external_layout']" position="replace">-->
+        <!--            <t t-call="web.html_container">-->
+        <!--                <t t-foreach="docs" t-as="o">-->
 
-<!--<odoo>-->
-<!--    <template id="custom_saleorder_report" inherit_id="sale.report_saleorder_document">-->
-<!--        <xpath expr="//t[@t-call='web.external_layout']" position="replace">-->
-<!--            <t t-call="web.html_container">-->
-<!--                <t t-foreach="docs" t-as="o">-->
+        <!--                    &lt;!&ndash; ===== HEADER (PDF ONLY) ===== &ndash;&gt;-->
+        <!--                    <t t-if="not request">-->
+        <!--                        <div class="header"-->
+        <!--                             style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">-->
 
-<!--                    &lt;!&ndash; ===== HEADER (PDF ONLY) ===== &ndash;&gt;-->
-<!--                    <t t-if="not request">-->
-<!--                        <div class="header"-->
-<!--                             style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">-->
+        <!--                            &lt;!&ndash; Company Names in One Row &ndash;&gt;-->
+        <!--                            <table style="width: 100%; border-collapse: collapse;border:none">-->
+        <!--                                <tr>-->
+        <!--                                    <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border:none; padding-left:0px;">-->
+        <!--                                        <div style="color: #8B1538; font-size: 16px; font-weight: bold; text-transform: uppercase;">-->
+        <!--                                            SAMEER SHARAF AL OTAIBI TRADING COMPANY-->
+        <!--                                        </div>-->
+        <!--                                    </td>-->
+        <!--                                    <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border:none; padding-right:0px;">-->
+        <!--                                        <div style="color: #8B1538; font-size: 17px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;" class="arabic-word">-->
+        <!--                                            شركة سمير شرف العتيبي التجارية-->
+        <!--                                        </div>-->
+        <!--                                    </td>-->
+        <!--                                </tr>-->
+        <!--                            </table>-->
 
-<!--                            &lt;!&ndash; Company Names in One Row &ndash;&gt;-->
-<!--                            <table style="width: 100%; border-collapse: collapse;border:none">-->
-<!--                                <tr>-->
-<!--                                    <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border:none; padding-left:0px;">-->
-<!--                                        <div style="color: #8B1538; font-size: 16px; font-weight: bold; text-transform: uppercase;">-->
-<!--                                            SAMEER SHARAF AL OTAIBI TRADING COMPANY-->
-<!--                                        </div>-->
-<!--                                    </td>-->
-<!--                                    <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border:none; padding-right:0px;">-->
-<!--                                        <div style="color: #8B1538; font-size: 17px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;" class="arabic-word">-->
-<!--                                            شركة سمير شرف العتيبي التجارية-->
-<!--                                        </div>-->
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                            </table>-->
+        <!--                            &lt;!&ndash; Details and Logo Row &ndash;&gt;-->
+        <!--                            <table style="width: 100%; border-collapse: collapse;">-->
+        <!--                                <tr>-->
+        <!--                                    &lt;!&ndash; Left Column: English Info &ndash;&gt;-->
+        <!--                                    <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: top; border-top: 1px solid white;border-bottom: 2px solid #8B1538;padding-top:0px;padding-left:0px;">-->
+        <!--                                        <div style="line-height: 1.3; font-weight: 500;padding-left:0px;padding-top:0px;margin-top:0px;">-->
+        <!--                                            C.R. 4030216154-->
+        <!--                                            <br/>-->
+        <!--                                            VAT Regd: 311299944700003-->
+        <!--                                        </div>-->
+        <!--                                    </td>-->
 
-<!--                            &lt;!&ndash; Details and Logo Row &ndash;&gt;-->
-<!--                            <table style="width: 100%; border-collapse: collapse;">-->
-<!--                                <tr>-->
-<!--                                    &lt;!&ndash; Left Column: English Info &ndash;&gt;-->
-<!--                                    <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: top; border-top: 1px solid white;border-bottom: 2px solid #8B1538;padding-top:0px;padding-left:0px;">-->
-<!--                                        <div style="line-height: 1.3; font-weight: 500;padding-left:0px;padding-top:0px;margin-top:0px;">-->
-<!--                                            C.R. 4030216154-->
-<!--                                            <br/>-->
-<!--                                            VAT Regd: 311299944700003-->
-<!--                                        </div>-->
-<!--                                    </td>-->
+        <!--                                    &lt;!&ndash; Center Column: Company Logo &ndash;&gt;-->
+        <!--                                    <td style="width: 34%; text-align: center; vertical-align: top; padding: 5px 10px; border-top: 1px solid white;border-bottom: 2px solid #8B1538;">-->
+        <!--                                        <t t-if="o.company_id.logo">-->
+        <!--                                            <img t-att-src="image_data_uri(o.company_id.logo)"-->
+        <!--                                                 style="max-height: 140px; max-width: 100%; object-fit: contain; display: block; margin: -23px auto;padding-top:5px;"/>-->
+        <!--                                        </t>-->
+        <!--                                    </td>-->
 
-<!--                                    &lt;!&ndash; Center Column: Company Logo &ndash;&gt;-->
-<!--                                    <td style="width: 34%; text-align: center; vertical-align: top; padding: 5px 10px; border-top: 1px solid white;border-bottom: 2px solid #8B1538;">-->
-<!--                                        <t t-if="o.company_id.logo">-->
-<!--                                            <img t-att-src="image_data_uri(o.company_id.logo)"-->
-<!--                                                 style="max-height: 140px; max-width: 100%; object-fit: contain; display: block; margin: -23px auto;padding-top:5px;"/>-->
-<!--                                        </t>-->
-<!--                                    </td>-->
+        <!--                                    &lt;!&ndash; Right Column: Arabic Info &ndash;&gt;-->
+        <!--                                    <td style="width: 33%; text-align: right; font-size: 15px; color: #333; vertical-align: top; direction: rtl; padding: 0px 10px 6px 10px; border-top: 1px solid white;border-bottom: 2px solid #8B1538;">-->
+        <!--                                        <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight:900; padding-right:0px; margin-top:0px; text-align: right; direction: rtl;">-->
+        <!--                                            س.ت: ٤٠٣٠٢١٦١٥٤-->
+        <!--                                            <br/>-->
+        <!--                                            الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣-->
+        <!--                                        </div>-->
+        <!--                                    </td>-->
+        <!--                                </tr>-->
+        <!--                            </table>-->
+        <!--                        </div>-->
+        <!--                    </t>-->
 
-<!--                                    &lt;!&ndash; Right Column: Arabic Info &ndash;&gt;-->
-<!--                                    <td style="width: 33%; text-align: right; font-size: 15px; color: #333; vertical-align: top; direction: rtl; padding: 0px 10px 6px 10px; border-top: 1px solid white;border-bottom: 2px solid #8B1538;">-->
-<!--                                        <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight:900; padding-right:0px; margin-top:0px; text-align: right; direction: rtl;">-->
-<!--                                            س.ت: ٤٠٣٠٢١٦١٥٤-->
-<!--                                            <br/>-->
-<!--                                            الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣-->
-<!--                                        </div>-->
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                            </table>-->
-<!--                        </div>-->
-<!--                    </t>-->
+        <!--                    &lt;!&ndash; ===== BODY (ALWAYS SHOW) ===== &ndash;&gt;-->
+        <!--                    <div style="background-color:#d3d3d3; color:black; padding:8px ; text-align:center; margin-bottom:10px ; font-weight:bold; font-size:16px;">-->
+        <!--                        <t t-if="o.state in ('draft', 'sent')">-->
+        <!--                            Quotation /-->
+        <!--                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
+        <!--                                عرض سعر-->
+        <!--                            </span>-->
+        <!--                        </t>-->
+        <!--                        <t t-if="o.state in ('sale', 'done')">-->
+        <!--                            Sales Order /-->
+        <!--                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
+        <!--                                طلب مبيعات-->
+        <!--                            </span>-->
+        <!--                        </t>-->
+        <!--                    </div>-->
 
-<!--                    &lt;!&ndash; ===== BODY (ALWAYS SHOW) ===== &ndash;&gt;-->
-<!--                    <div style="background-color:#d3d3d3; color:black; padding:8px ; text-align:center; margin-bottom:10px ; font-weight:bold; font-size:16px;">-->
-<!--                        <t t-if="o.state in ('draft', 'sent')">-->
-<!--                            Quotation /-->
-<!--                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-<!--                                عرض سعر-->
-<!--                            </span>-->
-<!--                        </t>-->
-<!--                        <t t-if="o.state in ('sale', 'done')">-->
-<!--                            Sales Order /-->
-<!--                            <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-<!--                                طلب مبيعات-->
-<!--                            </span>-->
-<!--                        </t>-->
-<!--                    </div>-->
+        <!--                    &lt;!&ndash; ===== Customer & Quote Info ===== &ndash;&gt;-->
+        <!--                    <table width="100%" style="border: 1px solid #000; border-collapse: collapse; font-size: 13px; margin-bottom:5px; margin-top: 5px; height:30px;">-->
+        <!--                        <tr>-->
+        <!--                            <td width="33%" style="border-right: 1px solid #000; vertical-align: top; padding: 10px;">-->
+        <!--                                <div style="font-weight: bold; padding: 5px; margin-bottom: 5px;  color:#080808;">-->
+        <!--                                    Customer Name &amp; Address /-->
+        <!--                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
+        <!--                                        اسم العميل وعنوانه-->
+        <!--                                    </span>-->
+        <!--                                </div>-->
+        <!--                                <div>-->
+        <!--                                    Attn:-->
+        <!--                                    <span t-esc="o.partner_id.name"/>-->
+        <!--                                    <br/>-->
+        <!--                                    <span t-esc="o.partner_id.city"/>-->
+        <!--                                    <br/>-->
+        <!--                                    MOB:-->
+        <!--                                    <span t-esc="o.partner_id.phone or ''"/>-->
+        <!--                                </div>-->
+        <!--                            </td>-->
+        <!--                            <td width="33%" style="vertical-align: top; padding: 10px;">-->
+        <!--                                <div style="font-weight: bold; padding: 5px; margin-bottom: 5px;  color:#080808;">-->
+        <!--                                    <t t-if="o.state in ('draft', 'sent')">-->
+        <!--                                        Quote / Project Description /-->
+        <!--                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
+        <!--                                            عرض سعر-->
+        <!--                                        </span>-->
+        <!--                                    </t>-->
+        <!--                                    <t t-if="o.state in ('sale', 'done')">-->
+        <!--                                        Order Description /-->
+        <!--                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
+        <!--                                            وصف الطلب-->
+        <!--                                        </span>-->
+        <!--                                    </t>-->
+        <!--                                </div>-->
+        <!--                                <div>-->
+        <!--                                    Date:-->
+        <!--                                    <span t-field="o.date_order"/>-->
+        <!--                                    <br/>-->
+        <!--                                    Our Reference:-->
+        <!--                                    <span t-esc="o.name"/>-->
+        <!--                                    <br/>-->
+        <!--                                    Your Reference:-->
+        <!--                                    <span t-esc="o.client_order_ref or '-'"/>-->
+        <!--                                </div>-->
+        <!--                            </td>-->
+        <!--                            <t t-if="o.partner_shipping_id and o.partner_shipping_id.id != o.partner_id.id">-->
+        <!--                                <td style="padding:6px 10px; vertical-align:top; width:33%;">-->
+        <!--                                    <strong>Shipping To :&#160;&#160;&#160;&#160;&#160;&#160;&#160; عنوان الشحن</strong>-->
+        <!--                                    <br/>-->
+        <!--                                    <t t-esc="o.partner_shipping_id.name"/>-->
+        <!--                                    <br/>-->
+        <!--                                    <t t-if="o.partner_shipping_id.street"><t t-esc="o.partner_shipping_id.street"/><br/></t>-->
+        <!--                                    <t t-if="o.partner_shipping_id.street2"><t t-esc="o.partner_shipping_id.street2"/><br/></t>-->
+        <!--                                    <t t-if="o.partner_shipping_id.city or o.partner_shipping_id.state_id or o.partner_shipping_id.zip">-->
+        <!--                                        <t t-if="o.partner_shipping_id.city" t-esc="o.partner_shipping_id.city"/>-->
+        <!--                                        <t t-if="o.partner_shipping_id.state_id">, <t t-esc="o.partner_shipping_id.state_id.name"/></t>-->
+        <!--                                        <t t-if="o.partner_shipping_id.zip">- <t t-esc="o.partner_shipping_id.zip"/></t>-->
+        <!--                                        <br/>-->
+        <!--                                    </t>-->
+        <!--                                    <t t-if="o.partner_shipping_id.country_id"><t t-esc="o.partner_shipping_id.country_id.name"/></t>-->
+        <!--                                </td>-->
+        <!--                            </t>-->
+        <!--                        </tr>-->
+        <!--                    </table>-->
 
-<!--                    &lt;!&ndash; ===== Customer & Quote Info ===== &ndash;&gt;-->
-<!--                    <table width="100%" style="border: 1px solid #000; border-collapse: collapse; font-size: 13px; margin-bottom:5px; margin-top: 5px; height:30px;">-->
-<!--                        <tr>-->
-<!--                            <td width="33%" style="border-right: 1px solid #000; vertical-align: top; padding: 10px;">-->
-<!--                                <div style="font-weight: bold; padding: 5px; margin-bottom: 5px;  color:#080808;">-->
-<!--                                    Customer Name &amp; Address /-->
-<!--                                    <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-<!--                                        اسم العميل وعنوانه-->
-<!--                                    </span>-->
-<!--                                </div>-->
-<!--                                <div>-->
-<!--                                    Attn:-->
-<!--                                    <span t-esc="o.partner_id.name"/>-->
-<!--                                    <br/>-->
-<!--                                    <span t-esc="o.partner_id.city"/>-->
-<!--                                    <br/>-->
-<!--                                    MOB:-->
-<!--                                    <span t-esc="o.partner_id.phone or ''"/>-->
-<!--                                </div>-->
-<!--                            </td>-->
-<!--                            <td width="33%" style="vertical-align: top; padding: 10px;">-->
-<!--                                <div style="font-weight: bold; padding: 5px; margin-bottom: 5px;  color:#080808;">-->
-<!--                                    <t t-if="o.state in ('draft', 'sent')">-->
-<!--                                        Quote / Project Description /-->
-<!--                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-<!--                                            عرض سعر-->
-<!--                                        </span>-->
-<!--                                    </t>-->
-<!--                                    <t t-if="o.state in ('sale', 'done')">-->
-<!--                                        Order Description /-->
-<!--                                        <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">-->
-<!--                                            وصف الطلب-->
-<!--                                        </span>-->
-<!--                                    </t>-->
-<!--                                </div>-->
-<!--                                <div>-->
-<!--                                    Date:-->
-<!--                                    <span t-field="o.date_order"/>-->
-<!--                                    <br/>-->
-<!--                                    Our Reference:-->
-<!--                                    <span t-esc="o.name"/>-->
-<!--                                    <br/>-->
-<!--                                    Your Reference:-->
-<!--                                    <span t-esc="o.client_order_ref or '-'"/>-->
-<!--                                </div>-->
-<!--                            </td>-->
-<!--                            <t t-if="o.partner_shipping_id and o.partner_shipping_id.id != o.partner_id.id">-->
-<!--                                <td style="padding:6px 10px; vertical-align:top; width:33%;">-->
-<!--                                    <strong>Shipping To :&#160;&#160;&#160;&#160;&#160;&#160;&#160; عنوان الشحن</strong>-->
-<!--                                    <br/>-->
-<!--                                    <t t-esc="o.partner_shipping_id.name"/>-->
-<!--                                    <br/>-->
-<!--                                    <t t-if="o.partner_shipping_id.street"><t t-esc="o.partner_shipping_id.street"/><br/></t>-->
-<!--                                    <t t-if="o.partner_shipping_id.street2"><t t-esc="o.partner_shipping_id.street2"/><br/></t>-->
-<!--                                    <t t-if="o.partner_shipping_id.city or o.partner_shipping_id.state_id or o.partner_shipping_id.zip">-->
-<!--                                        <t t-if="o.partner_shipping_id.city" t-esc="o.partner_shipping_id.city"/>-->
-<!--                                        <t t-if="o.partner_shipping_id.state_id">, <t t-esc="o.partner_shipping_id.state_id.name"/></t>-->
-<!--                                        <t t-if="o.partner_shipping_id.zip">- <t t-esc="o.partner_shipping_id.zip"/></t>-->
-<!--                                        <br/>-->
-<!--                                    </t>-->
-<!--                                    <t t-if="o.partner_shipping_id.country_id"><t t-esc="o.partner_shipping_id.country_id.name"/></t>-->
-<!--                                </td>-->
-<!--                            </t>-->
-<!--                        </tr>-->
-<!--                    </table>-->
+        <!--                    &lt;!&ndash; ===== ORDER LINES TABLE ===== &ndash;&gt;-->
+        <!--                    <table width="100%" border="1" style="border-collapse: collapse; font-size: 11px; margin-top: 10px; border-color: #000;" cellpadding="0" cellspacing="0">-->
+        <!--                        <thead style="background-color: #9e9d9d; padding:6px 10px;">-->
+        <!--                            <tr>-->
+        <!--                                <th style="width: 1%; text-align: center; padding: 6px 10px;">SN<br/><span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">م</span></th>-->
+        <!--                                <th style="width: 15%; text-align: center; padding: 6px 10px;">Item Description<br/><span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">المنتج الوصف</span></th>-->
+        <!--                                <th style="width: 2%; text-align: center; padding: 6px 10px;">Delivery Time<br/><span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">مدة</span></th>-->
+        <!--                                <th style="width: 3%; text-align: center; padding: 6px 10px;">QTY<br/><span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">الكمية</span></th>-->
+        <!--                                <th style="width: 3%; text-align: center; padding: 6px 10px;">U/M<br/><span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">وحدة</span></th>-->
+        <!--                                <th style="width: 3%; text-align: center; padding: 6px 10px;">Unit Price<br/><span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">سعر الوحدة</span></th>-->
+        <!--                                <th style="width: 3%; text-align: center; padding: 6px 10px;">VAT %<br/><span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">ضريبة %</span></th>-->
+        <!--                                <th style="width: 3%; text-align: center; padding: 6px 10px;">Line Total<br/><span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">مجموع الخط</span></th>-->
+        <!--                            </tr>-->
+        <!--                        </thead>-->
+        <!--                        <tbody style="text-align: center;">-->
+        <!--                            <tr t-foreach="o.order_line" t-as="line" t-index="line_index">-->
+        <!--                                <td style="padding: 8px 12px;"><t t-esc="line_index + 1"/></td>-->
+        <!--                                <td style="padding: 8px 12px; text-align:left;"><span t-field="line.name"/></td>-->
+        <!--                                <td style="padding: 8px 12px; text-align:center;"><t t-esc="o.delivery_period or '-'"/></td>-->
+        <!--                                <td style="padding: 8px 12px;"><span t-field="line.product_uom_qty"/></td>-->
+        <!--                                <td style="padding: 8px 12px;"><span t-field="line.product_uom_id"/></td>-->
+        <!--                                <td style="padding: 8px 12px;text-align:center;"><span t-field="line.price_unit"/></td>-->
+        <!--                                <td style="padding: 8px 12px; text-align:center;"><t t-esc="line.tax_ids and line.tax_ids[0].amount or 0"/>%</td>-->
+        <!--                                <td style="padding: 8px 12px;text-align:right;"><span t-field="line.price_total"/></td>-->
+        <!--                            </tr>-->
+        <!--                        </tbody>-->
+        <!--                    </table>-->
 
-<!--                    &lt;!&ndash; ===== ORDER LINES TABLE ===== &ndash;&gt;-->
-<!--                    <table width="100%" border="1" style="border-collapse: collapse; font-size: 11px; margin-top: 10px; border-color: #000;" cellpadding="0" cellspacing="0">-->
-<!--                        <thead style="background-color: #9e9d9d; padding:6px 10px;">-->
-<!--                            <tr>-->
-<!--                                <th style="width: 1%; text-align: center; padding: 6px 10px;">SN<br/><span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">م</span></th>-->
-<!--                                <th style="width: 15%; text-align: center; padding: 6px 10px;">Item Description<br/><span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">المنتج الوصف</span></th>-->
-<!--                                <th style="width: 2%; text-align: center; padding: 6px 10px;">Delivery Time<br/><span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">مدة</span></th>-->
-<!--                                <th style="width: 3%; text-align: center; padding: 6px 10px;">QTY<br/><span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">الكمية</span></th>-->
-<!--                                <th style="width: 3%; text-align: center; padding: 6px 10px;">U/M<br/><span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">وحدة</span></th>-->
-<!--                                <th style="width: 3%; text-align: center; padding: 6px 10px;">Unit Price<br/><span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">سعر الوحدة</span></th>-->
-<!--                                <th style="width: 3%; text-align: center; padding: 6px 10px;">VAT %<br/><span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">ضريبة %</span></th>-->
-<!--                                <th style="width: 3%; text-align: center; padding: 6px 10px;">Line Total<br/><span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">مجموع الخط</span></th>-->
-<!--                            </tr>-->
-<!--                        </thead>-->
-<!--                        <tbody style="text-align: center;">-->
-<!--                            <tr t-foreach="o.order_line" t-as="line" t-index="line_index">-->
-<!--                                <td style="padding: 8px 12px;"><t t-esc="line_index + 1"/></td>-->
-<!--                                <td style="padding: 8px 12px; text-align:left;"><span t-field="line.name"/></td>-->
-<!--                                <td style="padding: 8px 12px; text-align:center;"><t t-esc="o.delivery_period or '-'"/></td>-->
-<!--                                <td style="padding: 8px 12px;"><span t-field="line.product_uom_qty"/></td>-->
-<!--                                <td style="padding: 8px 12px;"><span t-field="line.product_uom_id"/></td>-->
-<!--                                <td style="padding: 8px 12px;text-align:center;"><span t-field="line.price_unit"/></td>-->
-<!--                                <td style="padding: 8px 12px; text-align:center;"><t t-esc="line.tax_ids and line.tax_ids[0].amount or 0"/>%</td>-->
-<!--                                <td style="padding: 8px 12px;text-align:right;"><span t-field="line.price_total"/></td>-->
-<!--                            </tr>-->
-<!--                        </tbody>-->
-<!--                    </table>-->
+        <!--                    &lt;!&ndash; ===== TOTALS + TERMS (BODY) ===== &ndash;&gt;-->
+        <!--                    <div style="width: 100%; text-align: left; margin-top: 10px;">-->
+        <!--                        <table style="width:40%; margin-left:auto; border:1px solid #000; border-collapse:collapse; font-size:13px;">-->
+        <!--                            <tr>-->
+        <!--                                <td style="padding:5px;">Subtotal </td>-->
+        <!--                                <td style="text-align:right; padding:5px;">-->
+        <!--                                    <t t-set="total_before_discount" t-value="sum(line.product_uom_qty * line.price_unit for line in o.order_line)"/>-->
+        <!--                                    <span t-esc="'%.2f' % total_before_discount"/> SAR-->
+        <!--                                </td>-->
+        <!--                            </tr>-->
+        <!--                            <t t-set="total_line_discounts" t-value="sum(line.discount_fixed for line in o.order_line if line.discount_fixed)"/>-->
+        <!--                            <tr t-if="total_line_discounts and total_line_discounts > 0">-->
+        <!--                                <td style="padding:5px;">Discounts</td>-->
+        <!--                                <td style="text-align:right; padding:5px;">-->
+        <!--                                    <span style="color: #d9534f;">- <span t-esc="'%.2f' % total_line_discounts"/> SAR</span>-->
+        <!--                                </td>-->
+        <!--                            </tr>-->
+        <!--                            <tr>-->
+        <!--                                <td style="padding:5px;">Freight</td>-->
+        <!--                                <td style="text-align:right; padding:5px;">- SAR</td>-->
+        <!--                            </tr>-->
+        <!--                            <tr>-->
+        <!--                                <td style="padding:5px;"><strong>Gross Total</strong></td>-->
+        <!--                                <td style="text-align:right; padding:5px;"><strong><span t-field="o.amount_untaxed"/> SAR</strong></td>-->
+        <!--                            </tr>-->
+        <!--                            <tr>-->
+        <!--                                <td style="padding:5px;">VAT (15%) </td>-->
+        <!--                                <td style="text-align:right; padding:5px;"><span t-field="o.amount_tax"/> SAR</td>-->
+        <!--                            </tr>-->
+        <!--                            <tr style="background-color:#D3D3D3;">-->
+        <!--                                <td style="padding:6px;"><strong>Net Total</strong></td>-->
+        <!--                                <td style="text-align:right; padding:6px;"><strong><span t-field="o.amount_total"/> SAR</strong></td>-->
+        <!--                            </tr>-->
+        <!--                        </table>-->
+        <!--                    </div>-->
 
-<!--                    &lt;!&ndash; ===== TOTALS + TERMS (BODY) ===== &ndash;&gt;-->
-<!--                    <div style="width: 100%; text-align: left; margin-top: 10px;">-->
-<!--                        <table style="width:40%; margin-left:auto; border:1px solid #000; border-collapse:collapse; font-size:13px;">-->
-<!--                            <tr>-->
-<!--                                <td style="padding:5px;">Subtotal </td>-->
-<!--                                <td style="text-align:right; padding:5px;">-->
-<!--                                    <t t-set="total_before_discount" t-value="sum(line.product_uom_qty * line.price_unit for line in o.order_line)"/>-->
-<!--                                    <span t-esc="'%.2f' % total_before_discount"/> SAR-->
-<!--                                </td>-->
-<!--                            </tr>-->
-<!--                            <t t-set="total_line_discounts" t-value="sum(line.discount_fixed for line in o.order_line if line.discount_fixed)"/>-->
-<!--                            <tr t-if="total_line_discounts and total_line_discounts > 0">-->
-<!--                                <td style="padding:5px;">Discounts</td>-->
-<!--                                <td style="text-align:right; padding:5px;">-->
-<!--                                    <span style="color: #d9534f;">- <span t-esc="'%.2f' % total_line_discounts"/> SAR</span>-->
-<!--                                </td>-->
-<!--                            </tr>-->
-<!--                            <tr>-->
-<!--                                <td style="padding:5px;">Freight</td>-->
-<!--                                <td style="text-align:right; padding:5px;">- SAR</td>-->
-<!--                            </tr>-->
-<!--                            <tr>-->
-<!--                                <td style="padding:5px;"><strong>Gross Total</strong></td>-->
-<!--                                <td style="text-align:right; padding:5px;"><strong><span t-field="o.amount_untaxed"/> SAR</strong></td>-->
-<!--                            </tr>-->
-<!--                            <tr>-->
-<!--                                <td style="padding:5px;">VAT (15%) </td>-->
-<!--                                <td style="text-align:right; padding:5px;"><span t-field="o.amount_tax"/> SAR</td>-->
-<!--                            </tr>-->
-<!--                            <tr style="background-color:#D3D3D3;">-->
-<!--                                <td style="padding:6px;"><strong>Net Total</strong></td>-->
-<!--                                <td style="text-align:right; padding:6px;"><strong><span t-field="o.amount_total"/> SAR</strong></td>-->
-<!--                            </tr>-->
-<!--                        </table>-->
-<!--                    </div>-->
+        <!--                    <div class="mt-4" style="font-size: 13px; margin-top: 10px; padding-left:3px; text-align: left; width: 100%;">-->
+        <!--                        <p style="margin-top:-190px;">-->
+        <!--                            <strong>Offer Terms and Conditions:</strong>-->
+        <!--                            <t t-if="o.payment_term_id">-->
+        <!--                                <p><strong>Payment Terms:</strong><span t-esc="o.payment_term_id.name"/><br/></p>-->
+        <!--                            </t>-->
+        <!--                            <p><strong>Incoterm Location:</strong><span t-esc="o.incoterm_location"/><br/></p>-->
+        <!--                            <p><strong>Incoterm:</strong><span t-esc="o.incoterm.name"/><br/></p>-->
+        <!--                        </p>-->
+        <!--                        <p t-field="o.note"/>-->
+        <!--                    </div>-->
 
-<!--                    <div class="mt-4" style="font-size: 13px; margin-top: 10px; padding-left:3px; text-align: left; width: 100%;">-->
-<!--                        <p style="margin-top:-190px;">-->
-<!--                            <strong>Offer Terms and Conditions:</strong>-->
-<!--                            <t t-if="o.payment_term_id">-->
-<!--                                <p><strong>Payment Terms:</strong><span t-esc="o.payment_term_id.name"/><br/></p>-->
-<!--                            </t>-->
-<!--                            <p><strong>Incoterm Location:</strong><span t-esc="o.incoterm_location"/><br/></p>-->
-<!--                            <p><strong>Incoterm:</strong><span t-esc="o.incoterm.name"/><br/></p>-->
-<!--                        </p>-->
-<!--                        <p t-field="o.note"/>-->
-<!--                    </div>-->
+        <!--                    &lt;!&ndash; ===== FOOTER (PDF ONLY) ===== &ndash;&gt;-->
+        <!--                    <t t-if="not request">-->
+        <!--                        <div class="footer" style=" font-size:13px; background:#fff;width:854px;margin-top:10px;padding-top:10px;">-->
+        <!--                            &lt;!&ndash; Your existing footer code here (unchanged) &ndash;&gt;-->
+        <!--                        </div>-->
+        <!--                    </t>-->
 
-<!--                    &lt;!&ndash; ===== FOOTER (PDF ONLY) ===== &ndash;&gt;-->
-<!--                    <t t-if="not request">-->
-<!--                        <div class="footer" style=" font-size:13px; background:#fff;width:854px;margin-top:10px;padding-top:10px;">-->
-<!--                            &lt;!&ndash; Your existing footer code here (unchanged) &ndash;&gt;-->
-<!--                        </div>-->
-<!--                    </t>-->
-
-<!--                </t>-->
-<!--            </t>-->
-<!--        </xpath>-->
-<!--    </template>-->
-<!--</odoo>-->
+        <!--                </t>-->
+        <!--            </t>-->
+        <!--        </xpath>-->
+        <!--    </template>-->
+        <!--</odoo>-->

@@ -102,7 +102,7 @@
                                     <!-- Bank Logo - Top Right of left column -->
                                     <div style="position: absolute; top: 10px; right: 50px;">
                                         <img src="/my_invoice_custom/static/src/img/Alrajhi logo.png" alt="Alrajhi Bank"
-                                             style="width: 100px; height: auto;"/>
+                                             style="width: 100px; height: 100px;"/>
                                     </div>
                                     <!-- Bank Details with padding to avoid overlap -->
                                     <div style="padding-top: 5px;">
@@ -140,43 +140,27 @@
                                 </td>
                             </tr>
                         </table>
-                        <!--                        <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">-->
-                        <!--                            <tr>-->
-                        <!--                                <td class="ar" style="padding:2px; text-align:left;width:50%;">-->
-                        <!--                                    Sameer Sharaf Al Otaibi Trading Company<br/>-->
-                        <!--                                    شركة سمير شرف العتيبي التجارية<br/>-->
-                        <!--                                    Alrajhi Bank – مصرف الراجحي<br/>-->
-                        <!--                                    Account Number:رقم الحساب:123000010006080143917<br/>-->
-                        <!--                                    IBAN: SA7880000123608010143917 :رقم الحساب الدولي-->
-                        <!--                                </td>-->
-                        <!--                                <td class="ar" style="padding:2px; text-align:right;width:50%;">-->
-                        <!--                                    Sameer Sharaf Alateebi Company Commercial<br/>-->
-                        <!--                                    شركة سمير شرف العتيبي التجارية<br/>-->
-                        <!--                                    SNB - Saudi National Bank/البنك الأهلي السعودي<br/>-->
-                        <!--                                    Account Number at SNB: 13200000678707 :رقم الحساب<br/>-->
-                        <!--                                    (IBAN): SA2110000013200000678707 :رقم الحساب الدولي-->
-                        <!--                                </td>-->
-                        <!--                            </tr>-->
-                        <!--                        </table>-->
-
                         <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                             <tr>
                                 <td style="width:33%; padding:4px;border-right: 1px solid black;">
-                                    <strong>jeddah:</strong>
-                                    Jeddah, 7655 Al Fayha Al Fayha Dist. JEDDAH 22244-3108 Saudi Arabia<br/>Tel:
+                                    <strong>Jeddah Al Fayha Branch:</strong>
+                                    7655 Al Fayha Al Fayha Dist., Jeddah 22244-3108, Saudi Arabia<br/>
+                                    Tel/Mobile: +966 571 313 243
                                     <br/>
-                                    Email:
+                                    Email: ssaoe.jeddah@gmail.com
                                 </td>
                                 <td style="width:33%; padding:4px;">
-                                    <strong>Baladiya:</strong>
-                                    Sookul Anwar, Al Baladeah, Aziziyah, Jeddah 31303 Tel: 0535081008<br/>Email:
-                                    ssaoe.dammam@gmail.com
+                                    <strong>Jeddah Baladiya Branch:</strong>
+                                    Sookul Anwar, Al Baladeah, Aziziyah, Jeddah 31303, Saudi Arabia<br/>
+                                    Tel/Mobile:  +966 536 122 833
+                                    <br/>Email:ssaoe.jeddah@gmail.com
                                 </td>
                                 <td style="width:33%; padding:4px;border-left: 1px solid black;">
-                                    <strong>Dammam:</strong>
-                                    8515, Qutaibah bin Muslim ST, Al Souq, Dammam 4525-32242 Saudi Arabia
+                                    <strong>Dammam Branch:</strong>
+                                     8515 Qutaibah bin Muslim St., Al Souq, Dammam 4525-32242, Saudi Arabia
                                     <br/>
-                                    Tel/Mobile: 0535081008<br/>Email: ssaoe.dammam@gmail.com
+                                    Tel/Mobile: +966 535 081 008<br/>
+                                    Email: ssaoe.jeddah@gmail.com
                                 </td>
                             </tr>
                         </table>

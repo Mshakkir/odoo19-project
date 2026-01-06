@@ -1,19 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Flexible approach: Try to add warehouse field to any invoice form -->
-    <record id="view_move_form_add_warehouse" model="ir.ui.view">
-        <field name="name">account.move.form.add.warehouse</field>
+    <!-- Customer Invoice View -->
+    <record id="view_move_form_warehouse_invoice" model="ir.ui.view">
+        <field name="name">account.move.form.warehouse.invoice</field>
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
-            <!-- Try to add to end of any field in invoice_line_ids tree/list -->
-            <xpath expr="//field[@name='invoice_line_ids']" position="after">
-                <field name="invoice_line_ids" invisible="1">
-                    <list>
-                        <field name="warehouse_id" optional="show"/>
-                    </list>
-                </field>
+
+            <!-- Add warehouse field to invoice lines list -->
+            <xpath expr="//field[@name='invoice_line_ids']/tree//field[@name='quantity']" position="after">
+                <field name="warehouse_id"
+                       optional="show"
+                       readonly="0"
+                       force_save="1"
+                       widget="many2one"
+                       options="{'no_create': True, 'no_open': True}"/>
             </xpath>
+
+            <!-- Add warehouse field to invoice line form (popup) -->
+            <xpath expr="//field[@name='invoice_line_ids']/form//field[@name='quantity']" position="after">
+                <field name="warehouse_id"
+                       readonly="0"
+                       options="{'no_create': True, 'no_open': True}"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Vendor Bill View -->
+    <record id="view_move_form_warehouse_bill" model="ir.ui.view">
+        <field name="name">account.move.form.warehouse.bill</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+
+            <!-- The same xpath will work for both invoices and bills since they use the same form -->
+            <!-- Already covered in the invoice view above -->
+
         </field>
     </record>
 </odoo>

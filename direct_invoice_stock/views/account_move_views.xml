@@ -35,39 +35,19 @@
                     <div class="text-muted" invisible="not create_delivery">
                         <small>
                             • Invoice: Creates delivery &amp; reduces stock<br/>
-                            • Credit Note: Creates return &amp; adds stock back<br/>
-                            • Set warehouse per line below for multi-warehouse
+                            • Credit Note: Creates return &amp; adds stock back
                         </small>
                     </div>
                 </div>
             </xpath>
 
-            <!-- Add default warehouse field -->
+            <!-- Add warehouse field after create_delivery -->
             <xpath expr="//field[@name='create_delivery']" position="after">
                 <field name="warehouse_id"
                        invisible="not create_delivery or move_type not in ['out_invoice', 'out_refund']"
                        options="{'no_create': True, 'no_open': True}"
-                       placeholder="Default warehouse (if lines don't specify)"
-                       string="Default Warehouse"/>
-            </xpath>
-
-            <!-- Add warehouse field to invoice lines (AFTER quantity) -->
-            <xpath expr="//field[@name='invoice_line_ids']/list/field[@name='quantity']" position="after">
-                <field name="warehouse_id"
-                       optional="show"
-                       readonly="0"
-                       force_save="1"
-                       widget="many2one"
-                       invisible="parent.move_type not in ['out_invoice', 'out_refund'] or not parent.create_delivery"
-                       options="{'no_create': True, 'no_open': True}"/>
-            </xpath>
-
-            <!-- Add warehouse field to invoice line form (popup) -->
-            <xpath expr="//field[@name='invoice_line_ids']/form//field[@name='quantity']" position="after">
-                <field name="warehouse_id"
-                       readonly="0"
-                       invisible="parent.move_type not in ['out_invoice', 'out_refund'] or not parent.create_delivery"
-                       options="{'no_create': True, 'no_open': True}"/>
+                       placeholder="Auto-selected from Analytic Account"
+                       string="Warehouse"/>
             </xpath>
 
         </field>
@@ -75,10 +55,7 @@
 
 </odoo>
 
-
-
-
-
+<!--stock reduce issue solve below code usage-->
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 
@@ -99,40 +76,24 @@
 <!--                        groups="stock.group_stock_user">-->
 <!--                    <field name="picking_id" invisible="1"/>-->
 <!--                    <div class="o_field_widget o_stat_info">-->
-<!--                        <span class="o_stat_text">Delivery/Return</span>-->
+<!--                        <span class="o_stat_text">Delivery</span>-->
 <!--                    </div>-->
 <!--                </button>-->
 <!--            </xpath>-->
 
-<!--            &lt;!&ndash; Add checkbox after partner_shipping_id &ndash;&gt;-->
-<!--            <xpath expr="//field[@name='partner_shipping_id']" position="after">-->
-<!--                <label for="create_delivery"-->
-<!--                       string="🚚 Auto Create Delivery"-->
-<!--                       invisible="move_type not in ['out_invoice', 'out_refund']"/>-->
-<!--                <div invisible="move_type not in ['out_invoice', 'out_refund']">-->
-<!--                    <field name="create_delivery"-->
-<!--                           widget="boolean_toggle"-->
-<!--                           nolabel="1"/>-->
-<!--                    <div class="text-muted" invisible="not create_delivery">-->
-<!--                        <small>-->
-<!--                            • Invoice: Creates delivery &amp; reduces stock<br/>-->
-<!--                            • Credit Note: Creates return &amp; adds stock back-->
-<!--                        </small>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </xpath>-->
-
-<!--            &lt;!&ndash; Add warehouse field after create_delivery &ndash;&gt;-->
-<!--            <xpath expr="//field[@name='create_delivery']" position="after">-->
+<!--            &lt;!&ndash; Add checkbox and warehouse selector &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='partner_id']" position="after">-->
+<!--                <field name="create_delivery"-->
+<!--                       invisible="move_type != 'out_invoice'"-->
+<!--                       widget="boolean_toggle"-->
+<!--                       string="🚚 Auto Create Delivery Order"/>-->
 <!--                <field name="warehouse_id"-->
-<!--                       invisible="not create_delivery or move_type not in ['out_invoice', 'out_refund']"-->
+<!--                       invisible="not create_delivery or move_type != 'out_invoice'"-->
 <!--                       options="{'no_create': True, 'no_open': True}"-->
-<!--                       placeholder="Auto-selected from Analytic Account"-->
-<!--                       string="Warehouse"/>-->
+<!--                       placeholder="Auto-detect from Analytic Account or use default"/>-->
 <!--            </xpath>-->
 
 <!--        </field>-->
 <!--    </record>-->
 
 <!--</odoo>-->
-

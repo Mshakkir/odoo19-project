@@ -285,7 +285,6 @@ class AccountMove(models.Model):
             for line in lines:
                 if line.product_id.type in ['product', 'consu'] and line.quantity > 0:
                     move_vals = {
-                        'name': line.product_id.name,
                         'product_id': line.product_id.id,
                         'product_uom_qty': line.quantity,
                         'product_uom': line.product_uom_id.id,
@@ -331,7 +330,6 @@ class AccountMove(models.Model):
             for line in lines:
                 if line.product_id.type in ['product', 'consu'] and line.quantity > 0:
                     move_vals = {
-                        'name': line.product_id.name,
                         'product_id': line.product_id.id,
                         'product_uom_qty': line.quantity,
                         'product_uom': line.product_uom_id.id,

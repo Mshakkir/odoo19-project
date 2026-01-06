@@ -6,7 +6,7 @@
         <field name="model">account.move.line</field>
         <field name="priority">999</field>
         <field name="arch" type="xml">
-            <tree string="Invoice Lines">
+            <list string="Invoice Lines">
                 <field name="product_id"/>
                 <field name="name"/>
                 <field name="quantity"/>
@@ -16,7 +16,7 @@
                        widget="many2one"
                        options="{'no_create': True, 'no_open': True}"/>
                 <field name="price_subtotal"/>
-            </tree>
+            </list>
         </field>
     </record>
 

@@ -7,8 +7,8 @@
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add warehouse field to invoice lines list -->
-            <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='quantity']" position="after">
+            <!-- Add warehouse field to invoice lines list - after quantity -->
+            <xpath expr="//field[@name='invoice_line_ids']/list/field[@name='quantity']" position="after">
                 <field name="warehouse_id"
                        optional="show"
                        readonly="0"
@@ -17,7 +17,7 @@
                        options="{'no_create': True, 'no_open': True}"/>
             </xpath>
 
-            <!-- Add warehouse field to invoice line form (popup) -->
+            <!-- Add warehouse field to invoice line form (popup) - after quantity -->
             <xpath expr="//field[@name='invoice_line_ids']/form//field[@name='quantity']" position="after">
                 <field name="warehouse_id"
                        readonly="0"

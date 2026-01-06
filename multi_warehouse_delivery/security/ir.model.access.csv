@@ -1,5 +1,8 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_sale_order_line_warehouse,access.sale.order.line.warehouse,model_sale_order_line,sales_team.group_sale_user,1,1,1,0
-access_account_move_line_warehouse,access.account.move.line.warehouse,model_account_move_line,account.group_account_invoice,1,1,1,0
-access_stock_warehouse_user,access.stock.warehouse.user,stock.model_stock_warehouse,sales_team.group_sale_user,1,0,0,0
-access_stock_warehouse_accountant,access.stock.warehouse.accountant,stock.model_stock_warehouse,account.group_account_invoice,1,0,0,0
+access_stock_picking_multi_warehouse_user,stock.picking multi warehouse user,stock.model_stock_picking,base.group_user,1,1,1,0
+access_stock_warehouse_multi_warehouse_user,stock.warehouse multi warehouse user,stock.model_stock_warehouse,base.group_user,1,0,0,0
+access_stock_move_multi_warehouse_user,stock.move multi warehouse user,stock.model_stock_move,base.group_user,1,1,1,0
+access_account_move_line_warehouse_stock_user,account.move.line warehouse stock user,account.model_account_move_line,stock.group_stock_user,1,1,1,0
+access_account_move_line_warehouse_stock_manager,account.move.line warehouse stock manager,account.model_account_move_line,stock.group_stock_manager,1,1,1,1
+access_stock_warehouse_stock_user,stock.warehouse stock user,stock.model_stock_warehouse,stock.group_stock_user,1,0,0,0
+access_stock_warehouse_stock_manager,stock.warehouse stock manager,stock.model_stock_warehouse,stock.group_stock_manager,1,1,1,0

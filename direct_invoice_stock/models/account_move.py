@@ -469,7 +469,8 @@ class AccountMoveLine(models.Model):
     @api.onchange('product_id')
     def _onchange_product_id_set_warehouse(self):
         """Auto-select warehouse with available stock for customer invoices"""
-        if self.product_id and self.product_id.type == 'product' and self.move_id.move_type in ['out_invoice', 'out_refund']:
+        if self.product_id and self.product_id.type == 'product' and self.move_id.move_type in ['out_invoice',
+                                                                                                'out_refund']:
             # Get warehouses with stock for customer invoices
             warehouses = self.env['stock.warehouse'].search([
                 ('company_id', '=', self.company_id.id or self.env.company.id)
@@ -488,7 +489,8 @@ class AccountMoveLine(models.Model):
             if not self.warehouse_id and warehouses:
                 self.warehouse_id = warehouses[0]
 
-        elif self.product_id and self.product_id.type == 'product' and self.move_id.move_type in ['in_invoice', 'in_refund']:
+        elif self.product_id and self.product_id.type == 'product' and self.move_id.move_type in ['in_invoice',
+                                                                                                  'in_refund']:
             # For vendor bills, default to company's main warehouse
             warehouses = self.env['stock.warehouse'].search([
                 ('company_id', '=', self.company_id.id or self.env.company.id)

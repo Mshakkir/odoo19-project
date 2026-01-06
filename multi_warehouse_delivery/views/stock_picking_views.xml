@@ -27,7 +27,7 @@
                 <field name="source_warehouse_id"
                        readonly="1"
                        string="Source Warehouse"
-                       attrs="{'invisible': [('source_warehouse_id', '=', False)]}"/>
+                       invisible="not source_warehouse_id"/>
             </xpath>
         </field>
     </record>

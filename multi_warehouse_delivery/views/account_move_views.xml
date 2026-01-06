@@ -7,8 +7,8 @@
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add warehouse field to invoice lines tree view -->
-            <xpath expr="//field[@name='invoice_line_ids']/tree//field[@name='quantity']" position="after">
+            <!-- Add warehouse field after product_id in tree view -->
+            <xpath expr="//field[@name='invoice_line_ids']/tree//field[@name='product_id']" position="after">
                 <field name="warehouse_id"
                        optional="show"
                        readonly="0"
@@ -18,8 +18,8 @@
                        options="{'no_create': True, 'no_open': True}"/>
             </xpath>
 
-            <!-- Add warehouse field to invoice line form view (popup) -->
-            <xpath expr="//field[@name='invoice_line_ids']/form//field[@name='quantity']" position="after">
+            <!-- Add warehouse field after product_id in form view (popup) -->
+            <xpath expr="//field[@name='invoice_line_ids']/form//field[@name='product_id']" position="after">
                 <field name="warehouse_id"
                        readonly="0"
                        invisible="parent.move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund')"

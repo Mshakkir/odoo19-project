@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add Source Warehouse field to Delivery Orders (Tree View) -->
+    <record id="view_picking_tree_source_warehouse" model="ir.ui.view">
+        <field name="name">stock.picking.tree.source.warehouse</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.vpicktree"/>
+        <field name="arch" type="xml">
+            <!-- Add source warehouse field after origin -->
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="source_warehouse_id"
+                       optional="show"
+                       string="Source Warehouse"
+                       widget="many2one"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add Source Warehouse field to Delivery Orders (Form View) -->
+    <record id="view_picking_form_source_warehouse" model="ir.ui.view">
+        <field name="name">stock.picking.form.source.warehouse</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <!-- Add source warehouse field in the header group after origin -->
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="source_warehouse_id"
+                       readonly="1"
+                       string="Source Warehouse"
+                       attrs="{'invisible': [('source_warehouse_id', '=', False)]}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add Source Warehouse field to stock moves (for detailed view) -->
+    <record id="view_move_tree_source_warehouse" model="ir.ui.view">
+        <field name="name">stock.move.tree.source.warehouse</field>
+        <field name="model">stock.move</field>
+        <field name="inherit_id" ref="stock.view_move_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='location_id']" position="after">
+                <field name="source_warehouse_id"
+                       optional="hide"
+                       string="Source WH"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add filter for Source Warehouse in search view -->
+    <record id="view_picking_search_source_warehouse" model="ir.ui.view">
+        <field name="name">stock.picking.search.source.warehouse</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_internal_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <filter name="source_warehouse"
+                        string="Source Warehouse"
+                        context="{'group_by': 'source_warehouse_id'}"/>
+            </xpath>
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="source_warehouse_id"
+                       string="Source Warehouse"
+                       filter_domain="[('source_warehouse_id', 'ilike', self)]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

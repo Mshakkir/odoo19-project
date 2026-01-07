@@ -40,15 +40,13 @@
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_account_invoice_filter"/>
         <field name="arch" type="xml">
-            <xpath expr="//search" position="inside">
-                <group expand="0" string="Group By">
-                    <filter string="Invoice Date (Day)" name="group_invoice_date_day"
-                            context="{'group_by': 'invoice_date:day'}"/>
-                    <filter string="Invoice Date (Week)" name="group_invoice_date_week"
-                            context="{'group_by': 'invoice_date:week'}"/>
-                    <filter string="Invoice Date (Month)" name="group_invoice_date_month"
-                            context="{'group_by': 'invoice_date:month'}"/>
-                </group>
+            <xpath expr="//group[@name='group_by']" position="inside">
+                <filter string="Invoice Date (Day)" name="group_invoice_date_day"
+                        context="{'group_by': 'invoice_date:day'}"/>
+                <filter string="Invoice Date (Week)" name="group_invoice_date_week"
+                        context="{'group_by': 'invoice_date:week'}"/>
+                <filter string="Invoice Date (Month)" name="group_invoice_date_month"
+                        context="{'group_by': 'invoice_date:month'}"/>
             </xpath>
         </field>
     </record>

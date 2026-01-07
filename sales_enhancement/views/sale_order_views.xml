@@ -34,21 +34,19 @@
         </field>
     </record>
 
-    <!-- Enhanced search view with date range -->
+    <!-- Enhanced search view with date range grouping -->
     <record id="view_sale_order_search_inherit_date" model="ir.ui.view">
         <field name="name">sale.order.search.date.inherit</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_sales_order_filter"/>
         <field name="arch" type="xml">
-            <xpath expr="//search" position="inside">
-                <group expand="0" string="Group By">
-                    <filter string="Order Date (Day)" name="group_date_order_day"
-                            context="{'group_by': 'date_order:day'}"/>
-                    <filter string="Order Date (Week)" name="group_date_order_week"
-                            context="{'group_by': 'date_order:week'}"/>
-                    <filter string="Order Date (Month)" name="group_date_order_month"
-                            context="{'group_by': 'date_order:month'}"/>
-                </group>
+            <xpath expr="//group[@name='group_by']" position="inside">
+                <filter string="Order Date (Day)" name="group_date_order_day"
+                        context="{'group_by': 'date_order:day'}"/>
+                <filter string="Order Date (Week)" name="group_date_order_week"
+                        context="{'group_by': 'date_order:week'}"/>
+                <filter string="Order Date (Month)" name="group_date_order_month"
+                        context="{'group_by': 'date_order:month'}"/>
             </xpath>
         </field>
     </record>

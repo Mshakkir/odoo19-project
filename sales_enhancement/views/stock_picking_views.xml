@@ -17,15 +17,23 @@
                 <filter string="Date Range" name="date_range"
                         domain="[]"
                         context="{'search_default_date_range': 1}"/>
+            </xpath>
+        </field>
+    </record>
 
-                <group expand="0" string="Group By">
-                    <filter string="Scheduled Date (Day)" name="group_scheduled_date_day"
-                            context="{'group_by': 'scheduled_date:day'}"/>
-                    <filter string="Scheduled Date (Week)" name="group_scheduled_date_week"
-                            context="{'group_by': 'scheduled_date:week'}"/>
-                    <filter string="Scheduled Date (Month)" name="group_scheduled_date_month"
-                            context="{'group_by': 'scheduled_date:month'}"/>
-                </group>
+    <!-- Add grouping by date -->
+    <record id="view_picking_search_inherit_date" model="ir.ui.view">
+        <field name="name">stock.picking.search.date.inherit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_internal_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='group_by']" position="inside">
+                <filter string="Scheduled Date (Day)" name="group_scheduled_date_day"
+                        context="{'group_by': 'scheduled_date:day'}"/>
+                <filter string="Scheduled Date (Week)" name="group_scheduled_date_week"
+                        context="{'group_by': 'scheduled_date:week'}"/>
+                <filter string="Scheduled Date (Month)" name="group_scheduled_date_month"
+                        context="{'group_by': 'scheduled_date:month'}"/>
             </xpath>
         </field>
     </record>

@@ -1,69 +1,89 @@
 from odoo import http
 from odoo.http import request
-from odoo.addons.website_sale.controllers.main import WebsiteSale
 
 
 class DynamicCategoryController(http.Controller):
 
-    @http.route(['/shop/categories'], type='http', auth="public", website=True, sitemap=False)
-    def category_page(self, **kwargs):
-        """Render the dynamic category page with product categories"""
+    @http.route(['/category/<int:category_id>'], type='http', auth="public", website=True, sitemap=True)
+    def category_detail(self, category_id, **kwargs):
+        """Render detailed category page with child categories"""
 
-        # Fetch published product categories
-        categories = request.env['product.public.category'].search([
+        # Fetch the main category
+        category = request.env['product.public.category'].search([
+            ('id', '=', category_id),
             ('website_published', '=', True)
-        ], order='sequence, name', limit=10)
+        ], limit=1)
 
-        # Prepare category data
-        category_data = []
-        for category in categories:
-            # Get sample product from this category
-            product = request.env['product.template'].search([
-                ('public_categ_ids', 'in', category.id),
-                ('website_published', '=', True)
-            ], limit=1)
+        if not category:
+            return request.not_found()
 
-            category_info = {
-                'id': category.id,
-                'name': category.name,
-                'description': category.description or f"{category.name} products for industrial automation and control systems.",
-                'image_url': f'/web/image/product.public.category/{category.id}/image_512' if category.image_128 else '/web/static/img/placeholder.png',
-                'product_count': len(category.product_tmpl_ids),
-                'slug': category.name.lower().replace(' ', '-').replace('/', '-'),
-                'features': self._get_category_features(category),
-                'url': f'/shop/category/{category.id}'
+        # Get child categories
+        child_categories = request.env['product.public.category'].search([
+            ('parent_id', '=', category_id),
+            ('website_published', '=', True)
+        ], order='sequence, name')
+
+        # Prepare main category data
+        main_category = {
+            'id': category.id,
+            'name': category.name,
+            'description': category.description or '',
+            'image_url': self._get_category_image(category),
+            'slug': self._generate_slug(category.name),
+            'breadcrumbs': self._get_breadcrumbs(category),
+        }
+
+        # Prepare child categories data
+        child_categories_data = []
+        for child in child_categories:
+            child_info = {
+                'id': child.id,
+                'name': child.name,
+                'description': child.description or f"Explore our {child.name} collection",
+                'image_url': self._get_category_image(child),
+                'slug': self._generate_slug(child.name),
+                'product_count': len(child.product_tmpl_ids),
+                'url': f'/category/{child.id}',
             }
-            category_data.append(category_info)
+            child_categories_data.append(child_info)
 
         values = {
-            'categories': category_data,
-            'page_name': 'category',
+            'main_category': main_category,
+            'child_categories': child_categories_data,
+            'category_id': category_id,
+            'page_name': 'category_detail',
         }
 
-        return request.render('dynamic_category.category_page_template', values)
+        return request.render('dynamic_category.category_detail_template', values)
 
-    def _get_category_features(self, category):
-        """Extract or generate features for the category"""
-        if category.description:
-            # Try to extract bullet points from description
-            lines = category.description.split('\n')
-            features = [line.strip('- •*').strip() for line in lines if line.strip() and len(line.strip()) > 3]
-            if features:
-                return features[:3]  # Return top 3 features
+    def _get_category_image(self, category):
+        """Get category image URL"""
+        if category.image_128:
+            return f'/web/image/product.public.category/{category.id}/image_512'
+        return '/web/static/img/s_website_placeholder.png'
 
-        # Default features based on category
-        default_features = {
-            'push button': ['Emergency stop buttons', 'Start/Stop control', 'Panel mounted'],
-            'solenoid': ['Fast switching', 'High reliability', 'Used in automation lines'],
-            'pressure': ['High accuracy', 'Digital and analog output', 'Industrial grade'],
-            'regulator': ['Stable output', 'Protects components', 'Energy efficient'],
-            'silencer': ['Noise reduction', 'Easy installation', 'Durable materials'],
-        }
+    def _generate_slug(self, name):
+        """Generate URL-friendly slug from name"""
+        return name.lower().replace(' ', '-').replace('/', '-')
 
-        name_lower = category.name.lower()
-        for key, features in default_features.items():
-            if key in name_lower:
-                return features
+    def _get_breadcrumbs(self, category):
+        """Generate breadcrumbs for category hierarchy"""
+        breadcrumbs = []
+        current = category
 
-        # Generic features
-        return ['High quality', 'Reliable performance', 'Industrial grade']
+        while current:
+            breadcrumbs.insert(0, {
+                'name': current.name,
+                'id': current.id,
+                'url': f'/category/{current.id}' if current.parent_id else '/',
+            })
+            current = current.parent_id
+
+        # Add home breadcrumb
+        breadcrumbs.insert(0, {
+            'name': 'Home',
+            'id': 0,
+            'url': '/',
+        })
+
+        return breadcrumbs

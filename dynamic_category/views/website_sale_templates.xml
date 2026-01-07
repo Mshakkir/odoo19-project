@@ -1,101 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Inject CSS and JavaScript to hide category descriptions on shop pages -->
-    <template id="website_layout_hide_shop_desc" inherit_id="website.layout" name="Hide Shop Description CSS">
+    <!-- Hide Category Description on Shop Pages -->
+    <template id="hide_shop_category_description" inherit_id="website.layout" name="Hide Shop Category Description">
         <xpath expr="//head" position="inside">
             <style>
-                /* Aggressive hide for category descriptions */
-                body.oe_website_sale .o_wsale_products_section_header_content {
-                    display: none !important;
-                }
-
-                body.oe_website_sale .o_wsale_products_section_header_content * {
-                    display: none !important;
-                }
-            </style>
-        </xpath>
-
-        <xpath expr="//body" position="inside">
-            <script type="text/javascript">
-                <![CDATA[
-                document.addEventListener('DOMContentLoaded', function() {
-                    // Hide all paragraph tags that come right after h1 on shop pages
-                    if (document.body.classList.contains('oe_website_sale')) {
-                        // Find all sections
-                        var sections = document.querySelectorAll('section');
-                        sections.forEach(function(section) {
-                            // Find h1 elements
-                            var h1 = section.querySelector('h1');
-                            if (h1) {
-                                // Get next sibling that is a p tag
-                                var nextElement = h1.nextElementSibling;
-                                while (nextElement) {
-                                    if (nextElement.tagName === 'P') {
-                                        nextElement.style.display = 'none';
-                                        nextElement.style.visibility = 'hidden';
-                                        nextElement.style.height = '0';
-                                        nextElement.style.margin = '0';
-                                        nextElement.style.padding = '0';
-                                    }
-                                    nextElement = nextElement.nextElementSibling;
-                                }
-                            }
-                        });
-
-                        // Hide all p tags with 'lead' class
-                        var leadParagraphs = document.querySelectorAll('p.lead');
-                        leadParagraphs.forEach(function(p) {
-                            p.style.display = 'none';
-                            p.style.visibility = 'hidden';
-                            p.style.height = '0';
-                            p.style.margin = '0';
-                            p.style.padding = '0';
-                        });
-
-                        // Hide first paragraph in containers
-                        var containers = document.querySelectorAll('section > div');
-                        containers.forEach(function(container) {
-                            var paragraphs = container.querySelectorAll(':scope > p:first-of-type');
-                            paragraphs.forEach(function(p) {
-                                p.style.display = 'none';
-                                p.style.visibility = 'hidden';
-                                p.style.height = '0';
-                                p.style.margin = '0';
-                                p.style.padding = '0';
-                            });
-                        });
-                    }
-                });
-                ]]>
-            </script>
-        </xpath>
-    </template>
-
-    <!-- Additional CSS to ensure descriptions are hidden -->
-    <template id="hide_category_description_advanced" inherit_id="website.layout" name="Advanced Hide Category Description">
-        <xpath expr="//body" position="inside">
-            <style>
-                /* Target specific elements that display descriptions */
-                .oe_website_sale section p,
-                .oe_website_sale div.o_not_editable p:first-of-type,
-                .oe_website_sale .s_text_block p {
-                    position: relative;
-                }
-
-                /* Hide using CSS if JavaScript doesn't work */
-                .oe_website_sale h1 + p,
-                .oe_website_sale h1 + div > p {
+                /* Hide category description on shop pages */
+                #category_header,
+                .o_wsale_category_description {
                     display: none !important;
                     visibility: hidden !important;
                     height: 0 !important;
                     overflow: hidden !important;
                     margin: 0 !important;
                     padding: 0 !important;
-                    border: none !important;
-                    line-height: 0 !important;
-                    font-size: 0 !important;
+                    opacity: 0 !important;
+                }
+
+                /* Additional selectors for category description */
+                div[data-oe-model="product.public.category"][data-oe-field="website_description"] {
+                    display: none !important;
+                    visibility: hidden !important;
+                    height: 0 !important;
+                    overflow: hidden !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                }
+
+                /* Hide on shop pages specifically */
+                body.oe_website_sale #category_header,
+                body.oe_website_sale .o_wsale_category_description,
+                body.oe_website_sale div[data-oe-field="website_description"] {
+                    display: none !important;
+                }
+
+                /* Target the exact structure from inspect */
+                div[data-oe-xpath*="o_wsale_category_description"],
+                div[data-editor-message*="Drag building blocks here to customize the header"] {
+                    display: none !important;
+                    visibility: hidden !important;
+                    height: 0 !important;
                 }
             </style>
+        </xpath>
+    </template>
+
+    <!-- JavaScript fallback to ensure description is hidden -->
+    <template id="hide_category_desc_js" inherit_id="website.layout" name="Hide Category Description JS">
+        <xpath expr="//body" position="inside">
+            <script type="text/javascript">
+                <![CDATA[
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Function to hide category descriptions
+                    function hideCategoryDescriptions() {
+                        // Target by ID
+                        var categoryHeader = document.getElementById('category_header');
+                        if (categoryHeader) {
+                            categoryHeader.style.display = 'none';
+                            categoryHeader.style.visibility = 'hidden';
+                            categoryHeader.style.height = '0';
+                            categoryHeader.style.overflow = 'hidden';
+                            categoryHeader.style.margin = '0';
+                            categoryHeader.style.padding = '0';
+                        }
+
+                        // Target by class
+                        var descElements = document.querySelectorAll('.o_wsale_category_description');
+                        descElements.forEach(function(el) {
+                            el.style.display = 'none';
+                            el.style.visibility = 'hidden';
+                            el.style.height = '0';
+                            el.style.overflow = 'hidden';
+                            el.style.margin = '0';
+                            el.style.padding = '0';
+                        });
+
+                        // Target by data attribute
+                        var dataElements = document.querySelectorAll('div[data-oe-model="product.public.category"][data-oe-field="website_description"]');
+                        dataElements.forEach(function(el) {
+                            el.style.display = 'none';
+                            el.style.visibility = 'hidden';
+                            el.style.height = '0';
+                            el.style.overflow = 'hidden';
+                            el.style.margin = '0';
+                            el.style.padding = '0';
+                        });
+
+                        // Target by xpath attribute
+                        var xpathElements = document.querySelectorAll('div[data-oe-xpath]');
+                        xpathElements.forEach(function(el) {
+                            if (el.className.includes('o_wsale_category_description') ||
+                                el.id === 'category_header' ||
+                                el.hasAttribute('data-oe-field') && el.getAttribute('data-oe-field') === 'website_description') {
+                                el.style.display = 'none';
+                                el.style.visibility = 'hidden';
+                                el.style.height = '0';
+                                el.style.overflow = 'hidden';
+                                el.style.margin = '0';
+                                el.style.padding = '0';
+                            }
+                        });
+                    }
+
+                    // Run immediately
+                    hideCategoryDescriptions();
+
+                    // Run again after short delays to catch dynamically loaded content
+                    setTimeout(hideCategoryDescriptions, 100);
+                    setTimeout(hideCategoryDescriptions, 500);
+                    setTimeout(hideCategoryDescriptions, 1000);
+
+                    // Use MutationObserver to catch any dynamic changes
+                    var observer = new MutationObserver(function(mutations) {
+                        hideCategoryDescriptions();
+                    });
+
+                    // Start observing the document body for changes
+                    observer.observe(document.body, {
+                        childList: true,
+                        subtree: true
+                    });
+                });
+                ]]>
+            </script>
         </xpath>
     </template>
 </odoo>

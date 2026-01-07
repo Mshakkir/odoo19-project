@@ -373,11 +373,11 @@
         </t>
     </template>
 
-    <!-- Add menu item (optional) -->
-    <record id="menu_category_page" model="website.menu">
-        <field name="name">Categories</field>
-        <field name="url">/shop/categories</field>
-        <field name="parent_id" ref="website.main_menu"/>
-        <field name="sequence" type="int">50</field>
-    </record>
+<!--    &lt;!&ndash; Add menu item (optional) &ndash;&gt;-->
+<!--    <record id="menu_category_page" model="website.menu">-->
+<!--        <field name="name">Categories</field>-->
+<!--        <field name="url">/shop/categories</field>-->
+<!--        <field name="parent_id" ref="website.main_menu"/>-->
+<!--        <field name="sequence" type="int">50</field>-->
+<!--    </record>-->
 </odoo>

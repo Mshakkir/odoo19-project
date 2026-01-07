@@ -9,12 +9,14 @@
             <!-- Add Sales Order field right after Customer field -->
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="available_sale_order_ids" invisible="1"/>
+                 <h3>Choose sale order</h3>
                 <field name="sale_order_id"
                        widget="selection"
                        options="{'no_create': True, 'no_open': True}"
                        domain="[('id', 'in', available_sale_order_ids)]"
                        invisible="move_type not in ['out_invoice', 'out_refund'] or not partner_id"
                        placeholder="Select a Sales Order..."/>
+
             </xpath>
 
             <!-- Add Related Deliveries as a separate page in notebook -->

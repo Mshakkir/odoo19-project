@@ -8,8 +8,14 @@ class AccountMove(models.Model):
     sale_order_id = fields.Many2one(
         'sale.order',
         string='Sales Order',
-        domain="[('partner_id', '=', partner_id), ('invoice_status', 'in', ['to invoice', 'invoiced'])]",
         help="Select a sales order to create invoice from"
+    )
+
+    # Field to show available sales orders for the customer
+    available_sale_order_ids = fields.Many2many(
+        'sale.order',
+        compute='_compute_available_sale_orders',
+        string='Available Sales Orders'
     )
 
     # Field to display related delivery notes
@@ -21,6 +27,25 @@ class AccountMove(models.Model):
     )
 
     @api.depends('partner_id')
+    def _compute_available_sale_orders(self):
+        """Compute available sales orders for the selected customer"""
+        for record in self:
+            if record.partner_id and record.move_type in ['out_invoice', 'out_refund']:
+                # Find sales orders for this customer that can be invoiced
+                orders = self.env['sale.order'].search([
+                    ('partner_id', '=', record.partner_id.id),
+                    ('state', 'in', ['sale', 'done']),
+                    ('invoice_status', 'in', ['to invoice', 'invoiced'])
+                ])
+                record.available_sale_order_ids = orders
+
+                # Update domain for sale_order_id field dynamically
+                if orders:
+                    record.sale_order_id = False  # Clear previous selection
+            else:
+                record.available_sale_order_ids = False
+
+    @api.depends('partner_id')
     def _compute_delivery_notes(self):
         """Compute delivery notes for the selected customer"""
         for record in self:
@@ -30,15 +55,30 @@ class AccountMove(models.Model):
                     ('partner_id', '=', record.partner_id.id),
                     ('picking_type_code', '=', 'outgoing'),
                     ('state', '=', 'done')
-                ])
+                ], limit=20)  # Limit to recent 20
                 record.delivery_note_ids = deliveries
             else:
                 record.delivery_note_ids = False
 
+    @api.onchange('partner_id')
+    def _onchange_partner_id_clear_so(self):
+        """Clear sales order when customer changes"""
+        if self.partner_id:
+            self.sale_order_id = False
+        return {
+            'domain': {
+                'sale_order_id': [
+                    ('partner_id', '=', self.partner_id.id),
+                    ('state', 'in', ['sale', 'done']),
+                    ('invoice_status', 'in', ['to invoice', 'invoiced'])
+                ]
+            }
+        }
+
     @api.onchange('sale_order_id')
     def _onchange_sale_order_id(self):
         """Populate invoice lines from selected sales order"""
-        if self.sale_order_id:
+        if self.sale_order_id and self.move_type in ['out_invoice', 'out_refund']:
             # Clear existing lines
             self.invoice_line_ids = [(5, 0, 0)]
 
@@ -48,25 +88,32 @@ class AccountMove(models.Model):
                 # Only add lines that need to be invoiced
                 qty_to_invoice = line.product_uom_qty - line.qty_invoiced
 
-                if qty_to_invoice > 0:
+                if qty_to_invoice > 0 and not line.display_type:
                     invoice_line_vals = {
                         'product_id': line.product_id.id,
                         'name': line.name,
                         'quantity': qty_to_invoice,
                         'price_unit': line.price_unit,
                         'tax_ids': [(6, 0, line.tax_id.ids)],
-                        'sale_line_ids': [(6, 0, [line.id])],  # Link to SO line
+                        'sale_line_ids': [(6, 0, [line.id])],
                     }
+
+                    # Set account if available
+                    if line.product_id:
+                        account = line.product_id.property_account_income_id or \
+                                  line.product_id.categ_id.property_account_income_categ_id
+                        if account:
+                            invoice_line_vals['account_id'] = account.id
+
                     invoice_lines.append((0, 0, invoice_line_vals))
 
-            self.invoice_line_ids = invoice_lines
+            if invoice_lines:
+                self.invoice_line_ids = invoice_lines
 
             # Set other invoice fields from SO
             self.invoice_origin = self.sale_order_id.name
             self.payment_reference = self.sale_order_id.name
 
-    @api.onchange('partner_id')
-    def _onchange_partner_id_custom(self):
-        """Clear sales order when customer changes"""
-        if self.partner_id:
-            self.sale_order_id = False
+            # Set fiscal position if available
+            if self.sale_order_id.fiscal_position_id:
+                self.fiscal_position_id = self.sale_order_id.fiscal_position_id

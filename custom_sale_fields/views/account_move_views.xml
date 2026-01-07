@@ -23,7 +23,7 @@
             <field name="model">account.move</field>
             <field name="inherit_id" ref="account.view_invoice_tree"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='amount_total']" position="after">
+                <xpath expr="//field[@name='name']" position="after">
                     <field name="customer_reference" optional="hide"/>
                     <field name="delivery_note_number" optional="hide"/>
                 </xpath>

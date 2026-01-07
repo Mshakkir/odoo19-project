@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Override website_sale templates to hide category description on shop pages -->
+
+    <!-- Hide category description/breadcrumb section -->
+    <template id="shop_hide_category_description" inherit_id="website_sale.shop" name="Hide Category Description in Shop">
+        <xpath expr="//div[@id='wrap']" position="inside">
+            <style>
+                /* Hide category description on shop page */
+                .o_not_editable .oe_structure > div:first-child > div[class*='category'] > p,
+                .o_not_editable .oe_structure div[class*='breadcrumb'] + div p,
+                .oe_website_sale .breadcrumb ~ section > div > p.lead,
+                .oe_website_sale .o_wsale_products_section_header_content > p,
+                div.oe_product_list_cat > p,
+                .category_description {
+                    display: none !important;
+                }
+
+                /* Also hide any product category info section */
+                .products_category_header ~ .o_wsale_products_section_header_content > p {
+                    display: none !important;
+                }
+            </style>
+        </xpath>
+    </template>
+
+    <!-- Hide on products list page -->
+    <template id="products_list_hide_category_desc" inherit_id="website_sale.products_list_view" name="Hide Description in Products List">
+        <xpath expr="//div[@id='wrap']" position="inside">
+            <style>
+                /* Hide category descriptions in product list */
+                .oe_product_list > p,
+                .products_pager ~ p.lead,
+                section.o_wsale_products_section_header_content > p {
+                    display: none !important;
+                }
+            </style>
+        </xpath>
+    </template>
+
+    <!-- Additional CSS for hiding descriptions across all shop pages -->
+    <template id="shop_hide_descriptions_global" inherit_id="website_sale.layout" name="Global Hide Shop Category Descriptions">
+        <xpath expr="//link[@rel='stylesheet'][last()]" position="after">
+            <style>
+                /* Global hide for category descriptions on all shop pages */
+                .oe_website_sale .o_not_editable > div > div p.lead:first-of-type,
+                .oe_website_sale section > .container > p.lead,
+                .oe_website_sale > div > section > div > p:first-of-type,
+                div.o_wsale_products_section_header_content > p:not(.m-0) {
+                    display: none !important;
+                }
+            </style>
+        </xpath>
+    </template>
+</odoo>

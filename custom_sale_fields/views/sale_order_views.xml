@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Inherit Sale Order Form View -->
+        <record id="view_order_form_custom_fields" model="ir.ui.view">
+            <field name="name">sale.order.form.custom.fields</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <!-- Add fields below Payment Terms -->
+                <xpath expr="//field[@name='payment_term_id']" position="after">
+                    <field name="customer_reference" placeholder="Enter customer reference..."/>
+                    <field name="awb_number" placeholder="Enter AWB number..."/>
+                </xpath>
+
+                <!-- Also add to Other Info tab if needed -->
+                <xpath expr="//page[@name='other_information']//group[@name='sale_info_group']" position="inside">
+                    <group string="Additional References" name="custom_reference_group">
+                        <field name="customer_reference"/>
+                        <field name="awb_number"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Add fields to tree view for quick reference -->
+        <record id="view_order_tree_custom_fields" model="ir.ui.view">
+            <field name="name">sale.order.tree.custom.fields</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_total']" position="after">
+                    <field name="customer_reference" optional="hide"/>
+                    <field name="awb_number" optional="hide"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Add search filters -->
+        <record id="view_sales_order_filter_custom" model="ir.ui.view">
+            <field name="name">sale.order.search.custom.fields</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <field name="customer_reference" string="Customer Reference"
+                           filter_domain="[('customer_reference', 'ilike', self)]"/>
+                    <field name="awb_number" string="AWB Number"
+                           filter_domain="[('awb_number', 'ilike', self)]"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

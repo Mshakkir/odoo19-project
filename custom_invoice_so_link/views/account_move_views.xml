@@ -17,14 +17,10 @@
             <xpath expr="//notebook" position="inside">
                 <page string="Related Deliveries"
                       attrs="{'invisible': [('partner_id', '=', False)]}">
-                    <field name="delivery_note_ids" mode="tree">
-                        <tree string="Delivery Notes" create="false" delete="false">
-                            <field name="name"/>
-                            <field name="scheduled_date"/>
-                            <field name="date_done"/>
-                            <field name="origin"/>
-                            <field name="state"/>
-                        </tree>
+                    <field name="delivery_note_ids"
+                           widget="many2many"
+                           mode="tree"
+                           readonly="1">
                     </field>
                 </page>
             </xpath>

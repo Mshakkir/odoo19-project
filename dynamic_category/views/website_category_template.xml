@@ -82,22 +82,295 @@
                         </div>
                     </div>
                 </section>
+
+                <!-- Inline CSS -->
+                <style>
+                    .category-slider-wrapper {
+                        position: relative;
+                        display: flex;
+                        align-items: center;
+                        gap: 15px;
+                        margin-bottom: 30px;
+                        padding: 0 10px;
+                    }
+
+                    .slider-arrow {
+                        background: #f1f3f5;
+                        border: none;
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        flex-shrink: 0;
+                        z-index: 10;
+                    }
+
+                    .slider-arrow:hover {
+                        background: #007bff;
+                        color: #fff;
+                        transform: scale(1.1);
+                    }
+
+                    .category-tabs-container {
+                        flex: 1;
+                        overflow: hidden;
+                        position: relative;
+                    }
+
+                    .category-tabs {
+                        display: flex;
+                        gap: 12px;
+                        overflow-x: auto;
+                        scroll-behavior: smooth;
+                        scrollbar-width: none;
+                        -ms-overflow-style: none;
+                        padding: 10px 0;
+                    }
+
+                    .category-tabs::-webkit-scrollbar {
+                        display: none;
+                    }
+
+                    .cat-btn {
+                        background: #f1f3f5;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 25px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        white-space: nowrap;
+                        flex-shrink: 0;
+                        font-size: 0.95rem;
+                    }
+
+                    .cat-btn:hover {
+                        background: #007bff;
+                        color: #fff;
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+                    }
+
+                    .cat-btn.active {
+                        background: #007bff;
+                        color: #fff;
+                        box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+                    }
+
+                    .category-content {
+                        position: relative;
+                        min-height: 400px;
+                    }
+
+                    .cat-panel {
+                        position: absolute;
+                        width: 100%;
+                        opacity: 0;
+                        visibility: hidden;
+                        background: #f8f9fa;
+                        padding: 40px;
+                        border-radius: 20px;
+                        box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+                        transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s;
+                        transform: translateY(20px);
+                    }
+
+                    .cat-panel.active {
+                        position: relative;
+                        opacity: 1;
+                        visibility: visible;
+                        transform: translateY(0);
+                    }
+
+                    .cat-panel h3 {
+                        color: #007bff;
+                        font-weight: 700;
+                        margin-bottom: 16px;
+                    }
+
+                    .cat-panel p {
+                        font-size: 1.05rem;
+                        line-height: 1.7;
+                        color: #555;
+                        margin-bottom: 16px;
+                    }
+
+                    .cat-panel ul {
+                        list-style: none;
+                        padding: 0;
+                    }
+
+                    .cat-panel ul li {
+                        padding: 8px 0;
+                        padding-left: 28px;
+                        position: relative;
+                        color: #444;
+                        font-size: 1rem;
+                    }
+
+                    .cat-panel ul li:before {
+                        content: "✓";
+                        position: absolute;
+                        left: 0;
+                        color: #007bff;
+                        font-weight: bold;
+                        font-size: 1.2rem;
+                    }
+
+                    .animate-on-scroll {
+                        opacity: 0;
+                        transform: translateY(40px);
+                        animation: fadeInUp 0.8s ease-out forwards;
+                    }
+
+                    @keyframes fadeInUp {
+                        to {
+                            opacity: 1;
+                            transform: translateY(0);
+                        }
+                    }
+
+                    @media (max-width: 768px) {
+                        .cat-panel {
+                            padding: 25px 20px;
+                        }
+
+                        .slider-arrow {
+                            width: 35px;
+                            height: 35px;
+                        }
+
+                        .cat-btn {
+                            padding: 10px 18px;
+                            font-size: 0.9rem;
+                        }
+                    }
+                </style>
+
+                <!-- Inline JavaScript -->
+                <script type="text/javascript">
+                    <![CDATA[
+                    (function() {
+                        var autoScrollInterval;
+                        var categoryButtons = [];
+                        var currentIndex = 0;
+
+                        window.showCategory = function(id, button) {
+                            stopAutoScroll();
+
+                            var panels = document.querySelectorAll('.cat-panel');
+                            for (var i = 0; i < panels.length; i++) {
+                                panels[i].classList.remove('active');
+                            }
+                            var panel = document.getElementById(id);
+                            if (panel) {
+                                panel.classList.add('active');
+                            }
+
+                            var buttons = document.querySelectorAll('.cat-btn');
+                            for (var j = 0; j < buttons.length; j++) {
+                                buttons[j].classList.remove('active');
+                            }
+                            button.classList.add('active');
+
+                            currentIndex = categoryButtons.indexOf(button);
+
+                            var container = document.querySelector('.category-tabs');
+                            if (container) {
+                                var buttonRect = button.getBoundingClientRect();
+                                var containerRect = container.getBoundingClientRect();
+                                var scrollLeft = button.offsetLeft - (containerRect.width / 2) + (buttonRect.width / 2);
+                                container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+                            }
+
+                            setTimeout(startAutoScroll, 5000);
+                        };
+
+                        window.scrollCategories = function(direction) {
+                            var container = document.querySelector('.category-tabs');
+                            if (container) {
+                                var scrollAmount = 200;
+                                container.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+                            }
+
+                            stopAutoScroll();
+                            setTimeout(startAutoScroll, 5000);
+                        };
+
+                        function autoAdvanceCategory() {
+                            if (categoryButtons.length === 0) {
+                                return;
+                            }
+
+                            currentIndex = (currentIndex + 1) % categoryButtons.length;
+                            var nextButton = categoryButtons[currentIndex];
+
+                            if (nextButton) {
+                                var panels = document.querySelectorAll('.cat-panel');
+                                for (var i = 0; i < panels.length; i++) {
+                                    panels[i].classList.remove('active');
+                                }
+                                var onclickAttr = nextButton.getAttribute('onclick');
+                                var match = onclickAttr.match(/'([^']+)'/);
+                                if (match) {
+                                    var panelId = match[1];
+                                    var panel = document.getElementById(panelId);
+                                    if (panel) {
+                                        panel.classList.add('active');
+                                    }
+                                }
+
+                                var buttons = document.querySelectorAll('.cat-btn');
+                                for (var j = 0; j < buttons.length; j++) {
+                                    buttons[j].classList.remove('active');
+                                }
+                                nextButton.classList.add('active');
+
+                                var container = document.querySelector('.category-tabs');
+                                if (container) {
+                                    var buttonRect = nextButton.getBoundingClientRect();
+                                    var containerRect = container.getBoundingClientRect();
+                                    var scrollLeft = nextButton.offsetLeft - (containerRect.width / 2) + (buttonRect.width / 2);
+                                    container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+                                }
+                            }
+                        }
+
+                        function startAutoScroll() {
+                            stopAutoScroll();
+                            autoScrollInterval = setInterval(autoAdvanceCategory, 4000);
+                        }
+
+                        function stopAutoScroll() {
+                            if (autoScrollInterval) {
+                                clearInterval(autoScrollInterval);
+                                autoScrollInterval = null;
+                            }
+                        }
+
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var buttons = document.querySelectorAll('.cat-btn');
+                            categoryButtons = Array.prototype.slice.call(buttons);
+
+                            setTimeout(startAutoScroll, 2000);
+
+                            var sliderWrapper = document.querySelector('.category-slider-wrapper');
+                            if (sliderWrapper) {
+                                sliderWrapper.addEventListener('mouseenter', stopAutoScroll);
+                                sliderWrapper.addEventListener('mouseleave', function() {
+                                    setTimeout(startAutoScroll, 2000);
+                                });
+                            }
+                        });
+                    })();
+                    ]]>
+                </script>
             </div>
         </t>
-    </template>
-
-    <!-- Add CSS and JS to website assets -->
-    <template id="category_assets_backend" name="Category Assets Backend" inherit_id="web.assets_backend">
-        <xpath expr="." position="inside">
-            <link rel="stylesheet" type="text/scss" href="/dynamic_category/static/src/scss/category_page.scss"/>
-        </xpath>
-    </template>
-
-    <template id="category_assets_frontend" name="Category Assets" inherit_id="website.assets_frontend">
-        <xpath expr="." position="inside">
-            <link rel="stylesheet" type="text/scss" href="/dynamic_category/static/src/scss/category_page.scss"/>
-            <script type="text/javascript" src="/dynamic_category/static/src/js/category_slider.js"/>
-        </xpath>
     </template>
 
     <!-- Add menu item (optional) -->

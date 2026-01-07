@@ -28,12 +28,6 @@
     'data': [
         'views/website_category_template.xml',
     ],
-    'assets': {
-        'web.assets_frontend': [
-            'dynamic_category/static/src/scss/category_page.scss',
-            'dynamic_category/static/src/js/category_slider.js',
-        ],
-    },
     'installable': True,
     'application': False,
     'auto_install': False,

@@ -12,14 +12,6 @@
                     <field name="customer_reference" placeholder="Enter customer reference..."/>
                     <field name="awb_number" placeholder="Enter AWB number..."/>
                 </xpath>
-
-                <!-- Also add to Other Info tab if needed -->
-                <xpath expr="//page[@name='other_information']//group[@name='sale_info_group']" position="inside">
-                    <group string="Additional References" name="custom_reference_group">
-                        <field name="customer_reference"/>
-                        <field name="awb_number"/>
-                    </group>
-                </xpath>
             </field>
         </record>
 

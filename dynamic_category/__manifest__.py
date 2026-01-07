@@ -28,7 +28,6 @@
     'data': [
         'views/website_category_template.xml',
         'views/website_sale_templates.xml',
-        'views/assets.xml',
 
     ],
     'installable': True,

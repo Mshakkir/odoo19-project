@@ -1,42 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add aggressive CSS to hide category description on shop pages only -->
-    <template id="shop_category_hide_description" inherit_id="website.layout" name="Hide Shop Category Descriptions">
+    <!-- Inject CSS to hide category descriptions on shop pages -->
+    <template id="website_layout_hide_shop_desc" inherit_id="website.layout" name="Hide Shop Description CSS">
         <xpath expr="//head" position="inside">
             <style>
-                /* Hide description only on /shop/category pages */
-                body.oe_website_sale section.o_wsale_products_section_header_content {
+                /* Hide category descriptions only on shop/category pages */
+                body.oe_website_sale .o_wsale_products_section_header_content {
+                    display: none !important;
+                    visibility: hidden !important;
+                    height: 0 !important;
+                    overflow: hidden !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                }
+
+                body.oe_website_sale .o_wsale_products_section_header_content * {
                     display: none !important;
                 }
 
-                body.oe_website_sale section.o_wsale_products_section_header_content p {
-                    display: none !important;
-                }
-
-                body.oe_website_sale section.o_wsale_products_section_header_content * {
-                    display: none !important;
-                }
-
-                /* Hide all paragraphs that come before products grid on shop pages */
-                body.oe_website_sale div#products_grid {
-                    margin-top: 2rem;
-                }
-
-                body.oe_website_sale div#products_grid ~ section > div > p,
+                /* Hide all paragraphs that might be category description */
+                body.oe_website_sale section > div > p:first-of-type:not(.o_default_snippet_text),
+                body.oe_website_sale section > div > h1:first-child + p,
                 body.oe_website_sale section > div > p.lead {
                     display: none !important;
                 }
 
-                /* Hide category description text blocks */
-                body.oe_website_sale .s_text_block > p:first-child,
-                body.oe_website_sale section.s_text_block {
+                /* Hide category header descriptions */
+                body.oe_website_sale section.s_banner > div > p,
+                body.oe_website_sale .s_text_block > p:first-child {
                     display: none !important;
-                }
-
-                /* Ensure product grid visibility */
-                body.oe_website_sale div#products_grid {
-                    display: grid !important;
-                    visibility: visible !important;
                 }
             </style>
         </xpath>

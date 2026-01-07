@@ -233,8 +233,19 @@ class AccountMove(models.Model):
             self.payment_reference = self.sale_order_id.name
 
             # Set PO Number (Customer Reference) from Sales Order
-            if self.sale_order_id.client_order_ref:
-                self.ref = self.sale_order_id.client_order_ref
+            if hasattr(self.sale_order_id, 'client_order_ref') and self.sale_order_id.client_order_ref:
+                # Check which field exists on invoice for PO Number
+                if hasattr(self, 'ref'):
+                    self.ref = self.sale_order_id.client_order_ref
+                elif hasattr(self, 'client_order_ref'):
+                    self.client_order_ref = self.sale_order_id.client_order_ref
+                elif hasattr(self, 'po_number'):
+                    self.po_number = self.sale_order_id.client_order_ref
+
+            # Set AWB Number from Sales Order
+            if hasattr(self.sale_order_id, 'awb_number') and self.sale_order_id.awb_number:
+                if hasattr(self, 'awb_number'):
+                    self.awb_number = self.sale_order_id.awb_number
 
             # Set fiscal position if available
             if self.sale_order_id.fiscal_position_id:
@@ -253,14 +264,3 @@ class AccountMove(models.Model):
                     self.l10n_in_shipping_bill_number = picking.name
                 elif hasattr(self, 'delivery_note_number'):
                     self.delivery_note_number = picking.name
-
-                # Set AWB Number (Airway Bill Number)
-                if hasattr(picking, 'carrier_tracking_ref') and picking.carrier_tracking_ref:
-                    if hasattr(self, 'l10n_in_shipping_bill_number'):
-                        # For Indian localization
-                        if not self.l10n_in_shipping_bill_number:
-                            self.l10n_in_shipping_bill_number = picking.carrier_tracking_ref
-                    if hasattr(self, 'awb_number'):
-                        self.awb_number = picking.carrier_tracking_ref
-                    elif hasattr(self, 'l10n_in_carrier_bill_number'):
-                        self.l10n_in_carrier_bill_number = picking.carrier_tracking_ref

@@ -38,10 +38,6 @@ class AccountMove(models.Model):
                     ('invoice_status', 'in', ['to invoice', 'invoiced'])
                 ])
                 record.available_sale_order_ids = orders
-
-                # Update domain for sale_order_id field dynamically
-                if orders:
-                    record.sale_order_id = False  # Clear previous selection
             else:
                 record.available_sale_order_ids = False
 
@@ -85,25 +81,28 @@ class AccountMove(models.Model):
             # Create invoice lines from sales order lines
             invoice_lines = []
             for line in self.sale_order_id.order_line:
+                # Skip lines without products or display type lines
+                if not line.product_id or line.display_type:
+                    continue
+
                 # Only add lines that need to be invoiced
                 qty_to_invoice = line.product_uom_qty - line.qty_invoiced
 
-                if qty_to_invoice > 0 and not line.display_type:
+                if qty_to_invoice > 0:
                     invoice_line_vals = {
                         'product_id': line.product_id.id,
                         'name': line.name,
                         'quantity': qty_to_invoice,
                         'price_unit': line.price_unit,
-                        'tax_ids': [(6, 0, line.tax_id.ids)],
+                        'tax_ids': [(6, 0, line.tax_ids.ids)],  # Changed from tax_id to tax_ids
                         'sale_line_ids': [(6, 0, [line.id])],
                     }
 
                     # Set account if available
-                    if line.product_id:
-                        account = line.product_id.property_account_income_id or \
-                                  line.product_id.categ_id.property_account_income_categ_id
-                        if account:
-                            invoice_line_vals['account_id'] = account.id
+                    account = line.product_id.property_account_income_id or \
+                              line.product_id.categ_id.property_account_income_categ_id
+                    if account:
+                        invoice_line_vals['account_id'] = account.id
 
                     invoice_lines.append((0, 0, invoice_line_vals))
 

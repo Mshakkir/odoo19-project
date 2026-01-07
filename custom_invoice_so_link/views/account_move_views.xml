@@ -9,8 +9,8 @@
             <!-- Add Sales Order field right after Customer field -->
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="available_sale_order_ids" invisible="1"/>
-                 <h3 invisible="1">Choose sale order</h3>
                 <field name="sale_order_id"
+                       string="Sales Orders"
                        widget="selection"
                        options="{'no_create': True, 'no_open': True}"
                        domain="[('id', 'in', available_sale_order_ids)]"

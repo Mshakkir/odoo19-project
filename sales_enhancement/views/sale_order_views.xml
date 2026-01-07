@@ -25,13 +25,8 @@
     <record id="view_order_tree_date_columns" model="ir.ui.view">
         <field name="name">sale.order.tree.date.columns</field>
         <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_quotation_tree_with_onboarding"/>
+        <field name="inherit_id" ref="sale.view_order_tree"/>
         <field name="arch" type="xml">
-            <!-- Add date filter fields in tree view -->
-            <xpath expr="//tree" position="attributes">
-                <attribute name="decoration-info">state == 'draft'</attribute>
-            </xpath>
-
             <xpath expr="//field[@name='date_order']" position="attributes">
                 <attribute name="widget">date</attribute>
                 <attribute name="optional">show</attribute>

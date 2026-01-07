@@ -380,13 +380,14 @@ class AccountMove(models.Model):
             self.invoice_origin = self.sale_order_id.name
             self.payment_reference = self.sale_order_id.name
 
-            # Set PO Number from Sales Order
+            # Set PO Number and Customer Reference from Sales Order
             if hasattr(self.sale_order_id, 'client_order_ref') and self.sale_order_id.client_order_ref:
-                # Set Customer Reference field (ref)
+                # Set Customer Reference field (ref) - shown in Other Info tab
                 if hasattr(self, 'ref'):
                     self.ref = self.sale_order_id.client_order_ref
 
-                # Set PO Number field (try different possible field names)
+                # Set PO Number field - shown on main form
+                # Try different possible field names for PO Number
                 if hasattr(self, 'po_number'):
                     self.po_number = self.sale_order_id.client_order_ref
                 elif hasattr(self, 'l10n_in_po_number'):

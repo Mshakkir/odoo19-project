@@ -5,8 +5,8 @@ class AccountMove(models.Model):
     _inherit = 'account.move'
 
     customer_reference = fields.Char(
-        string='Customer Reference',
-        help='Customer reference number or code',
+        string='PO Number',
+        help='PO number or code',
         copy=False
     )
 

@@ -23,8 +23,7 @@ class DynamicCategoryController(http.Controller):
         main_category = {
             'id': category.id,
             'name': category.name,
-            'description': category.name if hasattr(category,
-                                                    'description') else f"Explore our {category.name} collection",
+            'description': category.website_description or f"Explore our {category.name} collection",
             'image_url': self._get_category_image(category),
             'slug': self._generate_slug(category.name),
             'breadcrumbs': self._get_breadcrumbs(category),
@@ -36,7 +35,7 @@ class DynamicCategoryController(http.Controller):
             child_info = {
                 'id': child.id,
                 'name': child.name,
-                'description': f"Explore our {child.name} collection",
+                'description': child.website_description or f"Explore our {child.name} collection",
                 'image_url': self._get_category_image(child),
                 'slug': self._generate_slug(child.name),
                 'product_count': len(child.product_tmpl_ids),
@@ -54,11 +53,11 @@ class DynamicCategoryController(http.Controller):
         return request.render('dynamic_category.category_detail_template', values)
 
     def _get_category_image(self, category):
-        """Get category image URL"""
-        if hasattr(category, 'image_128') and category.image_128:
-            return f'/web/image/product.public.category/{category.id}/image_512'
-        elif hasattr(category, 'image') and category.image:
-            return f'/web/image/product.public.category/{category.id}/image'
+        """Get category image URL - prioritize cover_image, then image_1920"""
+        if category.cover_image:
+            return f'/web/image/product.public.category/{category.id}/cover_image'
+        elif category.image_1920:
+            return f'/web/image/product.public.category/{category.id}/image_1920'
         return '/web/static/img/s_website_placeholder.png'
 
     def _generate_slug(self, name):

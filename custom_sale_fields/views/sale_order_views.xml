@@ -35,7 +35,7 @@
             <field name="inherit_id" ref="sale.view_sales_order_filter"/>
             <field name="arch" type="xml">
                 <xpath expr="//search" position="inside">
-                    <field name="customer_reference" string="PO NUMBER"
+                    <field name="customer_reference" string="Customer Reference"
                            filter_domain="[('customer_reference', 'ilike', self)]"/>
                     <field name="awb_number" string="AWB Number"
                            filter_domain="[('awb_number', 'ilike', self)]"/>

@@ -36,8 +36,8 @@ class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
     customer_reference = fields.Char(
-        string='Customer Reference',
-        help='Customer reference number or code',
+        string='PO Number ',
+        help='PO Number number or code',
         copy=False
     )
 

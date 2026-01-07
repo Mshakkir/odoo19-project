@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add From/To Date Filter to Sales Order Search View -->
+    <record id="view_sales_order_filter_date_range" model="ir.ui.view">
+        <field name="name">sale.order.search.date.range</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <!-- Add filters after existing filters -->
+            <xpath expr="//filter[@name='order_month']" position="after">
+                <separator/>
+                <filter string="From Date" name="filter_from_date"
+                        date="date_order"/>
+                <filter string="To Date" name="filter_to_date"
+                        date="date_order"/>
+                <separator/>
+                <filter string="Date Range" name="date_range"
+                        domain="[]"
+                        context="{'search_default_date_range': 1}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add From/To Date columns in tree view -->
+    <record id="view_order_tree_date_columns" model="ir.ui.view">
+        <field name="name">sale.order.tree.date.columns</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree_with_onboarding"/>
+        <field name="arch" type="xml">
+            <!-- Add date filter fields in tree view -->
+            <xpath expr="//tree" position="attributes">
+                <attribute name="decoration-info">state == 'draft'</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='date_order']" position="attributes">
+                <attribute name="widget">date</attribute>
+                <attribute name="optional">show</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Enhanced search view with date range -->
+    <record id="view_sale_order_search_inherit_date" model="ir.ui.view">
+        <field name="name">sale.order.search.date.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <group expand="0" string="Group By">
+                    <filter string="Order Date (Day)" name="group_date_order_day"
+                            context="{'group_by': 'date_order:day'}"/>
+                    <filter string="Order Date (Week)" name="group_date_order_week"
+                            context="{'group_by': 'date_order:week'}"/>
+                    <filter string="Order Date (Month)" name="group_date_order_month"
+                            context="{'group_by': 'date_order:month'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

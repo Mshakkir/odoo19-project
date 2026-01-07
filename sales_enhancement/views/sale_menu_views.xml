@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add "Sale Invoices" menu item under Sales -->
+    <menuitem
+        id="menu_sale_invoices"
+        name="Sale Invoices"
+        parent="sale.sale_menu_root"
+        action="account.action_move_out_invoice_type"
+        sequence="5"/>
+</odoo>

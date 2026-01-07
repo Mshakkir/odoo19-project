@@ -9,18 +9,14 @@ class DynamicCategoryController(http.Controller):
         """Render detailed category page with child categories"""
 
         # Fetch the main category
-        category = request.env['product.public.category'].search([
-            ('id', '=', category_id),
-            ('website_published', '=', True)
-        ], limit=1)
+        category = request.env['product.public.category'].browse(category_id)
 
-        if not category:
+        if not category.exists():
             return request.not_found()
 
         # Get child categories
         child_categories = request.env['product.public.category'].search([
-            ('parent_id', '=', category_id),
-            ('website_published', '=', True)
+            ('parent_id', '=', category_id)
         ], order='sequence, name')
 
         # Prepare main category data

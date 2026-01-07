@@ -21,19 +21,9 @@
             <xpath expr="//notebook" position="inside">
                 <page string="Related Deliveries"
                       invisible="not partner_id">
-                    <group>
-                        <field name="delivery_note_ids"
-                               nolabel="1"
-                               readonly="1">
-                            <tree string="Delivery Orders" create="false" edit="false" delete="false">
-                                <field name="name"/>
-                                <field name="origin"/>
-                                <field name="scheduled_date"/>
-                                <field name="date_done"/>
-                                <field name="state" widget="badge"/>
-                            </tree>
-                        </field>
-                    </group>
+                    <field name="delivery_note_ids"
+                           nolabel="1"
+                           readonly="1"/>
                 </page>
             </xpath>
 

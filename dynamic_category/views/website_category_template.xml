@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Dynamic Category Page Template -->
+    <template id="category_page_template" name="Dynamic Category Page">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <!-- Hero Section -->
+                <section class="s_parallax parallax s_parallax_is_fixed bg-black-50 o_half_screen_height o_colored_level"
+                         data-scroll-background-ratio="1" data-snippet="s_parallax">
+                    <span class="s_parallax_bg oe_img_bg o_bg_img_center"
+                          style="background-image: url('/web/static/img/website_placeholder.jpg'); background-position: 50% 75%;"/>
+                    <div class="o_we_bg_filter bg-black-50"/>
+                    <div class="container h-100">
+                        <div class="row h-100 align-items-center justify-content-center">
+                            <div class="col-lg-8 text-center text-white">
+                                <h1 class="display-3 font-weight-bold mb-3">Product Categories</h1>
+                                <p class="lead">Explore our comprehensive range of industrial automation products</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Dynamic Category Section -->
+                <section class="s_embed_code pt16 pb16 o_colored_level" data-snippet="s_embed_code">
+                    <div class="container my-5 animate-on-scroll">
+                        <h2 class="text-center mb-4">Explore Our Product Categories</h2>
+
+                        <div class="category-slider-wrapper">
+                            <button class="slider-arrow left" onclick="scrollCategories(-1)">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="15 18 9 12 15 6"/>
+                                </svg>
+                            </button>
+
+                            <div class="category-tabs-container">
+                                <div class="category-tabs" id="categoryTabs">
+                                    <t t-foreach="categories" t-as="category">
+                                        <button class="cat-btn"
+                                                t-att-class="'active' if category_index == 0 else ''"
+                                                t-att-onclick="'showCategory(\'' + category['slug'] + '\', this)\'">
+                                            <t t-esc="category['name']"/>
+                                        </button>
+                                    </t>
+                                </div>
+                            </div>
+
+                            <button class="slider-arrow right" onclick="scrollCategories(1)">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="9 18 15 12 9 6"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="category-content">
+                            <t t-foreach="categories" t-as="category">
+                                <div t-att-id="category['slug']"
+                                     class="cat-panel"
+                                     t-att-class="'active' if category_index == 0 else ''">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6">
+                                            <h3><t t-esc="category['name']"/></h3>
+                                            <p><t t-esc="category['description']"/></p>
+                                            <ul>
+                                                <t t-foreach="category['features']" t-as="feature">
+                                                    <li><t t-esc="feature"/></li>
+                                                </t>
+                                            </ul>
+                                            <a t-att-href="category['url']" class="btn btn-primary mt-3">
+                                                View Products (<t t-esc="category['product_count']"/>)
+                                            </a>
+                                        </div>
+                                        <div class="col-md-6 text-center">
+                                            <img t-att-src="category['image_url']"
+                                                 class="img-fluid rounded"
+                                                 t-att-alt="category['name']"
+                                                 loading="lazy"
+                                                 style="max-height: 400px; object-fit: contain;"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+    <!-- Inherit existing category page if you want to replace it -->
+    <template id="website_category_inherited" inherit_id="website.category" name="Dynamic Category Override">
+        <xpath expr="//div[@id='wrap']" position="replace">
+            <div id="wrap" class="oe_structure">
+                <!-- Hero Section -->
+                <section class="s_parallax parallax s_parallax_is_fixed bg-black-50 o_half_screen_height o_colored_level"
+                         data-scroll-background-ratio="1">
+                    <span class="s_parallax_bg oe_img_bg o_bg_img_center"
+                          style="background-image: url('/web/static/img/website_placeholder.jpg'); background-position: 50% 75%;"/>
+                    <div class="o_we_bg_filter bg-black-50"/>
+                </section>
+
+                <!-- Dynamic Category Section -->
+                <section class="s_embed_code pt16 pb16 o_colored_level">
+                    <div class="container my-5 animate-on-scroll">
+                        <h2 class="text-center mb-4">Explore Our Product Categories</h2>
+
+                        <div class="category-slider-wrapper">
+                            <button class="slider-arrow left" onclick="scrollCategories(-1)">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="15 18 9 12 15 6"/>
+                                </svg>
+                            </button>
+
+                            <div class="category-tabs-container">
+                                <div class="category-tabs" id="categoryTabs">
+                                    <t t-set="categories" t-value="request.env['product.public.category'].search([('website_published', '=', True)], order='sequence, name', limit=10)"/>
+                                    <t t-foreach="categories" t-as="cat">
+                                        <button class="cat-btn"
+                                                t-att-class="'active' if cat_index == 0 else ''"
+                                                t-att-onclick="'showCategory(\'cat-' + str(cat.id) + '\', this)\'">
+                                            <t t-esc="cat.name"/>
+                                        </button>
+                                    </t>
+                                </div>
+                            </div>
+
+                            <button class="slider-arrow right" onclick="scrollCategories(1)">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="9 18 15 12 9 6"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="category-content">
+                            <t t-foreach="categories" t-as="cat">
+                                <t t-set="cat_slug" t-value="'cat-' + str(cat.id)"/>
+                                <t t-set="cat_desc" t-value="cat.description or (cat.name + ' products for industrial automation and control systems.')"/>
+                                <t t-set="product_count" t-value="len(cat.product_tmpl_ids.filtered(lambda p: p.website_published))"/>
+
+                                <div t-att-id="cat_slug"
+                                     class="cat-panel"
+                                     t-att-class="'active' if cat_index == 0 else ''">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6">
+                                            <h3><t t-esc="cat.name"/></h3>
+                                            <p><t t-esc="cat_desc"/></p>
+                                            <ul>
+                                                <li>High quality products</li>
+                                                <li>Reliable performance</li>
+                                                <li>Industrial grade</li>
+                                            </ul>
+                                            <a t-att-href="'/shop/category/' + slug(cat)" class="btn btn-primary mt-3">
+                                                View Products (<t t-esc="product_count"/>)
+                                            </a>
+                                        </div>
+                                        <div class="col-md-6 text-center">
+                                            <t t-if="cat.image_128">
+                                                <img t-att-src="'/web/image/product.public.category/' + str(cat.id) + '/image_512'"
+                                                     class="img-fluid rounded"
+                                                     t-att-alt="cat.name"
+                                                     loading="lazy"
+                                                     style="max-height: 400px; object-fit: contain;"/>
+                                            </t>
+                                            <t t-else="">
+                                                <img src="/web/static/img/placeholder.png"
+                                                     class="img-fluid rounded"
+                                                     t-att-alt="cat.name"
+                                                     loading="lazy"
+                                                     style="max-height: 400px; object-fit: contain;"/>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- Add CSS and JS -->
+    <template id="category_assets" name="Category Assets" inherit_id="website.assets_frontend">
+        <xpath expr="." position="inside">
+            <style>
+                .category-slider-wrapper {
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                    margin-bottom: 30px;
+                    padding: 0 10px;
+                }
+
+                .slider-arrow {
+                    background: #f1f3f5;
+                    border: none;
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    flex-shrink: 0;
+                    z-index: 10;
+                }
+
+                .slider-arrow:hover {
+                    background: #007bff;
+                    color: #fff;
+                    transform: scale(1.1);
+                }
+
+                .category-tabs-container {
+                    flex: 1;
+                    overflow: hidden;
+                    position: relative;
+                }
+
+                .category-tabs {
+                    display: flex;
+                    gap: 12px;
+                    overflow-x: auto;
+                    scroll-behavior: smooth;
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                    padding: 10px 0;
+                }
+
+                .category-tabs::-webkit-scrollbar {
+                    display: none;
+                }
+
+                .cat-btn {
+                    background: #f1f3f5;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 25px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    white-space: nowrap;
+                    flex-shrink: 0;
+                    font-size: 0.95rem;
+                }
+
+                .cat-btn:hover {
+                    background: #007bff;
+                    color: #fff;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+                }
+
+                .cat-btn.active {
+                    background: #007bff;
+                    color: #fff;
+                    box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+                }
+
+                .category-content {
+                    position: relative;
+                    min-height: 400px;
+                }
+
+                .cat-panel {
+                    position: absolute;
+                    width: 100%;
+                    opacity: 0;
+                    visibility: hidden;
+                    background: #f8f9fa;
+                    padding: 40px;
+                    border-radius: 20px;
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+                    transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s;
+                    transform: translateY(20px);
+                }
+
+                .cat-panel.active {
+                    position: relative;
+                    opacity: 1;
+                    visibility: visible;
+                    transform: translateY(0);
+                }
+
+                .cat-panel h3 {
+                    color: #007bff;
+                    font-weight: 700;
+                    margin-bottom: 16px;
+                }
+
+                .cat-panel p {
+                    font-size: 1.05rem;
+                    line-height: 1.7;
+                    color: #555;
+                    margin-bottom: 16px;
+                }
+
+                .cat-panel ul {
+                    list-style: none;
+                    padding: 0;
+                }
+
+                .cat-panel ul li {
+                    padding: 8px 0;
+                    padding-left: 28px;
+                    position: relative;
+                    color: #444;
+                    font-size: 1rem;
+                }
+
+                .cat-panel ul li:before {
+                    content: "✓";
+                    position: absolute;
+                    left: 0;
+                    color: #007bff;
+                    font-weight: bold;
+                    font-size: 1.2rem;
+                }
+
+                .animate-on-scroll {
+                    opacity: 0;
+                    transform: translateY(40px);
+                    animation: fadeInUp 0.8s ease-out forwards;
+                }
+
+                @keyframes fadeInUp {
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+
+                @media (max-width: 768px) {
+                    .cat-panel {
+                        padding: 25px 20px;
+                    }
+
+                    .slider-arrow {
+                        width: 35px;
+                        height: 35px;
+                    }
+
+                    .cat-btn {
+                        padding: 10px 18px;
+                        font-size: 0.9rem;
+                    }
+                }
+            </style>
+
+            <script type="text/javascript">
+                (function() {
+                    let autoScrollInterval;
+                    let categoryButtons = [];
+                    let currentIndex = 0;
+
+                    window.showCategory = function(id, button) {
+                        stopAutoScroll();
+
+                        document.querySelectorAll('.cat-panel').forEach(p => p.classList.remove('active'));
+                        const panel = document.getElementById(id);
+                        if (panel) panel.classList.add('active');
+
+                        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                        button.classList.add('active');
+
+                        currentIndex = categoryButtons.indexOf(button);
+
+                        const container = document.querySelector('.category-tabs');
+                        const buttonRect = button.getBoundingClientRect();
+                        const containerRect = container.getBoundingClientRect();
+                        const scrollLeft = button.offsetLeft - (containerRect.width / 2) + (buttonRect.width / 2);
+                        container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+
+                        setTimeout(startAutoScroll, 5000);
+                    };
+
+                    window.scrollCategories = function(direction) {
+                        const container = document.querySelector('.category-tabs');
+                        const scrollAmount = 200;
+                        container.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+
+                        stopAutoScroll();
+                        setTimeout(startAutoScroll, 5000);
+                    };
+
+                    function autoAdvanceCategory() {
+                        if (categoryButtons.length === 0) return;
+
+                        currentIndex = (currentIndex + 1) % categoryButtons.length;
+                        const nextButton = categoryButtons[currentIndex];
+
+                        if (nextButton) {
+                            nextButton.click();
+                        }
+                    }
+
+                    function startAutoScroll() {
+                        stopAutoScroll();
+                        autoScrollInterval = setInterval(autoAdvanceCategory, 4000);
+                    }
+
+                    function stopAutoScroll() {
+                        if (autoScrollInterval) {
+                            clearInterval(autoScrollInterval);
+                            autoScrollInterval = null;
+                        }
+                    }
+
+                    document.addEventListener('DOMContentLoaded', function() {
+                        categoryButtons = Array.from(document.querySelectorAll('.cat-btn'));
+
+                        const sliderWrapper = document.querySelector('.category-slider-wrapper');
+                        if (sliderWrapper) {
+                            sliderWrapper.addEventListener('mouseenter', stopAutoScroll);
+                            sliderWrapper.addEventListener('mouseleave', function() {
+                                setTimeout(startAutoScroll, 2000);
+                            });
+                        }
+
+                        setTimeout(startAutoScroll, 2000);
+                    });
+                })();
+            </script>
+        </xpath>
+    </template>
+</odoo>

@@ -1,18 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add CSS to hide category descriptions on all shop pages -->
+    <!-- Add aggressive CSS to hide category description on shop pages only -->
     <template id="shop_category_hide_description" inherit_id="website.layout" name="Hide Shop Category Descriptions">
         <xpath expr="//head" position="inside">
             <style>
-                /* Hide category descriptions on shop/category pages */
-                .oe_website_sale .o_wsale_products_section_header_content > p,
-                .oe_website_sale .o_not_editable > section > div > p.lead,
-                .oe_website_sale .o_not_editable > div > p.lead,
-                .oe_website_sale .breadcrumb + section p,
-                .oe_website_sale .s_text_block > p:first-of-type,
-                div.o_product_list_cat_header > p,
-                section.o_wsale_category_header > p {
+                /* Hide description only on /shop/category pages */
+                body.oe_website_sale section.o_wsale_products_section_header_content {
                     display: none !important;
+                }
+
+                body.oe_website_sale section.o_wsale_products_section_header_content p {
+                    display: none !important;
+                }
+
+                body.oe_website_sale section.o_wsale_products_section_header_content * {
+                    display: none !important;
+                }
+
+                /* Hide all paragraphs that come before products grid on shop pages */
+                body.oe_website_sale div#products_grid {
+                    margin-top: 2rem;
+                }
+
+                body.oe_website_sale div#products_grid ~ section > div > p,
+                body.oe_website_sale section > div > p.lead {
+                    display: none !important;
+                }
+
+                /* Hide category description text blocks */
+                body.oe_website_sale .s_text_block > p:first-child,
+                body.oe_website_sale section.s_text_block {
+                    display: none !important;
+                }
+
+                /* Ensure product grid visibility */
+                body.oe_website_sale div#products_grid {
+                    display: grid !important;
+                    visibility: visible !important;
                 }
             </style>
         </xpath>

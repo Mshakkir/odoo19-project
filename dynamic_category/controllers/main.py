@@ -23,7 +23,8 @@ class DynamicCategoryController(http.Controller):
         main_category = {
             'id': category.id,
             'name': category.name,
-            'description': category.description or '',
+            'description': category.name if hasattr(category,
+                                                    'description') else f"Explore our {category.name} collection",
             'image_url': self._get_category_image(category),
             'slug': self._generate_slug(category.name),
             'breadcrumbs': self._get_breadcrumbs(category),
@@ -35,7 +36,7 @@ class DynamicCategoryController(http.Controller):
             child_info = {
                 'id': child.id,
                 'name': child.name,
-                'description': child.description or f"Explore our {child.name} collection",
+                'description': f"Explore our {child.name} collection",
                 'image_url': self._get_category_image(child),
                 'slug': self._generate_slug(child.name),
                 'product_count': len(child.product_tmpl_ids),
@@ -54,8 +55,10 @@ class DynamicCategoryController(http.Controller):
 
     def _get_category_image(self, category):
         """Get category image URL"""
-        if category.image_128:
+        if hasattr(category, 'image_128') and category.image_128:
             return f'/web/image/product.public.category/{category.id}/image_512'
+        elif hasattr(category, 'image') and category.image:
+            return f'/web/image/product.public.category/{category.id}/image'
         return '/web/static/img/s_website_placeholder.png'
 
     def _generate_slug(self, name):

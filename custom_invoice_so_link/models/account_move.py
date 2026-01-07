@@ -382,20 +382,11 @@ class AccountMove(models.Model):
 
             # Set PO Number and Customer Reference from Sales Order
             if hasattr(self.sale_order_id, 'client_order_ref') and self.sale_order_id.client_order_ref:
-                # Set Customer Reference field (ref) - shown in Other Info tab
-                if hasattr(self, 'ref'):
-                    self.ref = self.sale_order_id.client_order_ref
+                # Set PO Number field (client_order_ref) - shown on main form
+                self.client_order_ref = self.sale_order_id.client_order_ref
 
-                # Set PO Number field - shown on main form
-                # Try different possible field names for PO Number
-                if hasattr(self, 'po_number'):
-                    self.po_number = self.sale_order_id.client_order_ref
-                elif hasattr(self, 'l10n_in_po_number'):
-                    self.l10n_in_po_number = self.sale_order_id.client_order_ref
-                elif hasattr(self, 'purchase_order_number'):
-                    self.purchase_order_number = self.sale_order_id.client_order_ref
-                elif hasattr(self, 'x_po_number'):
-                    self.x_po_number = self.sale_order_id.client_order_ref
+                # Set Customer Reference field (ref) - shown in Other Info tab
+                self.ref = self.sale_order_id.client_order_ref
 
             # Set AWB Number from Sales Order
             if hasattr(self.sale_order_id, 'awb_number') and self.sale_order_id.awb_number:

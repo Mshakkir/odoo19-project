@@ -216,8 +216,11 @@ class AccountMove(models.Model):
                         'price_unit': line.price_unit,
                         'tax_ids': [(6, 0, line.tax_ids.ids)],
                         'sale_line_ids': [(6, 0, [line.id])],  # Link to SO line
-                        'product_uom_id': line.product_uom.id,
                     }
+
+                    # Add UOM if exists
+                    if hasattr(line, 'product_uom_id') and line.product_uom_id:
+                        invoice_line_vals['product_uom_id'] = line.product_uom_id.id
 
                     # Set account if available
                     account = line.product_id.property_account_income_id or \

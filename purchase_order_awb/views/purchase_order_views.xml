@@ -8,11 +8,8 @@
             <field name="inherit_id" ref="purchase.purchase_order_form"/>
             <field name="arch" type="xml">
 
-                <!-- Add AWB Number field right after Expected Arrival in header -->
-                <xpath expr="//label[@for='date_planned']" position="after">
-                    <div name="date_planned_div" class="o_row">
-                        <field name="date_planned" readonly="state not in ('draft', 'sent', 'to approve', 'purchase')"/>
-                    </div>
+                <!-- Add AWB Number field right after date_planned div -->
+                <xpath expr="//div[@name='date_planned_div']" position="after">
                     <label for="awb_number" string="AWB Number"/>
                     <field name="awb_number" nolabel="1" placeholder="Enter AWB Number (e.g., 1234567890)" readonly="state in ('cancel', 'purchase')"/>
                 </xpath>

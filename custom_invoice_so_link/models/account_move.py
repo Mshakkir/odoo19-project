@@ -208,7 +208,7 @@ class AccountMove(models.Model):
                         'price_unit': line.price_unit,
                         'tax_ids': [(6, 0, line.tax_ids.ids)],
                         'sale_line_ids': [(6, 0, [line.id])],
-                        'product_uom_id': line.product_uom_id.id,
+                        'product_uom_id': line.product_uom.id,
                     }
 
                     account = line.product_id.property_account_income_id or \
@@ -227,85 +227,28 @@ class AccountMove(models.Model):
             if self.sale_order_id.fiscal_position_id:
                 self.fiscal_position_id = self.sale_order_id.fiscal_position_id
 
-    def action_post(self):
-        """Override action_post to update sales order"""
-        res = super(AccountMove, self).action_post()
-
+    def _post(self, soft=True):
+        """Override _post to link invoice lines to sales order lines BEFORE posting"""
+        # Link invoice lines to SO lines before posting
         for move in self:
             if move.sale_order_id and move.move_type == 'out_invoice':
-                _logger.info(f"🔵 Updating sales order {move.sale_order_id.name} after invoice post")
+                _logger.info(f"Linking invoice to sales order {move.sale_order_id.name}")
 
-                # Update each SO line manually using direct SQL
-                for inv_line in move.invoice_line_ids.filtered(lambda l: l.sale_line_ids):
-                    for so_line in inv_line.sale_line_ids:
-                        # Get current qty_invoiced from database
-                        self.env.cr.execute("""
-                            SELECT qty_invoiced, product_uom_qty 
-                            FROM sale_order_line 
-                            WHERE id = %s
-                        """, (so_line.id,))
-                        result = self.env.cr.fetchone()
-                        current_qty_invoiced = result[0] if result else 0
-                        product_uom_qty = result[1] if result else 0
+                # Ensure all invoice lines are linked to the correct SO lines
+                for inv_line in move.invoice_line_ids.filtered(lambda l: l.product_id and not l.display_type):
+                    if not inv_line.sale_line_ids:
+                        # Find matching SO line
+                        so_line = move.sale_order_id.order_line.filtered(
+                            lambda l: l.product_id == inv_line.product_id and
+                                      not l.display_type and
+                                      l.qty_to_invoice > 0
+                        )[:1]
 
-                        # Calculate new qty_invoiced
-                        new_qty = current_qty_invoiced + inv_line.quantity
+                        if so_line:
+                            inv_line.sale_line_ids = [(6, 0, [so_line.id])]
+                            _logger.info(f"Linked invoice line to SO line {so_line.id}")
 
-                        _logger.info(f"   SO Line {so_line.id} ({so_line.product_id.name}):")
-                        _logger.info(f"      - Ordered: {product_uom_qty}")
-                        _logger.info(f"      - Previously invoiced: {current_qty_invoiced}")
-                        _logger.info(f"      - Invoice line qty: {inv_line.quantity}")
-                        _logger.info(f"      - New qty_invoiced: {new_qty}")
-
-                        # Direct SQL update
-                        self.env.cr.execute("""
-                            UPDATE sale_order_line 
-                            SET qty_invoiced = %s
-                            WHERE id = %s
-                        """, (new_qty, so_line.id))
-
-                # Force database commit
-                self.env.cr.commit()
-
-                # Refresh the sales order from database
-                move.sale_order_id.invalidate_recordset(['invoice_status'])
-                move.sale_order_id.order_line.invalidate_recordset(['qty_invoiced'])
-
-                # Re-fetch all SO lines from database
-                all_lines = move.sale_order_id.order_line.filtered(lambda l: l.product_id and not l.display_type)
-
-                _logger.info(f"   Checking invoice status for {len(all_lines)} lines:")
-
-                # Check if all lines are fully invoiced
-                all_invoiced = True
-                for line in all_lines:
-                    # Re-fetch from DB
-                    self.env.cr.execute("""
-                        SELECT qty_invoiced, product_uom_qty 
-                        FROM sale_order_line 
-                        WHERE id = %s
-                    """, (line.id,))
-                    result = self.env.cr.fetchone()
-                    db_qty_invoiced = result[0] if result else 0
-                    db_product_uom_qty = result[1] if result else 0
-
-                    _logger.info(f"      Line {line.id}: invoiced={db_qty_invoiced}, ordered={db_product_uom_qty}")
-
-                    if db_qty_invoiced < db_product_uom_qty:
-                        all_invoiced = False
-                        _logger.info(f"      ❌ Not fully invoiced: {db_qty_invoiced} < {db_product_uom_qty}")
-
-                # Update invoice_status
-                if all_invoiced:
-                    _logger.info(f"   ✅ All lines invoiced - marking SO as INVOICED")
-                    self.env.cr.execute("""
-                        UPDATE sale_order 
-                        SET invoice_status = 'invoiced'
-                        WHERE id = %s
-                    """, (move.sale_order_id.id,))
-                    self.env.cr.commit()
-                    _logger.info(f"   ✅ Sales order {move.sale_order_id.name} marked as INVOICED")
-                else:
-                    _logger.info(f"   ⚠️ Sales order {move.sale_order_id.name} partially invoiced")
+        # Call parent _post method - this will trigger Odoo's standard SO invoice tracking
+        res = super(AccountMove, self)._post(soft)
 
         return res

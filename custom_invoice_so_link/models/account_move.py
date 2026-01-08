@@ -117,7 +117,6 @@
 #             # Set fiscal position if available
 #             if self.sale_order_id.fiscal_position_id:
 #                 self.fiscal_position_id = self.sale_order_id.fiscal_position_id
-
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 import logging
@@ -190,6 +189,7 @@ class AccountMove(models.Model):
 
     @api.onchange('sale_order_id')
     def _onchange_sale_order_id(self):
+        """Populate invoice lines from selected sales order"""
         if self.sale_order_id and self.move_type in ['out_invoice', 'out_refund']:
             self.invoice_line_ids = [(5, 0, 0)]
 
@@ -227,28 +227,108 @@ class AccountMove(models.Model):
             if self.sale_order_id.fiscal_position_id:
                 self.fiscal_position_id = self.sale_order_id.fiscal_position_id
 
-    def _post(self, soft=True):
-        """Override _post to link invoice lines to sales order lines BEFORE posting"""
-        # Link invoice lines to SO lines before posting
-        for move in self:
-            if move.sale_order_id and move.move_type == 'out_invoice':
-                _logger.info(f"Linking invoice to sales order {move.sale_order_id.name}")
+    def write(self, vals):
+        """Override write to ensure sale_order_id is saved"""
+        res = super(AccountMove, self).write(vals)
 
-                # Ensure all invoice lines are linked to the correct SO lines
+        # If sale_order_id is being set, ensure invoice_origin is set
+        if 'sale_order_id' in vals and vals['sale_order_id']:
+            for move in self:
+                if move.sale_order_id and not move.invoice_origin:
+                    move.invoice_origin = move.sale_order_id.name
+
+        return res
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Override create to ensure sale_order_id relationship is saved"""
+        moves = super(AccountMove, self).create(vals_list)
+
+        for move in moves:
+            if move.sale_order_id and not move.invoice_origin:
+                move.invoice_origin = move.sale_order_id.name
+
+        return moves
+
+    def _post(self, soft=True):
+        """Override _post to update sales order after invoice confirmation"""
+        res = super(AccountMove, self)._post(soft)
+
+        for move in self.filtered(lambda m: m.state == 'posted'):
+            if move.sale_order_id and move.move_type == 'out_invoice':
+                _logger.info(f"📝 Processing invoice {move.name} for SO {move.sale_order_id.name}")
+
+                # Update qty_invoiced for each sale order line
                 for inv_line in move.invoice_line_ids.filtered(lambda l: l.product_id and not l.display_type):
-                    if not inv_line.sale_line_ids:
-                        # Find matching SO line
-                        so_line = move.sale_order_id.order_line.filtered(
+                    # Find the corresponding SO line(s)
+                    if inv_line.sale_line_ids:
+                        # Already linked via sale_line_ids
+                        for so_line in inv_line.sale_line_ids:
+                            new_qty = so_line.qty_invoiced + inv_line.quantity
+                            so_line.write({'qty_invoiced': new_qty})
+                            _logger.info(f"   Updated SO line {so_line.id}: qty_invoiced = {new_qty}")
+                    else:
+                        # Try to find matching SO line by product
+                        matching_lines = move.sale_order_id.order_line.filtered(
                             lambda l: l.product_id == inv_line.product_id and
                                       not l.display_type and
                                       l.qty_to_invoice > 0
-                        )[:1]
+                        )
 
-                        if so_line:
-                            inv_line.sale_line_ids = [(6, 0, [so_line.id])]
-                            _logger.info(f"Linked invoice line to SO line {so_line.id}")
+                        if matching_lines:
+                            so_line = matching_lines[0]
+                            # Link the invoice line to SO line
+                            inv_line.write({'sale_line_ids': [(6, 0, [so_line.id])]})
+                            # Update qty_invoiced
+                            new_qty = so_line.qty_invoiced + inv_line.quantity
+                            so_line.write({'qty_invoiced': new_qty})
+                            _logger.info(f"   Linked and updated SO line {so_line.id}: qty_invoiced = {new_qty}")
 
-        # Call parent _post method - this will trigger Odoo's standard SO invoice tracking
-        res = super(AccountMove, self)._post(soft)
+                # Force recompute of invoice_status
+                move.sale_order_id._compute_invoice_status()
+                move.sale_order_id.invalidate_recordset(['invoice_status'])
 
+                _logger.info(f"   ✅ SO {move.sale_order_id.name} invoice_status: {move.sale_order_id.invoice_status}")
+
+        return res
+
+    def button_draft(self):
+        """Override button_draft to handle sales order when resetting to draft"""
+        res = super(AccountMove, self).button_draft()
+
+        for move in self:
+            if move.sale_order_id and move.move_type == 'out_invoice':
+                _logger.info(f"🔄 Resetting invoice {move.name} to draft for SO {move.sale_order_id.name}")
+
+                # Decrease qty_invoiced for each sale order line
+                for inv_line in move.invoice_line_ids.filtered(lambda l: l.sale_line_ids):
+                    for so_line in inv_line.sale_line_ids:
+                        new_qty = max(0, so_line.qty_invoiced - inv_line.quantity)
+                        so_line.write({'qty_invoiced': new_qty})
+                        _logger.info(f"   Decreased SO line {so_line.id}: qty_invoiced = {new_qty}")
+
+                # Force recompute of invoice_status
+                move.sale_order_id._compute_invoice_status()
+                move.sale_order_id.invalidate_recordset(['invoice_status'])
+
+        return res
+
+    def button_cancel(self):
+        """Override button_cancel to handle sales order when canceling"""
+        for move in self:
+            if move.sale_order_id and move.move_type == 'out_invoice' and move.state == 'posted':
+                _logger.info(f"❌ Canceling invoice {move.name} for SO {move.sale_order_id.name}")
+
+                # Decrease qty_invoiced for each sale order line
+                for inv_line in move.invoice_line_ids.filtered(lambda l: l.sale_line_ids):
+                    for so_line in inv_line.sale_line_ids:
+                        new_qty = max(0, so_line.qty_invoiced - inv_line.quantity)
+                        so_line.write({'qty_invoiced': new_qty})
+                        _logger.info(f"   Decreased SO line {so_line.id}: qty_invoiced = {new_qty}")
+
+                # Force recompute of invoice_status
+                move.sale_order_id._compute_invoice_status()
+                move.sale_order_id.invalidate_recordset(['invoice_status'])
+
+        res = super(AccountMove, self).button_cancel()
         return res

@@ -31,6 +31,22 @@ class AccountMove(models.Model):
             self.goods_receipt_number = False
         return res
 
+    def _get_tracking_ref_from_picking(self, picking):
+        """Safely get tracking reference from picking"""
+        # Try different possible field names for tracking reference
+        tracking_fields = [
+            'carrier_tracking_ref',  # With delivery module
+            'carrier_tracking_url',
+            'name',  # Fallback to picking name
+        ]
+
+        for field in tracking_fields:
+            if hasattr(picking, field):
+                value = getattr(picking, field, False)
+                if value and field != 'name':
+                    return value
+        return False
+
     @api.onchange('purchase_vendor_bill_id', 'purchase_id')
     def _onchange_purchase_auto_complete(self):
         """Auto-fill PO Number, GR, and AWB when purchase order is selected via Auto-Complete"""
@@ -52,12 +68,10 @@ class AccountMove(models.Model):
             if pickings:
                 self.goods_receipt_number = pickings.id
 
-                # Try to get AWB from picking (if stored in carrier_tracking_ref or origin)
-                if pickings.carrier_tracking_ref:
-                    self.awb_number = pickings.carrier_tracking_ref
-                elif not self.awb_number and po.name:
-                    # Alternative: you can set a default or leave blank
-                    pass
+                # Try to get AWB from picking
+                tracking_ref = self._get_tracking_ref_from_picking(pickings)
+                if tracking_ref:
+                    self.awb_number = tracking_ref
 
         elif self.purchase_id:
             # Direct purchase_id field (alternative auto-complete method)
@@ -72,8 +86,9 @@ class AccountMove(models.Model):
 
             if pickings:
                 self.goods_receipt_number = pickings.id
-                if pickings.carrier_tracking_ref:
-                    self.awb_number = pickings.carrier_tracking_ref
+                tracking_ref = self._get_tracking_ref_from_picking(pickings)
+                if tracking_ref:
+                    self.awb_number = tracking_ref
 
         return res
 
@@ -100,8 +115,9 @@ class AccountMove(models.Model):
 
             if pickings:
                 self.goods_receipt_number = pickings.id
-                if pickings.carrier_tracking_ref:
-                    self.awb_number = pickings.carrier_tracking_ref
+                tracking_ref = self._get_tracking_ref_from_picking(pickings)
+                if tracking_ref:
+                    self.awb_number = tracking_ref
 
             # Populate invoice lines from PO if no lines exist
             if not self.invoice_line_ids:
@@ -112,15 +128,19 @@ class AccountMove(models.Model):
                         account = line.product_id.property_account_expense_id or \
                                   line.product_id.categ_id.property_account_expense_categ_id
 
-                        lines_data.append((0, 0, {
-                            'product_id': line.product_id.id,
-                            'quantity': line.product_qty - line.qty_invoiced,
-                            'price_unit': line.price_unit,
-                            'name': line.name,
-                            'account_id': account.id if account else False,
-                            'tax_ids': [(6, 0, line.taxes_id.ids)],
-                            'purchase_line_id': line.id,
-                        }))
+                        # Calculate remaining quantity to invoice
+                        qty_to_invoice = line.product_qty - line.qty_invoiced
+
+                        if qty_to_invoice > 0:
+                            lines_data.append((0, 0, {
+                                'product_id': line.product_id.id,
+                                'quantity': qty_to_invoice,
+                                'price_unit': line.price_unit,
+                                'name': line.name,
+                                'account_id': account.id if account else False,
+                                'tax_ids': [(6, 0, line.taxes_id.ids)],
+                                'purchase_line_id': line.id,
+                            }))
                 if lines_data:
                     self.invoice_line_ids = lines_data
 
@@ -131,13 +151,14 @@ class AccountMove(models.Model):
             gr = self.goods_receipt_number
 
             # Auto-populate AWB if available in GR
-            if gr.carrier_tracking_ref and not self.awb_number:
-                self.awb_number = gr.carrier_tracking_ref
+            if not self.awb_number:
+                tracking_ref = self._get_tracking_ref_from_picking(gr)
+                if tracking_ref:
+                    self.awb_number = tracking_ref
 
             # If PO is not set, try to set it from GR
             if not self.po_number and gr.purchase_id:
                 self.po_number = gr.purchase_id.id
-
 
 
 

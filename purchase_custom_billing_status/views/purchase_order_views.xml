@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Inherit and modify the default Purchase Order List View -->
-        <record id="purchase_order_view_list_inherit" model="ir.ui.view">
-            <field name="name">purchase.order.list.inherit</field>
+        <!-- Inherit the "Requests for Quotation" list view -->
+        <record id="purchase_order_rfq_list_inherit" model="ir.ui.view">
+            <field name="name">purchase.order.rfq.list.custom.billing</field>
             <field name="model">purchase.order</field>
-            <field name="inherit_id" ref="purchase.purchase_order_list"/>
+            <field name="inherit_id" ref="purchase.purchase_order_view_list_rfq"/>
             <field name="arch" type="xml">
-                <!-- Replace the original invoice_status field with our custom one -->
                 <xpath expr="//field[@name='invoice_status']" position="replace">
                     <field name="invoice_status" optional="show" widget="badge"
                             decoration-success="invoice_status == 'invoiced'"
@@ -18,11 +17,11 @@
             </field>
         </record>
 
-        <!-- Alternative: If the above doesn't work, create a new view for RFQ list -->
-        <record id="purchase_rfq_view_list_inherit" model="ir.ui.view">
-            <field name="name">purchase.order.rfq.list.inherit</field>
+        <!-- Inherit the main "Purchase Orders" list view -->
+        <record id="purchase_order_list_inherit" model="ir.ui.view">
+            <field name="name">purchase.order.list.custom.billing</field>
             <field name="model">purchase.order</field>
-            <field name="inherit_id" ref="purchase.purchase_order_list_view_rfq"/>
+            <field name="inherit_id" ref="purchase.purchase_order_view_list"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='invoice_status']" position="replace">
                     <field name="invoice_status" optional="show" widget="badge"

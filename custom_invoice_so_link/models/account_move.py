@@ -238,8 +238,24 @@ class AccountMove(models.Model):
                 # Update each SO line manually using direct SQL
                 for inv_line in move.invoice_line_ids.filtered(lambda l: l.sale_line_ids):
                     for so_line in inv_line.sale_line_ids:
+                        # Get current qty_invoiced from database
+                        self.env.cr.execute("""
+                            SELECT qty_invoiced, product_uom_qty 
+                            FROM sale_order_line 
+                            WHERE id = %s
+                        """, (so_line.id,))
+                        result = self.env.cr.fetchone()
+                        current_qty_invoiced = result[0] if result else 0
+                        product_uom_qty = result[1] if result else 0
+
                         # Calculate new qty_invoiced
-                        new_qty = so_line.qty_invoiced + inv_line.quantity
+                        new_qty = current_qty_invoiced + inv_line.quantity
+
+                        _logger.info(f"   SO Line {so_line.id} ({so_line.product_id.name}):")
+                        _logger.info(f"      - Ordered: {product_uom_qty}")
+                        _logger.info(f"      - Previously invoiced: {current_qty_invoiced}")
+                        _logger.info(f"      - Invoice line qty: {inv_line.quantity}")
+                        _logger.info(f"      - New qty_invoiced: {new_qty}")
 
                         # Direct SQL update
                         self.env.cr.execute("""
@@ -248,8 +264,6 @@ class AccountMove(models.Model):
                             WHERE id = %s
                         """, (new_qty, so_line.id))
 
-                        _logger.info(f"   Updated SO line {so_line.id}: qty_invoiced = {new_qty}")
-
                 # Force database commit
                 self.env.cr.commit()
 
@@ -257,24 +271,33 @@ class AccountMove(models.Model):
                 move.sale_order_id.invalidate_recordset(['invoice_status'])
                 move.sale_order_id.order_line.invalidate_recordset(['qty_invoiced'])
 
-                # Check if all lines are fully invoiced
+                # Re-fetch all SO lines from database
                 all_lines = move.sale_order_id.order_line.filtered(lambda l: l.product_id and not l.display_type)
 
-                # Refresh data from DB
-                all_lines_data = self.env.cr.execute("""
-                    SELECT id, product_uom_qty, qty_invoiced 
-                    FROM sale_order_line 
-                    WHERE id IN %s
-                """, (tuple(all_lines.ids),))
+                _logger.info(f"   Checking invoice status for {len(all_lines)} lines:")
 
+                # Check if all lines are fully invoiced
                 all_invoiced = True
                 for line in all_lines:
-                    if line.qty_invoiced < line.product_uom_qty:
+                    # Re-fetch from DB
+                    self.env.cr.execute("""
+                        SELECT qty_invoiced, product_uom_qty 
+                        FROM sale_order_line 
+                        WHERE id = %s
+                    """, (line.id,))
+                    result = self.env.cr.fetchone()
+                    db_qty_invoiced = result[0] if result else 0
+                    db_product_uom_qty = result[1] if result else 0
+
+                    _logger.info(f"      Line {line.id}: invoiced={db_qty_invoiced}, ordered={db_product_uom_qty}")
+
+                    if db_qty_invoiced < db_product_uom_qty:
                         all_invoiced = False
-                        break
+                        _logger.info(f"      ❌ Not fully invoiced: {db_qty_invoiced} < {db_product_uom_qty}")
 
                 # Update invoice_status
                 if all_invoiced:
+                    _logger.info(f"   ✅ All lines invoiced - marking SO as INVOICED")
                     self.env.cr.execute("""
                         UPDATE sale_order 
                         SET invoice_status = 'invoiced'

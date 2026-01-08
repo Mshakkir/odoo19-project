@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Hide Create Invoice button when already invoiced -->
     <record id="view_order_form_inherit_hide_create_invoice" model="ir.ui.view">
         <field name="name">sale.order.form.inherit.hide.invoice.button</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <!-- Try to find and hide invoice-related buttons -->
-            <xpath expr="//header//button[@name='_create_invoices']" position="attributes">
+            <!-- Find button by string attribute instead -->
+            <xpath expr="//button[@string='Create Invoice']" position="attributes">
                 <attribute name="invisible">invoice_status in ('invoiced', 'no') or invoice_count > 0</attribute>
             </xpath>
         </field>

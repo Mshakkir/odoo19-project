@@ -7,6 +7,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/account_move_views.xml',
+        'views/sale_order_views.xml',
     ],
     'installable': True,
     'application': False,

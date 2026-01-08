@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Hide Create Invoice button when already invoiced -->
+    <record id="view_order_form_inherit_hide_create_invoice" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.hide.invoice.button</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Hide the Create Invoice button when invoice_status is 'invoiced' -->
+            <xpath expr="//button[@name='action_create_invoice']" position="attributes">
+                <attribute name="invisible">invoice_status == 'invoiced'</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

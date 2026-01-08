@@ -1,34 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Inherit the "Requests for Quotation" list view -->
-        <record id="purchase_order_rfq_list_inherit" model="ir.ui.view">
-            <field name="name">purchase.order.rfq.list.custom.billing</field>
+        <!-- Create a custom selection field display helper -->
+        <record id="view_purchase_order_form_custom_billing" model="ir.ui.view">
+            <field name="name">purchase.order.form.custom.billing</field>
             <field name="model">purchase.order</field>
-            <field name="inherit_id" ref="purchase.purchase_order_view_list_rfq"/>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='invoice_status']" position="replace">
-                    <field name="invoice_status" optional="show" widget="badge"
-                            decoration-success="invoice_status == 'invoiced'"
-                            decoration-warning="invoice_status == 'to invoice'"
-                            decoration-info="invoice_status == 'partially_invoice'"
-                            decoration-muted="invoice_status == 'no'"/>
-                </xpath>
-            </field>
-        </record>
-
-        <!-- Inherit the main "Purchase Orders" list view -->
-        <record id="purchase_order_list_inherit" model="ir.ui.view">
-            <field name="name">purchase.order.list.custom.billing</field>
-            <field name="model">purchase.order</field>
-            <field name="inherit_id" ref="purchase.purchase_order_view_list"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='invoice_status']" position="replace">
-                    <field name="invoice_status" optional="show" widget="badge"
-                            decoration-success="invoice_status == 'invoiced'"
-                            decoration-warning="invoice_status == 'to invoice'"
-                            decoration-info="invoice_status == 'partially_invoice'"
-                            decoration-muted="invoice_status == 'no'"/>
+                <xpath expr="//field[@name='invoice_status']" position="attributes">
+                    <attribute name="widget">badge</attribute>
+                    <attribute name="decoration-success">invoice_status == 'invoiced'</attribute>
+                    <attribute name="decoration-warning">invoice_status == 'to invoice'</attribute>
+                    <attribute name="decoration-info">invoice_status == 'partially_invoice'</attribute>
                 </xpath>
             </field>
         </record>

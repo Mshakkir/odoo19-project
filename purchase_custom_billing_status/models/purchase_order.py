@@ -1,11 +1,13 @@
 from odoo import models, fields, api
 
+
 class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
+    # Override the selection to add custom labels
     invoice_status = fields.Selection(
         selection=[
-            ('no', 'No Invoice'),
+            ('no', 'No Invoice Required'),
             ('to invoice', 'Waiting Bills'),
             ('partially_invoice', 'Partially Billed'),
             ('invoiced', 'Fully Billed'),
@@ -19,35 +21,31 @@ class PurchaseOrder(models.Model):
     @api.depends('order_line.qty_received', 'order_line.qty_invoiced', 'order_line.product_qty', 'state')
     def _compute_invoice_status(self):
         """
-        Compute the invoice status of PO based on invoiced quantity
+        Compute the invoice status based on order lines invoiced quantity
         """
         for order in self:
-            # If order is not in purchase or done state, set to no
-            if order.state not in ['purchase', 'done']:
+            # If order is not in purchase state, no invoice status
+            if order.state != 'purchase':
                 order.invoice_status = 'no'
                 continue
 
-            # Filter lines that need invoicing (exclude services without purchase order)
-            invoice_lines = order.order_line.filtered(
-                lambda x: x.product_id.type != 'service'
-            )
+            # Get all lines that require invoicing (product type goods only)
+            lines = order.order_line.filtered(lambda x: x.product_id.type in ['consu', 'product'])
 
-            if not invoice_lines:
+            if not lines:
                 order.invoice_status = 'no'
                 continue
 
-            # Calculate total and invoiced quantities
-            total_qty = sum(line.product_qty for line in invoice_lines)
-            invoiced_qty = sum(line.qty_invoiced for line in invoice_lines)
+            # Calculate quantities
+            total_qty = sum(lines.mapped('product_qty'))
+            invoiced_qty = sum(lines.mapped('qty_invoiced'))
 
-            if total_qty == 0:
-                order.invoice_status = 'no'
-            elif invoiced_qty == 0:
-                # Nothing invoiced yet
+            if invoiced_qty == 0:
+                # No lines invoiced
                 order.invoice_status = 'to invoice'
             elif invoiced_qty >= total_qty:
-                # Everything invoiced
+                # All lines invoiced
                 order.invoice_status = 'invoiced'
             else:
-                # Partially invoiced
+                # Some lines invoiced, not all
                 order.invoice_status = 'partially_invoice'

@@ -118,7 +118,7 @@ class PurchaseOrder(models.Model):
                         picking_vals = {
                             'picking_type_id': picking_type.id,
                             'partner_id': order.partner_id.id,
-                            'date': order.date_order,
+                            'scheduled_date': order.date_order,  # ✅ FIXED: Changed from 'date' to 'scheduled_date'
                             'origin': order.name,
                             'location_dest_id': warehouse.lot_stock_id.id,
                             'location_id': order.partner_id.property_stock_supplier.id or self.env.ref(

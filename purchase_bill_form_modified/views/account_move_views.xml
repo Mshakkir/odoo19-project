@@ -8,22 +8,11 @@
             <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
 
-                <!-- Modify Auto-Complete field to filter only unbilled POs -->
-                <xpath expr="//field[@name='purchase_vendor_bill_id']" position="attributes">
-                    <attribute name="domain">[
-                        '|',
-                        ('move_type', '=', 'in_invoice'),
-                        '&amp;',
-                        ('purchase_order_id.invoice_status', 'in', ['to invoice', 'no']),
-                        ('purchase_order_id.state', 'in', ['purchase', 'done'])
-                    ]</attribute>
-                </xpath>
-
                 <!-- Add new fields after Auto-Complete field -->
                 <xpath expr="//field[@name='purchase_vendor_bill_id']" position="after">
                     <field name="po_number"
                         invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
-                        domain="[('partner_id', '=', partner_id), ('state', 'in', ['purchase', 'done']), ('invoice_status', 'in', ['to invoice', 'no'])]"
+                        domain="[('partner_id', '=', partner_id), ('state', 'in', ['purchase', 'done'])]"
                         options="{'no_create': True, 'no_open': True}"
                         readonly="state != 'draft'"
                         string="PO Number"
@@ -49,49 +38,4 @@
 
     </data>
 </odoo>
-
-
-
-
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-<!--    <data>-->
-<!--        &lt;!&ndash; Inherit the account move form to add new fields &ndash;&gt;-->
-<!--        <record id="account_move_vendor_bill_custom_form" model="ir.ui.view">-->
-<!--            <field name="name">account.move.vendor.bill.custom.form</field>-->
-<!--            <field name="model">account.move</field>-->
-<!--            <field name="inherit_id" ref="account.view_move_form"/>-->
-<!--            <field name="arch" type="xml">-->
-
-<!--                &lt;!&ndash; Add new fields after Auto-Complete field &ndash;&gt;-->
-<!--                <xpath expr="//field[@name='purchase_vendor_bill_id']" position="after">-->
-<!--                    <field name="po_number"-->
-<!--                        invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"-->
-<!--                        domain="[('partner_id', '=', partner_id), ('state', 'in', ['purchase', 'done'])]"-->
-<!--                        options="{'no_create': True, 'no_open': True}"-->
-<!--                        readonly="state != 'draft'"-->
-<!--                        string="PO Number"-->
-<!--                        force_save="1"/>-->
-
-<!--                    <field name="goods_receipt_number"-->
-<!--                        invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"-->
-<!--                        domain="[('partner_id', '=', partner_id), ('picking_type_id.code', '=', 'incoming'), ('state', '=', 'done')]"-->
-<!--                        options="{'no_create': True, 'no_open': True}"-->
-<!--                        readonly="state != 'draft'"-->
-<!--                        string="Goods Receipt (GR)"-->
-<!--                        force_save="1"/>-->
-
-<!--                    <field name="awb_number"-->
-<!--                        invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"-->
-<!--                        readonly="state != 'draft'"-->
-<!--                        string="AWB Number"-->
-<!--                        force_save="1"/>-->
-<!--                </xpath>-->
-
-<!--            </field>-->
-<!--        </record>-->
-
-<!--    </data>-->
-<!--</odoo>-->
 

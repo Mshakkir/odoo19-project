@@ -5,9 +5,11 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <!-- Find button by string attribute instead -->
-            <xpath expr="//button[@string='Create Invoice']" position="attributes">
-                <attribute name="invisible">invoice_status in ('invoiced', 'no') or invoice_count > 0</attribute>
+            <!-- Add invisible domain to header buttons -->
+            <xpath expr="//header" position="inside">
+                <style>
+                    button[name='_create_invoices'][data-invisible="invoice_count > 0"] { display: none !important; }
+                </style>
             </xpath>
         </field>
     </record>

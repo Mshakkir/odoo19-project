@@ -1,36 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Inherit the account move form to add new fields -->
+
+        <!-- ========================================= -->
+        <!-- Vendor Bill Form Customization -->
+        <!-- ========================================= -->
         <record id="account_move_vendor_bill_custom_form" model="ir.ui.view">
             <field name="name">account.move.vendor.bill.custom.form</field>
             <field name="model">account.move</field>
             <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
 
-                <!-- Add new fields after Reference field in header left group -->
-                <xpath expr="//group[@id='header_left_group']" position="inside">
+                <!-- ================================================= -->
+                <!-- Replace Invoice Auto-Complete with PO Auto-Complete -->
+                <!-- ================================================= -->
+                <xpath expr="//field[@name='invoice_vendor_bill_id']" position="replace">
+                    <label
+                        string="Auto-Complete"
+                        class="oe_edit_only"
+                        invisible="state != 'draft' or move_type not in ('in_invoice', 'in_refund')"/>
+
                     <field name="po_number"
-                        invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
-                        domain="[('partner_id', '=', partner_id), ('state', 'in', ['purchase', 'done'])]"
+                        class="oe_edit_only"
+                        nolabel="1"
+                        invisible="state != 'draft' or move_type not in ('in_invoice', 'in_refund')"
+                        domain="[
+                            ('company_id', '=', company_id),
+                            ('partner_id', 'child_of', [partner_id]),
+                            ('state', 'in', ['purchase', 'done'])
+                        ]"
+                        placeholder="Select a Purchase Order"
                         options="{'no_create': True}"
-                        readonly="state != 'draft'"
+                        context="{'show_total_amount': True}"/>
+                </xpath>
+
+                <!-- ========================================= -->
+                <!-- Add PO / GRN / AWB fields in Header -->
+                <!-- ========================================= -->
+                <xpath expr="//group[@id='header_left_group']" position="inside">
+
+                    <!-- Purchase Order -->
+                    <field name="po_number"
                         string="PO Number"
-                        force_save="1"/>
-
-                    <field name="goods_receipt_number"
+                        readonly="state != 'draft'"
                         invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
-                        domain="[('partner_id', '=', partner_id), ('picking_type_id.code', '=', 'incoming'), ('state', '=', 'done')]"
+                        domain="[
+                            ('partner_id', '=', partner_id),
+                            ('state', 'in', ['purchase', 'done'])
+                        ]"
                         options="{'no_create': True}"
-                        readonly="state != 'draft'"
-                        string="Goods Receipt (GR)"
                         force_save="1"/>
 
-                    <field name="awb_number"
-                        invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
+                    <!-- Goods Receipt -->
+                    <field name="goods_receipt_number"
+                        string="Goods Receipt (GR)"
                         readonly="state != 'draft'"
-                        string="AWB Number"
+                        invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
+                        domain="[
+                            ('partner_id', '=', partner_id),
+                            ('picking_type_id.code', '=', 'incoming'),
+                            ('state', '=', 'done')
+                        ]"
+                        options="{'no_create': True}"
                         force_save="1"/>
+
+                    <!-- AWB Number -->
+                    <field name="awb_number"
+                        string="AWB Number"
+                        readonly="state != 'draft'"
+                        invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
+                        force_save="1"/>
+
                 </xpath>
 
             </field>

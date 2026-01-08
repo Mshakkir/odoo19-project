@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Inherit invoice form view -->
+        <record id="account_move_invoice_form_custom" model="ir.ui.view">
+            <field name="name">account.move.invoice.form.custom</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id">account.view_move_form</field>
+            <field name="arch" type="xml">
+
+                <!-- Add new fields after reference field -->
+                <xpath expr="//field[@name='ref']" position="after">
+                    <field name="po_number"
+                        attrs="{'invisible': [('move_type', 'not in', ['in_invoice', 'in_refund'])],
+                                'required': [('move_type', '=', 'in_invoice')]}"
+                        options="{'no_create': True}"/>
+
+                    <field name="goods_receipt_number"
+                        attrs="{'invisible': [('move_type', 'not in', ['in_invoice', 'in_refund'])],
+                                'required': [('move_type', '=', 'in_invoice')]}"
+                        options="{'no_create': True}"/>
+
+                    <field name="awb_number"
+                        attrs="{'invisible': [('move_type', 'not in', ['in_invoice', 'in_refund'])]}"/>
+                </xpath>
+
+                <!-- Display PO details in a group -->
+                <xpath expr="//group[@name='reference']" position="after">
+                    <group name="po_details" attrs="{'invisible': [('po_number', '=', False)]}">
+                        <field name="po_number" invisible="1"/>
+                        <field name="po_number.name" string="Purchase Order" readonly="1"
+                            attrs="{'invisible': [('po_number', '=', False)]}"/>
+                        <field name="po_number.order_date" string="PO Date" readonly="1"
+                            attrs="{'invisible': [('po_number', '=', False)]}"/>
+                        <field name="po_number.amount_total" string="PO Amount" readonly="1"
+                            attrs="{'invisible': [('po_number', '=', False)]}"/>
+                    </group>
+                </xpath>
+
+            </field>
+        </record>
+
+        <!-- Vendor bill specific view -->
+        <record id="account_move_vendor_bill_form_custom" model="ir.ui.view">
+            <field name="name">account.move.vendor.bill.form.custom</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id">account.view_move_form</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='ref']" position="after">
+                    <field name="po_number"
+                        domain="[('partner_id', '=', partner_id), ('state', 'in', ['purchase', 'done'])]"
+                        options="{'no_create': True}"/>
+
+                    <field name="goods_receipt_number"
+                        domain="[('partner_id', '=', partner_id), ('picking_type_id.code', '=', 'incoming'), ('state', '=', 'done')]"
+                        options="{'no_create': True}"/>
+
+                    <field name="awb_number"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

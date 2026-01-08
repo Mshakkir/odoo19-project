@@ -24,21 +24,7 @@
                                 <p class="hero-description">
                                     <t t-esc="main_category['description']"/>
                                 </p>
-<!--                                <t t-if="child_categories">-->
-<!--                                    <div class="hero-stats">-->
-<!--                                        <div class="stat-item">-->
-<!--                                            <div class="stat-number"><t t-esc="len(child_categories)"/></div>-->
-<!--                                            <div class="stat-label">Subcategories</div>-->
-<!--                                        </div>-->
-<!--                                        <div class="stat-divider"></div>-->
-<!--                                        <div class="stat-item">-->
-<!--                                            <div class="stat-number">-->
-<!--                                                <t t-esc="sum(child['product_count'] for child in child_categories)"/>-->
-<!--                                            </div>-->
-<!--                                            <div class="stat-label">Total Products</div>-->
-<!--                                        </div>-->
-<!--                                    </div>-->
-<!--                                </t>-->
+
 
                                 <!-- Updated Button - Now redirects to shop page with category filter -->
                                 <t t-if="child_categories">

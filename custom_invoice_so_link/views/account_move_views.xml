@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="view_move_form_inherit_so_link" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.so.link</field>
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
@@ -9,12 +10,13 @@
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="available_sale_order_ids" invisible="1"/>
                 <field name="sale_order_id"
-                       string="Sales Order"
-                       widget="many2one"
-                       options="{'no_create': True}"
+                       string="Sales Orders"
+                       widget="selection"
+                       options="{'no_create': True, 'no_open': True}"
                        domain="[('id', 'in', available_sale_order_ids)]"
                        invisible="move_type not in ['out_invoice', 'out_refund'] or not partner_id"
                        placeholder="Select a Sales Order..."/>
+
             </xpath>
 
             <!-- Add Related Deliveries as a separate page in notebook -->
@@ -29,51 +31,4 @@
 
         </field>
     </record>
-
-    <!-- Add Sales Order info in invoice form header/statusbar area -->
-    <record id="view_move_form_inherit_so_link_header" model="ir.ui.view">
-        <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_move_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='invoice_origin']" position="after">
-                <field name="sale_order_id" readonly="1" invisible="not sale_order_id"/>
-            </xpath>
-        </field>
-    </record>
 </odoo>
-
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-<!--    <record id="view_move_form_inherit_so_link" model="ir.ui.view">-->
-<!--        <field name="name">account.move.form.inherit.so.link</field>-->
-<!--        <field name="model">account.move</field>-->
-<!--        <field name="inherit_id" ref="account.view_move_form"/>-->
-<!--        <field name="arch" type="xml">-->
-
-<!--            &lt;!&ndash; Add Sales Order field right after Customer field &ndash;&gt;-->
-<!--            <xpath expr="//field[@name='partner_id']" position="after">-->
-<!--                <field name="available_sale_order_ids" invisible="1"/>-->
-<!--                <field name="sale_order_id"-->
-<!--                       string="Sales Orders"-->
-<!--                       widget="selection"-->
-<!--                       options="{'no_create': True, 'no_open': True}"-->
-<!--                       domain="[('id', 'in', available_sale_order_ids)]"-->
-<!--                       invisible="move_type not in ['out_invoice', 'out_refund'] or not partner_id"-->
-<!--                       placeholder="Select a Sales Order..."/>-->
-
-<!--            </xpath>-->
-
-<!--            &lt;!&ndash; Add Related Deliveries as a separate page in notebook &ndash;&gt;-->
-<!--            <xpath expr="//notebook" position="inside">-->
-<!--                <page string="Related Deliveries"-->
-<!--                      invisible="not partner_id">-->
-<!--                    <field name="delivery_note_ids"-->
-<!--                           nolabel="1"-->
-<!--                           readonly="1"/>-->
-<!--                </page>-->
-<!--            </xpath>-->
-
-<!--        </field>-->
-<!--    </record>-->
-<!--</odoo>-->

@@ -466,7 +466,7 @@ class AccountMove(models.Model):
                 orders = self.env['sale.order'].search([
                     ('partner_id', '=', record.partner_id.id),
                     ('state', 'in', ['sale', 'done']),
-                    ('invoice_status', 'in', ['to invoice', 'invoiced'])
+                    ('invoice_status', 'in', ['to invoice'])
                 ])
                 record.available_sale_order_ids = orders
             else:
@@ -526,7 +526,7 @@ class AccountMove(models.Model):
                         'quantity': qty_to_invoice,
                         'price_unit': line.price_unit,
                         'tax_ids': [(6, 0, line.tax_ids.ids)],
-                        'sale_line_ids': [(6, 0, [line.id])],  # THIS IS CRITICAL!
+                        'sale_line_ids': [(6, 0, [line.id])],
                     }
 
                     # Set account if available
@@ -546,7 +546,10 @@ class AccountMove(models.Model):
 
             # Set PO Number and Customer Reference from Sales Order
             if hasattr(self.sale_order_id, 'client_order_ref') and self.sale_order_id.client_order_ref:
+                # Set PO Number field (client_order_ref) - shown on main form
                 self.client_order_ref = self.sale_order_id.client_order_ref
+
+                # Set Customer Reference field (ref) - shown in Other Info tab
                 self.ref = self.sale_order_id.client_order_ref
 
             # Set AWB Number from Sales Order
@@ -571,43 +574,3 @@ class AccountMove(models.Model):
                     self.l10n_in_shipping_bill_number = picking.name
                 elif hasattr(self, 'delivery_note_number'):
                     self.delivery_note_number = picking.name
-
-    def action_post(self):
-        """Override to update SO invoice status after posting"""
-        res = super(AccountMove, self).action_post()
-
-        # Update related sales orders and their lines
-        for move in self:
-            if move.sale_order_id and move.move_type == 'out_invoice':
-                # Update qty_invoiced on sales order lines
-                for inv_line in move.invoice_line_ids:
-                    if inv_line.sale_line_ids:
-                        for so_line in inv_line.sale_line_ids:
-                            so_line._compute_qty_invoiced()
-
-                # Force recompute of invoice status
-                move.sale_order_id._compute_invoice_status()
-
-        return res
-
-    def button_draft(self):
-        """Override to update SO when invoice is reset to draft"""
-        res = super(AccountMove, self).button_draft()
-
-        # Update related sales orders
-        for move in self:
-            if move.sale_order_id:
-                move.sale_order_id._compute_invoice_status()
-
-        return res
-
-    def button_cancel(self):
-        """Override to update SO when invoice is cancelled"""
-        res = super(AccountMove, self).button_cancel()
-
-        # Update related sales orders
-        for move in self:
-            if move.sale_order_id:
-                move.sale_order_id._compute_invoice_status()
-
-        return res

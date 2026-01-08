@@ -4,7 +4,7 @@
     'category': 'Accounting',
     'summary': 'Add PO, Goods Receipt, and AWB fields to vendor bills',
     'author': 'Your Name',
-    'depends': ['account', 'purchase', 'stock'],
+    'depends': ['account', 'purchase', 'stock','purchase_order_awb'],
     'data': [
         'views/account_move_views.xml',
     ],

@@ -29,23 +29,8 @@ class AccountMove(models.Model):
         if self.move_type in ['in_invoice', 'in_refund']:
             self.po_number = False
             self.goods_receipt_number = False
+            self.awb_number = False
         return res
-
-    def _get_tracking_ref_from_picking(self, picking):
-        """Safely get tracking reference from picking"""
-        # Try different possible field names for tracking reference
-        tracking_fields = [
-            'carrier_tracking_ref',  # With delivery module
-            'carrier_tracking_url',
-            'name',  # Fallback to picking name
-        ]
-
-        for field in tracking_fields:
-            if hasattr(picking, field):
-                value = getattr(picking, field, False)
-                if value and field != 'name':
-                    return value
-        return False
 
     @api.onchange('purchase_vendor_bill_id', 'purchase_id')
     def _onchange_purchase_auto_complete(self):
@@ -58,6 +43,10 @@ class AccountMove(models.Model):
             # Auto-fill PO Number
             self.po_number = po.id
 
+            # Auto-fill AWB from Purchase Order
+            if hasattr(po, 'awb_number') and po.awb_number:
+                self.awb_number = po.awb_number
+
             # Find related Goods Receipt (incoming picking)
             pickings = self.env['stock.picking'].search([
                 ('purchase_id', '=', po.id),
@@ -68,15 +57,14 @@ class AccountMove(models.Model):
             if pickings:
                 self.goods_receipt_number = pickings.id
 
-                # Try to get AWB from picking
-                tracking_ref = self._get_tracking_ref_from_picking(pickings)
-                if tracking_ref:
-                    self.awb_number = tracking_ref
-
         elif self.purchase_id:
             # Direct purchase_id field (alternative auto-complete method)
             po = self.purchase_id
             self.po_number = po.id
+
+            # Auto-fill AWB from Purchase Order
+            if hasattr(po, 'awb_number') and po.awb_number:
+                self.awb_number = po.awb_number
 
             pickings = self.env['stock.picking'].search([
                 ('purchase_id', '=', po.id),
@@ -86,9 +74,6 @@ class AccountMove(models.Model):
 
             if pickings:
                 self.goods_receipt_number = pickings.id
-                tracking_ref = self._get_tracking_ref_from_picking(pickings)
-                if tracking_ref:
-                    self.awb_number = tracking_ref
 
         return res
 
@@ -106,6 +91,10 @@ class AccountMove(models.Model):
             if not self.invoice_date:
                 self.invoice_date = fields.Date.today()
 
+            # Auto-fill AWB from Purchase Order
+            if hasattr(po, 'awb_number') and po.awb_number and not self.awb_number:
+                self.awb_number = po.awb_number
+
             # Find related Goods Receipt
             pickings = self.env['stock.picking'].search([
                 ('purchase_id', '=', po.id),
@@ -115,9 +104,6 @@ class AccountMove(models.Model):
 
             if pickings:
                 self.goods_receipt_number = pickings.id
-                tracking_ref = self._get_tracking_ref_from_picking(pickings)
-                if tracking_ref:
-                    self.awb_number = tracking_ref
 
             # Populate invoice lines from PO if no lines exist
             if not self.invoice_line_ids:
@@ -146,21 +132,17 @@ class AccountMove(models.Model):
 
     @api.onchange('goods_receipt_number')
     def _onchange_goods_receipt(self):
-        """Update AWB when GR is selected"""
+        """Update PO and AWB when GR is selected"""
         if self.goods_receipt_number:
             gr = self.goods_receipt_number
-
-            # Auto-populate AWB if available in GR
-            if not self.awb_number:
-                tracking_ref = self._get_tracking_ref_from_picking(gr)
-                if tracking_ref:
-                    self.awb_number = tracking_ref
 
             # If PO is not set, try to set it from GR
             if not self.po_number and gr.purchase_id:
                 self.po_number = gr.purchase_id.id
 
-
+                # Also get AWB from the related PO
+                if hasattr(gr.purchase_id, 'awb_number') and gr.purchase_id.awb_number and not self.awb_number:
+                    self.awb_number = gr.purchase_id.awb_number
 
 
 

@@ -5,7 +5,7 @@
         <record id="account_move_invoice_form_custom" model="ir.ui.view">
             <field name="name">account.move.invoice.form.custom</field>
             <field name="model">account.move</field>
-            <field name="inherit_id">account.view_move_form</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
 
                 <!-- Add new fields after reference field -->
@@ -44,7 +44,7 @@
         <record id="account_move_vendor_bill_form_custom" model="ir.ui.view">
             <field name="name">account.move.vendor.bill.form.custom</field>
             <field name="model">account.move</field>
-            <field name="inherit_id">account.view_move_form</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='ref']" position="after">
                     <field name="po_number"

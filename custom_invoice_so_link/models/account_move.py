@@ -31,11 +31,12 @@
 #         """Compute available sales orders for the selected customer"""
 #         for record in self:
 #             if record.partner_id and record.move_type in ['out_invoice', 'out_refund']:
-#                 # Find sales orders for this customer that can be invoiced
+#                 # Find sales orders for this customer that NEED to be invoiced
+#                 # Only show orders with invoice_status = 'to invoice' (pending)
 #                 orders = self.env['sale.order'].search([
 #                     ('partner_id', '=', record.partner_id.id),
 #                     ('state', 'in', ['sale', 'done']),
-#                     ('invoice_status', 'in', ['to invoice', 'invoiced'])
+#                     ('invoice_status', '=', 'to invoice')  # Changed: only pending invoices
 #                 ])
 #                 record.available_sale_order_ids = orders
 #             else:
@@ -66,7 +67,7 @@
 #                 'sale_order_id': [
 #                     ('partner_id', '=', self.partner_id.id),
 #                     ('state', 'in', ['sale', 'done']),
-#                     ('invoice_status', 'in', ['to invoice', 'invoiced'])
+#                     ('invoice_status', '=', 'to invoice')  # Changed: only pending invoices
 #                 ]
 #             }
 #         }
@@ -113,36 +114,9 @@
 #             self.invoice_origin = self.sale_order_id.name
 #             self.payment_reference = self.sale_order_id.name
 #
-#             # Set PO Number and Customer Reference from Sales Order
-#             if hasattr(self.sale_order_id, 'client_order_ref') and self.sale_order_id.client_order_ref:
-#                 # Set PO Number field (client_order_ref) - shown on main form
-#                 self.client_order_ref = self.sale_order_id.client_order_ref
-#
-#                 # Set Customer Reference field (ref) - shown in Other Info tab
-#                 self.ref = self.sale_order_id.client_order_ref
-#
-#             # Set AWB Number from Sales Order
-#             if hasattr(self.sale_order_id, 'awb_number') and self.sale_order_id.awb_number:
-#                 if hasattr(self, 'awb_number'):
-#                     self.awb_number = self.sale_order_id.awb_number
-#
 #             # Set fiscal position if available
 #             if self.sale_order_id.fiscal_position_id:
 #                 self.fiscal_position_id = self.sale_order_id.fiscal_position_id
-#
-#             # Get delivery information from related picking
-#             picking = self.env['stock.picking'].search([
-#                 ('sale_id', '=', self.sale_order_id.id),
-#                 ('picking_type_code', '=', 'outgoing'),
-#                 ('state', '=', 'done')
-#             ], limit=1, order='date_done desc')
-#
-#             if picking:
-#                 # Set Delivery Note Number
-#                 if hasattr(self, 'l10n_in_shipping_bill_number'):
-#                     self.l10n_in_shipping_bill_number = picking.name
-#                 elif hasattr(self, 'delivery_note_number'):
-#                     self.delivery_note_number = picking.name
 
 from odoo import models, fields, api
 
@@ -178,11 +152,10 @@ class AccountMove(models.Model):
         for record in self:
             if record.partner_id and record.move_type in ['out_invoice', 'out_refund']:
                 # Find sales orders for this customer that NEED to be invoiced
-                # Only show orders with invoice_status = 'to invoice' (pending)
                 orders = self.env['sale.order'].search([
                     ('partner_id', '=', record.partner_id.id),
                     ('state', 'in', ['sale', 'done']),
-                    ('invoice_status', '=', 'to invoice')  # Changed: only pending invoices
+                    ('invoice_status', '=', 'to invoice')
                 ])
                 record.available_sale_order_ids = orders
             else:
@@ -198,7 +171,7 @@ class AccountMove(models.Model):
                     ('partner_id', '=', record.partner_id.id),
                     ('picking_type_code', '=', 'outgoing'),
                     ('state', '=', 'done')
-                ], limit=20)  # Limit to recent 20
+                ], limit=20)
                 record.delivery_note_ids = deliveries
             else:
                 record.delivery_note_ids = False
@@ -213,7 +186,7 @@ class AccountMove(models.Model):
                 'sale_order_id': [
                     ('partner_id', '=', self.partner_id.id),
                     ('state', 'in', ['sale', 'done']),
-                    ('invoice_status', '=', 'to invoice')  # Changed: only pending invoices
+                    ('invoice_status', '=', 'to invoice')
                 ]
             }
         }
@@ -242,7 +215,8 @@ class AccountMove(models.Model):
                         'quantity': qty_to_invoice,
                         'price_unit': line.price_unit,
                         'tax_ids': [(6, 0, line.tax_ids.ids)],
-                        'sale_line_ids': [(6, 0, [line.id])],
+                        'sale_line_ids': [(6, 0, [line.id])],  # Link to SO line
+                        'product_uom_id': line.product_uom.id,
                     }
 
                     # Set account if available
@@ -263,3 +237,47 @@ class AccountMove(models.Model):
             # Set fiscal position if available
             if self.sale_order_id.fiscal_position_id:
                 self.fiscal_position_id = self.sale_order_id.fiscal_position_id
+
+    def action_post(self):
+        """Override to update sales order invoice status when invoice is posted"""
+        res = super(AccountMove, self).action_post()
+
+        # Update sales order invoice status
+        for move in self:
+            if move.sale_order_id and move.move_type == 'out_invoice':
+                # Force recompute of invoice status on the sales order
+                move.sale_order_id._get_invoiced()
+
+        return res
+
+    def button_draft(self):
+        """Override to update sales order when invoice is reset to draft"""
+        res = super(AccountMove, self).button_draft()
+
+        # Update sales order invoice status
+        for move in self:
+            if move.sale_order_id:
+                # Force recompute of invoice status on the sales order
+                move.sale_order_id._get_invoiced()
+
+        return res
+
+    def button_cancel(self):
+        """Override to update sales order when invoice is cancelled"""
+        res = super(AccountMove, self).button_cancel()
+
+        # Update sales order invoice status
+        for move in self:
+            if move.sale_order_id:
+                # Force recompute of invoice status on the sales order
+                move.sale_order_id._get_invoiced()
+
+        return res
+
+
+class AccountMoveLine(models.Model):
+    _inherit = 'account.move.line'
+
+    def _compute_sale_order_line_fields(self):
+        """Ensure sale_line_ids are properly set"""
+        super(AccountMoveLine, self)._compute_sale_order_line_fields()

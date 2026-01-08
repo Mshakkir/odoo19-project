@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Inherit Purchase Order Form -->
+        <record id="purchase_order_form_awb" model="ir.ui.view">
+            <field name="name">purchase.order.form.awb</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+
+                <!-- Add AWB fields after date_planned in Other Information tab -->
+                <xpath expr="//page[@name='purchase_delivery_invoice']/group/group[@name='invoice_info']" position="inside">
+                    <field name="awb_number" placeholder="Enter AWB Number (e.g., 1234567890)"/>
+                    <field name="tracking_status"/>
+                </xpath>
+
+            </field>
+        </record>
+
+        <!-- Tree view adjustment if needed -->
+        <record id="purchase_order_tree_awb" model="ir.ui.view">
+            <field name="name">purchase.order.tree.awb</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+            <field name="arch" type="xml">
+                <field name="amount_total" position="after">
+                    <field name="awb_number" optional="show"/>
+                    <field name="tracking_status" optional="show"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

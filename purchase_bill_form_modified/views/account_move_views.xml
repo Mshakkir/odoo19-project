@@ -8,12 +8,12 @@
             <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
 
-                <!-- Add new fields in header left group -->
-                <xpath expr="//group[@id='header_left_group']" position="inside">
+                <!-- Add new fields after Auto-Complete field -->
+                <xpath expr="//field[@name='purchase_vendor_bill_id']" position="after">
                     <field name="po_number"
                         invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
                         domain="[('partner_id', '=', partner_id), ('state', 'in', ['purchase', 'done'])]"
-                        options="{'no_create': True}"
+                        options="{'no_create': True, 'no_open': True}"
                         readonly="state != 'draft'"
                         string="PO Number"
                         force_save="1"/>
@@ -21,7 +21,7 @@
                     <field name="goods_receipt_number"
                         invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
                         domain="[('partner_id', '=', partner_id), ('picking_type_id.code', '=', 'incoming'), ('state', '=', 'done')]"
-                        options="{'no_create': True}"
+                        options="{'no_create': True, 'no_open': True}"
                         readonly="state != 'draft'"
                         string="Goods Receipt (GR)"
                         force_save="1"/>
@@ -38,3 +38,53 @@
 
     </data>
 </odoo>
+
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <data>-->
+<!--        &lt;!&ndash; Inherit the account move form to add new fields &ndash;&gt;-->
+<!--        <record id="account_move_vendor_bill_custom_form" model="ir.ui.view">-->
+<!--            <field name="name">account.move.vendor.bill.custom.form</field>-->
+<!--            <field name="model">account.move</field>-->
+<!--            <field name="inherit_id" ref="account.view_move_form"/>-->
+<!--            <field name="arch" type="xml">-->
+
+<!--                &lt;!&ndash; Add new fields in header left group &ndash;&gt;-->
+<!--                <xpath expr="//group[@id='header_left_group']" position="inside">-->
+<!--                    <field name="po_number"-->
+<!--                        invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"-->
+<!--                        domain="[('partner_id', '=', partner_id), ('state', 'in', ['purchase', 'done'])]"-->
+<!--                        options="{'no_create': True}"-->
+<!--                        readonly="state != 'draft'"-->
+<!--                        string="PO Number"-->
+<!--                        force_save="1"/>-->
+
+<!--                    <field name="goods_receipt_number"-->
+<!--                        invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"-->
+<!--                        domain="[('partner_id', '=', partner_id), ('picking_type_id.code', '=', 'incoming'), ('state', '=', 'done')]"-->
+<!--                        options="{'no_create': True}"-->
+<!--                        readonly="state != 'draft'"-->
+<!--                        string="Goods Receipt (GR)"-->
+<!--                        force_save="1"/>-->
+
+<!--                    <field name="awb_number"-->
+<!--                        invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"-->
+<!--                        readonly="state != 'draft'"-->
+<!--                        string="AWB Number"-->
+<!--                        force_save="1"/>-->
+<!--                </xpath>-->
+
+<!--            </field>-->
+<!--        </record>-->
+
+<!--    </data>-->
+<!--</odoo>-->

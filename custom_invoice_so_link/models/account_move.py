@@ -216,7 +216,7 @@ class AccountMove(models.Model):
                         'quantity': qty_to_invoice,
                         'price_unit': line.price_unit,
                         'tax_ids': [(6, 0, line.tax_ids.ids)],
-                        'sale_line_ids': [(6, 0, [line.id])],
+                        'sale_line_ids': [(4, line.id)],  # Changed from (6,0,[id]) to (4,id)
                         'product_uom_id': line.product_uom_id.id,
                     }
 
@@ -374,6 +374,9 @@ class AccountMove(models.Model):
                 _logger.info(f"  Line {line.id}: {line.product_id.name if line.product_id else 'No Product'}")
                 _logger.info(f"    Quantity: {line.quantity}")
                 _logger.info(f"    sale_line_ids: {line.sale_line_ids.ids}")
+                if line.sale_line_ids:
+                    for so_line in line.sale_line_ids:
+                        _logger.info(f"      → Linked to SO Line {so_line.id}: {so_line.product_id.name}")
 
             if move.sale_order_id:
                 _logger.info(f"\n--- SALES ORDER: {move.sale_order_id.name} ---")

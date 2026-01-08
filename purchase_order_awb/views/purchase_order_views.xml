@@ -8,10 +8,12 @@
             <field name="inherit_id" ref="purchase.purchase_order_form"/>
             <field name="arch" type="xml">
 
-                <!-- Add AWB fields after date_planned in Other Information tab -->
-                <xpath expr="//page[@name='purchase_delivery_invoice']/group/group[@name='invoice_info']" position="inside">
-                    <field name="awb_number" placeholder="Enter AWB Number (e.g., 1234567890)"/>
-                    <field name="tracking_status"/>
+                <!-- Add AWB fields in header right group after Expected Arrival -->
+                <xpath expr="//field[@name='date_planned']" position="after">
+                    <label for="awb_number" string="AWB Number"/>
+                    <field name="awb_number" nolabel="1" placeholder="Enter AWB Number (e.g., 1234567890)"/>
+                    <label for="tracking_status" string="Tracking Status"/>
+                    <field name="tracking_status" nolabel="1"/>
                 </xpath>
 
             </field>

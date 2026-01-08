@@ -399,8 +399,8 @@
 
                     .categories-grid-modern {
                         display: grid;
-                        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-                        gap: 2rem;
+                        grid-template-columns: repeat(4, 1fr);
+                        gap: 1.5rem;
                     }
 
                     .category-card-modern {
@@ -426,7 +426,7 @@
 
                     .card-image-container {
                         position: relative;
-                        height: 280px;
+                        height: 220px;
                         background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
                         overflow: hidden;
                     }
@@ -451,7 +451,7 @@
                         width: 100%;
                         height: 100%;
                         object-fit: contain;
-                        padding: 2rem;
+                        padding: 1.5rem;
                         transition: var(--transition);
                         z-index: 1;
                     }
@@ -504,14 +504,14 @@
                     }
 
                     .card-body-modern {
-                        padding: 1.75rem;
+                        padding: 1.5rem;
                     }
 
                     .category-name {
-                        font-size: 1.35rem;
+                        font-size: 1.15rem;
                         font-weight: 700;
                         color: var(--text-dark);
-                        margin-bottom: 1.25rem;
+                        margin-bottom: 1rem;
                         transition: var(--transition);
                     }
 
@@ -540,12 +540,12 @@
                         display: inline-flex;
                         align-items: center;
                         gap: 0.25rem;
-                        font-size: 0.9rem;
+                        font-size: 0.85rem;
                         font-weight: 600;
                         color: var(--primary-color);
                         text-decoration: none;
                         transition: var(--transition);
-                        padding: 0.5rem 1rem;
+                        padding: 0.4rem 0.875rem;
                         border-radius: 50px;
                         background: rgba(21, 118, 188, 0.1);
                     }
@@ -627,7 +627,7 @@
 
                     @media (max-width: 1200px) {
                         .categories-grid-modern {
-                            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                            grid-template-columns: repeat(3, 1fr);
                         }
                     }
 
@@ -650,8 +650,8 @@
                         }
 
                         .categories-grid-modern {
-                            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                            gap: 1.5rem;
+                            grid-template-columns: repeat(3, 1fr);
+                            gap: 1.25rem;
                         }
                     }
 
@@ -695,11 +695,12 @@
                         }
 
                         .categories-grid-modern {
-                            grid-template-columns: 1fr;
+                            grid-template-columns: repeat(2, 1fr);
+                            gap: 1rem;
                         }
 
                         .card-image-container {
-                            height: 240px;
+                            height: 180px;
                         }
 
                         .breadcrumb {
@@ -711,6 +712,15 @@
                             width: 100%;
                             justify-content: center;
                             margin-right: 0;
+                        }
+
+                        .card-body-modern {
+                            padding: 1.25rem;
+                        }
+
+                        .category-name {
+                            font-size: 1.05rem;
+                            margin-bottom: 0.875rem;
                         }
                     }
 
@@ -724,12 +734,29 @@
                             font-size: 0.95rem;
                         }
 
+                        .categories-grid-modern {
+                            gap: 0.875rem;
+                        }
+
+                        .card-image-container {
+                            height: 160px;
+                        }
+
                         .card-body-modern {
-                            padding: 1.5rem;
+                            padding: 1rem;
                         }
 
                         .category-name {
-                            font-size: 1.2rem;
+                            font-size: 0.95rem;
+                        }
+
+                        .product-badge {
+                            font-size: 0.75rem;
+                        }
+
+                        .btn-shop-now {
+                            font-size: 0.75rem;
+                            padding: 0.35rem 0.75rem;
                         }
                     }
                 </style>
@@ -753,4 +780,768 @@
         </t>
     </template>
 </odoo>
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    &lt;!&ndash; Modern Category Detail Template &ndash;&gt;-->
+<!--    <template id="category_detail_template" name="Category Detail Page">-->
+<!--        <t t-call="website.layout">-->
+<!--            <div id="wrap" class="oe_structure">-->
+
+<!--                &lt;!&ndash; Modern Hero Section &ndash;&gt;-->
+<!--                <section class="category-hero-modern">-->
+<!--                    <div class="hero-background"></div>-->
+<!--                    <div class="container">-->
+<!--                        <div class="row align-items-center">-->
+<!--                            <div class="col-lg-6 hero-text-content">-->
+<!--                                <div class="category-badge">-->
+<!--                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">-->
+<!--                                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>-->
+<!--                                        <line x1="7" y1="7" x2="7.01" y2="7"/>-->
+<!--                                    </svg>-->
+<!--                                    Category-->
+<!--                                </div>-->
+<!--                                <h1 class="hero-title">-->
+<!--                                    <t t-esc="main_category['name']"/>-->
+<!--                                </h1>-->
+<!--                                <p class="hero-description">-->
+<!--                                    <t t-esc="main_category['description']"/>-->
+<!--                                </p>-->
+
+
+<!--                                &lt;!&ndash; Updated Button - Now redirects to shop page with category filter &ndash;&gt;-->
+<!--                                <t t-if="child_categories">-->
+<!--                                    <a href="#categories" class="btn-explore-categories btn-scroll-categories">-->
+<!--                                        View Subcategories-->
+<!--                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">-->
+<!--                                            <polyline points="6 9 12 15 18 9"/>-->
+<!--                                        </svg>-->
+<!--                                    </a>-->
+<!--                                </t>-->
+<!--                                <a t-att-href="main_category['shop_url']" class="btn-explore-categories btn-shop-link">-->
+<!--                                    Shop All Products-->
+<!--                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">-->
+<!--                                        <circle cx="9" cy="21" r="1"/>-->
+<!--                                        <circle cx="20" cy="21" r="1"/>-->
+<!--                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>-->
+<!--                                    </svg>-->
+<!--                                </a>-->
+<!--                            </div>-->
+<!--                            <div class="col-lg-6 hero-image-content">-->
+<!--                                <div class="image-wrapper">-->
+<!--                                    <div class="image-decoration"></div>-->
+<!--                                    <img t-att-src="main_category['image_url']"-->
+<!--                                         t-att-alt="main_category['name']"-->
+<!--                                         class="hero-image"-->
+<!--                                         loading="lazy"/>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </section>-->
+
+<!--                &lt;!&ndash; Child Categories Section &ndash;&gt;-->
+<!--                <t t-if="child_categories">-->
+<!--                    <section class="categories-section" id="categories">-->
+<!--                        <div class="container">-->
+<!--                            <div class="section-header">-->
+<!--                                <span class="section-subtitle">Discover Our Range</span>-->
+<!--                                <h2 class="section-title">-->
+<!--                                    <t t-esc="main_category['name']"/> Collection-->
+<!--                                </h2>-->
+<!--                                <p class="section-description">-->
+<!--                                    Browse through our carefully curated subcategories and find exactly what you're looking for-->
+<!--                                </p>-->
+<!--                            </div>-->
+
+<!--                            <div class="categories-grid-modern">-->
+<!--                                <t t-foreach="child_categories" t-as="child">-->
+<!--                                    <div class="category-card-modern">-->
+<!--                                        &lt;!&ndash; Card shows category detail page &ndash;&gt;-->
+<!--                                        <a t-att-href="child['url']" class="card-link-wrapper">-->
+<!--                                            <div class="card-image-container">-->
+<!--                                                <div class="image-bg"></div>-->
+<!--                                                <img t-att-src="child['image_url']"-->
+<!--                                                     t-att-alt="child['name']"-->
+<!--                                                     class="category-image"-->
+<!--                                                     loading="lazy"/>-->
+<!--                                                <div class="card-overlay-gradient"></div>-->
+<!--                                                <div class="card-hover-content">-->
+<!--                                                    <span class="view-btn">-->
+<!--                                                        View Category-->
+<!--                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">-->
+<!--                                                            <line x1="5" y1="12" x2="19" y2="12"/>-->
+<!--                                                            <polyline points="12 5 19 12 12 19"/>-->
+<!--                                                        </svg>-->
+<!--                                                    </span>-->
+<!--                                                </div>-->
+<!--                                            </div>-->
+<!--                                            <div class="card-body-modern">-->
+<!--                                                <h3 class="category-name">-->
+<!--                                                    <t t-esc="child['name']"/>-->
+<!--                                                </h3>-->
+<!--                                                <div class="card-meta">-->
+<!--                                                    <span class="product-badge">-->
+<!--                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">-->
+<!--                                                            <circle cx="9" cy="21" r="1"/>-->
+<!--                                                            <circle cx="20" cy="21" r="1"/>-->
+<!--                                                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>-->
+<!--                                                        </svg>-->
+<!--                                                        <t t-esc="child['product_count']"/> Products-->
+<!--                                                    </span>-->
+<!--                                                    &lt;!&ndash; Shop Now Button for each child &ndash;&gt;-->
+<!--                                                    <a t-att-href="child['shop_url']" class="btn-shop-now" onclick="event.stopPropagation();">-->
+<!--                                                        Shop Now →-->
+<!--                                                    </a>-->
+<!--                                                </div>-->
+<!--                                            </div>-->
+<!--                                        </a>-->
+<!--                                    </div>-->
+<!--                                </t>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </section>-->
+<!--                </t>-->
+
+<!--                &lt;!&ndash; Inline CSS &ndash;&gt;-->
+<!--                <style>-->
+<!--                    :root {-->
+<!--                        &#45;&#45;primary-color: #1576bc;-->
+<!--                        &#45;&#45;secondary-color: #ffffff;-->
+<!--                        &#45;&#45;text-dark: #1a1a1a;-->
+<!--                        &#45;&#45;text-muted: #666666;-->
+<!--                        &#45;&#45;text-light: #999999;-->
+<!--                        &#45;&#45;bg-light: #f8f9fa;-->
+<!--                        &#45;&#45;bg-white: #ffffff;-->
+<!--                        &#45;&#45;border-color: #e5e7eb;-->
+<!--                        &#45;&#45;shadow-sm: 0 2px 8px rgba(21, 118, 188, 0.08);-->
+<!--                        &#45;&#45;shadow-md: 0 4px 16px rgba(21, 118, 188, 0.12);-->
+<!--                        &#45;&#45;shadow-lg: 0 12px 32px rgba(21, 118, 188, 0.16);-->
+<!--                        &#45;&#45;shadow-xl: 0 20px 48px rgba(21, 118, 188, 0.20);-->
+<!--                        &#45;&#45;transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);-->
+<!--                        &#45;&#45;radius-sm: 8px;-->
+<!--                        &#45;&#45;radius-md: 12px;-->
+<!--                        &#45;&#45;radius-lg: 16px;-->
+<!--                        &#45;&#45;radius-xl: 24px;-->
+<!--                    }-->
+
+<!--                    * {-->
+<!--                        margin: 0;-->
+<!--                        padding: 0;-->
+<!--                        box-sizing: border-box;-->
+<!--                    }-->
+
+<!--                    .breadcrumb-nav {-->
+<!--                        background: var(&#45;&#45;bg-white);-->
+<!--                        border-bottom: 1px solid var(&#45;&#45;border-color);-->
+<!--                        padding: 1rem 0;-->
+<!--                    }-->
+
+<!--                    .breadcrumb {-->
+<!--                        margin: 0;-->
+<!--                        padding: 0;-->
+<!--                        background: transparent;-->
+<!--                        display: flex;-->
+<!--                        align-items: center;-->
+<!--                        flex-wrap: wrap;-->
+<!--                        gap: 0.5rem;-->
+<!--                    }-->
+
+<!--                    .breadcrumb-item {-->
+<!--                        display: flex;-->
+<!--                        align-items: center;-->
+<!--                        font-size: 0.9rem;-->
+<!--                        color: var(&#45;&#45;text-muted);-->
+<!--                    }-->
+
+<!--                    .breadcrumb-item + .breadcrumb-item::before {-->
+<!--                        content: "/";-->
+<!--                        margin: 0 0.5rem;-->
+<!--                        color: var(&#45;&#45;text-light);-->
+<!--                    }-->
+
+<!--                    .breadcrumb-item a {-->
+<!--                        color: var(&#45;&#45;text-muted);-->
+<!--                        text-decoration: none;-->
+<!--                        transition: var(&#45;&#45;transition);-->
+<!--                        display: flex;-->
+<!--                        align-items: center;-->
+<!--                        gap: 0.4rem;-->
+<!--                    }-->
+
+<!--                    .breadcrumb-item a:hover {-->
+<!--                        color: var(&#45;&#45;primary-color);-->
+<!--                    }-->
+
+<!--                    .breadcrumb-item.active {-->
+<!--                        color: var(&#45;&#45;primary-color);-->
+<!--                        font-weight: 500;-->
+<!--                    }-->
+
+<!--                    .category-hero-modern {-->
+<!--                        position: relative;-->
+<!--                        padding: 80px 0 100px;-->
+<!--                        overflow: hidden;-->
+<!--                        background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);-->
+<!--                    }-->
+
+<!--                    .hero-background {-->
+<!--                        position: absolute;-->
+<!--                        top: 0;-->
+<!--                        right: 0;-->
+<!--                        width: 50%;-->
+<!--                        height: 100%;-->
+<!--                        background: linear-gradient(135deg, rgba(21, 118, 188, 0.03) 0%, rgba(21, 118, 188, 0.08) 100%);-->
+<!--                        clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%);-->
+<!--                        z-index: 0;-->
+<!--                    }-->
+
+<!--                    .category-hero-modern .container {-->
+<!--                        position: relative;-->
+<!--                        z-index: 1;-->
+<!--                    }-->
+
+<!--                    .hero-text-content {-->
+<!--                        padding-right: 2rem;-->
+<!--                    }-->
+
+<!--                    .category-badge {-->
+<!--                        display: inline-flex;-->
+<!--                        align-items: center;-->
+<!--                        gap: 0.5rem;-->
+<!--                        padding: 0.5rem 1rem;-->
+<!--                        background: rgba(21, 118, 188, 0.1);-->
+<!--                        color: var(&#45;&#45;primary-color);-->
+<!--                        border-radius: 50px;-->
+<!--                        font-size: 0.85rem;-->
+<!--                        font-weight: 600;-->
+<!--                        margin-bottom: 1.5rem;-->
+<!--                        border: 1px solid rgba(21, 118, 188, 0.2);-->
+<!--                    }-->
+
+<!--                    .hero-title {-->
+<!--                        font-size: 3.5rem;-->
+<!--                        font-weight: 800;-->
+<!--                        color: var(&#45;&#45;text-dark);-->
+<!--                        line-height: 1.1;-->
+<!--                        margin-bottom: 1.5rem;-->
+<!--                        letter-spacing: -0.02em;-->
+<!--                    }-->
+
+<!--                    .hero-description {-->
+<!--                        font-size: 1.15rem;-->
+<!--                        color: var(&#45;&#45;text-muted);-->
+<!--                        line-height: 1.7;-->
+<!--                        margin-bottom: 2rem;-->
+<!--                        max-width: 500px;-->
+<!--                    }-->
+
+<!--                    .hero-stats {-->
+<!--                        display: flex;-->
+<!--                        align-items: center;-->
+<!--                        gap: 2rem;-->
+<!--                        margin-bottom: 2.5rem;-->
+<!--                        padding: 1.5rem;-->
+<!--                        background: var(&#45;&#45;bg-white);-->
+<!--                        border-radius: var(&#45;&#45;radius-md);-->
+<!--                        box-shadow: var(&#45;&#45;shadow-sm);-->
+<!--                        width: fit-content;-->
+<!--                    }-->
+
+<!--                    .stat-item {-->
+<!--                        text-align: center;-->
+<!--                    }-->
+
+<!--                    .stat-number {-->
+<!--                        font-size: 2rem;-->
+<!--                        font-weight: 700;-->
+<!--                        color: var(&#45;&#45;primary-color);-->
+<!--                        line-height: 1;-->
+<!--                        margin-bottom: 0.5rem;-->
+<!--                    }-->
+
+<!--                    .stat-label {-->
+<!--                        font-size: 0.85rem;-->
+<!--                        color: var(&#45;&#45;text-muted);-->
+<!--                        font-weight: 500;-->
+<!--                    }-->
+
+<!--                    .stat-divider {-->
+<!--                        width: 1px;-->
+<!--                        height: 40px;-->
+<!--                        background: var(&#45;&#45;border-color);-->
+<!--                    }-->
+
+<!--                    .btn-explore-categories {-->
+<!--                        display: inline-flex;-->
+<!--                        align-items: center;-->
+<!--                        gap: 0.75rem;-->
+<!--                        padding: 1rem 2rem;-->
+<!--                        background: var(&#45;&#45;primary-color);-->
+<!--                        color: var(&#45;&#45;secondary-color);-->
+<!--                        text-decoration: none;-->
+<!--                        border-radius: 50px;-->
+<!--                        font-weight: 600;-->
+<!--                        font-size: 1rem;-->
+<!--                        transition: var(&#45;&#45;transition);-->
+<!--                        box-shadow: var(&#45;&#45;shadow-md);-->
+<!--                        margin-right: 1rem;-->
+<!--                        margin-bottom: 1rem;-->
+<!--                    }-->
+
+<!--                    .btn-explore-categories:hover {-->
+<!--                        background: #0f5d94;-->
+<!--                        transform: translateY(-2px);-->
+<!--                        box-shadow: var(&#45;&#45;shadow-lg);-->
+<!--                        color: var(&#45;&#45;secondary-color);-->
+<!--                    }-->
+
+<!--                    .btn-scroll-categories {-->
+<!--                        background: var(&#45;&#45;bg-white);-->
+<!--                        color: var(&#45;&#45;primary-color);-->
+<!--                        border: 2px solid var(&#45;&#45;primary-color);-->
+<!--                    }-->
+
+<!--                    .btn-scroll-categories:hover {-->
+<!--                        background: var(&#45;&#45;primary-color);-->
+<!--                        color: var(&#45;&#45;secondary-color);-->
+<!--                    }-->
+
+<!--                    .btn-shop-link {-->
+<!--                        background: var(&#45;&#45;primary-color);-->
+<!--                        color: var(&#45;&#45;secondary-color);-->
+<!--                    }-->
+
+<!--                    .hero-image-content {-->
+<!--                        position: relative;-->
+<!--                    }-->
+
+<!--                    .image-wrapper {-->
+<!--                        position: relative;-->
+<!--                        padding: 2rem;-->
+<!--                    }-->
+
+<!--                    .image-decoration {-->
+<!--                        position: absolute;-->
+<!--                        top: 0;-->
+<!--                        right: 0;-->
+<!--                        width: 90%;-->
+<!--                        height: 90%;-->
+<!--                        background: linear-gradient(135deg, var(&#45;&#45;primary-color) 0%, #0f5d94 100%);-->
+<!--                        border-radius: var(&#45;&#45;radius-xl);-->
+<!--                        opacity: 0.1;-->
+<!--                        z-index: 0;-->
+<!--                        transform: rotate(6deg);-->
+<!--                    }-->
+
+<!--                    .hero-image {-->
+<!--                        position: relative;-->
+<!--                        width: 100%;-->
+<!--                        height: auto;-->
+<!--                        max-height: 500px;-->
+<!--                        object-fit: contain;-->
+<!--                        z-index: 1;-->
+<!--                        filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.1));-->
+<!--                    }-->
+
+<!--                    .categories-section {-->
+<!--                        padding: 100px 0;-->
+<!--                        background: var(&#45;&#45;bg-white);-->
+<!--                    }-->
+
+<!--                    .section-header {-->
+<!--                        text-align: center;-->
+<!--                        margin-bottom: 4rem;-->
+<!--                    }-->
+
+<!--                    .section-subtitle {-->
+<!--                        display: inline-block;-->
+<!--                        font-size: 0.9rem;-->
+<!--                        font-weight: 600;-->
+<!--                        color: var(&#45;&#45;primary-color);-->
+<!--                        text-transform: uppercase;-->
+<!--                        letter-spacing: 0.1em;-->
+<!--                        margin-bottom: 1rem;-->
+<!--                    }-->
+
+<!--                    .section-title {-->
+<!--                        font-size: 2.75rem;-->
+<!--                        font-weight: 800;-->
+<!--                        color: var(&#45;&#45;text-dark);-->
+<!--                        margin-bottom: 1rem;-->
+<!--                        letter-spacing: -0.02em;-->
+<!--                    }-->
+
+<!--                    .section-description {-->
+<!--                        font-size: 1.1rem;-->
+<!--                        color: var(&#45;&#45;text-muted);-->
+<!--                        max-width: 600px;-->
+<!--                        margin: 0 auto;-->
+<!--                        line-height: 1.6;-->
+<!--                    }-->
+
+<!--                    .categories-grid-modern {-->
+<!--                        display: grid;-->
+<!--                        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));-->
+<!--                        gap: 2rem;-->
+<!--                    }-->
+
+<!--                    .category-card-modern {-->
+<!--                        background: var(&#45;&#45;bg-white);-->
+<!--                        border-radius: var(&#45;&#45;radius-lg);-->
+<!--                        overflow: hidden;-->
+<!--                        transition: var(&#45;&#45;transition);-->
+<!--                        box-shadow: var(&#45;&#45;shadow-sm);-->
+<!--                        border: 1px solid var(&#45;&#45;border-color);-->
+<!--                    }-->
+
+<!--                    .category-card-modern:hover {-->
+<!--                        transform: translateY(-8px);-->
+<!--                        box-shadow: var(&#45;&#45;shadow-xl);-->
+<!--                        border-color: var(&#45;&#45;primary-color);-->
+<!--                    }-->
+
+<!--                    .card-link-wrapper {-->
+<!--                        display: block;-->
+<!--                        text-decoration: none;-->
+<!--                        color: inherit;-->
+<!--                    }-->
+
+<!--                    .card-image-container {-->
+<!--                        position: relative;-->
+<!--                        height: 280px;-->
+<!--                        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);-->
+<!--                        overflow: hidden;-->
+<!--                    }-->
+
+<!--                    .image-bg {-->
+<!--                        position: absolute;-->
+<!--                        top: 50%;-->
+<!--                        left: 50%;-->
+<!--                        transform: translate(-50%, -50%);-->
+<!--                        width: 120%;-->
+<!--                        height: 120%;-->
+<!--                        background: radial-gradient(circle, rgba(21, 118, 188, 0.08) 0%, transparent 70%);-->
+<!--                        transition: var(&#45;&#45;transition);-->
+<!--                    }-->
+
+<!--                    .category-card-modern:hover .image-bg {-->
+<!--                        transform: translate(-50%, -50%) scale(1.2);-->
+<!--                    }-->
+
+<!--                    .category-image {-->
+<!--                        position: relative;-->
+<!--                        width: 100%;-->
+<!--                        height: 100%;-->
+<!--                        object-fit: contain;-->
+<!--                        padding: 2rem;-->
+<!--                        transition: var(&#45;&#45;transition);-->
+<!--                        z-index: 1;-->
+<!--                    }-->
+
+<!--                    .category-card-modern:hover .category-image {-->
+<!--                        transform: scale(1.08);-->
+<!--                    }-->
+
+<!--                    .card-overlay-gradient {-->
+<!--                        position: absolute;-->
+<!--                        bottom: 0;-->
+<!--                        left: 0;-->
+<!--                        right: 0;-->
+<!--                        height: 100%;-->
+<!--                        background: linear-gradient(to top, rgba(21, 118, 188, 0.9) 0%, transparent 100%);-->
+<!--                        opacity: 0;-->
+<!--                        transition: var(&#45;&#45;transition);-->
+<!--                    }-->
+
+<!--                    .category-card-modern:hover .card-overlay-gradient {-->
+<!--                        opacity: 1;-->
+<!--                    }-->
+
+<!--                    .card-hover-content {-->
+<!--                        position: absolute;-->
+<!--                        top: 50%;-->
+<!--                        left: 50%;-->
+<!--                        transform: translate(-50%, -50%) translateY(20px);-->
+<!--                        opacity: 0;-->
+<!--                        transition: var(&#45;&#45;transition);-->
+<!--                        z-index: 2;-->
+<!--                    }-->
+
+<!--                    .category-card-modern:hover .card-hover-content {-->
+<!--                        transform: translate(-50%, -50%) translateY(0);-->
+<!--                        opacity: 1;-->
+<!--                    }-->
+
+<!--                    .view-btn {-->
+<!--                        display: inline-flex;-->
+<!--                        align-items: center;-->
+<!--                        gap: 0.5rem;-->
+<!--                        padding: 0.75rem 1.5rem;-->
+<!--                        background: var(&#45;&#45;secondary-color);-->
+<!--                        color: var(&#45;&#45;primary-color);-->
+<!--                        border-radius: 50px;-->
+<!--                        font-weight: 600;-->
+<!--                        font-size: 0.95rem;-->
+<!--                        white-space: nowrap;-->
+<!--                    }-->
+
+<!--                    .card-body-modern {-->
+<!--                        padding: 1.75rem;-->
+<!--                    }-->
+
+<!--                    .category-name {-->
+<!--                        font-size: 1.35rem;-->
+<!--                        font-weight: 700;-->
+<!--                        color: var(&#45;&#45;text-dark);-->
+<!--                        margin-bottom: 1.25rem;-->
+<!--                        transition: var(&#45;&#45;transition);-->
+<!--                    }-->
+
+<!--                    .category-card-modern:hover .category-name {-->
+<!--                        color: var(&#45;&#45;primary-color);-->
+<!--                    }-->
+
+<!--                    .card-meta {-->
+<!--                        display: flex;-->
+<!--                        justify-content: space-between;-->
+<!--                        align-items: center;-->
+<!--                        padding-top: 1rem;-->
+<!--                        border-top: 1px solid var(&#45;&#45;border-color);-->
+<!--                    }-->
+
+<!--                    .product-badge {-->
+<!--                        display: flex;-->
+<!--                        align-items: center;-->
+<!--                        gap: 0.5rem;-->
+<!--                        font-size: 0.85rem;-->
+<!--                        font-weight: 600;-->
+<!--                        color: var(&#45;&#45;text-muted);-->
+<!--                    }-->
+
+<!--                    .btn-shop-now {-->
+<!--                        display: inline-flex;-->
+<!--                        align-items: center;-->
+<!--                        gap: 0.25rem;-->
+<!--                        font-size: 0.9rem;-->
+<!--                        font-weight: 600;-->
+<!--                        color: var(&#45;&#45;primary-color);-->
+<!--                        text-decoration: none;-->
+<!--                        transition: var(&#45;&#45;transition);-->
+<!--                        padding: 0.5rem 1rem;-->
+<!--                        border-radius: 50px;-->
+<!--                        background: rgba(21, 118, 188, 0.1);-->
+<!--                    }-->
+
+<!--                    .btn-shop-now:hover {-->
+<!--                        background: var(&#45;&#45;primary-color);-->
+<!--                        color: var(&#45;&#45;secondary-color);-->
+<!--                        transform: translateX(2px);-->
+<!--                    }-->
+
+<!--                    .arrow-icon {-->
+<!--                        font-size: 1.5rem;-->
+<!--                        color: var(&#45;&#45;primary-color);-->
+<!--                        transition: var(&#45;&#45;transition);-->
+<!--                    }-->
+
+<!--                    .category-card-modern:hover .arrow-icon {-->
+<!--                        transform: translateX(4px);-->
+<!--                    }-->
+
+<!--                    .empty-state-modern {-->
+<!--                        padding: 100px 0;-->
+<!--                        background: var(&#45;&#45;bg-light);-->
+<!--                    }-->
+
+<!--                    .empty-content {-->
+<!--                        text-align: center;-->
+<!--                        max-width: 500px;-->
+<!--                        margin: 0 auto;-->
+<!--                    }-->
+
+<!--                    .empty-icon {-->
+<!--                        width: 120px;-->
+<!--                        height: 120px;-->
+<!--                        margin: 0 auto 2rem;-->
+<!--                        background: var(&#45;&#45;bg-white);-->
+<!--                        border-radius: 50%;-->
+<!--                        display: flex;-->
+<!--                        align-items: center;-->
+<!--                        justify-content: center;-->
+<!--                        box-shadow: var(&#45;&#45;shadow-md);-->
+<!--                    }-->
+
+<!--                    .empty-icon svg {-->
+<!--                        stroke: var(&#45;&#45;primary-color);-->
+<!--                    }-->
+
+<!--                    .empty-content h3 {-->
+<!--                        font-size: 1.75rem;-->
+<!--                        font-weight: 700;-->
+<!--                        color: var(&#45;&#45;text-dark);-->
+<!--                        margin-bottom: 1rem;-->
+<!--                    }-->
+
+<!--                    .empty-content p {-->
+<!--                        font-size: 1.05rem;-->
+<!--                        color: var(&#45;&#45;text-muted);-->
+<!--                        margin-bottom: 2rem;-->
+<!--                        line-height: 1.6;-->
+<!--                    }-->
+
+<!--                    .btn-back-home {-->
+<!--                        display: inline-block;-->
+<!--                        padding: 0.875rem 2rem;-->
+<!--                        background: var(&#45;&#45;primary-color);-->
+<!--                        color: var(&#45;&#45;secondary-color);-->
+<!--                        text-decoration: none;-->
+<!--                        border-radius: 50px;-->
+<!--                        font-weight: 600;-->
+<!--                        transition: var(&#45;&#45;transition);-->
+<!--                    }-->
+
+<!--                    .btn-back-home:hover {-->
+<!--                        background: #0f5d94;-->
+<!--                        transform: translateY(-2px);-->
+<!--                        box-shadow: var(&#45;&#45;shadow-lg);-->
+<!--                        color: var(&#45;&#45;secondary-color);-->
+<!--                    }-->
+
+<!--                    @media (max-width: 1200px) {-->
+<!--                        .categories-grid-modern {-->
+<!--                            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));-->
+<!--                        }-->
+<!--                    }-->
+
+<!--                    @media (max-width: 992px) {-->
+<!--                        .category-hero-modern {-->
+<!--                            padding: 60px 0 80px;-->
+<!--                        }-->
+
+<!--                        .hero-text-content {-->
+<!--                            padding-right: 0;-->
+<!--                            margin-bottom: 3rem;-->
+<!--                        }-->
+
+<!--                        .hero-title {-->
+<!--                            font-size: 2.5rem;-->
+<!--                        }-->
+
+<!--                        .section-title {-->
+<!--                            font-size: 2.25rem;-->
+<!--                        }-->
+
+<!--                        .categories-grid-modern {-->
+<!--                            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));-->
+<!--                            gap: 1.5rem;-->
+<!--                        }-->
+<!--                    }-->
+
+<!--                    @media (max-width: 768px) {-->
+<!--                        .category-hero-modern {-->
+<!--                            padding: 40px 0 60px;-->
+<!--                        }-->
+
+<!--                        .hero-title {-->
+<!--                            font-size: 2rem;-->
+<!--                        }-->
+
+<!--                        .hero-description {-->
+<!--                            font-size: 1rem;-->
+<!--                        }-->
+
+<!--                        .hero-stats {-->
+<!--                            flex-direction: column;-->
+<!--                            gap: 1rem;-->
+<!--                            width: 100%;-->
+<!--                        }-->
+
+<!--                        .stat-divider {-->
+<!--                            display: none;-->
+<!--                        }-->
+
+<!--                        .section-title {-->
+<!--                            font-size: 1.75rem;-->
+<!--                        }-->
+
+<!--                        .section-description {-->
+<!--                            font-size: 1rem;-->
+<!--                        }-->
+
+<!--                        .categories-section {-->
+<!--                            padding: 60px 0;-->
+<!--                        }-->
+
+<!--                        .section-header {-->
+<!--                            margin-bottom: 2.5rem;-->
+<!--                        }-->
+
+<!--                        .categories-grid-modern {-->
+<!--                            grid-template-columns: 1fr;-->
+<!--                        }-->
+
+<!--                        .card-image-container {-->
+<!--                            height: 240px;-->
+<!--                        }-->
+
+<!--                        .breadcrumb {-->
+<!--                            font-size: 0.85rem;-->
+<!--                        }-->
+
+<!--                        .btn-explore-categories {-->
+<!--                            display: flex;-->
+<!--                            width: 100%;-->
+<!--                            justify-content: center;-->
+<!--                            margin-right: 0;-->
+<!--                        }-->
+<!--                    }-->
+
+<!--                    @media (max-width: 576px) {-->
+<!--                        .hero-title {-->
+<!--                            font-size: 1.75rem;-->
+<!--                        }-->
+
+<!--                        .btn-explore-categories {-->
+<!--                            padding: 0.875rem 1.5rem;-->
+<!--                            font-size: 0.95rem;-->
+<!--                        }-->
+
+<!--                        .card-body-modern {-->
+<!--                            padding: 1.5rem;-->
+<!--                        }-->
+
+<!--                        .category-name {-->
+<!--                            font-size: 1.2rem;-->
+<!--                        }-->
+<!--                    }-->
+<!--                </style>-->
+
+<!--                <script type="text/javascript">-->
+<!--                    document.addEventListener('DOMContentLoaded', function() {-->
+<!--                        // Smooth scroll for subcategories button-->
+<!--                        const scrollBtn = document.querySelector('.btn-scroll-categories');-->
+<!--                        if (scrollBtn) {-->
+<!--                            scrollBtn.addEventListener('click', function(e) {-->
+<!--                                e.preventDefault();-->
+<!--                                const target = document.querySelector(this.getAttribute('href'));-->
+<!--                                if (target) {-->
+<!--                                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });-->
+<!--                                }-->
+<!--                            });-->
+<!--                        }-->
+<!--                    });-->
+<!--                </script>-->
+<!--            </div>-->
+<!--        </t>-->
+<!--    </template>-->
+<!--</odoo>-->
 

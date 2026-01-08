@@ -244,46 +244,86 @@ class AccountMove(models.Model):
         # Call parent method
         posted = super(AccountMove, self)._post(soft)
 
-        # Update sales order lines qty_invoiced
+        # Update sales order invoice status
         for move in posted:
             if move.sale_order_id and move.move_type == 'out_invoice' and move.state == 'posted':
-                # Update each invoice line's linked sale order line
+                # Get all SO lines that were invoiced
+                invoiced_so_lines = self.env['sale.order.line']
                 for inv_line in move.invoice_line_ids:
-                    for so_line in inv_line.sale_line_ids:
-                        # Manually update qty_invoiced
-                        so_line._compute_qty_invoiced()
+                    if inv_line.sale_line_ids:
+                        invoiced_so_lines |= inv_line.sale_line_ids
 
-                # Force recompute invoice status
-                move.sale_order_id._compute_invoice_status()
+                # Manually update qty_invoiced for each SO line
+                for so_line in invoiced_so_lines:
+                    # Calculate total invoiced quantity from all invoice lines
+                    total_invoiced = 0.0
+                    invoice_lines = self.env['account.move.line'].search([
+                        ('sale_line_ids', 'in', so_line.ids),
+                        ('move_id.state', '=', 'posted'),
+                        ('move_id.move_type', '=', 'out_invoice'),
+                        ('parent_state', '=', 'posted')
+                    ])
+
+                    for inv_line in invoice_lines:
+                        total_invoiced += inv_line.quantity
+
+                    # Update the SO line
+                    so_line.write({'qty_invoiced': total_invoiced})
+
+                # Force update invoice_status on sales order
+                sale_order = move.sale_order_id
+
+                # Check if all lines are fully invoiced
+                all_invoiced = True
+                for line in sale_order.order_line:
+                    if not line.display_type and line.product_id:
+                        if line.qty_invoiced < line.product_uom_qty:
+                            all_invoiced = False
+                            break
+
+                # Update invoice status
+                if all_invoiced:
+                    sale_order.write({'invoice_status': 'invoiced'})
+                else:
+                    sale_order.write({'invoice_status': 'to invoice'})
 
         return posted
 
     def button_draft(self):
         """Override to update sales order when invoice is reset to draft"""
-        # Store sale orders before reset
         sale_orders = self.mapped('sale_order_id')
 
         res = super(AccountMove, self).button_draft()
 
-        # Update sales orders
+        # Update sales orders invoice status
         for so in sale_orders:
+            # Recalculate qty_invoiced for each line
             for line in so.order_line:
-                line._compute_qty_invoiced()
-            so._compute_invoice_status()
+                if not line.display_type and line.product_id:
+                    total_invoiced = 0.0
+                    invoice_lines = self.env['account.move.line'].search([
+                        ('sale_line_ids', 'in', line.ids),
+                        ('move_id.state', '=', 'posted'),
+                        ('move_id.move_type', '=', 'out_invoice')
+                    ])
+
+                    for inv_line in invoice_lines:
+                        total_invoiced += inv_line.quantity
+
+                    line.write({'qty_invoiced': total_invoiced})
+
+            # Update invoice status
+            any_to_invoice = any(
+                line.qty_invoiced < line.product_uom_qty
+                for line in so.order_line
+                if not line.display_type and line.product_id
+            )
+
+            if any_to_invoice:
+                so.write({'invoice_status': 'to invoice'})
 
         return res
 
     def button_cancel(self):
         """Override to update sales order when invoice is cancelled"""
-        # Store sale orders before cancel
-        sale_orders = self.mapped('sale_order_id')
-
-        res = super(AccountMove, self).button_cancel()
-
-        # Update sales orders
-        for so in sale_orders:
-            for line in so.order_line:
-                line._compute_qty_invoiced()
-            so._compute_invoice_status()
-
-        return res
+        return self.button_draft()

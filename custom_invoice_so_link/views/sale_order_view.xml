@@ -5,21 +5,9 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <!-- Try multiple button names that might exist -->
-
-            <!-- Method 1: Standard Odoo 19 button -->
-            <xpath expr="//button[@name='_create_invoices']" position="attributes" optional="1">
-                <attribute name="invisible">invoice_count &gt; 0 or invoice_status in ('invoiced', 'no')</attribute>
-            </xpath>
-
-            <!-- Method 2: Alternative button name -->
-            <xpath expr="//button[@name='action_invoice_create']" position="attributes" optional="1">
-                <attribute name="invisible">invoice_count &gt; 0 or invoice_status in ('invoiced', 'no')</attribute>
-            </xpath>
-
-            <!-- Method 3: By button text -->
-            <xpath expr="//button[contains(@string, 'Create Invoice')]" position="attributes" optional="1">
-                <attribute name="invisible">invoice_count &gt; 0 or invoice_status in ('invoiced', 'no')</attribute>
+            <!-- Hide the Create Invoice button when invoice exists -->
+            <xpath expr="//button[@name='_create_invoices']" position="attributes">
+                <attribute name="invisible">invoice_count &gt; 0</attribute>
             </xpath>
         </field>
     </record>

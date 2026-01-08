@@ -10,33 +10,27 @@
 
                 <!-- Add new fields after Reference field in header left group -->
                 <xpath expr="//group[@id='header_left_group']" position="inside">
-                    <label for="po_number" string="PO Number"
-                        invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
-                        style="font-weight:bold;"/>
                     <field name="po_number"
-                        nolabel="1"
                         invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
                         domain="[('partner_id', '=', partner_id), ('state', 'in', ['purchase', 'done'])]"
                         options="{'no_create': True}"
-                        readonly="state != 'draft'"/>
+                        readonly="state != 'draft'"
+                        string="PO Number"
+                        force_save="1"/>
 
-                    <label for="goods_receipt_number" string="Goods Receipt (GR)"
-                        invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
-                        style="font-weight:bold;"/>
                     <field name="goods_receipt_number"
-                        nolabel="1"
                         invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
                         domain="[('partner_id', '=', partner_id), ('picking_type_id.code', '=', 'incoming'), ('state', '=', 'done')]"
                         options="{'no_create': True}"
-                        readonly="state != 'draft'"/>
+                        readonly="state != 'draft'"
+                        string="Goods Receipt (GR)"
+                        force_save="1"/>
 
-                    <label for="awb_number" string="AWB Number"
-                        invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
-                        style="font-weight:bold;"/>
                     <field name="awb_number"
-                        nolabel="1"
                         invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
-                        readonly="state != 'draft'"/>
+                        readonly="state != 'draft'"
+                        string="AWB Number"
+                        force_save="1"/>
                 </xpath>
 
             </field>

@@ -1,77 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Custom Purchase Order List View with Billing Status -->
-        <record id="purchase_order_list_view_custom" model="ir.ui.view">
-            <field name="name">purchase.order.list.custom</field>
+        <!-- Inherit and modify the default Purchase Order List View -->
+        <record id="purchase_order_view_list_inherit" model="ir.ui.view">
+            <field name="name">purchase.order.list.inherit</field>
             <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_list"/>
             <field name="arch" type="xml">
-                <list string="Purchase Order" decoration-info="state in ['draft', 'sent']" decoration-muted="state == 'cancel'" multi_edit="1" class="o_purchase_order" js_class="purchase_dashboard_list" sample="1">
-                    <header>
-                        <button name="button_cancel" type="object" string="Cancel" confirm="Are you sure you want to cancel the selected RFQs/Orders?"/>
-                    </header>
-                    <field name="priority" optional="show" widget="priority" nolabel="1"/>
-                    <field name="partner_ref" optional="hide"/>
-                    <field name="name" string="Reference" readonly="1" decoration-bf="1"/>
-                    <field name="date_approve" column_invisible="context.get('quotation_only', False)" optional="show"/>
-                    <field name="partner_id" readonly="1"/>
-                    <field name="company_id" readonly="1" options="{'no_create': True}" groups="base.group_multi_company" optional="show"/>
-                    <field name="company_id" groups="!base.group_multi_company" column_invisible="True" readonly="state in ['cancel', 'purchase']"/>
-                    <field name="date_planned" column_invisible="context.get('quotation_only', False)" optional="show"/>
-                    <field name="user_id" optional="show" widget="many2one_avatar_user"/>
-                    <field name="date_order" invisible="state == 'purchase' or state == 'cancel'" column_invisible="not context.get('quotation_only', False)" readonly="state in ['cancel', 'purchase']" widget="remaining_days" optional="show"/>
-                    <field name="activity_ids" widget="list_activity" optional="show"/>
-                    <field name="origin" optional="hide"/>
-                    <field name="amount_untaxed" sum="Total Untaxed amount" string="Untaxed" widget="monetary" optional="hide"/>
-                    <field name="amount_total" sum="Total amount" widget="monetary" optional="show" decoration-bf="state == 'purchase'"/>
-                    <field name="currency_id" column_invisible="True" readonly="state in ['cancel', 'purchase']"/>
-                    <field name="amount_total_cc" sum="Total amount" widget="monetary" optional="hide"/>
-                    <field name="company_currency_id" column_invisible="True"/>
-                    <field name="state" optional="show" widget="badge" decoration-success="state == 'purchase'" decoration-warning="state == 'to approve'" decoration-info="state == 'draft' or state == 'sent'"/>
-
-                    <!-- Custom Billing Status Field with Color Coding -->
+                <!-- Replace the original invoice_status field with our custom one -->
+                <xpath expr="//field[@name='invoice_status']" position="replace">
                     <field name="invoice_status" optional="show" widget="badge"
                             decoration-success="invoice_status == 'invoiced'"
                             decoration-warning="invoice_status == 'to invoice'"
                             decoration-info="invoice_status == 'partially_invoice'"
                             decoration-muted="invoice_status == 'no'"/>
-                </list>
+                </xpath>
             </field>
         </record>
 
-        <!-- Override the default purchase order list view -->
-        <record id="purchase.purchase_order_view_list" model="ir.ui.view">
+        <!-- Alternative: If the above doesn't work, create a new view for RFQ list -->
+        <record id="purchase_rfq_view_list_inherit" model="ir.ui.view">
+            <field name="name">purchase.order.rfq.list.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_list_view_rfq"/>
             <field name="arch" type="xml">
-                <list string="Purchase Order" decoration-info="state in ['draft', 'sent']" decoration-muted="state == 'cancel'" multi_edit="1" class="o_purchase_order" js_class="purchase_dashboard_list" sample="1">
-                    <header>
-                        <button name="button_cancel" type="object" string="Cancel" confirm="Are you sure you want to cancel the selected RFQs/Orders?"/>
-                    </header>
-                    <field name="priority" optional="show" widget="priority" nolabel="1"/>
-                    <field name="partner_ref" optional="hide"/>
-                    <field name="name" string="Reference" readonly="1" decoration-bf="1"/>
-                    <field name="date_approve" column_invisible="context.get('quotation_only', False)" optional="show"/>
-                    <field name="partner_id" readonly="1"/>
-                    <field name="company_id" readonly="1" options="{'no_create': True}" groups="base.group_multi_company" optional="show"/>
-                    <field name="company_id" groups="!base.group_multi_company" column_invisible="True" readonly="state in ['cancel', 'purchase']"/>
-                    <field name="date_planned" column_invisible="context.get('quotation_only', False)" optional="show"/>
-                    <field name="user_id" optional="show" widget="many2one_avatar_user"/>
-                    <field name="date_order" invisible="state == 'purchase' or state == 'cancel'" column_invisible="not context.get('quotation_only', False)" readonly="state in ['cancel', 'purchase']" widget="remaining_days" optional="show"/>
-                    <field name="activity_ids" widget="list_activity" optional="show"/>
-                    <field name="origin" optional="hide"/>
-                    <field name="amount_untaxed" sum="Total Untaxed amount" string="Untaxed" widget="monetary" optional="hide"/>
-                    <field name="amount_total" sum="Total amount" widget="monetary" optional="show" decoration-bf="state == 'purchase'"/>
-                    <field name="currency_id" column_invisible="True" readonly="state in ['cancel', 'purchase']"/>
-                    <field name="amount_total_cc" sum="Total amount" widget="monetary" optional="hide"/>
-                    <field name="company_currency_id" column_invisible="True"/>
-                    <field name="state" optional="show" widget="badge" decoration-success="state == 'purchase'" decoration-warning="state == 'to approve'" decoration-info="state == 'draft' or state == 'sent'"/>
-
-                    <!-- Custom Billing Status with Color Coding -->
+                <xpath expr="//field[@name='invoice_status']" position="replace">
                     <field name="invoice_status" optional="show" widget="badge"
                             decoration-success="invoice_status == 'invoiced'"
                             decoration-warning="invoice_status == 'to invoice'"
                             decoration-info="invoice_status == 'partially_invoice'"
                             decoration-muted="invoice_status == 'no'"/>
-                </list>
+                </xpath>
             </field>
         </record>
 

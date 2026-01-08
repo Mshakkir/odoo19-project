@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 <!--    <record id="view_move_form_inherit_so_link" model="ir.ui.view">-->
@@ -33,7 +34,7 @@
 <!--    </record>-->
 <!--</odoo>-->
 
-<?xml version="1.0" encoding="utf-8"?>
+
 <odoo>
     <record id="view_move_form_inherit_so_link" model="ir.ui.view">
         <field name="name">account.move.form.inherit.so.link</field>

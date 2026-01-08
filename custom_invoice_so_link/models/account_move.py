@@ -119,6 +119,7 @@
 #                 self.fiscal_position_id = self.sale_order_id.fiscal_position_id
 
 from odoo import models, fields, api
+from odoo.exceptions import UserError
 
 
 class AccountMove(models.Model):
@@ -128,7 +129,8 @@ class AccountMove(models.Model):
     sale_order_id = fields.Many2one(
         'sale.order',
         string='Sales Order',
-        help="Select a sales order to create invoice from"
+        help="Select a sales order to create invoice from",
+        copy=False
     )
 
     # Field to show available sales orders for the customer
@@ -146,7 +148,7 @@ class AccountMove(models.Model):
         help="Delivery notes related to this customer"
     )
 
-    @api.depends('partner_id')
+    @api.depends('partner_id', 'move_type')
     def _compute_available_sale_orders(self):
         """Compute available sales orders for the selected customer"""
         for record in self:
@@ -166,7 +168,6 @@ class AccountMove(models.Model):
         """Compute delivery notes for the selected customer"""
         for record in self:
             if record.partner_id:
-                # Find deliveries for this customer
                 deliveries = self.env['stock.picking'].search([
                     ('partner_id', '=', record.partner_id.id),
                     ('picking_type_code', '=', 'outgoing'),
@@ -179,17 +180,17 @@ class AccountMove(models.Model):
     @api.onchange('partner_id')
     def _onchange_partner_id_clear_so(self):
         """Clear sales order when customer changes"""
+        self.sale_order_id = False
         if self.partner_id:
-            self.sale_order_id = False
-        return {
-            'domain': {
-                'sale_order_id': [
-                    ('partner_id', '=', self.partner_id.id),
-                    ('state', 'in', ['sale', 'done']),
-                    ('invoice_status', '=', 'to invoice')
-                ]
+            return {
+                'domain': {
+                    'sale_order_id': [
+                        ('partner_id', '=', self.partner_id.id),
+                        ('state', 'in', ['sale', 'done']),
+                        ('invoice_status', '=', 'to invoice')
+                    ]
+                }
             }
-        }
 
     @api.onchange('sale_order_id')
     def _onchange_sale_order_id(self):
@@ -215,12 +216,9 @@ class AccountMove(models.Model):
                         'quantity': qty_to_invoice,
                         'price_unit': line.price_unit,
                         'tax_ids': [(6, 0, line.tax_ids.ids)],
-                        'sale_line_ids': [(6, 0, [line.id])],  # Link to SO line
+                        'sale_line_ids': [(6, 0, [line.id])],
+                        'product_uom_id': line.product_uom.id,
                     }
-
-                    # Add UOM if exists
-                    if hasattr(line, 'product_uom_id') and line.product_uom_id:
-                        invoice_line_vals['product_uom_id'] = line.product_uom_id.id
 
                     # Set account if available
                     account = line.product_id.property_account_income_id or \
@@ -241,46 +239,51 @@ class AccountMove(models.Model):
             if self.sale_order_id.fiscal_position_id:
                 self.fiscal_position_id = self.sale_order_id.fiscal_position_id
 
-    def action_post(self):
-        """Override to update sales order invoice status when invoice is posted"""
-        res = super(AccountMove, self).action_post()
+    def _post(self, soft=True):
+        """Override _post to update sales order after invoice confirmation"""
+        # Call parent method
+        posted = super(AccountMove, self)._post(soft)
 
-        # Update sales order invoice status
-        for move in self:
-            if move.sale_order_id and move.move_type == 'out_invoice':
-                # Force recompute of invoice status on the sales order
-                move.sale_order_id._get_invoiced()
+        # Update sales order lines qty_invoiced
+        for move in posted:
+            if move.sale_order_id and move.move_type == 'out_invoice' and move.state == 'posted':
+                # Update each invoice line's linked sale order line
+                for inv_line in move.invoice_line_ids:
+                    for so_line in inv_line.sale_line_ids:
+                        # Manually update qty_invoiced
+                        so_line._compute_qty_invoiced()
 
-        return res
+                # Force recompute invoice status
+                move.sale_order_id._compute_invoice_status()
+
+        return posted
 
     def button_draft(self):
         """Override to update sales order when invoice is reset to draft"""
+        # Store sale orders before reset
+        sale_orders = self.mapped('sale_order_id')
+
         res = super(AccountMove, self).button_draft()
 
-        # Update sales order invoice status
-        for move in self:
-            if move.sale_order_id:
-                # Force recompute of invoice status on the sales order
-                move.sale_order_id._get_invoiced()
+        # Update sales orders
+        for so in sale_orders:
+            for line in so.order_line:
+                line._compute_qty_invoiced()
+            so._compute_invoice_status()
 
         return res
 
     def button_cancel(self):
         """Override to update sales order when invoice is cancelled"""
+        # Store sale orders before cancel
+        sale_orders = self.mapped('sale_order_id')
+
         res = super(AccountMove, self).button_cancel()
 
-        # Update sales order invoice status
-        for move in self:
-            if move.sale_order_id:
-                # Force recompute of invoice status on the sales order
-                move.sale_order_id._get_invoiced()
+        # Update sales orders
+        for so in sale_orders:
+            for line in so.order_line:
+                line._compute_qty_invoiced()
+            so._compute_invoice_status()
 
         return res
-
-
-class AccountMoveLine(models.Model):
-    _inherit = 'account.move.line'
-
-    def _compute_sale_order_line_fields(self):
-        """Ensure sale_line_ids are properly set"""
-        super(AccountMoveLine, self)._compute_sale_order_line_fields()

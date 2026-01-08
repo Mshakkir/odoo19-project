@@ -134,27 +134,6 @@
                     </section>
                 </t>
 
-                <!-- No Child Categories Message -->
-<!--                <t t-if="not child_categories">-->
-<!--                    <section class="empty-state-modern">-->
-<!--                        <div class="container">-->
-<!--                            <div class="empty-content">-->
-<!--                                <div class="empty-icon">-->
-<!--                                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">-->
-<!--                                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>-->
-<!--                                        <line x1="7" y1="7" x2="7.01" y2="7"/>-->
-<!--                                    </svg>-->
-<!--                                </div>-->
-<!--                                <h3>No Subcategories</h3>-->
-<!--                                <p>This category contains products directly. Click below to view all products.</p>-->
-<!--                                <a t-att-href="main_category['shop_url']" class="btn-back-home">-->
-<!--                                    View Products-->
-<!--                                </a>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </section>-->
-<!--                </t>-->
-
                 <!-- Inline CSS -->
                 <style>
                     :root {

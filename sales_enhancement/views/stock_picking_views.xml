@@ -6,12 +6,36 @@
         <field name="model">stock.picking</field>
         <field name="inherit_id" ref="stock.view_picking_internal_search"/>
         <field name="arch" type="xml">
-            <xpath expr="//filter[@name='ready']" position="after">
+            <!-- Add date range filters at the end of search -->
+            <xpath expr="//search/filter[last()]" position="after">
                 <separator/>
                 <filter string="From Date" name="filter_from_date"
                         date="scheduled_date"/>
                 <filter string="To Date" name="filter_to_date"
                         date="scheduled_date"/>
+            </xpath>
+
+            <!-- Add grouping by date -->
+            <xpath expr="//search/group[@string='Group By']" position="inside">
+                <filter string="Scheduled Date (Day)" name="group_scheduled_date_day"
+                        context="{'group_by': 'scheduled_date:day'}"/>
+                <filter string="Scheduled Date (Week)" name="group_scheduled_date_week"
+                        context="{'group_by': 'scheduled_date:week'}"/>
+                <filter string="Scheduled Date (Month)" name="group_scheduled_date_month"
+                        context="{'group_by': 'scheduled_date:month'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Enhanced delivery tree view -->
+    <record id="view_picking_tree_date_columns" model="ir.ui.view">
+        <field name="name">stock.picking.tree.date.columns</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.vpicktree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='scheduled_date']" position="attributes">
+                <attribute name="widget">date</attribute>
+                <attribute name="optional">show</attribute>
             </xpath>
         </field>
     </record>

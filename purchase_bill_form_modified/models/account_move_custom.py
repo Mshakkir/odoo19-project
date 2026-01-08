@@ -24,22 +24,35 @@ class AccountMove(models.Model):
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
-        """Clear PO and GR fields when vendor changes"""
+        """Clear PO and GR fields when vendor changes and filter Auto-Complete"""
         res = super(AccountMove, self)._onchange_partner_id()
+
         if self.move_type in ['in_invoice', 'in_refund']:
             self.po_number = False
             self.goods_receipt_number = False
             self.awb_number = False
-        return res
 
-    @api.model
-    def _get_purchase_orders(self, partner_id):
-        """Get unbilled purchase orders for the vendor"""
-        return self.env['purchase.order'].search([
-            ('partner_id', '=', partner_id),
-            ('state', 'in', ['purchase', 'done']),
-            ('invoice_status', 'in', ['to invoice', 'no'])
-        ])
+            # Apply domain filter for Auto-Complete to show only unbilled POs
+            if self.partner_id:
+                domain = {
+                    'purchase_vendor_bill_id': [
+                        ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
+                        '|',
+                        ('move_type', '=', 'in_invoice'),
+                        '&',
+                        ('purchase_order_id.state', 'in', ['purchase', 'done']),
+                        ('purchase_order_id.invoice_status', 'in', ['to invoice', 'no'])
+                    ]
+                }
+
+                if self.company_id:
+                    domain['purchase_vendor_bill_id'].append(('company_id', '=', self.company_id.id))
+
+                if not res:
+                    res = {}
+                res['domain'] = domain
+
+        return res
 
     @api.onchange('purchase_vendor_bill_id', 'purchase_id')
     def _onchange_purchase_auto_complete(self):
@@ -152,7 +165,6 @@ class AccountMove(models.Model):
                 # Also get AWB from the related PO
                 if hasattr(gr.purchase_id, 'awb_number') and gr.purchase_id.awb_number and not self.awb_number:
                     self.awb_number = gr.purchase_id.awb_number
-
 
 
 

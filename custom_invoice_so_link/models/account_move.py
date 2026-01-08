@@ -217,7 +217,7 @@ class AccountMove(models.Model):
                         'price_unit': line.price_unit,
                         'tax_ids': [(6, 0, line.tax_ids.ids)],
                         'sale_line_ids': [(6, 0, [line.id])],
-                        'product_uom_id': line.product_uom.id,
+                        'product_uom_id': line.product_uom_id.id,
                     }
 
                     # Set account if available

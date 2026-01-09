@@ -307,7 +307,7 @@
                                     </t>
                                     <t t-elif="o.move_type == 'out_refund'">
                                         CN #:
-                                        <span t-esc="o.name"/> &#160;&#160;<span style="font-weight:900;" class="ar">رقم
+                                        <span t-esc="o.name"/> <span style="font-weight:900;" class="ar">رقم
                                         الإشعار
                                     </span>
                                     </t>

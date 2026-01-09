@@ -4,6 +4,6 @@ class SaleOrder(models.Model):
     _inherit = "purchase.order"
 
     delivery_period = fields.Char(
-        string="Delivery Period",
+        string="ETA",
         help="Example: 3-4 Weeks, 10 Days, Immediate"
     )

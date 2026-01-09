@@ -222,7 +222,7 @@
                                     </t>
                                 </td>
                                 <t t-if="o.partner_shipping_id and o.partner_shipping_id.id != o.partner_id.id">
-                                    <td style="padding:4px 8px; font-weight:bold; width:50%;">
+                                    <td style="border:1px solid #000000;padding:4px 8px; font-weight:bold; width:50%;">
                                         <t t-if="o.move_type in ('out_invoice','out_refund')">
                                             Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="ar">عنوان
                                             الشحن
@@ -323,7 +323,7 @@
                                 </td>
 
                                 <!-- Third Column: AWB (only for invoice) or P.O (for credit note) -->
-                                <td style="padding:4px 8px;">
+                                <td style="border:1px solid #000000;padding:4px 8px;">
                                     <t t-if="o.move_type == 'out_invoice'">
                                         <strong>Shipping Ref#</strong>
                                         <span t-if="o.awb_number" t-esc="o.awb_number"/>
@@ -377,39 +377,39 @@
                            style="border:1px solid #000000; border-collapse:collapse; font-size:13px; text-align:center;">
                         <thead style="background-color:#FFFFFF; color:#080808; font-size:14px;">
                             <tr>
-                                <th style="border:1px solid #000000; padding:8px;">S.N
+                                <th style="border:1px solid #000000;">S.N
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">م</span>
                                 </th>
-                                <th style="border:1px solid #000000; padding:8px;">Item / Description
+                                <th style="border:1px solid #000000;">Item / Description
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">الصنف / الوصف</span>
                                 </th>
-                                <th style="border:1px solid #000000; padding:8px;">QTY
+                                <th style="border:1px solid #000000;">QTY
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">الكمية</span>
                                 </th>
-                                <th style="border:1px solid #000000; padding:8px;">Unit
+                                <th style="border:1px solid #000000;">Unit
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">الوحدة</span>
                                 </th>
-                                <th style="border:1px solid #000000; padding:8px;">S.Rate
+                                <th style="border:1px solid #000000;">S.Rate
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">سعر الوحدة</span>
                                 </th>
-                                <th style="border:1px solid #000000; padding:8px;">Amount
+                                <th style="border:1px solid #000000;">Amount
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">المبلغ</span>
                                 </th>
-                                <th style="border:1px solid #000000; padding:8px;">VAT%
+                                <th style="border:1px solid #000000;">VAT%
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">الضريبة</span>
                                 </th>
-                                <th style="border:1px solid #000000; padding:8px;">VAT
+                                <th style="border:1px solid #000000;">VAT
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">القيمة الضريبة</span>
                                 </th>
-                                <th style="border:1px solid #000000; padding:8px;">Total Price
+                                <th style="border:1px solid #000000;">Total Price
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">القيمة الإجمالية</span>
                                 </th>
@@ -533,7 +533,7 @@
                                             <span t-esc="o.amount_tax" t-options='{"widget":"float","precision":2}'/>
                                         </td>
                                     </tr>
-                                    <tr style="background:#f5f5f5; font-weight:bold;">
+                                    <tr style="background:#FFFFFF; font-weight:bold;">
                                         <td style="padding:5px 6px;">Grand Total:</td>
                                         <td style="text-align:right; padding:5px 6px;">
                                             <span t-esc="o.amount_total" t-options='{"widget":"float","precision":2}'/>
@@ -544,7 +544,7 @@
                         </tr>
                         <tr>
                             <td colspan="4"
-                                style="border: 1px solid #000000; padding: 10px; background: #fafafa; font-weight: bold; text-align: center;">
+                                style="border: 1px solid #000000; padding: 10px; background:#FFFFFF; font-weight: bold; text-align: center;">
                                 <div style="direction: rtl; line-height:1.5; font-weight:900; font-size: 13px;"
                                      class="ar">
                                     فقط
@@ -722,90 +722,90 @@
                     <!--                       t-value="sum(line.quantity * line.price_unit for line in o.invoice_line_ids)"/>-->
                     <!--                    <t t-set="subtotal_after_discount" t-value="subtotal_before_discount - total_discount_amount"/>-->
 
-                    <!--                    &lt;!&ndash; Items Table &ndash;&gt;-->
-                    <!--                    <table width="100%" border="1" style="border-collapse:collapse; font-size:13px; text-align:center;">-->
-                    <!--                        <thead style="background-color:#FFFFFF; color:#080808; font-size:14px;">-->
-                    <!--                            <tr>-->
-                    <!--                                <th>S.N-->
-                    <!--                                    <br/>-->
-                    <!--                                    <span style="font-weight:550;font-size:12px;" class="ar">م</span>-->
-                    <!--                                </th>-->
-                    <!--                                <th>Item / Description-->
-                    <!--                                    <br/>-->
-                    <!--                                    <span style="font-weight:550;font-size:12px;" class="ar">الصنف / الوصف</span>-->
-                    <!--                                </th>-->
-                    <!--                                <th>QTY-->
-                    <!--                                    <br/>-->
-                    <!--                                    <span style="font-weight:550;font-size:12px;" class="ar">الكمية</span>-->
-                    <!--                                </th>-->
-                    <!--                                <th>Unit-->
-                    <!--                                    <br/>-->
-                    <!--                                    <span style="font-weight:550;font-size:12px;" class="ar">الوحدة</span>-->
-                    <!--                                </th>-->
-                    <!--                                <th>S.Rate-->
-                    <!--                                    <br/>-->
-                    <!--                                    <span style="font-weight:550;font-size:12px;" class="ar">سعر الوحدة</span>-->
-                    <!--                                </th>-->
-                    <!--                                <th>Amount-->
-                    <!--                                    <br/>-->
-                    <!--                                    <span style="font-weight:550;font-size:12px;" class="ar">المبلغ</span>-->
-                    <!--                                </th>-->
-                    <!--                                <th>VAT%-->
-                    <!--                                    <br/>-->
-                    <!--                                    <span style="font-weight:550;font-size:12px;" class="ar">الضريبة</span>-->
-                    <!--                                </th>-->
-                    <!--                                <th>VAT-->
-                    <!--                                    <br/>-->
-                    <!--                                    <span style="font-weight:550;font-size:12px;" class="ar">القيمة الضريبة</span>-->
-                    <!--                                </th>-->
-                    <!--                                <th>Total Price-->
-                    <!--                                    <br/>-->
-                    <!--                                    <span style="font-weight:550;font-size:12px;" class="ar">القيمة الإجمالية</span>-->
-                    <!--                                </th>-->
-                    <!--                            </tr>-->
-                    <!--                        </thead>-->
-                    <!--                        <tbody>-->
-                    <!--                            <tr t-foreach="enumerate(o.invoice_line_ids, start=1)" t-as="l">-->
-                    <!--                                <td style="text-align:center; width:35px; padding: 10px 8px;">-->
-                    <!--                                    <t t-esc="l[0]"/>-->
-                    <!--                                </td>-->
-                    <!--                                <td style="text-align:left; width:300px; padding: 10px 12px;">-->
-                    <!--                                    <t t-if="l[1].product_id.default_code">-->
-                    <!--                                        <span t-esc="l[1].product_id.default_code"/>-->
-                    <!--                                        - -->
-                    <!--                                    </t>-->
-                    <!--                                    <span t-field="l[1].name"/>-->
-                    <!--                                </td>-->
-                    <!--                                <td style="width:70px; padding: 10px 8px;">-->
-                    <!--                                    <span t-field="l[1].quantity"/>-->
-                    <!--                                </td>-->
-                    <!--                                <td style="width:70px; padding: 10px 8px;">-->
-                    <!--                                    <span t-field="l[1].product_uom_id.name"/>-->
-                    <!--                                </td>-->
-                    <!--                                <td style="text-align:center; width:80px; padding: 10px 8px;">-->
-                    <!--                                    <span t-field="l[1].price_unit" t-options='{"widget": "float", "precision": 2}'/>-->
-                    <!--                                </td>-->
-                    <!--                                <td style="text-align:center; width:80px; padding: 10px 8px;">-->
-                    <!--                                    <t t-set="subt"-->
-                    <!--                                       t-value="l[1].quantity * l[1].price_unit * (1 - (l[1].discount or 0)/100.0)"/>-->
-                    <!--                                    <span t-esc="subt" t-options='{"widget":"float","precision":2}'/>-->
-                    <!--                                </td>-->
-                    <!--                                <td style="padding: 10px 8px;">-->
-                    <!--                                    <t t-if="l[1].tax_ids">-->
-                    <!--                                        <span t-esc="', '.join(str(t.amount) + '%' for t in l[1].tax_ids)"/>-->
-                    <!--                                    </t>-->
-                    <!--                                    <t t-else="">0%</t>-->
-                    <!--                                </td>-->
-                    <!--                                <td style="text-align:center; padding: 10px 8px;">-->
-                    <!--                                    <t t-set="vat" t-value="subt * (sum(t.amount for t in l[1].tax_ids)/100.0)"/>-->
-                    <!--                                    <span t-esc="vat" t-options='{"widget":"float","precision":2}'/>-->
-                    <!--                                </td>-->
-                    <!--                                <td style="text-align:center; padding: 10px 8px;">-->
-                    <!--                                    <span t-esc="subt + vat" t-options='{"widget":"float","precision":2}'/>-->
-                    <!--                                </td>-->
-                    <!--                            </tr>-->
-                    <!--                        </tbody>-->
-                    <!--                    </table>-->
+<!--                                        &lt;!&ndash; Items Table &ndash;&gt;-->
+<!--                                        <table width="100%" border="1" style="border-collapse:collapse; font-size:13px; text-align:center;">-->
+<!--                                            <thead style="background-color:#FFFFFF; color:#080808; font-size:14px;">-->
+<!--                                                <tr>-->
+<!--                                                    <th>S.N-->
+<!--                                                        <br/>-->
+<!--                                                        <span style="font-weight:550;font-size:12px;" class="ar">م</span>-->
+<!--                                                    </th>-->
+<!--                                                    <th>Item / Description-->
+<!--                                                        <br/>-->
+<!--                                                        <span style="font-weight:550;font-size:12px;" class="ar">الصنف / الوصف</span>-->
+<!--                                                    </th>-->
+<!--                                                    <th>QTY-->
+<!--                                                        <br/>-->
+<!--                                                        <span style="font-weight:550;font-size:12px;" class="ar">الكمية</span>-->
+<!--                                                    </th>-->
+<!--                                                    <th>Unit-->
+<!--                                                        <br/>-->
+<!--                                                        <span style="font-weight:550;font-size:12px;" class="ar">الوحدة</span>-->
+<!--                                                    </th>-->
+<!--                                                    <th>S.Rate-->
+<!--                                                        <br/>-->
+<!--                                                        <span style="font-weight:550;font-size:12px;" class="ar">سعر الوحدة</span>-->
+<!--                                                    </th>-->
+<!--                                                    <th>Amount-->
+<!--                                                        <br/>-->
+<!--                                                        <span style="font-weight:550;font-size:12px;" class="ar">المبلغ</span>-->
+<!--                                                    </th>-->
+<!--                                                    <th>VAT%-->
+<!--                                                        <br/>-->
+<!--                                                        <span style="font-weight:550;font-size:12px;" class="ar">الضريبة</span>-->
+<!--                                                    </th>-->
+<!--                                                    <th>VAT-->
+<!--                                                        <br/>-->
+<!--                                                        <span style="font-weight:550;font-size:12px;" class="ar">القيمة الضريبة</span>-->
+<!--                                                    </th>-->
+<!--                                                    <th>Total Price-->
+<!--                                                        <br/>-->
+<!--                                                        <span style="font-weight:550;font-size:12px;" class="ar">القيمة الإجمالية</span>-->
+<!--                                                    </th>-->
+<!--                                                </tr>-->
+<!--                                            </thead>-->
+<!--                                            <tbody>-->
+<!--                                                <tr t-foreach="enumerate(o.invoice_line_ids, start=1)" t-as="l">-->
+<!--                                                    <td style="text-align:center; width:35px; padding: 10px 8px;">-->
+<!--                                                        <t t-esc="l[0]"/>-->
+<!--                                                    </td>-->
+<!--                                                    <td style="text-align:left; width:300px; padding: 10px 12px;">-->
+<!--                                                        <t t-if="l[1].product_id.default_code">-->
+<!--                                                            <span t-esc="l[1].product_id.default_code"/>-->
+<!--                                                            - -->
+<!--                                                        </t>-->
+<!--                                                        <span t-field="l[1].name"/>-->
+<!--                                                    </td>-->
+<!--                                                    <td style="width:70px; padding: 10px 8px;">-->
+<!--                                                        <span t-field="l[1].quantity"/>-->
+<!--                                                    </td>-->
+<!--                                                    <td style="width:70px; padding: 10px 8px;">-->
+<!--                                                        <span t-field="l[1].product_uom_id.name"/>-->
+<!--                                                    </td>-->
+<!--                                                    <td style="text-align:center; width:80px; padding: 10px 8px;">-->
+<!--                                                        <span t-field="l[1].price_unit" t-options='{"widget": "float", "precision": 2}'/>-->
+<!--                                                    </td>-->
+<!--                                                    <td style="text-align:center; width:80px; padding: 10px 8px;">-->
+<!--                                                        <t t-set="subt"-->
+<!--                                                           t-value="l[1].quantity * l[1].price_unit * (1 - (l[1].discount or 0)/100.0)"/>-->
+<!--                                                        <span t-esc="subt" t-options='{"widget":"float","precision":2}'/>-->
+<!--                                                    </td>-->
+<!--                                                    <td style="padding: 10px 8px;">-->
+<!--                                                        <t t-if="l[1].tax_ids">-->
+<!--                                                            <span t-esc="', '.join(str(t.amount) + '%' for t in l[1].tax_ids)"/>-->
+<!--                                                        </t>-->
+<!--                                                        <t t-else="">0%</t>-->
+<!--                                                    </td>-->
+<!--                                                    <td style="text-align:center; padding: 10px 8px;">-->
+<!--                                                        <t t-set="vat" t-value="subt * (sum(t.amount for t in l[1].tax_ids)/100.0)"/>-->
+<!--                                                        <span t-esc="vat" t-options='{"widget":"float","precision":2}'/>-->
+<!--                                                    </td>-->
+<!--                                                    <td style="text-align:center; padding: 10px 8px;">-->
+<!--                                                        <span t-esc="subt + vat" t-options='{"widget":"float","precision":2}'/>-->
+<!--                                                    </td>-->
+<!--                                                </tr>-->
+<!--                                            </tbody>-->
+<!--                                        </table>-->
 
                     <!--                    &lt;!&ndash; Signature Table &ndash;&gt;-->
                     <!--                    <table width="100%"-->

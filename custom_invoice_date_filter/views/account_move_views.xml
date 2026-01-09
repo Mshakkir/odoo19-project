@@ -1,43 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<templates xml:space="preserve">
-
-    <!-- Extend the ListController control panel -->
-    <t t-name="custom_invoice_date_filter.ListController"
-       t-inherit="web.ListController"
-       t-inherit-mode="extension">
-
-        <!-- Add date filters in the control panel -->
-        <xpath expr="//div[hasclass('o_control_panel_main_buttons')]" position="after">
-            <t t-if="props.resModel === 'account.move'">
-                <div class="o_invoice_date_filter_container">
-
-                    <!-- From Date Input -->
-                    <label for="invoice_date_from">From Date:</label>
-                    <input type="date"
-                           id="invoice_date_from"
-                           t-att-value="dateFrom"
-                           t-on-change="(ev) => this.onDateFromChange(ev)"
-                           placeholder="From Date"/>
-
-                    <!-- To Date Input -->
-                    <label for="invoice_date_to">To Date:</label>
-                    <input type="date"
-                           id="invoice_date_to"
-                           t-att-value="dateTo"
-                           t-on-change="(ev) => this.onDateToChange(ev)"
-                           placeholder="To Date"/>
-
-                    <!-- Clear button -->
-                    <button type="button"
-                            class="btn btn-sm btn-secondary"
-                            t-on-click="() => this.clearDateFilters()"
-                            title="Clear date filters"
-                            t-if="dateFrom or dateTo">
-                        Clear
-                    </button>
-                </div>
-            </t>
-        </xpath>
-    </t>
-
-</templates>
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Optional: Add a menu item to easily access filtered invoices -->
+    <record id="action_invoice_date_filter_info" model="ir.actions.client">
+        <field name="name">Invoice Date Filter Info</field>
+        <field name="tag">display_notification</field>
+        <field name="params">{"title": "Date Filter Active", "message": "Use the date fields in the invoice list header to filter by date range.", "type": "info", "sticky": false}</field>
+    </record>
+</odoo>

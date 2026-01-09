@@ -1,19 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add button to invoice list view -->
-    <record id="view_invoice_tree_button" model="ir.ui.view">
-        <field name="name">account.move.tree.button</field>
-        <field name="model">account.move</field>
-        <field name="priority">99</field>
-        <field name="arch" type="xml">
-            <tree>
-                <header>
-                    <button name="%(custom_invoice_filter.action_invoice_date_filter_wizard)d"
-                            string="Date Filter"
-                            type="action"
-                            class="btn-primary"/>
-                </header>
-            </tree>
-        </field>
-    </record>
+    <!-- Empty view file - we'll use server action instead -->
 </odoo>

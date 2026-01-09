@@ -1,20 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Action: Delivery Notes (Outgoing Pickings) -->
-    <record id="action_sales_delivery_notes" model="ir.actions.act_window">
-        <field name="name">Delivery Notes</field>
-        <field name="res_model">stock.picking</field>
-        <field name="view_mode">tree,form</field>
-        <field name="domain">[('picking_type_code', '=', 'outgoing')]</field>
-        <field name="context">{'default_picking_type_code': 'outgoing'}</field>
-    </record>
-
     <!-- Menu: Sales > Delivery Notes -->
+    <!-- Reuses the existing Inventory Delivery action -->
     <menuitem
         id="menu_sales_delivery_notes"
         name="Delivery Notes"
         parent="sale.sale_menu_root"
-        action="action_sales_delivery_notes"
+        action="stock.action_picking_tree_all"
         sequence="35"
     />
 </odoo>

@@ -1,34 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Inherit invoice tree view to add control panel button -->
-    <record id="view_invoice_tree_inherit_date_filter" model="ir.ui.view">
-        <field name="name">account.move.tree.inherit.date.filter</field>
+    <!-- Add action to invoices action window -->
+    <record id="view_move_form_inherit_date_filter" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.date.filter</field>
         <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
-            <!-- Add button to control panel using search view -->
-            <xpath expr="//tree" position="before">
-                <header>
-                    <button name="%(custom_invoice_filter.action_invoice_date_filter_wizard)d"
-                            string="Date Filter"
-                            type="action"
-                            class="btn-primary"/>
-                </header>
+            <xpath expr="//header" position="inside">
+                <button name="%(custom_invoice_filter.action_invoice_date_filter_wizard)d"
+                        string="Filter by Date Range"
+                        type="action"
+                        groups="base.group_user"/>
             </xpath>
-        </field>
-    </record>
-
-    <!-- Add Search View with button -->
-    <record id="view_account_invoice_filter_inherit" model="ir.ui.view">
-        <field name="name">account.move.search.inherit.date.filter</field>
-        <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_account_invoice_filter"/>
-        <field name="arch" type="xml">
-            <search position="inside">
-                <filter name="custom_date_filter"
-                        string="Custom Date Range"
-                        context="{'search_default_custom_date_filter': 1}"/>
-            </search>
         </field>
     </record>
 </odoo>

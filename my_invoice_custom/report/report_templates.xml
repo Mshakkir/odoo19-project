@@ -205,10 +205,10 @@
                     </div>
 
                     <!-- Customer Details -->
-                    <div style="border:1px solid #999; margin-bottom:10px; font-size:12px;">
+                    <div style="border:1px solid #000000; margin-bottom:10px; font-size:12px;">
                         <table style="width:100%; border-collapse:collapse;">
                             <tr style="background-color:#FFFFFF;">
-                                <td style="padding:4px 8px; font-weight:bold; border-right:1px solid #999;">
+                                <td style="padding:4px 8px; font-weight:bold; border-right:1px solid #000000;">
                                     <t t-if="o.move_type in ('out_invoice','out_refund')">
                                         Sold To &#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="ar">اسم العميل
                                     </span>
@@ -229,7 +229,7 @@
                                 </t>
                             </tr>
                             <tr>
-                                <td style="padding:6px 10px; vertical-align:top; border-right:1px solid #999;">
+                                <td style="padding:6px 10px; vertical-align:top; border-right:1px solid #000000;">
                                     <strong>
                                         <t t-esc="o.partner_id.name"/>
                                     </strong>
@@ -293,7 +293,7 @@
                         </table>
 
                         <!-- ===== INVOICE/CREDIT NOTE INFO ===== -->
-                        <table style="width:100%; border-top:1px solid #999; background-color:white; font-weight:bold;">
+                        <table style="width:100%; border-top:1px solid #000000; background-color:white; font-weight:bold;">
                             <tr>
                                 <!-- First Column: Invoice/CN Number -->
                                 <td style="padding:4px 8px;">
@@ -339,18 +339,18 @@
                             <!-- Second Row: ONLY for sales invoice (not for credit note) -->
                             <t t-if="o.move_type == 'out_invoice'">
                                 <tr style="background-color:#FFFFFF;">
-                                    <td style="border:1px solid #000; padding:4px; width:33%;">
+                                    <td style="border:1px solid #000000; padding:4px; width:33%;">
                                         <strong>Customer Ref#</strong>
                                         <t t-set="sale_order"
                                            t-value="o.invoice_line_ids and o.invoice_line_ids[0].sale_line_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id"/>
                                         <span t-if="sale_order" t-esc="sale_order.client_order_ref or sale_order.name"/>
                                         <span t-else="">-</span>
                                     </td>
-                                    <td style="border:1px solid #000; padding:4px; width:33%;">
+                                    <td style="border:1px solid #000000; padding:4px; width:33%;">
                                         <strong>Payment Terms:</strong>
                                         <t t-esc="o.invoice_payment_term_id.name or ''"/>
                                     </td>
-                                    <td style="border:1px solid #000; padding:4px; width:34%;">
+                                    <td style="border:1px solid #000000; padding:4px; width:34%;">
                                         <strong>Dn#</strong>
                                         <t t-set="delivery"
                                            t-value="o.invoice_line_ids and o.invoice_line_ids[0].sale_line_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id.picking_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id.picking_ids[0]"/>
@@ -456,15 +456,15 @@
 
                     <!-- Signature Table -->
                     <table width="100%"
-                           style="margin-top:10px; font-size:13px; border:1px solid #ccc; border-collapse:collapse;">
+                           style="margin-top:10px; font-size:13px; border:1px solid #000000; border-collapse:collapse;">
                         <tr>
                             <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                <td width="30%" style="border:1px solid #ccc; padding:8px; vertical-align:top;">
+                                <td width="30%" style="border:1px solid #000000; padding:8px; vertical-align:top;">
                                     <strong>Delivered By</strong>
                                     <br/>
                                     <span style="font-weight:900;" class="ar">سلمت بواسطة</span>
                                     <div style="height:20px;"></div>
-                                    <hr style="border:none; border-top:1px dashed #aaa; margin:5px 0;"/>
+                                    <hr style="border:none; border-top:1px solid#000000; margin:5px 0;"/>
                                     <strong>Received By</strong>
                                     <br/>
                                     <span style="font-weight:900;" class="ar">المستلم</span>
@@ -472,7 +472,7 @@
                                 </td>
                             </t>
                             <t t-else="">
-                                <td width="30%" style="border:1px solid #ccc; padding:8px; vertical-align:top;">&#160;
+                                <td width="30%" style="border:1px solid #000000; padding:8px; vertical-align:top;">&#160;
                                 </td>
                             </t>
 
@@ -484,7 +484,7 @@
 
                             <t t-if="o.move_type in ('out_invoice','out_refund')">
                                 <td width="15%"
-                                    style="border:1px solid #ccc; text-align:center; vertical-align:middle; padding:10px;">
+                                    style="border:1px solid #000000; text-align:center; vertical-align:middle; padding:10px;">
                                     <div style="display:flex; align-items:center; justify-content:center; height:120px;">
                                         <t t-if="o.qr_code_image">
                                             <img t-att-src="'data:image/png;base64,%s' % o.qr_code_image.decode('utf-8')"
@@ -494,10 +494,10 @@
                                 </td>
                             </t>
                             <t t-else="">
-                                <td width="15%" style="border:1px solid #ccc;">&#160;</td>
+                                <td width="15%" style="border:1px solid #000000;">&#160;</td>
                             </t>
 
-                            <td width="40%" style="border:1px solid #ccc; padding:6px; vertical-align:top;">
+                            <td width="40%" style="border:1px solid#000000; padding:6px; vertical-align:top;">
                                 <table width="100%" style="font-size:12px; border-collapse:collapse;">
                                     <tr>
                                         <td style="padding:4px 6px;">Subtotal:</td>
@@ -539,7 +539,7 @@
                         </tr>
                         <tr>
                             <td colspan="4"
-                                style="border: 1px solid #ccc; padding: 10px; background: #fafafa; font-weight: bold; text-align: center;">
+                                style="border: 1px solid#000000; padding: 10px; background: #fafafa; font-weight: bold; text-align: center;">
                                 <div style="direction: rtl; line-height:1.5; font-weight:900; font-size: 13px;"
                                      class="ar">
                                     فقط

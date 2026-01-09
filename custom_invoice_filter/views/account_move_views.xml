@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit Invoice Tree View to Add Button -->
+    <record id="view_invoice_tree_inherit_date_filter" model="ir.ui.view">
+        <field name="name">account.move.tree.inherit.date.filter</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="inside">
+                <header>
+                    <button name="%(action_invoice_date_filter_wizard)d"
+                            string="Filter by Date"
+                            type="action"
+                            class="btn-primary"
+                            icon="fa-calendar"/>
+                </header>
+            </xpath>
+        </field>
+    </record>
+</odoo>

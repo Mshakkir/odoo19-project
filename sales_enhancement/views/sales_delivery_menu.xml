@@ -1,5 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
     <!-- Action: Delivery Notes (Outgoing Pickings) -->
     <record id="action_sales_delivery_notes" model="ir.actions.act_window">
         <field name="name">Delivery Notes</field>
@@ -10,15 +10,11 @@
     </record>
 
     <!-- Menu: Sales > Delivery Notes -->
-
     <menuitem
         id="menu_sales_delivery_notes"
         name="Delivery Notes"
-        parent="stock.menu_stock_root"
+        parent="sale.sale_menu_root"
         action="action_sales_delivery_notes"
         sequence="35"
     />
-</odoo>
-
-
 </odoo>

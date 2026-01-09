@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
 
             <!-- Place Delivery Period below Deliver To -->
-            <xpath expr="//field[@name='awb_number']" position="after">
+            <xpath expr="//field[@name='name']" position="after">
                 <field name="delivery_period"/>
             </xpath>
 

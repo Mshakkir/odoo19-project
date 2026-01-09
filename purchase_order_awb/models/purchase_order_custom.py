@@ -4,7 +4,7 @@ class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
     awb_number = fields.Char(
-        string='AWB Number',
+        string='Shipping Ref #',
         help='Air Waybill Number for tracking shipment',
         copy=False,
         readonly=False

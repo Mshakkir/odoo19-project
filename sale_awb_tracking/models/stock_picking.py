@@ -6,7 +6,7 @@ class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
     awb_number = fields.Char(
-        string='AWB Number',
+        string='Shipping Ref #',
         help='Air Waybill Number for shipment tracking',
         copy=False,
         tracking=True

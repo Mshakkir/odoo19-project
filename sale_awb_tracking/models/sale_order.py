@@ -27,7 +27,7 @@ class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
     awb_number = fields.Char(
-        string='AWB Number',
+        string='Shipping Ref #',
         help='Air Waybill Number for shipment tracking',
         copy=False,
         tracking=True

@@ -42,7 +42,7 @@ class SaleOrder(models.Model):
     )
 
     awb_number = fields.Char(
-        string='AWB Number',
+        string='Shipping Ref #',
         help='Air Waybill Number',
         copy=False
     )

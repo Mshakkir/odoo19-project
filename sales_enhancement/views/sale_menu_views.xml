@@ -6,5 +6,5 @@
         name="Sale Invoices"
         parent="sale.sale_menu_root"
         action="account.action_move_out_invoice_type"
-        sequence="5"/>
+        sequence="10"/>
 </odoo>

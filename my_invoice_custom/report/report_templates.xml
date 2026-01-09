@@ -208,10 +208,10 @@
                     </div>
 
                     <!-- Customer Details -->
-                    <div style="border:1px solid #000000; margin-bottom:10px; font-size:12px;">
+                    <div style="margin-bottom:10px; font-size:12px;">
                         <table style="width:100%; border-collapse:collapse;">
-                            <tr style="background-color:#FFFFFF;">
-                                <td style="padding:4px 8px; font-weight:bold; border:1px solid #000000;">
+                            <tr style="background-color:#FFFFFF;border:1px solid #000000;">
+                                <td style="padding:4px 8px; font-weight:bold;">
                                     <t t-if="o.move_type in ('out_invoice','out_refund')">
                                         Sold To &#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="ar">اسم العميل
                                     </span>

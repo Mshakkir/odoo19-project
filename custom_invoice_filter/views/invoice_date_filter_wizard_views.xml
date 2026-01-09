@@ -27,7 +27,7 @@
         </field>
     </record>
 
-    <!-- Wizard Action - This will appear in Action menu (gear icon) -->
+    <!-- Wizard Action - Binding to account.move (Accounting Invoices) -->
     <record id="action_invoice_date_filter_wizard" model="ir.actions.act_window">
         <field name="name">Filter by Date Range</field>
         <field name="res_model">invoice.date.filter.wizard</field>
@@ -35,5 +35,17 @@
         <field name="target">new</field>
         <field name="binding_model_id" ref="account.model_account_move"/>
         <field name="binding_view_types">list</field>
+    </record>
+
+    <!-- Add to Sale Invoices gear icon -->
+    <record id="action_sale_invoice_date_filter_wizard" model="ir.actions.server">
+        <field name="name">Filter by Date Range</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+action = env['invoice.date.filter.wizard'].create({}).action_open_wizard()
+        </field>
     </record>
 </odoo>

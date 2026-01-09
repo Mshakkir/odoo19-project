@@ -23,6 +23,16 @@ class InvoiceDateFilterWizard(models.TransientModel):
             if record.from_date > record.to_date:
                 raise UserError('From Date cannot be later than To Date!')
 
+    def action_open_wizard(self):
+        """Open the wizard form"""
+        return {
+            'name': 'Filter by Date Range',
+            'type': 'ir.actions.act_window',
+            'res_model': 'invoice.date.filter.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+        }
+
     def action_apply_filter(self):
         self.ensure_one()
 
@@ -38,7 +48,7 @@ class InvoiceDateFilterWizard(models.TransientModel):
             'name': f'Invoices from {self.from_date} to {self.to_date}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move',
-            'view_mode': 'list,form',  # Changed from 'tree,form' to 'list,form'
+            'view_mode': 'list,form',
             'domain': domain,
             'context': {
                 'create': False,

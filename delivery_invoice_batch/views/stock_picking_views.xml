@@ -1,17 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add Create Invoice button in list view -->
-    <record id="view_picking_tree_inherit" model="ir.ui.view">
-        <field name="name">stock.picking.tree.inherit</field>
-        <field name="model">stock.picking</field>
-        <field name="inherit_id" ref="stock.view_picking_internal_search"/>
-        <field name="arch" type="xml">
-            <xpath expr="//tree" position="attributes">
-                <attribute name="multi_edit">1</attribute>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- Add action in tree view header -->
+    <!-- Add action to create invoices from delivery notes -->
     <record id="action_picking_create_invoice" model="ir.actions.server">
         <field name="name">Create Invoices</field>
         <field name="model_id" ref="stock.model_stock_picking"/>
@@ -23,9 +12,9 @@ action = records.action_create_invoice()
         </field>
     </record>
 
-    <!-- Add smart button to view invoices -->
+    <!-- Add smart button to view invoices from delivery note form -->
     <record id="view_picking_form_inherit" model="ir.ui.view">
-        <field name="name">stock.picking.form.inherit</field>
+        <field name="name">stock.picking.form.inherit.invoice</field>
         <field name="model">stock.picking</field>
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">

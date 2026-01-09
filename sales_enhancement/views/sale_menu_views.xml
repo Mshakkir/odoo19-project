@@ -7,4 +7,12 @@
         parent="sale.sale_menu_root"
         action="account.action_move_out_invoice_type"
         sequence="10"/>
+
+        <menuitem
+        id="menu_sales_delivery_notes"
+        name="Delivery Notes"
+        parent="sale.sale_menu_root"
+        action="stock.action_picking_tree_all"
+        sequence="35"
+    />
 </odoo>

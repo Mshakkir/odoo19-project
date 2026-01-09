@@ -7,7 +7,7 @@
         <field name="inherit_id" ref="purchase.view_order_form"/>
         <field name="arch" type="xml">
             <!-- Add inside Other Info > Delivery section -->
-            <xpath expr="//field[@name='payment_term_id']" position="after">
+            <xpath expr="//field[@name='picking_type_id']" position="after">
                 <field name="delivery_period"/>
             </xpath>
         </field>

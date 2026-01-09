@@ -14,7 +14,7 @@
         'views/sale_order_views.xml',
         'views/account_move_views.xml',
         'views/stock_picking_views.xml',
-        "views/purchase_menu_views.xml"
+        "views/purchase_menu_views.xml",
         "views/sales_delivery_menu.xml"
     ],
     'installable': True,

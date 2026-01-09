@@ -10,12 +10,15 @@
     </record>
 
     <!-- Menu: Sales > Delivery Notes -->
+
     <menuitem
         id="menu_sales_delivery_notes"
         name="Delivery Notes"
-        parent="sale.menu_sale_root_order"
+        parent="stock.menu_stock_root"
         action="action_sales_delivery_notes"
         sequence="35"
     />
+</odoo>
+
 
 </odoo>

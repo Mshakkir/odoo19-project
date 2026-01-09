@@ -240,20 +240,38 @@
                             <tr>
                                 <td style="border:1px solid #575656; padding:8px; width:34%;">
                                     <strong>Incoterm:</strong>
-                                    <span t-esc="o.incoterm_id.code or '-'"/>
+                                    <t t-if="o.incoterm_id">
+                                        <span t-esc="o.incoterm_id.code"/>
+                                        <t t-if="o.incoterm_location">
+                                            <span t-esc="o.incoterm_location"/>
+                                        </t>
+                                    </t>
+                                    <t t-else="">
+                                        <span>-</span>
+                                    </t>
                                     <br/>
                                     <span class="ar" style="font-size:11px;">شروط التسليم:</span>
                                 </td>
                                 <td style="border:1px solid #575656; padding:8px; width:33%;">
                                     <strong>Payment Term:</strong>
-                                    <span t-esc="o.payment_term_id.name or '-'"/>
+                                    <t t-if="o.payment_term_id">
+                                        <span t-esc="o.payment_term_id.name"/>
+                                    </t>
+                                    <t t-else="">
+                                        <span>-</span>
+                                    </t>
                                     <br/>
                                     <span class="ar" style="font-size:11px;">شروط الدفع:</span>
                                 </td>
 
                                 <td style="border:1px solid #575656; padding:8px; width:33%;">
                                     <strong>ETA:</strong>
-                                    <span t-esc="o.date_planned.strftime('%d-%b-%Y') if o.date_planned else '-'"/>
+                                    <t t-if="o.date_planned">
+                                        <span t-field="o.date_planned" t-options="{'widget': 'date'}"/>
+                                    </t>
+                                    <t t-else="">
+                                        <span>-</span>
+                                    </t>
                                     <br/>
                                     <span class="ar" style="font-size:11px; line-height:12px; display:block;">تاريخ
                                         الاستلام المتوقع:

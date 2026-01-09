@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Empty view file - we'll use server action instead -->
+    <!-- Add as separate menu item -->
+    <menuitem id="menu_invoice_date_filter"
+              name="📅 Filter Invoices by Date"
+              parent="sale.sale_menu_root"
+              action="custom_invoice_filter.action_invoice_date_filter_wizard"
+              sequence="15"/>
 </odoo>

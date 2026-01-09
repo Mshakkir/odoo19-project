@@ -102,7 +102,7 @@
                         <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                             <tr>
                                 <td class="ar"
-                                    style="padding:2px; text-align:left;width:50%; vertical-align: top; position: relative;">
+                                    style="padding:2px; text-align:left;width:50%; vertical-align: top; position: relative;border-right:1px solid #000000;">
                                     <!-- Bank Logo - Top Right of left column -->
                                     <div style="position: absolute; top: 5px; right: 50px;">
                                         <img src="/my_invoice_custom/static/src/img/Alrajhi logo.png" alt="Alrajhi Bank"
@@ -146,7 +146,7 @@
                         </table>
                         <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                             <tr>
-                                <td style="width:33%; padding:4px;border-right: 2px solid black;">
+                                <td style="width:33%; padding:4px;border-right: 1px solid black;">
                                     <strong>Jeddah Al Fayha Branch:</strong>
                                     7655 Al Fayha Al Fayha Dist., Jeddah 22244-3108, Saudi Arabia
                                     <br/>
@@ -161,7 +161,7 @@
                                     Tel/Mobile: +966 536 122 833
                                     <br/>Email:ssaoe.jeddah@gmail.com
                                 </td>
-                                <td style="width:33%; padding:4px;border-left: 2px solid black;">
+                                <td style="width:33%; padding:4px;border-left: 1px solid black;">
                                     <strong>Dammam Branch:</strong>
                                     8515 Qutaibah bin Muslim St., Al Souq, Dammam 4525-32242, Saudi Arabia
                                     <br/>
@@ -539,10 +539,11 @@
                                 </td>
                             </t>
                             <td width="40%" style="border:1px solid #000000; padding:6px; vertical-align:top;">
-                                <table width="100%" style="font-size:12px; border-collapse:collapse;border:1px solid #000000;">
+                                <table width="100%"
+                                       style="font-size:12px; border-collapse:collapse;border:1px solid #000000;">
                                     <tr>
                                         <td style="padding:4px 6px;border:1px solid #000000;">Subtotal:</td>
-                                        <td style="text-align:right; padding:4px 6px;">
+                                        <td style="text-align:right; padding:4px 6px;border:1px solid #000000;">
                                             <span t-esc="subtotal_before_discount"
                                                   t-options='{"widget":"float","precision":2}'/>
                                         </td>
@@ -550,7 +551,7 @@
                                     <t t-if="total_discount_amount > 0">
                                         <tr>
                                             <td style="padding:4px 6px;border:1px solid #000000;">Total Discount:</td>
-                                            <td style="text-align:right; padding:4px 6px;">
+                                            <td style="text-align:right; padding:4px 6px;border:1px solid #000000;">
                                                 <span t-esc="total_discount_amount"
                                                       t-options='{"widget":"float","precision":2}'/>
                                             </td>
@@ -558,20 +559,20 @@
                                     </t>
                                     <tr>
                                         <td style="padding:4px 6px;border:1px solid #000000;">Net Amount:</td>
-                                        <td style="text-align:right; padding:4px 6px;">
+                                        <td style="text-align:right; padding:4px 6px;border:1px solid #000000;">
                                             <span t-esc="o.amount_untaxed"
                                                   t-options='{"widget":"float","precision":2}'/>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td style="padding:4px 6px;border-bottom:1px solid #000000;">VAT Amount:</td>
-                                        <td style="text-align:right; padding:4px 6px;">
+                                        <td style="padding:4px 6px;border:1px solid #000000;">VAT Amount:</td>
+                                        <td style="text-align:right; padding:4px 6px;border:1px solid #000000;">
                                             <span t-esc="o.amount_tax" t-options='{"widget":"float","precision":2}'/>
                                         </td>
                                     </tr>
                                     <tr style="background:#FFFFFF; font-weight:bold;">
-                                        <td style="padding:5px 6px;border-bottom:1px solid #000000;">Grand Total:</td>
-                                        <td style="text-align:right; padding:5px 6px;">
+                                        <td style="padding:5px 6px;border:1px solid #000000;">Grand Total:</td>
+                                        <td style="text-align:right; padding:5px 6px;border:1px solid #000000;">
                                             <span t-esc="o.amount_total" t-options='{"widget":"float","precision":2}'/>
                                         </td>
                                     </tr>

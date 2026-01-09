@@ -46,7 +46,7 @@
                         <div class="header"
                              style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
                             <!--                            <table style="width: 100%; border-collapse: collapse;border:none">-->
-                            <table style="width: 100%; border-collapse: collapse;border:none; border: 1px solid white;">
+                            <table style="width: 100%; border-collapse: collapse;border:none; border: 2px solid white;">
                                 <tr>
                                     <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border:none;padding-left:0px;">
                                         <div style="color: #8B1538; font-size: 16px; font-weight: bold; text-transform: uppercase;">
@@ -65,7 +65,7 @@
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tr>
                                     <!--                                    <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: top; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;padding-top:0px;padding-left:0px;">-->
-                                    <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: top; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 1px solid white;border-left: 1px solid white;padding-top:0px;padding-left:0px;">
+                                    <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: top; border-top: 2px solid white;border-right: 0px solid white; border-bottom: 1px solid white;border-left: 1px solid white;padding-top:0px;padding-left:0px;">
                                         <div style="line-height: 1.3; font-weight: 500;padding-left:0px;padding-top:0px;margin-top:0px;">
                                             C.R. 4030216154
                                             <br/>
@@ -73,7 +73,7 @@
                                         </div>
                                     </td>
                                     <!--                                    <td style="width: 34%; text-align: center; vertical-align: top; padding: 5px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">-->
-                                    <td style="width: 34%; text-align: center; vertical-align: top; padding: 5px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 1px solid white;border-left: 1px solid white;">
+                                    <td style="width: 34%; text-align: center; vertical-align: top; padding: 5px 10px; border-top: 2px solid white;border-right: 0px solid white; border-bottom: 1px solid white;border-left: 1px solid white;">
                                         <t t-if="o.company_id.logo">
                                             <img t-att-src="image_data_uri(o.company_id.logo)"
                                                  style="max-height: 140px; max-width: 100%; object-fit: contain; display: block; margin: -23px auto;padding-top:8px;padding-top:5px;"/>
@@ -146,7 +146,7 @@
                         </table>
                         <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                             <tr>
-                                <td style="width:33%; padding:4px;border-right: 1px solid black;">
+                                <td style="width:33%; padding:4px;border-right: 2px solid black;">
                                     <strong>Jeddah Al Fayha Branch:</strong>
                                     7655 Al Fayha Al Fayha Dist., Jeddah 22244-3108, Saudi Arabia
                                     <br/>
@@ -161,7 +161,7 @@
                                     Tel/Mobile: +966 536 122 833
                                     <br/>Email:ssaoe.jeddah@gmail.com
                                 </td>
-                                <td style="width:33%; padding:4px;border-left: 1px solid black;">
+                                <td style="width:33%; padding:4px;border-left: 2px solid black;">
                                     <strong>Dammam Branch:</strong>
                                     8515 Qutaibah bin Muslim St., Al Souq, Dammam 4525-32242, Saudi Arabia
                                     <br/>
@@ -208,10 +208,10 @@
                     </div>
 
                     <!-- Customer Details -->
-                    <div style="border:1px solid #000000; margin-bottom:10px; font-size:12px;">
+                    <div style="border:2px solid #000000; margin-bottom:10px; font-size:12px;">
                         <table style="width:100%; border-collapse:collapse;">
                             <tr style="background-color:#FFFFFF;">
-                                <td style="padding:4px 8px; font-weight:bold; border-right:1px solid #000000;">
+                                <td style="padding:4px 8px; font-weight:bold; border-right:2px solid #000000;">
                                     <t t-if="o.move_type in ('out_invoice','out_refund')">
                                         Sold To &#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="ar">اسم العميل
                                     </span>
@@ -222,7 +222,7 @@
                                     </t>
                                 </td>
                                 <t t-if="o.partner_shipping_id and o.partner_shipping_id.id != o.partner_id.id">
-                                    <td style="border:1px solid #000000;padding:4px 8px; font-weight:bold; width:50%;">
+                                    <td style="border:2px solid #000000;padding:4px 8px; font-weight:bold; width:50%;">
                                         <t t-if="o.move_type in ('out_invoice','out_refund')">
                                             Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="ar">عنوان
                                             الشحن
@@ -232,7 +232,7 @@
                                 </t>
                             </tr>
                             <tr>
-                                <td style="padding:6px 10px; vertical-align:top; border-right:1px solid #000000;">
+                                <td style="padding:6px 10px; vertical-align:top; border-right:2px solid #000000;">
                                     <strong>
                                         <t t-esc="o.partner_id.name"/>
                                     </strong>
@@ -296,7 +296,7 @@
                         </table>
 
                         <!-- ===== INVOICE/CREDIT NOTE INFO ===== -->
-                        <table style="width:100%; border-top:1px solid #000000; background-color:white; font-weight:bold;">
+                        <table style="width:100%; border-top:2px solid #000000; background-color:white; font-weight:bold;">
                             <tr>
                                 <!-- First Column: Invoice/CN Number -->
                                 <td style="padding:4px 8px;">
@@ -323,7 +323,7 @@
                                 </td>
 
                                 <!-- Third Column: AWB (only for invoice) or P.O (for credit note) -->
-                                <td style="border:1px solid #000000;padding:4px 8px;">
+                                <td style="border:2px solid #000000;padding:4px 8px;">
                                     <t t-if="o.move_type == 'out_invoice'">
                                         <strong>Shipping Ref#</strong>
                                         <span t-if="o.awb_number" t-esc="o.awb_number"/>
@@ -337,7 +337,7 @@
                                         <span t-else="">-</span>
                                     </t>
                                 </td>
-                                <td style="border:1px solid #000000;padding:4px 8px;">
+                                <td style="border:2px solid #000000;padding:4px 8px;">
                                     <t t-if="o.move_type == 'out_invoice'">
                                         <strong>Delivery Date:</strong>
                                         <span t-if="o.delivery_date" t-esc="o.delivery_date"/>
@@ -349,25 +349,25 @@
                             <!-- Second Row: ONLY for sales invoice (not for credit note) -->
                             <t t-if="o.move_type == 'out_invoice'">
                                 <tr style="background-color:#FFFFFF;">
-                                    <td style="border:1px solid #000000; padding:4px; width:33%;">
+                                    <td style="border:2px solid #000000; padding:4px; width:25%;">
                                         <strong>Customer Ref#</strong>
                                         <t t-set="sale_order"
                                            t-value="o.invoice_line_ids and o.invoice_line_ids[0].sale_line_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id"/>
                                         <span t-if="sale_order" t-esc="sale_order.client_order_ref or sale_order.name"/>
                                         <span t-else="">-</span>
                                     </td>
-                                    <td style="border:1px solid #000000; padding:4px; width:33%;">
+                                    <td style="border:2px solid #000000; padding:4px; width:25%;">
                                         <strong>Payment Terms:</strong>
                                         <t t-esc="o.invoice_payment_term_id.name or ''"/>
                                     </td>
-                                    <td style="border:1px solid #000000; padding:4px; width:34%;">
+                                    <td style="border:2px solid #000000; padding:4px; width:25%;">
                                         <strong>Dn#</strong>
                                         <t t-set="delivery"
                                            t-value="o.invoice_line_ids and o.invoice_line_ids[0].sale_line_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id.picking_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id.picking_ids[0]"/>
                                         <span t-if="delivery" t-esc="delivery.name"/>
                                         <span t-else="">-</span>
                                     </td>
-                                    <td style="border:1px solid #000000; padding:4px; width:33%;">
+                                    <td style="border:2px solid #000000; padding:4px; width:25%;">
                                         <strong>Delivery Terms:</strong>
                                         <t t-if="o.invoice_incoterm_id">
                                         <span t-esc="o.invoice_incoterm_id.code"/>
@@ -390,42 +390,42 @@
 
                     <!-- Items Table -->
                     <table width="100%"
-                           style="border:1px solid #000000; border-collapse:collapse; font-size:13px; text-align:center;">
+                           style="border:2px solid #000000; border-collapse:collapse; font-size:13px; text-align:center;">
                         <thead style="background-color:#FFFFFF; color:#080808; font-size:14px;">
                             <tr>
-                                <th style="border:1px solid #000000;">S.N
+                                <th style="border:2px solid #000000;">S.N
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">م</span>
                                 </th>
-                                <th style="border:1px solid #000000;">Item / Description
+                                <th style="border:2px solid #000000;">Item / Description
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">الصنف / الوصف</span>
                                 </th>
-                                <th style="border:1px solid #000000;">QTY
+                                <th style="border:2px solid #000000;">QTY
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">الكمية</span>
                                 </th>
-                                <th style="border:1px solid #000000;">Unit
+                                <th style="border:2px solid #000000;">Unit
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">الوحدة</span>
                                 </th>
-                                <th style="border:1px solid #000000;">S.Rate
+                                <th style="border:2px solid #000000;">S.Rate
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">سعر الوحدة</span>
                                 </th>
-                                <th style="border:1px solid #000000;">Amount
+                                <th style="border:2px solid #000000;">Amount
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">المبلغ</span>
                                 </th>
-                                <th style="border:1px solid #000000;">VAT%
+                                <th style="border:2px solid #000000;">VAT%
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">الضريبة</span>
                                 </th>
-                                <th style="border:1px solid #000000;">VAT
+                                <th style="border:2px solid #000000;">VAT
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">القيمة الضريبة</span>
                                 </th>
-                                <th style="border:1px solid #000000;">Total Price
+                                <th style="border:2px solid #000000;">Total Price
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">القيمة الإجمالية</span>
                                 </th>
@@ -433,41 +433,41 @@
                         </thead>
                         <tbody>
                             <tr t-foreach="enumerate(o.invoice_line_ids, start=1)" t-as="l">
-                                <td style="border:1px solid #000000; text-align:center; width:35px; padding: 10px 8px;">
+                                <td style="border:2px solid #000000; text-align:center; width:35px; padding: 10px 8px;">
                                     <t t-esc="l[0]"/>
                                 </td>
-                                <td style="border:1px solid #000000; text-align:left; width:300px; padding: 10px 12px;">
+                                <td style="border:2px solid #000000; text-align:left; width:300px; padding: 10px 12px;">
                                     <t t-if="l[1].product_id.default_code">
                                         <span t-esc="l[1].product_id.default_code"/>
                                         -
                                     </t>
                                     <span t-field="l[1].name"/>
                                 </td>
-                                <td style="border:1px solid #000000; width:70px; padding: 10px 8px;">
+                                <td style="border:2px solid #000000; width:70px; padding: 10px 8px;">
                                     <span t-field="l[1].quantity"/>
                                 </td>
-                                <td style="border:1px solid #000000; width:70px; padding: 10px 8px;">
+                                <td style="border:2px solid #000000; width:70px; padding: 10px 8px;">
                                     <span t-field="l[1].product_uom_id.name"/>
                                 </td>
-                                <td style="border:1px solid #000000; text-align:center; width:80px; padding: 10px 8px;">
+                                <td style="border:2px solid #000000; text-align:center; width:80px; padding: 10px 8px;">
                                     <span t-field="l[1].price_unit" t-options='{"widget": "float", "precision": 2}'/>
                                 </td>
-                                <td style="border:1px solid #000000; text-align:center; width:80px; padding: 10px 8px;">
+                                <td style="border:2px solid #000000; text-align:center; width:80px; padding: 10px 8px;">
                                     <t t-set="subt"
                                        t-value="l[1].quantity * l[1].price_unit * (1 - (l[1].discount or 0)/100.0)"/>
                                     <span t-esc="subt" t-options='{"widget":"float","precision":2}'/>
                                 </td>
-                                <td style="border:1px solid #000000; padding: 10px 8px;">
+                                <td style="border:2px solid #000000; padding: 10px 8px;">
                                     <t t-if="l[1].tax_ids">
                                         <span t-esc="', '.join(str(t.amount) + '%' for t in l[1].tax_ids)"/>
                                     </t>
                                     <t t-else="">0%</t>
                                 </td>
-                                <td style="border:1px solid #000000; text-align:center; padding: 10px 8px;">
+                                <td style="border:2px solid #000000; text-align:center; padding: 10px 8px;">
                                     <t t-set="vat" t-value="subt * (sum(t.amount for t in l[1].tax_ids)/100.0)"/>
                                     <span t-esc="vat" t-options='{"widget":"float","precision":2}'/>
                                 </td>
-                                <td style="border:1px solid #000000; text-align:center; padding: 10px 8px;">
+                                <td style="border:2px solid #000000; text-align:center; padding: 10px 8px;">
                                     <span t-esc="subt + vat" t-options='{"widget":"float","precision":2}'/>
                                 </td>
                             </tr>
@@ -476,15 +476,15 @@
 
                     <!-- Signature Table -->
                     <table width="100%"
-                           style="margin-top:10px; font-size:13px; border:1px solid #000000; border-collapse:collapse;">
+                           style="margin-top:10px; font-size:13px; border:2px solid #000000; border-collapse:collapse;">
                         <tr>
                             <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                <td width="30%" style="border:1px solid #000000; padding:8px; vertical-align:top;">
+                                <td width="30%" style="border:2px solid #000000; padding:8px; vertical-align:top;">
                                     <strong>Delivered By</strong>
                                     <br/>
                                     <span style="font-weight:900;" class="ar">سلمت بواسطة</span>
                                     <div style="height:20px;"></div>
-                                    <hr style="border:none; border-top:1px solid #000000; margin:5px 0;"/>
+                                    <hr style="border:none; border-top:2px solid #000000; margin:5px 0;"/>
                                     <strong>Received By</strong>
                                     <br/>
                                     <span style="font-weight:900;" class="ar">المستلم</span>
@@ -492,7 +492,7 @@
                                 </td>
                             </t>
                             <t t-else="">
-                                <td width="30%" style="border:1px solid #000000; padding:8px; vertical-align:top;">
+                                <td width="30%" style="border:2px solid #000000; padding:8px; vertical-align:top;">
                                     &#160;
                                 </td>
                             </t>
@@ -500,12 +500,12 @@
                             <t t-if="o.move_type in ('out_invoice','out_refund')">
                             </t>
                             <t t-else="">
-                                <td width="15%" style="border:1px solid #000000;">&#160;</td>
+                                <td width="15%" style="border:2px solid #000000;">&#160;</td>
                             </t>
 
                             <t t-if="o.move_type in ('out_invoice','out_refund')">
                                 <td width="15%"
-                                    style="border:1px solid #000000; text-align:center; vertical-align:middle; padding:10px;">
+                                    style="border:2px solid #000000; text-align:center; vertical-align:middle; padding:10px;">
                                     <div style="display:flex; align-items:center; justify-content:center; height:120px;">
                                         <t t-if="o.qr_code_image">
                                             <img t-att-src="'data:image/png;base64,%s' % o.qr_code_image.decode('utf-8')"
@@ -515,10 +515,10 @@
                                 </td>
                             </t>
                             <t t-else="">
-                                <td width="15%" style="border:1px solid #000000;">&#160;</td>
+                                <td width="15%" style="border:2px solid #000000;">&#160;</td>
                             </t>
 
-                            <td width="40%" style="border:1px solid #000000; padding:6px; vertical-align:top;">
+                            <td width="40%" style="border:2px solid #000000; padding:6px; vertical-align:top;">
                                 <table width="100%" style="font-size:12px; border-collapse:collapse;">
                                     <tr>
                                         <td style="padding:4px 6px;">Subtotal:</td>
@@ -560,7 +560,7 @@
                         </tr>
                         <tr>
                             <td colspan="4"
-                                style="border: 1px solid #000000; padding: 10px; background:#FFFFFF; font-weight: bold; text-align: center;">
+                                style="border: 2px solid #000000; padding: 10px; background:#FFFFFF; font-weight: bold; text-align: center;">
                                 <div style="direction: rtl; line-height:1.5; font-weight:900; font-size: 13px;"
                                      class="ar">
                                     فقط

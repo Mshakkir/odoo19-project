@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Optional: Add a menu item to easily access filtered invoices -->
+    <record id="action_invoice_date_filter_info" model="ir.actions.client">
+        <field name="name">Invoice Date Filter Info</field>
+        <field name="tag">display_notification</field>
+        <field name="params">{"title": "Date Filter Active", "message": "Use the date fields in the invoice list header to filter by date range.", "type": "info", "sticky": false}</field>
+    </record>
+</odoo>

@@ -1,0 +1,51 @@
+/* Safe CSS that only affects our custom elements */
+.o_invoice_date_filter_container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 16px;
+    padding: 4px 8px;
+    background-color: transparent;
+    border-radius: 4px;
+}
+
+.o_invoice_date_filter_container label {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.o_invoice_date_filter_container input[type="date"] {
+    padding: 4px 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 13px;
+    width: 145px;
+    height: 30px;
+    background-color: white;
+    transition: border-color 0.15s ease-in-out;
+}
+
+.o_invoice_date_filter_container input[type="date"]:focus {
+    outline: none;
+    border-color: #714B67;
+    box-shadow: 0 0 0 2px rgba(113, 75, 103, 0.1);
+}
+
+.o_invoice_date_filter_container input[type="date"]:hover {
+    border-color: #999;
+}
+
+/* Ensure it doesn't break layout on smaller screens */
+@media (max-width: 768px) {
+    .o_invoice_date_filter_container {
+        flex-wrap: wrap;
+        margin-left: 8px;
+    }
+
+    .o_invoice_date_filter_container input[type="date"] {
+        width: 130px;
+    }
+}

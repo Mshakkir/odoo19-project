@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!--
+        Safely extend the List View to add date filters
+        This template only affects invoice (account.move) list views
+    -->
+    <t t-name="custom_invoice_date_filter.ListRenderer.Buttons"
+       t-inherit="web.ListRenderer"
+       t-inherit-mode="extension">
+
+        <!-- Add date filters after the standard buttons, only for invoices -->
+        <xpath expr="//div[hasclass('o_control_panel_main_buttons')]" position="inside">
+
+            <!-- Only show for account.move model (invoices) -->
+            <t t-if="props.list.resModel === 'account.move' and env.searchModel">
+                <div class="o_invoice_date_filter_container"
+                     t-if="!props.list.isGrouped">
+
+                    <!-- From Date Input -->
+                    <label for="invoice_date_from" class="text-muted">
+                        From Date:
+                    </label>
+                    <input type="date"
+                           id="invoice_date_from"
+                           class="o_invoice_date_from"
+                           t-att-value="state.dateFilterState?.dateFrom or ''"
+                           t-on-change="onDateFromChange"
+                           t-on-keydown="onDateFromChange"
+                           placeholder="From Date"/>
+
+                    <!-- To Date Input -->
+                    <label for="invoice_date_to" class="text-muted ms-2">
+                        To Date:
+                    </label>
+                    <input type="date"
+                           id="invoice_date_to"
+                           class="o_invoice_date_to"
+                           t-att-value="state.dateFilterState?.dateTo or ''"
+                           t-on-change="onDateToChange"
+                           t-on-keydown="onDateToChange"
+                           placeholder="To Date"/>
+
+                    <!-- Clear button (optional) -->
+                    <button type="button"
+                            class="btn btn-sm btn-secondary ms-1"
+                            t-on-click="clearDateFilters"
+                            title="Clear date filters"
+                            t-if="state.dateFilterState?.dateFrom or state.dateFilterState?.dateTo">
+                        ✕
+                    </button>
+                </div>
+            </t>
+        </xpath>
+    </t>
+
+</templates>

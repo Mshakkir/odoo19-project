@@ -240,7 +240,7 @@
                             <tr>
                                 <td style="border:1px solid #575656; padding:8px; width:34%;">
                                     <strong>Incoterm:</strong>
-                                    <span t-esc="o.invoice_incoterm_id.code or '-'"/>
+                                    <span t-esc="o.incoterm_id.code or '-'"/>
                                     <br/>
                                     <span class="ar" style="font-size:11px;">شروط التسليم:</span>
                                 </td>

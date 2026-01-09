@@ -10,7 +10,7 @@
 
                 <!-- Add AWB Number field right after date_planned div -->
                 <xpath expr="//div[@name='date_planned_div']" position="after">
-                    <label for="awb_number" string="AWB Number"/>
+                    <label for="awb_number" string="Shipping Ref#"/>
                     <field name="awb_number" nolabel="1" placeholder="Enter AWB Number (e.g., 1234567890)" readonly="state in ('cancel', 'purchase')"/>
                 </xpath>
 

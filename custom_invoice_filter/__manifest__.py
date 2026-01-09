@@ -11,7 +11,7 @@
     'depends': ['account'],
     'data': [
         'security/ir.model.access.csv',
-        'wizard/invoice_date_filter_wizard_views.xml',
+        'views/invoice_date_filter_wizard_views.xml',
         'views/account_move_views.xml',
     ],
     'installable': True,

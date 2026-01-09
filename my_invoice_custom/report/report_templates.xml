@@ -47,12 +47,12 @@
                              style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
                             <table style="width: 100%; border-collapse: collapse;border:none">
                                 <tr>
-                                    <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border: 0px;padding-left:0px;">
+                                    <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border:none;padding-left:0px;">
                                         <div style="color: #8B1538; font-size: 16px; font-weight: bold; text-transform: uppercase;">
                                             SAMEER SHARAF AL OTAIBI TRADING COMPANY
                                         </div>
                                     </td>
-                                    <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border: 0px;padding-right:0px;">
+                                    <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border:none;padding-right:0px;">
                                         <div style="color: #8B1538; font-size: 17px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;"
                                              class="ar">
                                             شركة سمير شرف العتيبي التجارية
@@ -472,15 +472,15 @@
                                 </td>
                             </t>
 
-                            <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                <td width="15%"
-                                    style="border:1px solid #ccc; text-align:center; vertical-align:middle; padding:10px;">
-                                    <div style="display:flex; align-items:center; justify-content:center; height:120px;">
-                                        <img t-att-src="'/my_invoice_custom/static/src/img/stamp.png'"
-                                             style="max-height:100%; max-width:100%; object-fit:contain;"/>
-                                    </div>
-                                </td>
-                            </t>
+<!--                            <t t-if="o.move_type in ('out_invoice','out_refund')">-->
+<!--                                <td width="15%"-->
+<!--                                    style="border:1px solid #ccc; text-align:center; vertical-align:middle; padding:10px;">-->
+<!--                                    <div style="display:flex; align-items:center; justify-content:center; height:120px;">-->
+<!--                                        <img t-att-src="'/my_invoice_custom/static/src/img/stamp.png'"-->
+<!--                                             style="max-height:100%; max-width:100%; object-fit:contain;"/>-->
+<!--                                    </div>-->
+<!--                                </td>-->
+<!--                            </t>-->
                             <t t-else="">
                                 <td width="15%" style="border:1px solid #ccc;">&#160;</td>
                             </t>

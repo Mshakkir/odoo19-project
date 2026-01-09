@@ -13,6 +13,6 @@
         name="Delivery Notes"
         parent="sale.sale_menu_root"
         action="stock.action_picking_tree_all"
-        sequence="35"
+        sequence="15"
     />
 </odoo>

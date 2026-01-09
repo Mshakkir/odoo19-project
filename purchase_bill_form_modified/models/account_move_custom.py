@@ -18,7 +18,7 @@ class AccountMove(models.Model):
         help='Select Goods Receipt'
     )
     awb_number = fields.Char(
-        string='AWB Number',
+        string='Shipping Ref#',
         help='Air Waybill Number'
     )
 

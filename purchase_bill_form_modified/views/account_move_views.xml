@@ -29,7 +29,7 @@
                     <field name="awb_number"
                         invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
                         readonly="state != 'draft'"
-                        string="AWB Number"
+                        string="Shipping Ref#"
                         force_save="1"/>
                 </xpath>
 

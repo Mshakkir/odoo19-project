@@ -299,19 +299,42 @@
                         <table style="width:100%; border-top:1px solid #000000; background-color:white; font-weight:bold;">
                             <tr>
                                 <!-- First Column: Invoice/CN Number -->
-                                <td style="border:1px solid #000000;padding:4px 8px;">
+                                <td style="border:1px solid #000;padding:4px 8px; vertical-align: middle;">
                                     <t t-if="o.move_type == 'out_invoice'">
-                                        Inv #:
-                                        <span t-esc="o.name"/> &#160;&#160;<span style="font-weight:800;" class="ar">رقم الفاتورة
-                                    </span>
+                                        <span style="display:inline-block; vertical-align:middle;">
+                                            Inv #:
+                                            <span t-esc="o.name"/>
+                                        </span>
+
+                                        &#160;&#160;
+
+                                        <span class="ar"
+                                              style="display:inline-block;
+                     vertical-align:middle;
+                     font-weight:800;
+                     direction:rtl;">
+                                            رقم الفاتورة
+                                        </span>
                                     </t>
+
                                     <t t-elif="o.move_type == 'out_refund'">
-                                        CN #:
-                                        <span t-esc="o.name"/> <span style="font-weight:900;" class="ar">رقم
-                                        الإشعار
-                                    </span>
+                                        <span style="display:inline-block; vertical-align:middle;">
+                                            CN #:
+                                            <span t-esc="o.name"/>
+                                        </span>
+
+                                        &#160;&#160;
+
+                                        <span class="ar"
+                                              style="display:inline-block;
+                     vertical-align:middle;
+                     font-weight:900;
+                     direction:rtl;">
+                                            رقم الإشعار
+                                        </span>
                                     </t>
                                 </td>
+
 
                                 <!-- Second Column: Date -->
                                 <td style="padding:4px 8px;">

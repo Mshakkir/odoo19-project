@@ -10,6 +10,7 @@
 'report/portal_report_content.xml',
         'report/custom_quotation_template.xml',
         "report/sale_order_view.xml",
+        "report/purchase_order_view.xml"
 
     ],
     'assets': {

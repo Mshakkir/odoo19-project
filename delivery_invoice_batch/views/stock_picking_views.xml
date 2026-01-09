@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Add Create Invoice button in list view -->
     <record id="view_picking_tree_inherit" model="ir.ui.view">

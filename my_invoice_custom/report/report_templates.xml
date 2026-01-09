@@ -264,7 +264,7 @@
                                     <t t-esc="o.partner_id.vat or 'N/A'"/>
                                 </td>
                                 <t t-if="o.partner_shipping_id and o.partner_shipping_id.id != o.partner_id.id">
-                                    <td style="padding:6px 10px; vertical-align:top; width:50%;border-right:1px solid #000000;">
+                                    <td style="padding:6px 10px; vertical-align:top; width:50%;border-left:1px solid #000;border-right:1px solid #000000;">
                                         <strong>
                                             <t t-esc="o.partner_shipping_id.name"/>
                                         </strong>

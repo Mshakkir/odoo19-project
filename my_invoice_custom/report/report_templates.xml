@@ -222,7 +222,7 @@
                                     </t>
                                 </td>
                                 <t t-if="o.partner_shipping_id and o.partner_shipping_id.id != o.partner_id.id">
-                                    <td style="padding:4px 8px; font-weight:bold; width:50%;">
+                                    <td style="padding:4px 8px; font-weight:bold; width:50%;border-left:1px solid #000000;">
                                         <t t-if="o.move_type in ('out_invoice','out_refund')">
                                             Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="ar">عنوان
                                             الشحن
@@ -232,7 +232,7 @@
                                 </t>
                             </tr>
                             <tr>
-                                <td style="padding:6px 10px; vertical-align:top; border-right:1px solid #000000;">
+                                <td style="padding:6px 10px; vertical-align:top; border:1px solid #000000;">
                                     <strong>
                                         <t t-esc="o.partner_id.name"/>
                                     </strong>

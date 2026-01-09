@@ -4,7 +4,7 @@
     <record id="view_order_form_delivery_period" model="ir.ui.view">
         <field name="name">sale.order.form.delivery.period</field>
         <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="purchase.view_order_form"/>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
             <!-- Add inside Other Info > Delivery section -->
             <xpath expr="//field[@name='picking_type_id']" position="after">

@@ -27,12 +27,13 @@
         </field>
     </record>
 
-    <!-- Wizard Action -->
+    <!-- Wizard Action - This will appear in Action menu -->
     <record id="action_invoice_date_filter_wizard" model="ir.actions.act_window">
-        <field name="name">Filter Invoices by Date</field>
+        <field name="name">Filter by Date Range</field>
         <field name="res_model">invoice.date.filter.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
         <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_view_types">list</field>
     </record>
 </odoo>

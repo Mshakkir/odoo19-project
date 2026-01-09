@@ -211,7 +211,7 @@
                     <div style="border:1px solid #000000; margin-bottom:10px; font-size:12px;">
                         <table style="width:100%; border-collapse:collapse;">
                             <tr style="background-color:#FFFFFF;">
-                                <td style="padding:4px 8px; font-weight:bold; border-right:1px solid #000000;">
+                                <td style="padding:4px 8px; font-weight:bold; border:1px solid #000000;">
                                     <t t-if="o.move_type in ('out_invoice','out_refund')">
                                         Sold To &#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="ar">اسم العميل
                                     </span>
@@ -222,7 +222,7 @@
                                     </t>
                                 </td>
                                 <t t-if="o.partner_shipping_id and o.partner_shipping_id.id != o.partner_id.id">
-                                    <td style="border:1px solid #000000;padding:4px 8px; font-weight:bold; width:50%;">
+                                    <td style="padding:4px 8px; font-weight:bold; width:50%;">
                                         <t t-if="o.move_type in ('out_invoice','out_refund')">
                                             Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="ar">عنوان
                                             الشحن
@@ -299,11 +299,10 @@
                         <table style="width:100%; border-top:1px solid #000000; background-color:white; font-weight:bold;">
                             <tr>
                                 <!-- First Column: Invoice/CN Number -->
-                                <td style="padding:4px 8px;">
+                                <td style="border:1px solid #000000;padding:4px 8px;">
                                     <t t-if="o.move_type == 'out_invoice'">
                                         Inv #:
-                                        <span t-esc="o.name"/> &#160;&#160;<span style="font-weight:900;" class="ar">رقم
-                                        الفاتورة
+                                        <span t-esc="o.name"/> &#160;&#160;<span style="font-weight:800;" class="ar">رقم الفاتورة
                                     </span>
                                     </t>
                                     <t t-elif="o.move_type == 'out_refund'">
@@ -395,39 +394,39 @@
                            style="border:1px solid #000000; border-collapse:collapse; font-size:13px; text-align:center;">
                         <thead style="background-color:#FFFFFF; color:#080808; font-size:14px;">
                             <tr>
-                                <th style="border:1px solid #000000; padding:8px;">S.N
+                                <th style="border:1px solid #000000;">S.N
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">م</span>
                                 </th>
-                                <th style="border:1px solid #000000; padding:8px;">Item / Description
+                                <th style="border:1px solid #000000;">Item / Description
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">الصنف / الوصف</span>
                                 </th>
-                                <th style="border:1px solid #000000; padding:8px;">QTY
+                                <th style="border:1px solid #000000;">QTY
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">الكمية</span>
                                 </th>
-                                <th style="border:1px solid #000000; padding:8px;">Unit
+                                <th style="border:1px solid #000000;">Unit
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">الوحدة</span>
                                 </th>
-                                <th style="border:1px solid #000000; padding:8px;">S.Rate
+                                <th style="border:1px solid #000000;">S.Rate
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">سعر الوحدة</span>
                                 </th>
-                                <th style="border:1px solid #000000; padding:8px;">Amount
+                                <th style="border:1px solid #000000;">Amount
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">المبلغ</span>
                                 </th>
-                                <th style="border:1px solid #000000; padding:8px;">VAT%
+                                <th style="border:1px solid #000000;">VAT%
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">الضريبة</span>
                                 </th>
-                                <th style="border:1px solid #000000; padding:8px;">VAT
+                                <th style="border:1px solid #000000;">VAT
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">القيمة الضريبة</span>
                                 </th>
-                                <th style="border:1px solid #000000; padding:8px;">Total Price
+                                <th style="border:1px solid #000000;">Total Price
                                     <br/>
                                     <span style="font-weight:550;font-size:12px;" class="ar">القيمة الإجمالية</span>
                                 </th>

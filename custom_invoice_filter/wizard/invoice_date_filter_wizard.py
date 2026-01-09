@@ -38,7 +38,7 @@ class InvoiceDateFilterWizard(models.TransientModel):
             'name': f'Invoices from {self.from_date} to {self.to_date}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',  # Changed from 'tree,form' to 'list,form'
             'domain': domain,
             'context': {
                 'create': False,

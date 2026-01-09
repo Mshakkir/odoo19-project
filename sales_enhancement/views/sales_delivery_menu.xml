@@ -13,7 +13,7 @@
     <menuitem
         id="menu_sales_delivery_notes"
         name="Delivery Notes"
-        parent="sale.menu_sale_root"
+        parent="sale.menu_sale_root_order"
         action="action_sales_delivery_notes"
         sequence="35"
     />

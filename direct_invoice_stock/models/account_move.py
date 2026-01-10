@@ -1236,6 +1236,37 @@ class AccountMove(models.Model):
                             _logger.warning(f"Error auto-setting warehouse from analytic: {str(e)}")
                             pass
 
+    # def action_post(self):
+    #     """Override to handle CUSTOMER invoices and credit notes ONLY"""
+    #     res = super(AccountMove, self).action_post()
+    #
+    #     for invoice in self:
+    #         _logger.info(f"🟢 INVOICE MODULE - Processing: {invoice.name}, Type: {invoice.move_type}")
+    #
+    #         # ═══════════════════════════════════════════════════════════════
+    #         # CRITICAL: ONLY HANDLE CUSTOMER TRANSACTIONS (out_invoice, out_refund)
+    #         # Let direct_purchase_with_stock handle vendor transactions (in_invoice, in_refund)
+    #         # ═══════════════════════════════════════════════════════════════
+    #
+    #         # CUSTOMER INVOICE - Create delivery and reduce stock
+    #         if invoice.move_type == 'out_invoice' and invoice.create_delivery and not invoice.picking_id:
+    #             try:
+    #                 _logger.info(f"🟢 INVOICE: Creating DELIVERY for customer invoice: {invoice.name}")
+    #                 invoice._create_delivery_from_invoice()
+    #             except Exception as e:
+    #                 _logger.error(f"Error creating delivery order for invoice {invoice.name}: {str(e)}")
+    #                 raise UserError(_(f"Failed to create delivery order: {str(e)}"))
+    #
+    #         # CUSTOMER CREDIT NOTE - Create return and add stock back
+    #         elif invoice.move_type == 'out_refund' and invoice.create_delivery and not invoice.picking_id:
+    #             try:
+    #                 _logger.info(f"🟢 INVOICE: Creating CUSTOMER RETURN for credit note: {invoice.name}")
+    #                 invoice._create_customer_return_from_refund()
+    #             except Exception as e:
+    #                 _logger.error(f"Error creating return for credit note {invoice.name}: {str(e)}")
+    #                 raise UserError(_(f"Failed to create stock return: {str(e)}"))
+    #
+    #     return res
     def action_post(self):
         """Override to handle CUSTOMER invoices and credit notes ONLY"""
         res = super(AccountMove, self).action_post()
@@ -1245,8 +1276,13 @@ class AccountMove(models.Model):
 
             # ═══════════════════════════════════════════════════════════════
             # CRITICAL: ONLY HANDLE CUSTOMER TRANSACTIONS (out_invoice, out_refund)
-            # Let direct_purchase_with_stock handle vendor transactions (in_invoice, in_refund)
+            # Skip vendor transactions (in_invoice, in_refund)
             # ═══════════════════════════════════════════════════════════════
+
+            # Skip if not customer transaction
+            if invoice.move_type not in ['out_invoice', 'out_refund']:
+                _logger.info(f"🟢 INVOICE MODULE - Skipping {invoice.move_type}: {invoice.name}")
+                continue
 
             # CUSTOMER INVOICE - Create delivery and reduce stock
             if invoice.move_type == 'out_invoice' and invoice.create_delivery and not invoice.picking_id:

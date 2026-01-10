@@ -521,7 +521,38 @@ class AccountMove(models.Model):
                         except Exception as e:
                             _logger.warning(f"Error auto-setting warehouse from analytic: {str(e)}")
                             pass
-
+    #
+    # def action_post(self):
+    #     """Override to handle VENDOR bills and refunds ONLY"""
+    #     res = super(AccountMove, self).action_post()
+    #
+    #     for bill in self:
+    #         _logger.info(f"🔵 PURCHASE MODULE - Processing: {bill.name}, Type: {bill.move_type}")
+    #
+    #         # ═══════════════════════════════════════════════════════════════
+    #         # CRITICAL: ONLY HANDLE VENDOR TRANSACTIONS (in_invoice, in_refund)
+    #         # Let direct_invoice_stock handle customer transactions (out_invoice, out_refund)
+    #         # ═══════════════════════════════════════════════════════════════
+    #
+    #         # VENDOR BILL - Create receipt and add stock
+    #         if bill.move_type == 'in_invoice' and bill.create_receipt and not bill.receipt_id:
+    #             try:
+    #                 _logger.info(f"🔵 PURCHASE: Creating RECEIPT for vendor bill: {bill.name}")
+    #                 bill._create_receipt_from_bill()
+    #             except Exception as e:
+    #                 _logger.error(f"Error creating receipt for bill {bill.name}: {str(e)}")
+    #                 raise UserError(_(f"Failed to create receipt: {str(e)}"))
+    #
+    #         # VENDOR REFUND - Create return and remove stock
+    #         elif bill.move_type == 'in_refund' and bill.create_receipt and not bill.receipt_id:
+    #             try:
+    #                 _logger.info(f"🔵 PURCHASE: Creating VENDOR RETURN for refund: {bill.name}")
+    #                 bill._create_vendor_return_from_refund()
+    #             except Exception as e:
+    #                 _logger.error(f"Error creating return for refund {bill.name}: {str(e)}")
+    #                 raise UserError(_(f"Failed to create return: {str(e)}"))
+    #
+    #     return res
     def action_post(self):
         """Override to handle VENDOR bills and refunds ONLY"""
         res = super(AccountMove, self).action_post()
@@ -531,8 +562,13 @@ class AccountMove(models.Model):
 
             # ═══════════════════════════════════════════════════════════════
             # CRITICAL: ONLY HANDLE VENDOR TRANSACTIONS (in_invoice, in_refund)
-            # Let direct_invoice_stock handle customer transactions (out_invoice, out_refund)
+            # Skip customer transactions (out_invoice, out_refund)
             # ═══════════════════════════════════════════════════════════════
+
+            # Skip if not vendor transaction
+            if bill.move_type not in ['in_invoice', 'in_refund']:
+                _logger.info(f"🔵 PURCHASE MODULE - Skipping {bill.move_type}: {bill.name}")
+                continue
 
             # VENDOR BILL - Create receipt and add stock
             if bill.move_type == 'in_invoice' and bill.create_receipt and not bill.receipt_id:
@@ -553,6 +589,9 @@ class AccountMove(models.Model):
                     raise UserError(_(f"Failed to create return: {str(e)}"))
 
         return res
+
+        _logger.info('🔵 PURCHASE MODULE - Processing: %s, Type: %s', self.name, self.move_type)
+        # ... rest of your code
 
     def button_cancel(self):
         """Override cancel to properly handle receipts"""

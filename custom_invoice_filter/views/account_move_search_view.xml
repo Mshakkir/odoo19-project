@@ -1,17 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add From Date and To Date filter fields to invoice search -->
-    <record id="view_account_invoice_filter_date_range_inherit" model="ir.ui.view">
-        <field name="name">account.move.filter.date.range.inherit</field>
+    <!-- Add custom button to invoice action -->
+    <record id="action_move_out_invoice_add_date_filter" model="ir.actions.act_window">
+        <field name="name">Customer Invoices</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">tree,kanban,form,activity</field>
+        <field name="domain">[('move_type', '=', 'out_invoice')]</field>
+        <field name="context">{
+            'default_move_type': 'out_invoice',
+            'move_type': 'out_invoice',
+        }</field>
+    </record>
+
+    <!-- Inherit the tree view to add header button -->
+    <record id="view_invoice_tree_date_filter_inherit" model="ir.ui.view">
+        <field name="name">account.invoice.tree.date.filter</field>
         <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
         <field name="arch" type="xml">
-            <!-- Add From Date and To Date fields after partner_id -->
-            <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="invoice_date" string="From Date"
-                       filter_domain="[('invoice_date', '&gt;=', self)]"/>
-                <field name="invoice_date" string="To Date"
-                       filter_domain="[('invoice_date', '&lt;=', self)]"/>
+            <xpath expr="//tree" position="attributes">
+                <attribute name="decoration-info">state == 'draft'</attribute>
+            </xpath>
+            <xpath expr="//tree" position="inside">
+                <button name="%(custom_invoice_filter.action_invoice_date_filter_wizard)d"
+                        string="Filter by Date"
+                        type="action"
+                        icon="fa-filter"
+                        class="btn-secondary"/>
             </xpath>
         </field>
     </record>

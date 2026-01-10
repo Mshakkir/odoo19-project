@@ -25,66 +25,66 @@
                     <!-- 3. Customer -->
                     <field name="partner_id" string="Customer"/>
 
-                    <!-- 4. Source Document (like Warehouse/Sales Order) -->
+                    <!-- 4. Warehouse (NEW - after customer) -->
+                    <field name="warehouse_id" string="Warehouse"/>
+
+                    <!-- 5. Source Document (like Sales Order) -->
                     <field name="invoice_origin" string="Source Document"/>
 
-                    <!-- 5. Reference -->
+                    <!-- 6. Reference -->
                     <field name="ref" string="Reference"/>
 
-                    <!-- 6. Tax Excluded Amount -->
+                    <!-- 7. Tax Excluded Amount -->
                     <field name="amount_untaxed" string="Tax Excluded"/>
 
-                    <!-- 7. Tax -->
+                    <!-- 8. Tax -->
                     <field name="amount_tax" string="Tax"/>
 
-                    <!-- 8. Total -->
+                    <!-- 9. Total -->
                     <field name="amount_total" string="Total"/>
 
-                    <!-- 9. Amount Due -->
+                    <!-- 10. Amount Due -->
                     <field name="amount_residual" string="Amount Due"/>
 
-                    <!-- 10. Salesperson -->
+                    <!-- 11. Salesperson -->
                     <field name="invoice_user_id" string="Salesperson" widget="many2one_avatar_user"/>
 
                     <!-- ADDITIONAL DEFAULT ODOO FIELDS -->
 
-                    <!-- 11. Due Date -->
+                    <!-- 12. Due Date -->
                     <field name="invoice_date_due" string="Due Date"/>
 
-                    <!-- 12. Accounting Date -->
+                    <!-- 13. Accounting Date -->
                     <field name="date" string="Accounting Date" optional="hide"/>
 
-                    <!-- 13. Journal -->
+                    <!-- 14. Journal -->
                     <field name="journal_id" string="Journal" optional="hide"/>
 
-                    <!-- 14. Payment Terms -->
+                    <!-- 15. Payment Terms -->
                     <field name="invoice_payment_term_id" string="Payment Terms" optional="hide"/>
 
-                    <!-- 15. Currency -->
+                    <!-- 16. Currency -->
                     <field name="currency_id" string="Currency" optional="hide"/>
 
-                    <!-- 16. Company -->
+                    <!-- 17. Company -->
                     <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide"/>
 
-                    <!-- 17. Status -->
+                    <!-- 18. Status -->
                     <field name="state" string="Status" widget="badge"
                            decoration-success="state == 'posted'"
                            decoration-info="state == 'draft'"/>
 
-                    <!-- 18. Payment Status -->
+                    <!-- 19. Payment Status -->
                     <field name="payment_state" string="Payment Status" widget="badge"
                            decoration-success="payment_state == 'paid'"
                            decoration-warning="payment_state == 'partial'"
                            decoration-danger="payment_state in ('not_paid', 'in_payment')"/>
 
-                    <!-- 19. Fiscal Position -->
+                    <!-- 20. Fiscal Position -->
                     <field name="fiscal_position_id" string="Fiscal Position" optional="hide"/>
 
-                    <!-- 20. Bank Account -->
+                    <!-- 21. Bank Account -->
                     <field name="partner_bank_id" string="Recipient Bank" optional="hide"/>
-
-                    <!-- 21. Invoice Sent -->
-<!--                    <field name="invoice_sent" string="Sent" optional="hide"/>-->
 
                     <!-- 22. Delivery Address -->
                     <field name="partner_shipping_id" string="Delivery Address" optional="hide"/>
@@ -101,44 +101,48 @@
                     <!-- 26. Auto Post -->
                     <field name="auto_post" string="Auto Post" optional="hide"/>
 
-                    <!-- 27. To Check -->
-<!--                    <field name="to_check" string="To Check" optional="hide"/>-->
-
-                    <!-- 28. Activity -->
+                    <!-- 27. Activity -->
                     <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide"/>
 
-                    <!-- 29. Activity State -->
+                    <!-- 28. Activity State -->
                     <field name="activity_state" string="Activity State" optional="hide" widget="badge"
                            decoration-success="activity_state == 'today'"
                            decoration-warning="activity_state == 'planned'"
                            decoration-danger="activity_state == 'overdue'"/>
 
-                    <!-- 30. Activity User -->
+                    <!-- 29. Activity User -->
                     <field name="activity_user_id" string="Responsible User" optional="hide"/>
 
-                    <!-- 31. Activity Type -->
+                    <!-- 30. Activity Type -->
                     <field name="activity_type_id" string="Next Activity Type" optional="hide"/>
 
-                    <!-- 32. Activity Date -->
+                    <!-- 31. Activity Date -->
                     <field name="activity_date_deadline" string="Next Activity Deadline" optional="hide"/>
 
-                    <!-- 33. Activity Summary -->
+                    <!-- 32. Activity Summary -->
                     <field name="activity_summary" string="Activity Summary" optional="hide"/>
 
-                    <!-- 34. Message -->
+                    <!-- 33. Message -->
                     <field name="message_needaction" string="Action Needed" optional="hide"/>
 
-                    <!-- 35. Sales Team (if CRM installed) -->
+                    <!-- 34. Sales Team (if CRM installed) -->
                     <field name="team_id" string="Sales Team" optional="hide"/>
 
-                    <!-- 36. Campaign (if marketing installed) -->
+                    <!-- 35. Campaign (if marketing installed) -->
                     <field name="campaign_id" string="Campaign" optional="hide" groups="base.group_no_one"/>
 
-                    <!-- 37. Medium -->
+                    <!-- 36. Medium -->
                     <field name="medium_id" string="Medium" optional="hide" groups="base.group_no_one"/>
 
-                    <!-- 38. Source -->
+                    <!-- 37. Source -->
                     <field name="source_id" string="Source" optional="hide" groups="base.group_no_one"/>
+
+                    <!-- NEW FIELDS AT THE END -->
+                    <!-- 38. Delivery Note Number (NEW - at the end) -->
+                    <field name="delivery_note_number" string="Delivery Note Number"/>
+
+                    <!-- 39. Shipping Ref (NEW - at the end) -->
+                    <field name="shipping_ref" string="Shipping Ref"/>
 
                     <!-- Hidden technical fields -->
                     <field name="move_type" column_invisible="1"/>

@@ -266,8 +266,8 @@
 
                                 <td style="border:1px solid #575656; padding:8px; width:33%;">
                                     <strong>ETA:</strong>
-                                    <t t-if="o.order_line and o.order_line[0].delivery_period">
-                                        <span t-esc="o.order_line[0].delivery_period"/>
+                                    <t t-if="o.delivery_period">
+                                        <span t-esc="o.delivery_period"/>
                                     </t>
                                     <t t-else="">
                                         <span>-</span>

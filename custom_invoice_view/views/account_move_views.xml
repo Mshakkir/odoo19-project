@@ -102,7 +102,7 @@
                     <field name="auto_post" string="Auto Post" optional="hide"/>
 
                     <!-- 27. To Check -->
-                    <field name="to_check" string="To Check" optional="hide"/>
+<!--                    <field name="to_check" string="To Check" optional="hide"/>-->
 
                     <!-- 28. Activity -->
                     <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide"/>

@@ -24,41 +24,39 @@ class AccountMoveInherit(models.Model):
         store=True
     )
 
-    @api.depends('invoice_origin', 'line_ids')
+    @api.depends('invoice_origin')
     def _compute_delivery_info(self):
-        """Compute warehouse, delivery note, and shipping ref from related documents"""
+        """Compute warehouse, delivery note, and shipping ref from delivery orders"""
         for move in self:
             warehouse = False
             delivery_note = ''
             shipping_ref = ''
 
             if move.invoice_origin:
-                # Try to get delivery orders related to this invoice
+                # Search for related delivery orders
                 pickings = self.env['stock.picking'].search([
-                    ('origin', '=', move.invoice_origin),
-                    ('state', '=', 'done')
+                    ('origin', '=', move.invoice_origin)
                 ], order='date_done desc', limit=1)
 
                 if pickings:
-                    # Get warehouse from picking
-                    warehouse = pickings.location_id.warehouse_id or pickings.picking_type_id.warehouse_id
-                    delivery_note = pickings.name or ''
-                    # Shipping ref could be the tracking reference or picking name
-                    shipping_ref = pickings.carrier_tracking_ref or pickings.name or ''
-                else:
-                    # If no delivery, try to get from sale order
-                    sale_order = self.env['sale.order'].search([
-                        ('name', '=', move.invoice_origin)
-                    ], limit=1)
+                    picking = pickings[0]
 
-                    if sale_order:
-                        # Try to get warehouse from sale order if it has the field
-                        if hasattr(sale_order, 'warehouse_id'):
-                            warehouse = sale_order.warehouse_id
-                        # Alternative: get from picking_ids
-                        elif sale_order.picking_ids:
-                            first_picking = sale_order.picking_ids[0]
-                            warehouse = first_picking.location_id.warehouse_id or first_picking.picking_type_id.warehouse_id
+                    # Get warehouse from picking location or picking type
+                    if picking.location_id and picking.location_id.warehouse_id:
+                        warehouse = picking.location_id.warehouse_id
+                    elif picking.picking_type_id and picking.picking_type_id.warehouse_id:
+                        warehouse = picking.picking_type_id.warehouse_id
+
+                    # Get delivery note (picking name)
+                    delivery_note = picking.name or ''
+
+                    # Get shipping reference (use picking reference or name)
+                    # Check if carrier_tracking_ref exists before accessing it
+                    if hasattr(picking, 'carrier_tracking_ref') and picking.carrier_tracking_ref:
+                        shipping_ref = picking.carrier_tracking_ref
+                    else:
+                        # Use picking reference or name as fallback
+                        shipping_ref = picking.origin or picking.name or ''
 
             move.warehouse_id = warehouse
             move.delivery_note_number = delivery_note

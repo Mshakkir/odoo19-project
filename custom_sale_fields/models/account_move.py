@@ -30,7 +30,7 @@ from odoo import models, fields, api
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    client_order_ref = fields.Char(
+    ref = fields.Char(
         string='PO Number',
         help='PO Number number or code',
         copy=False

@@ -38,7 +38,7 @@
     'website': 'https://www.yourcompany.com',
     'depends': ['sale_management', 'account', 'stock', 'sale_stock'],
     'data': [
-        'views/templates.xml',
+        'views/sale_order_views.xml',
         'views/stock_picking_views.xml',
         'views/account_move_views.xml',
     ],

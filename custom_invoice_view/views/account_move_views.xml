@@ -11,9 +11,9 @@
 
                 <!-- Add Send button before Register Payment button -->
                 <xpath expr="//button[@name='action_register_payment']" position="before">
-                    <button name="action_send_and_print"
+                    <button name="action_invoice_sent"
                             type="object"
-                            string="Send &amp; Print"
+                            string="Send by Email"
                             class="btn-primary"
                             invisible="state != 'posted'"/>
                 </xpath>
@@ -26,14 +26,14 @@
             </field>
         </record>
 
-        <!-- Custom Invoice Tree View (from previous request) -->
-        <record id="view_move_tree_invoice_custom" model="ir.ui.view">
-            <field name="name">account.move.tree.invoice.custom</field>
+        <!-- Custom Invoice List View (changed from tree to list) -->
+        <record id="view_move_list_invoice_custom" model="ir.ui.view">
+            <field name="name">account.move.list.invoice.custom</field>
             <field name="model">account.move</field>
             <field name="mode">primary</field>
             <field name="priority">1</field>
             <field name="arch" type="xml">
-                <tree string="Invoices"
+                <list string="Invoices"
                       sample="1"
                       decoration-info="state == 'draft'"
                       decoration-muted="state == 'cancel'"
@@ -89,7 +89,7 @@
                     <field name="move_type" column_invisible="1"/>
                     <field name="company_id" column_invisible="1" groups="base.group_multi_company"/>
 
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -97,8 +97,8 @@
         <record id="action_move_out_invoice_type_custom" model="ir.actions.act_window">
             <field name="name">Customer Invoices</field>
             <field name="res_model">account.move</field>
-            <field name="view_mode">tree,form,kanban</field>
-            <field name="view_id" ref="view_move_tree_invoice_custom"/>
+            <field name="view_mode">list,form,kanban</field>
+            <field name="view_id" ref="view_move_list_invoice_custom"/>
             <field name="domain">[('move_type', '=', 'out_invoice')]</field>
             <field name="context">{'default_move_type': 'out_invoice', 'move_type': 'out_invoice', 'journal_type': 'sale', 'search_default_draft': 1}</field>
             <field name="search_view_id" ref="account.view_account_invoice_filter"/>

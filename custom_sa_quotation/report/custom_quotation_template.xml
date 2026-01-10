@@ -272,14 +272,14 @@
                            style="border-collapse: collapse; font-size: 11px; margin-top: 10px; border: 1px solid #000;"
                            cellpadding="0" cellspacing="0">
 
-                        <thead style="padding:6px 10px;border: 1px solid #000;">
+                        <thead style="padding:6px 10px;">
                             <tr>
-                                <th style="width: 1%; text-align: center; padding: 6px 10px;">SN
+                                <th style="width: 1%; text-align: center; padding: 6px 10px;border: 1px solid #000;">SN
                                     <br/>
                                     <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">م</span>
                                 </th>
 
-                                <th style="width: 15%; text-align: center; padding: 6px 10px;">
+                                <th style="width: 15%; text-align: center; padding: 6px 10px;border: 1px solid #000;">
                                     Item Description
                                     <br/>
                                     <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">المنتج
@@ -287,39 +287,39 @@
                                     </span>
                                 </th>
 
-                                <th style="width: 2%; text-align: center; padding: 6px 10px;">
+                                <th style="width: 2%; text-align: center; padding: 6px 10px;border: 1px solid #000;">
                                     Delivery Time
                                     <br/>
                                     <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">مدة</span>
                                 </th>
 
-                                <th style="width: 3%; text-align: center; padding: 6px 10px;">
+                                <th style="width: 3%; text-align: center; padding: 6px 10px;border: 1px solid #000;">
                                     QTY
                                     <br/>
                                     <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">الكمية</span>
                                 </th>
 
-                                <th style="width: 3%; text-align: center; padding: 6px 10px;">
+                                <th style="width: 3%; text-align: center; padding: 6px 10px;border: 1px solid #000;">
                                     U/M
                                     <br/>
                                     <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">وحدة</span>
                                 </th>
 
-                                <th style="width: 3%; text-align: center; padding: 6px 10px;">
+                                <th style="width: 3%; text-align: center; padding: 6px 10px;border: 1px solid #000;">
                                     Unit Price
                                     <br/>
                                     <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">سعر الوحدة
                                     </span>
                                 </th>
 
-                                <th style="width: 3%; text-align: center; padding: 6px 10px;">
+                                <th style="width: 3%; text-align: center; padding: 6px 10px;border: 1px solid #000;">
                                     VAT %
                                     <br/>
                                     <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">ضريبة %
                                     </span>
                                 </th>
 
-                                <th style="width: 3%; text-align: center; padding: 6px 10px;">
+                                <th style="width: 3%; text-align: center; padding: 6px 10px;border: 1px solid #000;">
                                     Line Total
                                     <br/>
                                     <span style="font-family: 'Tajawal'; font-weight:900; direction: rtl;">مجموع الخط
@@ -421,7 +421,7 @@
                             <!-- VAT (After Discount) -->
                             <tr>
                                 <td style="padding:5px;border: 1px solid #000;">VAT (15%)</td>
-                                <td style="text-align:right; padding:5px;">
+                                <td style="text-align:right; padding:5px;border: 1px solid #000;">
                                     <span t-field="o.amount_tax"/>
                                     SAR
                                 </td>

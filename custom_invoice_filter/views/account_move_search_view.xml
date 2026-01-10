@@ -1,22 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Inherit the invoice tree view -->
-    <record id="view_invoice_tree_add_filter_button" model="ir.ui.view">
-        <field name="name">account.move.tree.filter.button</field>
+    <!-- Add From Date and To Date filter fields to invoice search -->
+    <record id="view_account_invoice_filter_date_range_inherit" model="ir.ui.view">
+        <field name="name">account.move.filter.date.range.inherit</field>
         <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="inherit_id" ref="account.view_account_invoice_filter"/>
         <field name="arch" type="xml">
-            <!-- Add button directly in tree view -->
-            <tree position="attributes">
-                <attribute name="create">true</attribute>
-            </tree>
-            <tree position="before">
-                <button name="%(custom_invoice_filter.action_invoice_date_filter_wizard)d"
-                        string="📅 Filter by Date"
-                        type="action"
-                        class="oe_highlight"
-                        icon="fa-calendar"/>
-            </tree>
+            <!-- Add From Date and To Date fields after partner_id -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="invoice_date" string="From Date"
+                       filter_domain="[('invoice_date', '&gt;=', self)]"/>
+                <field name="invoice_date" string="To Date"
+                       filter_domain="[('invoice_date', '&lt;=', self)]"/>
+            </xpath>
         </field>
     </record>
 </odoo>

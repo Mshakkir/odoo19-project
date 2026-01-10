@@ -13,7 +13,7 @@
         'security/ir.model.access.csv',
         'views/invoice_date_filter_wizard_views.xml',
         'views/account_move_views.xml',
-        'views/account_move_search_view.xml',
+        # 'views/account_move_search_view.xml',
     ],
     'installable': True,
     'application': False,

@@ -149,11 +149,6 @@
                         transition: color 0.3s ease;
                     }
 
-                    .nav_link:hover,
-                    .nav_link.active {
-                        color: #ff6b6b;
-                    }
-
                     /* Fix: Nav Right Section */
                     .nav_right_section {
                         display: flex;
@@ -253,7 +248,7 @@
                     }
 
                     .contact_item:hover {
-                        color: #ff6b6b;
+                        color: #1576bd;
                     }
 
                     .social_links {
@@ -274,7 +269,7 @@
                     }
 
                     .social_link:hover {
-                        background-color: #ff6b6b;
+                        background-color: #1576bd;
                         color: #fff;
                     }
 

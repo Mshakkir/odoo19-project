@@ -8,7 +8,7 @@
         Users can filter invoices by selecting from and to dates.
     """,
     'author': 'Your Name',
-    'depends': ['account'],
+    'depends': ['account', 'sales_enhancement'],
     'data': [
         'security/ir.model.access.csv',
         'views/invoice_date_filter_wizard_views.xml',

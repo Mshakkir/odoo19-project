@@ -3,7 +3,7 @@
     <!-- Add as submenu under Sale Invoices -->
     <menuitem id="menu_invoice_date_filter"
               name="📅 Filter Invoices by Date"
-              parent="menu_sale_invoices"
+              parent="sales_enhancement.menu_sale_invoices"
               action="custom_invoice_filter.action_invoice_date_filter_wizard"
               sequence="5"/>
 </odoo>

@@ -27,25 +27,82 @@
         </field>
     </record>
 
-    <!-- Wizard Action - Binding to account.move (Accounting Invoices) -->
+    <!-- Wizard Action -->
     <record id="action_invoice_date_filter_wizard" model="ir.actions.act_window">
         <field name="name">Filter by Date Range</field>
         <field name="res_model">invoice.date.filter.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-        <field name="binding_model_id" ref="account.model_account_move"/>
-        <field name="binding_view_types">list</field>
     </record>
 
-    <!-- Add to Sale Invoices gear icon -->
-    <record id="action_sale_invoice_date_filter_wizard" model="ir.actions.server">
-        <field name="name">Filter by Date Range</field>
+    <!-- Server Action - This adds button in gear menu -->
+    <record id="action_invoice_date_filter_server" model="ir.actions.server">
+        <field name="name">📅 Filter by Date Range</field>
         <field name="model_id" ref="account.model_account_move"/>
         <field name="binding_model_id" ref="account.model_account_move"/>
         <field name="binding_view_types">list</field>
         <field name="state">code</field>
         <field name="code">
-action = env['invoice.date.filter.wizard'].create({}).action_open_wizard()
+action = {
+    'type': 'ir.actions.act_window',
+    'res_model': 'invoice.date.filter.wizard',
+    'view_mode': 'form',
+    'target': 'new',
+    'context': context,
+}
         </field>
     </record>
 </odoo>
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    &lt;!&ndash; Wizard Form View &ndash;&gt;-->
+<!--    <record id="view_invoice_date_filter_wizard_form" model="ir.ui.view">-->
+<!--        <field name="name">invoice.date.filter.wizard.form</field>-->
+<!--        <field name="model">invoice.date.filter.wizard</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <form>-->
+<!--                <group>-->
+<!--                    <group>-->
+<!--                        <field name="from_date" required="1"/>-->
+<!--                    </group>-->
+<!--                    <group>-->
+<!--                        <field name="to_date" required="1"/>-->
+<!--                    </group>-->
+<!--                </group>-->
+<!--                <footer>-->
+<!--                    <button name="action_apply_filter"-->
+<!--                            string="Apply Filter"-->
+<!--                            type="object"-->
+<!--                            class="btn-primary"/>-->
+<!--                    <button string="Cancel"-->
+<!--                            class="btn-secondary"-->
+<!--                            special="cancel"/>-->
+<!--                </footer>-->
+<!--            </form>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Wizard Action - Binding to account.move (Accounting Invoices) &ndash;&gt;-->
+<!--    <record id="action_invoice_date_filter_wizard" model="ir.actions.act_window">-->
+<!--        <field name="name">Filter by Date Range</field>-->
+<!--        <field name="res_model">invoice.date.filter.wizard</field>-->
+<!--        <field name="view_mode">form</field>-->
+<!--        <field name="target">new</field>-->
+<!--        <field name="binding_model_id" ref="account.model_account_move"/>-->
+<!--        <field name="binding_view_types">list</field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Add to Sale Invoices gear icon &ndash;&gt;-->
+<!--    <record id="action_sale_invoice_date_filter_wizard" model="ir.actions.server">-->
+<!--        <field name="name">Filter by Date Range</field>-->
+<!--        <field name="model_id" ref="account.model_account_move"/>-->
+<!--        <field name="binding_model_id" ref="account.model_account_move"/>-->
+<!--        <field name="binding_view_types">list</field>-->
+<!--        <field name="state">code</field>-->
+<!--        <field name="code">-->
+<!--action = env['invoice.date.filter.wizard'].create({}).action_open_wizard()-->
+<!--        </field>-->
+<!--    </record>-->
+<!--</odoo>-->

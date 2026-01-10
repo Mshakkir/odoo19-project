@@ -1,33 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add custom button to invoice action -->
-    <record id="action_move_out_invoice_add_date_filter" model="ir.actions.act_window">
-        <field name="name">Customer Invoices</field>
-        <field name="res_model">account.move</field>
-        <field name="view_mode">tree,kanban,form,activity</field>
-        <field name="domain">[('move_type', '=', 'out_invoice')]</field>
-        <field name="context">{
-            'default_move_type': 'out_invoice',
-            'move_type': 'out_invoice',
-        }</field>
-    </record>
-
-    <!-- Inherit the tree view to add header button -->
-    <record id="view_invoice_tree_date_filter_inherit" model="ir.ui.view">
-        <field name="name">account.invoice.tree.date.filter</field>
+    <!-- Inherit the invoice tree view -->
+    <record id="view_invoice_tree_add_filter_button" model="ir.ui.view">
+        <field name="name">account.move.tree.filter.button</field>
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_invoice_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//tree" position="attributes">
-                <attribute name="decoration-info">state == 'draft'</attribute>
-            </xpath>
-            <xpath expr="//tree" position="inside">
+            <!-- Add button directly in tree view -->
+            <tree position="attributes">
+                <attribute name="create">true</attribute>
+            </tree>
+            <tree position="before">
                 <button name="%(custom_invoice_filter.action_invoice_date_filter_wizard)d"
-                        string="Filter by Date"
+                        string="📅 Filter by Date"
                         type="action"
-                        icon="fa-filter"
-                        class="btn-secondary"/>
-            </xpath>
+                        class="oe_highlight"
+                        icon="fa-calendar"/>
+            </tree>
         </field>
     </record>
 </odoo>

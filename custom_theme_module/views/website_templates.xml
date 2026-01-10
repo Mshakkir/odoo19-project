@@ -170,8 +170,8 @@
                         padding: 8px 12px;
                         cursor: pointer;
                         text-decoration: none;
-                        color: #333;
-                        background: transparent;
+                        color: #1576bd;
+
                         border: none;
                         border-radius: 6px;
                         transition: all 0.3s ease;

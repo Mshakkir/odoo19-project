@@ -87,25 +87,49 @@ class SaleOrder(models.Model):
             self.client_order_ref = self.partner_id.ref
 
     def _prepare_invoice(self):
-        """Override to pass customer reference, AWB, and delivery note to invoice"""
+        """Override to pass PO Number, AWB, and delivery note to invoice"""
         invoice_vals = super()._prepare_invoice()
 
-        # Transfer PO Number (ref)
+        # Transfer PO Number (ref) - from Sale Order's client_order_ref OR ref field
         if self.client_order_ref:
             invoice_vals['ref'] = self.client_order_ref
+        elif self.ref:
+            invoice_vals['ref'] = self.ref
 
-        # Transfer AWB Number
+        # Transfer AWB Number from Sale Order
         if self.awb_number:
             invoice_vals['awb_number'] = self.awb_number
 
         # Transfer Delivery Note Number from completed delivery orders
-        pickings = self.picking_ids.filtered(
-            lambda p: p.state == 'done' and
-                      p.picking_type_code == 'outgoing' and
-                      p.delivery_note_number
+        # Check if there are any completed delivery orders
+        completed_pickings = self.picking_ids.filtered(
+            lambda p: p.state == 'done' and p.picking_type_code == 'outgoing'
         )
-        if pickings:
-            # Get the first delivery with a delivery note number
-            invoice_vals['delivery_note_number'] = pickings[0].delivery_note_number
+
+        if completed_pickings:
+            # Get delivery note from the first completed delivery
+            for picking in completed_pickings:
+                if picking.delivery_note_number:
+                    invoice_vals['delivery_note_number'] = picking.delivery_note_number
+                    break
+
+            # Get AWB from delivery if not set on sale order
+            if not self.awb_number:
+                for picking in completed_pickings:
+                    if picking.awb_number:
+                        invoice_vals['awb_number'] = picking.awb_number
+                        break
 
         return invoice_vals
+
+    def action_confirm(self):
+        """Copy AWB number to delivery orders when sale order is confirmed"""
+        result = super().action_confirm()
+
+        # Transfer AWB to delivery orders
+        if self.awb_number:
+            for picking in self.picking_ids.filtered(lambda p: p.picking_type_code == 'outgoing'):
+                if not picking.awb_number:
+                    picking.awb_number = self.awb_number
+
+        return result

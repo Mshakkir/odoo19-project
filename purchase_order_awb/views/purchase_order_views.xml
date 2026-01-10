@@ -13,10 +13,6 @@
                     <label for="awb_number" string="Shipping Ref#"/>
                     <field name="awb_number" nolabel="1" placeholder="Enter AWB Number (e.g., 1234567890)" readonly="state in ('cancel', 'purchase')"/>
 
-                    <!-- Add ETA field -->
-                    <label for="eta" string="ETA"/>
-                    <field name="eta" nolabel="1"/>
-
                     <!-- Add Incoterm field -->
                     <label for="incoterm_id" string="Incoterm"/>
                     <field name="incoterm_id" nolabel="1"/>

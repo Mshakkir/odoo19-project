@@ -165,7 +165,7 @@
                         padding: 8px 12px;
                         cursor: pointer;
                         text-decoration: none;
-                        color: #1576bd;
+                        color: #333333;
 
                         border: none;
                         border-radius: 6px;
@@ -176,8 +176,8 @@
                     }
 
                     .cart_icon:hover {
-                        background-color: #f5f5f5;
-                        color: #ff6b6b;
+
+                        color: #1576bd;
                     }
 
                     .cart_icon svg {

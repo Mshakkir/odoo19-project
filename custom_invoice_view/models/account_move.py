@@ -27,6 +27,7 @@ class AccountMoveInherit(models.Model):
         string='Shipping Ref #',
         help='Air Waybill Number for shipment tracking',
         compute='_compute_delivery_info',
+        store=True
 
     )
 
@@ -59,10 +60,10 @@ class AccountMoveInherit(models.Model):
                     # Get shipping reference (use picking reference or name)
                     # Check if carrier_tracking_ref exists before accessing it
                     if hasattr(picking, 'carrier_tracking_ref') and picking.carrier_tracking_ref:
-                        shipping_ref = picking.carrier_tracking_ref
+                        awb_number= picking.carrier_tracking_ref
                     else:
                         # Use picking reference or name as fallback
-                        shipping_ref = picking.origin or picking.name or ''
+                        awb_number = picking.origin or picking.name or ''
 
             move.warehouse_id = warehouse
             move.delivery_note_number = delivery_note

@@ -151,33 +151,6 @@
             </field>
         </record>
 
-        <!-- Custom Invoice Form View - Add editable fields -->
-        <record id="view_move_form_custom" model="ir.ui.view">
-            <field name="name">account.move.form.custom</field>
-            <field name="model">account.move</field>
-            <field name="inherit_id" ref="account.view_move_form"/>
-            <field name="arch" type="xml">
-
-                <!-- Add Warehouse field after partner_id -->
-                <xpath expr="//field[@name='partner_id']" position="after">
-                    <field name="warehouse_id"
-                           string="Warehouse"
-                           options="{'no_create': True, 'no_open': True}"/>
-                </xpath>
-
-                <!-- Make Shipping Ref # editable by removing readonly and compute -->
-                <xpath expr="//field[@name='ref']" position="after">
-                    <field name="awb_number" string="Shipping Ref #"/>
-                </xpath>
-
-                <!-- Add Delivery Note Number field -->
-                <xpath expr="//field[@name='awb_number']" position="after">
-                    <field name="delivery_note_number" string="Delivery Note Number"/>
-                </xpath>
-
-            </field>
-        </record>
-
         <!-- Override the default invoice action -->
         <record id="account.action_move_out_invoice_type" model="ir.actions.act_window">
             <field name="view_id" ref="view_move_list_invoice_custom"/>

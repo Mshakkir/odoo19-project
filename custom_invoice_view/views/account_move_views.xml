@@ -84,7 +84,7 @@
                     <field name="partner_bank_id" string="Recipient Bank" optional="hide"/>
 
                     <!-- 21. Invoice Sent -->
-                    <field name="invoice_sent" string="Sent" optional="hide"/>
+<!--                    <field name="invoice_sent" string="Sent" optional="hide"/>-->
 
                     <!-- 22. Delivery Address -->
                     <field name="partner_shipping_id" string="Delivery Address" optional="hide"/>

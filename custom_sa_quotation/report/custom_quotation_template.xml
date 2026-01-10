@@ -272,7 +272,7 @@
                            style="border-collapse: collapse; font-size: 11px; margin-top: 10px; border: 1px solid #000;"
                            cellpadding="0" cellspacing="0">
 
-                        <thead style="padding:6px 10px;">
+                        <thead style="padding:6px 10px;border: 1px solid #000;">
                             <tr>
                                 <th style="width: 1%; text-align: center; padding: 6px 10px;">SN
                                     <br/>
@@ -372,8 +372,8 @@
 
                             <!-- Subtotal (Before Any Discounts) -->
                             <tr>
-                                <td style="padding:5px;">Subtotal</td>
-                                <td style="text-align:right; padding:5px;">
+                                <td style="padding:5px;border: 1px solid #000;">Subtotal</td>
+                                <td style="text-align:right; padding:5px;border: 1px solid #000;">
                                     <!-- Calculate total before discounts -->
                                     <t t-set="total_before_discount"
                                        t-value="sum(line.product_uom_qty * line.price_unit for line in o.order_line)"/>
@@ -386,10 +386,10 @@
                             <t t-set="total_line_discounts"
                                t-value="sum(line.discount_fixed for line in o.order_line if line.discount_fixed)"/>
                             <tr t-if="total_line_discounts and total_line_discounts > 0">
-                                <td style="padding:5px;">
+                                <td style="padding:5px;border: 1px solid #000;">
                                     Discounts
                                 </td>
-                                <td style="text-align:right; padding:5px;">
+                                <td style="text-align:right; padding:5px;border: 1px solid #000;">
                                     <span style="color: #d9534f;">
                                         -
                                         <span t-esc="'%.2f' % total_line_discounts"/>
@@ -401,16 +401,16 @@
 
                             <!-- Freight (Static or update if needed) -->
                             <tr>
-                                <td style="padding:5px;">Freight</td>
+                                <td style="padding:5px;border: 1px solid #000;">Freight</td>
                                 <td style="text-align:right; padding:5px;">- SAR</td>
                             </tr>
 
                             <!-- Gross Total (same as Subtotal after discount unless freight added) -->
                             <tr>
-                                <td style="padding:5px;">
+                                <td style="padding:5px;border: 1px solid #000;">
                                     <strong>Gross Total</strong>
                                 </td>
-                                <td style="text-align:right; padding:5px;">
+                                <td style="text-align:right; padding:5px;border: 1px solid #000;">
                                     <strong>
                                         <span t-field="o.amount_untaxed"/>
                                         SAR
@@ -420,7 +420,7 @@
 
                             <!-- VAT (After Discount) -->
                             <tr>
-                                <td style="padding:5px;">VAT (15%)</td>
+                                <td style="padding:5px;border: 1px solid #000;">VAT (15%)</td>
                                 <td style="text-align:right; padding:5px;">
                                     <span t-field="o.amount_tax"/>
                                     SAR
@@ -429,7 +429,7 @@
 
                             <!-- Net Total -->
                             <tr>
-                                <td style="padding:6px;">
+                                <td style="padding:6px;border: 1px solid #000;">
                                     <strong>Net Total</strong>
                                 </td>
                                 <td style="text-align:right; padding:6px;">

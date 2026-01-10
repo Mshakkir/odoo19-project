@@ -2,7 +2,7 @@
 <odoo>
     <data>
 
-        <!-- Custom Invoice List View with YOUR exact column order -->
+        <!-- Custom Invoice List View with ALL available fields -->
         <record id="view_move_list_invoice_custom" model="ir.ui.view">
             <field name="name">account.move.list.invoice.custom</field>
             <field name="model">account.move</field>
@@ -15,6 +15,7 @@
                       decoration-muted="state == 'cancel'"
                       multi_edit="1">
 
+                    <!-- YOUR REQUESTED ORDER -->
                     <!-- 1. Invoice Date -->
                     <field name="invoice_date" string="Invoice Date"/>
 
@@ -24,7 +25,7 @@
                     <!-- 3. Customer -->
                     <field name="partner_id" string="Customer"/>
 
-                    <!-- 4. Warehouse (from source document) -->
+                    <!-- 4. Source Document (like Warehouse/Sales Order) -->
                     <field name="invoice_origin" string="Source Document"/>
 
                     <!-- 5. Reference -->
@@ -45,33 +46,191 @@
                     <!-- 10. Salesperson -->
                     <field name="invoice_user_id" string="Salesperson" widget="many2one_avatar_user"/>
 
+                    <!-- ADDITIONAL DEFAULT ODOO FIELDS -->
+
                     <!-- 11. Due Date -->
                     <field name="invoice_date_due" string="Due Date"/>
 
-                    <!-- 12. Status -->
+                    <!-- 12. Accounting Date -->
+                    <field name="date" string="Accounting Date" optional="hide"/>
+
+                    <!-- 13. Journal -->
+                    <field name="journal_id" string="Journal" optional="hide"/>
+
+                    <!-- 14. Payment Terms -->
+                    <field name="invoice_payment_term_id" string="Payment Terms" optional="hide"/>
+
+                    <!-- 15. Currency -->
+                    <field name="currency_id" string="Currency" optional="hide"/>
+
+                    <!-- 16. Company -->
+                    <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide"/>
+
+                    <!-- 17. Status -->
                     <field name="state" string="Status" widget="badge"
                            decoration-success="state == 'posted'"
                            decoration-info="state == 'draft'"/>
 
-                    <!-- 13. Payment Status -->
+                    <!-- 18. Payment Status -->
                     <field name="payment_state" string="Payment Status" widget="badge"
                            decoration-success="payment_state == 'paid'"
                            decoration-warning="payment_state == 'partial'"
                            decoration-danger="payment_state in ('not_paid', 'in_payment')"/>
 
-                    <!-- Hidden fields for technical purposes -->
-                    <field name="currency_id" column_invisible="1"/>
+                    <!-- 19. Fiscal Position -->
+                    <field name="fiscal_position_id" string="Fiscal Position" optional="hide"/>
+
+                    <!-- 20. Bank Account -->
+                    <field name="partner_bank_id" string="Recipient Bank" optional="hide"/>
+
+                    <!-- 21. Invoice Sent -->
+                    <field name="invoice_sent" string="Sent" optional="hide"/>
+
+                    <!-- 22. Delivery Address -->
+                    <field name="partner_shipping_id" string="Delivery Address" optional="hide"/>
+
+                    <!-- 23. Invoice Incoterm -->
+                    <field name="invoice_incoterm_id" string="Incoterm" optional="hide"/>
+
+                    <!-- 24. Narration/Terms and Conditions -->
+                    <field name="narration" string="Terms and Conditions" optional="hide"/>
+
+                    <!-- 25. Invoice Source Document Type -->
+                    <field name="invoice_source_email" string="Source Email" optional="hide"/>
+
+                    <!-- 26. Auto Post -->
+                    <field name="auto_post" string="Auto Post" optional="hide"/>
+
+                    <!-- 27. To Check -->
+                    <field name="to_check" string="To Check" optional="hide"/>
+
+                    <!-- 28. Activity -->
+                    <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide"/>
+
+                    <!-- 29. Activity State -->
+                    <field name="activity_state" string="Activity State" optional="hide" widget="badge"
+                           decoration-success="activity_state == 'today'"
+                           decoration-warning="activity_state == 'planned'"
+                           decoration-danger="activity_state == 'overdue'"/>
+
+                    <!-- 30. Activity User -->
+                    <field name="activity_user_id" string="Responsible User" optional="hide"/>
+
+                    <!-- 31. Activity Type -->
+                    <field name="activity_type_id" string="Next Activity Type" optional="hide"/>
+
+                    <!-- 32. Activity Date -->
+                    <field name="activity_date_deadline" string="Next Activity Deadline" optional="hide"/>
+
+                    <!-- 33. Activity Summary -->
+                    <field name="activity_summary" string="Activity Summary" optional="hide"/>
+
+                    <!-- 34. Message -->
+                    <field name="message_needaction" string="Action Needed" optional="hide"/>
+
+                    <!-- 35. Sales Team (if CRM installed) -->
+                    <field name="team_id" string="Sales Team" optional="hide"/>
+
+                    <!-- 36. Campaign (if marketing installed) -->
+                    <field name="campaign_id" string="Campaign" optional="hide" groups="base.group_no_one"/>
+
+                    <!-- 37. Medium -->
+                    <field name="medium_id" string="Medium" optional="hide" groups="base.group_no_one"/>
+
+                    <!-- 38. Source -->
+                    <field name="source_id" string="Source" optional="hide" groups="base.group_no_one"/>
+
+                    <!-- Hidden technical fields -->
                     <field name="move_type" column_invisible="1"/>
-                    <field name="company_id" column_invisible="1"/>
 
                 </list>
             </field>
         </record>
 
-        <!-- Override the default invoice action to use our custom view -->
+        <!-- Override the default invoice action -->
         <record id="account.action_move_out_invoice_type" model="ir.actions.act_window">
             <field name="view_id" ref="view_move_list_invoice_custom"/>
         </record>
 
     </data>
 </odoo>
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <data>-->
+
+<!--        &lt;!&ndash; Custom Invoice List View with YOUR exact column order &ndash;&gt;-->
+<!--        <record id="view_move_list_invoice_custom" model="ir.ui.view">-->
+<!--            <field name="name">account.move.list.invoice.custom</field>-->
+<!--            <field name="model">account.move</field>-->
+<!--            <field name="mode">primary</field>-->
+<!--            <field name="priority">1</field>-->
+<!--            <field name="arch" type="xml">-->
+<!--                <list string="Invoices"-->
+<!--                      sample="1"-->
+<!--                      decoration-info="state == 'draft'"-->
+<!--                      decoration-muted="state == 'cancel'"-->
+<!--                      multi_edit="1">-->
+
+<!--                    &lt;!&ndash; 1. Invoice Date &ndash;&gt;-->
+<!--                    <field name="invoice_date" string="Invoice Date"/>-->
+
+<!--                    &lt;!&ndash; 2. Invoice Number &ndash;&gt;-->
+<!--                    <field name="name" string="Invoice Number" readonly="1"/>-->
+
+<!--                    &lt;!&ndash; 3. Customer &ndash;&gt;-->
+<!--                    <field name="partner_id" string="Customer"/>-->
+
+<!--                    &lt;!&ndash; 4. Warehouse (from source document) &ndash;&gt;-->
+<!--                    <field name="invoice_origin" string="Source Document"/>-->
+
+<!--                    &lt;!&ndash; 5. Reference &ndash;&gt;-->
+<!--                    <field name="ref" string="Reference"/>-->
+
+<!--                    &lt;!&ndash; 6. Tax Excluded Amount &ndash;&gt;-->
+<!--                    <field name="amount_untaxed" string="Tax Excluded"/>-->
+
+<!--                    &lt;!&ndash; 7. Tax &ndash;&gt;-->
+<!--                    <field name="amount_tax" string="Tax"/>-->
+
+<!--                    &lt;!&ndash; 8. Total &ndash;&gt;-->
+<!--                    <field name="amount_total" string="Total"/>-->
+
+<!--                    &lt;!&ndash; 9. Amount Due &ndash;&gt;-->
+<!--                    <field name="amount_residual" string="Amount Due"/>-->
+
+<!--                    &lt;!&ndash; 10. Salesperson &ndash;&gt;-->
+<!--                    <field name="invoice_user_id" string="Salesperson" widget="many2one_avatar_user"/>-->
+
+<!--                    &lt;!&ndash; 11. Due Date &ndash;&gt;-->
+<!--                    <field name="invoice_date_due" string="Due Date"/>-->
+
+<!--                    &lt;!&ndash; 12. Status &ndash;&gt;-->
+<!--                    <field name="state" string="Status" widget="badge"-->
+<!--                           decoration-success="state == 'posted'"-->
+<!--                           decoration-info="state == 'draft'"/>-->
+
+<!--                    &lt;!&ndash; 13. Payment Status &ndash;&gt;-->
+<!--                    <field name="payment_state" string="Payment Status" widget="badge"-->
+<!--                           decoration-success="payment_state == 'paid'"-->
+<!--                           decoration-warning="payment_state == 'partial'"-->
+<!--                           decoration-danger="payment_state in ('not_paid', 'in_payment')"/>-->
+
+<!--                    &lt;!&ndash; Hidden fields for technical purposes &ndash;&gt;-->
+<!--                    <field name="currency_id" column_invisible="1"/>-->
+<!--                    <field name="move_type" column_invisible="1"/>-->
+<!--                    <field name="company_id" column_invisible="1"/>-->
+
+<!--                </list>-->
+<!--            </field>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; Override the default invoice action to use our custom view &ndash;&gt;-->
+<!--        <record id="account.action_move_out_invoice_type" model="ir.actions.act_window">-->
+<!--            <field name="view_id" ref="view_move_list_invoice_custom"/>-->
+<!--        </record>-->
+
+<!--    </data>-->
+<!--</odoo>-->

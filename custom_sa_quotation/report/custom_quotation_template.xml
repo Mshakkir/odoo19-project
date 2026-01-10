@@ -330,36 +330,36 @@
 
                         <tbody style="text-align: center;">
                             <tr t-foreach="o.order_line" t-as="line">
-                                <td style="padding: 8px 12px;">
+                                <td style="padding: 8px 12px;border: 1px solid #000;">
                                     <t t-esc="line_index + 1"/>
                                 </td>
 
-                                <td style="padding: 8px 12px; text-align:left;">
+                                <td style="padding: 8px 12px; text-align:left;border: 1px solid #000;">
                                     <span t-field="line.name"/>
                                 </td>
 
-                                <td style="padding: 8px 12px; text-align:center;">
+                                <td style="padding: 8px 12px; text-align:center;border: 1px solid #000;">
                                     <t t-esc="o.delivery_period or '-'"/>
                                 </td>
 
-                                <td style="padding: 8px 12px;">
+                                <td style="padding: 8px 12px;border: 1px solid #000;">
                                     <span t-field="line.product_uom_qty"/>
                                 </td>
 
-                                <td style="padding: 8px 12px;">
+                                <td style="padding: 8px 12px;border: 1px solid #000;">
                                     <span t-field="line.product_uom_id"/>
                                 </td>
 
-                                <td style="padding: 8px 12px;text-align:center;">
+                                <td style="padding: 8px 12px;text-align:center;border: 1px solid #000;">
                                     <span t-field="line.price_unit"/>
                                 </td>
 
-                                <td style="padding: 8px 12px; text-align:center;">
+                                <td style="padding: 8px 12px; text-align:center;border: 1px solid #000;">
                                     <t t-esc="line.tax_ids and line.tax_ids[0].amount or 0"/>%
                                 </td>
 
                                 <!-- Line Total (Subtotal with Tax) -->
-                                <td style="padding: 8px 12px;text-align:right;">
+                                <td style="padding: 8px 12px;text-align:right;border: 1px solid #000;">
                                     <span t-field="line.price_total"/>
                                 </td>
                             </tr>

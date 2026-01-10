@@ -1,7 +1,7 @@
-# # from odoo import models, fields, api
+# # from odoo import controllers, fields, api
 # #
 # #
-# # class AccountMove(models.Model):
+# # class AccountMove(controllers.Model):
 # #     _inherit = 'account.move'
 # #
 # #     customer_reference = fields.Char(
@@ -24,10 +24,10 @@
 # #                 self.customer_reference = self.partner_id.ref
 #
 #
-# from odoo import models, fields, api
+# from odoo import controllers, fields, api
 #
 #
-# class AccountMove(models.Model):
+# class AccountMove(controllers.Model):
 #     _inherit = 'account.move'
 #
 #     ref = fields.Char(

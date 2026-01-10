@@ -1,4 +1,4 @@
-# product_stock_ledger/models/report_product_ledger.py
+# product_stock_ledger/controllers/report_product_ledger.py
 from odoo import models, api, fields, _
 from datetime import datetime
 

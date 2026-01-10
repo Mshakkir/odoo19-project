@@ -1,7 +1,7 @@
-# # # from odoo import models, fields, api
+# # # from odoo import controllers, fields, api
 # # #
 # # #
-# # # class SaleOrder(models.Model):
+# # # class SaleOrder(controllers.Model):
 # # #     _inherit = 'sale.order'
 # # #
 # # #     customer_reference = fields.Char(
@@ -29,10 +29,10 @@
 # # #             invoice_vals['customer_reference'] = self.customer_reference
 # # #         return invoice_vals
 # #
-# # from odoo import models, fields, api
+# # from odoo import controllers, fields, api
 # #
 # #
-# # class SaleOrder(models.Model):
+# # class SaleOrder(controllers.Model):
 # #     _inherit = 'sale.order'
 # #
 # #     ref = fields.Char(
@@ -62,10 +62,10 @@
 # #             invoice_vals['awb_number'] = self.awb_number
 # #         return invoice_vals
 #
-# from odoo import models, fields, api
+# from odoo import controllers, fields, api
 #
 #
-# class SaleOrder(models.Model):
+# class SaleOrder(controllers.Model):
 #     _inherit = 'sale.order'
 #
 #     ref = fields.Char(

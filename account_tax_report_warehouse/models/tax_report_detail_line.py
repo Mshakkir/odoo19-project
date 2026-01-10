@@ -1,7 +1,7 @@
-# from odoo import models, fields, api
+# from odoo import controllers, fields, api
 #
 #
-# class TaxReportDetailLine(models.TransientModel):
+# class TaxReportDetailLine(controllers.TransientModel):
 #     _name = 'tax.report.detail.line'
 #     _description = 'Tax Report Detail Line'
 #

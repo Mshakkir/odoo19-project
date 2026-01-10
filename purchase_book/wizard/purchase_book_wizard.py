@@ -419,12 +419,12 @@ class PurchaseBookWizard(models.TransientModel):
 
 
 
-# from odoo import models, fields, api
+# from odoo import controllers, fields, api
 # from datetime import datetime
 # from collections import defaultdict
 #
 #
-# class PurchaseBookWizard(models.TransientModel):
+# class PurchaseBookWizard(controllers.TransientModel):
 #     _name = 'purchase.book.wizard'
 #     _description = 'Purchase Book Report Wizard'
 #

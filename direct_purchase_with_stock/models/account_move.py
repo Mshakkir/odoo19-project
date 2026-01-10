@@ -1,12 +1,12 @@
 # # -*- coding: utf-8 -*-
-# from odoo import models, fields, api, _
+# from odoo import controllers, fields, api, _
 # from odoo.exceptions import UserError
 # import logging
 #
 # _logger = logging.getLogger(__name__)
 #
 #
-# class AccountMove(models.Model):
+# class AccountMove(controllers.Model):
 #     _inherit = 'account.move'
 #
 #     receipt_id = fields.Many2one('stock.picking', string='Receipt', readonly=True, copy=False)

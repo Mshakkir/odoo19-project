@@ -39,7 +39,7 @@
     'depends': ['sale_management', 'account'],
     'data': [
         'views/res_config_settings_views.xml',
-        'views/sale_order_views.xml',
+        'views/templates.xml',
         'views/account_move_views.xml',
         'views/account_move_templates.xml',
         'views/sale_order_templates.xml',

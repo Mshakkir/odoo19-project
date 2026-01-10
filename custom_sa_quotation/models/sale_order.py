@@ -1,7 +1,7 @@
-# from odoo import models, fields, api
+# from odoo import controllers, fields, api
 #
 #
-# class SaleOrder(models.Model):
+# class SaleOrder(controllers.Model):
 #     _inherit = 'sale.order'
 #
 #     discount_amount = fields.Monetary(

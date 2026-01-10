@@ -1,7 +1,7 @@
-# from odoo import models, fields, api
+# from odoo import controllers, fields, api
 #
 #
-# class AccountTaxReportWizard(models.TransientModel):
+# class AccountTaxReportWizard(controllers.TransientModel):
 #     _inherit = 'account.tax.report.wizard'
 #
 #
@@ -209,10 +209,10 @@
 
 # tax amount did not display in this code
 
-# from odoo import models, fields, api
+# from odoo import controllers, fields, api
 #
 #
-# class AccountTaxReportWizard(models.TransientModel):
+# class AccountTaxReportWizard(controllers.TransientModel):
 #     _inherit = 'account.tax.report.wizard'
 #
 #     # 1️⃣ Add Detail Lines

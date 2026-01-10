@@ -1,4 +1,4 @@
-# product_stock_ledger/models/ledger_line.py
+# product_stock_ledger/controllers/ledger_line.py
 from odoo import models, fields, api
 
 class ProductStockLedgerLine(models.TransientModel):

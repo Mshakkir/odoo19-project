@@ -1,10 +1,10 @@
-# # models/aged_partner_inherit.py
+# # controllers/aged_partner_inherit.py
 #
-# from odoo import api, fields, models, _
+# from odoo import api, fields, controllers, _
 # from dateutil.relativedelta import relativedelta
 #
 #
-# class AccountAgedTrialBalance(models.TransientModel):
+# class AccountAgedTrialBalance(controllers.TransientModel):
 #     _inherit = 'account.aged.trial.balance'
 #
 #     def show_details(self):
@@ -171,7 +171,7 @@
 #             return ['asset_receivable', 'liability_payable']
 #
 #
-# class AccountAgedDetailLine(models.TransientModel):
+# class AccountAgedDetailLine(controllers.TransientModel):
 #     _name = 'account.aged.detail.line'
 #     _description = 'Aged Balance Detail Line'
 #     _order = 'total desc, partner_name'
@@ -230,9 +230,9 @@
 #         return self.action_view_journal_entries()
 
 
-# models/aged_partner_inherit.py
+# controllers/aged_partner_inherit.py
 
-# models/aged_partner_inherit.py
+# controllers/aged_partner_inherit.py
 
 from odoo import api, fields, models, _
 from dateutil.relativedelta import relativedelta

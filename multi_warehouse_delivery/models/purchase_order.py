@@ -145,11 +145,11 @@ class PurchaseOrder(models.Model):
             return warehouses.lot_stock_id.id
         return super(PurchaseOrder, self)._get_destination_location()
 
-# from odoo import models, fields, api, _
+# from odoo import controllers, fields, api, _
 # from collections import defaultdict
 #
 #
-# class PurchaseOrderLine(models.Model):
+# class PurchaseOrderLine(controllers.Model):
 #     _inherit = 'purchase.order.line'
 #
 #     warehouse_id = fields.Many2one(
@@ -186,7 +186,7 @@ class PurchaseOrder(models.Model):
 #                 self.warehouse_id = self.order_id.picking_type_id.warehouse_id.id
 #
 #
-# class PurchaseOrder(models.Model):
+# class PurchaseOrder(controllers.Model):
 #     _inherit = 'purchase.order'
 #
 #     def _create_picking(self):

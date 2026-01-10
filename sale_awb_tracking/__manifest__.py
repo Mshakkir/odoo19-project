@@ -18,7 +18,7 @@
     ],
     'data': [
         'security/ir.model.access.csv',
-        'views/sale_order_views.xml',
+        'views/templates.xml',
         # 'views/account_move_views.xml',
         'views/stock_picking_view.xml',
     ],

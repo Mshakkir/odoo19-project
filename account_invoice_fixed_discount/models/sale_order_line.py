@@ -1,11 +1,11 @@
 # # Copyright 2017 ForgeFlow S.L.
 # # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 #
-# from odoo import api, fields, models
+# from odoo import api, fields, controllers
 # from odoo.tools.float_utils import float_is_zero
 #
 #
-# class SaleOrderLine(models.Model):
+# class SaleOrderLine(controllers.Model):
 #     _inherit = "sale.order.line"
 #
 #     discount_fixed = fields.Monetary(

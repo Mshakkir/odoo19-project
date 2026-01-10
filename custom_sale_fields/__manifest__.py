@@ -13,7 +13,7 @@
 #     'website': 'https://www.yourcompany.com',
 #     'depends': ['sale_management', 'account'],
 #     'data': [
-#         'views/sale_order_views.xml',
+#         'views/templates.xml',
 #         'views/account_move_views.xml',
 #     ],
 #     'installable': True,
@@ -38,7 +38,7 @@
     'website': 'https://www.yourcompany.com',
     'depends': ['sale_management', 'account', 'stock', 'sale_stock'],
     'data': [
-        'views/sale_order_views.xml',
+        'views/templates.xml',
         'views/stock_picking_views.xml',
         'views/account_move_views.xml',
     ],

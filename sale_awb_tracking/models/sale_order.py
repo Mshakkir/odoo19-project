@@ -1,8 +1,8 @@
 # # -*- coding: utf-8 -*-
-# from odoo import models, fields
+# from odoo import controllers, fields
 #
 #
-# class SaleOrder(models.Model):
+# class SaleOrder(controllers.Model):
 #     _inherit = 'sale.order'
 #
 #     awb_number = fields.Char(

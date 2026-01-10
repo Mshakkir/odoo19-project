@@ -1,12 +1,12 @@
 # import time
-# from odoo import api, models, fields, _
+# from odoo import api, controllers, fields, _
 # from odoo.exceptions import UserError
 # from odoo.tools import float_is_zero
 # from datetime import datetime
 # from dateutil.relativedelta import relativedelta
 #
 #
-# class ReportAgedPartnerBalanceCustom(models.AbstractModel):
+# class ReportAgedPartnerBalanceCustom(controllers.AbstractModel):
 #     """
 #     Inherited Aged Partner Balance Report with custom features
 #     """

@@ -104,10 +104,10 @@ class SaleOrder(models.Model):
         if result and not result.warehouse_id:
             result.warehouse_id = self.warehouse_id
         return result
-# from odoo import models, fields, api, _
+# from odoo import controllers, fields, api, _
 #
 #
-# class SaleOrderLine(models.Model):
+# class SaleOrderLine(controllers.Model):
 #     _inherit = 'sale.order.line'
 #
 #     warehouse_id = fields.Many2one(
@@ -151,7 +151,7 @@ class SaleOrder(models.Model):
 #         return values
 #
 #
-# class SaleOrder(models.Model):
+# class SaleOrder(controllers.Model):
 #     _inherit = 'sale.order'
 #
 #     def _create_delivery_line(self, carrier, price_unit):
@@ -183,7 +183,7 @@ class SaleOrder(models.Model):
 #         return super()._action_confirm()
 #
 #
-# class StockRule(models.Model):
+# class StockRule(controllers.Model):
 #     _inherit = 'stock.rule'
 #
 #     def _get_stock_move_values(self, product_id, product_qty, product_uom,
@@ -210,7 +210,7 @@ class SaleOrder(models.Model):
 #         return move_values
 #
 #
-# class StockPicking(models.Model):
+# class StockPicking(controllers.Model):
 #     _inherit = 'stock.picking'
 #
 #     def action_confirm(self):

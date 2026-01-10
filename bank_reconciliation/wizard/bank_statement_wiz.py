@@ -1,11 +1,11 @@
-# from odoo import api, fields, models, _
+# from odoo import api, fields, controllers, _
 # from odoo.exceptions import UserError
 # import logging
 #
 # _logger = logging.getLogger(__name__)
 #
 #
-# class BankStatement(models.Model):
+# class BankStatement(controllers.Model):
 #     _name = 'bank.statement'
 #     _description = 'Bank Statement Reconciliation'
 #     _order = 'date_from desc, id desc'

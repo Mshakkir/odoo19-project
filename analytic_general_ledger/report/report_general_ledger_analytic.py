@@ -1,9 +1,9 @@
 # import time
-# from odoo import api, models, _
+# from odoo import api, controllers, _
 # from odoo.exceptions import UserError
 #
 #
-# class ReportGeneralLedgerAnalytic(models.AbstractModel):
+# class ReportGeneralLedgerAnalytic(controllers.AbstractModel):
 #     _name = 'report.analytic_general_ledger.report_general_ledger_analytic'
 #     _description = 'General Ledger Report with Analytic Accounts'
 #     _inherit = 'report.accounting_pdf_reports.report_general_ledger'

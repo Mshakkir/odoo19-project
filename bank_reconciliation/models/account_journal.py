@@ -1,9 +1,9 @@
 # # -*- coding: utf-8 -*-
-# from odoo import api, fields, models, _
+# from odoo import api, fields, controllers, _
 # from odoo.tools.misc import format_amount
 #
 #
-# class AccountJournal(models.Model):
+# class AccountJournal(controllers.Model):
 #     _inherit = 'account.journal'
 #
 #     # Override the method that provides selection values

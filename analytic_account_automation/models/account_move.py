@@ -1,11 +1,11 @@
-# from odoo import models, api
+# from odoo import controllers, api
 # import json
 # import logging
 #
 # _logger = logging.getLogger(__name__)
 #
 #
-# class AccountMove(models.Model):
+# class AccountMove(controllers.Model):
 #     _inherit = 'account.move'
 #
 #     def _sync_analytic_to_receivable_payable(self):

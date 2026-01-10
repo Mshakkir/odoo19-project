@@ -288,12 +288,12 @@ class SalesBookPreviewLine(models.TransientModel):
 
 
 # # -*- coding: utf-8 -*-
-# from odoo import models, fields, api
+# from odoo import controllers, fields, api
 # from datetime import datetime
 # from collections import defaultdict
 #
 #
-# class SalesBookWizard(models.TransientModel):
+# class SalesBookWizard(controllers.TransientModel):
 #     _name = 'sales.book.wizard'
 #     _description = 'Sales Book Report Wizard'
 #

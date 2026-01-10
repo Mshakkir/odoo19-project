@@ -1,8 +1,8 @@
 # # -*- coding: utf-8 -*-
-# from odoo import models, fields
+# from odoo import controllers, fields
 #
 #
-# class StockPicking(models.Model):
+# class StockPicking(controllers.Model):
 #     _inherit = 'stock.picking'
 #
 #     delivery_note_number = fields.Char(

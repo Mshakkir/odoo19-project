@@ -1,9 +1,9 @@
 # import time
-# from odoo import api, models, _
+# from odoo import api, controllers, _
 # from odoo.exceptions import UserError
 #
 #
-# class ReportTrialBalance(models.AbstractModel):
+# class ReportTrialBalance(controllers.AbstractModel):
 #     _name = 'report.accounting_pdf_reports.report_trialbalance'
 #     _description = 'Trial Balance Report'
 #

@@ -1,8 +1,8 @@
 # # -*- coding: utf-8 -*-
-# from odoo import fields, models, api, _
+# from odoo import fields, controllers, api, _
 #
 #
-# class AccountPartnerLedgerCustom(models.TransientModel):
+# class AccountPartnerLedgerCustom(controllers.TransientModel):
 #     _inherit = "account.report.partner.ledger"
 #     _description = "Custom Account Partner Ledger"
 #

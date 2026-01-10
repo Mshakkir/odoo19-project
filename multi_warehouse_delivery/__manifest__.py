@@ -13,7 +13,7 @@
 #     'website': 'https://www.yourcompany.com',
 #     'depends': ['sale_stock', 'sale_management'],
 #     'data': [
-#         'views/sale_order_views.xml',
+#         'views/templates.xml',
 #         'views/purchase_order_view.xml',
 #         'views/product_stock_view.xml',
 #     ],
@@ -38,7 +38,7 @@
     'depends': ['sale_stock', 'sale_management', 'stock'],
     'data': [
         'security/ir.model.access.csv',
-        'views/sale_order_views.xml',
+        'views/templates.xml',
         'views/purchase_order_view.xml',
 
 

@@ -1,8 +1,8 @@
 # # -*- coding: utf-8 -*-
-# from odoo import api, fields, models, _
+# from odoo import api, fields, controllers, _
 #
 #
-# class AccountMoveLine(models.Model):
+# class AccountMoveLine(controllers.Model):
 #     _inherit = "account.move.line"
 #
 #     bank_statement_id = fields.Many2one(
@@ -39,10 +39,10 @@
 
 # the below code is correct code
 # # -*- coding: utf-8 -*-
-# from odoo import api, fields, models, _
+# from odoo import api, fields, controllers, _
 #
 #
-# class AccountMoveLine(models.Model):
+# class AccountMoveLine(controllers.Model):
 #     _inherit = "account.move.line"
 #
 #     bank_statement_id = fields.Many2one(

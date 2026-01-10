@@ -1,11 +1,11 @@
-# # from odoo import models, fields, api, _
+# # from odoo import controllers, fields, api, _
 # # from odoo.exceptions import UserError
 # # import logging
 # #
 # # _logger = logging.getLogger(__name__)
 # #
 # #
-# # class AccountMove(models.Model):
+# # class AccountMove(controllers.Model):
 # #     _inherit = 'account.move'
 # #
 # #     picking_id = fields.Many2one('stock.picking', string='Delivery Order', readonly=True, copy=False)
@@ -211,14 +211,14 @@
 # #         }
 #
 # #the stock reduce is successfully done use of below code
-# # from odoo import models, fields, api, _
+# # from odoo import controllers, fields, api, _
 # # from odoo.exceptions import UserError
 # # import logging
 # #
 # # _logger = logging.getLogger(__name__)
 # #
 # #
-# # class AccountMove(models.Model):
+# # class AccountMove(controllers.Model):
 # #     _inherit = 'account.move'
 # #
 # #     picking_id = fields.Many2one('stock.picking', string='Delivery Order', readonly=True, copy=False)
@@ -449,14 +449,14 @@
 # #         }
 #
 # #this is for check the automatic warehouse select
-# # from odoo import models, fields, api, _
+# # from odoo import controllers, fields, api, _
 # # from odoo.exceptions import UserError
 # # import logging
 # #
 # # _logger = logging.getLogger(__name__)
 # #
 # #
-# # class AccountMove(models.Model):
+# # class AccountMove(controllers.Model):
 # #     _inherit = 'account.move'
 # #
 # #     picking_id = fields.Many2one('stock.picking', string='Delivery Order', readonly=True, copy=False)
@@ -714,14 +714,14 @@
 # #         }
 #
 # # -*- coding: utf-8 -*-
-# from odoo import models, fields, api, _
+# from odoo import controllers, fields, api, _
 # from odoo.exceptions import UserError
 # import logging
 #
 # _logger = logging.getLogger(__name__)
 #
 #
-# class AccountMove(models.Model):
+# class AccountMove(controllers.Model):
 #     _inherit = 'account.move'
 #
 #     picking_id = fields.Many2one('stock.picking', string='Delivery Order', readonly=True, copy=False)

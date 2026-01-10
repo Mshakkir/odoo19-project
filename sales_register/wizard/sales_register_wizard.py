@@ -1,4 +1,4 @@
-# from odoo import models, fields, api, _
+# from odoo import controllers, fields, api, _
 # from odoo.exceptions import UserError
 # from datetime import datetime, timedelta
 # import base64
@@ -13,7 +13,7 @@
 #     import xlsxwriter
 #
 #
-# class SalesRegisterWizard(models.TransientModel):
+# class SalesRegisterWizard(controllers.TransientModel):
 #     _name = 'sales.register.wizard'
 #     _description = 'Sales Register Report Wizard'
 #

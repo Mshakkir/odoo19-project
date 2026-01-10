@@ -24,7 +24,7 @@
     # Uncomment below if you want to display warehouse info in POS interface
     # 'assets': {
     #     'point_of_sale._assets_pos': [
-    #         'pos_warehouse_analytic/static/src/js/models.js',
+    #         'pos_warehouse_analytic/static/src/js/controllers.js',
     #     ],
     # },
     'installable': True,

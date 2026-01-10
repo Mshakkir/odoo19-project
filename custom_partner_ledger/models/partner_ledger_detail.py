@@ -1,8 +1,8 @@
 # # -*- coding: utf-8 -*-
-# from odoo import api, fields, models, _
+# from odoo import api, fields, controllers, _
 #
 #
-# class PartnerLedgerDetail(models.TransientModel):
+# class PartnerLedgerDetail(controllers.TransientModel):
 #     _name = 'partner.ledger.detail'
 #     _description = 'Partner Ledger Detail View'
 #     _order = 'partner_id, date, id'

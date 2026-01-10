@@ -1,7 +1,7 @@
-# # from odoo import models, fields, api
+# # from odoo import controllers, fields, api
 # #
 # #
-# # class AccountMove(models.Model):
+# # class AccountMove(controllers.Model):
 # #     _inherit = 'account.move'
 # #
 # #     # Field to select sales order
@@ -117,10 +117,10 @@
 # #             if self.sale_order_id.fiscal_position_id:
 # #                 self.fiscal_position_id = self.sale_order_id.fiscal_position_id
 #
-# from odoo import models, fields, api
+# from odoo import controllers, fields, api
 #
 #
-# class AccountMove(models.Model):
+# class AccountMove(controllers.Model):
 #     _inherit = 'account.move'
 #
 #     # Field to select sales order
@@ -265,10 +265,10 @@
 #                 elif hasattr(self, 'delivery_note_number'):
 #                     self.delivery_note_number = picking.name
 
-# from odoo import models, fields, api
+# from odoo import controllers, fields, api
 #
 #
-# class AccountMove(models.Model):
+# class AccountMove(controllers.Model):
 #     _inherit = 'account.move'
 #
 #     # Field to select sales order

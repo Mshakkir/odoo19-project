@@ -8,80 +8,62 @@
             <field name="inherit_id" ref="account.view_out_invoice_tree"/>
             <field name="arch" type="xml">
 
-                <!-- Replace the entire tree structure -->
-                <xpath expr="//tree" position="replace">
-                    <tree string="Invoices"
-                          sample="1"
-                          decoration-info="state == 'draft'"
-                          decoration-muted="state == 'cancel'"
-                          multi_edit="1"
-                          js_class="account_move_list">
-
-                        <!-- 1. Invoice Number -->
-                        <field name="name" string="Invoice Number"/>
-
-                        <!-- 2. Invoice Date -->
-                        <field name="invoice_date" string="Invoice Date" optional="show"/>
-
-                        <!-- 3. Customer -->
-                        <field name="partner_id" string="Customer" optional="show"/>
-
-                        <!-- 4. Warehouse (from delivery order) -->
-                        <field name="l10n_in_shipping_bill_number" string="Shipping Ref #" optional="show"/>
-
-                        <!-- 5. Reference -->
-                        <field name="ref" string="Reference" optional="show"/>
-
-                        <!-- 6. Tax Excluded Amount -->
-                        <field name="amount_untaxed" string="Tax Excluded" sum="Total" optional="show"/>
-
-                        <!-- 7. Tax Amount -->
-                        <field name="amount_tax" string="Tax" sum="Total Tax" optional="show"/>
-
-                        <!-- 8. Total Amount -->
-                        <field name="amount_total" string="Total" sum="Total Amount" optional="show"/>
-
-                        <!-- 9. Amount Due -->
-                        <field name="amount_residual" string="Amount Due" sum="Total Due" optional="show"/>
-
-                        <!-- 10. Salesperson -->
-                        <field name="invoice_user_id" string="Salesperson" optional="show" widget="many2one_avatar_user"/>
-
-                        <!-- 11. Shipping Reference -->
-                        <field name="invoice_origin" string="Source Document" optional="show"/>
-
-                        <!-- 12. Delivery Note Number -->
-                        <field name="l10n_in_shipping_bill_date" string="Shipping Date" optional="show"/>
-
-                        <!-- Additional useful fields -->
-                        <field name="invoice_date_due" string="Due Date" optional="show"/>
-                        <field name="state" string="Status" widget="badge" optional="show"
-                               decoration-success="state == 'posted'"
-                               decoration-info="state == 'draft'"/>
-                        <field name="payment_state" string="Payment Status" widget="badge" optional="show"
-                               decoration-success="payment_state == 'paid'"
-                               decoration-warning="payment_state == 'partial'"
-                               decoration-danger="payment_state in ('not_paid', 'in_payment')"/>
-                        <field name="company_id" groups="base.group_multi_company" optional="show"/>
-                        <field name="currency_id" invisible="1"/>
-                        <field name="move_type" invisible="1"/>
-
-                    </tree>
+                <!-- Add Invoice Date after name field -->
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="invoice_date" string="Invoice Date"/>
                 </xpath>
 
-            </field>
-        </record>
+                <!-- Add Customer (partner_id) if not already visible -->
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="optional">show</attribute>
+                </xpath>
 
-        <!-- If you need to add warehouse field, you might need to add it through computed field -->
-        <record id="view_out_invoice_tree_warehouse" model="ir.ui.view">
-            <field name="name">account.move.tree.warehouse</field>
-            <field name="model">account.move</field>
-            <field name="inherit_id" ref="view_out_invoice_tree_custom"/>
-            <field name="arch" type="xml">
+                <!-- Add Reference field -->
                 <xpath expr="//field[@name='partner_id']" position="after">
-                    <!-- Add warehouse field if it exists in your setup -->
-                    <field name="warehouse_id" string="Warehouse" optional="show" invisible="not warehouse_id"/>
+                    <field name="ref" string="Reference" optional="show"/>
                 </xpath>
+
+                <!-- Add Tax Excluded Amount -->
+                <xpath expr="//field[@name='amount_total']" position="before">
+                    <field name="amount_untaxed" string="Tax Excluded" sum="Total" optional="show"/>
+                </xpath>
+
+                <!-- Add Tax Amount -->
+                <xpath expr="//field[@name='amount_total']" position="before">
+                    <field name="amount_tax" string="Tax" sum="Total Tax" optional="show"/>
+                </xpath>
+
+                <!-- Make Total visible -->
+                <xpath expr="//field[@name='amount_total']" position="attributes">
+                    <attribute name="optional">show</attribute>
+                    <attribute name="sum">Total Amount</attribute>
+                </xpath>
+
+                <!-- Add Amount Due -->
+                <xpath expr="//field[@name='amount_total']" position="after">
+                    <field name="amount_residual" string="Amount Due" sum="Total Due" optional="show"/>
+                </xpath>
+
+                <!-- Add Salesperson -->
+                <xpath expr="//field[@name='amount_residual']" position="after">
+                    <field name="invoice_user_id" string="Salesperson" optional="show" widget="many2one_avatar_user"/>
+                </xpath>
+
+                <!-- Add Source Document (Shipping Ref) -->
+                <xpath expr="//field[@name='invoice_user_id']" position="after">
+                    <field name="invoice_origin" string="Source Document" optional="show"/>
+                </xpath>
+
+                <!-- Add Shipping Reference Number -->
+                <xpath expr="//field[@name='invoice_origin']" position="after">
+                    <field name="l10n_in_shipping_bill_number" string="Shipping Ref #" optional="show"/>
+                </xpath>
+
+                <!-- Add Due Date -->
+                <xpath expr="//field[@name='invoice_date']" position="after">
+                    <field name="invoice_date_due" string="Due Date" optional="show"/>
+                </xpath>
+
             </field>
         </record>
 

@@ -142,7 +142,7 @@
                     <field name="delivery_note_number" string="Delivery Note Number"/>
 
                     <!-- 39. Shipping Ref (NEW - at the end) -->
-                    <field name="shipping_ref" string="Shipping Ref"/>
+                    <field name="awb_number" string="Shipping Ref"/>
 
                     <!-- Hidden technical fields -->
                     <field name="move_type" column_invisible="1"/>

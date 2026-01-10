@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="website_sale_delivery_countries" inherit_id="website_sale.checkout">
+        <xpath expr="//select[@name='country_id']" position="attributes">
+            <attribute name="data-filter-countries">1</attribute>
+        </xpath>
+    </template>
+</odoo>

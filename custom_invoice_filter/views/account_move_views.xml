@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add as submenu under Sale Invoices -->
-    <menuitem id="menu_invoice_date_filter"
-              name="📅 Filter Invoices by Date"
-              parent="sales_enhancement.menu_sale_invoices"
-              action="custom_invoice_filter.action_invoice_date_filter_wizard"
-              sequence="5"/>
+    <!-- Parent menu without action (dropdown only) -->
+    <menuitem
+        id="menu_sale_invoices_parent"
+        name="Sale Invoices"
+        parent="sale.sale_menu_root"
+        sequence="10"/>
+
+    <!-- Child 1: Actual Sale Invoices list -->
+    <menuitem
+        id="menu_sale_invoices_list"
+        name="Sale Invoices"
+        parent="menu_sale_invoices_parent"
+        action="account.action_move_out_invoice_type"
+        sequence="1"/>
+
+    <!-- Child 2: Filter Invoices by Date -->
+    <menuitem
+        id="menu_invoice_date_filter"
+        name="📅 Filter Invoices by Date"
+        parent="menu_sale_invoices_parent"
+        action="custom_invoice_filter.action_invoice_date_filter_wizard"
+        sequence="2"/>
 </odoo>

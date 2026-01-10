@@ -12,6 +12,18 @@
                 <xpath expr="//div[@name='date_planned_div']" position="after">
                     <label for="awb_number" string="Shipping Ref#"/>
                     <field name="awb_number" nolabel="1" placeholder="Enter AWB Number (e.g., 1234567890)" readonly="state in ('cancel', 'purchase')"/>
+
+                    <!-- Add ETA field -->
+                    <label for="eta" string="ETA"/>
+                    <field name="eta" nolabel="1"/>
+
+                    <!-- Add Incoterm field -->
+                    <label for="incoterm_id" string="Incoterm"/>
+                    <field name="incoterm_id" nolabel="1"/>
+
+                    <!-- Add Payment Terms field -->
+                    <label for="payment_term_id" string="Payment Terms"/>
+                    <field name="payment_term_id" nolabel="1" readonly="invoice_status == 'invoiced' or locked" options="{'no_create': True}"/>
                 </xpath>
 
             </field>
@@ -31,3 +43,44 @@
 
     </data>
 </odoo>
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <data>-->
+<!--        &lt;!&ndash; Inherit Purchase Order Form &ndash;&gt;-->
+<!--        <record id="purchase_order_form_awb" model="ir.ui.view">-->
+<!--            <field name="name">purchase.order.form.awb</field>-->
+<!--            <field name="model">purchase.order</field>-->
+<!--            <field name="inherit_id" ref="purchase.purchase_order_form"/>-->
+<!--            <field name="arch" type="xml">-->
+
+<!--                &lt;!&ndash; Add AWB Number field right after date_planned div &ndash;&gt;-->
+<!--                <xpath expr="//div[@name='date_planned_div']" position="after">-->
+<!--                    <label for="awb_number" string="Shipping Ref#"/>-->
+<!--                    <field name="awb_number" nolabel="1" placeholder="Enter AWB Number (e.g., 1234567890)" readonly="state in ('cancel', 'purchase')"/>-->
+<!--                </xpath>-->
+
+<!--            </field>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; Tree view adjustment if needed &ndash;&gt;-->
+<!--        <record id="purchase_order_tree_awb" model="ir.ui.view">-->
+<!--            <field name="name">purchase.order.tree.awb</field>-->
+<!--            <field name="model">purchase.order</field>-->
+<!--            <field name="inherit_id" ref="purchase.purchase_order_tree"/>-->
+<!--            <field name="arch" type="xml">-->
+<!--                <field name="amount_total" position="after">-->
+<!--                    <field name="awb_number" optional="show"/>-->
+<!--                </field>-->
+<!--            </field>-->
+<!--        </record>-->
+
+<!--    </data>-->
+<!--</odoo>-->

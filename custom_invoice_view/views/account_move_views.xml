@@ -1,71 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Inherit the invoice tree view -->
-        <record id="view_out_invoice_tree_custom" model="ir.ui.view">
-            <field name="name">account.move.tree.custom</field>
+
+        <!-- Customize Invoice Form View -->
+        <record id="view_move_form_custom" model="ir.ui.view">
+            <field name="name">account.move.form.custom</field>
             <field name="model">account.move</field>
-            <field name="inherit_id" ref="account.view_out_invoice_tree"/>
+            <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
 
-                <!-- Add Invoice Date after name field -->
-                <xpath expr="//field[@name='name']" position="after">
-                    <field name="invoice_date" string="Invoice Date"/>
+                <!-- Add Send button before Register Payment button -->
+                <xpath expr="//button[@name='action_register_payment']" position="before">
+                    <button name="action_send_and_print"
+                            type="object"
+                            string="Send &amp; Print"
+                            class="btn-primary"
+                            invisible="state != 'posted'"/>
                 </xpath>
 
-                <!-- Add Customer (partner_id) if not already visible -->
-                <xpath expr="//field[@name='partner_id']" position="attributes">
-                    <attribute name="optional">show</attribute>
-                </xpath>
-
-                <!-- Add Reference field -->
-                <xpath expr="//field[@name='partner_id']" position="after">
-                    <field name="ref" string="Reference" optional="show"/>
-                </xpath>
-
-                <!-- Add Tax Excluded Amount -->
-                <xpath expr="//field[@name='amount_total']" position="before">
-                    <field name="amount_untaxed" string="Tax Excluded" sum="Total" optional="show"/>
-                </xpath>
-
-                <!-- Add Tax Amount -->
-                <xpath expr="//field[@name='amount_total']" position="before">
-                    <field name="amount_tax" string="Tax" sum="Total Tax" optional="show"/>
-                </xpath>
-
-                <!-- Make Total visible -->
-                <xpath expr="//field[@name='amount_total']" position="attributes">
-                    <attribute name="optional">show</attribute>
-                    <attribute name="sum">Total Amount</attribute>
-                </xpath>
-
-                <!-- Add Amount Due -->
-                <xpath expr="//field[@name='amount_total']" position="after">
-                    <field name="amount_residual" string="Amount Due" sum="Total Due" optional="show"/>
-                </xpath>
-
-                <!-- Add Salesperson -->
-                <xpath expr="//field[@name='amount_residual']" position="after">
-                    <field name="invoice_user_id" string="Salesperson" optional="show" widget="many2one_avatar_user"/>
-                </xpath>
-
-                <!-- Add Source Document (Shipping Ref) -->
-                <xpath expr="//field[@name='invoice_user_id']" position="after">
-                    <field name="invoice_origin" string="Source Document" optional="show"/>
-                </xpath>
-
-                <!-- Add Shipping Reference Number -->
-                <xpath expr="//field[@name='invoice_origin']" position="after">
-                    <field name="l10n_in_shipping_bill_number" string="Shipping Ref #" optional="show"/>
-                </xpath>
-
-                <!-- Add Due Date -->
-                <xpath expr="//field[@name='invoice_date']" position="after">
-                    <field name="invoice_date_due" string="Due Date" optional="show"/>
+                <!-- Change currency field label -->
+                <xpath expr="//field[@name='currency_id']" position="attributes">
+                    <attribute name="string">Invoice Currency</attribute>
                 </xpath>
 
             </field>
         </record>
+
+        <!-- Custom Invoice Tree View (from previous request) -->
+        <record id="view_move_tree_invoice_custom" model="ir.ui.view">
+            <field name="name">account.move.tree.invoice.custom</field>
+            <field name="model">account.move</field>
+            <field name="mode">primary</field>
+            <field name="priority">1</field>
+            <field name="arch" type="xml">
+                <tree string="Invoices"
+                      sample="1"
+                      decoration-info="state == 'draft'"
+                      decoration-muted="state == 'cancel'"
+                      expand="1"
+                      multi_edit="1">
+
+                    <!-- Invoice Number -->
+                    <field name="name" readonly="1" decoration-bf="1"/>
+
+                    <!-- Invoice Date -->
+                    <field name="invoice_date"/>
+
+                    <!-- Customer -->
+                    <field name="partner_id" readonly="1"/>
+
+                    <!-- Reference -->
+                    <field name="ref"/>
+
+                    <!-- Due Date -->
+                    <field name="invoice_date_due"/>
+
+                    <!-- Source Document -->
+                    <field name="invoice_origin" string="Source Document"/>
+
+                    <!-- Tax Excluded Amount -->
+                    <field name="amount_untaxed" string="Untaxed Amount"/>
+
+                    <!-- Tax Amount -->
+                    <field name="amount_tax" string="Tax"/>
+
+                    <!-- Total Amount -->
+                    <field name="amount_total"/>
+
+                    <!-- Amount Due -->
+                    <field name="amount_residual" string="Amount Due"/>
+
+                    <!-- Salesperson -->
+                    <field name="invoice_user_id" string="Salesperson" widget="many2one_avatar_user" optional="show"/>
+
+                    <!-- Status -->
+                    <field name="state" widget="badge"
+                           decoration-success="state == 'posted'"
+                           decoration-info="state == 'draft'"/>
+
+                    <!-- Payment Status -->
+                    <field name="payment_state" widget="badge"
+                           decoration-success="payment_state == 'paid'"
+                           decoration-warning="payment_state == 'partial'"
+                           decoration-danger="payment_state in ('not_paid', 'in_payment')"/>
+
+                    <!-- Hidden fields -->
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="move_type" column_invisible="1"/>
+                    <field name="company_id" column_invisible="1" groups="base.group_multi_company"/>
+
+                </tree>
+            </field>
+        </record>
+
+        <!-- Apply custom view to Customer Invoices action -->
+        <record id="action_move_out_invoice_type_custom" model="ir.actions.act_window">
+            <field name="name">Customer Invoices</field>
+            <field name="res_model">account.move</field>
+            <field name="view_mode">tree,form,kanban</field>
+            <field name="view_id" ref="view_move_tree_invoice_custom"/>
+            <field name="domain">[('move_type', '=', 'out_invoice')]</field>
+            <field name="context">{'default_move_type': 'out_invoice', 'move_type': 'out_invoice', 'journal_type': 'sale', 'search_default_draft': 1}</field>
+            <field name="search_view_id" ref="account.view_account_invoice_filter"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a customer invoice
+                </p>
+            </field>
+        </record>
+
+        <!-- Update menu -->
+        <menuitem
+            id="account.menu_action_move_out_invoice_type"
+            action="action_move_out_invoice_type_custom"
+            parent="account.menu_finance_receivables"
+            sequence="1"/>
 
     </data>
 </odoo>

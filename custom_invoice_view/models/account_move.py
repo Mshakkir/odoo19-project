@@ -18,10 +18,16 @@ class AccountMoveInherit(models.Model):
         store=True
     )
 
-    shipping_ref = fields.Char(
-        string='Shipping Ref',
+    # shipping_ref = fields.Char(
+    #     string='Shipping Ref',
+    #     compute='_compute_delivery_info',
+    #     store=True
+    # )
+    awb_number = fields.Char(
+        string='Shipping Ref #',
+        help='Air Waybill Number for shipment tracking',
         compute='_compute_delivery_info',
-        store=True
+
     )
 
     @api.depends('invoice_origin')
@@ -30,7 +36,7 @@ class AccountMoveInherit(models.Model):
         for move in self:
             warehouse = False
             delivery_note = ''
-            shipping_ref = ''
+            awb_number = ''
 
             if move.invoice_origin:
                 # Search for related delivery orders
@@ -60,4 +66,4 @@ class AccountMoveInherit(models.Model):
 
             move.warehouse_id = warehouse
             move.delivery_note_number = delivery_note
-            move.shipping_ref = shipping_ref
+            move.awb_number = awb_number

@@ -26,7 +26,7 @@
                     <field name="partner_id" string="Customer"/>
 
                     <!-- 4. Warehouse (NEW - after customer) -->
-                    <field name="warehouse_id" string="Warehouse"/>
+<!--                    <field name="warehouse_id" string="Warehouse"/>-->
 
                     <!-- 5. Source Document (like Sales Order) -->
                     <field name="invoice_origin" string="Source Document"/>

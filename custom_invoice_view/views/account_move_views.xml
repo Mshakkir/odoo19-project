@@ -139,6 +139,14 @@
 
 
 
+
+                    <!-- Hidden technical fields -->
+                    <field name="move_type" column_invisible="1"/>
+
+                </list>
+            </field>
+        </record>
+
         <!-- Override the default invoice action -->
         <record id="account.action_move_out_invoice_type" model="ir.actions.act_window">
             <field name="view_id" ref="view_move_list_invoice_custom"/>

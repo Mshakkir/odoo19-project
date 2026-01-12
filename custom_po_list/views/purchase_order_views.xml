@@ -7,35 +7,23 @@
             <field name="model">purchase.order</field>
             <field name="inherit_id" ref="purchase.purchase_order_view_tree"/>
             <field name="arch" type="xml">
-                <xpath expr="//tree" position="inside">
-                    <field name="partially_billed_amount" optional="hide"/>
-                    <field name="partially_billed_status" optional="hide"/>
-                </xpath>
+                <field name="amount_total" position="after">
+                    <field name="partially_billed_amount"/>
+                    <field name="partially_billed_status"/>
+                </field>
             </field>
         </record>
 
-        <!-- Form View - Add Fields in Summary section -->
+        <!-- Form View - Add Fields -->
         <record id="purchase_order_view_form_extended" model="ir.ui.view">
             <field name="name">purchase.order.form.extended</field>
             <field name="model">purchase.order</field>
             <field name="inherit_id" ref="purchase.purchase_order_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//sheet" position="inside">
-                    <div class="row mt16">
-                        <div class="col-md-6">
-                            <label for="partially_billed_amount" class="oe_edit_only"/>
-                            <h2>
-                                <field name="partially_billed_amount" readonly="1" class="oe_inline"/>
-                            </h2>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="partially_billed_status" class="oe_edit_only"/>
-                            <h2>
-                                <field name="partially_billed_status" readonly="1" class="oe_inline"/>
-                            </h2>
-                        </div>
-                    </div>
-                </xpath>
+                <field name="amount_total" position="after">
+                    <field name="partially_billed_amount" readonly="1"/>
+                    <field name="partially_billed_status" readonly="1"/>
+                </field>
             </field>
         </record>
     </data>

@@ -9,17 +9,21 @@
         - Invoice Date
         - Invoice Number
         - Vendor
-        - Warehouse
+        - Warehouse (computed from PO/GR)
         - Reference
         - Tax Excluded Amount
         - Tax Amount
         - Total Amount
         - Amount Due
         - Purchase Representative
-        - Shipping Reference
-        - Delivery Note Number
+        - Shipping Reference (AWB Number)
+        - Delivery Note Number (Goods Receipt)
+        - PO Number
+
+        Note: This module works with existing PO Number, Goods Receipt, 
+        and AWB Number fields in your system.
     """,
-    'depends': ['account', 'stock', 'purchase', 'purchase_stock',],
+    'depends': ['account', 'stock', 'purchase', 'purchase_stock'],
     'data': [
         'views/account_move_views.xml',
     ],

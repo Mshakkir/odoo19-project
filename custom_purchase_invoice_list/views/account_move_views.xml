@@ -26,7 +26,7 @@
                     <field name="partner_id" string="Vendor"/>
 
                     <!-- 4. Warehouse -->
-                    <field name="warehouse_id" string="Warehouse"/>
+                    <field name="warehouse_id" string="Warehouse" optional="show"/>
 
                     <!-- 5. Source Document (like Purchase Order) -->
                     <field name="invoice_origin" string="Source Document"/>
@@ -49,87 +49,87 @@
                     <!-- 11. Purchase Representative (instead of Salesperson) -->
                     <field name="invoice_user_id" string="Purchase Representative" widget="many2one_avatar_user"/>
 
-                    <!-- 12. AWB Number (Shipping Ref) -->
+                    <!-- 12. AWB Number (Shipping Ref) - FROM YOUR EXISTING FIELD -->
                     <field name="awb_number" string="Shipping Ref #"/>
 
-                    <!-- 13. Delivery Note Number -->
-                    <field name="delivery_note_number" string="Delivery Note #"/>
+                    <!-- 13. Delivery Note Number - FROM YOUR EXISTING FIELD (goods_receipt_number) -->
+                    <field name="goods_receipt_number" string="Goods Receipt #"/>
 
                     <!-- ADDITIONAL DEFAULT ODOO FIELDS -->
 
-                    <!-- 14. Due Date -->
+                    <!-- 14. PO Number - FROM YOUR EXISTING FIELD -->
+                    <field name="po_number" string="PO Number" optional="hide"/>
+
+                    <!-- 15. Due Date -->
                     <field name="invoice_date_due" string="Due Date"/>
 
-                    <!-- 15. Accounting Date -->
+                    <!-- 16. Accounting Date -->
                     <field name="date" string="Accounting Date" optional="hide"/>
 
-                    <!-- 16. Journal -->
+                    <!-- 17. Journal -->
                     <field name="journal_id" string="Journal" optional="hide"/>
 
-                    <!-- 17. Payment Terms -->
+                    <!-- 18. Payment Terms -->
                     <field name="invoice_payment_term_id" string="Payment Terms" optional="hide"/>
 
-                    <!-- 18. Currency -->
+                    <!-- 19. Currency -->
                     <field name="currency_id" string="Currency" optional="hide"/>
 
-                    <!-- 19. Company -->
+                    <!-- 20. Company -->
                     <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide"/>
 
-                    <!-- 20. Status -->
+                    <!-- 21. Status -->
                     <field name="state" string="Status" widget="badge"
                            decoration-success="state == 'posted'"
                            decoration-info="state == 'draft'"/>
 
-                    <!-- 21. Payment Status -->
+                    <!-- 22. Payment Status -->
                     <field name="payment_state" string="Payment Status" widget="badge"
                            decoration-success="payment_state == 'paid'"
                            decoration-warning="payment_state == 'partial'"
                            decoration-danger="payment_state in ('not_paid', 'in_payment')"/>
 
-                    <!-- 22. Fiscal Position -->
+                    <!-- 23. Fiscal Position -->
                     <field name="fiscal_position_id" string="Fiscal Position" optional="hide"/>
 
-                    <!-- 23. Bank Account -->
+                    <!-- 24. Bank Account -->
                     <field name="partner_bank_id" string="Vendor Bank" optional="hide"/>
 
-                    <!-- 24. Invoice Incoterm -->
+                    <!-- 25. Invoice Incoterm -->
                     <field name="invoice_incoterm_id" string="Incoterm" optional="hide"/>
 
-                    <!-- 25. Narration/Terms and Conditions -->
+                    <!-- 26. Narration/Terms and Conditions -->
                     <field name="narration" string="Terms and Conditions" optional="hide"/>
 
-                    <!-- 26. Invoice Source Email -->
+                    <!-- 27. Invoice Source Email -->
                     <field name="invoice_source_email" string="Source Email" optional="hide"/>
 
-                    <!-- 27. Auto Post -->
+                    <!-- 28. Auto Post -->
                     <field name="auto_post" string="Auto Post" optional="hide"/>
 
-                    <!-- 28. Activity -->
+                    <!-- 29. Activity -->
                     <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide"/>
 
-                    <!-- 29. Activity State -->
+                    <!-- 30. Activity State -->
                     <field name="activity_state" string="Activity State" optional="hide" widget="badge"
                            decoration-success="activity_state == 'today'"
                            decoration-warning="activity_state == 'planned'"
                            decoration-danger="activity_state == 'overdue'"/>
 
-                    <!-- 30. Activity User -->
+                    <!-- 31. Activity User -->
                     <field name="activity_user_id" string="Responsible User" optional="hide"/>
 
-                    <!-- 31. Activity Type -->
+                    <!-- 32. Activity Type -->
                     <field name="activity_type_id" string="Next Activity Type" optional="hide"/>
 
-                    <!-- 32. Activity Date -->
+                    <!-- 33. Activity Date -->
                     <field name="activity_date_deadline" string="Next Activity Deadline" optional="hide"/>
 
-                    <!-- 33. Activity Summary -->
+                    <!-- 34. Activity Summary -->
                     <field name="activity_summary" string="Activity Summary" optional="hide"/>
 
-                    <!-- 34. Message -->
+                    <!-- 35. Message -->
                     <field name="message_needaction" string="Action Needed" optional="hide"/>
-
-                    <!-- 35. Purchase Order (if available) -->
-                    <field name="invoice_origin" string="Purchase Order" optional="hide"/>
 
                     <!-- Hidden technical fields -->
                     <field name="move_type" column_invisible="1"/>
@@ -141,21 +141,6 @@
         <!-- Override the default vendor bill action -->
         <record id="account.action_move_in_invoice_type" model="ir.actions.act_window">
             <field name="view_id" ref="view_move_list_purchase_invoice_custom"/>
-        </record>
-
-        <!-- Temporary Action to Recompute Delivery Fields -->
-        <record id="action_recompute_delivery_fields" model="ir.actions.server">
-            <field name="name">Recompute Delivery &amp; AWB Fields</field>
-            <field name="model_id" ref="account.model_account_move"/>
-            <field name="binding_model_id" ref="account.model_account_move"/>
-            <field name="binding_view_types">list</field>
-            <field name="state">code</field>
-            <field name="code">
-if records:
-    records._compute_delivery_note_number()
-    records._compute_awb_number()
-    records._compute_warehouse_id()
-            </field>
         </record>
 
     </data>

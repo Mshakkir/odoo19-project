@@ -8,8 +8,8 @@
             <field name="inherit_id" ref="purchase.purchase_order_view_tree"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='amount_total']" position="after">
-                    <field name="partially_billed_amount" string="Partially Billed"/>
-                    <field name="partially_billed_status" string="Billed Status"/>
+                    <field name="partially_billed_amount"/>
+                    <field name="partially_billed_status"/>
                 </xpath>
             </field>
         </record>
@@ -21,8 +21,10 @@
             <field name="inherit_id" ref="purchase.purchase_order_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='amount_total']" position="after">
-                    <field name="partially_billed_amount" readonly="1"/>
-                    <field name="partially_billed_status" readonly="1"/>
+                    <group>
+                        <field name="partially_billed_amount" readonly="1"/>
+                        <field name="partially_billed_status" readonly="1"/>
+                    </group>
                 </xpath>
             </field>
         </record>

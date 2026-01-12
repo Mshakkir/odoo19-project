@@ -2,7 +2,7 @@
 
 {
     'name': 'Custom Purchase Order - Partially Billed Column',
-    'version': '1.0',
+    'version': '19.0.1.0',
     'category': 'Purchases',
     'sequence': 10,
     'summary': 'Add Partially Billed column and status to Purchase Orders',

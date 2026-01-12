@@ -1,5 +1,4 @@
 from odoo import models, fields, api
-from odoo.addons.purchase.models.purchase import PurchaseOrder
 
 
 class PurchaseOrderExtended(models.Model):

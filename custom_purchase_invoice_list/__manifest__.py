@@ -19,7 +19,7 @@
         - Shipping Reference
         - Delivery Note Number
     """,
-    'depends': ['account', 'stock', 'purchase', 'purchase_stock', 'custom_sale_fields'],
+    'depends': ['account', 'stock', 'purchase', 'purchase_stock',],
     'data': [
         'views/account_move_views.xml',
     ],

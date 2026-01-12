@@ -19,20 +19,16 @@
             </field>
         </record>
 
-        <!-- Extend Purchase Order Form View -->
-        <record id="purchase_order_view_form_extended" model="ir.ui.view">
-            <field name="name">purchase.order.form.extended</field>
+        <!-- Extend Purchase Order Form View - Inherit from parent -->
+        <record id="purchase_order_form_view_partially_billed" model="ir.ui.view">
+            <field name="name">purchase.order.form.partially.billed</field>
             <field name="model">purchase.order</field>
-            <field name="type">form</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
             <field name="arch" type="xml">
-                <form string="Purchase Order">
-                    <sheet>
-                        <group>
-                            <field name="partially_billed_amount" readonly="1"/>
-                            <field name="partially_billed_status" readonly="1"/>
-                        </group>
-                    </sheet>
-                </form>
+                <xpath expr="//field[@name='invoice_status']" position="after">
+                    <field name="partially_billed_amount" readonly="1"/>
+                    <field name="partially_billed_status" readonly="1"/>
+                </xpath>
             </field>
         </record>
     </data>

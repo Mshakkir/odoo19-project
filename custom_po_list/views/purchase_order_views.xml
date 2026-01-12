@@ -1,29 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Tree View - Add Partially Billed Column -->
-        <record id="purchase_order_view_tree_extended" model="ir.ui.view">
-            <field name="name">purchase.order.tree.extended</field>
+        <!-- ONLY USE THIS IF THE OTHER VIEWS FAIL -->
+        <!-- Create a new custom tree view without inheritance -->
+        <record id="custom_purchase_order_view_tree" model="ir.ui.view">
+            <field name="name">custom.purchase.order.tree</field>
             <field name="model">purchase.order</field>
-            <field name="inherit_id" ref="purchase.purchase_order_view_tree"/>
+            <field name="type">tree</field>
             <field name="arch" type="xml">
-                <field name="amount_total" position="after">
+                <tree string="Purchase Orders" sample="1">
+                    <field name="name"/>
+                    <field name="partner_id"/>
+                    <field name="date_order"/>
+                    <field name="date_planned"/>
+                    <field name="amount_total"/>
                     <field name="partially_billed_amount"/>
                     <field name="partially_billed_status"/>
-                </field>
+                </tree>
             </field>
         </record>
 
-        <!-- Form View - Add Fields -->
-        <record id="purchase_order_view_form_extended" model="ir.ui.view">
-            <field name="name">purchase.order.form.extended</field>
+        <!-- Create a new custom form view without inheritance -->
+        <record id="custom_purchase_order_view_form" model="ir.ui.view">
+            <field name="name">custom.purchase.order.form</field>
             <field name="model">purchase.order</field>
-            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="type">form</field>
             <field name="arch" type="xml">
-                <field name="amount_total" position="after">
-                    <field name="partially_billed_amount" readonly="1"/>
-                    <field name="partially_billed_status" readonly="1"/>
-                </field>
+                <form string="Purchase Order">
+                    <header>
+                        <button name="button_draft" states="sent,to approve,purchase,done,cancel" string="Draft" type="object"/>
+                        <button name="button_confirm" states="draft" string="Confirm" type="object" class="btn-primary"/>
+                        <button name="button_cancel" states="draft,sent,to approve,purchase" string="Cancel" type="object"/>
+                        <button name="action_create_invoice" states="purchase" string="Create Invoice" type="object"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,sent,to approve,purchase,done"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                        </div>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="partner_id"/>
+                            <field name="date_order"/>
+                            <field name="date_planned"/>
+                        </group>
+                        <notebook>
+                            <page string="Order Lines">
+                                <field name="order_line"/>
+                            </page>
+                            <page string="Other Information">
+                                <group>
+                                    <field name="amount_total"/>
+                                    <field name="partially_billed_amount" readonly="1"/>
+                                    <field name="partially_billed_status" readonly="1"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
             </field>
         </record>
     </data>

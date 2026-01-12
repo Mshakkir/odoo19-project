@@ -1,60 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- ONLY USE THIS IF THE OTHER VIEWS FAIL -->
-        <!-- Create a new custom tree view without inheritance -->
-        <record id="custom_purchase_order_view_tree" model="ir.ui.view">
-            <field name="name">custom.purchase.order.tree</field>
+        <!-- Extend Purchase Order List View -->
+        <record id="purchase_order_view_list_extended" model="ir.ui.view">
+            <field name="name">purchase.order.list.extended</field>
             <field name="model">purchase.order</field>
-            <field name="type">tree</field>
+            <field name="type">list</field>
             <field name="arch" type="xml">
-                <tree string="Purchase Orders" sample="1">
+                <list string="Purchase Orders">
                     <field name="name"/>
                     <field name="partner_id"/>
                     <field name="date_order"/>
-                    <field name="date_planned"/>
-                    <field name="amount_total"/>
-                    <field name="partially_billed_amount"/>
+                    <field name="state"/>
+                    <field name="amount_total" sum="Total"/>
+                    <field name="partially_billed_amount" sum="Total"/>
                     <field name="partially_billed_status"/>
-                </tree>
+                </list>
             </field>
         </record>
 
-        <!-- Create a new custom form view without inheritance -->
-        <record id="custom_purchase_order_view_form" model="ir.ui.view">
-            <field name="name">custom.purchase.order.form</field>
+        <!-- Extend Purchase Order Form View -->
+        <record id="purchase_order_view_form_extended" model="ir.ui.view">
+            <field name="name">purchase.order.form.extended</field>
             <field name="model">purchase.order</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="Purchase Order">
-                    <header>
-                        <button name="button_draft" states="sent,to approve,purchase,done,cancel" string="Draft" type="object"/>
-                        <button name="button_confirm" states="draft" string="Confirm" type="object" class="btn-primary"/>
-                        <button name="button_cancel" states="draft,sent,to approve,purchase" string="Cancel" type="object"/>
-                        <button name="action_create_invoice" states="purchase" string="Create Invoice" type="object"/>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,sent,to approve,purchase,done"/>
-                    </header>
                     <sheet>
-                        <div class="oe_button_box" name="button_box">
-                        </div>
                         <group>
-                            <field name="name" readonly="1"/>
-                            <field name="partner_id"/>
-                            <field name="date_order"/>
-                            <field name="date_planned"/>
+                            <field name="partially_billed_amount" readonly="1"/>
+                            <field name="partially_billed_status" readonly="1"/>
                         </group>
-                        <notebook>
-                            <page string="Order Lines">
-                                <field name="order_line"/>
-                            </page>
-                            <page string="Other Information">
-                                <group>
-                                    <field name="amount_total"/>
-                                    <field name="partially_billed_amount" readonly="1"/>
-                                    <field name="partially_billed_status" readonly="1"/>
-                                </group>
-                            </page>
-                        </notebook>
                     </sheet>
                 </form>
             </field>

@@ -23,7 +23,7 @@
         Note: This module works with existing PO Number, Goods Receipt, 
         and AWB Number fields in your system.
     """,
-    'depends': ['account', 'stock', 'purchase', 'purchase_stock'],
+    'depends': ['account', 'stock', 'purchase', 'purchase_stock','purchase_bill_form_modified'],
     'data': [
         'views/account_move_views.xml',
     ],

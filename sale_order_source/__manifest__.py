@@ -11,7 +11,7 @@
     'website': 'https://www.yourcompany.com',
     'depends': ['sale_management', 'website_sale'],
     'data': [
-        'views/templates.xml',
+        'views/sale_order_views.xml',
     ],
     'installable': True,
     'application': False,

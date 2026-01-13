@@ -62,11 +62,11 @@ from odoo import models, fields, api
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    invoice_incoterm_id= fields.Char(
-        string='incoterm',
-        help='',
-        copy=False
-    )
+    invoice_incoterm_id = fields.Many2one(
+        'account.incoterms',
+        string='Incoterm'
+    )  # Relational field
+
 
     ref = fields.Char(
         string='PO Number',

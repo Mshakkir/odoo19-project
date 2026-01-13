@@ -247,6 +247,7 @@ class StockLedgerWizard(models.TransientModel):
             self.env['product.stock.ledger.line'].create({
                 'wizard_id': self.id,
                 'product_id': product.id,
+                'warehouse_id': warehouse_id if warehouse_id else False,
                 'date': mv.date,
                 'voucher': mv.reference or mv.name or '',
                 'particulars': particulars,
@@ -286,6 +287,8 @@ class StockLedgerWizard(models.TransientModel):
 
 
 
+
+
 # from odoo import fields, models, api, _
 # from odoo.exceptions import UserError
 #
@@ -316,6 +319,100 @@ class StockLedgerWizard(models.TransientModel):
 #     # -------------------------
 #     def _clear_old_lines(self):
 #         self.env['product.stock.ledger.line'].search([('wizard_id', '=', self.id)]).unlink()
+#
+#     # -------------------------
+#     # Helper: Get Invoice Status
+#     # -------------------------
+#     def _get_invoice_status(self, move):
+#         """Determine invoice status based on move type and related documents."""
+#         status = 'N/A'
+#
+#         if move.picking_id:
+#             picking = move.picking_id
+#
+#             # For incoming moves (Purchase)
+#             if picking.picking_type_code == 'incoming':
+#                 # Check for Purchase Order invoicing status
+#                 # Search via purchase order lines linked to this move
+#                 po_lines = self.env['purchase.order.line'].search([
+#                     ('move_ids', '=', move.id)
+#                 ])
+#
+#                 if po_lines:
+#                     po = po_lines[0].order_id
+#                     if po.invoice_status == 'invoiced':
+#                         status = 'Invoiced'
+#                     elif po.invoice_status == 'to invoice':
+#                         status = 'To Invoice'
+#                     elif po.invoice_status == 'no':
+#                         status = 'No Invoice'
+#                     else:
+#                         status = po.invoice_status.title()
+#                 else:
+#                     # Try searching by origin
+#                     if picking.origin:
+#                         purchase_orders = self.env['purchase.order'].search([
+#                             ('name', '=', picking.origin)
+#                         ])
+#                         if purchase_orders:
+#                             po = purchase_orders[0]
+#                             if po.invoice_status == 'invoiced':
+#                                 status = 'Invoiced'
+#                             elif po.invoice_status == 'to invoice':
+#                                 status = 'To Invoice'
+#                             elif po.invoice_status == 'no':
+#                                 status = 'No Invoice'
+#                             else:
+#                                 status = po.invoice_status.title()
+#                         else:
+#                             status = 'No PO'
+#                     else:
+#                         status = 'No PO'
+#
+#             # For outgoing moves (Sales)
+#             elif picking.picking_type_code == 'outgoing':
+#                 # Check for Sales Order invoicing status
+#                 # Search via sale order lines linked to this move
+#                 so_lines = self.env['sale.order.line'].search([
+#                     ('move_ids', '=', move.id)
+#                 ])
+#
+#                 if so_lines:
+#                     so = so_lines[0].order_id
+#                     if so.invoice_status == 'invoiced':
+#                         status = 'Invoiced'
+#                     elif so.invoice_status == 'to invoice':
+#                         status = 'To Invoice'
+#                     elif so.invoice_status == 'no':
+#                         status = 'No Invoice'
+#                     else:
+#                         status = so.invoice_status.title()
+#                 else:
+#                     # Try searching by origin
+#                     if picking.origin:
+#                         sales_orders = self.env['sale.order'].search([
+#                             ('name', '=', picking.origin)
+#                         ])
+#                         if sales_orders:
+#                             so = sales_orders[0]
+#                             if so.invoice_status == 'invoiced':
+#                                 status = 'Invoiced'
+#                             elif so.invoice_status == 'to invoice':
+#                                 status = 'To Invoice'
+#                             elif so.invoice_status == 'no':
+#                                 status = 'No Invoice'
+#                             else:
+#                                 status = so.invoice_status.title()
+#                         else:
+#                             status = 'No SO'
+#                     else:
+#                         status = 'No SO'
+#
+#             # For internal transfers
+#             else:
+#                 status = 'Internal'
+#
+#         return status
 #
 #     # -------------------------
 #     # View Ledger Lines
@@ -425,10 +522,15 @@ class StockLedgerWizard(models.TransientModel):
 #             # Particulars / Partner Info
 #             # -------------------------
 #             partner_name = (
-#                 mv.partner_id.name
-#                 or (mv.picking_id.partner_id.name if mv.picking_id and mv.picking_id.partner_id else '')
+#                     mv.partner_id.name
+#                     or (mv.picking_id.partner_id.name if mv.picking_id and mv.picking_id.partner_id else '')
 #             )
 #             particulars = f"{partner_name} - {mv.location_id.complete_name} → {mv.location_dest_id.complete_name}"
+#
+#             # -------------------------
+#             # Get Invoice Status
+#             # -------------------------
+#             invoice_status = self._get_invoice_status(mv)
 #
 #             # -------------------------
 #             # Create Ledger Line
@@ -450,6 +552,7 @@ class StockLedgerWizard(models.TransientModel):
 #                 'issue_rate': rate if issue_qty else 0.0,
 #                 'balance': running,
 #                 'uom': mv.product_uom.name if mv.product_uom else product.uom_id.name,
+#                 'invoice_status': invoice_status,
 #             })
 #
 #         # -------------------------
@@ -466,3 +569,5 @@ class StockLedgerWizard(models.TransientModel):
 #             'target': 'current',
 #             'context': {'create': False, 'edit': False, 'delete': False},
 #         }
+
+

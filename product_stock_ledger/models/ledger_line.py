@@ -7,6 +7,7 @@ class ProductStockLedgerLine(models.TransientModel):
 
     wizard_id = fields.Many2one('product.stock.ledger.wizard', ondelete='cascade')
     product_id = fields.Many2one('product.product', string='Product')
+    warehouse_id = fields.Many2one('stock.warehouse', string='Warehouse')
     date = fields.Datetime(string='Date')
     voucher = fields.Char(string='Voucher')
     particulars = fields.Char(string='Particulars')
@@ -18,6 +19,11 @@ class ProductStockLedgerLine(models.TransientModel):
     balance = fields.Float(string='Balance')
     uom = fields.Char(string='Unit')
     invoice_status = fields.Char(string='Invoice Status')
+
+
+
+
+
 
 
 # # product_stock_ledger/controllers/ledger_line.py
@@ -39,3 +45,8 @@ class ProductStockLedgerLine(models.TransientModel):
 #     issue_rate = fields.Float(string='Issue Rate')
 #     balance = fields.Float(string='Balance')
 #     uom = fields.Char(string='Unit')
+#     invoice_status = fields.Char(string='Invoice Status')
+
+
+
+

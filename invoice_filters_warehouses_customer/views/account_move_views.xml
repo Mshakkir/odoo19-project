@@ -38,8 +38,8 @@
                            filter_domain="[('warehouse_id', 'ilike', self)]"/>
                 </xpath>
 
-                <!-- Add Group By options -->
-                <xpath expr="//filter[@name='invoice_date']" position="after">
+                <!-- Add Group By options - using a safer position -->
+                <xpath expr="//filter[@name='late']" position="after">
                     <separator/>
                     <filter string="Warehouse"
                             name="group_by_warehouse"
@@ -151,7 +151,7 @@
 
                     <!-- Combined Filters Section -->
                     <separator/>
-                    <group expand="0" string="🔍 Combined Filters">
+                    <group expand="0" string="🔗 Combined Filters">
                         <filter string="Dammam + Customer 1"
                                 name="filter_dammam_customer1"
                                 domain="[('warehouse_id.name', 'ilike', 'Dammam'), ('partner_id.name', 'ilike', 'customer 1')]"

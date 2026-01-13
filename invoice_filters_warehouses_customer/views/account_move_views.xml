@@ -11,8 +11,8 @@
             <field name="inherit_id" ref="account.view_invoice_tree"/>
             <field name="arch" type="xml">
 
-                <!-- Add Warehouse column after Customer -->
-                <xpath expr="//field[@name='partner_id']" position="after">
+                <!-- Add Warehouse column after Name/Number -->
+                <xpath expr="//field[@name='name']" position="after">
                     <field name="warehouse_id"
                            optional="show"
                            widget="many2one"
@@ -32,14 +32,14 @@
             <field name="arch" type="xml">
 
                 <!-- Add Warehouse search field -->
-                <xpath expr="//field[@name='partner_id']" position="after">
+                <xpath expr="//field[@name='name']" position="after">
                     <field name="warehouse_id"
                            string="Warehouse"
                            filter_domain="[('warehouse_id', 'ilike', self)]"/>
                 </xpath>
 
-                <!-- Add Group By options -->
-                <xpath expr="//filter[@name='invoice_date']" position="after">
+                <!-- Add Group By options - using a safer position -->
+                <xpath expr="//filter[@name='late']" position="after">
                     <separator/>
                     <filter string="Warehouse"
                             name="group_by_warehouse"
@@ -151,7 +151,7 @@
 
                     <!-- Combined Filters Section -->
                     <separator/>
-                    <group expand="0" string="🔍 Combined Filters">
+                    <group expand="0" string="🔗 Combined Filters">
                         <filter string="Dammam + Customer 1"
                                 name="filter_dammam_customer1"
                                 domain="[('warehouse_id.name', 'ilike', 'Dammam'), ('partner_id.name', 'ilike', 'customer 1')]"
@@ -177,11 +177,11 @@
             <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
 
-                <!-- Add Warehouse field in header area -->
-                <xpath expr="//field[@name='partner_id']" position="after">
+                <!-- Add Warehouse field after invoice_date -->
+                <xpath expr="//field[@name='invoice_date']" position="after">
                     <field name="warehouse_id"
                            options="{'no_create': True, 'no_open': True}"
-                           attrs="{'invisible': [('move_type', 'not in', ['out_invoice', 'out_refund'])]}"/>
+                           invisible="move_type not in ['out_invoice', 'out_refund']"/>
                 </xpath>
 
             </field>

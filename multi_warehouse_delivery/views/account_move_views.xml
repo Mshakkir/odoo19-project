@@ -1,47 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add warehouse field to invoice lines (Customer Invoices) -->
-    <record id="view_move_form_warehouse_field" model="ir.ui.view">
-        <field name="name">account.move.form.warehouse.field</field>
-        <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_move_form"/>
-        <field name="arch" type="xml">
-
-            <!-- Add warehouse field to invoice line field -->
-            <xpath expr="//field[@name='invoice_line_ids']" position="attributes">
-                <attribute name="context">{'default_warehouse_id': warehouse_id}</attribute>
-            </xpath>
-
-        </field>
-    </record>
-
-    <!-- Add warehouse field to account.move.line tree view (works for all invoices) -->
-    <record id="view_account_move_line_tree_inherit" model="ir.ui.view">
-        <field name="name">account.move.line.tree.warehouse</field>
+    <!-- Add warehouse field directly to invoice line in invoice form -->
+    <record id="view_invoice_line_warehouse_field" model="ir.ui.view">
+        <field name="name">account.move.line.invoice.warehouse</field>
         <field name="model">account.move.line</field>
-        <field name="inherit_id" ref="account.view_move_line_tree"/>
+        <field name="inherit_id" ref="account.view_invoice_line_tree"/>
         <field name="arch" type="xml">
-            <field name="name" position="after">
+            <!-- Add warehouse column after product -->
+            <xpath expr="//field[@name='product_id']" position="after">
                 <field name="warehouse_id"
                        optional="show"
-                       readonly="0"
                        widget="many2one"
                        options="{'no_create': True, 'no_open': True}"/>
-            </field>
+            </xpath>
         </field>
     </record>
 
-    <!-- Add warehouse field to account.move.line form view -->
-    <record id="view_account_move_line_form_inherit" model="ir.ui.view">
+    <!-- Add warehouse field to invoice line form (popup) -->
+    <record id="view_invoice_line_form_warehouse_field" model="ir.ui.view">
         <field name="name">account.move.line.form.warehouse</field>
         <field name="model">account.move.line</field>
-        <field name="inherit_id" ref="account.view_move_line_form"/>
+        <field name="inherit_id" ref="account.view_invoice_line_form"/>
         <field name="arch" type="xml">
-            <field name="product_id" position="after">
+            <!-- Add warehouse field after product in form -->
+            <xpath expr="//field[@name='product_id']" position="after">
                 <field name="warehouse_id"
-                       readonly="0"
                        options="{'no_create': True, 'no_open': True}"/>
-            </field>
+            </xpath>
         </field>
     </record>
 

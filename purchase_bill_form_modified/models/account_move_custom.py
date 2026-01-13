@@ -10,7 +10,8 @@ class AccountMove(models.Model):
         'purchase.order',
         string='PO Number',
         domain="[('partner_id', '=', partner_id), ('state', 'in', ['purchase', 'done'])]",
-        help='Select Purchase Order'
+        help='Select Purchase Order',
+        copy=False
     )
 
     # Goods Receipt field
@@ -18,27 +19,33 @@ class AccountMove(models.Model):
         'stock.picking',
         string='Goods Receipt (GR)',
         domain="[('partner_id', '=', partner_id), ('picking_type_id.code', '=', 'incoming'), ('state', '=', 'done')]",
-        help='Select Goods Receipt'
+        help='Select Goods Receipt',
+        copy=False
     )
 
     # AWB Number field
     awb_number = fields.Char(
         string='Shipping Ref#',
-        help='Air Waybill Number'
+        help='Air Waybill Number',
+        copy=False
     )
 
     # Warehouse field (from PO - picking_type_id)
     warehouse_id = fields.Many2one(
         'stock.warehouse',
         string='Warehouse',
-        help='Warehouse from Purchase Order'
+        help='Warehouse from Purchase Order',
+        copy=False,
+        store=True
     )
 
     # Buyer field (from PO - user_id)
     buyer_id = fields.Many2one(
         'res.users',
         string='Buyer',
-        help='Buyer from Purchase Order'
+        help='Buyer from Purchase Order',
+        copy=False,
+        store=True
     )
 
     @api.onchange('partner_id')
@@ -62,7 +69,7 @@ class AccountMove(models.Model):
             po = self.purchase_vendor_bill_id.purchase_order_id
 
             # Auto-fill PO Number
-            self.po_number = po.id
+            self.po_number = po
 
             # Auto-fill AWB from Purchase Order
             if hasattr(po, 'awb_number') and po.awb_number:
@@ -70,11 +77,11 @@ class AccountMove(models.Model):
 
             # Auto-fill Warehouse from PO picking_type_id
             if po.picking_type_id and po.picking_type_id.warehouse_id:
-                self.warehouse_id = po.picking_type_id.warehouse_id.id
+                self.warehouse_id = po.picking_type_id.warehouse_id
 
             # Auto-fill Buyer from PO user_id
             if po.user_id:
-                self.buyer_id = po.user_id.id
+                self.buyer_id = po.user_id
 
             # Find related Goods Receipt (incoming picking)
             pickings = self.env['stock.picking'].search([
@@ -84,12 +91,12 @@ class AccountMove(models.Model):
             ], limit=1)
 
             if pickings:
-                self.goods_receipt_number = pickings.id
+                self.goods_receipt_number = pickings
 
         elif self.purchase_id:
             # Direct purchase_id field (alternative auto-complete method)
             po = self.purchase_id
-            self.po_number = po.id
+            self.po_number = po
 
             # Auto-fill AWB from Purchase Order
             if hasattr(po, 'awb_number') and po.awb_number:
@@ -97,11 +104,11 @@ class AccountMove(models.Model):
 
             # Auto-fill Warehouse from PO picking_type_id
             if po.picking_type_id and po.picking_type_id.warehouse_id:
-                self.warehouse_id = po.picking_type_id.warehouse_id.id
+                self.warehouse_id = po.picking_type_id.warehouse_id
 
             # Auto-fill Buyer from PO user_id
             if po.user_id:
-                self.buyer_id = po.user_id.id
+                self.buyer_id = po.user_id
 
             pickings = self.env['stock.picking'].search([
                 ('purchase_id', '=', po.id),
@@ -110,7 +117,7 @@ class AccountMove(models.Model):
             ], limit=1)
 
             if pickings:
-                self.goods_receipt_number = pickings.id
+                self.goods_receipt_number = pickings
 
         return res
 
@@ -134,11 +141,11 @@ class AccountMove(models.Model):
 
             # Auto-fill Warehouse from PO picking_type_id
             if po.picking_type_id and po.picking_type_id.warehouse_id:
-                self.warehouse_id = po.picking_type_id.warehouse_id.id
+                self.warehouse_id = po.picking_type_id.warehouse_id
 
             # Auto-fill Buyer from PO user_id
             if po.user_id:
-                self.buyer_id = po.user_id.id
+                self.buyer_id = po.user_id
 
             # Find related Goods Receipt
             pickings = self.env['stock.picking'].search([
@@ -148,7 +155,7 @@ class AccountMove(models.Model):
             ], limit=1)
 
             if pickings:
-                self.goods_receipt_number = pickings.id
+                self.goods_receipt_number = pickings
 
             # Populate invoice lines from PO if no lines exist
             if not self.invoice_line_ids:
@@ -183,7 +190,7 @@ class AccountMove(models.Model):
 
             # If PO is not set, try to set it from GR
             if not self.po_number and gr.purchase_id:
-                self.po_number = gr.purchase_id.id
+                self.po_number = gr.purchase_id
 
                 # Also get AWB from the related PO
                 if hasattr(gr.purchase_id, 'awb_number') and gr.purchase_id.awb_number and not self.awb_number:
@@ -191,12 +198,11 @@ class AccountMove(models.Model):
 
                 # Get Warehouse from the related PO
                 if gr.purchase_id.picking_type_id and gr.purchase_id.picking_type_id.warehouse_id:
-                    self.warehouse_id = gr.purchase_id.picking_type_id.warehouse_id.id
+                    self.warehouse_id = gr.purchase_id.picking_type_id.warehouse_id
 
                 # Get Buyer from the related PO
                 if gr.purchase_id.user_id:
-                    self.buyer_id = gr.purchase_id.user_id.id
-
+                    self.buyer_id = gr.purchase_id.user_id
 
 
 

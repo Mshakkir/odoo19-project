@@ -33,28 +33,40 @@ class AccountMove(models.Model):
         string='Warehouse',
         compute='_compute_warehouse_id',
         store=True,
-        readonly=True
+        readonly=False  # Make it editable as fallback
     )
 
-    @api.depends('po_number', 'po_number.picking_type_id', 'po_number.picking_type_id.warehouse_id',
-                 'goods_receipt_number', 'goods_receipt_number.picking_type_id',
-                 'goods_receipt_number.picking_type_id.warehouse_id')
+    @api.depends('po_number', 'goods_receipt_number')
     def _compute_warehouse_id(self):
         """Compute warehouse from PO or Goods Receipt"""
         for move in self:
             warehouse = False
 
-            # Try to get warehouse from Goods Receipt first
-            if move.goods_receipt_number:
-                gr = move.goods_receipt_number
-                if gr.picking_type_id and gr.picking_type_id.warehouse_id:
-                    warehouse = gr.picking_type_id.warehouse_id
+            try:
+                # Method 1: Try to get warehouse from Goods Receipt first
+                if move.goods_receipt_number:
+                    gr = move.goods_receipt_number
+                    if hasattr(gr, 'picking_type_id') and gr.picking_type_id:
+                        if hasattr(gr.picking_type_id, 'warehouse_id') and gr.picking_type_id.warehouse_id:
+                            warehouse = gr.picking_type_id.warehouse_id
 
-            # If not found, try from PO
-            if not warehouse and move.po_number:
-                po = move.po_number
-                if po.picking_type_id and po.picking_type_id.warehouse_id:
-                    warehouse = po.picking_type_id.warehouse_id
+                # Method 2: If not found, try from PO
+                if not warehouse and move.po_number:
+                    po = move.po_number
+                    if hasattr(po, 'picking_type_id') and po.picking_type_id:
+                        if hasattr(po.picking_type_id, 'warehouse_id') and po.picking_type_id.warehouse_id:
+                            warehouse = po.picking_type_id.warehouse_id
+
+                # Method 3: Try from invoice_origin (source document)
+                if not warehouse and move.invoice_origin:
+                    # Try to find PO from origin
+                    po = self.env['purchase.order'].search([('name', '=', move.invoice_origin)], limit=1)
+                    if po and po.picking_type_id and po.picking_type_id.warehouse_id:
+                        warehouse = po.picking_type_id.warehouse_id
+
+            except Exception as e:
+                # If any error occurs, just skip
+                pass
 
             move.warehouse_id = warehouse
 
@@ -79,6 +91,10 @@ class AccountMove(models.Model):
             # Auto-fill PO Number
             self.po_number = po.id
 
+            # Auto-fill Warehouse
+            if po.picking_type_id and po.picking_type_id.warehouse_id:
+                self.warehouse_id = po.picking_type_id.warehouse_id
+
             # Auto-fill AWB from Purchase Order
             if hasattr(po, 'awb_number') and po.awb_number:
                 self.awb_number = po.awb_number
@@ -97,6 +113,10 @@ class AccountMove(models.Model):
             # Direct purchase_id field (alternative auto-complete method)
             po = self.purchase_id
             self.po_number = po.id
+
+            # Auto-fill Warehouse
+            if po.picking_type_id and po.picking_type_id.warehouse_id:
+                self.warehouse_id = po.picking_type_id.warehouse_id
 
             # Auto-fill AWB from Purchase Order
             if hasattr(po, 'awb_number') and po.awb_number:
@@ -118,6 +138,10 @@ class AccountMove(models.Model):
         """Populate invoice details when PO is manually selected"""
         if self.po_number:
             po = self.po_number
+
+            # Update warehouse
+            if po.picking_type_id and po.picking_type_id.warehouse_id:
+                self.warehouse_id = po.picking_type_id.warehouse_id
 
             # Update bill reference
             if not self.ref:
@@ -171,6 +195,10 @@ class AccountMove(models.Model):
         """Update PO and AWB when GR is selected"""
         if self.goods_receipt_number:
             gr = self.goods_receipt_number
+
+            # Update warehouse
+            if gr.picking_type_id and gr.picking_type_id.warehouse_id:
+                self.warehouse_id = gr.picking_type_id.warehouse_id
 
             # If PO is not set, try to set it from GR
             if not self.po_number and gr.purchase_id:

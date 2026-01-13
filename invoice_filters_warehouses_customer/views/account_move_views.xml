@@ -38,23 +38,8 @@
                            filter_domain="[('warehouse_id', 'ilike', self)]"/>
                 </xpath>
 
-                <!-- Add Group By options -->
-                <xpath expr="//group[@name='group_by']" position="inside">
-                    <separator/>
-                    <filter string="Warehouse"
-                            name="group_by_warehouse"
-                            context="{'group_by': 'warehouse_id'}"
-                            help="Group invoices by warehouse"/>
-                    <filter string="Customer"
-                            name="group_by_customer"
-                            context="{'group_by': 'partner_id'}"
-                            help="Group invoices by customer"/>
-                </xpath>
-
-                <!-- Add Filter Buttons -->
-                <xpath expr="//filter[@name='my_invoices']" position="after">
-
-                    <!-- Warehouse Filters Section -->
+                <!-- Add Warehouse Filters after the late filter -->
+                <xpath expr="//filter[@name='late']" position="after">
                     <separator/>
                     <filter string="Dammam Warehouse"
                             name="filter_warehouse_dammam"
@@ -107,8 +92,10 @@
                             name="filter_no_warehouse"
                             domain="[('warehouse_id', '=', False)]"
                             help="Show only invoices without warehouse"/>
+                </xpath>
 
-                    <!-- Customer Filters Section -->
+                <!-- Add Customer Filters -->
+                <xpath expr="//filter[@name='filter_no_warehouse']" position="after">
                     <separator/>
 
                     <filter string="Customer 1"
@@ -131,6 +118,19 @@
                             domain="[('partner_id.name', 'ilike', 'customer 4')]"
                             help="Show only Customer 4 invoices"/>
 
+                    <filter string="Test Customer"
+                            name="filter_test_customer"
+                            domain="[('partner_id.name', 'ilike', 'Test Custo')]"
+                            help="Show only Test Customer invoices"/>
+                </xpath>
+
+                <!-- Add Group By Warehouse and Customer inside the existing group -->
+                <xpath expr="//filter[@name='group_by_sequence_prefix']" position="after">
+                    <separator/>
+                    <filter string="Warehouse"
+                            name="group_by_warehouse"
+                            context="{'group_by': 'warehouse_id'}"
+                            help="Group invoices by warehouse"/>
                 </xpath>
 
             </field>

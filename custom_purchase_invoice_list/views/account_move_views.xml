@@ -162,10 +162,6 @@ if records:
 
 
 
-
-
-
-
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 <!--    <data>-->
@@ -194,13 +190,10 @@ if records:
 <!--                    <field name="partner_id" string="Vendor"/>-->
 
 <!--                    &lt;!&ndash; 4. Warehouse &ndash;&gt;-->
-<!--                    <field name="warehouse_id" string="Warehouse" optional="show"/>-->
+<!--                    <field name="warehouse_id" string="Warehouse"/>-->
 
 <!--                    &lt;!&ndash; 5. Source Document (like Purchase Order) &ndash;&gt;-->
 <!--                    <field name="invoice_origin" string="Source Document"/>-->
-
-<!--                    &lt;!&ndash; 6. Reference (Vendor Reference) &ndash;&gt;-->
-<!--&lt;!&ndash;                    <field name="ref" string="Vendor Reference"/>&ndash;&gt;-->
 
 <!--                    &lt;!&ndash; 7. Tax Excluded Amount &ndash;&gt;-->
 <!--                    <field name="amount_untaxed" string="Tax Excluded"/>-->
@@ -214,14 +207,14 @@ if records:
 <!--                    &lt;!&ndash; 10. Amount Due &ndash;&gt;-->
 <!--                    <field name="amount_residual" string="Amount Due"/>-->
 
-<!--                    &lt;!&ndash; 11. Purchase Representative (instead of Salesperson) &ndash;&gt;-->
-<!--                    <field name="invoice_user_id" string="Purchase Representative" widget="many2one_avatar_user"/>-->
+<!--                    &lt;!&ndash; 11. Purchase Representative / Buyer &ndash;&gt;-->
+<!--                    <field name="buyer_id" string="Buyer" widget="many2one_avatar_user" optional="show"/>-->
 
 <!--                    &lt;!&ndash; 12. AWB Number (Shipping Ref) - FROM YOUR EXISTING FIELD &ndash;&gt;-->
 <!--                    <field name="awb_number" string="Shipping Ref #"/>-->
 
 <!--                    &lt;!&ndash; 13. Delivery Note Number - FROM YOUR EXISTING FIELD (goods_receipt_number) &ndash;&gt;-->
-<!--                    <field name="goods_receipt_number" string="Goods Receipt #"/>-->
+<!--                    <field name="goods_receipt_number" string="Delivery Note #"/>-->
 
 <!--                    &lt;!&ndash; ADDITIONAL DEFAULT ODOO FIELDS &ndash;&gt;-->
 
@@ -311,5 +304,22 @@ if records:
 <!--            <field name="view_id" ref="view_move_list_purchase_invoice_custom"/>-->
 <!--        </record>-->
 
+<!--        &lt;!&ndash; Action to Recompute Warehouse for existing bills &ndash;&gt;-->
+<!--        <record id="action_recompute_warehouse" model="ir.actions.server">-->
+<!--            <field name="name">Recompute Warehouse</field>-->
+<!--            <field name="model_id" ref="account.model_account_move"/>-->
+<!--            <field name="binding_model_id" ref="account.model_account_move"/>-->
+<!--            <field name="binding_view_types">list</field>-->
+<!--            <field name="state">code</field>-->
+<!--            <field name="code">-->
+<!--if records:-->
+<!--    records._compute_warehouse_id()-->
+<!--            </field>-->
+<!--        </record>-->
+
 <!--    </data>-->
 <!--</odoo>-->
+
+
+
+

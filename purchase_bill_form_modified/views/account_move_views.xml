@@ -32,16 +32,19 @@
                         string="Shipping Ref#"
                         force_save="1"/>
 
-                    <field name="warehouse_id"
+                    <!-- NEW: Deliver To field -->
+                    <field name="deliver_to"
                         invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
+                        domain="[('code', '=', 'incoming'), ('warehouse_id.company_id', '=', company_id)]"
                         options="{'no_create': True, 'no_open': True}"
                         readonly="state != 'draft'"
-                        string="Warehouse"
+                        string="Deliver To"
                         force_save="1"/>
 
+                    <!-- NEW: Buyer field -->
                     <field name="buyer_id"
                         invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
-                        widget="many2one_avatar_user"
+                        domain="[('share', '=', False)]"
                         options="{'no_create': True, 'no_open': True}"
                         readonly="state != 'draft'"
                         string="Buyer"

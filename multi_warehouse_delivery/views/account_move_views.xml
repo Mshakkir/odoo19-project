@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Create a primary tree view for account.move.line with warehouse -->
-    <record id="view_move_line_tree_warehouse" model="ir.ui.view">
-        <field name="name">account.move.line.tree.warehouse</field>
+    <!-- Create a primary list view for account.move.line with warehouse -->
+    <record id="view_move_line_list_warehouse" model="ir.ui.view">
+        <field name="name">account.move.line.list.warehouse</field>
         <field name="model">account.move.line</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
-            <tree editable="bottom" string="Invoice Lines">
+            <list editable="bottom" string="Invoice Lines">
                 <field name="product_id"/>
                 <field name="warehouse_id"
                        optional="show"
@@ -24,7 +24,7 @@
                 <field name="currency_id" column_invisible="True"/>
                 <field name="company_id" column_invisible="True"/>
                 <field name="display_type" column_invisible="True"/>
-            </tree>
+            </list>
         </field>
     </record>
 

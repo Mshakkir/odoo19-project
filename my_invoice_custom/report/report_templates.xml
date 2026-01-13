@@ -348,13 +348,13 @@
                                 <td style="border:1px solid #000000;padding:4px 8px;">
                                     <t t-if="o.move_type == 'out_invoice'">
                                         <strong>Shipping Ref #</strong>
-                                         &#160;
+                                        &#160;
                                         <span t-if="o.awb_number" t-esc="o.awb_number"/>
                                         <span t-else="">-</span>
                                     </t>
                                     <t t-elif="o.move_type == 'out_refund'">
                                         <strong>Customer Ref #</strong>
-                                         &#160;
+                                        &#160;
                                         <t t-set="sale_order"
                                            t-value="o.invoice_line_ids and o.invoice_line_ids[0].sale_line_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id"/>
                                         <span t-if="sale_order" t-esc="sale_order.client_order_ref or sale_order.name"/>
@@ -375,12 +375,13 @@
                             <!-- Second Row: ONLY for sales invoice (not for credit note) -->
                             <t t-if="o.move_type == 'out_invoice'">
                                 <tr style="background-color:#FFFFFF;">
-                                    <td style="border:1px solid #000000; padding:4px; width:25%;">
+                                    <td style="border:1px solid #000000; padding:4px; width:25%; word-break: break-word; overflow-wrap: break-word;">
                                         <strong>Customer Ref #</strong>
-                                         &#160;
+                                        &#160;
                                         <t t-set="sale_order"
                                            t-value="o.invoice_line_ids and o.invoice_line_ids[0].sale_line_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id"/>
-                                        <span t-if="sale_order" t-esc="sale_order.client_order_ref or sale_order.name"/>
+                                        <span t-if="sale_order" t-esc="sale_order.client_order_ref or sale_order.name"
+                                              style="word-break: break-word; display: block; margin-top: 4px;"/>
                                         <span t-else="">-</span>
                                     </td>
                                     <td style="border:1px solid #000000; padding:4px; width:25%;">
@@ -389,7 +390,7 @@
                                     </td>
                                     <td style="border:1px solid #000000; padding:4px; width:25%;">
                                         <strong>DN #</strong>
-                                         &#160;
+                                        &#160;
                                         <t t-set="delivery"
                                            t-value="o.invoice_line_ids and o.invoice_line_ids[0].sale_line_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id.picking_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id.picking_ids[0]"/>
                                         <span t-if="delivery" t-esc="delivery.name"/>

@@ -210,7 +210,7 @@
                     <!-- Customer Details -->
                     <div style="margin-bottom:10px; font-size:12px;">
                         <table style="width:100%; border-collapse:collapse;">
-                            <tr style="background-color:#FFFFFF;border:1px solid #000000;">
+                            <tr style="background-color:#FFFFFF;border:1px solid #000000;border-right:1px solid #000000;">
                                 <td style="padding:4px 8px; font-weight:bold;">
                                     <t t-if="o.move_type in ('out_invoice','out_refund')">
                                         Sold To &#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="ar">اسم العميل
@@ -337,7 +337,7 @@
 
 
                                 <!-- Second Column: Date -->
-                                <td style="padding:4px 8px;">
+                                <td style="padding:4px 8px;border-bottom:1px solid #000000;">
                                     Date:
                                     <span t-esc="o.invoice_date.strftime('%d/%b/%Y') if o.invoice_date else ''"/> &#160;&#160;<span
                                         style="font-weight:900;" class="ar">التاريخ
@@ -355,9 +355,10 @@
                                     <t t-elif="o.move_type == 'out_refund'">
                                         <strong>Customer Ref #</strong>
                                         &#160;
-                                        <t t-set="sale_order"
-                                           t-value="o.invoice_line_ids and o.invoice_line_ids[0].sale_line_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id"/>
-                                        <span t-if="sale_order" t-esc="sale_order.client_order_ref or sale_order.name"/>
+
+                                        <span t-if="o.ref"
+                                              t-esc="o.ref"
+                                              style="word-break: break-word; display: block; margin-top: 4px;"/>
                                         <span t-else="">-</span>
                                     </t>
                                 </td>
@@ -375,18 +376,6 @@
                             <!-- Second Row: ONLY for sales invoice (not for credit note) -->
                             <t t-if="o.move_type == 'out_invoice'">
                                 <tr style="background-color:#FFFFFF;">
-                                    <!--                                    <td style="border:1px solid #000000; padding:4px; width:25%; word-break: break-word; overflow-wrap: break-word;">-->
-                                    <!--                                        <strong>Customer Ref #</strong>-->
-                                    <!--                                        &#160;-->
-                                    <!--                                        <t t-set="sale_order"-->
-                                    <!--                                           t-value="o.invoice_line_ids and o.invoice_line_ids[0].sale_line_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id"/>-->
-                                    <!--                                        <span t-if="sale_order and sale_order.ref" t-esc="sale_order.ref"-->
-                                    <!--                                              style="word-break: break-word; display: block; margin-top: 4px;"/>-->
-                                    <!--                                        <span t-elif="sale_order and sale_order.client_order_ref"-->
-                                    <!--                                              t-esc="sale_order.client_order_ref"-->
-                                    <!--                                              style="word-break: break-word; display: block; margin-top: 4px;"/>-->
-                                    <!--                                        <span t-else="">-</span>-->
-                                    <!--                                    </td>-->
                                     <td style="border:1px solid #000000; padding:4px; width:25%; word-break: break-word; overflow-wrap: break-word;">
                                         <strong>Customer Ref #</strong>
                                         &#160;
@@ -401,14 +390,7 @@
                                         <strong>Payment Terms:</strong>
                                         <t t-esc="o.invoice_payment_term_id.name or ''"/>
                                     </td>
-                                    <!--                                    <td style="border:1px solid #000000; padding:4px; width:25%;">-->
-                                    <!--                                        <strong>DN #</strong>-->
-                                    <!--                                        &#160;-->
-                                    <!--                                        <t t-set="delivery"-->
-                                    <!--                                           t-value="o.invoice_line_ids and o.invoice_line_ids[0].sale_line_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id.picking_ids and o.invoice_line_ids[0].sale_line_ids[0].order_id.picking_ids[0]"/>-->
-                                    <!--                                        <span t-if="delivery" t-esc="delivery.name"/>-->
-                                    <!--                                        <span t-else="">-</span>-->
-                                    <!--                                    </td>-->
+
                                     <td style="border:1px solid #000000; padding:4px; width:25%;">
                                         <strong>DN #</strong>
                                         &#160;

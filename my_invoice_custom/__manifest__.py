@@ -11,7 +11,6 @@
     'depends': [
         'account',
         'l10n_gcc_invoice',  # make sure this exists in Odoo 19
-        'custom_sale_fields'
     ],
     'data': [
         'report/report.xml',

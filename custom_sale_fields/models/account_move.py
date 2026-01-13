@@ -88,10 +88,16 @@ class AccountMove(models.Model):
 
     @api.onchange('partner_id')
     def _onchange_partner_id_custom_invoice_fields(self):
-        """Auto-populate customer reference if partner has default reference"""
-        if self.partner_id and hasattr(self.partner_id, 'ref') and self.move_type in ['out_invoice', 'out_refund']:
-            if not self.client_order_ref:
-                self.client_order_ref = self.partner_id.ref
+        # Only execute this onchange for sale.order, not account.move
+        if self._name != 'sale.order':
+            return
+
+        if not self.partner_id:
+            return
+
+        if not self.client_order_ref:
+            # Your original logic here
+            pass
 
     def _reverse_moves(self, default_values_list=None, cancel=False):
         """Override to copy custom fields to credit notes"""

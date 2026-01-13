@@ -1,32 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add warehouse field directly to invoice line in invoice form -->
-    <record id="view_invoice_line_warehouse_field" model="ir.ui.view">
-        <field name="name">account.move.line.invoice.warehouse</field>
+    <!-- Create a primary tree view for account.move.line with warehouse -->
+    <record id="view_move_line_tree_warehouse" model="ir.ui.view">
+        <field name="name">account.move.line.tree.warehouse</field>
         <field name="model">account.move.line</field>
-        <field name="inherit_id" ref="account.view_invoice_line_tree"/>
+        <field name="priority">1</field>
         <field name="arch" type="xml">
-            <!-- Add warehouse column after product -->
-            <xpath expr="//field[@name='product_id']" position="after">
+            <tree editable="bottom" string="Invoice Lines">
+                <field name="product_id"/>
                 <field name="warehouse_id"
                        optional="show"
                        widget="many2one"
                        options="{'no_create': True, 'no_open': True}"/>
-            </xpath>
+                <field name="name"/>
+                <field name="account_id"/>
+                <field name="analytic_distribution" widget="analytic_distribution"/>
+                <field name="quantity"/>
+                <field name="product_uom_id" groups="uom.group_uom"/>
+                <field name="price_unit"/>
+                <field name="discount" string="Disc.%"/>
+                <field name="tax_ids" widget="many2many_tags"/>
+                <field name="price_subtotal"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="company_id" column_invisible="True"/>
+                <field name="display_type" column_invisible="True"/>
+            </tree>
         </field>
     </record>
 
-    <!-- Add warehouse field to invoice line form (popup) -->
-    <record id="view_invoice_line_form_warehouse_field" model="ir.ui.view">
+    <!-- Create a primary form view for account.move.line with warehouse -->
+    <record id="view_move_line_form_warehouse" model="ir.ui.view">
         <field name="name">account.move.line.form.warehouse</field>
         <field name="model">account.move.line</field>
-        <field name="inherit_id" ref="account.view_invoice_line_form"/>
+        <field name="priority">1</field>
         <field name="arch" type="xml">
-            <!-- Add warehouse field after product in form -->
-            <xpath expr="//field[@name='product_id']" position="after">
-                <field name="warehouse_id"
-                       options="{'no_create': True, 'no_open': True}"/>
-            </xpath>
+            <form string="Invoice Line">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="product_id"/>
+                            <field name="warehouse_id"
+                                   options="{'no_create': True, 'no_open': True}"/>
+                            <field name="quantity"/>
+                            <field name="product_uom_id" groups="uom.group_uom"/>
+                        </group>
+                        <group>
+                            <field name="price_unit"/>
+                            <field name="discount"/>
+                            <field name="tax_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                    <group>
+                        <field name="account_id"/>
+                        <field name="analytic_distribution" widget="analytic_distribution"/>
+                    </group>
+                </sheet>
+            </form>
         </field>
     </record>
 

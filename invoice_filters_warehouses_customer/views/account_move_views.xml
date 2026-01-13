@@ -128,21 +128,22 @@
 <!--    </data>-->
 <!--</odoo>-->
 
+
 <odoo>
     <data>
 
         <!-- ============================================== -->
-        <!-- Extend Invoice Tree View to Add Warehouse     -->
-        <!-- SAFE for Odoo 19 (no partner_id xpath)        -->
+        <!-- Extend Invoice List View to Add Warehouse     -->
+        <!-- Odoo 19 uses <list> instead of <tree>         -->
         <!-- ============================================== -->
         <record id="view_invoice_tree_inherit_warehouse_filter" model="ir.ui.view">
-            <field name="name">account.move.tree.inherit.warehouse.filter</field>
+            <field name="name">account.move.list.inherit.warehouse.filter</field>
             <field name="model">account.move</field>
             <field name="inherit_id" ref="account.view_invoice_tree"/>
             <field name="arch" type="xml">
 
                 <!-- Safely add Warehouse column -->
-                <xpath expr="//tree" position="inside">
+                <xpath expr="//list" position="inside">
                     <field name="warehouse_id"
                            string="Warehouse"
                            optional="show"/>

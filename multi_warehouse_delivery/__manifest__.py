@@ -38,7 +38,7 @@
     'depends': ['sale_stock', 'sale_management', 'stock'],
     'data': [
         'security/ir.model.access.csv',
-        'views/templates.xml',
+        # 'views/templates.xml',
         'views/purchase_order_view.xml',
         'views/account_move_views.xml',
 

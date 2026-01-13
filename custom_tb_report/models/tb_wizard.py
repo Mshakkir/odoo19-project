@@ -257,7 +257,7 @@ class AccountBalanceReportInherit(models.TransientModel):
         if not total_account:
             # Create a display-only account for totals
             total_account = self.env['account.account'].create({
-                'code': 'TOTAL',
+                # 'code': 'TOTAL',
                 'name': 'TOTAL',
                 'account_type': 'asset_current',
                 'reconcile': False,

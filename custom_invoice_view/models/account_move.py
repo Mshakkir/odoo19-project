@@ -12,36 +12,63 @@ class AccountMove(models.Model):
         string='Warehouse',
         compute='_compute_warehouse_id',
         store=True,
-        readonly=True,
+        readonly=False,
         copy=False
     )
 
-    @api.depends('line_ids.sale_line_ids.order_id.warehouse_id')
+    @api.depends('invoice_origin', 'line_ids.sale_line_ids', 'line_ids.warehouse_id')
     def _compute_warehouse_id(self):
-        """Get warehouse from the related sale order"""
+        """Get warehouse from invoice lines or related sale order"""
         for move in self:
             warehouse = False
 
-            # Get warehouse from invoice lines linked to sale order lines
-            sale_orders = move.line_ids.sale_line_ids.order_id
-            if sale_orders:
-                # Take the first sale order's warehouse
-                warehouse = sale_orders[0].warehouse_id
+            # Method 1: Get from invoice line warehouses (most direct)
+            invoice_line_warehouses = move.line_ids.filtered(
+                lambda l: l.display_type == 'product'
+            ).mapped('warehouse_id')
+
+            if invoice_line_warehouses:
+                warehouse = invoice_line_warehouses[0]
+                _logger.info(f"Invoice {move.name}: Found warehouse {warehouse.name} from invoice lines")
+
+            # Method 2: From invoice lines -> sale order lines
+            if not warehouse and move.line_ids:
+                sale_lines = move.line_ids.mapped('sale_line_ids')
+                if sale_lines:
+                    sale_orders = sale_lines.mapped('order_id')
+                    if sale_orders and sale_orders[0].warehouse_id:
+                        warehouse = sale_orders[0].warehouse_id
+                        _logger.info(f"Invoice {move.name}: Found warehouse {warehouse.name} from sale order")
+
+            # Method 3: From invoice_origin (fallback)
+            if not warehouse and move.invoice_origin:
+                sale_order = self.env['sale.order'].search([
+                    ('name', '=', move.invoice_origin)
+                ], limit=1)
+                if sale_order and sale_order.warehouse_id:
+                    warehouse = sale_order.warehouse_id
+                    _logger.info(f"Invoice {move.name}: Found warehouse {warehouse.name} from invoice_origin")
+
+            if not warehouse:
+                _logger.warning(f"Invoice {move.name}: No warehouse found")
 
             move.warehouse_id = warehouse
 
+    def _recompute_all_warehouses(self):
+        """Manual method to recompute all warehouses - run this once"""
+        invoices = self.search([
+            ('move_type', 'in', ['out_invoice', 'out_refund']),
+            ('state', '!=', 'cancel')
+        ])
+        _logger.info(f"Starting warehouse recomputation for {len(invoices)} invoices...")
 
-class AccountMoveLine(models.Model):
-    _inherit = 'account.move.line'
+        count = 0
+        for invoice in invoices:
+            old_warehouse = invoice.warehouse_id
+            invoice._compute_warehouse_id()
+            if invoice.warehouse_id and invoice.warehouse_id != old_warehouse:
+                count += 1
+                _logger.info(f"  Updated {invoice.name}: {invoice.warehouse_id.name}")
 
-    # This ensures the link to sale order lines exists
-    # It should already exist in Odoo, but we make it explicit
-    sale_line_ids = fields.Many2many(
-        'sale.order.line',
-        'sale_order_line_invoice_rel',
-        'invoice_line_id',
-        'order_line_id',
-        string='Sales Order Lines',
-        readonly=True,
-        copy=False
-    )
+        _logger.info(f"Warehouse recomputation complete! Updated {count} invoices.")
+        return True

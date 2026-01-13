@@ -201,7 +201,7 @@ class AccountBalanceReportInherit(models.TransientModel):
             _logger.info("TB Lines: No analytic filter - showing all warehouses (combined)")
             window_title = 'Trial Balance - All Warehouses (Combined)'
 
-        accounts = self.env['account.account'].search([])
+        accounts = self.env['account.account'].search([('code', '!=', 'TOTAL')])
 
         for account in accounts:
             # Get all posted move lines for this account
@@ -257,7 +257,7 @@ class AccountBalanceReportInherit(models.TransientModel):
         if not total_account:
             # Create a display-only account for totals
             total_account = self.env['account.account'].create({
-                # 'code': 'TOTAL',
+                'code': 'TOTAL',
                 'name': 'TOTAL',
                 'account_type': 'asset_current',
                 'reconcile': False,

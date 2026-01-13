@@ -11,11 +11,10 @@
             <field name="inherit_id" ref="account.view_invoice_tree"/>
             <field name="arch" type="xml">
 
-                <!-- Add Warehouse column after Name/Number -->
-                <xpath expr="//field[@name='name']" position="after">
+                <!-- Add Warehouse column after Customer (partner_id) -->
+                <xpath expr="//field[@name='partner_id']" position="after">
                     <field name="warehouse_id"
                            optional="show"
-                           widget="many2one"
                            string="Warehouse"/>
                 </xpath>
 
@@ -31,136 +30,75 @@
             <field name="inherit_id" ref="account.view_account_invoice_filter"/>
             <field name="arch" type="xml">
 
-                <!-- Add Warehouse search field -->
-                <xpath expr="//field[@name='name']" position="after">
+                <!-- Add Warehouse search field after invoice_user_id -->
+                <xpath expr="//field[@name='invoice_user_id']" position="after">
                     <field name="warehouse_id"
                            string="Warehouse"
                            filter_domain="[('warehouse_id', 'ilike', self)]"/>
                 </xpath>
 
-                <!-- Add Group By options - using a safer position -->
-                <xpath expr="//filter[@name='late']" position="after">
-                    <separator/>
+                <!-- Add Group By options after the existing group -->
+                <xpath expr="//group" position="inside">
                     <filter string="Warehouse"
                             name="group_by_warehouse"
-                            context="{'group_by': 'warehouse_id'}"
-                            help="Group invoices by warehouse"/>
-                    <filter string="Customer"
-                            name="group_by_customer"
-                            context="{'group_by': 'partner_id'}"
-                            help="Group invoices by customer"/>
+                            context="{'group_by': 'warehouse_id'}"/>
                 </xpath>
 
-                <!-- Add Filter Buttons at the Bottom -->
+                <!-- Add custom filter sections at the end -->
                 <xpath expr="//search" position="inside">
 
                     <!-- Warehouse Filters Section -->
                     <separator/>
-                    <group expand="1" string="📦 Filter by Warehouse">
-                        <filter string="Dammam Warehouse"
-                                name="filter_warehouse_dammam"
-                                domain="[('warehouse_id.name', 'ilike', 'Dammam')]"
-                                help="Show only Dammam warehouse invoices"/>
-
-                        <filter string="Main Warehouse"
-                                name="filter_warehouse_main"
-                                domain="[('warehouse_id.name', 'ilike', 'MAIN')]"
-                                help="Show only Main warehouse invoices"/>
-
-                        <filter string="S00014 Warehouse"
-                                name="filter_warehouse_s00014"
-                                domain="[('warehouse_id.name', 'ilike', 'S00014')]"
-                                help="Show only S00014 warehouse invoices"/>
-
-                        <filter string="S00017 Warehouse"
-                                name="filter_warehouse_s00017"
-                                domain="[('warehouse_id.name', 'ilike', 'S00017')]"
-                                help="Show only S00017 warehouse invoices"/>
-
-                        <filter string="S00019 Warehouse"
-                                name="filter_warehouse_s00019"
-                                domain="[('warehouse_id.name', 'ilike', 'S00019')]"
-                                help="Show only S00019 warehouse invoices"/>
-
-                        <filter string="S00020 Warehouse"
-                                name="filter_warehouse_s00020"
-                                domain="[('warehouse_id.name', 'ilike', 'S00020')]"
-                                help="Show only S00020 warehouse invoices"/>
-
-                        <filter string="S00021 Warehouse"
-                                name="filter_warehouse_s00021"
-                                domain="[('warehouse_id.name', 'ilike', 'S00021')]"
-                                help="Show only S00021 warehouse invoices"/>
-
-                        <filter string="S00022 Warehouse"
-                                name="filter_warehouse_s00022"
-                                domain="[('warehouse_id.name', 'ilike', 'S00022')]"
-                                help="Show only S00022 warehouse invoices"/>
-
+                    <group expand="1" string="Filter by Warehouse">
+                        <filter string="Dammam" name="filter_warehouse_dammam"
+                                domain="[('warehouse_id.name', 'ilike', 'Dammam')]"/>
+                        <filter string="Main" name="filter_warehouse_main"
+                                domain="[('warehouse_id.name', 'ilike', 'MAIN')]"/>
+                        <filter string="S00014" name="filter_warehouse_s00014"
+                                domain="[('warehouse_id.name', 'ilike', 'S00014')]"/>
+                        <filter string="S00017" name="filter_warehouse_s00017"
+                                domain="[('warehouse_id.name', 'ilike', 'S00017')]"/>
+                        <filter string="S00019" name="filter_warehouse_s00019"
+                                domain="[('warehouse_id.name', 'ilike', 'S00019')]"/>
+                        <filter string="S00020" name="filter_warehouse_s00020"
+                                domain="[('warehouse_id.name', 'ilike', 'S00020')]"/>
+                        <filter string="S00021" name="filter_warehouse_s00021"
+                                domain="[('warehouse_id.name', 'ilike', 'S00021')]"/>
+                        <filter string="S00022" name="filter_warehouse_s00022"
+                                domain="[('warehouse_id.name', 'ilike', 'S00022')]"/>
                         <separator/>
-
-                        <filter string="Has Warehouse"
-                                name="filter_has_warehouse"
-                                domain="[('warehouse_id', '!=', False)]"
-                                help="Show only invoices with warehouse assigned"/>
-
-                        <filter string="No Warehouse"
-                                name="filter_no_warehouse"
-                                domain="[('warehouse_id', '=', False)]"
-                                help="Show only invoices without warehouse"/>
+                        <filter string="Has Warehouse" name="filter_has_warehouse"
+                                domain="[('warehouse_id', '!=', False)]"/>
+                        <filter string="No Warehouse" name="filter_no_warehouse"
+                                domain="[('warehouse_id', '=', False)]"/>
                     </group>
 
                     <!-- Customer Filters Section -->
                     <separator/>
-                    <group expand="1" string="👤 Filter by Customer">
-                        <filter string="Customer 1"
-                                name="filter_customer_1"
-                                domain="[('partner_id.name', 'ilike', 'customer 1')]"
-                                help="Show only Customer 1 invoices"/>
-
-                        <filter string="Customer 2"
-                                name="filter_customer_2"
-                                domain="[('partner_id.name', 'ilike', 'customer 2')]"
-                                help="Show only Customer 2 invoices"/>
-
-                        <filter string="Customer 3"
-                                name="filter_customer_3"
-                                domain="[('partner_id.name', 'ilike', 'customer 3')]"
-                                help="Show only Customer 3 invoices"/>
-
-                        <filter string="Customer 4"
-                                name="filter_customer_4"
-                                domain="[('partner_id.name', 'ilike', 'customer 4')]"
-                                help="Show only Customer 4 invoices"/>
-
-                        <filter string="Test Customer"
-                                name="filter_test_customer"
-                                domain="[('partner_id.name', 'ilike', 'Test Custo')]"
-                                help="Show only Test Customer invoices"/>
-
-                        <filter string="Administrator"
-                                name="filter_administrator"
-                                domain="[('partner_id.name', 'ilike', 'Administra')]"
-                                help="Show only Administrator invoices"/>
-
-                        <filter string="New Customer"
-                                name="filter_new_customer"
-                                domain="[('partner_id.name', 'ilike', 'new_custo')]"
-                                help="Show only New Customer invoices"/>
+                    <group expand="1" string="Filter by Customer">
+                        <filter string="Customer 1" name="filter_customer_1"
+                                domain="[('partner_id.name', 'ilike', 'customer 1')]"/>
+                        <filter string="Customer 2" name="filter_customer_2"
+                                domain="[('partner_id.name', 'ilike', 'customer 2')]"/>
+                        <filter string="Customer 3" name="filter_customer_3"
+                                domain="[('partner_id.name', 'ilike', 'customer 3')]"/>
+                        <filter string="Customer 4" name="filter_customer_4"
+                                domain="[('partner_id.name', 'ilike', 'customer 4')]"/>
+                        <filter string="Test Customer" name="filter_test_customer"
+                                domain="[('partner_id.name', 'ilike', 'Test Custo')]"/>
+                        <filter string="Administrator" name="filter_administrator"
+                                domain="[('partner_id.name', 'ilike', 'Administra')]"/>
+                        <filter string="New Customer" name="filter_new_customer"
+                                domain="[('partner_id.name', 'ilike', 'new_custo')]"/>
                     </group>
 
                     <!-- Combined Filters Section -->
                     <separator/>
-                    <group expand="0" string="🔗 Combined Filters">
-                        <filter string="Dammam + Customer 1"
-                                name="filter_dammam_customer1"
-                                domain="[('warehouse_id.name', 'ilike', 'Dammam'), ('partner_id.name', 'ilike', 'customer 1')]"
-                                help="Show Dammam warehouse invoices for Customer 1"/>
-
-                        <filter string="Main + Customer 2"
-                                name="filter_main_customer2"
-                                domain="[('warehouse_id.name', 'ilike', 'MAIN'), ('partner_id.name', 'ilike', 'customer 2')]"
-                                help="Show Main warehouse invoices for Customer 2"/>
+                    <group expand="0" string="Combined Filters">
+                        <filter string="Dammam + Customer 1" name="filter_dammam_customer1"
+                                domain="[('warehouse_id.name', 'ilike', 'Dammam'), ('partner_id.name', 'ilike', 'customer 1')]"/>
+                        <filter string="Main + Customer 2" name="filter_main_customer2"
+                                domain="[('warehouse_id.name', 'ilike', 'MAIN'), ('partner_id.name', 'ilike', 'customer 2')]"/>
                     </group>
 
                 </xpath>

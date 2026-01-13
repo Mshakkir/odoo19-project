@@ -62,6 +62,12 @@ from odoo import models, fields, api
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
+    invoice_incoterm_id= fields.Char(
+        string='incoterm',
+        help='',
+        copy=False
+    )
+
     ref = fields.Char(
         string='PO Number',
         help='PO Number number or code',

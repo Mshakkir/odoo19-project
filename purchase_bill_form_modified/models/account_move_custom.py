@@ -94,12 +94,12 @@ class AccountMove(models.Model):
                 self.awb_number = po.awb_number
 
             # NEW: Auto-fill Deliver To from Purchase Order
-            if hasattr(po, 'picking_type_id') and po.picking_type_id:
-                self.deliver_to = po.picking_type_id.id
+            if po.picking_type_id:
+                self.deliver_to = po.picking_type_id
 
             # NEW: Auto-fill Buyer from Purchase Order
-            if hasattr(po, 'user_id') and po.user_id:
-                self.buyer_id = po.user_id.id
+            if po.user_id:
+                self.buyer_id = po.user_id
 
             # Find related Goods Receipt (incoming picking)
             pickings = self.env['stock.picking'].search([
@@ -121,12 +121,12 @@ class AccountMove(models.Model):
                 self.awb_number = po.awb_number
 
             # NEW: Auto-fill Deliver To from Purchase Order
-            if hasattr(po, 'picking_type_id') and po.picking_type_id:
-                self.deliver_to = po.picking_type_id.id
+            if po.picking_type_id:
+                self.deliver_to = po.picking_type_id
 
             # NEW: Auto-fill Buyer from Purchase Order
-            if hasattr(po, 'user_id') and po.user_id:
-                self.buyer_id = po.user_id.id
+            if po.user_id:
+                self.buyer_id = po.user_id
 
             pickings = self.env['stock.picking'].search([
                 ('purchase_id', '=', po.id),
@@ -158,12 +158,12 @@ class AccountMove(models.Model):
                 self.awb_number = po.awb_number
 
             # NEW: Auto-fill Deliver To from Purchase Order
-            if hasattr(po, 'picking_type_id') and po.picking_type_id and not self.deliver_to:
-                self.deliver_to = po.picking_type_id.id
+            if po.picking_type_id and not self.deliver_to:
+                self.deliver_to = po.picking_type_id
 
             # NEW: Auto-fill Buyer from Purchase Order
-            if hasattr(po, 'user_id') and po.user_id and not self.buyer_id:
-                self.buyer_id = po.user_id.id
+            if po.user_id and not self.buyer_id:
+                self.buyer_id = po.user_id
 
             # Find related Goods Receipt
             pickings = self.env['stock.picking'].search([
@@ -215,13 +215,12 @@ class AccountMove(models.Model):
                     self.awb_number = gr.purchase_id.awb_number
 
                 # NEW: Get Deliver To from the related PO
-                if hasattr(gr.purchase_id, 'picking_type_id') and gr.purchase_id.picking_type_id and not self.deliver_to:
-                    self.deliver_to = gr.purchase_id.picking_type_id.id
+                if gr.purchase_id.picking_type_id and not self.deliver_to:
+                    self.deliver_to = gr.purchase_id.picking_type_id
 
                 # NEW: Get Buyer from the related PO
-                if hasattr(gr.purchase_id, 'user_id') and gr.purchase_id.user_id and not self.buyer_id:
-                    self.buyer_id = gr.purchase_id.user_id.id
-
+                if gr.purchase_id.user_id and not self.buyer_id:
+                    self.buyer_id = gr.purchase_id.user_id
 
 
 

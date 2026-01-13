@@ -31,9 +31,6 @@
                     <!-- 5. Source Document (like Purchase Order) -->
                     <field name="invoice_origin" string="Source Document"/>
 
-                    <!-- 6. Reference (Vendor Reference) -->
-                    <field name="ref" string="Vendor Reference"/>
-
                     <!-- 7. Tax Excluded Amount -->
                     <field name="amount_untaxed" string="Tax Excluded"/>
 
@@ -162,6 +159,11 @@ if records:
 
 
 
+
+
+
+
+
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 <!--    <data>-->
@@ -194,6 +196,9 @@ if records:
 
 <!--                    &lt;!&ndash; 5. Source Document (like Purchase Order) &ndash;&gt;-->
 <!--                    <field name="invoice_origin" string="Source Document"/>-->
+
+<!--                    &lt;!&ndash; 6. Reference (Vendor Reference) &ndash;&gt;-->
+<!--                    <field name="ref" string="Vendor Reference"/>-->
 
 <!--                    &lt;!&ndash; 7. Tax Excluded Amount &ndash;&gt;-->
 <!--                    <field name="amount_untaxed" string="Tax Excluded"/>-->
@@ -319,7 +324,6 @@ if records:
 
 <!--    </data>-->
 <!--</odoo>-->
-
 
 
 

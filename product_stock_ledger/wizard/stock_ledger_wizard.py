@@ -71,7 +71,7 @@ class StockLedgerWizard(models.TransientModel):
                     else:
                         # No PO found - check if bill exists
                         bill_lines = self.env['account.move.line'].search([
-                            ('move_id.type', 'in', ['in_invoice', 'in_refund']),
+                            ('move_id.move_type', 'in', ['in_invoice', 'in_refund']),
                             ('move_id.state', '=', 'posted'),
                             ('product_id', '=', move.product_id.id),
                         ], limit=1)
@@ -109,7 +109,7 @@ class StockLedgerWizard(models.TransientModel):
                     else:
                         # No SO found - check if invoice exists
                         invoice_lines = self.env['account.move.line'].search([
-                            ('move_id.type', 'in', ['out_invoice', 'out_refund']),
+                            ('move_id.move_type', 'in', ['out_invoice', 'out_refund']),
                             ('move_id.state', '=', 'posted'),
                             ('product_id', '=', move.product_id.id),
                         ], limit=1)

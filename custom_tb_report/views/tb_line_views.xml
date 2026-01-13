@@ -40,10 +40,10 @@
             <list string="Trial Balance Lines" decoration-bf="is_total == True">
                 <field name="is_total" invisible="1"/>
                 <field name="account_id" string="Account"/>
-                <field name="opening_balance" sum="Total Opening"/>
-                <field name="debit" sum="Total Debit"/>
-                <field name="credit" sum="Total Credit"/>
-                <field name="ending_balance" sum="Total Ending"/>
+                <field name="opening_balance"/>
+                <field name="debit"/>
+                <field name="credit"/>
+                <field name="ending_balance"/>
             </list>
         </field>
     </record>
@@ -60,7 +60,7 @@
                     <field name="debit"/>
                     <field name="credit"/>
                     <field name="ending_balance"/>
-<!--                    <field name="is_total" invisible="1"/>-->
+                    <field name="is_total" invisible="1"/>
                 </group>
             </form>
         </field>

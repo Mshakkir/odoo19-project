@@ -34,7 +34,7 @@ class StockLedgerWizard(models.TransientModel):
     # -------------------------
     def _get_invoice_status(self, move):
         """Determine invoice status based on move type and related documents."""
-        status = 'N/A'
+        status = 'Not Invoiced'
 
         if move.picking_id:
             picking = move.picking_id
@@ -42,7 +42,6 @@ class StockLedgerWizard(models.TransientModel):
             # For incoming moves (Purchase)
             if picking.picking_type_code == 'incoming':
                 # Check for Purchase Order invoicing status
-                # Search via purchase order lines linked to this move
                 po_lines = self.env['purchase.order.line'].search([
                     ('move_ids', '=', move.id)
                 ])
@@ -53,10 +52,8 @@ class StockLedgerWizard(models.TransientModel):
                         status = 'Invoiced'
                     elif po.invoice_status == 'to invoice':
                         status = 'To Invoice'
-                    elif po.invoice_status == 'no':
-                        status = 'No Invoice'
                     else:
-                        status = po.invoice_status.title()
+                        status = 'Not Invoiced'
                 else:
                     # Try searching by origin
                     if picking.origin:
@@ -69,19 +66,20 @@ class StockLedgerWizard(models.TransientModel):
                                 status = 'Invoiced'
                             elif po.invoice_status == 'to invoice':
                                 status = 'To Invoice'
-                            elif po.invoice_status == 'no':
-                                status = 'No Invoice'
                             else:
-                                status = po.invoice_status.title()
-                        else:
-                            status = 'No PO'
+                                status = 'Not Invoiced'
                     else:
-                        status = 'No PO'
+                        # No PO found - check if bill exists
+                        bill_lines = self.env['account.move.line'].search([
+                            ('move_id.type', 'in', ['in_invoice', 'in_refund']),
+                            ('move_id.state', '=', 'posted'),
+                            ('product_id', '=', move.product_id.id),
+                        ], limit=1)
+                        status = 'Invoiced' if bill_lines else 'Not Invoiced'
 
             # For outgoing moves (Sales)
             elif picking.picking_type_code == 'outgoing':
                 # Check for Sales Order invoicing status
-                # Search via sale order lines linked to this move
                 so_lines = self.env['sale.order.line'].search([
                     ('move_ids', '=', move.id)
                 ])
@@ -92,10 +90,8 @@ class StockLedgerWizard(models.TransientModel):
                         status = 'Invoiced'
                     elif so.invoice_status == 'to invoice':
                         status = 'To Invoice'
-                    elif so.invoice_status == 'no':
-                        status = 'No Invoice'
                     else:
-                        status = so.invoice_status.title()
+                        status = 'Not Invoiced'
                 else:
                     # Try searching by origin
                     if picking.origin:
@@ -108,14 +104,16 @@ class StockLedgerWizard(models.TransientModel):
                                 status = 'Invoiced'
                             elif so.invoice_status == 'to invoice':
                                 status = 'To Invoice'
-                            elif so.invoice_status == 'no':
-                                status = 'No Invoice'
                             else:
-                                status = so.invoice_status.title()
-                        else:
-                            status = 'No SO'
+                                status = 'Not Invoiced'
                     else:
-                        status = 'No SO'
+                        # No SO found - check if invoice exists
+                        invoice_lines = self.env['account.move.line'].search([
+                            ('move_id.type', 'in', ['out_invoice', 'out_refund']),
+                            ('move_id.state', '=', 'posted'),
+                            ('product_id', '=', move.product_id.id),
+                        ], limit=1)
+                        status = 'Invoiced' if invoice_lines else 'Not Invoiced'
 
             # For internal transfers
             else:

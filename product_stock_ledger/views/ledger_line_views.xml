@@ -51,8 +51,8 @@
 
         <!-- Invoice Status Filters -->
         <filter name="filter_invoiced" string="Invoiced" domain="[('invoice_status', '=', 'Invoiced')]"/>
+        <filter name="filter_not_invoiced" string="Not Invoiced" domain="[('invoice_status', '=', 'Not Invoiced')]"/>
         <filter name="filter_to_invoice" string="To Invoice" domain="[('invoice_status', '=', 'To Invoice')]"/>
-        <filter name="filter_no_invoice" string="No Invoice" domain="[('invoice_status', '=', 'No Invoice')]"/>
 
         <!-- Separator -->
         <separator/>
@@ -65,7 +65,6 @@
     </field>
   </record>
 </odoo>
-
 
 
 

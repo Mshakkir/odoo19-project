@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
+from odoo.exceptions import UserError
 
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    # PO Number field (if not exists)
+    # PO Number field
     po_number = fields.Many2one(
         'purchase.order',
         string='PO Number',
@@ -21,20 +22,20 @@ class AccountMove(models.Model):
         help='Select Goods Receipt'
     )
 
-    # AWB Number field (if not exists)
+    # AWB Number field
     awb_number = fields.Char(
         string='Shipping Ref#',
         help='Air Waybill Number'
     )
 
-    # NEW: Deliver To field from Purchase Order
+    # Deliver To field from Purchase Order (picking_type_id)
     deliver_to = fields.Many2one(
         'stock.picking.type',
         string='Deliver To',
         help='Delivery destination from Purchase Order'
     )
 
-    # NEW: Buyer field from Purchase Order
+    # Buyer field from Purchase Order (user_id)
     buyer_id = fields.Many2one(
         'res.users',
         string='Buyer',
@@ -50,16 +51,18 @@ class AccountMove(models.Model):
         readonly=True
     )
 
-    @api.depends('po_number', 'goods_receipt_number')
+    @api.depends('po_number', 'goods_receipt_number', 'deliver_to')
     def _compute_warehouse_id(self):
-        """Compute warehouse from PO or Goods Receipt"""
+        """Compute warehouse from PO or Goods Receipt or Deliver To"""
         for move in self:
             warehouse = False
 
-            # Try to get warehouse from Goods Receipt first
-            if move.goods_receipt_number and move.goods_receipt_number.picking_type_id:
+            # Try to get warehouse from Deliver To first
+            if move.deliver_to and move.deliver_to.warehouse_id:
+                warehouse = move.deliver_to.warehouse_id
+            # Try to get warehouse from Goods Receipt
+            elif move.goods_receipt_number and move.goods_receipt_number.picking_type_id:
                 warehouse = move.goods_receipt_number.picking_type_id.warehouse_id
-
             # If not found, try from PO
             elif move.po_number and move.po_number.picking_type_id:
                 warehouse = move.po_number.picking_type_id.warehouse_id
@@ -83,53 +86,32 @@ class AccountMove(models.Model):
         """Auto-fill PO Number, GR, AWB, Deliver To, and Buyer when purchase order is selected via Auto-Complete"""
         res = super(AccountMove, self)._onchange_purchase_auto_complete()
 
+        purchase_order = False
+
         if self.purchase_vendor_bill_id and self.purchase_vendor_bill_id.purchase_order_id:
-            po = self.purchase_vendor_bill_id.purchase_order_id
+            purchase_order = self.purchase_vendor_bill_id.purchase_order_id
+        elif self.purchase_id:
+            purchase_order = self.purchase_id
 
+        if purchase_order:
             # Auto-fill PO Number
-            self.po_number = po
+            self.po_number = purchase_order
 
-            # Auto-fill AWB from Purchase Order
-            if hasattr(po, 'awb_number') and po.awb_number:
-                self.awb_number = po.awb_number
+            # Auto-fill Buyer (user_id from PO)
+            if purchase_order.user_id:
+                self.buyer_id = purchase_order.user_id
 
-            # Auto-fill Deliver To from Purchase Order
-            if po.picking_type_id:
-                self.deliver_to = po.picking_type_id
+            # Auto-fill Deliver To (picking_type_id from PO)
+            if purchase_order.picking_type_id:
+                self.deliver_to = purchase_order.picking_type_id
 
-            # Auto-fill Buyer from Purchase Order
-            if po.user_id:
-                self.buyer_id = po.user_id
+            # Auto-fill AWB from Purchase Order (if exists)
+            if hasattr(purchase_order, 'awb_number') and purchase_order.awb_number:
+                self.awb_number = purchase_order.awb_number
 
             # Find related Goods Receipt (incoming picking)
             pickings = self.env['stock.picking'].search([
-                ('purchase_id', '=', po.id),
-                ('picking_type_id.code', '=', 'incoming'),
-                ('state', '=', 'done')
-            ], limit=1)
-
-            if pickings:
-                self.goods_receipt_number = pickings
-
-        elif self.purchase_id:
-            # Direct purchase_id field (alternative auto-complete method)
-            po = self.purchase_id
-            self.po_number = po
-
-            # Auto-fill AWB from Purchase Order
-            if hasattr(po, 'awb_number') and po.awb_number:
-                self.awb_number = po.awb_number
-
-            # Auto-fill Deliver To from Purchase Order
-            if po.picking_type_id:
-                self.deliver_to = po.picking_type_id
-
-            # Auto-fill Buyer from Purchase Order
-            if po.user_id:
-                self.buyer_id = po.user_id
-
-            pickings = self.env['stock.picking'].search([
-                ('purchase_id', '=', po.id),
+                ('purchase_id', '=', purchase_order.id),
                 ('picking_type_id.code', '=', 'incoming'),
                 ('state', '=', 'done')
             ], limit=1)
@@ -153,17 +135,17 @@ class AccountMove(models.Model):
             if not self.invoice_date:
                 self.invoice_date = fields.Date.today()
 
-            # Auto-fill AWB from Purchase Order
-            if hasattr(po, 'awb_number') and po.awb_number and not self.awb_number:
-                self.awb_number = po.awb_number
+            # Auto-fill Buyer (user_id from PO)
+            if po.user_id:
+                self.buyer_id = po.user_id
 
-            # Auto-fill Deliver To from Purchase Order
-            if po.picking_type_id and not self.deliver_to:
+            # Auto-fill Deliver To (picking_type_id from PO)
+            if po.picking_type_id:
                 self.deliver_to = po.picking_type_id
 
-            # Auto-fill Buyer from Purchase Order
-            if po.user_id and not self.buyer_id:
-                self.buyer_id = po.user_id
+            # Auto-fill AWB from Purchase Order
+            if hasattr(po, 'awb_number') and po.awb_number:
+                self.awb_number = po.awb_number
 
             # Find related Goods Receipt
             pickings = self.env['stock.picking'].search([
@@ -208,19 +190,20 @@ class AccountMove(models.Model):
 
             # If PO is not set, try to set it from GR
             if not self.po_number and gr.purchase_id:
-                self.po_number = gr.purchase_id
-
-                # Also get AWB from the related PO
-                if hasattr(gr.purchase_id, 'awb_number') and gr.purchase_id.awb_number and not self.awb_number:
-                    self.awb_number = gr.purchase_id.awb_number
-
-                # Get Deliver To from the related PO
-                if gr.purchase_id.picking_type_id and not self.deliver_to:
-                    self.deliver_to = gr.purchase_id.picking_type_id
+                po = gr.purchase_id
+                self.po_number = po
 
                 # Get Buyer from the related PO
-                if gr.purchase_id.user_id and not self.buyer_id:
-                    self.buyer_id = gr.purchase_id.user_id
+                if po.user_id:
+                    self.buyer_id = po.user_id
+
+                # Get Deliver To from the related PO
+                if po.picking_type_id:
+                    self.deliver_to = po.picking_type_id
+
+                # Also get AWB from the related PO
+                if hasattr(po, 'awb_number') and po.awb_number:
+                    self.awb_number = po.awb_number
 
 
 

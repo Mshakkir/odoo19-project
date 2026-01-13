@@ -87,17 +87,17 @@ class AccountMove(models.Model):
             po = self.purchase_vendor_bill_id.purchase_order_id
 
             # Auto-fill PO Number
-            self.po_number = po.id
+            self.po_number = po
 
             # Auto-fill AWB from Purchase Order
             if hasattr(po, 'awb_number') and po.awb_number:
                 self.awb_number = po.awb_number
 
-            # NEW: Auto-fill Deliver To from Purchase Order
+            # Auto-fill Deliver To from Purchase Order
             if po.picking_type_id:
                 self.deliver_to = po.picking_type_id
 
-            # NEW: Auto-fill Buyer from Purchase Order
+            # Auto-fill Buyer from Purchase Order
             if po.user_id:
                 self.buyer_id = po.user_id
 
@@ -109,22 +109,22 @@ class AccountMove(models.Model):
             ], limit=1)
 
             if pickings:
-                self.goods_receipt_number = pickings.id
+                self.goods_receipt_number = pickings
 
         elif self.purchase_id:
             # Direct purchase_id field (alternative auto-complete method)
             po = self.purchase_id
-            self.po_number = po.id
+            self.po_number = po
 
             # Auto-fill AWB from Purchase Order
             if hasattr(po, 'awb_number') and po.awb_number:
                 self.awb_number = po.awb_number
 
-            # NEW: Auto-fill Deliver To from Purchase Order
+            # Auto-fill Deliver To from Purchase Order
             if po.picking_type_id:
                 self.deliver_to = po.picking_type_id
 
-            # NEW: Auto-fill Buyer from Purchase Order
+            # Auto-fill Buyer from Purchase Order
             if po.user_id:
                 self.buyer_id = po.user_id
 
@@ -135,7 +135,7 @@ class AccountMove(models.Model):
             ], limit=1)
 
             if pickings:
-                self.goods_receipt_number = pickings.id
+                self.goods_receipt_number = pickings
 
         return res
 
@@ -157,11 +157,11 @@ class AccountMove(models.Model):
             if hasattr(po, 'awb_number') and po.awb_number and not self.awb_number:
                 self.awb_number = po.awb_number
 
-            # NEW: Auto-fill Deliver To from Purchase Order
+            # Auto-fill Deliver To from Purchase Order
             if po.picking_type_id and not self.deliver_to:
                 self.deliver_to = po.picking_type_id
 
-            # NEW: Auto-fill Buyer from Purchase Order
+            # Auto-fill Buyer from Purchase Order
             if po.user_id and not self.buyer_id:
                 self.buyer_id = po.user_id
 
@@ -173,7 +173,7 @@ class AccountMove(models.Model):
             ], limit=1)
 
             if pickings:
-                self.goods_receipt_number = pickings.id
+                self.goods_receipt_number = pickings
 
             # Populate invoice lines from PO if no lines exist
             if not self.invoice_line_ids:
@@ -208,20 +208,19 @@ class AccountMove(models.Model):
 
             # If PO is not set, try to set it from GR
             if not self.po_number and gr.purchase_id:
-                self.po_number = gr.purchase_id.id
+                self.po_number = gr.purchase_id
 
                 # Also get AWB from the related PO
                 if hasattr(gr.purchase_id, 'awb_number') and gr.purchase_id.awb_number and not self.awb_number:
                     self.awb_number = gr.purchase_id.awb_number
 
-                # NEW: Get Deliver To from the related PO
+                # Get Deliver To from the related PO
                 if gr.purchase_id.picking_type_id and not self.deliver_to:
                     self.deliver_to = gr.purchase_id.picking_type_id
 
-                # NEW: Get Buyer from the related PO
+                # Get Buyer from the related PO
                 if gr.purchase_id.user_id and not self.buyer_id:
                     self.buyer_id = gr.purchase_id.user_id
-
 
 
 

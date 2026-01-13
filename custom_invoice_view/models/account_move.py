@@ -1,4 +1,7 @@
 from odoo import models, fields, api
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class AccountMove(models.Model):
@@ -9,33 +12,36 @@ class AccountMove(models.Model):
         string='Warehouse',
         compute='_compute_warehouse_id',
         store=True,
-        readonly=True
+        readonly=True,
+        copy=False
     )
 
-    @api.depends('invoice_origin', 'line_ids.sale_line_ids')
+    @api.depends('line_ids.sale_line_ids.order_id.warehouse_id')
     def _compute_warehouse_id(self):
+        """Get warehouse from the related sale order"""
         for move in self:
             warehouse = False
 
-            # Method 1: From sale order lines (most reliable)
-            sale_lines = move.line_ids.sale_line_ids
-            if sale_lines:
-                warehouse = sale_lines[0].order_id.warehouse_id
-
-            # Method 2: From invoice origin
-            elif move.invoice_origin:
-                sale_order = self.env['sale.order'].search([
-                    ('name', '=', move.invoice_origin)
-                ], limit=1)
-                if sale_order:
-                    warehouse = sale_order.warehouse_id
-
-            # Method 3: From stock pickings (if needed)
-            if not warehouse:
-                picking = self.env['stock.picking'].search([
-                    ('origin', '=', move.invoice_origin)
-                ], limit=1)
-                if picking:
-                    warehouse = picking.picking_type_id.warehouse_id
+            # Get warehouse from invoice lines linked to sale order lines
+            sale_orders = move.line_ids.sale_line_ids.order_id
+            if sale_orders:
+                # Take the first sale order's warehouse
+                warehouse = sale_orders[0].warehouse_id
 
             move.warehouse_id = warehouse
+
+
+class AccountMoveLine(models.Model):
+    _inherit = 'account.move.line'
+
+    # This ensures the link to sale order lines exists
+    # It should already exist in Odoo, but we make it explicit
+    sale_line_ids = fields.Many2many(
+        'sale.order.line',
+        'sale_order_line_invoice_rel',
+        'invoice_line_id',
+        'order_line_id',
+        string='Sales Order Lines',
+        readonly=True,
+        copy=False
+    )

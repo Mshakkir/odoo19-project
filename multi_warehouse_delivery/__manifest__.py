@@ -11,17 +11,20 @@
 #     """,
 #     'author': 'Your Company',
 #     'website': 'https://www.yourcompany.com',
-#     'depends': ['sale_stock', 'sale_management'],
+#     'depends': ['sale_stock', 'sale_management', 'stock'],
 #     'data': [
+#         'security/ir.model.access.csv',
 #         'views/templates.xml',
 #         'views/purchase_order_view.xml',
-#         'views/product_stock_view.xml',
+#
+#
 #     ],
 #     'installable': True,
 #     'application': False,
 #     'auto_install': False,
 #     'license': 'LGPL-3',
 # }
+
 {
     'name': 'Multi-Warehouse Product Delivery',
     'version': '19.0.1.0.0',
@@ -30,18 +33,20 @@
     'description': """
         This module allows you to:
         - Select warehouse per product line in sales orders
+        - Select warehouse per product line in purchase orders
+        - Select warehouse per product line in invoices
         - Automatically create separate deliveries for each warehouse
         - Track stock from different warehouses in one order
     """,
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',
-    'depends': ['sale_stock', 'sale_management', 'stock'],
+    'depends': ['sale_stock', 'sale_management', 'stock', 'account', 'purchase'],
     'data': [
         'security/ir.model.access.csv',
         'views/templates.xml',
         'views/purchase_order_view.xml',
-
-
+        'views/sale_order_views.xml',
+        'views/account_move_views.xml',
     ],
     'installable': True,
     'application': False,

@@ -252,10 +252,21 @@ class AccountBalanceReportInherit(models.TransientModel):
         # Calculate and create totals row
         totals = self.env['trial.balance.line'].calculate_totals(self.id)
 
-        # Create a total row (with account_id as False for identification)
+        # Get or create a dummy account for the total row display
+        total_account = self.env['account.account'].search([('code', '=', 'TOTAL')], limit=1)
+        if not total_account:
+            # Create a display-only account for totals
+            total_account = self.env['account.account'].create({
+                'code': 'TOTAL',
+                'name': 'TOTAL',
+                'account_type': 'asset_current',
+                'reconcile': False,
+            })
+
+        # Create a total row
         self.env['trial.balance.line'].create({
             'wizard_id': self.id,
-            'account_id': False,
+            'account_id': total_account.id,
             'opening_balance': totals['opening_debit'] - totals['opening_credit'],
             'debit': totals['debit'],
             'credit': totals['credit'],

@@ -37,7 +37,7 @@
         <field name="name">trial.balance.line.list</field>
         <field name="model">trial.balance.line</field>
         <field name="arch" type="xml">
-            <list string="Trial Balance Lines" decoration-bf="is_total == True">
+            <list string="Trial Balance Lines" decoration-bf="is_total == True" decoration-success="is_total == True">
                 <field name="is_total" invisible="1"/>
                 <field name="account_id" string="Account"/>
                 <field name="opening_balance"/>

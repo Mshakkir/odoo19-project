@@ -42,12 +42,13 @@ class StockLedgerWizard(models.TransientModel):
             # For incoming moves (Purchase)
             if picking.picking_type_code == 'incoming':
                 # Check for Purchase Order invoicing status
-                purchase_orders = self.env['purchase.order'].search([
-                    ('origin', '=', picking.origin)
-                ]) if picking.origin else []
+                # Search via purchase order lines linked to this move
+                po_lines = self.env['purchase.order.line'].search([
+                    ('move_ids', '=', move.id)
+                ])
 
-                if purchase_orders:
-                    po = purchase_orders[0]
+                if po_lines:
+                    po = po_lines[0].order_id
                     if po.invoice_status == 'invoiced':
                         status = 'Invoiced'
                     elif po.invoice_status == 'to invoice':
@@ -57,17 +58,36 @@ class StockLedgerWizard(models.TransientModel):
                     else:
                         status = po.invoice_status.title()
                 else:
-                    status = 'No PO'
+                    # Try searching by origin
+                    if picking.origin:
+                        purchase_orders = self.env['purchase.order'].search([
+                            ('name', '=', picking.origin)
+                        ])
+                        if purchase_orders:
+                            po = purchase_orders[0]
+                            if po.invoice_status == 'invoiced':
+                                status = 'Invoiced'
+                            elif po.invoice_status == 'to invoice':
+                                status = 'To Invoice'
+                            elif po.invoice_status == 'no':
+                                status = 'No Invoice'
+                            else:
+                                status = po.invoice_status.title()
+                        else:
+                            status = 'No PO'
+                    else:
+                        status = 'No PO'
 
             # For outgoing moves (Sales)
             elif picking.picking_type_code == 'outgoing':
                 # Check for Sales Order invoicing status
-                sales_orders = self.env['sale.order'].search([
-                    ('origin', '=', picking.origin)
-                ]) if picking.origin else []
+                # Search via sale order lines linked to this move
+                so_lines = self.env['sale.order.line'].search([
+                    ('move_ids', '=', move.id)
+                ])
 
-                if sales_orders:
-                    so = sales_orders[0]
+                if so_lines:
+                    so = so_lines[0].order_id
                     if so.invoice_status == 'invoiced':
                         status = 'Invoiced'
                     elif so.invoice_status == 'to invoice':
@@ -77,7 +97,25 @@ class StockLedgerWizard(models.TransientModel):
                     else:
                         status = so.invoice_status.title()
                 else:
-                    status = 'No SO'
+                    # Try searching by origin
+                    if picking.origin:
+                        sales_orders = self.env['sale.order'].search([
+                            ('name', '=', picking.origin)
+                        ])
+                        if sales_orders:
+                            so = sales_orders[0]
+                            if so.invoice_status == 'invoiced':
+                                status = 'Invoiced'
+                            elif so.invoice_status == 'to invoice':
+                                status = 'To Invoice'
+                            elif so.invoice_status == 'no':
+                                status = 'No Invoice'
+                            else:
+                                status = so.invoice_status.title()
+                        else:
+                            status = 'No SO'
+                    else:
+                        status = 'No SO'
 
             # For internal transfers
             else:

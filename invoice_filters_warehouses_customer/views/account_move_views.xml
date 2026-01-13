@@ -1,9 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--<odoo>-->
+<!--    <data>-->
+
+<!--        &lt;!&ndash; ============================================== &ndash;&gt;-->
+<!--        &lt;!&ndash; Extend Invoice Tree View to Add Warehouse     &ndash;&gt;-->
+<!--        &lt;!&ndash; ============================================== &ndash;&gt;-->
+<!--        <record id="view_invoice_tree_inherit_warehouse_filter" model="ir.ui.view">-->
+<!--            <field name="name">account.move.tree.inherit.warehouse.filter</field>-->
+<!--            <field name="model">account.move</field>-->
+<!--            <field name="inherit_id" ref="account.view_invoice_tree"/>-->
+<!--            <field name="arch" type="xml">-->
+
+<!--                &lt;!&ndash; Add Warehouse column after Customer (partner_id) &ndash;&gt;-->
+<!--                <xpath expr="//field[@name='partner_id']" position="after">-->
+<!--                    <field name="warehouse_id"-->
+<!--                           optional="show"-->
+<!--                           string="Warehouse"/>-->
+<!--                </xpath>-->
+
+<!--            </field>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; ============================================== &ndash;&gt;-->
+<!--        &lt;!&ndash; Enhanced Search/Filter View                    &ndash;&gt;-->
+<!--        &lt;!&ndash; ============================================== &ndash;&gt;-->
+<!--        <record id="view_account_invoice_filter_inherit_custom" model="ir.ui.view">-->
+<!--            <field name="name">account.move.filter.inherit.warehouse.customer</field>-->
+<!--            <field name="model">account.move</field>-->
+<!--            <field name="inherit_id" ref="account.view_account_invoice_filter"/>-->
+<!--            <field name="arch" type="xml">-->
+
+<!--                &lt;!&ndash; Add Warehouse search field after invoice_user_id &ndash;&gt;-->
+<!--                <xpath expr="//field[@name='invoice_user_id']" position="after">-->
+<!--                    <field name="warehouse_id"-->
+<!--                           string="Warehouse"-->
+<!--                           filter_domain="[('warehouse_id', 'ilike', self)]"/>-->
+<!--                </xpath>-->
+
+<!--                &lt;!&ndash; Add Group By options after the existing group &ndash;&gt;-->
+<!--                <xpath expr="//group" position="inside">-->
+<!--                    <filter string="Warehouse"-->
+<!--                            name="group_by_warehouse"-->
+<!--                            context="{'group_by': 'warehouse_id'}"/>-->
+<!--                </xpath>-->
+
+<!--                &lt;!&ndash; Add custom filter sections at the end &ndash;&gt;-->
+<!--                <xpath expr="//search" position="inside">-->
+
+<!--                    &lt;!&ndash; Warehouse Filters Section &ndash;&gt;-->
+<!--                    <separator/>-->
+<!--                    <group expand="1" string="Filter by Warehouse">-->
+<!--                        <filter string="Dammam" name="filter_warehouse_dammam"-->
+<!--                                domain="[('warehouse_id.name', 'ilike', 'Dammam')]"/>-->
+<!--                        <filter string="Main" name="filter_warehouse_main"-->
+<!--                                domain="[('warehouse_id.name', 'ilike', 'MAIN')]"/>-->
+<!--                        <filter string="S00014" name="filter_warehouse_s00014"-->
+<!--                                domain="[('warehouse_id.name', 'ilike', 'S00014')]"/>-->
+<!--                        <filter string="S00017" name="filter_warehouse_s00017"-->
+<!--                                domain="[('warehouse_id.name', 'ilike', 'S00017')]"/>-->
+<!--                        <filter string="S00019" name="filter_warehouse_s00019"-->
+<!--                                domain="[('warehouse_id.name', 'ilike', 'S00019')]"/>-->
+<!--                        <filter string="S00020" name="filter_warehouse_s00020"-->
+<!--                                domain="[('warehouse_id.name', 'ilike', 'S00020')]"/>-->
+<!--                        <filter string="S00021" name="filter_warehouse_s00021"-->
+<!--                                domain="[('warehouse_id.name', 'ilike', 'S00021')]"/>-->
+<!--                        <filter string="S00022" name="filter_warehouse_s00022"-->
+<!--                                domain="[('warehouse_id.name', 'ilike', 'S00022')]"/>-->
+<!--                        <separator/>-->
+<!--                        <filter string="Has Warehouse" name="filter_has_warehouse"-->
+<!--                                domain="[('warehouse_id', '!=', False)]"/>-->
+<!--                        <filter string="No Warehouse" name="filter_no_warehouse"-->
+<!--                                domain="[('warehouse_id', '=', False)]"/>-->
+<!--                    </group>-->
+
+<!--                    &lt;!&ndash; Customer Filters Section &ndash;&gt;-->
+<!--                    <separator/>-->
+<!--                    <group expand="1" string="Filter by Customer">-->
+<!--                        <filter string="Customer 1" name="filter_customer_1"-->
+<!--                                domain="[('partner_id.name', 'ilike', 'customer 1')]"/>-->
+<!--                        <filter string="Customer 2" name="filter_customer_2"-->
+<!--                                domain="[('partner_id.name', 'ilike', 'customer 2')]"/>-->
+<!--                        <filter string="Customer 3" name="filter_customer_3"-->
+<!--                                domain="[('partner_id.name', 'ilike', 'customer 3')]"/>-->
+<!--                        <filter string="Customer 4" name="filter_customer_4"-->
+<!--                                domain="[('partner_id.name', 'ilike', 'customer 4')]"/>-->
+<!--                        <filter string="Test Customer" name="filter_test_customer"-->
+<!--                                domain="[('partner_id.name', 'ilike', 'Test Custo')]"/>-->
+<!--                        <filter string="Administrator" name="filter_administrator"-->
+<!--                                domain="[('partner_id.name', 'ilike', 'Administra')]"/>-->
+<!--                        <filter string="New Customer" name="filter_new_customer"-->
+<!--                                domain="[('partner_id.name', 'ilike', 'new_custo')]"/>-->
+<!--                    </group>-->
+
+<!--                    &lt;!&ndash; Combined Filters Section &ndash;&gt;-->
+<!--                    <separator/>-->
+<!--                    <group expand="0" string="Combined Filters">-->
+<!--                        <filter string="Dammam + Customer 1" name="filter_dammam_customer1"-->
+<!--                                domain="[('warehouse_id.name', 'ilike', 'Dammam'), ('partner_id.name', 'ilike', 'customer 1')]"/>-->
+<!--                        <filter string="Main + Customer 2" name="filter_main_customer2"-->
+<!--                                domain="[('warehouse_id.name', 'ilike', 'MAIN'), ('partner_id.name', 'ilike', 'customer 2')]"/>-->
+<!--                    </group>-->
+
+<!--                </xpath>-->
+
+<!--            </field>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; ============================================== &ndash;&gt;-->
+<!--        &lt;!&ndash; Add Warehouse to Invoice Form View            &ndash;&gt;-->
+<!--        &lt;!&ndash; ============================================== &ndash;&gt;-->
+<!--        <record id="view_move_form_inherit_warehouse_filter" model="ir.ui.view">-->
+<!--            <field name="name">account.move.form.inherit.warehouse.filter</field>-->
+<!--            <field name="model">account.move</field>-->
+<!--            <field name="inherit_id" ref="account.view_move_form"/>-->
+<!--            <field name="arch" type="xml">-->
+
+<!--                &lt;!&ndash; Add Warehouse field after invoice_date &ndash;&gt;-->
+<!--                <xpath expr="//field[@name='invoice_date']" position="after">-->
+<!--                    <field name="warehouse_id"-->
+<!--                           options="{'no_create': True, 'no_open': True}"-->
+<!--                           invisible="move_type not in ['out_invoice', 'out_refund']"/>-->
+<!--                </xpath>-->
+
+<!--            </field>-->
+<!--        </record>-->
+
+<!--    </data>-->
+<!--</odoo>-->
+
 <odoo>
     <data>
 
         <!-- ============================================== -->
         <!-- Extend Invoice Tree View to Add Warehouse     -->
+        <!-- SAFE for Odoo 19 (no partner_id xpath)        -->
         <!-- ============================================== -->
         <record id="view_invoice_tree_inherit_warehouse_filter" model="ir.ui.view">
             <field name="name">account.move.tree.inherit.warehouse.filter</field>
@@ -11,18 +141,18 @@
             <field name="inherit_id" ref="account.view_invoice_tree"/>
             <field name="arch" type="xml">
 
-                <!-- Add Warehouse column after Customer (partner_id) -->
-                <xpath expr="//field[@name='partner_id']" position="after">
+                <!-- Safely add Warehouse column -->
+                <xpath expr="//tree" position="inside">
                     <field name="warehouse_id"
-                           optional="show"
-                           string="Warehouse"/>
+                           string="Warehouse"
+                           optional="show"/>
                 </xpath>
 
             </field>
         </record>
 
         <!-- ============================================== -->
-        <!-- Enhanced Search/Filter View                    -->
+        <!-- Enhanced Search / Filter View                 -->
         <!-- ============================================== -->
         <record id="view_account_invoice_filter_inherit_custom" model="ir.ui.view">
             <field name="name">account.move.filter.inherit.warehouse.customer</field>
@@ -30,75 +160,76 @@
             <field name="inherit_id" ref="account.view_account_invoice_filter"/>
             <field name="arch" type="xml">
 
-                <!-- Add Warehouse search field after invoice_user_id -->
+                <!-- Add Warehouse search field -->
                 <xpath expr="//field[@name='invoice_user_id']" position="after">
                     <field name="warehouse_id"
-                           string="Warehouse"
-                           filter_domain="[('warehouse_id', 'ilike', self)]"/>
+                           string="Warehouse"/>
                 </xpath>
 
-                <!-- Add Group By options after the existing group -->
+                <!-- Group By Warehouse -->
                 <xpath expr="//group" position="inside">
                     <filter string="Warehouse"
                             name="group_by_warehouse"
                             context="{'group_by': 'warehouse_id'}"/>
                 </xpath>
 
-                <!-- Add custom filter sections at the end -->
+                <!-- Custom Filters -->
                 <xpath expr="//search" position="inside">
 
-                    <!-- Warehouse Filters Section -->
+                    <!-- Warehouse Filters -->
                     <separator/>
                     <group expand="1" string="Filter by Warehouse">
-                        <filter string="Dammam" name="filter_warehouse_dammam"
+                        <filter string="Dammam"
                                 domain="[('warehouse_id.name', 'ilike', 'Dammam')]"/>
-                        <filter string="Main" name="filter_warehouse_main"
+                        <filter string="Main"
                                 domain="[('warehouse_id.name', 'ilike', 'MAIN')]"/>
-                        <filter string="S00014" name="filter_warehouse_s00014"
+                        <filter string="S00014"
                                 domain="[('warehouse_id.name', 'ilike', 'S00014')]"/>
-                        <filter string="S00017" name="filter_warehouse_s00017"
+                        <filter string="S00017"
                                 domain="[('warehouse_id.name', 'ilike', 'S00017')]"/>
-                        <filter string="S00019" name="filter_warehouse_s00019"
+                        <filter string="S00019"
                                 domain="[('warehouse_id.name', 'ilike', 'S00019')]"/>
-                        <filter string="S00020" name="filter_warehouse_s00020"
+                        <filter string="S00020"
                                 domain="[('warehouse_id.name', 'ilike', 'S00020')]"/>
-                        <filter string="S00021" name="filter_warehouse_s00021"
+                        <filter string="S00021"
                                 domain="[('warehouse_id.name', 'ilike', 'S00021')]"/>
-                        <filter string="S00022" name="filter_warehouse_s00022"
+                        <filter string="S00022"
                                 domain="[('warehouse_id.name', 'ilike', 'S00022')]"/>
                         <separator/>
-                        <filter string="Has Warehouse" name="filter_has_warehouse"
+                        <filter string="Has Warehouse"
                                 domain="[('warehouse_id', '!=', False)]"/>
-                        <filter string="No Warehouse" name="filter_no_warehouse"
+                        <filter string="No Warehouse"
                                 domain="[('warehouse_id', '=', False)]"/>
                     </group>
 
-                    <!-- Customer Filters Section -->
+                    <!-- Customer Filters -->
                     <separator/>
                     <group expand="1" string="Filter by Customer">
-                        <filter string="Customer 1" name="filter_customer_1"
+                        <filter string="Customer 1"
                                 domain="[('partner_id.name', 'ilike', 'customer 1')]"/>
-                        <filter string="Customer 2" name="filter_customer_2"
+                        <filter string="Customer 2"
                                 domain="[('partner_id.name', 'ilike', 'customer 2')]"/>
-                        <filter string="Customer 3" name="filter_customer_3"
+                        <filter string="Customer 3"
                                 domain="[('partner_id.name', 'ilike', 'customer 3')]"/>
-                        <filter string="Customer 4" name="filter_customer_4"
+                        <filter string="Customer 4"
                                 domain="[('partner_id.name', 'ilike', 'customer 4')]"/>
-                        <filter string="Test Customer" name="filter_test_customer"
+                        <filter string="Test Customer"
                                 domain="[('partner_id.name', 'ilike', 'Test Custo')]"/>
-                        <filter string="Administrator" name="filter_administrator"
+                        <filter string="Administrator"
                                 domain="[('partner_id.name', 'ilike', 'Administra')]"/>
-                        <filter string="New Customer" name="filter_new_customer"
+                        <filter string="New Customer"
                                 domain="[('partner_id.name', 'ilike', 'new_custo')]"/>
                     </group>
 
-                    <!-- Combined Filters Section -->
+                    <!-- Combined Filters -->
                     <separator/>
                     <group expand="0" string="Combined Filters">
-                        <filter string="Dammam + Customer 1" name="filter_dammam_customer1"
-                                domain="[('warehouse_id.name', 'ilike', 'Dammam'), ('partner_id.name', 'ilike', 'customer 1')]"/>
-                        <filter string="Main + Customer 2" name="filter_main_customer2"
-                                domain="[('warehouse_id.name', 'ilike', 'MAIN'), ('partner_id.name', 'ilike', 'customer 2')]"/>
+                        <filter string="Dammam + Customer 1"
+                                domain="[('warehouse_id.name', 'ilike', 'Dammam'),
+                                         ('partner_id.name', 'ilike', 'customer 1')]"/>
+                        <filter string="Main + Customer 2"
+                                domain="[('warehouse_id.name', 'ilike', 'MAIN'),
+                                         ('partner_id.name', 'ilike', 'customer 2')]"/>
                     </group>
 
                 </xpath>
@@ -115,7 +246,7 @@
             <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
 
-                <!-- Add Warehouse field after invoice_date -->
+                <!-- Add Warehouse field after Invoice Date -->
                 <xpath expr="//field[@name='invoice_date']" position="after">
                     <field name="warehouse_id"
                            options="{'no_create': True, 'no_open': True}"

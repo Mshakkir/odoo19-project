@@ -1,14 +1,13 @@
 from odoo import models, fields, api
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError
 
 
 class AssetDepreciationLine(models.Model):
-    _inherit = 'account.asset.depreciation.line'  # OdooMates model name
+    _inherit = 'account.asset.depreciation.line'
 
     def action_post_depreciation(self):
         """
-        Post the depreciation journal entry for this line.
-        This method is called when the Post button is clicked.
+        Post the depreciation journal entry for this line instantly.
         """
         for line in self:
             # Check if already posted
@@ -30,14 +29,7 @@ class AssetDepreciationLine(models.Model):
                 line.move_id.action_post()
                 line.move_check = True
 
-            # Refresh the parent asset's residual value
-            if line.asset_id:
-                line.asset_id._compute_depreciation()
-
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'reload',
-        }
+        return True
 
     def action_unpost_depreciation(self):
         """
@@ -59,11 +51,4 @@ class AssetDepreciationLine(models.Model):
                         f"Cannot unpost entry: {str(e)}"
                     )
 
-            # Refresh the parent asset's residual value
-            if line.asset_id:
-                line.asset_id._compute_depreciation()
-
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'reload',
-        }
+        return True

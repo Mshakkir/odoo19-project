@@ -1,18 +1,17 @@
 <odoo>
 
-    <!-- Inherit ASSET FORM (REAL ID from your system) -->
     <record id="asset_form_add_post_button" model="ir.ui.view">
         <field name="name">asset.form.depreciation.post.button</field>
         <field name="model">account.asset.asset</field>
 
-        <!-- ✅ EXACT External ID -->
+        <!-- ✅ Correct parent view -->
         <field name="inherit_id"
                ref="om_account_asset.view_account_asset_asset_form"/>
 
         <field name="arch" type="xml">
 
-            <!-- Inject button inside depreciation list -->
-            <xpath expr="//page[@string='Depreciation Board']//list"
+            <!-- ✅ SAFE XPath (NO string attribute) -->
+            <xpath expr="//page[@name='depreciation_board']//list"
                    position="inside">
 
                 <button name="action_post_depreciation"

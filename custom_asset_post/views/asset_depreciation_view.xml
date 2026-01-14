@@ -2,33 +2,47 @@
 <odoo>
     <data>
 
-        <!-- Modify Asset Depreciation List View - Add Post Button -->
-        <record id="custom_depreciation_line_list_view" model="ir.ui.view">
-            <field name="name">account.asset.depreciation.line.list - Custom Post</field>
+        <!-- Modify Depreciation Line Form View - Add Post Button in Wizard -->
+        <record id="custom_depreciation_line_form_view" model="ir.ui.view">
+            <field name="name">account.asset.depreciation.line.form - Custom Post Button</field>
             <field name="model">account.asset.depreciation.line</field>
-            <field name="type">list</field>
-            <field name="inherit_id" ref="om_account_asset.view_account_asset_depreciation_line_list"/>
+            <field name="type">form</field>
             <field name="arch" type="xml">
+                <form string="Depreciation Line">
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                            <field name="move_id"/>
+                            <field name="linked"/>
+                        </group>
+                        <group>
+                            <field name="amount" widget="monetary"/>
+                            <field name="depreciation_date"/>
+                            <field name="depreciated_value"/>
+                            <field name="remaining_value"/>
+                        </group>
+                    </group>
 
-                <!-- Add Post Button after move_check field -->
-                <xpath expr="//field[@name='move_check']" position="after">
-                    <button name="action_post_depreciation"
-                            type="object"
-                            icon="fa-check-circle"
-                            string="Post"
-                            title="Post Depreciation Entry"
-                            invisible="move_check == True or parent_state != 'open'"
-                            class="btn-success btn-sm"/>
+                    <!-- Footer with Post Button -->
+                    <footer>
+                        <button name="action_post_depreciation"
+                                type="object"
+                                string="Post Depreciation"
+                                invisible="move_check == True"
+                                class="btn-success"
+                                title="Post this depreciation entry instantly"/>
 
-                    <button name="action_unpost_depreciation"
-                            type="object"
-                            icon="fa-times-circle"
-                            string="Unpost"
-                            title="Unpost Depreciation Entry"
-                            invisible="move_check == False or parent_state != 'open'"
-                            class="btn-warning btn-sm"/>
-                </xpath>
+                        <button name="action_unpost_depreciation"
+                                type="object"
+                                string="Unpost"
+                                invisible="move_check == False"
+                                class="btn-warning"
+                                title="Unpost this depreciation entry"/>
 
+                        <button string="Close" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
             </field>
         </record>
 

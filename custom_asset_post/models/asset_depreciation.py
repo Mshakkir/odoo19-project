@@ -29,7 +29,10 @@ class AssetDepreciationLine(models.Model):
                 line.move_id.action_post()
                 line.move_check = True
 
-        return True
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }
 
     def action_unpost_depreciation(self):
         """
@@ -51,4 +54,7 @@ class AssetDepreciationLine(models.Model):
                         f"Cannot unpost entry: {str(e)}"
                     )
 
-        return True
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }

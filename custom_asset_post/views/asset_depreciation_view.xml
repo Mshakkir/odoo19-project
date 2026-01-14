@@ -1,0 +1,20 @@
+<odoo>
+    <record id="asset_depreciation_line_tree_inherit_post" model="ir.ui.view">
+        <field name="name">asset.depreciation.line.tree.post.button</field>
+        <field name="model">account.asset.depreciation.line</field>
+        <field name="inherit_id" ref="account.view_asset_depreciation_line_tree"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//tree" position="inside">
+                <button
+                    name="action_post_depreciation"
+                    type="object"
+                    string="Post"
+                    class="btn-primary"
+                    attrs="{'invisible': [('move_id', '!=', False)]}"
+                />
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

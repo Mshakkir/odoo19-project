@@ -8,16 +8,16 @@
         <field name="inherit_id" ref="sale.view_sales_order_filter"/>
         <field name="arch" type="xml">
 
-            <!-- Remove the default Order Date field if it exists and add our custom ones -->
-            <xpath expr="//field[@name='date_order']" position="replace">
+            <!-- Add our custom date fields at the beginning of search -->
+            <xpath expr="//search/field[1]" position="before">
                 <!-- Order Date From with date widget -->
                 <field name="date_order"
-                       string="Order Date From"
+                       string="From Date"
                        filter_domain="[('date_order', '&gt;=', self)]"
                        widget="date"/>
                 <!-- Order Date To with date widget -->
                 <field name="date_order"
-                       string="Order Date To"
+                       string="To Date"
                        filter_domain="[('date_order', '&lt;=', self)]"
                        widget="date"/>
             </xpath>

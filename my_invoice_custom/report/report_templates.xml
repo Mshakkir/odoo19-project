@@ -208,7 +208,7 @@
                     </div>
 
                     <!-- Customer Details -->
-                    <div style="margin-bottom:10px; font-size:12px;">
+                    <div style="margin-bottom:10px; font-size:12px;border-right:1px solid #000000;">
                         <table style="width:100%; border-collapse:collapse;">
                             <tr style="background-color:#FFFFFF;border:1px solid #000000;border-right:1px solid #000000;">
                                 <td style="padding:4px 8px; font-weight:bold;">

@@ -1,44 +1,33 @@
 <odoo>
     <template id="restrict_checkout_country"
               inherit_id="website_sale.address_form_fields">
-
         <xpath expr="//select[@name='country_id']" position="replace">
-
             <div class="mb-3">
                 <label class="form-label" for="country_id">
                     Country
                 </label>
-
                 <select name="country_id"
                         id="country_id"
                         class="form-select"
                         required="required">
-
                     <!-- Default option -->
                     <option value=""
                             disabled="disabled"
-                            t-att-selected="not checkout.partner_id.country_id">
+                            t-att-selected="not partner.country_id if partner else True">
                         Select Country
                     </option>
-
                     <!-- Saudi Arabia -->
                     <option t-att-value="request.env.ref('base.sa').id"
-                            t-att-selected="checkout.partner_id.country_id
-                                            and checkout.partner_id.country_id.id == request.env.ref('base.sa').id">
+                            t-att-selected="partner.country_id.id == request.env.ref('base.sa').id if partner and partner.country_id else False">
                         Saudi Arabia
                     </option>
-
                     <!-- Bahrain -->
                     <option t-att-value="request.env.ref('base.bh').id"
-                            t-att-selected="checkout.partner_id.country_id
-                                            and checkout.partner_id.country_id.id == request.env.ref('base.bh').id">
+                            t-att-selected="partner.country_id.id == request.env.ref('base.bh').id if partner and partner.country_id else False">
                         Bahrain
                     </option>
-
                 </select>
             </div>
-
         </xpath>
-
     </template>
 </odoo>

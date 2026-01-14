@@ -12,7 +12,7 @@ class AssetDepreciationLine(models.Model):
         """
         for line in self:
             # Check if already posted
-            if line.move_id and line.move_id.state == 'posted':
+            if line.move_check:
                 raise UserError(
                     f"Depreciation line dated {line.depreciation_date} "
                     f"is already posted."
@@ -28,6 +28,7 @@ class AssetDepreciationLine(models.Model):
             # Post the journal entry
             if line.move_id.state == 'draft':
                 line.move_id.action_post()
+                line.move_check = True
 
             # Refresh the parent asset's residual value
             if line.asset_id:
@@ -43,15 +44,16 @@ class AssetDepreciationLine(models.Model):
         Unpost the depreciation journal entry for this line.
         """
         for line in self:
-            if not line.move_id or line.move_id.state != 'posted':
+            if not line.move_check:
                 raise UserError(
                     f"Depreciation line dated {line.depreciation_date} "
-                    f"is not posted or has no entry."
+                    f"is not posted."
                 )
 
-            if line.move_id:
+            if line.move_id and line.move_id.state == 'posted':
                 try:
                     line.move_id.button_draft()
+                    line.move_check = False
                 except Exception as e:
                     raise UserError(
                         f"Cannot unpost entry: {str(e)}"

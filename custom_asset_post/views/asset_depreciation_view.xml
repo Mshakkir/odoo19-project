@@ -2,82 +2,84 @@
 <odoo>
     <data>
 
-        <!-- Modify Asset Form View -->
+        <!-- Custom Depreciation Line List View with Post Button -->
+        <record id="custom_depreciation_line_tree_view" model="ir.ui.view">
+            <field name="name">account.asset.depreciation.line.tree - Custom Post Button</field>
+            <field name="model">account.asset.depreciation.line</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Depreciation Lines"
+                      decoration-info="(move_id.state == 'draft')"
+                      decoration-success="(move_id.state == 'posted')"
+                      create="false">
+                    <field name="depreciation_date"/>
+                    <field name="amount" widget="monetary" string="Depreciation"/>
+                    <field name="depreciated_value" readonly="1"/>
+                    <field name="remaining_value" readonly="1" widget="monetary" string="Residual"/>
+
+                    <!-- Custom Post Button -->
+                    <button name="action_post_depreciation"
+                            type="object"
+                            icon="fa-check-circle"
+                            string="Post"
+                            title="Post Depreciation Entry"
+                            invisible="move_id.state != 'draft'"
+                            class="btn-success btn-sm"/>
+
+                    <!-- Unpost Button -->
+                    <button name="action_unpost_depreciation"
+                            type="object"
+                            icon="fa-times-circle"
+                            string="Unpost"
+                            title="Unpost Depreciation Entry"
+                            invisible="move_id.state != 'posted'"
+                            class="btn-warning btn-sm"/>
+
+                    <field name="move_id" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Modify Asset Form View - Using xpath to update depreciation lines -->
         <record id="custom_asset_form_view" model="ir.ui.view">
             <field name="name">account.asset.form - Custom Depreciation Board</field>
             <field name="model">account.asset</field>
             <field name="inherit_id" ref="om_account_asset.view_account_asset_form"/>
             <field name="arch" type="xml">
 
-                <!-- Replace depreciation_line_ids field -->
-                <xpath expr="//field[@name='depreciation_line_ids']" position="replace">
-                    <field name="depreciation_line_ids" mode="list"
-                           readonly="state not in ('draft', 'open')"
-                           options="{'reload_whole_on_button': true}">
+                <!-- Replace the depreciation_line_ids list view only -->
+                <xpath expr="//field[@name='depreciation_line_ids']/list" position="replace">
+                    <list string="Depreciation Lines"
+                          decoration-info="(move_check == False)"
+                          decoration-success="(move_check == True)"
+                          create="false">
+                        <field name="depreciation_date"/>
+                        <field name="amount" widget="monetary" string="Depreciation"/>
+                        <field name="depreciated_value" readonly="1"/>
+                        <field name="remaining_value" readonly="1" widget="monetary" string="Residual"/>
 
-                        <!-- List View with Post Button -->
-                        <list string="Depreciation Lines"
-                              decoration-info="(move_id.state == 'draft')"
-                              decoration-success="(move_id.state == 'posted')"
-                              create="false">
-                            <field name="depreciation_date"/>
-                            <field name="amount" widget="monetary" string="Depreciation"/>
-                            <field name="depreciated_value" readonly="1"/>
-                            <field name="remaining_value" readonly="1" widget="monetary" string="Residual"/>
+                        <!-- Custom Post Button -->
+                        <button name="action_post_depreciation"
+                                type="object"
+                                icon="fa-check-circle"
+                                string="Post"
+                                title="Post Depreciation Entry"
+                                invisible="move_check == True or parent_state != 'open'"
+                                class="btn-success btn-sm"/>
 
-                            <!-- Custom Post Button -->
-                            <button name="action_post_depreciation"
-                                    type="object"
-                                    icon="fa-check-circle"
-                                    string="Post"
-                                    title="Post Depreciation Entry"
-                                    invisible="move_id.state != 'draft' or parent_state != 'open'"
-                                    class="btn-success btn-sm"/>
+                        <!-- Unpost Button -->
+                        <button name="action_unpost_depreciation"
+                                type="object"
+                                icon="fa-times-circle"
+                                string="Unpost"
+                                title="Unpost Depreciation Entry"
+                                invisible="move_check == False or parent_state != 'open'"
+                                class="btn-warning btn-sm"/>
 
-                            <!-- Unpost Button (Optional) -->
-                            <button name="action_unpost_depreciation"
-                                    type="object"
-                                    icon="fa-times-circle"
-                                    string="Unpost"
-                                    title="Unpost Depreciation Entry"
-                                    invisible="move_id.state != 'posted' or parent_state != 'open'"
-                                    class="btn-warning btn-sm"/>
-
-                            <field name="move_id" invisible="1"/>
-                            <field name="parent_state" invisible="1"/>
-                        </list>
-
-                        <!-- Form View for editing -->
-                        <form string="Depreciation Lines" create="false">
-                            <group>
-                                <group>
-                                    <field name="parent_state" invisible="1"/>
-                                    <field name="name"/>
-                                    <field name="sequence"/>
-                                    <field name="move_id"/>
-                                </group>
-                                <group>
-                                    <field name="amount" widget="monetary"/>
-                                    <field name="depreciation_date"/>
-                                    <field name="depreciated_value"/>
-                                    <field name="remaining_value"/>
-                                </group>
-                            </group>
-                            <footer>
-                                <button name="action_post_depreciation"
-                                        type="object"
-                                        string="Post Entry"
-                                        invisible="move_id.state != 'draft'"
-                                        class="btn-success"/>
-                                <button name="action_unpost_depreciation"
-                                        type="object"
-                                        string="Unpost Entry"
-                                        invisible="move_id.state != 'posted'"
-                                        class="btn-warning"/>
-                                <button string="Close" class="btn-secondary" special="cancel"/>
-                            </footer>
-                        </form>
-                    </field>
+                        <field name="move_check" widget="deprec_lines_toggler" invisible="parent_state != 'open'"/>
+                        <field name="move_posted_check" invisible="1"/>
+                        <field name="parent_state" invisible="1"/>
+                    </list>
                 </xpath>
 
             </field>

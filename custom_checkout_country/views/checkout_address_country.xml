@@ -1,0 +1,43 @@
+<odoo>
+    <!-- Restrict Country Dropdown to Saudi Arabia & Bahrain -->
+    <template id="restrict_checkout_country"
+              inherit_id="website_sale.address_form_fields">
+
+        <!-- Replace country dropdown -->
+        <xpath expr="//select[@name='country_id']" position="replace">
+
+            <div class="mb-3">
+                <label class="form-label" for="country_id">
+                    Country
+                </label>
+
+                <select name="country_id"
+                        id="country_id"
+                        class="form-select"
+                        required="required">
+
+                    <!-- Saudi Arabia -->
+                    <option value=""
+                            disabled="disabled"
+                            t-att-selected="not partner.country_id">
+                        Select Country
+                    </option>
+
+                    <option t-att-value="request.env.ref('base.sa').id"
+                            t-att-selected="partner.country_id.id == request.env.ref('base.sa').id">
+                        Saudi Arabia
+                    </option>
+
+                    <!-- Bahrain -->
+                    <option t-att-value="request.env.ref('base.bh').id"
+                            t-att-selected="partner.country_id.id == request.env.ref('base.bh').id">
+                        Bahrain
+                    </option>
+
+                </select>
+            </div>
+
+        </xpath>
+
+    </template>
+</odoo>

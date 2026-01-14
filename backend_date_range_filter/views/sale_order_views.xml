@@ -8,41 +8,45 @@
         <field name="inherit_id" ref="sale.view_sales_order_filter"/>
         <field name="arch" type="xml">
 
-            <!-- Add date fields as searchable in the search bar -->
-            <xpath expr="//search" position="inside">
-                <!-- Order Date From -->
+            <!-- Remove the default Order Date field if it exists and add our custom ones -->
+            <xpath expr="//field[@name='date_order']" position="replace">
+                <!-- Order Date From with date widget -->
                 <field name="date_order"
                        string="Order Date From"
-                       filter_domain="[('date_order', '&gt;=', self)]"/>
-                <!-- Order Date To -->
+                       filter_domain="[('date_order', '&gt;=', self)]"
+                       widget="date"/>
+                <!-- Order Date To with date widget -->
                 <field name="date_order"
                        string="Order Date To"
-                       filter_domain="[('date_order', '&lt;=', self)]"/>
+                       filter_domain="[('date_order', '&lt;=', self)]"
+                       widget="date"/>
+            </xpath>
 
-                <!-- Add quick filter buttons -->
+            <!-- Add convenient quick filters at the end -->
+            <xpath expr="//search" position="inside">
                 <separator/>
-                <filter string="Today" name="custom_filter_today"
+                <filter string="📅 Today" name="custom_filter_today"
                         domain="[('date_order', '&gt;=', datetime.datetime.combine(context_today(), datetime.time.min)),
                                 ('date_order', '&lt;=', datetime.datetime.combine(context_today(), datetime.time.max))]"
                         help="Orders from today"/>
-                <filter string="This Week" name="custom_filter_this_week"
+                <filter string="📅 This Week" name="custom_filter_this_week"
                         domain="[('date_order', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday()))),
                                 ('date_order', '&lt;=', context_today())]"
                         help="Orders from this week"/>
-                <filter string="This Month" name="custom_filter_this_month"
+                <filter string="📅 This Month" name="custom_filter_this_month"
                         domain="[('date_order', '&gt;=', (context_today().replace(day=1))),
                                 ('date_order', '&lt;=', context_today())]"
                         help="Orders from this month"/>
-                <filter string="This Year" name="custom_filter_this_year"
+                <filter string="📅 This Year" name="custom_filter_this_year"
                         domain="[('date_order', '&gt;=', (context_today().replace(month=1, day=1))),
                                 ('date_order', '&lt;=', context_today())]"
                         help="Orders from this year"/>
                 <separator/>
-                <filter string="Last Month" name="custom_filter_last_month"
+                <filter string="📅 Last Month" name="custom_filter_last_month"
                         domain="[('date_order', '&gt;=', (context_today().replace(day=1) - datetime.timedelta(days=1)).replace(day=1)),
                                 ('date_order', '&lt;', context_today().replace(day=1))]"
                         help="Orders from last month"/>
-                <filter string="Last Year" name="custom_filter_last_year"
+                <filter string="📅 Last Year" name="custom_filter_last_year"
                         domain="[('date_order', '&gt;=', datetime.date(context_today().year - 1, 1, 1)),
                                 ('date_order', '&lt;', datetime.date(context_today().year, 1, 1))]"
                         help="Orders from last year"/>

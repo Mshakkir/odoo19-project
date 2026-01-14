@@ -9,7 +9,14 @@
         <field name="binding_view_types">list</field>
         <field name="state">code</field>
         <field name="code">
-action = env.ref('sale_order_date_filter_wizard.action_sale_order_date_filter_wizard').read()[0]
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Filter by Date Range',
+    'res_model': 'sale.order.date.filter.wizard',
+    'view_mode': 'form',
+    'target': 'new',
+    'views': [(False, 'form')],
+}
         </field>
     </record>
 

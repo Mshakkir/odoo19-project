@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Date Filter Panel Form -->
+    <record id="view_sale_order_date_panel_form" model="ir.ui.view">
+        <field name="name">sale.order.date.panel.form</field>
+        <field name="model">sale.order.date.panel</field>
+        <field name="arch" type="xml">
+            <form string="Filter Sales Orders">
+                <group col="4">
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                    <button name="action_apply"
+                            string="Apply"
+                            type="object"
+                            class="btn-primary"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+</odoo>

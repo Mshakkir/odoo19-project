@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Add Date Range Input Boxes to Sale Orders List View -->
+    <record id="view_sales_order_search_date_inputs" model="ir.ui.view">
+        <field name="name">sale.order.search.date.inputs</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+
+            <!-- Add date fields as filterable fields in search bar -->
+            <xpath expr="//field[@name='name']" position="after">
+                <!-- From Date Field -->
+                <field name="date_order"
+                       string="Order Date From"
+                       filter_domain="[('date_order', '&gt;=', self)]"
+                       widget="date"
+                       placeholder="From Date"/>
+                <!-- To Date Field -->
+                <field name="date_order"
+                       string="Order Date To"
+                       filter_domain="[('date_order', '&lt;=', self)]"
+                       widget="date"
+                       placeholder="To Date"/>
+            </xpath>
+
+            <!-- Add convenient quick filters -->
+            <xpath expr="//filter[@name='my_quotation']" position="after">
+                <separator/>
+                <filter string="Today" name="filter_today"
+                        domain="[('date_order', '&gt;=', datetime.datetime.combine(context_today(), datetime.time.min)),
+                                ('date_order', '&lt;=', datetime.datetime.combine(context_today(), datetime.time.max))]"
+                        help="Orders from today"/>
+                <filter string="This Month" name="filter_this_month"
+                        domain="[('date_order', '&gt;=', datetime.datetime.combine((context_today().replace(day=1)), datetime.time.min)),
+                                ('date_order', '&lt;=', datetime.datetime.combine(context_today(), datetime.time.max))]"
+                        help="Orders from this month"/>
+                <filter string="This Year" name="filter_this_year"
+                        domain="[('date_order', '&gt;=', datetime.datetime.combine((context_today().replace(month=1, day=1)), datetime.time.min)),
+                                ('date_order', '&lt;=', datetime.datetime.combine(context_today(), datetime.time.max))]"
+                        help="Orders from this year"/>
+            </xpath>
+
+            <!-- Add Group By options -->
+            <xpath expr="//filter[@name='order_month']" position="after">
+                <filter string="Order Week" name="order_week"
+                        context="{'group_by': 'date_order:week'}"
+                        help="Group by order week"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

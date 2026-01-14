@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Add Date Range Input Boxes to Invoices/Bills -->
+    <record id="view_account_invoice_search_date_inputs" model="ir.ui.view">
+        <field name="name">account.move.search.date.inputs</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+        <field name="arch" type="xml">
+
+            <!-- Add invoice date fields as filterable in search bar -->
+            <xpath expr="//field[@name='name']" position="after">
+                <!-- Invoice Date From -->
+                <field name="invoice_date"
+                       string="Invoice Date From"
+                       filter_domain="[('invoice_date', '&gt;=', self)]"
+                       widget="date"/>
+                <!-- Invoice Date To -->
+                <field name="invoice_date"
+                       string="Invoice Date To"
+                       filter_domain="[('invoice_date', '&lt;=', self)]"
+                       widget="date"/>
+                <!-- Due Date From -->
+                <field name="invoice_date_due"
+                       string="Due Date From"
+                       filter_domain="[('invoice_date_due', '&gt;=', self)]"
+                       widget="date"/>
+                <!-- Due Date To -->
+                <field name="invoice_date_due"
+                       string="Due Date To"
+                       filter_domain="[('invoice_date_due', '&lt;=', self)]"
+                       widget="date"/>
+            </xpath>
+
+            <!-- Add convenient quick filters at the end -->
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter string="Invoice Today" name="invoice_today"
+                        domain="[('invoice_date', '=', context_today())]"
+                        help="Invoices from today"/>
+                <filter string="Invoice This Week" name="invoice_this_week"
+                        domain="[('invoice_date', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday()))),
+                                ('invoice_date', '&lt;=', context_today())]"
+                        help="Invoices from this week"/>
+                <filter string="Invoice This Month" name="invoice_this_month"
+                        domain="[('invoice_date', '&gt;=', (context_today().replace(day=1))),
+                                ('invoice_date', '&lt;=', context_today())]"
+                        help="Invoices from this month"/>
+                <filter string="Invoice This Year" name="invoice_this_year"
+                        domain="[('invoice_date', '&gt;=', (context_today().replace(month=1, day=1))),
+                                ('invoice_date', '&lt;=', context_today())]"
+                        help="Invoices from this year"/>
+                <separator/>
+                <filter string="Overdue Invoices" name="overdue"
+                        domain="[('invoice_date_due', '&lt;', context_today()),
+                                ('payment_state', 'in', ['not_paid', 'partial']),
+                                ('state', '=', 'posted'),
+                                ('move_type', 'in', ['out_invoice', 'out_refund'])]"
+                        help="Overdue customer invoices"/>
+                <filter string="Due This Month" name="due_this_month"
+                        domain="[('invoice_date_due', '&gt;=', (context_today().replace(day=1))),
+                                ('invoice_date_due', '&lt;=', context_today()),
+                                ('payment_state', 'in', ['not_paid', 'partial']),
+                                ('state', '=', 'posted')]"
+                        help="Due this month"/>
+                <filter string="Due Next 30 Days" name="due_next_30"
+                        domain="[('invoice_date_due', '&gt;=', context_today()),
+                                ('invoice_date_due', '&lt;=', (context_today() + datetime.timedelta(days=30))),
+                                ('payment_state', 'in', ['not_paid', 'partial']),
+                                ('state', '=', 'posted')]"
+                        help="Due in next 30 days"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

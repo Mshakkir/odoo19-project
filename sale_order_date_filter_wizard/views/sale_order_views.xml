@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Add Date Filter Button in Sale Orders Tree View -->
+    <record id="view_order_tree_inherit_date_filter" model="ir.ui.view">
+        <field name="name">sale.order.tree.inherit.date.filter</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree"/>
+        <field name="arch" type="xml">
+            <!-- Add button in tree header -->
+            <xpath expr="//tree" position="inside">
+                <header>
+                    <button name="%(action_sale_order_date_filter_wizard)d"
+                            string="📅 Filter by Date Range"
+                            type="action"
+                            class="btn-primary"/>
+                </header>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

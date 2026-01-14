@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add date range filter to portal search bar - Pure HTML Form with Submit Button -->
+    <template id="date_range_search_bar" inherit_id="portal.portal_searchbar">
+        <xpath expr="//div[@t-if='searchbar_sortings']" position="before">
+            <div t-if="searchbar_date_range" class="o_searchbar_date_range d-flex align-items-center me-3">
+                <form method="get" class="d-flex align-items-center" id="date_filter_form">
+                    <span class="small me-2 navbar-text">
+                        <t t-esc="searchbar_date_range['label']"/>:
+                    </span>
+                    <div class="d-flex align-items-center">
+                        <!-- From Date Input -->
+                        <input
+                            type="date"
+                            class="form-control form-control-sm me-2"
+                            t-att-value="searchbar_date_range_from"
+                            placeholder="From"
+                            name="searchbar_date_range_from"
+                            style="max-width: 150px;"/>
+
+                        <i class="fa fa-arrow-right mx-2"></i>
+
+                        <!-- To Date Input -->
+                        <input
+                            type="date"
+                            class="form-control form-control-sm ms-2 me-2"
+                            t-att-value="searchbar_date_range_to"
+                            placeholder="To"
+                            name="searchbar_date_range_to"
+                            style="max-width: 150px;"/>
+
+                        <!-- Apply Filter Button -->
+                        <button type="submit" class="btn btn-sm btn-primary ms-2">
+                            <i class="fa fa-filter"></i> Apply
+                        </button>
+
+                        <!-- Clear Filter Button -->
+                        <t t-if="searchbar_date_range_from or searchbar_date_range_to">
+                            <a t-att-href="default_url + '?sortby=' + sortby"
+                               class="btn btn-sm btn-secondary ms-2"
+                               title="Clear date filter">
+                                <i class="fa fa-times"></i> Clear
+                            </a>
+                        </t>
+
+                        <!-- Hidden fields to preserve other parameters -->
+                        <input type="hidden" name="sortby" t-att-value="sortby"/>
+                        <input type="hidden" name="page" value="1"/>
+                    </div>
+                </form>
+            </div>
+        </xpath>
+    </template>
+</odoo>

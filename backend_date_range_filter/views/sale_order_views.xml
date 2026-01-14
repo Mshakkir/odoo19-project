@@ -8,27 +8,21 @@
         <field name="inherit_id" ref="sale.view_sales_order_filter"/>
         <field name="arch" type="xml">
 
-            <!-- Add date fields as filterable fields in search bar -->
-            <xpath expr="//field[@name='name']" position="after">
-                <!-- From Date Field -->
+            <!-- Add date fields at the beginning of search -->
+            <xpath expr="//search" position="inside">
+                <!-- Order Date From -->
                 <field name="date_order"
                        string="Order Date From"
-                       filter_domain="[('date_order', '&gt;=', self)]"
-                       widget="date"/>
-                <!-- To Date Field -->
+                       filter_domain="[('date_order', '&gt;=', self)]"/>
+                <!-- Order Date To -->
                 <field name="date_order"
                        string="Order Date To"
-                       filter_domain="[('date_order', '&lt;=', self)]"
-                       widget="date"/>
+                       filter_domain="[('date_order', '&lt;=', self)]"/>
             </xpath>
 
-            <!-- Add convenient quick filters at the end of search -->
-            <xpath expr="//search" position="inside">
+            <!-- Add convenient quick filters -->
+            <xpath expr="//filter[@name='sales_order_today']" position="after">
                 <separator/>
-                <filter string="Today" name="filter_today"
-                        domain="[('date_order', '&gt;=', datetime.datetime.combine(context_today(), datetime.time.min)),
-                                ('date_order', '&lt;=', datetime.datetime.combine(context_today(), datetime.time.max))]"
-                        help="Orders from today"/>
                 <filter string="This Week" name="filter_this_week"
                         domain="[('date_order', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday()))),
                                 ('date_order', '&lt;=', context_today())]"

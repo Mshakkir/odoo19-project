@@ -28,16 +28,17 @@ class SaleOrderDateFilterWizard(models.TransientModel):
             ('date_order', '<=', self.date_to),
         ]
 
-        # Return action to show filtered sale orders
-        return {
-            'name': f'Sale Orders ({self.date_from} to {self.date_to})',
-            'type': 'ir.actions.act_window',
-            'res_model': 'sale.order',
-            'view_mode': 'tree,form',
+        # Get the sale order action
+        action = self.env.ref('sale.action_orders').read()[0]
+
+        # Update the action with our domain
+        action.update({
             'domain': domain,
             'context': {
                 'search_default_date_from': self.date_from,
                 'search_default_date_to': self.date_to,
             },
-            'target': 'current',
-        }
+            'display_name': f'Sale Orders ({self.date_from} to {self.date_to})',
+        })
+
+        return action

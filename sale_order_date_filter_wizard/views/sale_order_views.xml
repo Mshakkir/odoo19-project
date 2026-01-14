@@ -1,22 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Server Action to Open Wizard -->
-    <record id="action_open_date_filter_wizard" model="ir.actions.server">
-        <field name="name">Filter by Date Range</field>
-        <field name="model_id" ref="sale.model_sale_order"/>
-        <field name="binding_model_id" ref="sale.model_sale_order"/>
-        <field name="binding_view_types">list</field>
-        <field name="state">code</field>
-        <field name="code">
-action = {
-    'type': 'ir.actions.act_window',
-    'name': 'Filter by Date Range',
-    'res_model': 'sale.order.date.filter.wizard',
-    'view_mode': 'form',
-    'target': 'new',
-}
+    <!-- Add button to open wizard from form view -->
+    <record id="view_order_form_inherit_date_filter" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.date.filter</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_quotation_send']" position="before">
+                <button name="%(action_sale_order_date_filter_wizard)d"
+                        string="📅 Filter Orders by Date"
+                        type="action"
+                        groups="base.group_user"/>
+            </xpath>
         </field>
     </record>
+
+    <!-- Add menu item under Sales -->
+    <menuitem id="menu_sale_order_date_filter"
+              name="Filter Orders by Date"
+              parent="sale.sale_order_menu"
+              action="action_sale_order_date_filter_wizard"
+              sequence="100"/>
 
 </odoo>

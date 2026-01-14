@@ -14,38 +14,42 @@
                 <field name="date_order"
                        string="Order Date From"
                        filter_domain="[('date_order', '&gt;=', self)]"
-                       widget="date"
-                       placeholder="From Date"/>
+                       widget="date"/>
                 <!-- To Date Field -->
                 <field name="date_order"
                        string="Order Date To"
                        filter_domain="[('date_order', '&lt;=', self)]"
-                       widget="date"
-                       placeholder="To Date"/>
+                       widget="date"/>
             </xpath>
 
-            <!-- Add convenient quick filters -->
-            <xpath expr="//filter[@name='my_quotation']" position="after">
+            <!-- Add convenient quick filters at the end of search -->
+            <xpath expr="//search" position="inside">
                 <separator/>
                 <filter string="Today" name="filter_today"
                         domain="[('date_order', '&gt;=', datetime.datetime.combine(context_today(), datetime.time.min)),
                                 ('date_order', '&lt;=', datetime.datetime.combine(context_today(), datetime.time.max))]"
                         help="Orders from today"/>
+                <filter string="This Week" name="filter_this_week"
+                        domain="[('date_order', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday()))),
+                                ('date_order', '&lt;=', context_today())]"
+                        help="Orders from this week"/>
                 <filter string="This Month" name="filter_this_month"
-                        domain="[('date_order', '&gt;=', datetime.datetime.combine((context_today().replace(day=1)), datetime.time.min)),
-                                ('date_order', '&lt;=', datetime.datetime.combine(context_today(), datetime.time.max))]"
+                        domain="[('date_order', '&gt;=', (context_today().replace(day=1))),
+                                ('date_order', '&lt;=', context_today())]"
                         help="Orders from this month"/>
                 <filter string="This Year" name="filter_this_year"
-                        domain="[('date_order', '&gt;=', datetime.datetime.combine((context_today().replace(month=1, day=1)), datetime.time.min)),
-                                ('date_order', '&lt;=', datetime.datetime.combine(context_today(), datetime.time.max))]"
+                        domain="[('date_order', '&gt;=', (context_today().replace(month=1, day=1))),
+                                ('date_order', '&lt;=', context_today())]"
                         help="Orders from this year"/>
-            </xpath>
-
-            <!-- Add Group By options -->
-            <xpath expr="//filter[@name='order_month']" position="after">
-                <filter string="Order Week" name="order_week"
-                        context="{'group_by': 'date_order:week'}"
-                        help="Group by order week"/>
+                <separator/>
+                <filter string="Last Month" name="filter_last_month"
+                        domain="[('date_order', '&gt;=', (context_today().replace(day=1) - datetime.timedelta(days=1)).replace(day=1)),
+                                ('date_order', '&lt;', context_today().replace(day=1))]"
+                        help="Orders from last month"/>
+                <filter string="Last Year" name="filter_last_year"
+                        domain="[('date_order', '&gt;=', datetime.date(context_today().year - 1, 1, 1)),
+                                ('date_order', '&lt;', datetime.date(context_today().year, 1, 1))]"
+                        help="Orders from last year"/>
             </xpath>
 
         </field>

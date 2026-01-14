@@ -7,8 +7,8 @@
     'website': 'https://yourcompany.com',
     'license': 'LGPL-3',
     'depends': [
-        'account_asset',
         'account',
+        'om_account_asset',  # OdooMates Asset Management Module
     ],
     'data': [
         'views/asset_depreciation_view.xml',

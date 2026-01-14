@@ -3,7 +3,7 @@ from odoo.exceptions import UserError, ValidationError
 
 
 class AssetDepreciationLine(models.Model):
-    _inherit = 'account.asset.depreciation.line'
+    _inherit = 'account.asset.depreciation.line'  # OdooMates model name
 
     def action_post_depreciation(self):
         """
@@ -12,7 +12,7 @@ class AssetDepreciationLine(models.Model):
         """
         for line in self:
             # Check if already posted
-            if line.move_posted_check:
+            if line.move_id and line.move_id.state == 'posted':
                 raise UserError(
                     f"Depreciation line dated {line.depreciation_date} "
                     f"is already posted."
@@ -28,11 +28,10 @@ class AssetDepreciationLine(models.Model):
             # Post the journal entry
             if line.move_id.state == 'draft':
                 line.move_id.action_post()
-                line.move_check = True
 
             # Refresh the parent asset's residual value
             if line.asset_id:
-                line.asset_id._compute_value_residual()
+                line.asset_id._compute_depreciation()
 
         return {
             'type': 'ir.actions.client',
@@ -44,23 +43,25 @@ class AssetDepreciationLine(models.Model):
         Unpost the depreciation journal entry for this line.
         """
         for line in self:
-            if not line.move_posted_check:
+            if not line.move_id or line.move_id.state != 'posted':
                 raise UserError(
                     f"Depreciation line dated {line.depreciation_date} "
-                    f"is not yet posted."
+                    f"is not posted or has no entry."
                 )
 
-            if line.move_id and line.move_id.state == 'posted':
-                # Check if move can be unposted (no locks, etc.)
-                line.move_id.button_draft()
-                line.move_check = False
+            if line.move_id:
+                try:
+                    line.move_id.button_draft()
+                except Exception as e:
+                    raise UserError(
+                        f"Cannot unpost entry: {str(e)}"
+                    )
 
             # Refresh the parent asset's residual value
             if line.asset_id:
-                line.asset_id._compute_value_residual()
+                line.asset_id._compute_depreciation()
 
         return {
             'type': 'ir.actions.client',
             'tag': 'reload',
         }
-

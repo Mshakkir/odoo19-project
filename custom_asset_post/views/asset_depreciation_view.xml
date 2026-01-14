@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <record id="asset_depreciation_line_tree_post_btn" model="ir.ui.view">
+    <record id="asset_depreciation_line_tree_post_button" model="ir.ui.view">
         <field name="name">asset.depreciation.line.tree.post.button</field>
         <field name="model">account.asset.depreciation.line</field>
 
-        <!-- 🔴 IMPORTANT: inherit ODOOMATES view, NOT account -->
+        <!-- ✅ Correct parent view from om_account_asset -->
         <field name="inherit_id"
-               ref="odoomates_accounting.view_asset_depreciation_line_tree"/>
+               ref="om_account_asset.view_asset_depreciation_line_tree"/>
 
         <field name="arch" type="xml">
             <xpath expr="//list" position="inside">

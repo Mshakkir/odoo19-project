@@ -3,7 +3,7 @@
     "version": "1.0",
     "depends": [
         "account",
-        "odoomates_accounting",  # keep this
+        "om_account_asset",  # keep this
     ],
     "data": [
         "views/asset_depreciation_view.xml",

@@ -1,64 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Inherit Asset Form View to Add Post Button -->
-    <record id="view_account_asset_form_inherit" model="ir.ui.view">
-        <field name="name">account.asset.asset.form.inherit</field>
+    <!-- Inherit the depreciation line list to add post button -->
+    <record id="view_account_asset_form_inherit_post" model="ir.ui.view">
+        <field name="name">account.asset.asset.form.inherit.post</field>
         <field name="model">account.asset.asset</field>
         <field name="inherit_id" ref="om_account_asset.view_account_asset_asset_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add "Post All Due" button at the top -->
-            <xpath expr="//header" position="inside">
+            <!-- Add button to header -->
+            <xpath expr="//button[@name='set_to_draft']" position="after">
                 <button name="action_post_all_due_depreciation"
-                        string="Post All Due Depreciation"
+                        string="Post All Due"
                         type="object"
                         class="btn-primary"
-                        attrs="{'invisible': [('state', '!=', 'open')]}"/>
+                        invisible="state != 'open'"/>
             </xpath>
 
-            <!-- Add Post button column in depreciation board tree -->
-            <xpath expr="//field[@name='depreciation_line_ids']/tree" position="inside">
+            <!-- Add move_posted_check field if not visible -->
+            <xpath expr="//field[@name='depreciation_line_ids']/list/field[@name='move_posted_check']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+
+            <!-- Add post button column after move_check -->
+            <xpath expr="//field[@name='depreciation_line_ids']/list/field[@name='move_check']" position="after">
+                <button name="create_move"
+                        string="Post"
+                        type="object"
+                        icon="fa-check-circle"
+                        class="btn-sm btn-success"
+                        invisible="move_posted_check == True or parent_state != 'open'"
+                        help="Create and post journal entry"/>
+                <button name="view_move"
+                        string="View"
+                        type="object"
+                        icon="fa-external-link"
+                        class="btn-sm btn-primary"
+                        invisible="move_posted_check == False"
+                        help="View journal entry"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Standalone tree view for all depreciation lines -->
+    <record id="view_account_asset_depreciation_line_tree" model="ir.ui.view">
+        <field name="name">account.asset.depreciation.line.tree</field>
+        <field name="model">account.asset.depreciation.line</field>
+        <field name="arch" type="xml">
+            <tree string="Depreciation Lines" create="false" edit="false">
+                <field name="asset_id"/>
+                <field name="sequence"/>
+                <field name="depreciation_date"/>
+                <field name="amount" sum="Total Depreciation"/>
+                <field name="depreciated_value"/>
+                <field name="remaining_value"/>
+                <field name="move_id"/>
                 <field name="move_posted_check" string="Posted"/>
                 <button name="create_move"
                         string="Post Entry"
                         type="object"
                         icon="fa-check"
-                        attrs="{'invisible': ['|', ('move_posted_check', '=', True), ('depreciation_date', '>', context_today().strftime('%Y-%m-%d'))]}"/>
+                        invisible="move_posted_check == True"/>
                 <button name="view_move"
                         string="View Entry"
                         type="object"
-                        icon="fa-arrow-right"
-                        attrs="{'invisible': [('move_posted_check', '=', False)]}"/>
-            </xpath>
-
-        </field>
-    </record>
-
-    <!-- Depreciation Line Tree View -->
-    <record id="view_account_asset_depreciation_line_tree" model="ir.ui.view">
-        <field name="name">account.asset.depreciation.line.tree</field>
-        <field name="model">account.asset.depreciation.line</field>
-        <field name="arch" type="xml">
-            <tree string="Depreciation Lines" create="false" delete="false">
-                <field name="asset_id"/>
-                <field name="depreciation_date"/>
-                <field name="amount"/>
-                <field name="remaining_value"/>
-                <field name="move_id"/>
-                <field name="move_posted_check"/>
-                <button name="create_move"
-                        string="Post"
-                        type="object"
-                        icon="fa-check"
-                        attrs="{'invisible': [('move_posted_check', '=', True)]}"/>
-                <button name="view_move"
-                        string="View"
-                        type="object"
-                        icon="fa-arrow-right"
-                        attrs="{'invisible': [('move_posted_check', '=', False)]}"/>
+                        icon="fa-external-link"
+                        invisible="move_posted_check == False"/>
             </tree>
         </field>
     </record>
+
+    <!-- Form view for depreciation line -->
+    <record id="view_account_asset_depreciation_line_form" model="ir.ui.view">
+        <field name="name">account.asset.depreciation.line.form</field>
+        <field name="model">account.asset.depreciation.line</field>
+        <field name="arch" type="xml">
+            <form string="Depreciation Line" create="false">
+                <header>
+                    <button name="create_move"
+                            string="Post Entry"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="move_posted_check == True"/>
+                    <button name="view_move"
+                            string="View Journal Entry"
+                            type="object"
+                            class="btn-primary"
+                            invisible="move_posted_check == False"/>
+                    <field name="move_posted_check" widget="boolean" readonly="1"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="view_move"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-book"
+                                invisible="move_id == False">
+                            <field name="move_id" widget="statinfo" string="Journal Entry"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="asset_id" readonly="1"/>
+                            <field name="name" readonly="1"/>
+                            <field name="sequence" readonly="1"/>
+                            <field name="depreciation_date"/>
+                        </group>
+                        <group>
+                            <field name="amount" readonly="1"/>
+                            <field name="depreciated_value" readonly="1"/>
+                            <field name="remaining_value" readonly="1"/>
+                            <field name="move_check" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to view all depreciation lines -->
+    <record id="action_account_asset_depreciation_line_all" model="ir.actions.act_window">
+        <field name="name">Depreciation Entries</field>
+        <field name="res_model">account.asset.depreciation.line</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No depreciation entries found
+            </p>
+            <p>
+                Depreciation entries are automatically created when you compute depreciation on assets.
+            </p>
+        </field>
+    </record>
+
+    <!-- Add menu item under Assets -->
+    <menuitem id="menu_action_account_asset_depreciation_line"
+              name="Depreciation Entries"
+              parent="om_account_asset.menu_finance_entries_management"
+              action="action_account_asset_depreciation_line_all"
+              sequence="30"/>
 
 </odoo>

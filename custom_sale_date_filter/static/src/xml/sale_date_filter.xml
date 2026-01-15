@@ -43,7 +43,7 @@
 
     <t t-name="custom_sale_date_filter.ListView" t-inherit="web.ListView" owl="1">
         <xpath expr="//div[hasclass('o_list_renderer')]" position="before">
-            <SaleDateFilter updateDomain="updateDomain"/>
+            <SaleDateFilter updateDomain.bind="updateDomain"/>
         </xpath>
     </t>
 

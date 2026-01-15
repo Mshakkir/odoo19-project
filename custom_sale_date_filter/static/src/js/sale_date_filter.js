@@ -8,7 +8,9 @@ import { useService } from "@web/core/utils/hooks";
 
 class SaleDateFilter extends Component {
     static template = "custom_sale_date_filter.DateFilter";
-    static props = ["*"];
+    static props = {
+        updateDomain: { type: Function },
+    };
 
     setup() {
         this.notification = useService("notification");
@@ -57,7 +59,7 @@ class SaleDateFilter extends Component {
             ['date_order', '<=', this.state.dateTo + ' 23:59:59']
         ];
 
-        this.env.updateDomain(domain);
+        this.props.updateDomain(domain);
 
         this.notification.add("Date filter applied successfully", {
             type: "success",
@@ -67,7 +69,7 @@ class SaleDateFilter extends Component {
     clearFilter() {
         this.state.dateFrom = this.getDefaultDateFrom();
         this.state.dateTo = this.getDefaultDateTo();
-        this.env.updateDomain([]);
+        this.props.updateDomain([]);
 
         this.notification.add("Filter cleared", {
             type: "info",
@@ -86,17 +88,28 @@ class SaleOrderListController extends ListController {
         super.setup();
     }
 
-    get updateDomain() {
-        return (domain) => {
-            // Remove existing date_order filters
-            const cleanDomain = this.model.root.domain.filter(
-                d => Array.isArray(d) && d[0] !== 'date_order'
-            );
+    updateDomain(domain) {
+        try {
+            // Get current domain and remove any existing date_order filters
+            let currentDomain = this.model.root.domain || [];
 
-            // Add new date filter
-            this.model.root.domain = [...cleanDomain, ...domain];
+            // Filter out existing date_order conditions
+            const cleanDomain = currentDomain.filter(item => {
+                if (Array.isArray(item) && item.length > 0) {
+                    return item[0] !== 'date_order';
+                }
+                return true;
+            });
+
+            // Add new domain
+            const newDomain = [...cleanDomain, ...domain];
+
+            // Update the model
+            this.model.root.domain = newDomain;
             this.model.root.load();
-        };
+        } catch (error) {
+            console.error('Error updating domain:', error);
+        }
     }
 }
 

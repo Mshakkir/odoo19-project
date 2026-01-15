@@ -93,7 +93,7 @@ patch(ListController.prototype, {
                 'res.partner',
                 [['customer_rank', '>', 0]],
                 ['id', 'name'],
-                { limit: 200, order: 'name' }
+                { limit: 500, order: 'name' }
             );
 
             // Load salespersons (users)
@@ -145,17 +145,17 @@ patch(ListController.prototype, {
         const dateFrom = firstDay.toISOString().split('T')[0];
         const dateTo = today.toISOString().split('T')[0];
 
-        // Build options for select dropdowns
+        // Build options for select dropdowns with data attributes for searching
         const warehouseOptions = this._filterData.warehouses
-            .map(w => `<option value="${w.id}">${w.name}</option>`)
+            .map(w => `<option value="${w.id}" data-name="${w.name.toLowerCase()}">${w.name}</option>`)
             .join('');
 
         const customerOptions = this._filterData.customers
-            .map(c => `<option value="${c.id}">${c.name}</option>`)
+            .map(c => `<option value="${c.id}" data-name="${c.name.toLowerCase()}">${c.name}</option>`)
             .join('');
 
         const salespersonOptions = this._filterData.salespersons
-            .map(s => `<option value="${s.id}">${s.name}</option>`)
+            .map(s => `<option value="${s.id}" data-name="${s.name.toLowerCase()}">${s.name}</option>`)
             .join('');
 
         const filterDiv = document.createElement('div');
@@ -164,60 +164,55 @@ patch(ListController.prototype, {
             <div class="sale_date_filter_container">
                 <div class="date_filter_wrapper">
                     <!-- Date Range Filter -->
-                    <div class="filter_group">
+                    <div class="filter_group date_group">
                         <label class="filter_label">Order Date:</label>
                         <div class="date_input_group">
-                            <input
-                                type="date"
-                                class="form-control date_input"
-                                id="${fromId}"
-                                value="${dateFrom}"
-                            />
+                            <input type="date" class="form-control date_input" id="${fromId}" value="${dateFrom}" />
                             <span class="date_separator">→</span>
-                            <input
-                                type="date"
-                                class="form-control date_input"
-                                id="${toId}"
-                                value="${dateTo}"
-                            />
+                            <input type="date" class="form-control date_input" id="${toId}" value="${dateTo}" />
                         </div>
                     </div>
 
-                    <!-- Warehouse Filter -->
-                    <div class="filter_group">
+                    <!-- Warehouse Filter with Search -->
+                    <div class="filter_group select_group">
                         <label class="filter_label">Warehouse:</label>
-                        <select class="form-select filter_select" id="${warehouseId}">
-                            <option value="">All Warehouses</option>
-                            ${warehouseOptions}
-                        </select>
+                        <div class="select_search_wrapper">
+                            <input type="text" class="form-control search_input" placeholder="Search..." id="${warehouseId}_search" />
+                            <select class="form-select filter_select" id="${warehouseId}" size="1">
+                                <option value="">All</option>
+                                ${warehouseOptions}
+                            </select>
+                        </div>
                     </div>
 
-                    <!-- Customer Filter -->
-                    <div class="filter_group">
+                    <!-- Customer Filter with Search -->
+                    <div class="filter_group select_group">
                         <label class="filter_label">Customer:</label>
-                        <select class="form-select filter_select" id="${customerId}">
-                            <option value="">All Customers</option>
-                            ${customerOptions}
-                        </select>
+                        <div class="select_search_wrapper">
+                            <input type="text" class="form-control search_input" placeholder="Search..." id="${customerId}_search" />
+                            <select class="form-select filter_select" id="${customerId}" size="1">
+                                <option value="">All</option>
+                                ${customerOptions}
+                            </select>
+                        </div>
                     </div>
 
-                    <!-- Salesperson Filter -->
-                    <div class="filter_group">
+                    <!-- Salesperson Filter with Search -->
+                    <div class="filter_group select_group">
                         <label class="filter_label">Salesperson:</label>
-                        <select class="form-select filter_select" id="${salespersonId}">
-                            <option value="">All Salespersons</option>
-                            ${salespersonOptions}
-                        </select>
+                        <div class="select_search_wrapper">
+                            <input type="text" class="form-control search_input" placeholder="Search..." id="${salespersonId}_search" />
+                            <select class="form-select filter_select" id="${salespersonId}" size="1">
+                                <option value="">All</option>
+                                ${salespersonOptions}
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Action Buttons -->
                     <div class="filter_actions">
-                        <button class="btn btn-primary apply_filter_btn" id="${applyId}">
-                            Apply Filter
-                        </button>
-                        <button class="btn btn-secondary clear_filter_btn" id="${clearId}">
-                            Clear
-                        </button>
+                        <button class="btn btn-primary apply_filter_btn" id="${applyId}">Apply</button>
+                        <button class="btn btn-secondary clear_filter_btn" id="${clearId}">Clear</button>
                     </div>
                 </div>
             </div>
@@ -227,6 +222,58 @@ patch(ListController.prototype, {
         this._filterElement = filterDiv;
 
         this.attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, applyId, clearId);
+        this.setupSearchFilters(warehouseId, customerId, salespersonId);
+    },
+
+    setupSearchFilters(warehouseId, customerId, salespersonId) {
+        // Setup search for warehouse
+        this.setupSelectSearch(warehouseId);
+        // Setup search for customer
+        this.setupSelectSearch(customerId);
+        // Setup search for salesperson
+        this.setupSelectSearch(salespersonId);
+    },
+
+    setupSelectSearch(selectId) {
+        const searchInput = document.getElementById(`${selectId}_search`);
+        const selectElement = document.getElementById(selectId);
+
+        if (!searchInput || !selectElement) return;
+
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const options = selectElement.options;
+
+            for (let i = 0; i < options.length; i++) {
+                const option = options[i];
+                if (i === 0) continue; // Skip "All" option
+
+                const optionText = option.textContent.toLowerCase();
+                if (optionText.includes(searchTerm)) {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
+            }
+
+            // Auto-select if only one visible option (excluding "All")
+            const visibleOptions = Array.from(options).filter((opt, idx) =>
+                idx > 0 && opt.style.display !== 'none'
+            );
+
+            if (visibleOptions.length === 1) {
+                selectElement.value = visibleOptions[0].value;
+            }
+        });
+
+        // Clear search when select changes
+        selectElement.addEventListener('change', () => {
+            searchInput.value = '';
+            const options = selectElement.options;
+            for (let i = 0; i < options.length; i++) {
+                options[i].style.display = '';
+            }
+        });
     },
 
     attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, applyId, clearId) {
@@ -285,7 +332,7 @@ patch(ListController.prototype, {
                 target: 'current',
             });
 
-            this.notification.add("Filters applied successfully", { type: "success" });
+            this.notification.add("Filters applied", { type: "success" });
         });
 
         clearBtn.addEventListener('click', () => {
@@ -296,6 +343,11 @@ patch(ListController.prototype, {
             warehouseSelect.value = '';
             customerSelect.value = '';
             salespersonSelect.value = '';
+
+            // Clear search inputs
+            document.getElementById(`${warehouseId}_search`).value = '';
+            document.getElementById(`${customerId}_search`).value = '';
+            document.getElementById(`${salespersonId}_search`).value = '';
 
             this.actionService.doAction({
                 type: 'ir.actions.act_window',

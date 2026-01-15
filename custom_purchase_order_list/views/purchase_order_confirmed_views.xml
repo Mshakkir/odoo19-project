@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Custom Purchase Order List View (Confirmed Orders) -->
+        <record id="view_purchase_order_confirmed_list_custom" model="ir.ui.view">
+            <field name="name">purchase.order.confirmed.list.custom</field>
+            <field name="model">purchase.order</field>
+            <field name="mode">primary</field>
+            <field name="priority">1</field>
+            <field name="arch" type="xml">
+                <list string="Purchase Order"
+                      decoration-muted="state == 'cancel'"
+                      decoration-info="invoice_status == 'to invoice'"
+                      class="o_purchase_order"
+                      multi_edit="1"
+                      sample="1">
+
+                    <header>
+                        <button name="action_create_invoice" type="object" string="Create Bills"/>
+                        <button name="button_cancel" type="object" string="Cancel"
+                                confirm="Are you sure you want to cancel the selected RFQs/Orders?"/>
+                    </header>
+
+                    <!-- YOUR REQUESTED COLUMNS IN ORDER -->
+
+                    <!-- 1. Order Date -->
+                    <field name="date_order" string="Order Date"
+                           readonly="state in ['cancel', 'purchase']"
+                           optional="show"/>
+
+                    <!-- 2. Reference (PO Number) -->
+                    <field name="name" string="Reference"
+                           readonly="1"
+                           decoration-bf="1"
+                           decoration-info="state in ('draft','sent')"/>
+
+                    <!-- 3. Vendor -->
+                    <field name="partner_id" string="Vendor"
+                           readonly="state in ['cancel', 'purchase']"/>
+
+                    <!-- 4. Vendor Reference -->
+                    <field name="partner_ref" string="Vendor Reference"
+                           optional="hide"/>
+
+                    <!-- 5. Warehouse -->
+                    <field name="picking_type_id" string="Warehouse"
+                           optional="show"/>
+
+                    <!-- 6. Untaxed Amount -->
+                    <field name="amount_untaxed" string="Untaxed"
+                           sum="Total Untaxed amount"
+                           widget="monetary"
+                           optional="hide"/>
+
+                    <!-- 7. Tax Amount -->
+                    <field name="amount_tax" string="Tax"
+                           sum="Total Tax"
+                           widget="monetary"
+                           optional="show"/>
+
+                    <!-- 8. Total Amount (Include Tax) -->
+                    <field name="amount_total" string="Total"
+                           sum="Total amount"
+                           widget="monetary"
+                           optional="show"
+                           decoration-bf="1"/>
+
+                    <!-- 9. Buyer (Purchase Representative) -->
+                    <field name="user_id" string="Buyer"
+                           widget="many2one_avatar_user"
+                           optional="show"/>
+
+                    <!-- 10. Status (Hidden in column but used for decorations) -->
+                    <field name="state" column_invisible="True"/>
+
+                    <!-- 11. Billing Status -->
+                    <field name="invoice_status" string="Billing Status"
+                           widget="badge"
+                           decoration-success="invoice_status == 'invoiced'"
+                           decoration-info="invoice_status == 'to invoice'"
+                           optional="show"/>
+
+                    <!-- ADDITIONAL USEFUL FIELDS -->
+
+                    <!-- Priority -->
+                    <field name="priority" optional="show"
+                           widget="priority" nolabel="1"/>
+
+                    <!-- Confirmation Date (Approval Date) -->
+                    <field name="date_approve" string="Confirmation Date"
+                           column_invisible="context.get('quotation_only', False)"
+                           optional="show"/>
+
+                    <!-- Expected Arrival (Scheduled Date) -->
+                    <field name="date_planned" string="Expected Arrival"
+                           column_invisible="context.get('quotation_only', False)"
+                           optional="show"/>
+
+                    <!-- Company -->
+                    <field name="company_id" string="Company"
+                           groups="base.group_multi_company"
+                           options="{'no_create': True}"
+                           optional="show"
+                           readonly="state in ['cancel', 'purchase']"/>
+
+                    <field name="company_id"
+                           groups="!base.group_multi_company"
+                           column_invisible="True"
+                           readonly="state in ['cancel', 'purchase']"/>
+
+                    <!-- Source Document -->
+                    <field name="origin" string="Source Document"
+                           optional="show"/>
+
+                    <!-- Activities -->
+                    <field name="activity_ids" widget="list_activity"
+                           optional="show"/>
+
+                    <!-- Currency (hidden) -->
+                    <field name="currency_id" column_invisible="True"
+                           readonly="state in ['cancel', 'purchase']"/>
+
+                    <!-- Payment Terms -->
+                    <field name="payment_term_id" string="Payment Terms"
+                           optional="hide"/>
+
+                    <!-- Incoterm -->
+                    <field name="incoterm_id" string="Incoterm"
+                           optional="hide"/>
+
+                    <!-- Fiscal Position -->
+                    <field name="fiscal_position_id" string="Fiscal Position"
+                           optional="hide"/>
+
+                </list>
+            </field>
+        </record>
+
+        <!-- Override the Purchase Order action (for confirmed orders) -->
+        <record id="purchase.purchase_form_action" model="ir.actions.act_window">
+            <field name="view_id" ref="view_purchase_order_confirmed_list_custom"/>
+        </record>
+
+    </data>
+</odoo>

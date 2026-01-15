@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extend the sale order tree view to add custom control panel -->
+    <record id="view_order_tree_custom_filter" model="ir.ui.view">
+        <field name="name">sale.order.tree.custom.filter</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="before">
+                <div class="o_sale_date_filter_container"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

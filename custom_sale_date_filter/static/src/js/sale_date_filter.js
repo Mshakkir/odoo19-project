@@ -1,25 +1,18 @@
 /** @odoo-module **/
 
-import { Component, useState, onWillStart } from "@odoo/owl";
+import { Component, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
-import { useService } from "@web/core/utils/hooks";
+import { ListController } from "@web/views/list/list_controller";
+import { listView } from "@web/views/list/list_view";
 
-export class SaleDateFilterView extends Component {
-    static template = "custom_sale_date_filter.SaleDateFilterView";
+export class SaleDateFilterComponent extends Component {
+    static template = "custom_sale_date_filter.DateFilterTemplate";
+    static props = ["*"];
 
     setup() {
-        this.orm = useService("orm");
-        this.action = useService("action");
-
         this.state = useState({
             dateFrom: this.getDefaultDateFrom(),
             dateTo: this.getDefaultDateTo(),
-            orders: [],
-            loading: false,
-        });
-
-        onWillStart(async () => {
-            await this.loadOrders();
         });
     }
 
@@ -42,8 +35,12 @@ export class SaleDateFilterView extends Component {
         this.state.dateTo = ev.target.value;
     }
 
-    async applyFilter() {
+    applyFilter() {
         if (!this.state.dateFrom || !this.state.dateTo) {
+            this.env.services.notification.add(
+                "Please select both start and end dates",
+                { type: "warning" }
+            );
             return;
         }
 
@@ -52,50 +49,35 @@ export class SaleDateFilterView extends Component {
             ['date_order', '<=', this.state.dateTo + ' 23:59:59']
         ];
 
-        this.action.doAction({
-            type: 'ir.actions.act_window',
-            name: 'Sale Orders',
-            res_model: 'sale.order',
-            views: [[false, 'list'], [false, 'form']],
-            domain: domain,
-            target: 'current',
-            context: {
-                search_default_date_from: this.state.dateFrom,
-                search_default_date_to: this.state.dateTo,
-            }
+        // Update the search model with the new domain
+        this.env.searchModel.setDomainParts({
+            date_filter: domain,
         });
     }
 
-    async loadOrders() {
-        this.state.loading = true;
-        try {
-            const domain = [
-                ['date_order', '>=', this.state.dateFrom + ' 00:00:00'],
-                ['date_order', '<=', this.state.dateTo + ' 23:59:59']
-            ];
+    clearFilter() {
+        this.state.dateFrom = this.getDefaultDateFrom();
+        this.state.dateTo = this.getDefaultDateTo();
 
-            this.state.orders = await this.orm.searchRead(
-                'sale.order',
-                domain,
-                ['name', 'partner_id', 'date_order', 'amount_total', 'state'],
-                { limit: 100 }
-            );
-        } catch (error) {
-            console.error('Error loading orders:', error);
-        } finally {
-            this.state.loading = false;
-        }
-    }
-
-    openOrder(orderId) {
-        this.action.doAction({
-            type: 'ir.actions.act_window',
-            res_model: 'sale.order',
-            res_id: orderId,
-            views: [[false, 'form']],
-            target: 'current',
+        // Remove the date filter domain
+        this.env.searchModel.setDomainParts({
+            date_filter: [],
         });
     }
 }
 
-registry.category("actions").add("sale_date_filter_view", SaleDateFilterView);
+export class SaleOrderListController extends ListController {
+    static components = {
+        ...ListController.components,
+        SaleDateFilterComponent,
+    };
+
+    static template = "custom_sale_date_filter.ListController";
+}
+
+export const saleOrderListView = {
+    ...listView,
+    Controller: SaleOrderListController,
+};
+
+registry.category("views").add("sale_order_list_with_date_filter", saleOrderListView);

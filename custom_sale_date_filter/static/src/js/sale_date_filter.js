@@ -1,13 +1,52 @@
 /** @odoo-module **/
 
-import { Component, useState } from "@odoo/owl";
+import { Component, useState, xml } from "@odoo/owl";
 import { registry } from "@web/core/registry";
-import { listView } from "@web/views/list/list_view";
 import { ListRenderer } from "@web/views/list/list_renderer";
 import { useService } from "@web/core/utils/hooks";
+import { patch } from "@web/core/utils/patch";
 
 class SaleDateFilter extends Component {
-    static template = "custom_sale_date_filter.DateFilter";
+    static template = xml`
+        <div class="sale_date_filter_container">
+            <div class="date_filter_wrapper">
+                <label class="date_label">Order Date:</label>
+
+                <div class="date_input_group">
+                    <input
+                        type="date"
+                        class="form-control date_input"
+                        t-att-value="state.dateFrom"
+                        t-on-change="onDateFromChange"
+                    />
+
+                    <span class="date_separator">→</span>
+
+                    <input
+                        type="date"
+                        class="form-control date_input"
+                        t-att-value="state.dateTo"
+                        t-on-change="onDateToChange"
+                    />
+                </div>
+
+                <button
+                    class="btn btn-primary apply_filter_btn"
+                    t-on-click="applyFilter"
+                >
+                    Apply Filter
+                </button>
+
+                <button
+                    class="btn btn-secondary clear_filter_btn"
+                    t-on-click="clearFilter"
+                >
+                    Clear
+                </button>
+            </div>
+        </div>
+    `;
+
     static props = {};
 
     setup() {
@@ -59,7 +98,6 @@ class SaleDateFilter extends Component {
             ['date_order', '<=', this.state.dateTo + ' 23:59:59']
         ];
 
-        // Reload with new domain using action service
         this.action.doAction({
             type: 'ir.actions.act_window',
             name: 'Sale Orders',
@@ -78,7 +116,6 @@ class SaleDateFilter extends Component {
         this.state.dateFrom = this.getDefaultDateFrom();
         this.state.dateTo = this.getDefaultDateTo();
 
-        // Reload without date filter
         this.action.doAction({
             type: 'ir.actions.act_window',
             name: 'Sale Orders',
@@ -93,18 +130,23 @@ class SaleDateFilter extends Component {
     }
 }
 
-class SaleOrderListRenderer extends ListRenderer {
-    static template = "custom_sale_date_filter.ListRenderer";
-    static components = {
-        ...ListRenderer.components,
-        SaleDateFilter,
-    };
-}
+// Patch ListRenderer to add date filter for sale.order
+patch(ListRenderer.prototype, {
+    setup() {
+        super.setup(...arguments);
+    }
+});
 
-export const saleOrderListView = {
-    ...listView,
-    Renderer: SaleOrderListRenderer,
+// Add custom template that includes the date filter
+ListRenderer.components = {
+    ...ListRenderer.components,
+    SaleDateFilter,
 };
 
-// Register specifically for sale.order model
-registry.category("views").add("sale_order_tree_date_filter", saleOrderListView);
+const originalTemplate = ListRenderer.template;
+ListRenderer.template = xml`
+    <t t-if="props.list.resModel === 'sale.order'">
+        <SaleDateFilter/>
+    </t>
+    <t t-call="${originalTemplate}"/>
+`;

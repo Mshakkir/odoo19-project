@@ -8,16 +8,11 @@
         Adds a custom date range filter component to sale order list view.
         Built with OWL JS for Odoo 19 CE.
     """,
-    'author': 'Your Company',
-    'website': 'https://www.yourcompany.com',
     'depends': ['sale', 'web'],
-    'data': [
-        'views/sale_order_views.xml',
-    ],
+    'data': [],
     'assets': {
         'web.assets_backend': [
             'custom_sale_date_filter/static/src/js/sale_date_filter.js',
-            'custom_sale_date_filter/static/src/xml/sale_date_filter.xml',
             'custom_sale_date_filter/static/src/css/sale_date_filter.css',
         ],
     },

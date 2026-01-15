@@ -24,16 +24,17 @@
 
                     <!-- YOUR REQUESTED COLUMNS IN ORDER -->
 
-                    <!-- 1. Order Date -->
-                    <field name="date_order" string="Order Date"
-                           readonly="state in ['cancel', 'purchase']"
-                           optional="show"/>
+
 
                     <!-- 2. Reference (PO Number) -->
                     <field name="name" string="Reference"
                            readonly="1"
                            decoration-bf="1"
                            decoration-info="state in ('draft','sent')"/>
+                    <!-- 1. Order Date -->
+                    <field name="date_order" string="Order Date"
+                           readonly="state in ['cancel', 'purchase']"
+                           optional="show"/>
 
                     <!-- 3. Vendor -->
                     <field name="partner_id" string="Vendor"

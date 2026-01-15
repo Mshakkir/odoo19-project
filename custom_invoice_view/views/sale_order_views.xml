@@ -69,8 +69,8 @@
                     <!-- Delivery Note Number -->
 <!--                    <field name="delivery_note_number" string="Delivery Note #" optional="hide"/>-->
 
-                    <!-- Order Source -->
-                    <field name="order_source" string="Order Source" optional="hide"/>
+<!--                    &lt;!&ndash; Order Source &ndash;&gt;-->
+<!--                    <field name="order_source" string="Order Source" optional="hide"/>-->
 
                     <!-- Payment Terms -->
                     <field name="payment_term_id" string="Payment Terms" optional="hide"/>

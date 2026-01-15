@@ -2,7 +2,7 @@
 <odoo>
     <data>
 
-        <!-- Custom Sale Order List View -->
+        <!-- Custom Sale Order List View - Standalone -->
         <record id="view_order_tree_custom" model="ir.ui.view">
             <field name="name">sale.order.tree.custom</field>
             <field name="model">sale.order</field>
@@ -131,19 +131,6 @@
 
                 </list>
             </field>
-        </record>
-
-        <!-- Override Sale Order Action to Use Custom View -->
-        <record id="sale.action_orders" model="ir.actions.act_window">
-            <field name="view_ids"
-                   eval="[(5, 0, 0),
-                          (0, 0, {'view_mode': 'list', 'view_id': ref('view_order_tree_custom')}),
-                          (0, 0, {'view_mode': 'kanban'}),
-                          (0, 0, {'view_mode': 'form'}),
-                          (0, 0, {'view_mode': 'calendar'}),
-                          (0, 0, {'view_mode': 'pivot'}),
-                          (0, 0, {'view_mode': 'graph'}),
-                          (0, 0, {'view_mode': 'activity'})]"/>
         </record>
 
     </data>

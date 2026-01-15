@@ -95,84 +95,6 @@
                     </div>
 
                 </t>
-
-                <!--                <t t-if="o.move_type in ('out_invoice','out_refund')">-->
-                <!--                    <div class="footer"-->
-                <!--                         style="font-size:13px; background:#fff;width:848px;margin-top:10px;padding-top:10px;">-->
-                <!--                        <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">-->
-                <!--                            <tr>-->
-                <!--                                <td class="ar"-->
-                <!--                                    style="padding:2px; text-align:left;width:50%; vertical-align: top; position: relative;border-right:1px solid #000000;">-->
-                <!--                                    &lt;!&ndash; Bank Logo - Top Right of left column &ndash;&gt;-->
-                <!--                                    <div style="position: absolute; top: 5px; right: 50px;">-->
-                <!--                                        <img src="/my_invoice_custom/static/src/img/Alrajhi logo.png" alt="Alrajhi Bank"-->
-                <!--                                             style="width: 100px; height: 60px;"/>-->
-                <!--                                    </div>-->
-                <!--                                    &lt;!&ndash; Bank Details with padding to avoid overlap &ndash;&gt;-->
-                <!--                                    <div style="padding-top: 5px;">-->
-                <!--                                        Sameer Sharaf Al Otaibi Trading Company-->
-                <!--                                        <br/>-->
-                <!--                                        شركة سمير شرف العتيبي التجارية-->
-                <!--                                        <br/>-->
-                <!--                                        Alrajhi Bank – مصرف الراجحي-->
-                <!--                                        <br/>-->
-                <!--                                        Account Number:رقم الحساب:123000010006080143917-->
-                <!--                                        <br/>-->
-                <!--                                        IBAN: SA7880000123608010143917 :رقم الحساب الدولي-->
-                <!--                                    </div>-->
-                <!--                                </td>-->
-                <!--                                <td class="ar"-->
-                <!--                                    style="padding:2px; text-align:right;width:50%; vertical-align: top; position: relative;">-->
-                <!--                                    &lt;!&ndash; Bank Logo - Bottom Left of right column &ndash;&gt;-->
-                <!--                                    <div style="position: absolute; bottom: 0; left: 35px;">-->
-                <!--                                        <img src="/my_invoice_custom/static/src/img/Snb logo.png"-->
-                <!--                                             alt="Saudi National Bank"-->
-                <!--                                             style="width: 100px; height: auto;"/>-->
-                <!--                                    </div>-->
-                <!--                                    &lt;!&ndash; Bank Details &ndash;&gt;-->
-                <!--                                    <div style="padding-top: 5px;">-->
-                <!--                                        Sameer Sharaf Alateebi Company Commercial-->
-                <!--                                        <br/>-->
-                <!--                                        شركة سمير شرف العتيبي التجارية-->
-                <!--                                        <br/>-->
-                <!--                                        SNB - Saudi National Bank/البنك الأهلي السعودي-->
-                <!--                                        <br/>-->
-                <!--                                        Account Number at SNB: 13200000678707 :رقم الحساب-->
-                <!--                                        <br/>-->
-                <!--                                        (IBAN): SA2110000013200000678707 :رقم الحساب الدولي-->
-                <!--                                    </div>-->
-                <!--                                </td>-->
-                <!--                            </tr>-->
-                <!--                        </table>-->
-                <!--                        <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">-->
-                <!--                            <tr>-->
-                <!--                                <td style="width:33%; padding:4px;border-right: 1px solid black;">-->
-                <!--                                    <strong>Jeddah Al Fayha Branch:</strong>-->
-                <!--                                    7655 Al Fayha Al Fayha Dist., Jeddah 22244-3108, Saudi Arabia-->
-                <!--                                    <br/>-->
-                <!--                                    Tel/Mobile: +966 571 313 243-->
-                <!--                                    <br/>-->
-                <!--                                    Email: ssaoe.jeddah@gmail.com-->
-                <!--                                </td>-->
-                <!--                                <td style="width:33%; padding:4px;">-->
-                <!--                                    <strong>Jeddah Baladiya Branch:</strong>-->
-                <!--                                    Sookul Anwar, Al Baladeah, Aziziyah, Jeddah 31303, Saudi Arabia-->
-                <!--                                    <br/>-->
-                <!--                                    Tel/Mobile: +966 536 122 833-->
-                <!--                                    <br/>Email:ssaoe.jeddah@gmail.com-->
-                <!--                                </td>-->
-                <!--                                <td style="width:33%; padding:4px;border-left: 1px solid black;">-->
-                <!--                                    <strong>Dammam Branch:</strong>-->
-                <!--                                    8515 Qutaibah bin Muslim St., Al Souq, Dammam 4525-32242, Saudi Arabia-->
-                <!--                                    <br/>-->
-                <!--                                    Tel/Mobile: +966 535 081 008-->
-                <!--                                    <br/>-->
-                <!--                                    Email: ssaoe.jeddah@gmail.com-->
-                <!--                                </td>-->
-                <!--                            </tr>-->
-                <!--                        </table>-->
-                <!--                    </div>-->
-                <!--                </t>-->
                 <t t-if="o.move_type in ('out_invoice','out_refund')">
                     <div class="footer"
                          style="font-size:13px; background:#fff;width:848px;margin-top:10px;padding-top:10px;">
@@ -301,15 +223,22 @@
                                     </span>
                                     </t>
                                 </td>
-                                <t t-if="o.partner_shipping_id and o.partner_shipping_id.id != o.partner_id.id">
+                                <t t-if="o.partner_shipping_id and o.partner_shipping_id.id != o.partner_id.id and o.move_type == 'out_invoice'">
                                     <td style="padding:4px 8px; font-weight:bold; width:50%;border-left:1px solid #000000;border-right:1px solid #000000;">
-                                        <t t-if="o.move_type in ('out_invoice','out_refund')">
-                                            Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="ar">عنوان
-                                            الشحن
-                                        </span>
-                                        </t>
+                                        Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="ar">عنوان
+                                        الشحن
+                                    </span>
                                     </td>
                                 </t>
+                                <!--                                <t t-if="o.partner_shipping_id and o.partner_shipping_id.id != o.partner_id.id">-->
+                                <!--                                    <td style="padding:4px 8px; font-weight:bold; width:50%;border-left:1px solid #000000;border-right:1px solid #000000;">-->
+                                <!--                                        <t t-if="o.move_type in ('out_invoice','out_refund')">-->
+                                <!--                                            Shipping To &#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="ar">عنوان-->
+                                <!--                                            الشحن-->
+                                <!--                                        </span>-->
+                                <!--                                        </t>-->
+                                <!--                                    </td>-->
+                                <!--                                </t>-->
                             </tr>
                             <tr>
                                 <td style="padding:6px 10px; vertical-align:top; border-left:1px solid #000000;">

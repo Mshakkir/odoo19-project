@@ -77,12 +77,20 @@
             </field>
         </record>
 
-        <!-- Set this view as the default for Sales Orders action -->
-        <record id="sale.action_orders" model="ir.actions.act_window.view">
+        <!-- Link this view to the Sales Orders action -->
+        <record id="action_orders_view_list_custom" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">list</field>
             <field name="view_id" ref="view_order_list_custom"/>
             <field name="act_window_id" ref="sale.action_orders"/>
+        </record>
+
+        <!-- Also link to quotations action -->
+        <record id="action_quotations_view_list_custom" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="view_order_list_custom"/>
+            <field name="act_window_id" ref="sale.action_quotations"/>
         </record>
 
     </data>

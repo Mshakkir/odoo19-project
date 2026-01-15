@@ -6,8 +6,9 @@ import { ListController } from "@web/views/list/list_controller";
 import { listView } from "@web/views/list/list_view";
 import { useService } from "@web/core/utils/hooks";
 
-export class SaleDateFilter extends Component {
+class SaleDateFilter extends Component {
     static template = "custom_sale_date_filter.DateFilter";
+    static props = ["*"];
 
     setup() {
         this.notification = useService("notification");
@@ -44,41 +45,64 @@ export class SaleDateFilter extends Component {
             return;
         }
 
+        if (this.state.dateFrom > this.state.dateTo) {
+            this.notification.add("Start date must be before end date", {
+                type: "warning",
+            });
+            return;
+        }
+
         const domain = [
             ['date_order', '>=', this.state.dateFrom + ' 00:00:00'],
             ['date_order', '<=', this.state.dateTo + ' 23:59:59']
         ];
 
-        this.props.updateDomain(domain);
+        this.env.updateDomain(domain);
+
+        this.notification.add("Date filter applied successfully", {
+            type: "success",
+        });
     }
 
     clearFilter() {
         this.state.dateFrom = this.getDefaultDateFrom();
         this.state.dateTo = this.getDefaultDateTo();
-        this.props.updateDomain([]);
+        this.env.updateDomain([]);
+
+        this.notification.add("Filter cleared", {
+            type: "info",
+        });
     }
 }
 
-export class SaleOrderListController extends ListController {
+class SaleOrderListController extends ListController {
+    static template = "custom_sale_date_filter.ListView";
+    static components = {
+        ...ListController.components,
+        SaleDateFilter,
+    };
+
     setup() {
         super.setup();
     }
 
-    updateDomain(domain) {
-        this.model.root.domain = domain;
-        this.model.root.load();
+    get updateDomain() {
+        return (domain) => {
+            // Remove existing date_order filters
+            const cleanDomain = this.model.root.domain.filter(
+                d => Array.isArray(d) && d[0] !== 'date_order'
+            );
+
+            // Add new date filter
+            this.model.root.domain = [...cleanDomain, ...domain];
+            this.model.root.load();
+        };
     }
 }
-
-SaleOrderListController.template = "custom_sale_date_filter.ListView";
-SaleOrderListController.components = {
-    ...ListController.components,
-    SaleDateFilter,
-};
 
 export const saleOrderListView = {
     ...listView,
     Controller: SaleOrderListController,
 };
 
-registry.category("views").add("sale_order_date_filter_list", saleOrderListView);
+registry.category("views").add("sale_order_tree_date_filter", saleOrderListView);

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
 
-    <!-- Date Filter Component -->
     <t t-name="custom_sale_date_filter.DateFilter" owl="1">
         <div class="sale_date_filter_container">
             <div class="date_filter_wrapper">
@@ -11,7 +10,7 @@
                     <input
                         type="date"
                         class="form-control date_input"
-                        t-model="state.dateFrom"
+                        t-att-value="state.dateFrom"
                         t-on-change="onDateFromChange"
                     />
 
@@ -20,7 +19,7 @@
                     <input
                         type="date"
                         class="form-control date_input"
-                        t-model="state.dateTo"
+                        t-att-value="state.dateTo"
                         t-on-change="onDateToChange"
                     />
                 </div>
@@ -42,10 +41,9 @@
         </div>
     </t>
 
-    <!-- Override List View Template -->
     <t t-name="custom_sale_date_filter.ListView" t-inherit="web.ListView" owl="1">
-        <xpath expr="//div[hasclass('o_content')]" position="before">
-            <SaleDateFilter updateDomain.bind="updateDomain"/>
+        <xpath expr="//div[hasclass('o_list_renderer')]" position="before">
+            <SaleDateFilter updateDomain="updateDomain"/>
         </xpath>
     </t>
 

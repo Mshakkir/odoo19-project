@@ -28,9 +28,10 @@
     min-width: 300px;
 }
 
-.filter_group.select_group {
+.filter_group.autocomplete_group {
     min-width: 180px;
     flex: 1;
+    position: relative;
 }
 
 .filter_label {
@@ -69,52 +70,91 @@
     font-weight: bold;
 }
 
-/* Select with search functionality */
-.select_search_wrapper {
-    position: relative;
-    width: 100%;
-}
-
-.search_input {
-    width: 100%;
-    padding: 5px 8px;
-    border: 1px solid #ced4da;
-    border-radius: 4px 4px 0 0;
-    font-size: 13px;
-    background-color: #ffffff;
-    border-bottom: none;
-}
-
-.search_input:focus {
-    border-color: #80bdff;
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-    z-index: 2;
-    position: relative;
-}
-
+/* Normal select dropdown for warehouse */
 .filter_select {
     width: 100%;
+    min-width: 150px;
     padding: 5px 8px;
     border: 1px solid #ced4da;
-    border-radius: 0 0 4px 4px;
+    border-radius: 4px;
     font-size: 13px;
     background-color: #ffffff;
     transition: border-color 0.15s ease-in-out;
     cursor: pointer;
-    max-height: 150px;
-    overflow-y: auto;
 }
 
 .filter_select:focus {
     border-color: #80bdff;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-    z-index: 1;
 }
 
-.filter_select option {
-    padding: 4px 8px;
+/* Autocomplete styling for customer and salesperson */
+.autocomplete_wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.autocomplete_input {
+    width: 100%;
+    padding: 5px 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 13px;
+    background-color: #ffffff;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.autocomplete_input:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.autocomplete_dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.autocomplete_dropdown.show {
+    display: block;
+}
+
+.autocomplete_item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    border-bottom: 1px solid #f1f1f1;
+    transition: background-color 0.15s;
+}
+
+.autocomplete_item:hover {
+    background-color: #e9ecef;
+}
+
+.autocomplete_item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete_item.no_results {
+    cursor: default;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.autocomplete_item.no_results:hover {
+    background-color: transparent;
 }
 
 .filter_actions {
@@ -160,7 +200,7 @@
         width: 120px;
     }
 
-    .filter_group.select_group {
+    .filter_group.autocomplete_group {
         min-width: 150px;
     }
 }
@@ -175,7 +215,7 @@
         flex: 0 0 auto;
     }
 
-    .filter_group.select_group {
+    .filter_group.autocomplete_group {
         flex: 1 1 180px;
     }
 
@@ -204,7 +244,7 @@
     }
 
     .filter_group.date_group,
-    .filter_group.select_group {
+    .filter_group.autocomplete_group {
         min-width: 100%;
     }
 
@@ -225,5 +265,9 @@
     .apply_filter_btn,
     .clear_filter_btn {
         width: 100%;
+    }
+
+    .autocomplete_dropdown {
+        max-height: 150px;
     }
 }

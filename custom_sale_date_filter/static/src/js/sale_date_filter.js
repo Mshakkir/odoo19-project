@@ -145,17 +145,9 @@ patch(ListController.prototype, {
         const dateFrom = firstDay.toISOString().split('T')[0];
         const dateTo = today.toISOString().split('T')[0];
 
-        // Build options for select dropdowns with data attributes for searching
+        // Build options for warehouse dropdown (normal select)
         const warehouseOptions = this._filterData.warehouses
-            .map(w => `<option value="${w.id}" data-name="${w.name.toLowerCase()}">${w.name}</option>`)
-            .join('');
-
-        const customerOptions = this._filterData.customers
-            .map(c => `<option value="${c.id}" data-name="${c.name.toLowerCase()}">${c.name}</option>`)
-            .join('');
-
-        const salespersonOptions = this._filterData.salespersons
-            .map(s => `<option value="${s.id}" data-name="${s.name.toLowerCase()}">${s.name}</option>`)
+            .map(w => `<option value="${w.id}">${w.name}</option>`)
             .join('');
 
         const filterDiv = document.createElement('div');
@@ -173,39 +165,44 @@ patch(ListController.prototype, {
                         </div>
                     </div>
 
-                    <!-- Warehouse Filter with Search -->
-                    <div class="filter_group select_group">
+                    <!-- Warehouse Filter (Normal Dropdown) -->
+                    <div class="filter_group">
                         <label class="filter_label">Warehouse:</label>
-                        <div class="select_search_wrapper">
-                            <input type="text" class="form-control search_input" placeholder="Search..." id="${warehouseId}_search" />
-                            <select class="form-select filter_select" id="${warehouseId}" size="1">
-                                <option value="">All</option>
-                                ${warehouseOptions}
-                            </select>
-                        </div>
+                        <select class="form-select filter_select" id="${warehouseId}">
+                            <option value="">All</option>
+                            ${warehouseOptions}
+                        </select>
                     </div>
 
-                    <!-- Customer Filter with Search -->
-                    <div class="filter_group select_group">
+                    <!-- Customer Filter (Searchable) -->
+                    <div class="filter_group autocomplete_group">
                         <label class="filter_label">Customer:</label>
-                        <div class="select_search_wrapper">
-                            <input type="text" class="form-control search_input" placeholder="Search..." id="${customerId}_search" />
-                            <select class="form-select filter_select" id="${customerId}" size="1">
-                                <option value="">All</option>
-                                ${customerOptions}
-                            </select>
+                        <div class="autocomplete_wrapper">
+                            <input
+                                type="text"
+                                class="form-control autocomplete_input"
+                                id="${customerId}_input"
+                                placeholder="All Customers"
+                                autocomplete="off"
+                            />
+                            <input type="hidden" id="${customerId}_value" />
+                            <div class="autocomplete_dropdown" id="${customerId}_dropdown"></div>
                         </div>
                     </div>
 
-                    <!-- Salesperson Filter with Search -->
-                    <div class="filter_group select_group">
+                    <!-- Salesperson Filter (Searchable) -->
+                    <div class="filter_group autocomplete_group">
                         <label class="filter_label">Salesperson:</label>
-                        <div class="select_search_wrapper">
-                            <input type="text" class="form-control search_input" placeholder="Search..." id="${salespersonId}_search" />
-                            <select class="form-select filter_select" id="${salespersonId}" size="1">
-                                <option value="">All</option>
-                                ${salespersonOptions}
-                            </select>
+                        <div class="autocomplete_wrapper">
+                            <input
+                                type="text"
+                                class="form-control autocomplete_input"
+                                id="${salespersonId}_input"
+                                placeholder="All Salespersons"
+                                autocomplete="off"
+                            />
+                            <input type="hidden" id="${salespersonId}_value" />
+                            <div class="autocomplete_dropdown" id="${salespersonId}_dropdown"></div>
                         </div>
                     </div>
 
@@ -221,58 +218,74 @@ patch(ListController.prototype, {
         listTable.parentElement.insertBefore(filterDiv, listTable);
         this._filterElement = filterDiv;
 
+        // Setup autocomplete for customer and salesperson
+        this.setupAutocomplete(customerId, this._filterData.customers);
+        this.setupAutocomplete(salespersonId, this._filterData.salespersons);
+
         this.attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, applyId, clearId);
-        this.setupSearchFilters(warehouseId, customerId, salespersonId);
     },
 
-    setupSearchFilters(warehouseId, customerId, salespersonId) {
-        // Setup search for warehouse
-        this.setupSelectSearch(warehouseId);
-        // Setup search for customer
-        this.setupSelectSearch(customerId);
-        // Setup search for salesperson
-        this.setupSelectSearch(salespersonId);
-    },
+    setupAutocomplete(fieldId, dataList) {
+        const input = document.getElementById(`${fieldId}_input`);
+        const hiddenValue = document.getElementById(`${fieldId}_value`);
+        const dropdown = document.getElementById(`${fieldId}_dropdown`);
 
-    setupSelectSearch(selectId) {
-        const searchInput = document.getElementById(`${selectId}_search`);
-        const selectElement = document.getElementById(selectId);
+        if (!input || !dropdown || !hiddenValue) return;
 
-        if (!searchInput || !selectElement) return;
-
-        searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const options = selectElement.options;
-
-            for (let i = 0; i < options.length; i++) {
-                const option = options[i];
-                if (i === 0) continue; // Skip "All" option
-
-                const optionText = option.textContent.toLowerCase();
-                if (optionText.includes(searchTerm)) {
-                    option.style.display = '';
-                } else {
-                    option.style.display = 'none';
-                }
-            }
-
-            // Auto-select if only one visible option (excluding "All")
-            const visibleOptions = Array.from(options).filter((opt, idx) =>
-                idx > 0 && opt.style.display !== 'none'
-            );
-
-            if (visibleOptions.length === 1) {
-                selectElement.value = visibleOptions[0].value;
-            }
+        // Show dropdown on focus
+        input.addEventListener('focus', () => {
+            this.filterAutocomplete(fieldId, dataList, '');
+            dropdown.classList.add('show');
         });
 
-        // Clear search when select changes
-        selectElement.addEventListener('change', () => {
-            searchInput.value = '';
-            const options = selectElement.options;
-            for (let i = 0; i < options.length; i++) {
-                options[i].style.display = '';
+        // Filter as user types
+        input.addEventListener('input', (e) => {
+            const searchTerm = e.target.value;
+            hiddenValue.value = ''; // Clear hidden value when typing
+            this.filterAutocomplete(fieldId, dataList, searchTerm);
+            dropdown.classList.add('show');
+        });
+
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
             }
+        });
+    },
+
+    filterAutocomplete(fieldId, dataList, searchTerm) {
+        const dropdown = document.getElementById(`${fieldId}_dropdown`);
+        const input = document.getElementById(`${fieldId}_input`);
+        const hiddenValue = document.getElementById(`${fieldId}_value`);
+
+        if (!dropdown) return;
+
+        const lowerSearch = searchTerm.toLowerCase();
+        const filtered = dataList.filter(item =>
+            item.name.toLowerCase().includes(lowerSearch)
+        );
+
+        if (filtered.length === 0) {
+            dropdown.innerHTML = '<div class="autocomplete_item no_results">No results found</div>';
+            return;
+        }
+
+        dropdown.innerHTML = filtered.map(item => `
+            <div class="autocomplete_item" data-id="${item.id}" data-name="${item.name}">
+                ${item.name}
+            </div>
+        `).join('');
+
+        // Add click handlers to dropdown items
+        dropdown.querySelectorAll('.autocomplete_item:not(.no_results)').forEach(item => {
+            item.addEventListener('click', () => {
+                const id = item.getAttribute('data-id');
+                const name = item.getAttribute('data-name');
+                input.value = name;
+                hiddenValue.value = id;
+                dropdown.classList.remove('show');
+            });
         });
     },
 
@@ -280,8 +293,10 @@ patch(ListController.prototype, {
         const dateFromInput = document.getElementById(fromId);
         const dateToInput = document.getElementById(toId);
         const warehouseSelect = document.getElementById(warehouseId);
-        const customerSelect = document.getElementById(customerId);
-        const salespersonSelect = document.getElementById(salespersonId);
+        const customerValue = document.getElementById(`${customerId}_value`);
+        const customerInput = document.getElementById(`${customerId}_input`);
+        const salespersonValue = document.getElementById(`${salespersonId}_value`);
+        const salespersonInput = document.getElementById(`${salespersonId}_input`);
         const applyBtn = document.getElementById(applyId);
         const clearBtn = document.getElementById(clearId);
 
@@ -314,13 +329,13 @@ patch(ListController.prototype, {
             }
 
             // Add customer filter
-            if (customerSelect.value) {
-                domain.push(['partner_id', '=', parseInt(customerSelect.value)]);
+            if (customerValue.value) {
+                domain.push(['partner_id', '=', parseInt(customerValue.value)]);
             }
 
             // Add salesperson filter
-            if (salespersonSelect.value) {
-                domain.push(['user_id', '=', parseInt(salespersonSelect.value)]);
+            if (salespersonValue.value) {
+                domain.push(['user_id', '=', parseInt(salespersonValue.value)]);
             }
 
             this.actionService.doAction({
@@ -341,13 +356,10 @@ patch(ListController.prototype, {
             dateFromInput.value = firstDay.toISOString().split('T')[0];
             dateToInput.value = today.toISOString().split('T')[0];
             warehouseSelect.value = '';
-            customerSelect.value = '';
-            salespersonSelect.value = '';
-
-            // Clear search inputs
-            document.getElementById(`${warehouseId}_search`).value = '';
-            document.getElementById(`${customerId}_search`).value = '';
-            document.getElementById(`${salespersonId}_search`).value = '';
+            customerInput.value = '';
+            customerValue.value = '';
+            salespersonInput.value = '';
+            salespersonValue.value = '';
 
             this.actionService.doAction({
                 type: 'ir.actions.act_window',

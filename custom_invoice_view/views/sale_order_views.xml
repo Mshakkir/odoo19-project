@@ -2,8 +2,8 @@
 <odoo>
     <data>
 
-        <!-- Custom Sale Order List View -->
-        <record id="view_order_list_custom" model="ir.ui.view">
+        <!-- Custom Sale Order List View with ALL available fields -->
+        <record id="view_order_list_sale_custom" model="ir.ui.view">
             <field name="name">sale.order.list.custom</field>
             <field name="model">sale.order</field>
             <field name="mode">primary</field>
@@ -40,16 +40,16 @@
                     <!-- 8. Tax -->
                     <field name="amount_tax" string="Tax" sum="Total Tax"/>
 
-                    <!-- 9. Total (Taxed Amount) -->
+                    <!-- 9. Total -->
                     <field name="amount_total" string="Total" sum="Total Amount"/>
 
-                    <!-- 10. Shipping Ref (AWB Number) -->
+                    <!-- 10. Shipping Ref -->
                     <field name="awb_number" string="Shipping Ref #"/>
 
                     <!-- 11. PO Number -->
 <!--                    <field name="po_number" string="PO Number"/>-->
 
-                    <!-- ADDITIONAL DEFAULT ODOO FIELDS (HIDDEN BY DEFAULT) -->
+                    <!-- ADDITIONAL DEFAULT ODOO FIELDS -->
 
                     <!-- Invoice Status -->
                     <field name="invoice_status" string="Invoice Status" widget="badge"
@@ -57,20 +57,14 @@
                            decoration-warning="invoice_status == 'to invoice'"
                            decoration-info="invoice_status == 'no'"/>
 
-                    <!-- Delivery Status (if you have delivery tracking) -->
-                    <field name="delivery_status" string="Delivery Status" optional="hide"/>
+                    <!-- Delivery Note Number -->
+<!--                    <field name="delivery_note_number" string="Delivery Note #" optional="hide"/>-->
 
                     <!-- Expected Date -->
                     <field name="expected_date" string="Expected Date" optional="hide"/>
 
                     <!-- Commitment Date -->
                     <field name="commitment_date" string="Commitment Date" optional="hide"/>
-
-                    <!-- Delivery Note Number -->
-<!--                    <field name="delivery_note_number" string="Delivery Note #" optional="hide"/>-->
-
-                    <!-- Order Source -->
-<!--                    <field name="order_source" string="Order Source" optional="hide"/>-->
 
                     <!-- Payment Terms -->
                     <field name="payment_term_id" string="Payment Terms" optional="hide"/>
@@ -87,11 +81,40 @@
                     <!-- Company -->
                     <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide"/>
 
+                    <!-- Status -->
+                    <field name="state" string="Status" widget="badge"
+                           decoration-success="state in ('sale', 'done')"
+                           decoration-info="state in ('draft', 'sent')"/>
+
                     <!-- Sales Team -->
                     <field name="team_id" string="Sales Team" optional="hide"/>
 
                     <!-- Tags -->
                     <field name="tag_ids" string="Tags" widget="many2many_tags" optional="hide"/>
+
+                    <!-- Activity -->
+                    <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide"/>
+
+                    <!-- Activity State -->
+                    <field name="activity_state" string="Activity State" optional="hide" widget="badge"
+                           decoration-success="activity_state == 'today'"
+                           decoration-warning="activity_state == 'planned'"
+                           decoration-danger="activity_state == 'overdue'"/>
+
+                    <!-- Activity User -->
+                    <field name="activity_user_id" string="Responsible User" optional="hide"/>
+
+                    <!-- Activity Type -->
+                    <field name="activity_type_id" string="Next Activity Type" optional="hide"/>
+
+                    <!-- Activity Date -->
+                    <field name="activity_date_deadline" string="Next Activity Deadline" optional="hide"/>
+
+                    <!-- Activity Summary -->
+                    <field name="activity_summary" string="Activity Summary" optional="hide"/>
+
+                    <!-- Message -->
+                    <field name="message_needaction" string="Action Needed" optional="hide"/>
 
                     <!-- Campaign -->
                     <field name="campaign_id" string="Campaign" optional="hide" groups="base.group_no_one"/>
@@ -101,30 +124,6 @@
 
                     <!-- Source -->
                     <field name="source_id" string="Source" optional="hide" groups="base.group_no_one"/>
-
-                    <!-- Status -->
-                    <field name="state" string="Status" widget="badge"
-                           decoration-success="state == 'sale' or state == 'done'"
-                           decoration-info="state == 'draft' or state == 'sent'"/>
-
-                    <!-- Activity fields -->
-                    <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide"/>
-
-                    <field name="activity_state" string="Activity State" optional="hide" widget="badge"
-                           decoration-success="activity_state == 'today'"
-                           decoration-warning="activity_state == 'planned'"
-                           decoration-danger="activity_state == 'overdue'"/>
-
-                    <field name="activity_user_id" string="Responsible User" optional="hide"/>
-
-                    <field name="activity_type_id" string="Next Activity Type" optional="hide"/>
-
-                    <field name="activity_date_deadline" string="Next Activity Deadline" optional="hide"/>
-
-                    <field name="activity_summary" string="Activity Summary" optional="hide"/>
-
-                    <!-- Message -->
-                    <field name="message_needaction" string="Action Needed" optional="hide"/>
 
                     <!-- Invoice Address -->
                     <field name="partner_invoice_id" string="Invoice Address" optional="hide"/>
@@ -149,21 +148,14 @@
             </field>
         </record>
 
-        <!-- Override the default sale order list action -->
+        <!-- Override the default sale order action -->
         <record id="sale.action_orders" model="ir.actions.act_window">
-            <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
-            <field name="view_id" ref="view_order_list_custom"/>
+            <field name="view_id" ref="view_order_list_sale_custom"/>
         </record>
 
-        <!-- Also update the quotations action -->
+        <!-- Override the quotations action -->
         <record id="sale.action_quotations" model="ir.actions.act_window">
-            <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
-            <field name="view_id" ref="view_order_list_custom"/>
-        </record>
-
-        <record id="sale.action_quotations_with_onboarding" model="ir.actions.act_window">
-            <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
-            <field name="view_id" ref="view_order_list_custom"/>
+            <field name="view_id" ref="view_order_list_sale_custom"/>
         </record>
 
     </data>

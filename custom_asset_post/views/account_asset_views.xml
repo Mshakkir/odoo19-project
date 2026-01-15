@@ -43,7 +43,7 @@
         </field>
     </record>
 
-    <!-- Standalone LIST view for all depreciation lines (NOT tree!) -->
+    <!-- Standalone LIST view for all depreciation lines -->
     <record id="view_account_asset_depreciation_line_list" model="ir.ui.view">
         <field name="name">account.asset.depreciation.line.list</field>
         <field name="model">account.asset.depreciation.line</field>
@@ -135,12 +135,5 @@
             </p>
         </field>
     </record>
-
-    <!-- Add menu item under Assets -->
-    <menuitem id="menu_action_account_asset_depreciation_line"
-              name="Depreciation Entries"
-              parent="om_account_asset.menu_finance_entries_management"
-              action="action_account_asset_depreciation_line_all"
-              sequence="30"/>
 
 </odoo>

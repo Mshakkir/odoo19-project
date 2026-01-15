@@ -104,20 +104,6 @@
                     <field name="currency_id" column_invisible="True"
                            readonly="state in ['cancel', 'purchase']"/>
 
-                    <!-- Total in Company Currency -->
-                    <field name="amount_total_cc" string="Total (CC)"
-                           sum="Total in Company Currency"
-                           widget="monetary" optional="hide"/>
-
-                    <field name="company_currency_id" column_invisible="True"/>
-
-                    <!-- Receipt Status -->
-                    <field name="receipt_status" string="Receipt Status"
-                           optional="hide" widget="badge"
-                           decoration-success="receipt_status == 'full'"
-                           decoration-warning="receipt_status == 'partial'"
-                           decoration-info="receipt_status == 'pending'"/>
-
                     <!-- Payment Terms -->
                     <field name="payment_term_id" string="Payment Terms"
                            optional="hide"/>
@@ -127,10 +113,6 @@
 
                     <!-- Fiscal Position -->
                     <field name="fiscal_position_id" string="Fiscal Position"
-                           optional="hide"/>
-
-                    <!-- Notes -->
-                    <field name="notes" string="Terms and Conditions"
                            optional="hide"/>
 
                 </list>

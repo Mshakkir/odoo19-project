@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
 
-    <!-- Date Filter Component -->
+    <!-- Date Filter Component Template (kept for reference but not used) -->
     <t t-name="custom_sale_date_filter.DateFilter" owl="1">
         <div class="sale_date_filter_container">
             <div class="date_filter_wrapper">
@@ -40,15 +40,6 @@
                 </button>
             </div>
         </div>
-    </t>
-
-    <!-- Patch ListRenderer Template -->
-    <t t-name="web.ListRenderer" t-inherit="web.ListRenderer" t-inherit-mode="extension" owl="1">
-        <xpath expr="//div[hasclass('o_list_view')]" position="before">
-            <t t-if="isSaleOrderModel">
-                <t t-component="SaleDateFilterComponent"/>
-            </t>
-        </xpath>
     </t>
 
 </templates>

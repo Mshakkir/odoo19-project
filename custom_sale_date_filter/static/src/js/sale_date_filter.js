@@ -2,18 +2,18 @@
 
 import { Component, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
-import { ListController } from "@web/views/list/list_controller";
 import { listView } from "@web/views/list/list_view";
+import { ListRenderer } from "@web/views/list/list_renderer";
 import { useService } from "@web/core/utils/hooks";
 
 class SaleDateFilter extends Component {
     static template = "custom_sale_date_filter.DateFilter";
-    static props = {
-        updateDomain: { type: Function },
-    };
+    static props = {};
 
     setup() {
         this.notification = useService("notification");
+        this.action = useService("action");
+
         this.state = useState({
             dateFrom: this.getDefaultDateFrom(),
             dateTo: this.getDefaultDateTo(),
@@ -59,7 +59,15 @@ class SaleDateFilter extends Component {
             ['date_order', '<=', this.state.dateTo + ' 23:59:59']
         ];
 
-        this.props.updateDomain(domain);
+        // Reload with new domain using action service
+        this.action.doAction({
+            type: 'ir.actions.act_window',
+            name: 'Sale Orders',
+            res_model: 'sale.order',
+            views: [[false, 'list'], [false, 'form']],
+            domain: domain,
+            target: 'current',
+        });
 
         this.notification.add("Date filter applied successfully", {
             type: "success",
@@ -69,7 +77,15 @@ class SaleDateFilter extends Component {
     clearFilter() {
         this.state.dateFrom = this.getDefaultDateFrom();
         this.state.dateTo = this.getDefaultDateTo();
-        this.props.updateDomain([]);
+
+        // Reload without date filter
+        this.action.doAction({
+            type: 'ir.actions.act_window',
+            name: 'Sale Orders',
+            res_model: 'sale.order',
+            views: [[false, 'list'], [false, 'form']],
+            target: 'current',
+        });
 
         this.notification.add("Filter cleared", {
             type: "info",
@@ -77,45 +93,18 @@ class SaleDateFilter extends Component {
     }
 }
 
-class SaleOrderListController extends ListController {
-    static template = "custom_sale_date_filter.ListView";
+class SaleOrderListRenderer extends ListRenderer {
+    static template = "custom_sale_date_filter.ListRenderer";
     static components = {
-        ...ListController.components,
+        ...ListRenderer.components,
         SaleDateFilter,
     };
-
-    setup() {
-        super.setup();
-    }
-
-    updateDomain(domain) {
-        try {
-            // Get current domain and remove any existing date_order filters
-            let currentDomain = this.model.root.domain || [];
-
-            // Filter out existing date_order conditions
-            const cleanDomain = currentDomain.filter(item => {
-                if (Array.isArray(item) && item.length > 0) {
-                    return item[0] !== 'date_order';
-                }
-                return true;
-            });
-
-            // Add new domain
-            const newDomain = [...cleanDomain, ...domain];
-
-            // Update the model
-            this.model.root.domain = newDomain;
-            this.model.root.load();
-        } catch (error) {
-            console.error('Error updating domain:', error);
-        }
-    }
 }
 
 export const saleOrderListView = {
     ...listView,
-    Controller: SaleOrderListController,
+    Renderer: SaleOrderListRenderer,
 };
 
+// Register specifically for sale.order model
 registry.category("views").add("sale_order_tree_date_filter", saleOrderListView);

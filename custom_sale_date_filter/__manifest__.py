@@ -11,7 +11,9 @@
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',
     'depends': ['sale', 'web'],
-    'data': [],
+    'data': [
+        'views/sale_order_views.xml',
+    ],
     'assets': {
         'web.assets_backend': [
             'custom_sale_date_filter/static/src/js/sale_date_filter.js',

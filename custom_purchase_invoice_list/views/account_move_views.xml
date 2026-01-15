@@ -47,8 +47,8 @@
                     <field name="amount_residual" string="Amount Due"/>
 
                     <!-- 11. Purchase Representative / Buyer -->
-                    <field name="buyer_id" string="Buyer" widget="many2one_avatar_user" optional="show"/>
-
+                    <field name="buyer_id" string="Buyer" />
+<!--widget="many2one_avatar_user" optional="show"-->
                     <!-- 12. AWB Number (Shipping Ref) - FROM YOUR EXISTING FIELD -->
                     <field name="awb_number" string="Shipping Ref #"/>
 

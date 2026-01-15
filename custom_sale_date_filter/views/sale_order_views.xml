@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Override the default sale order list view -->
-    <record id="view_order_tree_date_filter" model="ir.ui.view">
-        <field name="name">sale.order.tree.date.filter</field>
+    <record id="view_order_tree_custom" model="ir.ui.view">
+        <field name="name">sale.order.tree.custom</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_tree"/>
         <field name="arch" type="xml">
-            <tree position="attributes">
-                <attribute name="js_class">sale_order_list_with_date_filter</attribute>
-            </tree>
+            <xpath expr="//tree" position="attributes">
+                <attribute name="js_class">sale_order_date_filter_list</attribute>
+            </xpath>
         </field>
     </record>
 </odoo>

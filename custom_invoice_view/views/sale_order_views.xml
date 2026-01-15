@@ -47,7 +47,7 @@
                     <field name="awb_number" string="Shipping Ref #"/>
 
                     <!-- 11. PO Number -->
-                    <field name="ref" string="PO Number"/>
+                    <field name="po_number" string="PO Number"/>
 
                     <!-- ADDITIONAL DEFAULT ODOO FIELDS (HIDDEN BY DEFAULT) -->
 
@@ -69,7 +69,7 @@
                     <!-- Delivery Note Number -->
 <!--                    <field name="delivery_note_number" string="Delivery Note #" optional="hide"/>-->
 
-<!--                    &lt;!&ndash; Order Source &ndash;&gt;-->
+                    <!-- Order Source -->
 <!--                    <field name="order_source" string="Order Source" optional="hide"/>-->
 
                     <!-- Payment Terms -->
@@ -149,13 +149,20 @@
             </field>
         </record>
 
-        <!-- Override the default sale order action to use custom view -->
+        <!-- Override the default sale order list action -->
         <record id="sale.action_orders" model="ir.actions.act_window">
+            <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
             <field name="view_id" ref="view_order_list_custom"/>
         </record>
 
-        <!-- Also update quotations view -->
+        <!-- Also update the quotations action -->
+        <record id="sale.action_quotations" model="ir.actions.act_window">
+            <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
+            <field name="view_id" ref="view_order_list_custom"/>
+        </record>
+
         <record id="sale.action_quotations_with_onboarding" model="ir.actions.act_window">
+            <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
             <field name="view_id" ref="view_order_list_custom"/>
         </record>
 

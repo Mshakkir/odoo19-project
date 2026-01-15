@@ -83,8 +83,14 @@ patch(ListController.prototype, {
         // Clean up any existing filter
         this.cleanupFilter();
 
-        const listView = document.querySelector('.o_list_view');
-        if (!listView) return;
+        // Find the table element (more reliable than o_list_view)
+        const listTable = document.querySelector('.o_list_table');
+
+        if (!listTable) {
+            // Retry if table not found yet
+            setTimeout(() => this.injectDateFilter(), 100);
+            return;
+        }
 
         // Check if filter already exists (safety check)
         if (document.querySelector('.sale_date_filter_wrapper_main')) {
@@ -136,8 +142,8 @@ patch(ListController.prototype, {
             </div>
         `;
 
-        // Insert into DOM
-        listView.parentElement.insertBefore(filterDiv, listView);
+        // Insert BEFORE the table (below search panel, above list)
+        listTable.parentElement.insertBefore(filterDiv, listTable);
         this._filterElement = filterDiv;
 
         // Attach event listeners

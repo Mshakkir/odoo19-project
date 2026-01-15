@@ -2,14 +2,14 @@
 <odoo>
     <data>
 
-        <!-- Custom Sale Order Tree View with ALL available fields -->
-        <record id="view_order_tree_sale_custom" model="ir.ui.view">
-            <field name="name">sale.order.tree.custom</field>
+        <!-- Custom Sale Order List View with ALL available fields -->
+        <record id="view_order_list_sale_custom" model="ir.ui.view">
+            <field name="name">sale.order.list.custom</field>
             <field name="model">sale.order</field>
             <field name="mode">primary</field>
             <field name="priority">1</field>
             <field name="arch" type="xml">
-                <tree string="Sales Orders"
+                <list string="Sales Orders"
                       sample="1"
                       decoration-info="state in ('draft', 'sent')"
                       decoration-muted="state == 'cancel'"
@@ -144,18 +144,18 @@
                     <field name="partner_invoice_id" column_invisible="1"/>
                     <field name="partner_shipping_id" column_invisible="1"/>
 
-                </tree>
+                </list>
             </field>
         </record>
 
         <!-- Override the default sale order action -->
         <record id="sale.action_orders" model="ir.actions.act_window">
-            <field name="view_id" ref="view_order_tree_sale_custom"/>
+            <field name="view_id" ref="view_order_list_sale_custom"/>
         </record>
 
         <!-- Override the quotations action -->
         <record id="sale.action_quotations" model="ir.actions.act_window">
-            <field name="view_id" ref="view_order_tree_sale_custom"/>
+            <field name="view_id" ref="view_order_list_sale_custom"/>
         </record>
 
     </data>

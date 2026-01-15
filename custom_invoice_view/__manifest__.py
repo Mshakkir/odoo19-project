@@ -22,7 +22,7 @@
     'depends': ['account', 'stock', 'sale', 'sale_stock', 'custom_sale_fields', 'multi_warehouse_delivery'],
     'data': [
         'views/account_move_views.xml',
-        'views/sale_order_views.xml',
+
     ],
     'installable': True,
     'application': False,

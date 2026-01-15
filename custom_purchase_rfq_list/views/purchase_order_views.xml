@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Custom Purchase Order/RFQ List View -->
+        <record id="view_purchase_order_list_custom" model="ir.ui.view">
+            <field name="name">purchase.order.list.custom</field>
+            <field name="model">purchase.order</field>
+            <field name="mode">primary</field>
+            <field name="priority">1</field>
+            <field name="arch" type="xml">
+                <list string="Purchase Order"
+                      decoration-info="state in ['draft', 'sent']"
+                      decoration-muted="state == 'cancel'"
+                      multi_edit="1"
+                      class="o_purchase_order"
+                      js_class="purchase_dashboard_list"
+                      sample="1">
+
+                    <header>
+                        <button name="button_cancel" type="object" string="Cancel"
+                                confirm="Are you sure you want to cancel the selected RFQs/Orders?"/>
+                    </header>
+
+                    <!-- YOUR REQUESTED COLUMNS IN ORDER -->
+
+                    <!-- 1. Order Date -->
+                    <field name="date_order" string="Order Date"
+                           widget="date" optional="show"/>
+
+                    <!-- 2. Reference (PO Number) -->
+                    <field name="name" string="Reference"
+                           readonly="1" decoration-bf="1"/>
+
+                    <!-- 3. Vendor -->
+                    <field name="partner_id" string="Vendor" readonly="1"/>
+
+                    <!-- 4. Vendor Reference -->
+                    <field name="partner_ref" string="Vendor Reference" optional="show"/>
+
+                    <!-- 5. Warehouse -->
+                    <field name="picking_type_id" string="Warehouse"
+                           optional="show"/>
+
+                    <!-- 6. Untaxed Amount -->
+                    <field name="amount_untaxed" string="Untaxed"
+                           sum="Total Untaxed" widget="monetary" optional="show"/>
+
+                    <!-- 7. Tax Amount -->
+                    <field name="amount_tax" string="Tax"
+                           sum="Total Tax" widget="monetary" optional="show"/>
+
+                    <!-- 8. Total Amount (Include Tax) -->
+                    <field name="amount_total" string="Total"
+                           sum="Total Amount" widget="monetary"
+                           optional="show" decoration-bf="state == 'purchase'"/>
+
+                    <!-- 9. Buyer (Purchase Representative) -->
+                    <field name="user_id" string="Buyer"
+                           optional="show" widget="many2one_avatar_user"/>
+
+                    <!-- 10. Status -->
+                    <field name="state" string="Status"
+                           optional="show" widget="badge"
+                           decoration-success="state == 'purchase'"
+                           decoration-warning="state == 'to approve'"
+                           decoration-info="state == 'draft' or state == 'sent'"/>
+
+                    <!-- 11. Billing Status -->
+                    <field name="invoice_status" string="Billing Status"
+                           optional="show" widget="badge"
+                           decoration-success="invoice_status == 'invoiced'"
+                           decoration-warning="invoice_status == 'to invoice'"
+                           decoration-info="invoice_status == 'no'"/>
+
+                    <!-- ADDITIONAL USEFUL FIELDS (OPTIONAL/HIDDEN BY DEFAULT) -->
+
+                    <!-- Priority -->
+                    <field name="priority" optional="hide"
+                           widget="priority" nolabel="1"/>
+
+                    <!-- Approval Date -->
+                    <field name="date_approve" string="Confirmation Date"
+                           optional="hide"/>
+
+                    <!-- Expected Arrival -->
+                    <field name="date_planned" string="Expected Arrival"
+                           optional="hide"/>
+
+                    <!-- Company -->
+                    <field name="company_id" string="Company"
+                           readonly="1"
+                           options="{'no_create': True}"
+                           groups="base.group_multi_company"
+                           optional="hide"/>
+
+                    <!-- Source Document -->
+                    <field name="origin" string="Source Document" optional="hide"/>
+
+                    <!-- Activities -->
+                    <field name="activity_ids" widget="list_activity" optional="hide"/>
+
+                    <!-- Currency -->
+                    <field name="currency_id" column_invisible="True"
+                           readonly="state in ['cancel', 'purchase']"/>
+
+                    <!-- Total in Company Currency -->
+                    <field name="amount_total_cc" string="Total (CC)"
+                           sum="Total in Company Currency"
+                           widget="monetary" optional="hide"/>
+
+                    <field name="company_currency_id" column_invisible="True"/>
+
+                    <!-- Receipt Status -->
+                    <field name="receipt_status" string="Receipt Status"
+                           optional="hide" widget="badge"
+                           decoration-success="receipt_status == 'full'"
+                           decoration-warning="receipt_status == 'partial'"
+                           decoration-info="receipt_status == 'pending'"/>
+
+                    <!-- Payment Terms -->
+                    <field name="payment_term_id" string="Payment Terms"
+                           optional="hide"/>
+
+                    <!-- Incoterm -->
+                    <field name="incoterm_id" string="Incoterm" optional="hide"/>
+
+                    <!-- Fiscal Position -->
+                    <field name="fiscal_position_id" string="Fiscal Position"
+                           optional="hide"/>
+
+                    <!-- Notes -->
+                    <field name="notes" string="Terms and Conditions"
+                           optional="hide"/>
+
+                </list>
+            </field>
+        </record>
+
+        <!-- Override the default purchase order action to use custom view -->
+        <record id="purchase.purchase_rfq" model="ir.actions.act_window">
+            <field name="view_id" ref="view_purchase_order_list_custom"/>
+        </record>
+
+        <!-- Override the purchase order action (for confirmed POs) -->
+        <record id="purchase.purchase_form_action" model="ir.actions.act_window">
+            <field name="view_id" ref="view_purchase_order_list_custom"/>
+        </record>
+
+    </data>
+</odoo>

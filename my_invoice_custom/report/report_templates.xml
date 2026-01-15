@@ -373,15 +373,15 @@
                                 <!--                                        <t t-else="">-</t>-->
                                 <!--                                    </t>-->
                                 <!--                                </td>-->
-                                <td style="border:1px solid #000000;padding:4px 8px;">
-                                    <t t-if="o.move_type == 'out_invoice'">
+                                <t t-if="o.move_type == 'out_invoice'">
+                                    <td style="border:1px solid #000000;padding:4px 8px;">
                                         <strong>Delivery Date:</strong>
                                         <t t-if="o.delivery_date">
                                             <span t-field="o.delivery_date" t-options="{'widget': 'date'}"/>
                                         </t>
                                         <t t-else="">-</t>
-                                    </t>
-                                </td>
+                                    </td>
+                                </t>
                             </tr>
 
                             <!-- Second Row: ONLY for sales invoice (not for credit note) -->

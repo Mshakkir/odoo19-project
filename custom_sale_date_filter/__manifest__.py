@@ -1,16 +1,15 @@
+# -*- coding: utf-8 -*-
 {
     'name': 'Sale Order Date Filter',
     'version': '19.0.1.0.0',
     'category': 'Sales',
-    'summary': 'Add custom date range filter to sale orders',
+    'summary': 'Add custom date range filter to sale orders list view',
     'description': """
-        This module adds a custom date range filter to the sale order list view
-        using OWL JS components in the control panel.
+        Adds a custom date range filter component to sale order list view.
+        Built with OWL JS for Odoo 19 CE.
     """,
     'depends': ['sale', 'web'],
-    'data': [
-        'views/sale_order_views.xml',
-    ],
+    'data': [],
     'assets': {
         'web.assets_backend': [
             'custom_sale_date_filter/static/src/js/sale_date_filter.js',

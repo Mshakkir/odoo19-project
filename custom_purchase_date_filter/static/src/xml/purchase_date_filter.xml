@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Purchase Date Filter Component Template (kept for reference) -->
+    <t t-name="custom_purchase_date_filter.DateFilter" owl="1">
+        <div class="purchase_date_filter_container">
+            <!-- Filter content injected dynamically via JavaScript -->
+        </div>
+    </t>
+
+</templates>

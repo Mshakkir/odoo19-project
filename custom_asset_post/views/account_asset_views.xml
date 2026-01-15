@@ -43,12 +43,12 @@
         </field>
     </record>
 
-    <!-- Standalone tree view for all depreciation lines -->
-    <record id="view_account_asset_depreciation_line_tree" model="ir.ui.view">
-        <field name="name">account.asset.depreciation.line.tree</field>
+    <!-- Standalone LIST view for all depreciation lines (NOT tree!) -->
+    <record id="view_account_asset_depreciation_line_list" model="ir.ui.view">
+        <field name="name">account.asset.depreciation.line.list</field>
         <field name="model">account.asset.depreciation.line</field>
         <field name="arch" type="xml">
-            <tree string="Depreciation Lines" create="false" edit="false">
+            <list string="Depreciation Lines" create="false" edit="false">
                 <field name="asset_id"/>
                 <field name="sequence"/>
                 <field name="depreciation_date"/>
@@ -67,7 +67,7 @@
                         type="object"
                         icon="fa-external-link"
                         invisible="move_posted_check == False"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -123,7 +123,7 @@
     <record id="action_account_asset_depreciation_line_all" model="ir.actions.act_window">
         <field name="name">Depreciation Entries</field>
         <field name="res_model">account.asset.depreciation.line</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="domain">[]</field>
         <field name="context">{}</field>
         <field name="help" type="html">

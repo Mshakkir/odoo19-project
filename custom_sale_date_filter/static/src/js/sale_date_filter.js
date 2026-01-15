@@ -4,12 +4,13 @@ import { Component, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { ListController } from "@web/views/list/list_controller";
 import { listView } from "@web/views/list/list_view";
+import { useService } from "@web/core/utils/hooks";
 
-export class SaleDateFilterComponent extends Component {
-    static template = "custom_sale_date_filter.DateFilterTemplate";
-    static props = ["*"];
+export class SaleDateFilter extends Component {
+    static template = "custom_sale_date_filter.DateFilter";
 
     setup() {
+        this.notification = useService("notification");
         this.state = useState({
             dateFrom: this.getDefaultDateFrom(),
             dateTo: this.getDefaultDateTo(),
@@ -37,10 +38,9 @@ export class SaleDateFilterComponent extends Component {
 
     applyFilter() {
         if (!this.state.dateFrom || !this.state.dateTo) {
-            this.env.services.notification.add(
-                "Please select both start and end dates",
-                { type: "warning" }
-            );
+            this.notification.add("Please select both start and end dates", {
+                type: "warning",
+            });
             return;
         }
 
@@ -49,35 +49,36 @@ export class SaleDateFilterComponent extends Component {
             ['date_order', '<=', this.state.dateTo + ' 23:59:59']
         ];
 
-        // Update the search model with the new domain
-        this.env.searchModel.setDomainParts({
-            date_filter: domain,
-        });
+        this.props.updateDomain(domain);
     }
 
     clearFilter() {
         this.state.dateFrom = this.getDefaultDateFrom();
         this.state.dateTo = this.getDefaultDateTo();
-
-        // Remove the date filter domain
-        this.env.searchModel.setDomainParts({
-            date_filter: [],
-        });
+        this.props.updateDomain([]);
     }
 }
 
 export class SaleOrderListController extends ListController {
-    static components = {
-        ...ListController.components,
-        SaleDateFilterComponent,
-    };
+    setup() {
+        super.setup();
+    }
 
-    static template = "custom_sale_date_filter.ListController";
+    updateDomain(domain) {
+        this.model.root.domain = domain;
+        this.model.root.load();
+    }
 }
+
+SaleOrderListController.template = "custom_sale_date_filter.ListView";
+SaleOrderListController.components = {
+    ...ListController.components,
+    SaleDateFilter,
+};
 
 export const saleOrderListView = {
     ...listView,
     Controller: SaleOrderListController,
 };
 
-registry.category("views").add("sale_order_list_with_date_filter", saleOrderListView);
+registry.category("views").add("sale_order_date_filter_list", saleOrderListView);

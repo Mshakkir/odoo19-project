@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_sale_order_filter_custom" model="ir.ui.view">
-        <field name="name">sale.order.search.custom.date</field>
-        <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
-        <field name="arch" type="xml">
-            <xpath expr="//search/filter[@name='sales']" position="before">
-                <separator/>
-                <filter string="Custom Date Range" name="custom_date_range"
-                        domain="[]" context="{'show_date_filter': 1}"/>
-                <separator/>
-            </xpath>
-        </field>
+    <!-- Client Action for Date Filter View -->
+    <record id="action_sale_order_date_filter" model="ir.actions.client">
+        <field name="name">Sale Orders with Date Filter</field>
+        <field name="tag">sale_date_filter_view</field>
+        <field name="target">current</field>
     </record>
+
+    <!-- Menu Item -->
+    <menuitem
+        id="menu_sale_order_date_filter"
+        name="Orders (Date Filter)"
+        parent="sale.sale_menu_root"
+        action="action_sale_order_date_filter"
+        sequence="5"
+    />
 </odoo>

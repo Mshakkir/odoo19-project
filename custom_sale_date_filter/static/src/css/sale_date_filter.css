@@ -1,9 +1,16 @@
+.o_sale_date_filter_main {
+    padding: 20px;
+    height: 100%;
+    background-color: #f8f9fa;
+}
+
 .sale_date_filter_container {
     padding: 15px 20px;
     background-color: #ffffff;
     border: 2px dashed #28a745;
     border-radius: 8px;
-    margin: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .date_filter_wrapper {
@@ -18,6 +25,7 @@
     font-weight: 600;
     color: #6c757d;
     margin: 0;
+    min-width: 100px;
 }
 
 .date_input_group {
@@ -53,6 +61,13 @@
     white-space: nowrap;
 }
 
+.orders_preview_container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .date_filter_wrapper {
@@ -66,5 +81,9 @@
 
     .date_input {
         width: 100%;
+    }
+
+    .date_label {
+        min-width: auto;
     }
 }

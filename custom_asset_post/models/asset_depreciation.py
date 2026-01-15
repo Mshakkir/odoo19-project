@@ -58,3 +58,4 @@ class AssetDepreciationLine(models.Model):
             'type': 'ir.actions.client',
             'tag': 'reload',
         }
+

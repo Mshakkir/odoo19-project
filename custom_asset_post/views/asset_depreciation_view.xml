@@ -14,13 +14,12 @@
                             <field name="name"/>
                             <field name="sequence"/>
                             <field name="move_id"/>
-                            <field name="linked"/>
                         </group>
                         <group>
-                            <field name="amount" widget="monetary"/>
+                            <field name="amount" widget="monetary" string="Current Depreciation"/>
                             <field name="depreciation_date"/>
-                            <field name="depreciated_value"/>
-                            <field name="remaining_value"/>
+                            <field name="depreciated_value" string="Cumulative Depreciation"/>
+                            <field name="remaining_value" string="Next Period Depreciation"/>
                         </group>
                     </group>
 

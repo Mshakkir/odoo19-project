@@ -8,7 +8,7 @@
             <field name="model">sale.order</field>
             <field name="priority">1</field>
             <field name="arch" type="xml">
-                <tree string="Sales Orders"
+                <list string="Sales Orders"
                       sample="1"
                       decoration-info="state in ('draft', 'sent')"
                       decoration-muted="state == 'cancel'"
@@ -129,7 +129,7 @@
                     <!-- Message -->
                     <field name="message_needaction" string="Action Needed" optional="hide"/>
 
-                </tree>
+                </list>
             </field>
         </record>
 

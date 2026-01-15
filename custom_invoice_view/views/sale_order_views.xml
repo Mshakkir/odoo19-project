@@ -2,83 +2,87 @@
 <odoo>
     <data>
 
-        <!-- Inherit and modify the default sale order tree view -->
-        <record id="view_order_tree_inherited" model="ir.ui.view">
-            <field name="name">sale.order.tree.inherited</field>
+        <!-- Create a completely new tree/list view -->
+        <record id="view_order_list_custom" model="ir.ui.view">
+            <field name="name">sale.order.list.custom</field>
             <field name="model">sale.order</field>
-            <field name="inherit_id" ref="sale.view_order_tree"/>
             <field name="arch" type="xml">
-                <!-- Replace the entire tree structure -->
-                <xpath expr="//tree" position="replace">
-                    <tree string="Sales Orders"
-                          sample="1"
-                          decoration-info="state in ('draft', 'sent')"
-                          decoration-muted="state == 'cancel'"
-                          multi_edit="1">
+                <list string="Sales Orders"
+                      sample="1"
+                      decoration-info="state in ('draft', 'sent')"
+                      decoration-muted="state == 'cancel'"
+                      multi_edit="1">
 
-                        <!-- 1. Order Date -->
-                        <field name="date_order" string="Order Date"/>
+                    <!-- 1. Order Date -->
+                    <field name="date_order" string="Order Date"/>
 
-                        <!-- 2. Number -->
-                        <field name="name" string="Number" readonly="1"/>
+                    <!-- 2. Number -->
+                    <field name="name" string="Number" readonly="1"/>
 
-                        <!-- 3. Customer -->
-                        <field name="partner_id" string="Customer"/>
+                    <!-- 3. Customer -->
+                    <field name="partner_id" string="Customer"/>
 
-                        <!-- 4. Warehouse -->
-                        <field name="warehouse_id" string="Warehouse"/>
+                    <!-- 4. Warehouse -->
+                    <field name="warehouse_id" string="Warehouse"/>
 
-                        <!-- 5. Customer Reference -->
-                        <field name="client_order_ref" string="Customer Reference"/>
+                    <!-- 5. Customer Reference -->
+                    <field name="client_order_ref" string="Customer Reference"/>
 
-                        <!-- 6. Salesperson -->
-                        <field name="user_id" string="Salesperson" widget="many2one_avatar_user"/>
+                    <!-- 6. Salesperson -->
+                    <field name="user_id" string="Salesperson" widget="many2one_avatar_user"/>
 
-                        <!-- 7. Untaxed Amount -->
-                        <field name="amount_untaxed" string="Untaxed Amount" sum="Total Untaxed"/>
+                    <!-- 7. Untaxed Amount -->
+                    <field name="amount_untaxed" string="Untaxed Amount" sum="Total Untaxed"/>
 
-                        <!-- 8. Tax -->
-                        <field name="amount_tax" string="Tax" sum="Total Tax"/>
+                    <!-- 8. Tax -->
+                    <field name="amount_tax" string="Tax" sum="Total Tax"/>
 
-                        <!-- 9. Total -->
-                        <field name="amount_total" string="Total" sum="Total Amount"/>
+                    <!-- 9. Total -->
+                    <field name="amount_total" string="Total" sum="Total Amount"/>
 
-                        <!-- 10. Shipping Ref -->
-                        <field name="awb_number" string="Shipping Ref #" optional="show"/>
+                    <!-- 10. Shipping Ref -->
+                    <field name="awb_number" string="Shipping Ref #"/>
 
-                        <!-- 11. PO Number -->
-<!--                        <field name="po_number" string="PO Number" optional="show"/>-->
+                    <!-- 11. PO Number -->
+<!--                    <field name="po_number" string="PO Number"/>-->
 
-                        <!-- Additional fields - hidden by default -->
-                        <field name="invoice_status" string="Invoice Status" widget="badge"
-                               decoration-success="invoice_status == 'invoiced'"
-                               decoration-warning="invoice_status == 'to invoice'"
-                               decoration-info="invoice_status == 'no'"
-                               optional="hide"/>
+                    <!-- Additional default fields - hidden -->
+                    <field name="invoice_status" string="Invoice Status" widget="badge"
+                           decoration-success="invoice_status == 'invoiced'"
+                           decoration-warning="invoice_status == 'to invoice'"
+                           decoration-info="invoice_status == 'no'"
+                           optional="hide"/>
 
-<!--                        <field name="delivery_note_number" string="Delivery Note #" optional="hide"/>-->
-                        <field name="expected_date" string="Expected Date" optional="hide"/>
-                        <field name="commitment_date" string="Commitment Date" optional="hide"/>
-                        <field name="payment_term_id" string="Payment Terms" optional="hide"/>
-                        <field name="pricelist_id" string="Pricelist" optional="hide"/>
-                        <field name="team_id" string="Sales Team" optional="hide"/>
-                        <field name="tag_ids" string="Tags" widget="many2many_tags" optional="hide"/>
-                        <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide"/>
+<!--                    <field name="delivery_note_number" string="Delivery Note #" optional="hide"/>-->
+                    <field name="expected_date" string="Expected Date" optional="hide"/>
+                    <field name="commitment_date" string="Commitment Date" optional="hide"/>
+                    <field name="payment_term_id" string="Payment Terms" optional="hide"/>
+                    <field name="pricelist_id" string="Pricelist" optional="hide"/>
+                    <field name="team_id" string="Sales Team" optional="hide"/>
+                    <field name="tag_ids" string="Tags" widget="many2many_tags" optional="hide"/>
+                    <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide"/>
+                    <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide"/>
 
-                        <field name="state" string="Status" widget="badge"
-                               decoration-success="state in ('sale', 'done')"
-                               decoration-info="state in ('draft', 'sent')"
-                               optional="hide"/>
+                    <field name="state" string="Status" widget="badge"
+                           decoration-success="state in ('sale', 'done')"
+                           decoration-info="state in ('draft', 'sent')"
+                           optional="hide"/>
 
-                        <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide"/>
+                    <!-- Hidden technical fields -->
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="partner_invoice_id" column_invisible="1"/>
+                    <field name="partner_shipping_id" column_invisible="1"/>
 
-                        <field name="currency_id" column_invisible="1"/>
-                        <field name="partner_invoice_id" column_invisible="1"/>
-                        <field name="partner_shipping_id" column_invisible="1"/>
-
-                    </tree>
-                </xpath>
+                </list>
             </field>
+        </record>
+
+        <!-- Set this view as the default for Sales Orders action -->
+        <record id="sale.action_orders" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="view_order_list_custom"/>
+            <field name="act_window_id" ref="sale.action_orders"/>
         </record>
 
     </data>

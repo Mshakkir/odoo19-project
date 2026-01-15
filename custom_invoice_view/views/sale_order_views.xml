@@ -47,7 +47,7 @@
                     <field name="awb_number" string="Shipping Ref #"/>
 
                     <!-- 11. PO Number -->
-                    <field name="po_number" string="PO Number"/>
+<!--                    <field name="po_number" string="PO Number"/>-->
 
                     <!-- ADDITIONAL DEFAULT ODOO FIELDS (HIDDEN BY DEFAULT) -->
 

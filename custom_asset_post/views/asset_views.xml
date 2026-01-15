@@ -7,26 +7,42 @@
             <field name="name">account.asset.depreciation.line.form - Custom Post Button</field>
             <field name="model">account.asset.depreciation.line</field>
             <field name="type">form</field>
-            <field name="inherit_id" ref="om_account_asset.view_account_asset_depreciation_line_form"/>
+            <field name="priority">20</field>
             <field name="arch" type="xml">
+                <form string="Depreciation Line">
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                            <field name="move_id"/>
+                        </group>
+                        <group>
+                            <field name="amount" widget="monetary" string="Current Depreciation"/>
+                            <field name="depreciation_date"/>
+                            <field name="depreciated_value" string="Cumulative Depreciation"/>
+                            <field name="remaining_value" string="Next Period Depreciation"/>
+                        </group>
+                    </group>
 
-                <!-- Add Post Button before footer close button -->
-                <xpath expr="//footer/button[@special='cancel']" position="before">
-                    <button name="action_post_depreciation"
-                            type="object"
-                            string="Post Depreciation"
-                            invisible="move_check == True"
-                            class="btn-success"
-                            title="Post this depreciation entry instantly"/>
+                    <!-- Footer with Post Button -->
+                    <footer>
+                        <button name="action_post_depreciation"
+                                type="object"
+                                string="✓ Post Depreciation"
+                                invisible="move_check == True"
+                                class="btn btn-success"
+                                title="Post this depreciation entry instantly"/>
 
-                    <button name="action_unpost_depreciation"
-                            type="object"
-                            string="Unpost"
-                            invisible="move_check == False"
-                            class="btn-warning"
-                            title="Unpost this depreciation entry"/>
-                </xpath>
+                        <button name="action_unpost_depreciation"
+                                type="object"
+                                string="✕ Unpost"
+                                invisible="move_check == False"
+                                class="btn btn-warning"
+                                title="Unpost this depreciation entry"/>
 
+                        <button string="Close" class="btn btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
             </field>
         </record>
 

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sale_order_filter_custom" model="ir.ui.view">
+        <field name="name">sale.order.search.custom.date</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <search position="before">
+                <div class="o_sale_date_filter_placeholder"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Add menu item to trigger the custom view -->
+    <record id="action_orders_with_date_filter" model="ir.actions.client">
+        <field name="name">Sales Orders (Date Filter)</field>
+        <field name="tag">sale_date_filter_action</field>
+    </record>
+
+    <menuitem
+        id="menu_sale_order_date_filter"
+        name="Orders (Date Filter)"
+        parent="sale.sale_menu_root"
+        action="action_orders_with_date_filter"
+        sequence="5"
+    />
+</odoo>

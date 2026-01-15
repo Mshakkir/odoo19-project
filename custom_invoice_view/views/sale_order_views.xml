@@ -2,10 +2,11 @@
 <odoo>
     <data>
 
-        <!-- Custom Sale Order List View - Complete Replacement -->
-        <record id="view_quotation_tree_custom" model="ir.ui.view">
-            <field name="name">sale.order.tree.custom.complete</field>
+        <!-- Custom Sale Order List View -->
+        <record id="view_order_list_custom" model="ir.ui.view">
+            <field name="name">sale.order.list.custom</field>
             <field name="model">sale.order</field>
+            <field name="mode">primary</field>
             <field name="priority">1</field>
             <field name="arch" type="xml">
                 <list string="Sales Orders"
@@ -14,8 +15,7 @@
                       decoration-muted="state == 'cancel'"
                       multi_edit="1">
 
-                    <!-- YOUR REQUESTED ORDER (Default Visible) -->
-
+                    <!-- YOUR REQUESTED ORDER -->
                     <!-- 1. Order Date -->
                     <field name="date_order" string="Order Date"/>
 
@@ -35,32 +35,30 @@
                     <field name="user_id" string="Salesperson" widget="many2one_avatar_user"/>
 
                     <!-- 7. Untaxed Amount -->
-                    <field name="amount_untaxed" string="Untaxed Amount" sum="Total"/>
+                    <field name="amount_untaxed" string="Untaxed Amount" sum="Total Untaxed"/>
 
                     <!-- 8. Tax -->
-                    <field name="amount_tax" string="Taxes"/>
+                    <field name="amount_tax" string="Tax" sum="Total Tax"/>
 
-                    <!-- 9. Taxed Amount (Total) -->
-                    <field name="amount_total" string="Total" sum="Total"/>
+                    <!-- 9. Total (Taxed Amount) -->
+                    <field name="amount_total" string="Total" sum="Total Amount"/>
 
                     <!-- 10. Shipping Ref (AWB Number) -->
                     <field name="awb_number" string="Shipping Ref #"/>
 
-                    <!-- 11. PO Number (Delivery Note Number) -->
-<!--                    <field name="delivery_note_number" string="PO Number"/>-->
+                    <!-- 11. PO Number -->
+                    <field name="po_number" string="PO Number"/>
 
-                    <!-- Status -->
-                    <field name="state" string="Status" widget="badge"
-                           decoration-success="state == 'sale' or state == 'done'"
-                           decoration-info="state == 'draft' or state == 'sent'"/>
+                    <!-- ADDITIONAL DEFAULT ODOO FIELDS (HIDDEN BY DEFAULT) -->
 
-                    <!-- ADDITIONAL DEFAULT ODOO FIELDS (Hidden by default - optional) -->
+                    <!-- Invoice Status -->
+                    <field name="invoice_status" string="Invoice Status" widget="badge"
+                           decoration-success="invoice_status == 'invoiced'"
+                           decoration-warning="invoice_status == 'to invoice'"
+                           decoration-info="invoice_status == 'no'"/>
 
-                    <!-- Payment Terms -->
-                    <field name="payment_term_id" string="Payment Terms" optional="hide"/>
-
-                    <!-- Validity -->
-                    <field name="validity_date" string="Expiration" optional="hide"/>
+                    <!-- Delivery Status (if you have delivery tracking) -->
+                    <field name="delivery_status" string="Delivery Status" optional="hide"/>
 
                     <!-- Expected Date -->
                     <field name="expected_date" string="Expected Date" optional="hide"/>
@@ -68,38 +66,32 @@
                     <!-- Commitment Date -->
                     <field name="commitment_date" string="Commitment Date" optional="hide"/>
 
-                    <!-- Invoice Status -->
-                    <field name="invoice_status" string="Invoice Status" optional="hide" widget="badge"
-                           decoration-success="invoice_status == 'invoiced'"
-                           decoration-warning="invoice_status == 'to invoice'"
-                           decoration-info="invoice_status == 'no'"/>
+                    <!-- Delivery Note Number -->
+<!--                    <field name="delivery_note_number" string="Delivery Note #" optional="hide"/>-->
+
+                    <!-- Order Source -->
+<!--                    <field name="order_source" string="Order Source" optional="hide"/>-->
+
+                    <!-- Payment Terms -->
+                    <field name="payment_term_id" string="Payment Terms" optional="hide"/>
+
+                    <!-- Pricelist -->
+                    <field name="pricelist_id" string="Pricelist" optional="hide"/>
 
                     <!-- Currency -->
                     <field name="currency_id" string="Currency" optional="hide"/>
 
+                    <!-- Fiscal Position -->
+                    <field name="fiscal_position_id" string="Fiscal Position" optional="hide"/>
+
                     <!-- Company -->
                     <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide"/>
-
-                    <!-- Pricelist -->
-                    <field name="pricelist_id" string="Pricelist" optional="hide"/>
 
                     <!-- Sales Team -->
                     <field name="team_id" string="Sales Team" optional="hide"/>
 
                     <!-- Tags -->
                     <field name="tag_ids" string="Tags" widget="many2many_tags" optional="hide"/>
-
-                    <!-- Fiscal Position -->
-                    <field name="fiscal_position_id" string="Fiscal Position" optional="hide"/>
-
-                    <!-- Invoice Address -->
-                    <field name="partner_invoice_id" string="Invoice Address" optional="hide"/>
-
-                    <!-- Delivery Address -->
-                    <field name="partner_shipping_id" string="Delivery Address" optional="hide"/>
-
-                    <!-- Incoterm -->
-                    <field name="incoterm" string="Incoterm" optional="hide"/>
 
                     <!-- Campaign -->
                     <field name="campaign_id" string="Campaign" optional="hide" groups="base.group_no_one"/>
@@ -110,7 +102,12 @@
                     <!-- Source -->
                     <field name="source_id" string="Source" optional="hide" groups="base.group_no_one"/>
 
-                    <!-- Activity Fields -->
+                    <!-- Status -->
+                    <field name="state" string="Status" widget="badge"
+                           decoration-success="state == 'sale' or state == 'done'"
+                           decoration-info="state == 'draft' or state == 'sent'"/>
+
+                    <!-- Activity fields -->
                     <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide"/>
 
                     <field name="activity_state" string="Activity State" optional="hide" widget="badge"
@@ -129,32 +126,44 @@
                     <!-- Message -->
                     <field name="message_needaction" string="Action Needed" optional="hide"/>
 
+                    <!-- Invoice Address -->
+                    <field name="partner_invoice_id" string="Invoice Address" optional="hide"/>
+
+                    <!-- Delivery Address -->
+                    <field name="partner_shipping_id" string="Delivery Address" optional="hide"/>
+
+                    <!-- Incoterm -->
+                    <field name="incoterm" string="Incoterm" optional="hide"/>
+
+                    <!-- Validity Date -->
+                    <field name="validity_date" string="Expiration" optional="hide"/>
+
+                    <!-- Note -->
+                    <field name="note" string="Terms and Conditions" optional="hide"/>
+
+                    <!-- Hidden technical fields -->
+                    <field name="partner_invoice_id" column_invisible="1"/>
+                    <field name="partner_shipping_id" column_invisible="1"/>
+
                 </list>
             </field>
         </record>
 
-        <!-- Override the main Sales Order action -->
+        <!-- Override the default sale order list action -->
         <record id="sale.action_orders" model="ir.actions.act_window">
             <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
+            <field name="view_id" ref="view_order_list_custom"/>
         </record>
 
-        <record id="sale_order_view_tree_custom" model="ir.actions.act_window.view">
-            <field name="sequence">1</field>
-            <field name="view_mode">tree</field>
-            <field name="view_id" ref="view_quotation_tree_custom"/>
-            <field name="act_window_id" ref="sale.action_orders"/>
+        <!-- Also update the quotations action -->
+        <record id="sale.action_quotations" model="ir.actions.act_window">
+            <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
+            <field name="view_id" ref="view_order_list_custom"/>
         </record>
 
-        <!-- Also override quotations action if exists -->
         <record id="sale.action_quotations_with_onboarding" model="ir.actions.act_window">
             <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
-        </record>
-
-        <record id="sale_quotation_view_tree_custom" model="ir.actions.act_window.view">
-            <field name="sequence">1</field>
-            <field name="view_mode">tree</field>
-            <field name="view_id" ref="view_quotation_tree_custom"/>
-            <field name="act_window_id" ref="sale.action_quotations_with_onboarding"/>
+            <field name="view_id" ref="view_order_list_custom"/>
         </record>
 
     </data>

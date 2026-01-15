@@ -13,12 +13,17 @@ patch(ListController.prototype, {
 
         this.notification = useService("notification");
         this.actionService = useService("action");
+        this.orm = useService("orm");
         this._filterElement = null;
+        this._filterData = {
+            warehouses: [],
+            customers: [],
+            salespersons: []
+        };
 
         onMounted(() => {
-            // Strict check: Only show on sale.order AND only on Orders menu (not Quotations)
             if (this.shouldShowFilter()) {
-                setTimeout(() => this.injectDateFilter(), 150);
+                setTimeout(() => this.loadFilterData(), 150);
             }
         });
 
@@ -28,20 +33,16 @@ patch(ListController.prototype, {
     },
 
     shouldShowFilter() {
-        // Must be sale.order model
         if (this.props.resModel !== 'sale.order') {
             return false;
         }
 
-        // Check the action's XML ID or name
         const action = this.env.config;
 
-        // Method 1: Check action XML ID (most reliable)
         if (action.xmlId === 'sale.action_orders') {
             return true;
         }
 
-        // Method 2: Check if action name contains "Orders" but not "Quotations"
         if (action.displayName || action.name) {
             const actionName = (action.displayName || action.name).toLowerCase();
             if (actionName.includes('order') && !actionName.includes('quotation')) {
@@ -49,7 +50,6 @@ patch(ListController.prototype, {
             }
         }
 
-        // Method 3: Check domain for sale order states
         if (this.props.domain) {
             const hasOrderState = this.props.domain.some(item =>
                 Array.isArray(item) &&
@@ -61,7 +61,6 @@ patch(ListController.prototype, {
             }
         }
 
-        // Method 4: Check context
         if (this.props.context) {
             if (this.props.context.search_default_sales ||
                 this.props.context.default_state === 'sale') {
@@ -79,80 +78,163 @@ patch(ListController.prototype, {
         }
     },
 
+    async loadFilterData() {
+        try {
+            // Load warehouses
+            const warehouses = await this.orm.searchRead(
+                'stock.warehouse',
+                [],
+                ['id', 'name'],
+                { limit: 100 }
+            );
+
+            // Load customers (partners that are customers)
+            const customers = await this.orm.searchRead(
+                'res.partner',
+                [['customer_rank', '>', 0]],
+                ['id', 'name'],
+                { limit: 200, order: 'name' }
+            );
+
+            // Load salespersons (users)
+            const salespersons = await this.orm.searchRead(
+                'res.users',
+                [],
+                ['id', 'name'],
+                { limit: 100, order: 'name' }
+            );
+
+            this._filterData = {
+                warehouses: warehouses,
+                customers: customers,
+                salespersons: salespersons
+            };
+
+            this.injectDateFilter();
+        } catch (error) {
+            console.error('Error loading filter data:', error);
+            this.notification.add("Error loading filter options", { type: "danger" });
+        }
+    },
+
     injectDateFilter() {
-        // Clean up any existing filter
         this.cleanupFilter();
 
-        // Find the table element (more reliable than o_list_view)
         const listTable = document.querySelector('.o_list_table');
 
         if (!listTable) {
-            // Retry if table not found yet
             setTimeout(() => this.injectDateFilter(), 100);
             return;
         }
 
-        // Check if filter already exists (safety check)
         if (document.querySelector('.sale_date_filter_wrapper_main')) {
             return;
         }
 
-        // Create unique IDs
         const timestamp = Date.now();
         const fromId = `date_from_${timestamp}`;
         const toId = `date_to_${timestamp}`;
+        const warehouseId = `warehouse_${timestamp}`;
+        const customerId = `customer_${timestamp}`;
+        const salespersonId = `salesperson_${timestamp}`;
         const applyId = `apply_filter_${timestamp}`;
         const clearId = `clear_filter_${timestamp}`;
 
-        // Get default date range (current month)
         const today = new Date();
         const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
         const dateFrom = firstDay.toISOString().split('T')[0];
         const dateTo = today.toISOString().split('T')[0];
 
-        // Create filter container
+        // Build options for select dropdowns
+        const warehouseOptions = this._filterData.warehouses
+            .map(w => `<option value="${w.id}">${w.name}</option>`)
+            .join('');
+
+        const customerOptions = this._filterData.customers
+            .map(c => `<option value="${c.id}">${c.name}</option>`)
+            .join('');
+
+        const salespersonOptions = this._filterData.salespersons
+            .map(s => `<option value="${s.id}">${s.name}</option>`)
+            .join('');
+
         const filterDiv = document.createElement('div');
         filterDiv.className = 'sale_date_filter_wrapper_main';
         filterDiv.innerHTML = `
             <div class="sale_date_filter_container">
                 <div class="date_filter_wrapper">
-                    <label class="date_label">Order Date:</label>
-                    <div class="date_input_group">
-                        <input
-                            type="date"
-                            class="form-control date_input"
-                            id="${fromId}"
-                            value="${dateFrom}"
-                        />
-                        <span class="date_separator">→</span>
-                        <input
-                            type="date"
-                            class="form-control date_input"
-                            id="${toId}"
-                            value="${dateTo}"
-                        />
+                    <!-- Date Range Filter -->
+                    <div class="filter_group">
+                        <label class="filter_label">Order Date:</label>
+                        <div class="date_input_group">
+                            <input
+                                type="date"
+                                class="form-control date_input"
+                                id="${fromId}"
+                                value="${dateFrom}"
+                            />
+                            <span class="date_separator">→</span>
+                            <input
+                                type="date"
+                                class="form-control date_input"
+                                id="${toId}"
+                                value="${dateTo}"
+                            />
+                        </div>
                     </div>
-                    <button class="btn btn-primary apply_filter_btn" id="${applyId}">
-                        Apply Filter
-                    </button>
-                    <button class="btn btn-secondary clear_filter_btn" id="${clearId}">
-                        Clear
-                    </button>
+
+                    <!-- Warehouse Filter -->
+                    <div class="filter_group">
+                        <label class="filter_label">Warehouse:</label>
+                        <select class="form-select filter_select" id="${warehouseId}">
+                            <option value="">All Warehouses</option>
+                            ${warehouseOptions}
+                        </select>
+                    </div>
+
+                    <!-- Customer Filter -->
+                    <div class="filter_group">
+                        <label class="filter_label">Customer:</label>
+                        <select class="form-select filter_select" id="${customerId}">
+                            <option value="">All Customers</option>
+                            ${customerOptions}
+                        </select>
+                    </div>
+
+                    <!-- Salesperson Filter -->
+                    <div class="filter_group">
+                        <label class="filter_label">Salesperson:</label>
+                        <select class="form-select filter_select" id="${salespersonId}">
+                            <option value="">All Salespersons</option>
+                            ${salespersonOptions}
+                        </select>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="filter_actions">
+                        <button class="btn btn-primary apply_filter_btn" id="${applyId}">
+                            Apply Filter
+                        </button>
+                        <button class="btn btn-secondary clear_filter_btn" id="${clearId}">
+                            Clear
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
 
-        // Insert BEFORE the table (below search panel, above list)
         listTable.parentElement.insertBefore(filterDiv, listTable);
         this._filterElement = filterDiv;
 
-        // Attach event listeners
-        this.attachFilterEvents(fromId, toId, applyId, clearId);
+        this.attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, applyId, clearId);
     },
 
-    attachFilterEvents(fromId, toId, applyId, clearId) {
+    attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, applyId, clearId) {
         const dateFromInput = document.getElementById(fromId);
         const dateToInput = document.getElementById(toId);
+        const warehouseSelect = document.getElementById(warehouseId);
+        const customerSelect = document.getElementById(customerId);
+        const salespersonSelect = document.getElementById(salespersonId);
         const applyBtn = document.getElementById(applyId);
         const clearBtn = document.getElementById(clearId);
 
@@ -172,12 +254,27 @@ patch(ListController.prototype, {
                 return;
             }
 
-            // Build domain with date filter + sale order state
+            // Build domain with all filters
             const domain = [
                 ['date_order', '>=', dateFrom + ' 00:00:00'],
                 ['date_order', '<=', dateTo + ' 23:59:59'],
                 ['state', 'in', ['sale', 'done']]
             ];
+
+            // Add warehouse filter
+            if (warehouseSelect.value) {
+                domain.push(['warehouse_id', '=', parseInt(warehouseSelect.value)]);
+            }
+
+            // Add customer filter
+            if (customerSelect.value) {
+                domain.push(['partner_id', '=', parseInt(customerSelect.value)]);
+            }
+
+            // Add salesperson filter
+            if (salespersonSelect.value) {
+                domain.push(['user_id', '=', parseInt(salespersonSelect.value)]);
+            }
 
             this.actionService.doAction({
                 type: 'ir.actions.act_window',
@@ -188,17 +285,18 @@ patch(ListController.prototype, {
                 target: 'current',
             });
 
-            this.notification.add("Date filter applied", { type: "success" });
+            this.notification.add("Filters applied successfully", { type: "success" });
         });
 
         clearBtn.addEventListener('click', () => {
-            // Reset dates to current month
             const today = new Date();
             const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
             dateFromInput.value = firstDay.toISOString().split('T')[0];
             dateToInput.value = today.toISOString().split('T')[0];
+            warehouseSelect.value = '';
+            customerSelect.value = '';
+            salespersonSelect.value = '';
 
-            // Reload with default domain
             this.actionService.doAction({
                 type: 'ir.actions.act_window',
                 name: 'Sale Orders',
@@ -208,7 +306,7 @@ patch(ListController.prototype, {
                 target: 'current',
             });
 
-            this.notification.add("Filter cleared", { type: "info" });
+            this.notification.add("Filters cleared", { type: "info" });
         });
     },
 });

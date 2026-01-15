@@ -3,7 +3,7 @@
 }
 
 .sale_date_filter_container {
-    padding: 12px 16px;
+    padding: 16px;
     background-color: #f8f9fa;
     border-bottom: 2px solid #e9ecef;
     margin: 0;
@@ -11,32 +11,33 @@
 }
 
 .date_filter_wrapper {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
-    max-width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    align-items: end;
 }
 
-.date_label {
-    font-size: 14px;
+.filter_group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.filter_label {
+    font-size: 13px;
     font-weight: 600;
     color: #495057;
     margin: 0;
-    min-width: 90px;
 }
 
 .date_input_group {
     display: flex;
     align-items: center;
-    gap: 12px;
-    flex: 1;
-    min-width: 380px;
-    max-width: 500px;
+    gap: 10px;
 }
 
 .date_input {
-    width: 160px;
+    flex: 1;
     padding: 6px 10px;
     border: 1px solid #ced4da;
     border-radius: 4px;
@@ -51,6 +52,22 @@
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }
 
+.filter_select {
+    padding: 6px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #ffffff;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    cursor: pointer;
+}
+
+.filter_select:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
 .date_separator {
     font-size: 16px;
     color: #6c757d;
@@ -58,13 +75,20 @@
     padding: 0 5px;
 }
 
+.filter_actions {
+    display: flex;
+    gap: 10px;
+    align-items: end;
+}
+
 .apply_filter_btn {
-    padding: 6px 20px;
+    padding: 6px 24px;
     font-size: 14px;
     font-weight: 500;
     white-space: nowrap;
     background-color: #0d6efd;
     border-color: #0d6efd;
+    flex: 1;
 }
 
 .apply_filter_btn:hover {
@@ -73,10 +97,11 @@
 }
 
 .clear_filter_btn {
-    padding: 6px 18px;
+    padding: 6px 20px;
     font-size: 14px;
     font-weight: 500;
     white-space: nowrap;
+    flex: 1;
 }
 
 /* Ensure proper spacing with table */
@@ -84,27 +109,41 @@
     margin-top: 0 !important;
 }
 
-/* Responsive design */
-@media (max-width: 1200px) {
-    .date_input_group {
-        min-width: 320px;
+/* Responsive design for larger screens */
+@media (min-width: 1400px) {
+    .date_filter_wrapper {
+        grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr auto;
     }
 }
 
-@media (max-width: 992px) {
+@media (min-width: 1200px) and (max-width: 1399px) {
     .date_filter_wrapper {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .filter_actions {
+        grid-column: span 3;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+    .date_filter_wrapper {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .filter_actions {
+        grid-column: span 2;
+    }
+}
+
+/* Responsive design for tablets and mobile */
+@media (max-width: 991px) {
+    .date_filter_wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .filter_actions {
         flex-direction: column;
-        align-items: stretch;
-    }
-
-    .date_input_group {
-        flex-direction: row;
-        min-width: 100%;
-        max-width: 100%;
-    }
-
-    .date_label {
-        min-width: auto;
     }
 
     .apply_filter_btn,
@@ -115,15 +154,16 @@
 
 @media (max-width: 576px) {
     .sale_date_filter_container {
-        padding: 10px 12px;
+        padding: 12px;
     }
 
     .date_filter_wrapper {
-        gap: 10px;
+        gap: 12px;
     }
 
     .date_input_group {
         flex-direction: column;
+        gap: 8px;
     }
 
     .date_input {
@@ -133,5 +173,9 @@
     .date_separator {
         transform: rotate(90deg);
         margin: 5px 0;
+    }
+
+    .filter_select {
+        width: 100%;
     }
 }

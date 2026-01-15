@@ -1,16 +1,10 @@
-.o_sale_date_filter_main {
-    padding: 20px;
-    height: 100%;
-    background-color: #f8f9fa;
-}
-
 .sale_date_filter_container {
     padding: 15px 20px;
     background-color: #ffffff;
     border: 2px dashed #28a745;
     border-radius: 8px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
 }
 
 .date_filter_wrapper {
@@ -23,7 +17,7 @@
 .date_label {
     font-size: 16px;
     font-weight: 600;
-    color: #6c757d;
+    color: #495057;
     margin: 0;
     min-width: 100px;
 }
@@ -31,16 +25,18 @@
 .date_input_group {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     flex: 1;
+    min-width: 400px;
 }
 
 .date_input {
-    min-width: 200px;
+    width: 180px;
     padding: 8px 12px;
     border: 1px solid #ced4da;
     border-radius: 4px;
     font-size: 14px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
 .date_input:focus {
@@ -50,31 +46,54 @@
 }
 
 .date_separator {
-    font-size: 20px;
+    font-size: 18px;
     color: #6c757d;
     font-weight: bold;
+    padding: 0 5px;
 }
 
 .apply_filter_btn {
+    padding: 8px 24px;
+    font-weight: 500;
+    white-space: nowrap;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.apply_filter_btn:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.clear_filter_btn {
     padding: 8px 20px;
     font-weight: 500;
     white-space: nowrap;
 }
 
-.orders_preview_container {
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
 /* Responsive design */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
     .date_filter_wrapper {
         flex-direction: column;
         align-items: stretch;
     }
 
+    .date_input_group {
+        flex-direction: row;
+        min-width: 100%;
+    }
+
+    .date_label {
+        min-width: auto;
+    }
+
+    .apply_filter_btn,
+    .clear_filter_btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
     .date_input_group {
         flex-direction: column;
     }
@@ -83,7 +102,8 @@
         width: 100%;
     }
 
-    .date_label {
-        min-width: auto;
+    .date_separator {
+        transform: rotate(90deg);
+        margin: 5px 0;
     }
 }

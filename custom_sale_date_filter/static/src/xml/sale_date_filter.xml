@@ -1,45 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
-    <t t-name="custom_sale_date_filter.SaleDateFilterView" owl="1">
-        <div class="o_sale_date_filter_main">
-            <!-- Date Filter Section -->
-            <div class="sale_date_filter_container">
-                <div class="date_filter_wrapper">
-                    <label class="date_label">Order Date:</label>
 
-                    <div class="date_input_group">
-                        <input
-                            type="date"
-                            class="form-control date_input"
-                            t-att-value="state.dateFrom"
-                            t-on-change="onDateFromChange"
-                        />
+    <!-- Date Filter Component Template -->
+    <t t-name="custom_sale_date_filter.DateFilterTemplate" owl="1">
+        <div class="sale_date_filter_container">
+            <div class="date_filter_wrapper">
+                <label class="date_label">Order Date:</label>
 
-                        <span class="date_separator">→</span>
+                <div class="date_input_group">
+                    <input
+                        type="date"
+                        class="form-control date_input"
+                        t-att-value="state.dateFrom"
+                        t-on-change="onDateFromChange"
+                    />
 
-                        <input
-                            type="date"
-                            class="form-control date_input"
-                            t-att-value="state.dateTo"
-                            t-on-change="onDateToChange"
-                        />
-                    </div>
+                    <span class="date_separator">→</span>
 
-                    <button
-                        class="btn btn-primary apply_filter_btn"
-                        t-on-click="applyFilter"
-                    >
-                        Apply Filter
-                    </button>
+                    <input
+                        type="date"
+                        class="form-control date_input"
+                        t-att-value="state.dateTo"
+                        t-on-change="onDateToChange"
+                    />
                 </div>
-            </div>
 
-            <!-- Orders Preview (Optional) -->
-            <div class="orders_preview_container" t-if="!state.loading">
-                <div class="alert alert-info">
-                    Click "Apply Filter" to view sale orders in the standard list view
-                </div>
+                <button
+                    class="btn btn-primary apply_filter_btn"
+                    t-on-click="applyFilter"
+                >
+                    Apply Filter
+                </button>
+
+                <button
+                    class="btn btn-secondary clear_filter_btn"
+                    t-on-click="clearFilter"
+                >
+                    Clear
+                </button>
             </div>
         </div>
     </t>
+
+    <!-- Extended List Controller Template -->
+    <t t-name="custom_sale_date_filter.ListController" t-inherit="web.ListView" owl="1">
+        <xpath expr="//div[hasclass('o_control_panel')]" position="after">
+            <SaleDateFilterComponent/>
+        </xpath>
+    </t>
+
 </templates>
+<!--<?xml version="1.0" encoding="UTF-8"?>-->
+<!--<templates xml:space="preserve">-->
+<!--    <t t-name="custom_sale_date_filter.SaleDateFilterView" owl="1">-->
+<!--        <div class="o_sale_date_filter_main">-->
+<!--            &lt;!&ndash; Date Filter Section &ndash;&gt;-->
+<!--            <div class="sale_date_filter_container">-->
+<!--                <div class="date_filter_wrapper">-->
+<!--                    <label class="date_label">Order Date:</label>-->
+
+<!--                    <div class="date_input_group">-->
+<!--                        <input-->
+<!--                            type="date"-->
+<!--                            class="form-control date_input"-->
+<!--                            t-att-value="state.dateFrom"-->
+<!--                            t-on-change="onDateFromChange"-->
+<!--                        />-->
+
+<!--                        <span class="date_separator">→</span>-->
+
+<!--                        <input-->
+<!--                            type="date"-->
+<!--                            class="form-control date_input"-->
+<!--                            t-att-value="state.dateTo"-->
+<!--                            t-on-change="onDateToChange"-->
+<!--                        />-->
+<!--                    </div>-->
+
+<!--                    <button-->
+<!--                        class="btn btn-primary apply_filter_btn"-->
+<!--                        t-on-click="applyFilter"-->
+<!--                    >-->
+<!--                        Apply Filter-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            &lt;!&ndash; Orders Preview (Optional) &ndash;&gt;-->
+<!--            <div class="orders_preview_container" t-if="!state.loading">-->
+<!--                <div class="alert alert-info">-->
+<!--                    Click "Apply Filter" to view sale orders in the standard list view-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </t>-->
+<!--</templates>-->

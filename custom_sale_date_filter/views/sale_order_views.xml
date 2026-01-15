@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Client Action for Date Filter View -->
-    <record id="action_sale_order_date_filter" model="ir.actions.client">
-        <field name="name">Sale Orders with Date Filter</field>
-        <field name="tag">sale_date_filter_view</field>
-        <field name="target">current</field>
+    <!-- Override the default sale order list view -->
+    <record id="view_order_tree_date_filter" model="ir.ui.view">
+        <field name="name">sale.order.tree.date.filter</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree"/>
+        <field name="arch" type="xml">
+            <tree position="attributes">
+                <attribute name="js_class">sale_order_list_with_date_filter</attribute>
+            </tree>
+        </field>
     </record>
-
-    <!-- Menu Item -->
-    <menuitem
-        id="menu_sale_order_date_filter"
-        name="Orders (Date Filter)"
-        parent="sale.sale_menu_root"
-        action="action_sale_order_date_filter"
-        sequence="5"
-    />
 </odoo>

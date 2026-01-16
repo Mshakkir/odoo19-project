@@ -6,7 +6,6 @@
         <record id="view_order_tree_custom" model="ir.ui.view">
             <field name="name">sale.order.tree.custom</field>
             <field name="model">sale.order</field>
-            <field name="mode">primary</field>
             <field name="priority">1</field>
             <field name="arch" type="xml">
                 <list string="Sales Orders"
@@ -93,7 +92,7 @@
                     <field name="team_id" string="Sales Team" optional="hide"/>
 
                     <!-- 23. Analytic Account -->
-<!--                    <field name="analytic_account_id" string="Analytic Account" optional="hide" groups="analytic.group_analytic_accounting"/>-->
+                    <field name="analytic_account_id" string="Analytic Account" optional="hide" groups="analytic.group_analytic_accounting"/>
 
                     <!-- 24. Tags -->
                     <field name="tag_ids" string="Tags" optional="hide" widget="many2many_tags"/>
@@ -167,7 +166,15 @@
 
         <!-- Override the default sale order action to use custom view -->
         <record id="sale.action_orders" model="ir.actions.act_window">
-            <field name="view_id" ref="view_order_tree_custom"/>
+            <field name="view_mode">tree,form,calendar,pivot,graph,activity</field>
+            <field name="view_ids"
+                   eval="[(5, 0, 0),
+                          (0, 0, {'view_mode': 'tree', 'view_id': ref('view_order_tree_custom')}),
+                          (0, 0, {'view_mode': 'form'}),
+                          (0, 0, {'view_mode': 'calendar'}),
+                          (0, 0, {'view_mode': 'pivot'}),
+                          (0, 0, {'view_mode': 'graph'}),
+                          (0, 0, {'view_mode': 'activity'})]"/>
         </record>
 
     </data>

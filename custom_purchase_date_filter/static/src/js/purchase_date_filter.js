@@ -404,7 +404,6 @@ patch(ListController.prototype, {
 
             let domain = [];
             let resModel = '';
-            let views = [];
             let actionName = '';
 
             if (isPurchaseOrder) {
@@ -414,7 +413,6 @@ patch(ListController.prototype, {
                     ['state', 'in', ['purchase', 'done']]
                 ];
                 resModel = 'purchase.order';
-                views = [[false, 'list'], [false, 'form']];
                 actionName = 'Purchase Orders';
             } else if (isBill) {
                 domain = [
@@ -424,7 +422,6 @@ patch(ListController.prototype, {
                     ['state', '!=', 'cancel']
                 ];
                 resModel = 'account.move';
-                views = [[false, 'list'], [false, 'form']];
                 actionName = 'Vendor Bills';
             }
 
@@ -469,13 +466,8 @@ patch(ListController.prototype, {
                 domain.push(['invoice_status', '=', billingStatusSelect.value]);
             }
 
-            this.actionService.doAction({
-                type: 'ir.actions.act_window',
-                name: actionName,
-                res_model: resModel,
-                domain: domain,
-                target: 'current',
-            });
+            // Apply filter using Odoo's native filtering
+            this.env.searchModel.setDomain(domain);
 
             this.notification.add("Filters applied", { type: "success" });
         };

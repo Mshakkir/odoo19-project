@@ -42,7 +42,7 @@
 <!--                        <field name="shipping_weight" string="Shipping Weight" optional="hide" groups="delivery.group_delivery_invoice_address"/>-->
 
                         <!-- 10. Carrier / Shipping Method -->
-                        <field name="carrier_id" string="Carrier" optional="show" groups="delivery.group_delivery_invoice_address"/>
+<!--                        <field name="carrier_id" string="Carrier" optional="show" groups="delivery.group_delivery_invoice_address"/>-->
 
                         <!-- 11. Responsible (Assigned To) -->
                         <field name="user_id" string="Responsible" optional="show" widget="many2one_avatar_user"/>

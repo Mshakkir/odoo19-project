@@ -185,7 +185,7 @@ patch(ListController.prototype, {
         filterDiv.innerHTML = `
             <div class="purchase_date_filter_container">
                 <div class="date_filter_wrapper">
-                    <!-- Date Range Filter (No Label) -->
+                    <!-- Date Range Filter -->
                     <div class="filter_group date_group">
                         <label class="filter_label">Order Date:</label>
                         <div class="date_input_group">
@@ -195,13 +195,10 @@ patch(ListController.prototype, {
                         </div>
                     </div>
 
-                    <!-- Warehouse Filter -->
+                    <!-- Order Reference Filter -->
                     <div class="filter_group">
-                        <label class="filter_label">Warehouse:</label>
-                        <select class="form-select filter_select" id="${warehouseId}">
-                            <option value="">Warehouse</option>
-                            ${warehouseOptions}
-                        </select>
+                        <label class="filter_label">Order Ref:</label>
+                        <input type="text" class="form-control filter_input" id="${orderRefId}" placeholder="PO..." />
                     </div>
 
                     <!-- Vendor Filter (Searchable) -->
@@ -220,32 +217,19 @@ patch(ListController.prototype, {
                         </div>
                     </div>
 
-                    <!-- Purchase Rep Filter (Searchable) -->
-                    <div class="filter_group autocomplete_group">
-                        <label class="filter_label">Rep:</label>
-                        <div class="autocomplete_wrapper">
-                            <input
-                                type="text"
-                                class="form-control autocomplete_input"
-                                id="${repId}_input"
-                                placeholder="Purchase Rep"
-                                autocomplete="off"
-                            />
-                            <input type="hidden" id="${repId}_value" />
-                            <div class="autocomplete_dropdown" id="${repId}_dropdown"></div>
-                        </div>
-                    </div>
-
-                    <!-- Order Reference Filter -->
-                    <div class="filter_group">
-                        <label class="filter_label">Order Ref:</label>
-                        <input type="text" class="form-control filter_input" id="${orderRefId}" placeholder="PO..." />
-                    </div>
-
                     <!-- Vendor Reference Filter -->
                     <div class="filter_group">
                         <label class="filter_label">Vendor Ref:</label>
                         <input type="text" class="form-control filter_input" id="${vendorRefId}" placeholder="Vendor Ref..." />
+                    </div>
+
+                    <!-- Warehouse Filter -->
+                    <div class="filter_group">
+                        <label class="filter_label">Warehouse:</label>
+                        <select class="form-select filter_select" id="${warehouseId}">
+                            <option value="">Warehouse</option>
+                            ${warehouseOptions}
+                        </select>
                     </div>
 
                     <!-- Shipping Reference Filter -->
@@ -258,6 +242,22 @@ patch(ListController.prototype, {
                     <div class="filter_group amount_group">
                         <label class="filter_label">Amount:</label>
                         <input type="number" class="form-control amount_input" id="${amountId}" placeholder="Total Amount" step="0.01" />
+                    </div>
+
+                    <!-- Purchase Rep Filter (Searchable) -->
+                    <div class="filter_group autocomplete_group">
+                        <label class="filter_label">Purchase Rep:</label>
+                        <div class="autocomplete_wrapper">
+                            <input
+                                type="text"
+                                class="form-control autocomplete_input"
+                                id="${repId}_input"
+                                placeholder="Purchase Rep"
+                                autocomplete="off"
+                            />
+                            <input type="hidden" id="${repId}_value" />
+                            <div class="autocomplete_dropdown" id="${repId}_dropdown"></div>
+                        </div>
                     </div>
 
                     <!-- Billing Status Filter -->
@@ -311,6 +311,17 @@ patch(ListController.prototype, {
             hiddenValue.value = '';
             this.filterPurchaseAutocomplete(fieldId, dataList, searchTerm);
             dropdown.classList.add('show');
+        });
+
+        // Allow pressing Enter to apply filter
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                dropdown.classList.remove('show');
+                const applyBtn = document.querySelector('.apply_filter_btn');
+                if (applyBtn) {
+                    applyBtn.click();
+                }
+            }
         });
 
         document.addEventListener('click', (e) => {
@@ -376,7 +387,8 @@ patch(ListController.prototype, {
 
         if (!dateFromInput || !dateToInput || !applyBtn || !clearBtn) return;
 
-        applyBtn.addEventListener('click', () => {
+        // Apply filter function
+        const applyFilter = () => {
             const dateFrom = dateFromInput.value;
             const dateTo = dateToInput.value;
 
@@ -446,9 +458,10 @@ patch(ListController.prototype, {
                 domain.push(['awb_number', 'ilike', shippingRefInput.value.trim()]);
             }
 
-            // Add amount filter (single value)
+            // Add amount filter (exact match - only items with this exact amount)
             if (amountInput.value) {
-                domain.push(['amount_total', '>=', parseFloat(amountInput.value)]);
+                const exactAmount = parseFloat(amountInput.value);
+                domain.push(['amount_total', '=', exactAmount]);
             }
 
             // Add billing status filter (only for purchase orders)
@@ -466,8 +479,29 @@ patch(ListController.prototype, {
             });
 
             this.notification.add("Filters applied", { type: "success" });
+        };
+
+        // Click on Apply button
+        applyBtn.addEventListener('click', applyFilter);
+
+        // Press Enter on any input field to apply filter
+        const allInputs = [
+            dateFromInput, dateToInput, warehouseSelect, vendorInput, repInput,
+            orderRefInput, vendorRefInput, shippingRefInput, amountInput, billingStatusSelect
+        ];
+
+        allInputs.forEach(input => {
+            if (input) {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        applyFilter();
+                    }
+                });
+            }
         });
 
+        // Clear button
         clearBtn.addEventListener('click', () => {
             const today = new Date();
             const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);

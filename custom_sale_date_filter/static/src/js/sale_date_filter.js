@@ -6,7 +6,7 @@ import { useService } from "@web/core/utils/hooks";
 import { patch } from "@web/core/utils/patch";
 import { ListController } from "@web/views/list/list_controller";
 
-// Patch ListController to inject date filter ONLY for Sale Orders
+// Patch ListController to inject date filter for Sale Orders, Quotations, and Invoices
 patch(ListController.prototype, {
     setup() {
         super.setup(...arguments);
@@ -35,38 +35,41 @@ patch(ListController.prototype, {
     shouldShowFilter() {
         const resModel = this.props.resModel;
 
-        // Check if it's Sale Orders
+        // Check if it's Sale Orders or Quotations
         if (resModel === 'sale.order') {
             const action = this.env.config;
 
-            if (action.xmlId === 'sale.action_orders') {
+            // Include both orders and quotations
+            if (action.xmlId === 'sale.action_orders' || action.xmlId === 'sale.action_quotations') {
                 return true;
             }
 
             if (action.displayName || action.name) {
                 const actionName = (action.displayName || action.name).toLowerCase();
-                if (actionName.includes('order') && !actionName.includes('quotation')) {
+                if (actionName.includes('order') || actionName.includes('quotation')) {
                     return true;
                 }
             }
 
             if (this.props.domain) {
-                const hasOrderState = this.props.domain.some(item =>
+                const hasRelevantState = this.props.domain.some(item =>
                     Array.isArray(item) &&
-                    item[0] === 'state' &&
-                    (JSON.stringify(item).includes('sale') || JSON.stringify(item).includes('done'))
+                    item[0] === 'state'
                 );
-                if (hasOrderState) {
+                if (hasRelevantState) {
                     return true;
                 }
             }
 
             if (this.props.context) {
                 if (this.props.context.search_default_sales ||
-                    this.props.context.default_state === 'sale') {
+                    this.props.context.default_state === 'sale' ||
+                    this.props.context.search_default_draft) {
                     return true;
                 }
             }
+
+            return true; // Show for all sale.order views
         }
 
         // Check if it's Sale Invoices (account.move)
@@ -176,27 +179,27 @@ patch(ListController.prototype, {
         const dateFrom = firstDay.toISOString().split('T')[0];
         const dateTo = today.toISOString().split('T')[0];
 
-        // Determine if this is Sale Orders or Invoices
+        // Determine the model type
         const isSaleOrder = this.props.resModel === 'sale.order';
         const isInvoice = this.props.resModel === 'account.move';
 
         // Set placeholders based on model
-        const documentNumberPlaceholder = isSaleOrder ? 'Sale Order Number' : 'Invoice Number';
-        const actionName = isSaleOrder ? 'Sale Orders' : 'Invoices';
+        const documentNumberPlaceholder = isSaleOrder ? 'Sale Order/Quotation' : 'Invoice Number';
+        const actionName = isSaleOrder ? 'Sale Orders/Quotations' : 'Invoices';
 
-        // Build options for warehouse dropdown (normal select) - only for sale orders
+        // Build options for warehouse dropdown - now for both orders and invoices
         const warehouseOptions = this._filterData.warehouses
             .map(w => `<option value="${w.id}">${w.name}</option>`)
             .join('');
 
-        const warehouseFilter = isSaleOrder ? `
+        const warehouseFilter = `
             <div class="filter_group filter_group_small">
                 <select class="form-select filter_select_small" id="${warehouseId}">
                     <option value="">Warehouse</option>
                     ${warehouseOptions}
                 </select>
             </div>
-        ` : '';
+        `;
 
         const customerRefId = `customer_ref_${timestamp}`;
         const poNumberId = `po_number_${timestamp}`;
@@ -210,9 +213,9 @@ patch(ListController.prototype, {
                     <!-- 1. Date Range Filter (Small) -->
                     <div class="filter_group filter_group_small date_group_small">
                         <div class="date_input_group">
-                            <input type="date" class="form-control date_input_small" id="${fromId}" value="${dateFrom}" placeholder="From" />
+                            <input type="date" class="form-control date_input_small filter-input" id="${fromId}" value="${dateFrom}" placeholder="From" />
                             <span class="date_separator">→</span>
-                            <input type="date" class="form-control date_input_small" id="${toId}" value="${dateTo}" placeholder="To" />
+                            <input type="date" class="form-control date_input_small filter-input" id="${toId}" value="${dateTo}" placeholder="To" />
                         </div>
                     </div>
 
@@ -220,7 +223,7 @@ patch(ListController.prototype, {
                     <div class="filter_group filter_group_small">
                         <input
                             type="text"
-                            class="form-control filter_input_small"
+                            class="form-control filter_input_small filter-input"
                             id="${documentNumberId}"
                             placeholder="${documentNumberPlaceholder}"
                             autocomplete="off"
@@ -232,7 +235,7 @@ patch(ListController.prototype, {
                         <div class="autocomplete_wrapper">
                             <input
                                 type="text"
-                                class="form-control autocomplete_input_small"
+                                class="form-control autocomplete_input_small filter-input"
                                 id="${customerId}_input"
                                 placeholder="Customer"
                                 autocomplete="off"
@@ -249,7 +252,7 @@ patch(ListController.prototype, {
                     <div class="filter_group filter_group_small">
                         <input
                             type="text"
-                            class="form-control filter_input_small"
+                            class="form-control filter_input_small filter-input"
                             id="${customerRefId}"
                             placeholder="Customer Reference"
                             autocomplete="off"
@@ -261,7 +264,7 @@ patch(ListController.prototype, {
                         <div class="autocomplete_wrapper">
                             <input
                                 type="text"
-                                class="form-control autocomplete_input_small"
+                                class="form-control autocomplete_input_small filter-input"
                                 id="${salespersonId}_input"
                                 placeholder="Salesperson"
                                 autocomplete="off"
@@ -275,7 +278,7 @@ patch(ListController.prototype, {
                     <div class="filter_group filter_group_small">
                         <input
                             type="number"
-                            class="form-control filter_input_small"
+                            class="form-control filter_input_small filter-input"
                             id="${totalAmountId}"
                             placeholder="Total Amount"
                             step="0.01"
@@ -287,7 +290,7 @@ patch(ListController.prototype, {
                     <div class="filter_group filter_group_small">
                         <input
                             type="text"
-                            class="form-control filter_input_small"
+                            class="form-control filter_input_small filter-input"
                             id="${poNumberId}"
                             placeholder="PO Number"
                             autocomplete="off"
@@ -298,7 +301,7 @@ patch(ListController.prototype, {
                     <div class="filter_group filter_group_small">
                         <input
                             type="text"
-                            class="form-control filter_input_small"
+                            class="form-control filter_input_small filter-input"
                             id="${shippingRefId}"
                             placeholder="Shipping Ref"
                             autocomplete="off"
@@ -406,7 +409,8 @@ patch(ListController.prototype, {
 
         if (!dateFromInput || !dateToInput || !applyBtn || !clearBtn) return;
 
-        applyBtn.addEventListener('click', () => {
+        // Function to apply filters
+        const applyFilters = () => {
             const dateFrom = dateFromInput.value;
             const dateTo = dateToInput.value;
 
@@ -428,8 +432,7 @@ patch(ListController.prototype, {
             if (isSaleOrder) {
                 domain = [
                     ['date_order', '>=', dateFrom + ' 00:00:00'],
-                    ['date_order', '<=', dateTo + ' 23:59:59'],
-                    ['state', 'in', ['sale', 'done']]
+                    ['date_order', '<=', dateTo + ' 23:59:59']
                 ];
                 resModel = 'sale.order';
                 views = [[false, 'list'], [false, 'form']];
@@ -444,9 +447,15 @@ patch(ListController.prototype, {
                 views = [[false, 'list'], [false, 'form']];
             }
 
-            // Add warehouse filter (only for sale orders)
-            if (warehouseSelect && warehouseSelect.value && isSaleOrder) {
-                domain.push(['warehouse_id', '=', parseInt(warehouseSelect.value)]);
+            // Add warehouse filter (now for both orders and invoices)
+            if (warehouseSelect && warehouseSelect.value) {
+                const warehouseId = parseInt(warehouseSelect.value);
+                if (isSaleOrder) {
+                    domain.push(['warehouse_id', '=', warehouseId]);
+                } else if (isInvoice) {
+                    // For invoices, filter by warehouse through sale order
+                    domain.push(['invoice_line_ids.sale_line_ids.order_id.warehouse_id', '=', warehouseId]);
+                }
             }
 
             // Add customer filter
@@ -474,20 +483,27 @@ patch(ListController.prototype, {
                 domain.push(['amount_total', '=', amount]);
             }
 
-            // Add customer reference filter (only for sale orders)
-            if (customerRefInput.value.trim() && isSaleOrder) {
-                domain.push(['client_order_ref', 'ilike', customerRefInput.value.trim()]);
+            // Add customer reference filter
+            if (customerRefInput.value.trim()) {
+                if (isSaleOrder) {
+                    domain.push(['client_order_ref', 'ilike', customerRefInput.value.trim()]);
+                } else if (isInvoice) {
+                    domain.push(['ref', 'ilike', customerRefInput.value.trim()]);
+                }
             }
 
-            // Add PO number filter (only for sale orders)
-            if (poNumberInput.value.trim() && isSaleOrder) {
-                domain.push(['client_order_ref', 'ilike', poNumberInput.value.trim()]);
+            // Add PO number filter
+            if (poNumberInput.value.trim()) {
+                if (isSaleOrder) {
+                    domain.push(['client_order_ref', 'ilike', poNumberInput.value.trim()]);
+                } else if (isInvoice) {
+                    domain.push(['ref', 'ilike', poNumberInput.value.trim()]);
+                }
             }
 
             // Add shipping reference filter
             if (shippingRefInput.value.trim()) {
                 if (isSaleOrder) {
-                    // For sale orders, search in delivery orders
                     domain.push(['name', 'ilike', shippingRefInput.value.trim()]);
                 } else if (isInvoice) {
                     domain.push(['ref', 'ilike', shippingRefInput.value.trim()]);
@@ -504,9 +520,10 @@ patch(ListController.prototype, {
             });
 
             this.notification.add("Filters applied", { type: "success" });
-        });
+        };
 
-        clearBtn.addEventListener('click', () => {
+        // Function to clear filters
+        const clearFilters = () => {
             const today = new Date();
             const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
             dateFromInput.value = firstDay.toISOString().split('T')[0];
@@ -527,7 +544,7 @@ patch(ListController.prototype, {
             let views = [];
 
             if (isSaleOrder) {
-                domain = [['state', 'in', ['sale', 'done']]];
+                domain = [];
                 resModel = 'sale.order';
                 views = [[false, 'list'], [false, 'form']];
             } else if (isInvoice) {
@@ -546,6 +563,41 @@ patch(ListController.prototype, {
             });
 
             this.notification.add("Filters cleared", { type: "info" });
-        });
+        };
+
+        // Apply button click event
+        applyBtn.addEventListener('click', applyFilters);
+
+        // Clear button click event
+        clearBtn.addEventListener('click', clearFilters);
+
+        // Add keyboard event listeners to all filter inputs
+        const filterContainer = document.querySelector('.sale_date_filter_container');
+
+        if (filterContainer) {
+            filterContainer.addEventListener('keydown', (e) => {
+                // Enter key - Apply filter
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    applyFilters();
+                }
+                // Backspace key - Clear filter (only if not typing in input)
+                else if (e.key === 'Backspace' && !e.target.matches('input, select')) {
+                    e.preventDefault();
+                    clearFilters();
+                }
+            });
+
+            // Add keydown listeners to all inputs and selects for Enter and Backspace
+            const allInputs = filterContainer.querySelectorAll('.filter-input, select');
+            allInputs.forEach(input => {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        applyFilters();
+                    }
+                });
+            });
+        }
     },
 });

@@ -1,19 +1,27 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Sale Order & Invoice Date Filter',
-    'version': '19.0.1.0.0',
+    'name': 'Sale Order, Quotation & Invoice Date Filter',
+    'version': '19.0.2.0.0',
     'category': 'Sales',
-    'summary': 'Add custom date range filter to sale orders and invoices list view',
+    'summary': 'Add custom date range filter to sale orders, quotations, and invoices list view',
     'description': """
-        Adds a custom date range filter component to sale order and invoice list views.
+        Adds a custom date range filter component to sale order, quotation, and invoice list views.
         Features:
         - Date range filter (Order Date / Invoice Date)
-        - Warehouse filter (Sale Orders only)
+        - Warehouse filter (Sale Orders, Quotations, and Invoices)
         - Customer filter with autocomplete search
         - Salesperson filter with autocomplete search
+        - Document number filter
+        - Total amount filter
+        - Customer reference filter
+        - PO number filter
+        - Shipping reference filter
+        - Keyboard shortcuts: 
+            * Press Enter to apply filters
+            * Press Backspace to clear filters
         Built with OWL JS for Odoo 19 CE.
     """,
-    'depends': ['sale', 'account', 'web'],
+    'depends': ['sale', 'account', 'stock', 'web'],
     'data': [],
     'assets': {
         'web.assets_backend': [

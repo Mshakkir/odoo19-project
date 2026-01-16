@@ -166,6 +166,8 @@ patch(ListController.prototype, {
         const warehouseId = `warehouse_${timestamp}`;
         const customerId = `customer_${timestamp}`;
         const salespersonId = `salesperson_${timestamp}`;
+        const documentNumberId = `doc_number_${timestamp}`;
+        const totalAmountId = `total_amount_${timestamp}`;
         const applyId = `apply_filter_${timestamp}`;
         const clearId = `clear_filter_${timestamp}`;
 
@@ -178,48 +180,61 @@ patch(ListController.prototype, {
         const isSaleOrder = this.props.resModel === 'sale.order';
         const isInvoice = this.props.resModel === 'account.move';
 
-        // Set labels based on model
-        const dateLabel = isSaleOrder ? 'Order Date:' : 'Invoice Date:';
+        // Set placeholders based on model
+        const documentNumberPlaceholder = isSaleOrder ? 'Sale Order Number' : 'Invoice Number';
         const actionName = isSaleOrder ? 'Sale Orders' : 'Invoices';
 
-        // Build options for warehouse dropdown (normal select)
+        // Build options for warehouse dropdown (normal select) - only for sale orders
         const warehouseOptions = this._filterData.warehouses
             .map(w => `<option value="${w.id}">${w.name}</option>`)
             .join('');
+
+        const warehouseFilter = isSaleOrder ? `
+            <div class="filter_group filter_group_small">
+                <select class="form-select filter_select_small" id="${warehouseId}">
+                    <option value="">Warehouse</option>
+                    ${warehouseOptions}
+                </select>
+            </div>
+        ` : '';
+
+        const customerRefId = `customer_ref_${timestamp}`;
+        const poNumberId = `po_number_${timestamp}`;
+        const shippingRefId = `shipping_ref_${timestamp}`;
 
         const filterDiv = document.createElement('div');
         filterDiv.className = 'sale_date_filter_wrapper_main';
         filterDiv.innerHTML = `
             <div class="sale_date_filter_container">
                 <div class="date_filter_wrapper">
-                    <!-- Date Range Filter -->
-                    <div class="filter_group date_group">
-                        <label class="filter_label">${dateLabel}</label>
+                    <!-- 1. Date Range Filter (Small) -->
+                    <div class="filter_group filter_group_small date_group_small">
                         <div class="date_input_group">
-                            <input type="date" class="form-control date_input" id="${fromId}" value="${dateFrom}" />
+                            <input type="date" class="form-control date_input_small" id="${fromId}" value="${dateFrom}" placeholder="From" />
                             <span class="date_separator">→</span>
-                            <input type="date" class="form-control date_input" id="${toId}" value="${dateTo}" />
+                            <input type="date" class="form-control date_input_small" id="${toId}" value="${dateTo}" placeholder="To" />
                         </div>
                     </div>
 
-                    <!-- Warehouse Filter (Normal Dropdown) -->
-                    <div class="filter_group">
-                        <label class="filter_label">Warehouse:</label>
-                        <select class="form-select filter_select" id="${warehouseId}">
-                            <option value="">All</option>
-                            ${warehouseOptions}
-                        </select>
+                    <!-- 2. Document Number Filter (Small) -->
+                    <div class="filter_group filter_group_small">
+                        <input
+                            type="text"
+                            class="form-control filter_input_small"
+                            id="${documentNumberId}"
+                            placeholder="${documentNumberPlaceholder}"
+                            autocomplete="off"
+                        />
                     </div>
 
-                    <!-- Customer Filter (Searchable) -->
-                    <div class="filter_group autocomplete_group">
-                        <label class="filter_label">Customer:</label>
+                    <!-- 3. Customer Filter (Small) -->
+                    <div class="filter_group filter_group_small autocomplete_group_small">
                         <div class="autocomplete_wrapper">
                             <input
                                 type="text"
-                                class="form-control autocomplete_input"
+                                class="form-control autocomplete_input_small"
                                 id="${customerId}_input"
-                                placeholder="All Customers"
+                                placeholder="Customer"
                                 autocomplete="off"
                             />
                             <input type="hidden" id="${customerId}_value" />
@@ -227,20 +242,67 @@ patch(ListController.prototype, {
                         </div>
                     </div>
 
-                    <!-- Salesperson Filter (Searchable) -->
-                    <div class="filter_group autocomplete_group">
-                        <label class="filter_label">Salesperson:</label>
+                    <!-- 4. Warehouse Filter (Small) -->
+                    ${warehouseFilter}
+
+                    <!-- 5. Customer Reference Filter (Small) -->
+                    <div class="filter_group filter_group_small">
+                        <input
+                            type="text"
+                            class="form-control filter_input_small"
+                            id="${customerRefId}"
+                            placeholder="Customer Reference"
+                            autocomplete="off"
+                        />
+                    </div>
+
+                    <!-- 6. Salesperson Filter (Small) -->
+                    <div class="filter_group filter_group_small autocomplete_group_small">
                         <div class="autocomplete_wrapper">
                             <input
                                 type="text"
-                                class="form-control autocomplete_input"
+                                class="form-control autocomplete_input_small"
                                 id="${salespersonId}_input"
-                                placeholder="All Salespersons"
+                                placeholder="Salesperson"
                                 autocomplete="off"
                             />
                             <input type="hidden" id="${salespersonId}_value" />
                             <div class="autocomplete_dropdown" id="${salespersonId}_dropdown"></div>
                         </div>
+                    </div>
+
+                    <!-- 7. Total Amount Filter (Small) -->
+                    <div class="filter_group filter_group_small">
+                        <input
+                            type="number"
+                            class="form-control filter_input_small"
+                            id="${totalAmountId}"
+                            placeholder="Total Amount"
+                            step="0.01"
+                            min="0"
+                        />
+                    </div>
+
+                    <!-- 8. PO Number Filter (Small) -->
+                    <div class="filter_group filter_group_small">
+                        <input
+                            type="text"
+                            class="form-control filter_input_small"
+                            id="${poNumberId}"
+                            placeholder="PO Number"
+                            autocomplete="off"
+                        />
+                    </div>
+
+                    <!-- 9. Shipping Reference Filter (Small) -->
+                    <div class="filter_group filter_group_small">
+                        <input
+                            type="text"
+                            class="form-control filter_input_small"
+                            id="${shippingRefId}"
+                            placeholder="Shipping Ref"
+                            autocomplete="off"
+                        />
                     </div>
 
                     <!-- Action Buttons -->
@@ -259,7 +321,7 @@ patch(ListController.prototype, {
         this.setupAutocomplete(customerId, this._filterData.customers);
         this.setupAutocomplete(salespersonId, this._filterData.salespersons);
 
-        this.attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, applyId, clearId, actionName, isSaleOrder, isInvoice);
+        this.attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, poNumberId, shippingRefId, applyId, clearId, actionName, isSaleOrder, isInvoice);
     },
 
     setupAutocomplete(fieldId, dataList) {
@@ -326,7 +388,7 @@ patch(ListController.prototype, {
         });
     },
 
-    attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, applyId, clearId, actionName, isSaleOrder, isInvoice) {
+    attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, poNumberId, shippingRefId, applyId, clearId, actionName, isSaleOrder, isInvoice) {
         const dateFromInput = document.getElementById(fromId);
         const dateToInput = document.getElementById(toId);
         const warehouseSelect = document.getElementById(warehouseId);
@@ -334,6 +396,11 @@ patch(ListController.prototype, {
         const customerInput = document.getElementById(`${customerId}_input`);
         const salespersonValue = document.getElementById(`${salespersonId}_value`);
         const salespersonInput = document.getElementById(`${salespersonId}_input`);
+        const documentNumberInput = document.getElementById(documentNumberId);
+        const totalAmountInput = document.getElementById(totalAmountId);
+        const customerRefInput = document.getElementById(customerRefId);
+        const poNumberInput = document.getElementById(poNumberId);
+        const shippingRefInput = document.getElementById(shippingRefId);
         const applyBtn = document.getElementById(applyId);
         const clearBtn = document.getElementById(clearId);
 
@@ -377,8 +444,8 @@ patch(ListController.prototype, {
                 views = [[false, 'list'], [false, 'form']];
             }
 
-            // Add warehouse filter (not applicable for invoices without warehouse field)
-            if (warehouseSelect.value && isSaleOrder) {
+            // Add warehouse filter (only for sale orders)
+            if (warehouseSelect && warehouseSelect.value && isSaleOrder) {
                 domain.push(['warehouse_id', '=', parseInt(warehouseSelect.value)]);
             }
 
@@ -393,6 +460,37 @@ patch(ListController.prototype, {
                     domain.push(['user_id', '=', parseInt(salespersonValue.value)]);
                 } else if (isInvoice) {
                     domain.push(['invoice_user_id', '=', parseInt(salespersonValue.value)]);
+                }
+            }
+
+            // Add document number filter
+            if (documentNumberInput.value.trim()) {
+                domain.push(['name', 'ilike', documentNumberInput.value.trim()]);
+            }
+
+            // Add total amount filter
+            if (totalAmountInput.value && parseFloat(totalAmountInput.value) > 0) {
+                const amount = parseFloat(totalAmountInput.value);
+                domain.push(['amount_total', '=', amount]);
+            }
+
+            // Add customer reference filter (only for sale orders)
+            if (customerRefInput.value.trim() && isSaleOrder) {
+                domain.push(['client_order_ref', 'ilike', customerRefInput.value.trim()]);
+            }
+
+            // Add PO number filter (only for sale orders)
+            if (poNumberInput.value.trim() && isSaleOrder) {
+                domain.push(['client_order_ref', 'ilike', poNumberInput.value.trim()]);
+            }
+
+            // Add shipping reference filter
+            if (shippingRefInput.value.trim()) {
+                if (isSaleOrder) {
+                    // For sale orders, search in delivery orders
+                    domain.push(['name', 'ilike', shippingRefInput.value.trim()]);
+                } else if (isInvoice) {
+                    domain.push(['ref', 'ilike', shippingRefInput.value.trim()]);
                 }
             }
 
@@ -413,11 +511,16 @@ patch(ListController.prototype, {
             const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
             dateFromInput.value = firstDay.toISOString().split('T')[0];
             dateToInput.value = today.toISOString().split('T')[0];
-            warehouseSelect.value = '';
+            if (warehouseSelect) warehouseSelect.value = '';
             customerInput.value = '';
             customerValue.value = '';
             salespersonInput.value = '';
             salespersonValue.value = '';
+            documentNumberInput.value = '';
+            totalAmountInput.value = '';
+            customerRefInput.value = '';
+            poNumberInput.value = '';
+            shippingRefInput.value = '';
 
             let domain = [];
             let resModel = '';

@@ -675,6 +675,7 @@ patch(ListController.prototype, {
             customers: [],
             salespersons: []
         };
+        this._applyFiltersCallback = null; // Store reference to applyFilters function
 
         onMounted(() => {
             if (this.shouldShowFilter()) {
@@ -975,11 +976,12 @@ patch(ListController.prototype, {
         listTable.parentElement.insertBefore(filterDiv, listTable);
         this._filterElement = filterDiv;
 
-        // Setup autocomplete for customer and salesperson
+        // First attach filter events to get the applyFilters callback
+        this.attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, poNumberId, awbNumberId, applyId, clearId, actionName, isSaleOrder, isInvoice);
+
+        // Then setup autocomplete with access to applyFilters
         this.setupAutocomplete(customerId, this._filterData.customers);
         this.setupAutocomplete(salespersonId, this._filterData.salespersons);
-
-        this.attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, poNumberId, awbNumberId, applyId, clearId, actionName, isSaleOrder, isInvoice);
     },
 
     setupAutocomplete(fieldId, dataList) {
@@ -1019,16 +1021,34 @@ patch(ListController.prototype, {
                 e.preventDefault();
                 selectedIndex = Math.max(selectedIndex - 1, -1);
                 updateSelection(items, selectedIndex);
-            } else if (e.key === 'Enter' && selectedIndex >= 0 && items.length > 0) {
-                e.preventDefault();
-                // REMOVED e.stopPropagation() - Allow event to bubble up for filter application
-                const selectedItem = items[selectedIndex];
-                const id = selectedItem.getAttribute('data-id');
-                const name = selectedItem.getAttribute('data-name');
-                input.value = name;
-                hiddenValue.value = id;
-                dropdown.classList.remove('show');
-                selectedIndex = -1;
+            } else if (e.key === 'Enter') {
+                if (selectedIndex >= 0 && items.length > 0) {
+                    // Item is selected - select it
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const selectedItem = items[selectedIndex];
+                    const id = selectedItem.getAttribute('data-id');
+                    const name = selectedItem.getAttribute('data-name');
+                    input.value = name;
+                    hiddenValue.value = id;
+                    dropdown.classList.remove('show');
+                    selectedIndex = -1;
+
+                    // Apply filters after selection
+                    if (this._applyFiltersCallback) {
+                        setTimeout(() => this._applyFiltersCallback(), 50);
+                    }
+                } else {
+                    // No item selected - close dropdown and apply filters
+                    e.preventDefault();
+                    dropdown.classList.remove('show');
+                    selectedIndex = -1;
+
+                    // Apply filters
+                    if (this._applyFiltersCallback) {
+                        this._applyFiltersCallback();
+                    }
+                }
             } else if (e.key === 'Escape') {
                 dropdown.classList.remove('show');
                 selectedIndex = -1;
@@ -1217,6 +1237,9 @@ patch(ListController.prototype, {
             this.notification.add("Filters applied", { type: "success" });
         };
 
+        // Store the callback so autocomplete can access it
+        this._applyFiltersCallback = applyFilters;
+
         // Function to clear filters
         const clearFilters = () => {
             const today = new Date();
@@ -1286,25 +1309,15 @@ patch(ListController.prototype, {
                 }
             });
 
-            // Enter key handler for all inputs in the filter container
-            filterContainer.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    const isAutocompleteInput = e.target.classList.contains('autocomplete-input');
-                    const dropdown = isAutocompleteInput ?
-                        e.target.parentElement.querySelector('.autocomplete_dropdown') : null;
-                    const isDropdownOpen = dropdown && dropdown.classList.contains('show');
-
-                    // If it's an autocomplete input and dropdown is open, let autocomplete handle it
-                    // Otherwise, apply filters
-                    if (!isDropdownOpen) {
+            // Enter key handler for NON-autocomplete inputs only
+            const regularInputs = filterContainer.querySelectorAll('.filter-input:not(.autocomplete-input), select');
+            regularInputs.forEach(input => {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
                         e.preventDefault();
-                        // Close any open dropdown
-                        if (dropdown) {
-                            dropdown.classList.remove('show');
-                        }
                         applyFilters();
                     }
-                }
+                });
             });
         }
     },

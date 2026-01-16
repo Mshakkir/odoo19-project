@@ -45,11 +45,11 @@
                         <!-- 9. Total (Taxed Amount) -->
                         <field name="amount_total" string="Total" optional="show"/>
 
-                         10. Shipping Ref
-                        <field name="awb_number" string="Shipping Ref " optional="show"/>
+                        <!-- 10. Shipping Ref / Delivery Note -->
+<!--                        <field name="delivery_count" string="Delivery" optional="show"/>-->
 
                         <!-- 11. PO Number / Origin -->
-                        <field name="ref" string="PO" optional="show"/>
+<!--                        <field name="origin" string="Source Document" optional="show"/>-->
 
                         <!-- ADDITIONAL DEFAULT ODOO FIELDS -->
 

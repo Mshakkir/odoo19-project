@@ -25,11 +25,11 @@
 }
 
 .filter_group.date_group {
-    min-width: 300px;
+    min-width: 200px;
 }
 
 .filter_group.autocomplete_group {
-    min-width: 180px;
+    min-width: 140px;
     flex: 1;
     position: relative;
 }
@@ -49,7 +49,7 @@
 }
 
 .date_input {
-    width: 130px;
+    width: 110px;
     padding: 5px 8px;
     border: 1px solid #ced4da;
     border-radius: 4px;
@@ -73,7 +73,7 @@
 /* Normal select dropdown for warehouse */
 .filter_select {
     width: 100%;
-    min-width: 150px;
+    min-width: 140px;
     padding: 5px 8px;
     border: 1px solid #ced4da;
     border-radius: 4px;
@@ -84,6 +84,24 @@
 }
 
 .filter_select:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Regular input for document number and amount */
+.filter_input {
+    width: 100%;
+    min-width: 140px;
+    padding: 5px 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 13px;
+    background-color: #ffffff;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.filter_input:focus {
     border-color: #80bdff;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
@@ -193,15 +211,20 @@
 /* Responsive design for medium screens */
 @media (max-width: 1400px) {
     .filter_group.date_group {
-        min-width: 280px;
+        min-width: 180px;
     }
 
     .date_input {
-        width: 120px;
+        width: 100px;
     }
 
     .filter_group.autocomplete_group {
-        min-width: 150px;
+        min-width: 130px;
+    }
+
+    .filter_select,
+    .filter_input {
+        min-width: 130px;
     }
 }
 
@@ -216,7 +239,7 @@
     }
 
     .filter_group.autocomplete_group {
-        flex: 1 1 180px;
+        flex: 1 1 140px;
     }
 
     .filter_actions {
@@ -269,5 +292,10 @@
 
     .autocomplete_dropdown {
         max-height: 150px;
+    }
+
+    .filter_select,
+    .filter_input {
+        width: 100%;
     }
 }

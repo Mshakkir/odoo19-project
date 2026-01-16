@@ -2,12 +2,10 @@
 <odoo>
     <data>
 
-        <!-- Custom Sale Order List View with ALL available fields -->
-        <record id="view_order_tree_custom" model="ir.ui.view">
-            <field name="name">sale.order.tree.custom</field>
+        <!-- Custom Sale Order List View - REPLACES default view -->
+        <record id="sale.view_order_tree" model="ir.ui.view">
+            <field name="name">sale.order.tree.custom.replacement</field>
             <field name="model">sale.order</field>
-            <field name="mode">primary</field>
-            <field name="priority">1</field>
             <field name="arch" type="xml">
                 <list string="Sales Orders"
                       sample="1"
@@ -93,7 +91,7 @@
                     <field name="team_id" string="Sales Team" optional="hide"/>
 
                     <!-- 23. Analytic Account -->
-<!--                    <field name="analytic_account_id" string="Analytic Account" optional="hide" groups="analytic.group_analytic_accounting"/>-->
+                    <field name="analytic_account_id" string="Analytic Account" optional="hide" groups="analytic.group_analytic_accounting"/>
 
                     <!-- 24. Tags -->
                     <field name="tag_ids" string="Tags" optional="hide" widget="many2many_tags"/>
@@ -163,11 +161,6 @@
 
                 </list>
             </field>
-        </record>
-
-        <!-- Override the default sale order action to use custom view -->
-        <record id="sale.action_orders" model="ir.actions.act_window">
-            <field name="view_id" ref="view_order_tree_custom"/>
         </record>
 
     </data>

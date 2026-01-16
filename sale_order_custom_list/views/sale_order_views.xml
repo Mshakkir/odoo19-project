@@ -1,69 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_order_tree_custom" model="ir.ui.view">
-        <field name="name">sale.order.tree.custom</field>
-        <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_tree"/>
-        <field name="arch" type="xml">
-            <!-- Replace the entire tree structure -->
-            <tree position="replace">
-                <tree string="Sales Orders"
-                      multi_edit="1"
-                      sample="1"
-                      default_order="date_order desc">
+    <data>
 
+        <!-- Custom Sale Order List View with ALL available fields -->
+        <record id="view_order_tree_custom" model="ir.ui.view">
+            <field name="name">sale.order.tree.custom</field>
+            <field name="model">sale.order</field>
+            <field name="mode">primary</field>
+            <field name="priority">1</field>
+            <field name="arch" type="xml">
+                <list string="Sales Orders"
+                      sample="1"
+                      decoration-info="state == 'draft'"
+                      decoration-muted="state == 'cancel'"
+                      multi_edit="1">
+
+                    <!-- YOUR REQUESTED ORDER -->
                     <!-- 1. Order Date -->
-                    <field name="date_order" string="Order Date" optional="show"/>
+                    <field name="date_order" string="Order Date"/>
 
                     <!-- 2. Number (Order Reference) -->
-                    <field name="name" string="Number" optional="show" decoration-bf="1"/>
+                    <field name="name" string="Number" readonly="1"/>
 
                     <!-- 3. Customer -->
-                    <field name="partner_id" string="Customer" optional="show"/>
+                    <field name="partner_id" string="Customer"/>
 
                     <!-- 4. Warehouse -->
-                    <field name="warehouse_id" string="Warehouse" optional="show" groups="stock.group_stock_multi_warehouses"/>
+                    <field name="warehouse_id" string="Warehouse" groups="stock.group_stock_multi_warehouses"/>
 
-                    <!-- 5. Customer Reference / Source Document -->
-                    <field name="client_order_ref" string="Customer Reference" optional="show"/>
+                    <!-- 5. Customer Reference (Source Document) -->
+                    <field name="client_order_ref" string="Customer Reference"/>
 
                     <!-- 6. Salesperson -->
-                    <field name="user_id" string="Salesperson" optional="show" widget="many2one_avatar_user"/>
+                    <field name="user_id" string="Salesperson" widget="many2one_avatar_user"/>
 
-                    <!-- 7. Untaxed Amount -->
-                    <field name="amount_untaxed" string="Tax Excluded" optional="show" sum="Total" widget="monetary"/>
+                    <!-- 7. Tax Excluded (Untaxed Amount) -->
+                    <field name="amount_untaxed" string="Tax Excluded"/>
 
                     <!-- 8. Tax -->
-                    <field name="amount_tax" string="Tax" optional="show" sum="Total" widget="monetary"/>
+                    <field name="amount_tax" string="Tax"/>
 
-                    <!-- 9. Total Amount (Taxed) -->
-                    <field name="amount_total" string="Total" optional="show" sum="Total" decoration-bf="1" widget="monetary"/>
+                    <!-- 9. Total (Taxed Amount) -->
+                    <field name="amount_total" string="Total"/>
 
-                    <!-- 10. Shipping Reference / Delivery Date -->
-                    <field name="commitment_date" string="Delivery Date" optional="hide"/>
+                    <!-- 10. Shipping Ref / Delivery Note -->
+                    <field name="delivery_count" string="Delivery" optional="hide"/>
 
-                    <!-- 11. Order Source -->
+                    <!-- 11. PO Number / Origin -->
                     <field name="origin" string="Source Document" optional="hide"/>
 
-                    <!-- Additional useful fields -->
-                    <field name="state" string="Status" optional="show" widget="badge"
-                           decoration-success="state == 'sale' or state == 'done'"
-                           decoration-info="state == 'draft' or state == 'sent'"/>
+                    <!-- ADDITIONAL DEFAULT ODOO FIELDS -->
 
-                    <field name="invoice_status" string="Invoice Status" optional="show" widget="badge"
+                    <!-- 12. Confirmation Date -->
+                    <field name="commitment_date" string="Delivery Date" optional="hide"/>
+
+                    <!-- 13. Validity Date -->
+                    <field name="validity_date" string="Expiration" optional="hide"/>
+
+                    <!-- 14. Pricelist -->
+                    <field name="pricelist_id" string="Pricelist" optional="hide" groups="product.group_sale_pricelist"/>
+
+                    <!-- 15. Payment Terms -->
+                    <field name="payment_term_id" string="Payment Terms" optional="hide"/>
+
+                    <!-- 16. Fiscal Position -->
+                    <field name="fiscal_position_id" string="Fiscal Position" optional="hide"/>
+
+                    <!-- 17. Currency -->
+                    <field name="currency_id" string="Currency" optional="hide"/>
+
+                    <!-- 18. Company -->
+                    <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide"/>
+
+                    <!-- 19. Status -->
+                    <field name="state" string="Status" widget="badge"
+                           decoration-success="state in ('sale', 'done')"
+                           decoration-info="state in ('draft', 'sent')"/>
+
+                    <!-- 20. Invoice Status -->
+                    <field name="invoice_status" string="Invoice Status" widget="badge"
                            decoration-success="invoice_status == 'invoiced'"
                            decoration-warning="invoice_status == 'to invoice'"
                            decoration-info="invoice_status == 'no'"/>
 
-                    <field name="activity_ids" string="Activities" optional="show" widget="list_activity"/>
+                    <!-- 21. Delivery Status -->
+                    <field name="delivery_status" string="Delivery Status" optional="hide" widget="badge"
+                           decoration-success="delivery_status == 'full'"
+                           decoration-warning="delivery_status == 'partial'"
+                           decoration-info="delivery_status == 'pending'"/>
 
-                    <!-- Hidden fields for functionality -->
-                    <field name="company_id" column_invisible="True"/>
-                    <field name="currency_id" column_invisible="True"/>
-                    <field name="pricelist_id" column_invisible="True"/>
-                    <field name="team_id" column_invisible="True"/>
-                </tree>
-            </tree>
-        </field>
-    </record>
+                    <!-- 22. Sales Team -->
+                    <field name="team_id" string="Sales Team" optional="hide"/>
+
+                    <!-- 23. Analytic Account -->
+                    <field name="analytic_account_id" string="Analytic Account" optional="hide" groups="analytic.group_analytic_accounting"/>
+
+                    <!-- 24. Tags -->
+                    <field name="tag_ids" string="Tags" optional="hide" widget="many2many_tags"/>
+
+                    <!-- 25. Incoterm -->
+                    <field name="incoterm" string="Incoterm" optional="hide"/>
+
+                    <!-- 26. Shipping Policy -->
+                    <field name="picking_policy" string="Shipping Policy" optional="hide"/>
+
+                    <!-- 27. Invoice Address -->
+                    <field name="partner_invoice_id" string="Invoice Address" optional="hide"/>
+
+                    <!-- 28. Delivery Address -->
+                    <field name="partner_shipping_id" string="Delivery Address" optional="hide"/>
+
+                    <!-- 29. Note -->
+                    <field name="note" string="Terms and Conditions" optional="hide"/>
+
+                    <!-- 30. Activity -->
+                    <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide"/>
+
+                    <!-- 31. Activity State -->
+                    <field name="activity_state" string="Activity State" optional="hide" widget="badge"
+                           decoration-success="activity_state == 'today'"
+                           decoration-warning="activity_state == 'planned'"
+                           decoration-danger="activity_state == 'overdue'"/>
+
+                    <!-- 32. Activity User -->
+                    <field name="activity_user_id" string="Responsible User" optional="hide"/>
+
+                    <!-- 33. Activity Type -->
+                    <field name="activity_type_id" string="Next Activity Type" optional="hide"/>
+
+                    <!-- 34. Activity Date -->
+                    <field name="activity_date_deadline" string="Next Activity Deadline" optional="hide"/>
+
+                    <!-- 35. Activity Summary -->
+                    <field name="activity_summary" string="Activity Summary" optional="hide"/>
+
+                    <!-- 36. Message -->
+                    <field name="message_needaction" string="Action Needed" optional="hide"/>
+
+                    <!-- 37. Campaign (if marketing installed) -->
+                    <field name="campaign_id" string="Campaign" optional="hide" groups="base.group_no_one"/>
+
+                    <!-- 38. Medium -->
+                    <field name="medium_id" string="Medium" optional="hide" groups="base.group_no_one"/>
+
+                    <!-- 39. Source -->
+                    <field name="source_id" string="Source" optional="hide" groups="base.group_no_one"/>
+
+                    <!-- 40. Created By -->
+                    <field name="create_uid" string="Created by" optional="hide"/>
+
+                    <!-- 41. Created On -->
+                    <field name="create_date" string="Created on" optional="hide"/>
+
+                    <!-- 42. Last Updated By -->
+                    <field name="write_uid" string="Last Updated by" optional="hide"/>
+
+                    <!-- 43. Last Updated On -->
+                    <field name="write_date" string="Last Updated on" optional="hide"/>
+
+                    <!-- Hidden technical fields -->
+                    <field name="invoice_count" column_invisible="1"/>
+
+                </list>
+            </field>
+        </record>
+
+        <!-- Override the default sale order action to use custom view -->
+        <record id="sale.action_orders" model="ir.actions.act_window">
+            <field name="view_id" ref="view_order_tree_custom"/>
+        </record>
+
+    </data>
 </odoo>

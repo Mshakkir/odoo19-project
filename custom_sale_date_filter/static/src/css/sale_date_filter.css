@@ -24,13 +24,29 @@
     flex-shrink: 0;
 }
 
+.filter_group_small {
+    min-width: 100px;
+    max-width: 120px;
+}
+
 .filter_group.date_group {
     min-width: 200px;
+}
+
+.filter_group.date_group_small {
+    min-width: 160px;
+    max-width: 180px;
 }
 
 .filter_group.autocomplete_group {
     min-width: 140px;
     flex: 1;
+    position: relative;
+}
+
+.filter_group.autocomplete_group_small {
+    min-width: 100px;
+    max-width: 120px;
     position: relative;
 }
 
@@ -58,7 +74,18 @@
     background-color: #ffffff;
 }
 
-.date_input:focus {
+.date_input_small {
+    width: 75px;
+    padding: 4px 6px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 12px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    background-color: #ffffff;
+}
+
+.date_input:focus,
+.date_input_small:focus {
     border-color: #80bdff;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
@@ -83,7 +110,19 @@
     cursor: pointer;
 }
 
-.filter_select:focus {
+.filter_select_small {
+    width: 100%;
+    padding: 4px 6px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 12px;
+    background-color: #ffffff;
+    transition: border-color 0.15s ease-in-out;
+    cursor: pointer;
+}
+
+.filter_select:focus,
+.filter_select_small:focus {
     border-color: #80bdff;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
@@ -101,7 +140,18 @@
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-.filter_input:focus {
+.filter_input_small {
+    width: 100%;
+    padding: 4px 6px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 12px;
+    background-color: #ffffff;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.filter_input:focus,
+.filter_input_small:focus {
     border-color: #80bdff;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
@@ -123,7 +173,18 @@
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-.autocomplete_input:focus {
+.autocomplete_input_small {
+    width: 100%;
+    padding: 4px 6px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 12px;
+    background-color: #ffffff;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.autocomplete_input:focus,
+.autocomplete_input_small:focus {
     border-color: #80bdff;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);

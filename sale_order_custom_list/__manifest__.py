@@ -8,7 +8,7 @@
         similar to the invoice list view layout.
     """,
     'author': 'Your Company',
-    'depends': ['account', 'stock', 'sale', 'sale_stock', 'custom_sale_fields', 'multi_warehouse_delivery' 'sale_management'],
+    'depends': ['account', 'stock', 'sale', 'sale_stock', 'custom_sale_fields', 'multi_warehouse_delivery' ,'sale_management'],
     'data': [
         'views/sale_order_views.xml',
     ],

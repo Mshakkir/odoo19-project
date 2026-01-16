@@ -562,9 +562,9 @@ patch(ListController.prototype, {
         // Clear button click
         clearBtn.addEventListener('click', clearFilter);
 
-        // Backspace key on any input field to clear filter
+        // ESC key to clear filter (changed from Backspace)
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace') {
+            if (e.key === 'Escape') {
                 clearFilter();
             }
         });
@@ -580,7 +580,10 @@ patch(ListController.prototype, {
 
 
 
-//
+
+
+
+
 ///** @odoo-module **/
 //
 //import { Component, useState, onMounted, onWillUnmount } from "@odoo/owl";
@@ -989,6 +992,7 @@ patch(ListController.prototype, {
 //            let resModel = '';
 //            let views = [];
 //            let actionName = '';
+//            let context = {};
 //
 //            if (isPurchaseOrder) {
 //                domain = [
@@ -999,6 +1003,10 @@ patch(ListController.prototype, {
 //                resModel = 'purchase.order';
 //                views = [[false, 'list'], [false, 'form']];
 //                actionName = 'Purchase Orders';
+//                // Force use of custom view
+//                context = {
+//                    'tree_view_ref': 'custom_purchase_order_list.purchase_order_view_tree_inherit_custom'
+//                };
 //            } else if (isBill) {
 //                domain = [
 //                    ['invoice_date', '>=', dateFrom],
@@ -1058,6 +1066,7 @@ patch(ListController.prototype, {
 //                res_model: resModel,
 //                views: views,
 //                domain: domain,
+//                context: context,
 //                target: 'current',
 //            });
 //
@@ -1105,12 +1114,17 @@ patch(ListController.prototype, {
 //            let resModel = '';
 //            let views = [];
 //            let actionName = '';
+//            let context = {};
 //
 //            if (isPurchaseOrder) {
 //                domain = [['state', 'in', ['purchase', 'done']]];
 //                resModel = 'purchase.order';
 //                views = [[false, 'list'], [false, 'form']];
 //                actionName = 'Purchase Orders';
+//                // Force use of custom view
+//                context = {
+//                    'tree_view_ref': 'custom_purchase_order_list.purchase_order_view_tree_inherit_custom'
+//                };
 //            } else if (isBill) {
 //                domain = [['move_type', '=', 'in_invoice']];
 //                resModel = 'account.move';
@@ -1124,6 +1138,7 @@ patch(ListController.prototype, {
 //                res_model: resModel,
 //                views: views,
 //                domain: domain,
+//                context: context,
 //                target: 'current',
 //            });
 //
@@ -1134,10 +1149,10 @@ patch(ListController.prototype, {
 //        clearBtn.addEventListener('click', clearFilter);
 //
 //        // Backspace key on any input field to clear filter
-//       document.addEventListener('keydown', (e) => {
-//    if (e.key === 'Backspace') {
-//        clearFilter();
-//    }
-//});
+//        document.addEventListener('keydown', (e) => {
+//            if (e.key === 'Backspace') {
+//                clearFilter();
+//            }
+//        });
 //    },
 //});

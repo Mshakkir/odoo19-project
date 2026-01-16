@@ -551,15 +551,10 @@ patch(ListController.prototype, {
         clearBtn.addEventListener('click', clearFilter);
 
         // Backspace key on any input field to clear filter
-        allInputs.forEach(input => {
-            if (input) {
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Backspace' && e.ctrlKey) {
-                        e.preventDefault();
-                        clearFilter();
-                    }
-                });
-            }
-        });
+       document.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace') {
+        clearFilter();
+    }
+});
     },
 });

@@ -45,7 +45,7 @@
                         <!-- 9. Total (Taxed Amount) -->
                         <field name="amount_total" string="Total" optional="show"/>
 
-                        <!-- 10. Shipping Ref / Delivery Note -->
+                         10. Shipping Ref / Delivery Note
                         <field name="delivery_count" string="Delivery" optional="show"/>
 
                         <!-- 11. PO Number / Origin -->

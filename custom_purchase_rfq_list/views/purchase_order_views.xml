@@ -22,10 +22,7 @@
                                     confirm="Are you sure you want to cancel the selected RFQs?"/>
                         </header>
 
-                        <!-- YOUR REQUESTED COLUMNS IN ORDER -->
-
-                        <!-- Priority -->
-                        <field name="priority" optional="show" widget="priority" nolabel="1"/>
+                        <!-- YOUR REQUESTED COLUMNS IN EXACT ORDER -->
 
                         <!-- 1. Order Date -->
                         <field name="date_order" string="Order Date" widget="date" optional="show"/>
@@ -43,13 +40,13 @@
                         <field name="picking_type_id" string="Warehouse" optional="show"/>
 
                         <!-- 6. Untaxed Amount -->
-                        <field name="amount_untaxed" string="Untaxed" sum="Total Untaxed" widget="monetary" optional="show"/>
+                        <field name="amount_untaxed" string="Untaxed Amount" sum="Total Untaxed" widget="monetary" optional="show"/>
 
                         <!-- 7. Tax Amount -->
-                        <field name="amount_tax" string="Tax" sum="Total Tax" widget="monetary" optional="show"/>
+                        <field name="amount_tax" string="Tax Amount" sum="Total Tax" widget="monetary" optional="show"/>
 
                         <!-- 8. Total Amount (Include Tax) -->
-                        <field name="amount_total" string="Total" sum="Total Amount" widget="monetary" optional="show" decoration-bf="state == 'purchase'"/>
+                        <field name="amount_total" string="Total Amount" sum="Total Amount" widget="monetary" optional="show" decoration-bf="state == 'purchase'"/>
 
                         <!-- 9. Buyer (Purchase Representative) -->
                         <field name="user_id" string="Buyer" optional="show" widget="many2one_avatar_user"/>
@@ -66,7 +63,10 @@
                                decoration-warning="invoice_status == 'to invoice'"
                                decoration-info="invoice_status == 'no'"/>
 
-                        <!-- ADDITIONAL USEFUL FIELDS (OPTIONAL/HIDDEN BY DEFAULT) -->
+                        <!-- ADDITIONAL FIELDS (OPTIONAL/HIDDEN BY DEFAULT) -->
+
+                        <!-- Priority -->
+                        <field name="priority" optional="hide" widget="priority" nolabel="1"/>
 
                         <!-- Approval Date -->
                         <field name="date_approve" string="Confirmation Date" optional="hide"/>

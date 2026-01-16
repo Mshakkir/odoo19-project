@@ -557,16 +557,6 @@ patch(ListController.prototype, {
 
 
 
-
-
-
-
-
-
-
-
-
-
 //
 ///** @odoo-module **/
 //
@@ -1127,4 +1117,4 @@ patch(ListController.prototype, {
 //    }
 //});
 //    },
-});
+//});

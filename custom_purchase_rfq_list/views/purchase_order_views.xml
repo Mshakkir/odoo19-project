@@ -3,11 +3,11 @@
     <data>
 
         <!-- Custom Purchase Order/RFQ List View -->
-        <record id="view_purchase_order_list_custom" model="ir.ui.view">
-            <field name="name">purchase.order.list.custom</field>
+        <record id="view_purchase_order_rfq_list_custom" model="ir.ui.view">
+            <field name="name">purchase.order.rfq.list.custom</field>
             <field name="model">purchase.order</field>
             <field name="mode">primary</field>
-            <field name="priority">1</field>
+            <field name="priority">10</field>
             <field name="arch" type="xml">
                 <list string="Purchase Order"
                       decoration-info="state in ['draft', 'sent']"
@@ -19,10 +19,14 @@
 
                     <header>
                         <button name="button_cancel" type="object" string="Cancel"
-                                confirm="Are you sure you want to cancel the selected RFQs/Orders?"/>
+                                confirm="Are you sure you want to cancel the selected RFQs?"/>
                     </header>
 
                     <!-- YOUR REQUESTED COLUMNS IN ORDER -->
+
+                    <!-- Priority -->
+                    <field name="priority" optional="show"
+                           widget="priority" nolabel="1"/>
 
                     <!-- 1. Order Date -->
                     <field name="date_order" string="Order Date"
@@ -75,10 +79,6 @@
 
                     <!-- ADDITIONAL USEFUL FIELDS (OPTIONAL/HIDDEN BY DEFAULT) -->
 
-                    <!-- Priority -->
-                    <field name="priority" optional="hide"
-                           widget="priority" nolabel="1"/>
-
                     <!-- Approval Date -->
                     <field name="date_approve" string="Confirmation Date"
                            optional="hide"/>
@@ -119,15 +119,159 @@
             </field>
         </record>
 
-        <!-- Override the default purchase order action to use custom view -->
+        <!-- Update the RFQ action window view mode -->
         <record id="purchase.purchase_rfq" model="ir.actions.act_window">
-            <field name="view_id" ref="view_purchase_order_list_custom"/>
+            <field name="name">Requests for Quotation</field>
+            <field name="view_mode">tree,form,pivot,graph,activity</field>
         </record>
 
-        <!-- Override the purchase order action (for confirmed POs) -->
-        <record id="purchase.purchase_form_action" model="ir.actions.act_window">
-            <field name="view_id" ref="view_purchase_order_list_custom"/>
+        <!-- Add view to the RFQ action using act_window.view -->
+        <record id="purchase_order_rfq_tree_view_link" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_purchase_order_rfq_list_custom"/>
+            <field name="act_window_id" ref="purchase.purchase_rfq"/>
         </record>
 
     </data>
 </odoo>
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <data>-->
+
+<!--        &lt;!&ndash; Custom Purchase Order/RFQ List View &ndash;&gt;-->
+<!--        <record id="view_purchase_order_list_custom" model="ir.ui.view">-->
+<!--            <field name="name">purchase.order.list.custom</field>-->
+<!--            <field name="model">purchase.order</field>-->
+<!--            <field name="mode">primary</field>-->
+<!--            <field name="priority">1</field>-->
+<!--            <field name="arch" type="xml">-->
+<!--                <list string="Purchase Order"-->
+<!--                      decoration-info="state in ['draft', 'sent']"-->
+<!--                      decoration-muted="state == 'cancel'"-->
+<!--                      multi_edit="1"-->
+<!--                      class="o_purchase_order"-->
+<!--                      js_class="purchase_dashboard_list"-->
+<!--                      sample="1">-->
+
+<!--                    <header>-->
+<!--                        <button name="button_cancel" type="object" string="Cancel"-->
+<!--                                confirm="Are you sure you want to cancel the selected RFQs/Orders?"/>-->
+<!--                    </header>-->
+
+<!--                    &lt;!&ndash; YOUR REQUESTED COLUMNS IN ORDER &ndash;&gt;-->
+
+<!--                    &lt;!&ndash; 1. Order Date &ndash;&gt;-->
+<!--                    <field name="date_order" string="Order Date"-->
+<!--                           widget="date" optional="show"/>-->
+
+<!--                    &lt;!&ndash; 2. Reference (PO Number) &ndash;&gt;-->
+<!--                    <field name="name" string="Reference"-->
+<!--                           readonly="1" decoration-bf="1"/>-->
+
+<!--                    &lt;!&ndash; 3. Vendor &ndash;&gt;-->
+<!--                    <field name="partner_id" string="Vendor" readonly="1"/>-->
+
+<!--                    &lt;!&ndash; 4. Vendor Reference &ndash;&gt;-->
+<!--                    <field name="partner_ref" string="Vendor Reference" optional="show"/>-->
+
+<!--                    &lt;!&ndash; 5. Warehouse &ndash;&gt;-->
+<!--                    <field name="picking_type_id" string="Warehouse"-->
+<!--                           optional="show"/>-->
+
+<!--                    &lt;!&ndash; 6. Untaxed Amount &ndash;&gt;-->
+<!--                    <field name="amount_untaxed" string="Untaxed"-->
+<!--                           sum="Total Untaxed" widget="monetary" optional="show"/>-->
+
+<!--                    &lt;!&ndash; 7. Tax Amount &ndash;&gt;-->
+<!--                    <field name="amount_tax" string="Tax"-->
+<!--                           sum="Total Tax" widget="monetary" optional="show"/>-->
+
+<!--                    &lt;!&ndash; 8. Total Amount (Include Tax) &ndash;&gt;-->
+<!--                    <field name="amount_total" string="Total"-->
+<!--                           sum="Total Amount" widget="monetary"-->
+<!--                           optional="show" decoration-bf="state == 'purchase'"/>-->
+
+<!--                    &lt;!&ndash; 9. Buyer (Purchase Representative) &ndash;&gt;-->
+<!--                    <field name="user_id" string="Buyer"-->
+<!--                           optional="show" widget="many2one_avatar_user"/>-->
+
+<!--                    &lt;!&ndash; 10. Status &ndash;&gt;-->
+<!--                    <field name="state" string="Status"-->
+<!--                           optional="show" widget="badge"-->
+<!--                           decoration-success="state == 'purchase'"-->
+<!--                           decoration-warning="state == 'to approve'"-->
+<!--                           decoration-info="state == 'draft' or state == 'sent'"/>-->
+
+<!--                    &lt;!&ndash; 11. Billing Status &ndash;&gt;-->
+<!--                    <field name="invoice_status" string="Billing Status"-->
+<!--                           optional="show" widget="badge"-->
+<!--                           decoration-success="invoice_status == 'invoiced'"-->
+<!--                           decoration-warning="invoice_status == 'to invoice'"-->
+<!--                           decoration-info="invoice_status == 'no'"/>-->
+
+<!--                    &lt;!&ndash; ADDITIONAL USEFUL FIELDS (OPTIONAL/HIDDEN BY DEFAULT) &ndash;&gt;-->
+
+<!--                    &lt;!&ndash; Priority &ndash;&gt;-->
+<!--                    <field name="priority" optional="hide"-->
+<!--                           widget="priority" nolabel="1"/>-->
+
+<!--                    &lt;!&ndash; Approval Date &ndash;&gt;-->
+<!--                    <field name="date_approve" string="Confirmation Date"-->
+<!--                           optional="hide"/>-->
+
+<!--                    &lt;!&ndash; Expected Arrival &ndash;&gt;-->
+<!--                    <field name="date_planned" string="Expected Arrival"-->
+<!--                           optional="hide"/>-->
+
+<!--                    &lt;!&ndash; Company &ndash;&gt;-->
+<!--                    <field name="company_id" string="Company"-->
+<!--                           readonly="1"-->
+<!--                           options="{'no_create': True}"-->
+<!--                           groups="base.group_multi_company"-->
+<!--                           optional="hide"/>-->
+
+<!--                    &lt;!&ndash; Source Document &ndash;&gt;-->
+<!--                    <field name="origin" string="Source Document" optional="hide"/>-->
+
+<!--                    &lt;!&ndash; Activities &ndash;&gt;-->
+<!--                    <field name="activity_ids" widget="list_activity" optional="hide"/>-->
+
+<!--                    &lt;!&ndash; Currency &ndash;&gt;-->
+<!--                    <field name="currency_id" column_invisible="True"-->
+<!--                           readonly="state in ['cancel', 'purchase']"/>-->
+
+<!--                    &lt;!&ndash; Payment Terms &ndash;&gt;-->
+<!--                    <field name="payment_term_id" string="Payment Terms"-->
+<!--                           optional="hide"/>-->
+
+<!--                    &lt;!&ndash; Incoterm &ndash;&gt;-->
+<!--                    <field name="incoterm_id" string="Incoterm" optional="hide"/>-->
+
+<!--                    &lt;!&ndash; Fiscal Position &ndash;&gt;-->
+<!--                    <field name="fiscal_position_id" string="Fiscal Position"-->
+<!--                           optional="hide"/>-->
+
+<!--                </list>-->
+<!--            </field>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; Override the default purchase order action to use custom view &ndash;&gt;-->
+<!--        <record id="purchase.purchase_rfq" model="ir.actions.act_window">-->
+<!--            <field name="view_id" ref="view_purchase_order_list_custom"/>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; Override the purchase order action (for confirmed POs) &ndash;&gt;-->
+<!--        <record id="purchase.purchase_form_action" model="ir.actions.act_window">-->
+<!--            <field name="view_id" ref="view_purchase_order_list_custom"/>-->
+<!--        </record>-->
+
+<!--    </data>-->
+<!--</odoo>-->

@@ -7,7 +7,7 @@
             <field name="name">purchase.order.confirmed.list.custom</field>
             <field name="model">purchase.order</field>
             <field name="mode">primary</field>
-            <field name="priority">1</field>
+            <field name="priority">20</field>
             <field name="arch" type="xml">
                 <list string="Purchase Order"
                       decoration-muted="state == 'cancel'"
@@ -19,21 +19,28 @@
                     <header>
                         <button name="action_create_invoice" type="object" string="Create Bills"/>
                         <button name="button_cancel" type="object" string="Cancel"
-                                confirm="Are you sure you want to cancel the selected RFQs/Orders?"/>
+                                confirm="Are you sure you want to cancel the selected Orders?"/>
                     </header>
 
                     <!-- YOUR REQUESTED COLUMNS IN ORDER -->
 
+                    <!-- Priority -->
+                    <field name="priority" optional="show"
+                           widget="priority" nolabel="1"/>
 
+                    <!-- 1. Order Date -->
+                    <field name="date_order" string="Order Date"
+                           readonly="state in ['cancel', 'purchase']"
+                           optional="show"/>
 
                     <!-- 2. Reference (PO Number) -->
                     <field name="name" string="Reference"
                            readonly="1"
                            decoration-bf="1"
                            decoration-info="state in ('draft','sent')"/>
-                    <!-- 1. Order Date -->
-                    <field name="date_order" string="Order Date"
-                           readonly="state in ['cancel', 'purchase']"
+
+                    <!-- Confirmation Date (Approval Date) -->
+                    <field name="date_approve" string="Confirmation Date"
                            optional="show"/>
 
                     <!-- 3. Vendor -->
@@ -82,20 +89,8 @@
                            decoration-info="invoice_status == 'to invoice'"
                            optional="show"/>
 
-                    <!-- ADDITIONAL USEFUL FIELDS -->
-
-                    <!-- Priority -->
-                    <field name="priority" optional="show"
-                           widget="priority" nolabel="1"/>
-
-                    <!-- Confirmation Date (Approval Date) -->
-                    <field name="date_approve" string="Confirmation Date"
-                           column_invisible="context.get('quotation_only', False)"
-                           optional="show"/>
-
                     <!-- Expected Arrival (Scheduled Date) -->
                     <field name="date_planned" string="Expected Arrival"
-                           column_invisible="context.get('quotation_only', False)"
                            optional="show"/>
 
                     <!-- Company -->
@@ -138,9 +133,18 @@
             </field>
         </record>
 
-        <!-- Override the Purchase Order action (for confirmed orders) -->
+        <!-- Update the Purchase Order action window view mode -->
         <record id="purchase.purchase_form_action" model="ir.actions.act_window">
+            <field name="name">Purchase Orders</field>
+            <field name="view_mode">tree,form,pivot,graph,activity</field>
+        </record>
+
+        <!-- Add view to the action using act_window.view -->
+        <record id="purchase_order_confirmed_tree_view_link" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
             <field name="view_id" ref="view_purchase_order_confirmed_list_custom"/>
+            <field name="act_window_id" ref="purchase.purchase_form_action"/>
         </record>
 
     </data>

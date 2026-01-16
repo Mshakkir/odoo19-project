@@ -235,7 +235,7 @@ patch(ListController.prototype, {
                         <div class="autocomplete_wrapper">
                             <input
                                 type="text"
-                                class="form-control autocomplete_input_small filter-input"
+                                class="form-control autocomplete_input_small filter-input autocomplete-input"
                                 id="${customerId}_input"
                                 placeholder="Customer"
                                 autocomplete="off"
@@ -264,7 +264,7 @@ patch(ListController.prototype, {
                         <div class="autocomplete_wrapper">
                             <input
                                 type="text"
-                                class="form-control autocomplete_input_small filter-input"
+                                class="form-control autocomplete_input_small filter-input autocomplete-input"
                                 id="${salespersonId}_input"
                                 placeholder="Salesperson"
                                 autocomplete="off"
@@ -311,7 +311,7 @@ patch(ListController.prototype, {
                     <!-- Action Buttons -->
                     <div class="filter_actions">
                         <button class="btn btn-primary apply_filter_btn" id="${applyId}">Apply</button>
-                        <button class="btn btn-secondary clear_filter_btn" id="${clearId}">Clear</button>
+                        <button class="btn btn-secondary clear_filter_btn" id="${clearId}">Clear (Esc)</button>
                     </div>
                 </div>
             </div>
@@ -334,10 +334,13 @@ patch(ListController.prototype, {
 
         if (!input || !dropdown || !hiddenValue) return;
 
+        let selectedIndex = -1;
+
         // Show dropdown on focus
         input.addEventListener('focus', () => {
             this.filterAutocomplete(fieldId, dataList, '');
             dropdown.classList.add('show');
+            selectedIndex = -1;
         });
 
         // Filter as user types
@@ -346,12 +349,53 @@ patch(ListController.prototype, {
             hiddenValue.value = ''; // Clear hidden value when typing
             this.filterAutocomplete(fieldId, dataList, searchTerm);
             dropdown.classList.add('show');
+            selectedIndex = -1;
         });
+
+        // Handle keyboard navigation in autocomplete
+        input.addEventListener('keydown', (e) => {
+            const items = dropdown.querySelectorAll('.autocomplete_item:not(.no_results)');
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                updateSelection(items, selectedIndex);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, -1);
+                updateSelection(items, selectedIndex);
+            } else if (e.key === 'Enter' && selectedIndex >= 0 && items.length > 0) {
+                e.preventDefault();
+                e.stopPropagation();
+                const selectedItem = items[selectedIndex];
+                const id = selectedItem.getAttribute('data-id');
+                const name = selectedItem.getAttribute('data-name');
+                input.value = name;
+                hiddenValue.value = id;
+                dropdown.classList.remove('show');
+                selectedIndex = -1;
+            } else if (e.key === 'Escape') {
+                dropdown.classList.remove('show');
+                selectedIndex = -1;
+            }
+        });
+
+        function updateSelection(items, index) {
+            items.forEach((item, i) => {
+                if (i === index) {
+                    item.classList.add('selected');
+                    item.scrollIntoView({ block: 'nearest' });
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+        }
 
         // Hide dropdown when clicking outside
         document.addEventListener('click', (e) => {
             if (!input.contains(e.target) && !dropdown.contains(e.target)) {
                 dropdown.classList.remove('show');
+                selectedIndex = -1;
             }
         });
     },
@@ -571,22 +615,33 @@ patch(ListController.prototype, {
         const filterContainer = document.querySelector('.sale_date_filter_container');
 
         if (filterContainer) {
-            filterContainer.addEventListener('keydown', (e) => {
-                // Enter key - Apply filter
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    applyFilters();
-                }
-                // Backspace key - Clear filter (only if not typing in input)
-                else if (e.key === 'Backspace' && !e.target.matches('input, select')) {
-                    e.preventDefault();
-                    clearFilters();
+            // Global keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Escape key - Clear filters (works from anywhere)
+                if (e.key === 'Escape') {
+                    const activeElement = document.activeElement;
+                    const isInAutocomplete = activeElement && activeElement.classList.contains('autocomplete-input');
+                    const isDropdownOpen = document.querySelector('.autocomplete_dropdown.show');
+
+                    // Only clear filters if not in autocomplete or dropdown is not open
+                    if (!isInAutocomplete || !isDropdownOpen) {
+                        e.preventDefault();
+                        clearFilters();
+                    }
                 }
             });
 
-            // Add keydown listeners to all inputs and selects for Enter and Backspace
-            const allInputs = filterContainer.querySelectorAll('.filter-input, select');
-            allInputs.forEach(input => {
+            filterContainer.addEventListener('keydown', (e) => {
+                // Enter key - Apply filter (except for autocomplete inputs which handle it separately)
+                if (e.key === 'Enter' && !e.target.classList.contains('autocomplete-input')) {
+                    e.preventDefault();
+                    applyFilters();
+                }
+            });
+
+            // Add keydown listeners to regular inputs (not autocomplete)
+            const regularInputs = filterContainer.querySelectorAll('.filter-input:not(.autocomplete-input), select');
+            regularInputs.forEach(input => {
                 input.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
                         e.preventDefault();

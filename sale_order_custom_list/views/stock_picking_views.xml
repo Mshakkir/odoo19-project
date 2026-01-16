@@ -10,8 +10,8 @@
             <field name="arch" type="xml">
 
                 <!-- Replace all fields with new structure -->
-                <xpath expr="//tree" position="replace">
-                    <tree string="Delivery Orders"
+                <xpath expr="//list" position="replace">
+                    <list string="Delivery Orders"
                           sample="1"
                           decoration-info="state == 'draft'"
                           decoration-muted="state == 'cancel'"
@@ -117,7 +117,7 @@
                         <field name="picking_type_code" column_invisible="1"/>
                         <field name="has_move_ids" column_invisible="1"/>
 
-                    </tree>
+                    </list>
                 </xpath>
 
             </field>

@@ -10,17 +10,6 @@
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
-/* Different background colors for Sale Orders vs Invoices */
-.sale_date_filter_container.sale_order_filter {
-    background-color: #f8f9fa;
-    border-bottom: 2px solid #e9ecef;
-}
-
-.sale_date_filter_container.invoice_filter {
-    background-color: #fff9e6;
-    border-bottom: 2px solid #ffd966;
-}
-
 .date_filter_wrapper {
     display: flex;
     align-items: center;
@@ -35,29 +24,13 @@
     flex-shrink: 0;
 }
 
-.filter_group_small {
-    min-width: 100px;
-    max-width: 120px;
-}
-
 .filter_group.date_group {
-    min-width: 200px;
-}
-
-.filter_group.date_group_small {
-    min-width: 160px;
-    max-width: 180px;
+    min-width: 300px;
 }
 
 .filter_group.autocomplete_group {
-    min-width: 140px;
+    min-width: 180px;
     flex: 1;
-    position: relative;
-}
-
-.filter_group.autocomplete_group_small {
-    min-width: 100px;
-    max-width: 120px;
     position: relative;
 }
 
@@ -76,7 +49,7 @@
 }
 
 .date_input {
-    width: 110px;
+    width: 130px;
     padding: 5px 8px;
     border: 1px solid #ced4da;
     border-radius: 4px;
@@ -85,18 +58,7 @@
     background-color: #ffffff;
 }
 
-.date_input_small {
-    width: 75px;
-    padding: 4px 6px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 12px;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    background-color: #ffffff;
-}
-
-.date_input:focus,
-.date_input_small:focus {
+.date_input:focus {
     border-color: #80bdff;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
@@ -111,7 +73,7 @@
 /* Normal select dropdown for warehouse */
 .filter_select {
     width: 100%;
-    min-width: 140px;
+    min-width: 150px;
     padding: 5px 8px;
     border: 1px solid #ced4da;
     border-radius: 4px;
@@ -121,48 +83,7 @@
     cursor: pointer;
 }
 
-.filter_select_small {
-    width: 100%;
-    padding: 4px 6px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 12px;
-    background-color: #ffffff;
-    transition: border-color 0.15s ease-in-out;
-    cursor: pointer;
-}
-
-.filter_select:focus,
-.filter_select_small:focus {
-    border-color: #80bdff;
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-}
-
-/* Regular input for document number and amount */
-.filter_input {
-    width: 100%;
-    min-width: 140px;
-    padding: 5px 8px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 13px;
-    background-color: #ffffff;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.filter_input_small {
-    width: 100%;
-    padding: 4px 6px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 12px;
-    background-color: #ffffff;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.filter_input:focus,
-.filter_input_small:focus {
+.filter_select:focus {
     border-color: #80bdff;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
@@ -184,18 +105,7 @@
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-.autocomplete_input_small {
-    width: 100%;
-    padding: 4px 6px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 12px;
-    background-color: #ffffff;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.autocomplete_input:focus,
-.autocomplete_input_small:focus {
+.autocomplete_input:focus {
     border-color: #80bdff;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
@@ -283,20 +193,15 @@
 /* Responsive design for medium screens */
 @media (max-width: 1400px) {
     .filter_group.date_group {
-        min-width: 180px;
+        min-width: 280px;
     }
 
     .date_input {
-        width: 100px;
+        width: 120px;
     }
 
     .filter_group.autocomplete_group {
-        min-width: 130px;
-    }
-
-    .filter_select,
-    .filter_input {
-        min-width: 130px;
+        min-width: 150px;
     }
 }
 
@@ -311,7 +216,7 @@
     }
 
     .filter_group.autocomplete_group {
-        flex: 1 1 140px;
+        flex: 1 1 180px;
     }
 
     .filter_actions {
@@ -364,10 +269,5 @@
 
     .autocomplete_dropdown {
         max-height: 150px;
-    }
-
-    .filter_select,
-    .filter_input {
-        width: 100%;
     }
 }

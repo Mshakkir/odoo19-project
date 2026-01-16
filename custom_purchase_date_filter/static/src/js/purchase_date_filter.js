@@ -469,8 +469,13 @@ patch(ListController.prototype, {
                 domain.push(['invoice_status', '=', billingStatusSelect.value]);
             }
 
-            // Use the ORM search to filter without changing the view
-            this.props.list.model.load({ domain: domain });
+            this.actionService.doAction({
+                type: 'ir.actions.act_window',
+                name: actionName,
+                res_model: resModel,
+                domain: domain,
+                target: 'current',
+            });
 
             this.notification.add("Filters applied", { type: "success" });
         };
@@ -529,8 +534,13 @@ patch(ListController.prototype, {
                 actionName = 'Vendor Bills';
             }
 
-            // Use the ORM search to filter without changing the view
-            this.props.list.model.load({ domain: domain });
+            this.actionService.doAction({
+                type: 'ir.actions.act_window',
+                name: actionName,
+                res_model: resModel,
+                domain: domain,
+                target: 'current',
+            });
 
             this.notification.add("Filters cleared", { type: "info" });
         };
@@ -538,13 +548,17 @@ patch(ListController.prototype, {
         // Clear button click
         clearBtn.addEventListener('click', clearFilter);
 
-//         Backspace key on any input field to clear filter
-
-       document.addEventListener('keydown', (e) => {
-    if (e.key === 'Backspace') {
-        clearFilter();
-    }
-});
+        // Backspace key on any input field to clear filter
+        allInputs.forEach(input => {
+            if (input) {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && e.ctrlKey) {
+                        e.preventDefault();
+                        clearFilter();
+                    }
+                });
+            }
+        });
     },
 });
 

@@ -11,6 +11,7 @@
     'depends': ['account', 'stock', 'sale', 'sale_stock', 'custom_sale_fields', 'multi_warehouse_delivery' ,'sale_management'],
     'data': [
         'views/sale_order_views.xml',
+         "views/sale_quotation_views.xml"
     ],
     'installable': True,
     'application': False,

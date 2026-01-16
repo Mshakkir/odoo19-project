@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_tree_custom" model="ir.ui.view">
+        <field name="name">sale.order.tree.custom</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree"/>
+        <field name="arch" type="xml">
+            <!-- Replace the entire tree structure -->
+            <tree position="replace">
+                <tree string="Sales Orders"
+                      multi_edit="1"
+                      sample="1"
+                      default_order="date_order desc">
+
+                    <!-- 1. Order Date -->
+                    <field name="date_order" string="Order Date" optional="show"/>
+
+                    <!-- 2. Number (Order Reference) -->
+                    <field name="name" string="Number" optional="show" decoration-bf="1"/>
+
+                    <!-- 3. Customer -->
+                    <field name="partner_id" string="Customer" optional="show"/>
+
+                    <!-- 4. Warehouse -->
+                    <field name="warehouse_id" string="Warehouse" optional="show" groups="stock.group_stock_multi_warehouses"/>
+
+                    <!-- 5. Customer Reference / Source Document -->
+                    <field name="client_order_ref" string="Customer Reference" optional="show"/>
+
+                    <!-- 6. Salesperson -->
+                    <field name="user_id" string="Salesperson" optional="show" widget="many2one_avatar_user"/>
+
+                    <!-- 7. Untaxed Amount -->
+                    <field name="amount_untaxed" string="Tax Excluded" optional="show" sum="Total" widget="monetary"/>
+
+                    <!-- 8. Tax -->
+                    <field name="amount_tax" string="Tax" optional="show" sum="Total" widget="monetary"/>
+
+                    <!-- 9. Total Amount (Taxed) -->
+                    <field name="amount_total" string="Total" optional="show" sum="Total" decoration-bf="1" widget="monetary"/>
+
+                    <!-- 10. Shipping Reference / Delivery Date -->
+                    <field name="commitment_date" string="Delivery Date" optional="hide"/>
+
+                    <!-- 11. Order Source -->
+                    <field name="origin" string="Source Document" optional="hide"/>
+
+                    <!-- Additional useful fields -->
+                    <field name="state" string="Status" optional="show" widget="badge"
+                           decoration-success="state == 'sale' or state == 'done'"
+                           decoration-info="state == 'draft' or state == 'sent'"/>
+
+                    <field name="invoice_status" string="Invoice Status" optional="show" widget="badge"
+                           decoration-success="invoice_status == 'invoiced'"
+                           decoration-warning="invoice_status == 'to invoice'"
+                           decoration-info="invoice_status == 'no'"/>
+
+                    <field name="activity_ids" string="Activities" optional="show" widget="list_activity"/>
+
+                    <!-- Hidden fields for functionality -->
+                    <field name="company_id" column_invisible="True"/>
+                    <field name="currency_id" column_invisible="True"/>
+                    <field name="pricelist_id" column_invisible="True"/>
+                    <field name="team_id" column_invisible="True"/>
+                </tree>
+            </tree>
+        </field>
+    </record>
+</odoo>

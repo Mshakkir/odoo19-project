@@ -6,110 +6,99 @@
             <field name="name">purchase.order.view.tree.inherit.custom</field>
             <field name="model">purchase.order</field>
             <field name="inherit_id" ref="purchase.purchase_order_view_tree"/>
+            <field name="priority">99</field>
             <field name="arch" type="xml">
 
-                <!-- Modify date_approve instead of removing it -->
-                <xpath expr="//field[@name='date_approve']" position="attributes">
-                    <attribute name="string">Confirmation Date</attribute>
-                    <attribute name="optional">show</attribute>
-                    <attribute name="readonly">1</attribute>
-                </xpath>
+                <!-- Replace the entire tree structure -->
+                <xpath expr="//tree" position="replace">
+                    <tree string="Purchase Orders"
+                          sample="1"
+                          multi_edit="1"
+                          default_order="date_approve desc">
 
-                <!-- Remove other fields -->
-                <xpath expr="//field[@name='priority']" position="replace"/>
-                <xpath expr="//field[@name='partner_ref']" position="replace"/>
-                <xpath expr="//field[@name='name']" position="replace"/>
-                <xpath expr="//field[@name='date_order']" position="replace"/>
-                <xpath expr="//field[@name='partner_id']" position="replace"/>
-                <xpath expr="//field[@name='company_id']" position="replace"/>
-                <xpath expr="//field[@name='user_id']" position="replace"/>
-                <xpath expr="//field[@name='activity_ids']" position="replace"/>
-                <xpath expr="//field[@name='origin']" position="replace"/>
-                <xpath expr="//field[@name='amount_untaxed']" position="replace"/>
-                <xpath expr="//field[@name='amount_total']" position="replace"/>
-                <xpath expr="//field[@name='currency_id']" position="replace"/>
-                <xpath expr="//field[@name='state']" position="replace"/>
-                <xpath expr="//field[@name='invoice_status']" position="replace"/>
-                <xpath expr="//field[@name='date_planned']" position="replace"/>
+                        <!-- 1. Confirmation Date -->
+                        <field name="date_approve"
+                               string="Confirmation Date"
+                               optional="show"
+                               readonly="1"/>
 
-                <!-- Insert columns after date_approve -->
-                <xpath expr="//field[@name='date_approve']" position="after">
+                        <!-- 2. Reference -->
+                        <field name="name"
+                               string="Reference"
+                               readonly="1"
+                               decoration-bf="1"
+                               decoration-info="state in ('draft','sent')"/>
 
-                    <!-- 2. Reference -->
-                    <field name="name"
-                           string="Reference"
-                           readonly="1"
-                           decoration-bf="1"
-                           decoration-info="state in ('draft','sent')"/>
+                        <!-- 3. Vendor -->
+                        <field name="partner_id"
+                               string="Vendor"
+                               readonly="state in ['cancel', 'purchase']"/>
 
-                    <!-- 3. Vendor -->
-                    <field name="partner_id"
-                           string="Vendor"
-                           readonly="state in ['cancel', 'purchase']"/>
+                        <!-- 4. Vendor Reference -->
+                        <field name="partner_ref"
+                               string="Vendor Reference"
+                               optional="show"/>
 
-                    <!-- 4. Vendor Reference -->
-                    <field name="partner_ref"
-                           string="Vendor Reference"
-                           optional="show"/>
+                        <!-- 5. Warehouse -->
+                        <field name="picking_type_id"
+                               string="Warehouse"
+                               optional="show"/>
 
-                    <!-- 5. Warehouse -->
-                    <field name="picking_type_id"
-                           string="Warehouse"
-                           optional="show"/>
+                        <!-- 6. AWB Number -->
+                        <field name="awb_number"
+                               string="Shipping Ref #"
+                               optional="show"
+                               readonly="state in ('cancel', 'purchase')"/>
 
-                    <!-- 6. AWB Number -->
-                    <field name="awb_number"
-                           string="Shipping Ref #"
-                           optional="show"
-                           readonly="state in ('cancel', 'purchase')"/>
+                        <!-- 7. Untaxed Amount -->
+                        <field name="amount_untaxed"
+                               string="Untaxed Amount"
+                               widget="monetary"
+                               sum="Total Untaxed"
+                               optional="show"/>
 
-                    <!-- 7. Untaxed Amount -->
-                    <field name="amount_untaxed"
-                           string="Untaxed Amount"
-                           widget="monetary"
-                           sum="Total Untaxed"
-                           optional="show"/>
+                        <!-- 8. Tax Amount -->
+                        <field name="amount_tax"
+                               string="Tax Amount"
+                               widget="monetary"
+                               sum="Total Tax"
+                               optional="show"/>
 
-                    <!-- 8. Tax Amount -->
-                    <field name="amount_tax"
-                           string="Tax Amount"
-                           widget="monetary"
-                           sum="Total Tax"
-                           optional="show"/>
+                        <!-- 9. Total Amount -->
+                        <field name="amount_total"
+                               string="Total Amount"
+                               widget="monetary"
+                               sum="Total"
+                               decoration-bf="1"
+                               optional="show"/>
 
-                    <!-- 9. Total Amount -->
-                    <field name="amount_total"
-                           string="Total Amount"
-                           widget="monetary"
-                           sum="Total"
-                           decoration-bf="1"
-                           optional="show"/>
+                        <!-- 10. Buyer -->
+                        <field name="user_id"
+                               string="Buyer"
+                               widget="many2one_avatar_user"
+                               optional="show"/>
 
-                    <!-- 10. Buyer -->
-                    <field name="user_id"
-                           string="Buyer"
-                           widget="many2one_avatar_user"
-                           optional="show"/>
+                        <!-- 11. State (Hidden) -->
+                        <field name="state" column_invisible="True"/>
 
-                    <!-- 11. State (Hidden) -->
-                    <field name="state" column_invisible="True"/>
+                        <!-- 12. Billing Status -->
+                        <field name="invoice_status"
+                               string="Billing Status"
+                               widget="badge"
+                               decoration-success="invoice_status == 'invoiced'"
+                               decoration-info="invoice_status == 'to invoice'"
+                               optional="show"/>
 
-                    <!-- 12. Billing Status -->
-                    <field name="invoice_status"
-                           string="Billing Status"
-                           widget="badge"
-                           decoration-success="invoice_status == 'invoiced'"
-                           decoration-info="invoice_status == 'to invoice'"
-                           optional="show"/>
+                        <!-- Hidden fields -->
+                        <field name="priority" widget="priority" optional="hide"/>
+                        <field name="company_id" column_invisible="True"/>
+                        <field name="activity_ids" widget="list_activity" optional="hide"/>
+                        <field name="origin" optional="hide"/>
+                        <field name="currency_id" column_invisible="True"/>
+                        <field name="date_planned" optional="hide"/>
+                        <field name="date_order" optional="hide"/>
 
-                    <!-- Hidden fields -->
-                    <field name="priority" widget="priority" optional="hide"/>
-                    <field name="company_id" column_invisible="True"/>
-                    <field name="activity_ids" widget="list_activity" optional="hide"/>
-                    <field name="origin" optional="hide"/>
-                    <field name="currency_id" column_invisible="True"/>
-                    <field name="date_planned" optional="hide"/>
-
+                    </tree>
                 </xpath>
 
             </field>

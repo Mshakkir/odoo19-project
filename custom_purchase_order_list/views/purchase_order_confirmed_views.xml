@@ -31,9 +31,8 @@
 
                 <!-- Add fields in YOUR EXACT ORDER -->
                 <xpath expr="//list" position="inside">
-                    <!-- 1. Order Date -->
+                    <!-- 1. Order Date - NOW VISIBLE -->
                     <field name="date_order" string="Order Date"
-                           column_invisible="not context.get('quotation_only', False)"
                            readonly="state in ['cancel', 'purchase']"
                            optional="show"/>
 
@@ -53,34 +52,37 @@
                     <!-- 5. Warehouse -->
                     <field name="picking_type_id" string="Warehouse" optional="show"/>
 
-                    <!-- 6. Untaxed Amount -->
+                    <!-- 6. AWB Number (Shipping Reference) - ADDED -->
+                    <field name="awb_number" string="Shipping Ref #" optional="show" readonly="state in ('cancel', 'purchase')"/>
+
+                    <!-- 7. Untaxed Amount -->
                     <field name="amount_untaxed" string="Untaxed Amount"
                            sum="Total Untaxed amount"
                            widget="monetary"
                            optional="show"/>
 
-                    <!-- 7. Tax Amount -->
+                    <!-- 8. Tax Amount -->
                     <field name="amount_tax" string="Tax Amount"
                            sum="Total Tax"
                            widget="monetary"
                            optional="show"/>
 
-                    <!-- 8. Total Amount -->
+                    <!-- 9. Total Amount -->
                     <field name="amount_total" string="Total Amount"
                            sum="Total amount"
                            widget="monetary"
                            optional="show"
                            decoration-bf="1"/>
 
-                    <!-- 9. Buyer -->
+                    <!-- 10. Buyer -->
                     <field name="user_id" string="Buyer"
                            widget="many2one_avatar_user"
                            optional="show"/>
 
-                    <!-- 10. Status (Hidden but used for decorations) -->
+                    <!-- 11. Status (Hidden but used for decorations) -->
                     <field name="state" column_invisible="True"/>
 
-                    <!-- 11. Billing Status -->
+                    <!-- 12. Billing Status -->
                     <field name="invoice_status" string="Billing Status"
                            widget="badge"
                            decoration-success="invoice_status == 'invoiced'"

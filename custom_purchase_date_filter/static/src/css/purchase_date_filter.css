@@ -14,7 +14,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
 }
 
 .filter_group {
@@ -26,6 +26,10 @@
 
 .filter_group.date_group {
     min-width: 300px;
+}
+
+.filter_group.amount_group {
+    min-width: 220px;
 }
 
 .filter_group.autocomplete_group {
@@ -48,6 +52,12 @@
     gap: 8px;
 }
 
+.amount_input_group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .date_input {
     width: 130px;
     padding: 5px 8px;
@@ -58,7 +68,30 @@
     background-color: #ffffff;
 }
 
-.date_input:focus {
+.amount_input {
+    width: 100px;
+    padding: 5px 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 13px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    background-color: #ffffff;
+}
+
+.filter_input {
+    width: 100%;
+    min-width: 120px;
+    padding: 5px 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 13px;
+    background-color: #ffffff;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.date_input:focus,
+.amount_input:focus,
+.filter_input:focus {
     border-color: #80bdff;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
@@ -70,7 +103,7 @@
     font-weight: bold;
 }
 
-/* Normal select dropdown for warehouse */
+/* Normal select dropdown for warehouse and billing status */
 .filter_select {
     width: 100%;
     min-width: 150px;
@@ -244,15 +277,18 @@
     }
 
     .filter_group.date_group,
-    .filter_group.autocomplete_group {
+    .filter_group.autocomplete_group,
+    .filter_group.amount_group {
         min-width: 100%;
     }
 
-    .date_input_group {
+    .date_input_group,
+    .amount_input_group {
         width: 100%;
     }
 
-    .date_input {
+    .date_input,
+    .amount_input {
         flex: 1;
         width: auto;
     }

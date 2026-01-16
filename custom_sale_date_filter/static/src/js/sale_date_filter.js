@@ -1205,7 +1205,7 @@ patch(ListController.prototype, {
             // Add customer reference filter
             if (customerRefInput.value.trim()) {
                 if (isSaleOrder) {
-                    domain.push(['client_order_ref', 'ilike', customerRefInput.value.trim()]);
+                    domain.push(['ref', 'ilike', customerRefInput.value.trim()]);
                 } else if (isInvoice) {
                     domain.push(['ref', 'ilike', customerRefInput.value.trim()]);
                 }

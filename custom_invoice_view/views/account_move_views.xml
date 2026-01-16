@@ -35,10 +35,10 @@
                     <field name="ref" string="Reference"/>
 
                     <!-- 7. Tax Excluded Amount -->
-                    <field name="amount_untaxed" string="Tax Excluded"/>
+<!--                    <field name="amount_untaxed" string="Tax Excluded"/>-->
 
-                    <!-- 8. Tax -->
-                    <field name="amount_tax" string="Tax"/>
+<!--                    &lt;!&ndash; 8. Tax &ndash;&gt;-->
+<!--                    <field name="amount_tax" string="Tax"/>-->
 
                     <!-- 9. Total -->
                     <field name="amount_total" string="Total"/>
@@ -85,6 +85,11 @@
                            decoration-success="payment_state == 'paid'"
                            decoration-warning="payment_state == 'partial'"
                            decoration-danger="payment_state in ('not_paid', 'in_payment')"/>
+
+                       <field name="amount_untaxed" string="Tax Excluded" optional="hide"/>
+
+                    <!-- 8. Tax -->
+                    <field name="amount_tax" string="Tax" optional="hide"/>
 
                     <!-- 20. Fiscal Position -->
                     <field name="fiscal_position_id" string="Fiscal Position" optional="hide"/>

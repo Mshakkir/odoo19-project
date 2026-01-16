@@ -37,10 +37,10 @@
                         <field name="user_id" string="Salesperson" optional="show" widget="many2one_avatar_user"/>
 
                         <!-- 7. Tax Excluded (Untaxed Amount) -->
-                        <field name="amount_untaxed" string="Tax Excluded" optional="show"/>
+<!--                        <field name="amount_untaxed" string="Tax Excluded" optional="show"/>-->
 
-                        <!-- 8. Tax -->
-                        <field name="amount_tax" string="Tax" optional="show"/>
+<!--                        &lt;!&ndash; 8. Tax &ndash;&gt;-->
+<!--                        <field name="amount_tax" string="Tax" optional="show"/>-->
 
                         <!-- 9. Total (Taxed Amount) -->
                         <field name="amount_total" string="Total" optional="show"/>
@@ -63,6 +63,11 @@
                                decoration-success="invoice_status == 'invoiced'"
                                decoration-warning="invoice_status == 'to invoice'"
                                decoration-info="invoice_status == 'no'"/>
+
+                              <field name="amount_untaxed" string="Tax Excluded" optional="hide"/>
+
+                        <!-- 8. Tax -->
+                        <field name="amount_tax" string="Tax" optional="hide"/>
 
                         <!-- Confirmation Date -->
                         <field name="commitment_date" string="Delivery Date" optional="hide"/>

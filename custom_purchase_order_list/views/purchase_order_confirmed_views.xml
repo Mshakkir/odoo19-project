@@ -9,62 +9,53 @@
             <field name="priority">99</field>
             <field name="arch" type="xml">
 
-                <!-- Replace the entire tree structure -->
-                <xpath expr="//tree" position="replace">
-                    <tree string="Purchase Orders"
+                <!-- Replace the entire list structure -->
+                <xpath expr="//list" position="replace">
+                    <list string="Purchase Orders"
                           sample="1"
                           multi_edit="1"
                           default_order="date_approve desc">
 
-                        <!-- 1. Confirmation Date -->
                         <field name="date_approve"
                                string="Confirmation Date"
                                optional="show"
                                readonly="1"/>
 
-                        <!-- 2. Reference -->
                         <field name="name"
                                string="Reference"
                                readonly="1"
                                decoration-bf="1"
                                decoration-info="state in ('draft','sent')"/>
 
-                        <!-- 3. Vendor -->
                         <field name="partner_id"
                                string="Vendor"
                                readonly="state in ['cancel', 'purchase']"/>
 
-                        <!-- 4. Vendor Reference -->
                         <field name="partner_ref"
                                string="Vendor Reference"
                                optional="show"/>
 
-                        <!-- 5. Warehouse -->
                         <field name="picking_type_id"
                                string="Warehouse"
                                optional="show"/>
 
-                        <!-- 6. AWB Number -->
                         <field name="awb_number"
                                string="Shipping Ref #"
                                optional="show"
                                readonly="state in ('cancel', 'purchase')"/>
 
-                        <!-- 7. Untaxed Amount -->
                         <field name="amount_untaxed"
                                string="Untaxed Amount"
                                widget="monetary"
                                sum="Total Untaxed"
                                optional="show"/>
 
-                        <!-- 8. Tax Amount -->
                         <field name="amount_tax"
                                string="Tax Amount"
                                widget="monetary"
                                sum="Total Tax"
                                optional="show"/>
 
-                        <!-- 9. Total Amount -->
                         <field name="amount_total"
                                string="Total Amount"
                                widget="monetary"
@@ -72,16 +63,13 @@
                                decoration-bf="1"
                                optional="show"/>
 
-                        <!-- 10. Buyer -->
                         <field name="user_id"
                                string="Buyer"
                                widget="many2one_avatar_user"
                                optional="show"/>
 
-                        <!-- 11. State (Hidden) -->
                         <field name="state" column_invisible="True"/>
 
-                        <!-- 12. Billing Status -->
                         <field name="invoice_status"
                                string="Billing Status"
                                widget="badge"
@@ -89,7 +77,6 @@
                                decoration-info="invoice_status == 'to invoice'"
                                optional="show"/>
 
-                        <!-- Hidden fields -->
                         <field name="priority" widget="priority" optional="hide"/>
                         <field name="company_id" column_invisible="True"/>
                         <field name="activity_ids" widget="list_activity" optional="hide"/>
@@ -98,7 +85,7 @@
                         <field name="date_planned" optional="hide"/>
                         <field name="date_order" optional="hide"/>
 
-                    </tree>
+                    </list>
                 </xpath>
 
             </field>
@@ -106,6 +93,7 @@
 
     </data>
 </odoo>
+
 
 
 

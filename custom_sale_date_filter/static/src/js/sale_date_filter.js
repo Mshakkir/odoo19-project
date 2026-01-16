@@ -858,7 +858,7 @@ patch(ListController.prototype, {
         `;
 
         const customerRefId = `customer_ref_${timestamp}`;
-//        const poNumberId = `po_number_${timestamp}`;
+        const poNumberId = `po_number_${timestamp}`;
         const awbNumberId = `awb_number_${timestamp}`;
 
         const filterDiv = document.createElement('div');

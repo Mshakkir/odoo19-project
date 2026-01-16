@@ -166,6 +166,8 @@ patch(ListController.prototype, {
         const warehouseId = `warehouse_${timestamp}`;
         const customerId = `customer_${timestamp}`;
         const salespersonId = `salesperson_${timestamp}`;
+        const documentNumberId = `doc_number_${timestamp}`;
+        const totalAmountId = `total_amount_${timestamp}`;
         const applyId = `apply_filter_${timestamp}`;
         const clearId = `clear_filter_${timestamp}`;
 
@@ -178,14 +180,23 @@ patch(ListController.prototype, {
         const isSaleOrder = this.props.resModel === 'sale.order';
         const isInvoice = this.props.resModel === 'account.move';
 
-        // Set labels based on model
-        const dateLabel = isSaleOrder ? 'Order Date:' : 'Invoice Date:';
+        // Set placeholders based on model
+        const documentNumberPlaceholder = isSaleOrder ? 'Sale Order Number' : 'Invoice Number';
         const actionName = isSaleOrder ? 'Sale Orders' : 'Invoices';
 
-        // Build options for warehouse dropdown (normal select)
+        // Build options for warehouse dropdown (normal select) - only for sale orders
         const warehouseOptions = this._filterData.warehouses
             .map(w => `<option value="${w.id}">${w.name}</option>`)
             .join('');
+
+        const warehouseFilter = isSaleOrder ? `
+            <div class="filter_group">
+                <select class="form-select filter_select" id="${warehouseId}">
+                    <option value="">All Warehouses</option>
+                    ${warehouseOptions}
+                </select>
+            </div>
+        ` : '';
 
         const filterDiv = document.createElement('div');
         filterDiv.className = 'sale_date_filter_wrapper_main';
@@ -194,32 +205,23 @@ patch(ListController.prototype, {
                 <div class="date_filter_wrapper">
                     <!-- Date Range Filter -->
                     <div class="filter_group date_group">
-                        <label class="filter_label">${dateLabel}</label>
                         <div class="date_input_group">
-                            <input type="date" class="form-control date_input" id="${fromId}" value="${dateFrom}" />
+                            <input type="date" class="form-control date_input" id="${fromId}" value="${dateFrom}" placeholder="From" />
                             <span class="date_separator">→</span>
-                            <input type="date" class="form-control date_input" id="${toId}" value="${dateTo}" />
+                            <input type="date" class="form-control date_input" id="${toId}" value="${dateTo}" placeholder="To" />
                         </div>
                     </div>
 
-                    <!-- Warehouse Filter (Normal Dropdown) -->
-                    <div class="filter_group">
-                        <label class="filter_label">Warehouse:</label>
-                        <select class="form-select filter_select" id="${warehouseId}">
-                            <option value="">All</option>
-                            ${warehouseOptions}
-                        </select>
-                    </div>
+                    ${warehouseFilter}
 
                     <!-- Customer Filter (Searchable) -->
                     <div class="filter_group autocomplete_group">
-                        <label class="filter_label">Customer:</label>
                         <div class="autocomplete_wrapper">
                             <input
                                 type="text"
                                 class="form-control autocomplete_input"
                                 id="${customerId}_input"
-                                placeholder="All Customers"
+                                placeholder="Customer"
                                 autocomplete="off"
                             />
                             <input type="hidden" id="${customerId}_value" />
@@ -229,18 +231,40 @@ patch(ListController.prototype, {
 
                     <!-- Salesperson Filter (Searchable) -->
                     <div class="filter_group autocomplete_group">
-                        <label class="filter_label">Salesperson:</label>
                         <div class="autocomplete_wrapper">
                             <input
                                 type="text"
                                 class="form-control autocomplete_input"
                                 id="${salespersonId}_input"
-                                placeholder="All Salespersons"
+                                placeholder="Salesperson"
                                 autocomplete="off"
                             />
                             <input type="hidden" id="${salespersonId}_value" />
                             <div class="autocomplete_dropdown" id="${salespersonId}_dropdown"></div>
                         </div>
+                    </div>
+
+                    <!-- Document Number Filter -->
+                    <div class="filter_group">
+                        <input
+                            type="text"
+                            class="form-control filter_input"
+                            id="${documentNumberId}"
+                            placeholder="${documentNumberPlaceholder}"
+                            autocomplete="off"
+                        />
+                    </div>
+
+                    <!-- Total Amount Filter -->
+                    <div class="filter_group">
+                        <input
+                            type="number"
+                            class="form-control filter_input"
+                            id="${totalAmountId}"
+                            placeholder="Total Amount"
+                            step="0.01"
+                            min="0"
+                        />
                     </div>
 
                     <!-- Action Buttons -->
@@ -259,7 +283,7 @@ patch(ListController.prototype, {
         this.setupAutocomplete(customerId, this._filterData.customers);
         this.setupAutocomplete(salespersonId, this._filterData.salespersons);
 
-        this.attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, applyId, clearId, actionName, isSaleOrder, isInvoice);
+        this.attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, applyId, clearId, actionName, isSaleOrder, isInvoice);
     },
 
     setupAutocomplete(fieldId, dataList) {
@@ -326,7 +350,7 @@ patch(ListController.prototype, {
         });
     },
 
-    attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, applyId, clearId, actionName, isSaleOrder, isInvoice) {
+    attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, applyId, clearId, actionName, isSaleOrder, isInvoice) {
         const dateFromInput = document.getElementById(fromId);
         const dateToInput = document.getElementById(toId);
         const warehouseSelect = document.getElementById(warehouseId);
@@ -334,6 +358,8 @@ patch(ListController.prototype, {
         const customerInput = document.getElementById(`${customerId}_input`);
         const salespersonValue = document.getElementById(`${salespersonId}_value`);
         const salespersonInput = document.getElementById(`${salespersonId}_input`);
+        const documentNumberInput = document.getElementById(documentNumberId);
+        const totalAmountInput = document.getElementById(totalAmountId);
         const applyBtn = document.getElementById(applyId);
         const clearBtn = document.getElementById(clearId);
 
@@ -377,8 +403,8 @@ patch(ListController.prototype, {
                 views = [[false, 'list'], [false, 'form']];
             }
 
-            // Add warehouse filter (not applicable for invoices without warehouse field)
-            if (warehouseSelect.value && isSaleOrder) {
+            // Add warehouse filter (only for sale orders)
+            if (warehouseSelect && warehouseSelect.value && isSaleOrder) {
                 domain.push(['warehouse_id', '=', parseInt(warehouseSelect.value)]);
             }
 
@@ -394,6 +420,17 @@ patch(ListController.prototype, {
                 } else if (isInvoice) {
                     domain.push(['invoice_user_id', '=', parseInt(salespersonValue.value)]);
                 }
+            }
+
+            // Add document number filter
+            if (documentNumberInput.value.trim()) {
+                domain.push(['name', 'ilike', documentNumberInput.value.trim()]);
+            }
+
+            // Add total amount filter
+            if (totalAmountInput.value && parseFloat(totalAmountInput.value) > 0) {
+                const amount = parseFloat(totalAmountInput.value);
+                domain.push(['amount_total', '=', amount]);
             }
 
             this.actionService.doAction({
@@ -413,11 +450,13 @@ patch(ListController.prototype, {
             const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
             dateFromInput.value = firstDay.toISOString().split('T')[0];
             dateToInput.value = today.toISOString().split('T')[0];
-            warehouseSelect.value = '';
+            if (warehouseSelect) warehouseSelect.value = '';
             customerInput.value = '';
             customerValue.value = '';
             salespersonInput.value = '';
             salespersonValue.value = '';
+            documentNumberInput.value = '';
+            totalAmountInput.value = '';
 
             let domain = [];
             let resModel = '';

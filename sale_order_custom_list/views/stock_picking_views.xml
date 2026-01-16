@@ -38,11 +38,11 @@
                         <field name="partner_id" string="Delivery Address" optional="show" context="{'show_address': 1}"/>
 
                         <!-- 7-9. Weight, Volume fields if available -->
-                        <field name="weight" string="Weight" optional="hide" groups="stock.group_stock_picking_weight"/>
-                        <field name="shipping_weight" string="Shipping Weight" optional="hide" groups="delivery.group_delivery_invoice_address"/>
+<!--                        <field name="weight" string="Weight" optional="hide" groups="stock.group_stock_picking_weight"/>-->
+<!--                        <field name="shipping_weight" string="Shipping Weight" optional="hide" groups="delivery.group_delivery_invoice_address"/>-->
 
                         <!-- 10. Carrier / Shipping Method -->
-                        <field name="carrier_id" string="Carrier" optional="show" groups="delivery.group_delivery_invoice_address"/>
+<!--                        <field name="carrier_id" string="Carrier" optional="show" groups="delivery.group_delivery_invoice_address"/>-->
 
                         <!-- 11. Responsible (Assigned To) -->
                         <field name="user_id" string="Responsible" optional="show" widget="many2one_avatar_user"/>
@@ -115,7 +115,7 @@
 
                         <!-- Hidden technical fields -->
                         <field name="picking_type_code" column_invisible="1"/>
-                        <field name="has_move_ids" column_invisible="1"/>
+<!--                        <field name="has_move_ids" column_invisible="1"/>-->
 
                     </list>
                 </xpath>

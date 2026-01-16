@@ -858,7 +858,7 @@ patch(ListController.prototype, {
         `;
 
         const customerRefId = `customer_ref_${timestamp}`;
-        const poNumberId = `po_number_${timestamp}`;
+//        const poNumberId = `po_number_${timestamp}`;
         const awbNumberId = `awb_number_${timestamp}`;
 
         const filterDiv = document.createElement('div');
@@ -942,16 +942,16 @@ patch(ListController.prototype, {
                         />
                     </div>
 
-                    <!-- 8. PO Number Filter (Small) -->
-                    <div class="filter_group filter_group_small">
-                        <input
-                            type="text"
-                            class="form-control filter_input_small filter-input"
-                            id="${poNumberId}"
-                            placeholder="PO Number"
-                            autocomplete="off"
-                        />
-                    </div>
+//                    <!-- 8. PO Number Filter (Small) -->
+//                    <div class="filter_group filter_group_small">
+//                        <input
+//                            type="text"
+//                            class="form-control filter_input_small filter-input"
+//                            id="${poNumberId}"
+//                            placeholder="PO Number"
+//                            autocomplete="off"
+//                        />
+//                    </div>
 
                     <!-- 9. AWB Number Filter (Small) -->
                     <div class="filter_group filter_group_small">
@@ -977,7 +977,7 @@ patch(ListController.prototype, {
         this._filterElement = filterDiv;
 
         // First attach filter events to get the applyFilters callback
-        this.attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, poNumberId, awbNumberId, applyId, clearId, actionName, isSaleOrder, isInvoice);
+        this.attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, awbNumberId, applyId, clearId, actionName, isSaleOrder, isInvoice);
 
         // Then setup autocomplete with access to applyFilters
         this.setupAutocomplete(customerId, this._filterData.customers);
@@ -1110,7 +1110,7 @@ patch(ListController.prototype, {
         });
     },
 
-    attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, poNumberId, awbNumberId, applyId, clearId, actionName, isSaleOrder, isInvoice) {
+    attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, awbNumberId, applyId, clearId, actionName, isSaleOrder, isInvoice) {
         const dateFromInput = document.getElementById(fromId);
         const dateToInput = document.getElementById(toId);
         const warehouseSelect = document.getElementById(warehouseId);
@@ -1121,7 +1121,7 @@ patch(ListController.prototype, {
         const documentNumberInput = document.getElementById(documentNumberId);
         const totalAmountInput = document.getElementById(totalAmountId);
         const customerRefInput = document.getElementById(customerRefId);
-        const poNumberInput = document.getElementById(poNumberId);
+//        const poNumberInput = document.getElementById(poNumberId);
         const awbNumberInput = document.getElementById(awbNumberId);
         const applyBtn = document.getElementById(applyId);
         const clearBtn = document.getElementById(clearId);

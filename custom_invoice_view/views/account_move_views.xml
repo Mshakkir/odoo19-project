@@ -39,15 +39,17 @@
 
 <!--                    &lt;!&ndash; 8. Tax &ndash;&gt;-->
 <!--                    <field name="amount_tax" string="Tax"/>-->
+                    <field name="invoice_user_id" string="Salesperson" widget="many2one_avatar_user"/>
 
                     <!-- 9. Total -->
                     <field name="amount_total" string="Total"/>
 
                     <!-- 10. Amount Due -->
                     <field name="amount_residual" string="Amount Due"/>
+                     <field name="invoice_date_due" string="Due Date"/>
 
                     <!-- 11. Salesperson -->
-                    <field name="invoice_user_id" string="Salesperson" widget="many2one_avatar_user"/>
+<!--                    <field name="invoice_user_id" string="Salesperson" widget="many2one_avatar_user"/>-->
 
                        <!-- . AWB Number (Shipping Ref) -->
                     <field name="awb_number" string="Shipping Ref #" />
@@ -58,7 +60,7 @@
                     <!-- ADDITIONAL DEFAULT ODOO FIELDS -->
 
                     <!-- 12. Due Date -->
-                    <field name="invoice_date_due" string="Due Date"/>
+<!--                    <field name="invoice_date_due" string="Due Date"/>-->
 
                     <!-- 13. Accounting Date -->
                     <field name="date" string="Accounting Date" optional="hide"/>

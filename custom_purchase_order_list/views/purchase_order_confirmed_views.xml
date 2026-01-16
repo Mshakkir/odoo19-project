@@ -6,17 +6,17 @@
             <field name="name">purchase.order.view.tree.inherit.custom</field>
             <field name="model">purchase.order</field>
             <field name="inherit_id" ref="purchase.purchase_order_view_tree"/>
-            <field name="priority">99</field>
+            <field name="priority">1</field>
             <field name="arch" type="xml">
 
                 <!-- Replace the entire list structure -->
-                <xpath expr="//list" position="replace">
-                    <list string="Purchase Orders"
+                <xpath expr="//tree" position="replace">
+                    <tree string="Purchase Orders"
                           sample="1"
                           multi_edit="1"
                           default_order="date_approve desc">
 
-                        <!-- Move Confirmation Date to FIRST position -->
+                        <!-- Confirmation Date FIRST -->
                         <field name="date_approve"
                                string="Confirmation Date"
                                optional="show"
@@ -86,7 +86,7 @@
                         <field name="date_planned" optional="hide"/>
                         <field name="date_order" optional="hide"/>
 
-                    </list>
+                    </tree>
                 </xpath>
 
             </field>

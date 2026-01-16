@@ -6,8 +6,7 @@
         <record id="view_purchase_order_confirmed_list_custom" model="ir.ui.view">
             <field name="name">purchase.order.confirmed.list.custom</field>
             <field name="model">purchase.order</field>
-            <field name="mode">primary</field>
-            <field name="priority">20</field>
+            <field name="priority">10</field>
             <field name="arch" type="xml">
                 <list string="Purchase Order"
                       decoration-muted="state == 'cancel'"
@@ -47,12 +46,41 @@
                     <field name="partner_id" string="Vendor"
                            readonly="state in ['cancel', 'purchase']"/>
 
+                    <!-- Company -->
+                    <field name="company_id" string="Company"
+                           groups="base.group_multi_company"
+                           options="{'no_create': True}"
+                           optional="show"
+                           readonly="state in ['cancel', 'purchase']"/>
+
+                    <field name="company_id"
+                           groups="!base.group_multi_company"
+                           column_invisible="True"
+                           readonly="state in ['cancel', 'purchase']"/>
+
                     <!-- 4. Vendor Reference -->
                     <field name="partner_ref" string="Vendor Reference"
                            optional="hide"/>
 
                     <!-- 5. Warehouse -->
                     <field name="picking_type_id" string="Warehouse"
+                           optional="show"/>
+
+                    <!-- Expected Arrival (Scheduled Date) -->
+                    <field name="date_planned" string="Expected Arrival"
+                           optional="show"/>
+
+                    <!-- 9. Buyer (Purchase Representative) -->
+                    <field name="user_id" string="Buyer"
+                           widget="many2one_avatar_user"
+                           optional="show"/>
+
+                    <!-- Activities -->
+                    <field name="activity_ids" widget="list_activity"
+                           optional="show"/>
+
+                    <!-- Source Document -->
+                    <field name="origin" string="Source Document"
                            optional="show"/>
 
                     <!-- 6. Untaxed Amount -->
@@ -74,10 +102,9 @@
                            optional="show"
                            decoration-bf="1"/>
 
-                    <!-- 9. Buyer (Purchase Representative) -->
-                    <field name="user_id" string="Buyer"
-                           widget="many2one_avatar_user"
-                           optional="show"/>
+                    <!-- Currency (hidden) -->
+                    <field name="currency_id" column_invisible="True"
+                           readonly="state in ['cancel', 'purchase']"/>
 
                     <!-- 10. Status (Hidden in column but used for decorations) -->
                     <field name="state" column_invisible="True"/>
@@ -88,34 +115,6 @@
                            decoration-success="invoice_status == 'invoiced'"
                            decoration-info="invoice_status == 'to invoice'"
                            optional="show"/>
-
-                    <!-- Expected Arrival (Scheduled Date) -->
-                    <field name="date_planned" string="Expected Arrival"
-                           optional="show"/>
-
-                    <!-- Company -->
-                    <field name="company_id" string="Company"
-                           groups="base.group_multi_company"
-                           options="{'no_create': True}"
-                           optional="show"
-                           readonly="state in ['cancel', 'purchase']"/>
-
-                    <field name="company_id"
-                           groups="!base.group_multi_company"
-                           column_invisible="True"
-                           readonly="state in ['cancel', 'purchase']"/>
-
-                    <!-- Source Document -->
-                    <field name="origin" string="Source Document"
-                           optional="show"/>
-
-                    <!-- Activities -->
-                    <field name="activity_ids" widget="list_activity"
-                           optional="show"/>
-
-                    <!-- Currency (hidden) -->
-                    <field name="currency_id" column_invisible="True"
-                           readonly="state in ['cancel', 'purchase']"/>
 
                     <!-- Payment Terms -->
                     <field name="payment_term_id" string="Payment Terms"
@@ -133,18 +132,49 @@
             </field>
         </record>
 
-        <!-- Update the Purchase Order action window view mode -->
-        <record id="purchase.purchase_form_action" model="ir.actions.act_window">
-            <field name="name">Purchase Orders</field>
-            <field name="view_mode">tree,form,pivot,graph,activity</field>
-        </record>
+        <!-- Inherit and modify the Purchase Order tree view -->
+        <record id="purchase_order_view_tree_inherit" model="ir.ui.view">
+            <field name="name">purchase.order.tree.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_view_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree" position="replace">
+                    <list string="Purchase Order"
+                          decoration-muted="state == 'cancel'"
+                          decoration-info="invoice_status == 'to invoice'"
+                          class="o_purchase_order"
+                          multi_edit="1"
+                          sample="1">
 
-        <!-- Add view to the action using act_window.view -->
-        <record id="purchase_order_confirmed_tree_view_link" model="ir.actions.act_window.view">
-            <field name="sequence" eval="1"/>
-            <field name="view_type">list</field>
-            <field name="view_id" ref="view_purchase_order_confirmed_list_custom"/>
-            <field name="act_window_id" ref="purchase.purchase_form_action"/>
+                        <header>
+                            <button name="action_create_invoice" type="object" string="Create Bills"/>
+                            <button name="button_cancel" type="object" string="Cancel"
+                                    confirm="Are you sure you want to cancel the selected Orders?"/>
+                        </header>
+
+                        <field name="priority" optional="show" widget="priority" nolabel="1"/>
+                        <field name="date_order" string="Order Date" optional="show"/>
+                        <field name="name" string="Reference" readonly="1" decoration-bf="1"/>
+                        <field name="date_approve" string="Confirmation Date" optional="show"/>
+                        <field name="partner_id" string="Vendor"/>
+                        <field name="company_id" groups="base.group_multi_company" optional="show"/>
+                        <field name="partner_ref" string="Vendor Reference" optional="hide"/>
+                        <field name="picking_type_id" string="Warehouse" optional="show"/>
+                        <field name="date_planned" string="Expected Arrival" optional="show"/>
+                        <field name="user_id" string="Buyer" widget="many2one_avatar_user" optional="show"/>
+                        <field name="activity_ids" widget="list_activity" optional="show"/>
+                        <field name="origin" string="Source Document" optional="show"/>
+                        <field name="amount_untaxed" string="Untaxed" sum="Total Untaxed" widget="monetary" optional="hide"/>
+                        <field name="amount_tax" string="Tax" sum="Total Tax" widget="monetary" optional="show"/>
+                        <field name="amount_total" string="Total" sum="Total amount" widget="monetary" optional="show" decoration-bf="1"/>
+                        <field name="currency_id" column_invisible="True"/>
+                        <field name="state" column_invisible="True"/>
+                        <field name="invoice_status" string="Billing Status" widget="badge"
+                               decoration-success="invoice_status == 'invoiced'"
+                               decoration-info="invoice_status == 'to invoice'" optional="show"/>
+                    </list>
+                </xpath>
+            </field>
         </record>
 
     </data>

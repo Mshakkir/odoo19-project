@@ -26,7 +26,7 @@
     'assets': {
         'web.assets_backend': [
             'custom_sale_date_filter/static/src/js/sale_date_filter.js',
-            # 'custom_sale_date_filter/static/src/xml/sale_date_filter.xml',
+            'custom_sale_date_filter/static/src/xml/sale_date_filter.xml',
             'custom_sale_date_filter/static/src/css/sale_date_filter.css',
         ],
     },

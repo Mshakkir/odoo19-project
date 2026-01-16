@@ -10,8 +10,8 @@
             <field name="arch" type="xml">
 
                 <!-- Replace the entire list structure -->
-                <xpath expr="//tree" position="replace">
-                    <tree string="Purchase Orders"
+                <xpath expr="//list" position="replace">
+                    <list string="Purchase Orders"
                           sample="1"
                           multi_edit="1"
                           default_order="date_approve desc">
@@ -86,7 +86,7 @@
                         <field name="date_planned" optional="hide"/>
                         <field name="date_order" optional="hide"/>
 
-                    </tree>
+                    </list>
                 </xpath>
 
             </field>

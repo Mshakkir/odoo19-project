@@ -1212,13 +1212,13 @@ patch(ListController.prototype, {
             }
 
             // Add PO number filter
-            if (poNumberInput.value.trim()) {
-                if (isSaleOrder) {
-                    domain.push(['client_order_ref', 'ilike', poNumberInput.value.trim()]);
-                } else if (isInvoice) {
-                    domain.push(['ref', 'ilike', poNumberInput.value.trim()]);
-                }
-            }
+//            if (poNumberInput.value.trim()) {
+//                if (isSaleOrder) {
+//                    domain.push(['client_order_ref', 'ilike', poNumberInput.value.trim()]);
+//                } else if (isInvoice) {
+//                    domain.push(['ref', 'ilike', poNumberInput.value.trim()]);
+//                }
+//            }
 
             // Add AWB number filter using the actual field name
             if (awbNumberInput.value.trim()) {

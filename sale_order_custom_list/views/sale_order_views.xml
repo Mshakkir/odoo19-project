@@ -93,7 +93,7 @@
                     <field name="team_id" string="Sales Team" optional="hide"/>
 
                     <!-- 23. Analytic Account -->
-                    <field name="analytic_account_id" string="Analytic Account" optional="hide" groups="analytic.group_analytic_accounting"/>
+<!--                    <field name="analytic_account_id" string="Analytic Account" optional="hide" groups="analytic.group_analytic_accounting"/>-->
 
                     <!-- 24. Tags -->
                     <field name="tag_ids" string="Tags" optional="hide" widget="many2many_tags"/>

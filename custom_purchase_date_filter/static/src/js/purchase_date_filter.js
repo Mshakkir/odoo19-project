@@ -501,8 +501,8 @@ patch(ListController.prototype, {
             }
         });
 
-        // Clear button
-        clearBtn.addEventListener('click', () => {
+        // Clear filter function
+        const clearFilter = () => {
             const today = new Date();
             const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
             dateFromInput.value = firstDay.toISOString().split('T')[0];
@@ -545,6 +545,21 @@ patch(ListController.prototype, {
             });
 
             this.notification.add("Filters cleared", { type: "info" });
+        };
+
+        // Clear button click
+        clearBtn.addEventListener('click', clearFilter);
+
+        // Backspace key on any input field to clear filter
+        allInputs.forEach(input => {
+            if (input) {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && e.ctrlKey) {
+                        e.preventDefault();
+                        clearFilter();
+                    }
+                });
+            }
         });
     },
 });

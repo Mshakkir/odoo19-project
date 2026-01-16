@@ -408,19 +408,35 @@ patch(ListController.prototype, {
             let actionName = '';
             let context = {};
 
-            if (isPurchaseOrder) {
-                domain = [
-                    ['date_order', '>=', dateFrom + ' 00:00:00'],
-                    ['date_order', '<=', dateTo + ' 23:59:59'],
-                    ['state', 'in', ['purchase', 'done']]
-                ];
-                resModel = 'purchase.order';
-                views = [[false, 'list'], [false, 'form']];
-                actionName = 'Purchase Orders';
-                // Force use of custom view
-                context = {
-                    'tree_view_ref': 'custom_purchase_order_list.purchase_order_view_tree_inherit_custom'
-                };
+//            if (isPurchaseOrder) {
+//                domain = [
+//                    ['date_order', '>=', dateFrom + ' 00:00:00'],
+//                    ['date_order', '<=', dateTo + ' 23:59:59'],
+//                    ['state', 'in', ['purchase', 'done']]
+//                ];
+//                resModel = 'purchase.order';
+//                views = [[false, 'list'], [false, 'form']];
+//                actionName = 'Purchase Orders';
+//                // Force use of custom view
+//                context = {
+//                    'tree_view_ref': 'custom_purchase_order_list.purchase_order_view_tree_inherit_custom'
+//                };
+// In the applyFilter function, update the context section:
+
+if (isPurchaseOrder) {
+    domain = [
+        ['date_order', '>=', dateFrom + ' 00:00:00'],
+        ['date_order', '<=', dateTo + ' 23:59:59'],
+        ['state', 'in', ['purchase', 'done']]
+    ];
+    resModel = 'purchase.order';
+    views = [[false, 'list'], [false, 'form']];
+    actionName = 'Purchase Orders';
+    // Force use of custom view with proper field ordering
+    context = {
+        'tree_view_ref': 'custom_purchase_order_list.purchase_order_view_tree_inherit_custom',
+        'orderedBy': [{'name': 'date_approve', 'asc': false}]
+    };
             } else if (isBill) {
                 domain = [
                     ['invoice_date', '>=', dateFrom],

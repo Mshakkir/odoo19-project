@@ -35,7 +35,7 @@ patch(ListController.prototype, {
     shouldShowFilter() {
         const resModel = this.props.resModel;
 
-        // Check if it's Sale Orders
+        // ONLY show filter for Sale Orders, NOT for invoices
         if (resModel === 'sale.order') {
             const action = this.env.config;
 
@@ -67,34 +67,8 @@ patch(ListController.prototype, {
                     return true;
                 }
             }
-        }
 
-        // Check if it's Sale Invoices (account.move)
-        if (resModel === 'account.move') {
-            const action = this.env.config;
-
-            // Check for Sale Invoice actions
-            if (action.xmlId === 'sale.action_invoices' ||
-                action.xmlId === 'account.action_move_out_invoice_type') {
-                return true;
-            }
-
-            if (action.displayName || action.name) {
-                const actionName = (action.displayName || action.name).toLowerCase();
-                if (actionName.includes('invoice') &&
-                    (actionName.includes('sale') || actionName.includes('customer'))) {
-                    return true;
-                }
-            }
-
-            // Check if domain includes invoice type
-            if (this.props.domain) {
-                const domainStr = JSON.stringify(this.props.domain);
-                if (domainStr.includes('move_type') &&
-                    domainStr.includes('out_invoice')) {
-                    return true;
-                }
-            }
+            return true;
         }
 
         return false;
@@ -176,27 +150,23 @@ patch(ListController.prototype, {
         const dateFrom = firstDay.toISOString().split('T')[0];
         const dateTo = today.toISOString().split('T')[0];
 
-        // Determine if this is Sale Orders or Invoices
-        const isSaleOrder = this.props.resModel === 'sale.order';
-        const isInvoice = this.props.resModel === 'account.move';
+        // This is ONLY for Sale Orders
+        const documentNumberPlaceholder = 'Sale Order Number';
+        const actionName = 'Sale Orders';
 
-        // Set placeholders based on model
-        const documentNumberPlaceholder = isSaleOrder ? 'Sale Order Number' : 'Invoice Number';
-        const actionName = isSaleOrder ? 'Sale Orders' : 'Invoices';
-
-        // Build options for warehouse dropdown (normal select) - only for sale orders
+        // Build options for warehouse dropdown - Always show for Sale Orders
         const warehouseOptions = this._filterData.warehouses
             .map(w => `<option value="${w.id}">${w.name}</option>`)
             .join('');
 
-        const warehouseFilter = isSaleOrder ? `
+        const warehouseFilter = `
             <div class="filter_group filter_group_small">
                 <select class="form-select filter_select_small" id="${warehouseId}">
                     <option value="">Warehouse</option>
                     ${warehouseOptions}
                 </select>
             </div>
-        ` : '';
+        `;
 
         const customerRefId = `customer_ref_${timestamp}`;
         const poNumberId = `po_number_${timestamp}`;
@@ -321,7 +291,7 @@ patch(ListController.prototype, {
         this.setupAutocomplete(customerId, this._filterData.customers);
         this.setupAutocomplete(salespersonId, this._filterData.salespersons);
 
-        this.attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, poNumberId, shippingRefId, applyId, clearId, actionName, isSaleOrder, isInvoice);
+        this.attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, poNumberId, shippingRefId, applyId, clearId, actionName);
     },
 
     setupAutocomplete(fieldId, dataList) {
@@ -388,7 +358,7 @@ patch(ListController.prototype, {
         });
     },
 
-    attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, poNumberId, shippingRefId, applyId, clearId, actionName, isSaleOrder, isInvoice) {
+    attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, poNumberId, shippingRefId, applyId, clearId, actionName) {
         const dateFromInput = document.getElementById(fromId);
         const dateToInput = document.getElementById(toId);
         const warehouseSelect = document.getElementById(warehouseId);
@@ -420,32 +390,15 @@ patch(ListController.prototype, {
                 return;
             }
 
-            // Build domain based on model type
-            let domain = [];
-            let resModel = '';
-            let views = [];
+            // Build domain for Sale Orders ONLY
+            let domain = [
+                ['date_order', '>=', dateFrom + ' 00:00:00'],
+                ['date_order', '<=', dateTo + ' 23:59:59'],
+                ['state', 'in', ['sale', 'done']]
+            ];
 
-            if (isSaleOrder) {
-                domain = [
-                    ['date_order', '>=', dateFrom + ' 00:00:00'],
-                    ['date_order', '<=', dateTo + ' 23:59:59'],
-                    ['state', 'in', ['sale', 'done']]
-                ];
-                resModel = 'sale.order';
-                views = [[false, 'list'], [false, 'form']];
-            } else if (isInvoice) {
-                domain = [
-                    ['invoice_date', '>=', dateFrom],
-                    ['invoice_date', '<=', dateTo],
-                    ['move_type', '=', 'out_invoice'],
-                    ['state', '!=', 'cancel']
-                ];
-                resModel = 'account.move';
-                views = [[false, 'list'], [false, 'form']];
-            }
-
-            // Add warehouse filter (only for sale orders)
-            if (warehouseSelect && warehouseSelect.value && isSaleOrder) {
+            // Add warehouse filter
+            if (warehouseSelect && warehouseSelect.value) {
                 domain.push(['warehouse_id', '=', parseInt(warehouseSelect.value)]);
             }
 
@@ -456,11 +409,7 @@ patch(ListController.prototype, {
 
             // Add salesperson filter
             if (salespersonValue.value) {
-                if (isSaleOrder) {
-                    domain.push(['user_id', '=', parseInt(salespersonValue.value)]);
-                } else if (isInvoice) {
-                    domain.push(['invoice_user_id', '=', parseInt(salespersonValue.value)]);
-                }
+                domain.push(['user_id', '=', parseInt(salespersonValue.value)]);
             }
 
             // Add document number filter
@@ -474,31 +423,26 @@ patch(ListController.prototype, {
                 domain.push(['amount_total', '=', amount]);
             }
 
-            // Add customer reference filter (only for sale orders)
-            if (customerRefInput.value.trim() && isSaleOrder) {
+            // Add customer reference filter
+            if (customerRefInput.value.trim()) {
                 domain.push(['client_order_ref', 'ilike', customerRefInput.value.trim()]);
             }
 
-            // Add PO number filter (only for sale orders)
-            if (poNumberInput.value.trim() && isSaleOrder) {
+            // Add PO number filter
+            if (poNumberInput.value.trim()) {
                 domain.push(['client_order_ref', 'ilike', poNumberInput.value.trim()]);
             }
 
             // Add shipping reference filter
             if (shippingRefInput.value.trim()) {
-                if (isSaleOrder) {
-                    // For sale orders, search in delivery orders
-                    domain.push(['name', 'ilike', shippingRefInput.value.trim()]);
-                } else if (isInvoice) {
-                    domain.push(['ref', 'ilike', shippingRefInput.value.trim()]);
-                }
+                domain.push(['name', 'ilike', shippingRefInput.value.trim()]);
             }
 
             this.actionService.doAction({
                 type: 'ir.actions.act_window',
                 name: actionName,
-                res_model: resModel,
-                views: views,
+                res_model: 'sale.order',
+                views: [[false, 'list'], [false, 'form']],
                 domain: domain,
                 target: 'current',
             });
@@ -522,26 +466,12 @@ patch(ListController.prototype, {
             poNumberInput.value = '';
             shippingRefInput.value = '';
 
-            let domain = [];
-            let resModel = '';
-            let views = [];
-
-            if (isSaleOrder) {
-                domain = [['state', 'in', ['sale', 'done']]];
-                resModel = 'sale.order';
-                views = [[false, 'list'], [false, 'form']];
-            } else if (isInvoice) {
-                domain = [['move_type', '=', 'out_invoice']];
-                resModel = 'account.move';
-                views = [[false, 'list'], [false, 'form']];
-            }
-
             this.actionService.doAction({
                 type: 'ir.actions.act_window',
                 name: actionName,
-                res_model: resModel,
-                views: views,
-                domain: domain,
+                res_model: 'sale.order',
+                views: [[false, 'list'], [false, 'form']],
+                domain: [['state', 'in', ['sale', 'done']]],
                 target: 'current',
             });
 

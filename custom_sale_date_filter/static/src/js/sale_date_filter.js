@@ -203,7 +203,7 @@ patch(ListController.prototype, {
 
         const customerRefId = `customer_ref_${timestamp}`;
         const poNumberId = `po_number_${timestamp}`;
-        const shippingRefId = `shipping_ref_${timestamp}`;
+        const awbNumberId = `awb_number_${timestamp}`;
 
         const filterDiv = document.createElement('div');
         filterDiv.className = 'sale_date_filter_wrapper_main';
@@ -297,13 +297,13 @@ patch(ListController.prototype, {
                         />
                     </div>
 
-                    <!-- 9. Shipping Reference Filter (Small) -->
+                    <!-- 9. AWB Number Filter (Small) -->
                     <div class="filter_group filter_group_small">
                         <input
                             type="text"
                             class="form-control filter_input_small filter-input"
-                            id="${shippingRefId}"
-                            placeholder="Shipping Ref"
+                            id="${awbNumberId}"
+                            placeholder="AWB Number"
                             autocomplete="off"
                         />
                     </div>
@@ -324,7 +324,7 @@ patch(ListController.prototype, {
         this.setupAutocomplete(customerId, this._filterData.customers);
         this.setupAutocomplete(salespersonId, this._filterData.salespersons);
 
-        this.attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, poNumberId, shippingRefId, applyId, clearId, actionName, isSaleOrder, isInvoice);
+        this.attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, poNumberId, awbNumberId, applyId, clearId, actionName, isSaleOrder, isInvoice);
     },
 
     setupAutocomplete(fieldId, dataList) {
@@ -391,7 +391,7 @@ patch(ListController.prototype, {
         });
     },
 
-    attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, poNumberId, shippingRefId, applyId, clearId, actionName, isSaleOrder, isInvoice) {
+    attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, poNumberId, awbNumberId, applyId, clearId, actionName, isSaleOrder, isInvoice) {
         const dateFromInput = document.getElementById(fromId);
         const dateToInput = document.getElementById(toId);
         const warehouseSelect = document.getElementById(warehouseId);
@@ -403,7 +403,7 @@ patch(ListController.prototype, {
         const totalAmountInput = document.getElementById(totalAmountId);
         const customerRefInput = document.getElementById(customerRefId);
         const poNumberInput = document.getElementById(poNumberId);
-        const shippingRefInput = document.getElementById(shippingRefId);
+        const awbNumberInput = document.getElementById(awbNumberId);
         const applyBtn = document.getElementById(applyId);
         const clearBtn = document.getElementById(clearId);
 
@@ -501,13 +501,9 @@ patch(ListController.prototype, {
                 }
             }
 
-            // Add shipping reference filter
-            if (shippingRefInput.value.trim()) {
-                if (isSaleOrder) {
-                    domain.push(['name', 'ilike', shippingRefInput.value.trim()]);
-                } else if (isInvoice) {
-                    domain.push(['ref', 'ilike', shippingRefInput.value.trim()]);
-                }
+            // Add AWB number filter using the actual field name
+            if (awbNumberInput.value.trim()) {
+                domain.push(['awb_number', 'ilike', awbNumberInput.value.trim()]);
             }
 
             this.actionService.doAction({
@@ -537,7 +533,7 @@ patch(ListController.prototype, {
             totalAmountInput.value = '';
             customerRefInput.value = '';
             poNumberInput.value = '';
-            shippingRefInput.value = '';
+            awbNumberInput.value = '';
 
             let domain = [];
             let resModel = '';

@@ -35,7 +35,7 @@ patch(ListController.prototype, {
     shouldShowFilter() {
         const resModel = this.props.resModel;
 
-        // ONLY show filter for Sale Orders, NOT for invoices
+        // Check if it's Sale Orders
         if (resModel === 'sale.order') {
             const action = this.env.config;
 
@@ -69,6 +69,34 @@ patch(ListController.prototype, {
             }
 
             return true;
+        }
+
+        // Check if it's Sale Invoices (account.move)
+        if (resModel === 'account.move') {
+            const action = this.env.config;
+
+            // Check for Sale Invoice actions
+            if (action.xmlId === 'sale.action_invoices' ||
+                action.xmlId === 'account.action_move_out_invoice_type') {
+                return true;
+            }
+
+            if (action.displayName || action.name) {
+                const actionName = (action.displayName || action.name).toLowerCase();
+                if (actionName.includes('invoice') &&
+                    (actionName.includes('sale') || actionName.includes('customer'))) {
+                    return true;
+                }
+            }
+
+            // Check if domain includes invoice type
+            if (this.props.domain) {
+                const domainStr = JSON.stringify(this.props.domain);
+                if (domainStr.includes('move_type') &&
+                    domainStr.includes('out_invoice')) {
+                    return true;
+                }
+            }
         }
 
         return false;
@@ -150,23 +178,67 @@ patch(ListController.prototype, {
         const dateFrom = firstDay.toISOString().split('T')[0];
         const dateTo = today.toISOString().split('T')[0];
 
-        // This is ONLY for Sale Orders
-        const documentNumberPlaceholder = 'Sale Order Number';
-        const actionName = 'Sale Orders';
+        // Determine if this is Sale Orders or Invoices
+        const isSaleOrder = this.props.resModel === 'sale.order';
+        const isInvoice = this.props.resModel === 'account.move';
 
-        // Build options for warehouse dropdown - Always show for Sale Orders
+        // Set placeholders and styles based on model
+        const documentNumberPlaceholder = isSaleOrder ? 'Sale Order Number' : 'Invoice Number';
+        const actionName = isSaleOrder ? 'Sale Orders' : 'Invoices';
+        const containerClass = isSaleOrder ? 'sale_order_filter' : 'invoice_filter';
+
+        // Build options for warehouse dropdown - only show for Sale Orders
         const warehouseOptions = this._filterData.warehouses
             .map(w => `<option value="${w.id}">${w.name}</option>`)
             .join('');
 
-        const warehouseFilter = `
+        const warehouseFilter = isSaleOrder ? `
             <div class="filter_group filter_group_small">
                 <select class="form-select filter_select_small" id="${warehouseId}">
                     <option value="">Warehouse</option>
                     ${warehouseOptions}
                 </select>
             </div>
-        `;
+        ` : '';
+
+        // Customer Reference - only for Sale Orders
+        const customerRefFilter = isSaleOrder ? `
+            <div class="filter_group filter_group_small">
+                <input
+                    type="text"
+                    class="form-control filter_input_small"
+                    id="${customerRefId}"
+                    placeholder="Customer Reference"
+                    autocomplete="off"
+                />
+            </div>
+        ` : '';
+
+        // PO Number - only for Sale Orders
+        const poNumberFilter = isSaleOrder ? `
+            <div class="filter_group filter_group_small">
+                <input
+                    type="text"
+                    class="form-control filter_input_small"
+                    id="${poNumberId}"
+                    placeholder="PO Number"
+                    autocomplete="off"
+                />
+            </div>
+        ` : '';
+
+        // Shipping Reference - only for Sale Orders
+        const shippingRefFilter = isSaleOrder ? `
+            <div class="filter_group filter_group_small">
+                <input
+                    type="text"
+                    class="form-control filter_input_small"
+                    id="${shippingRefId}"
+                    placeholder="Shipping Ref"
+                    autocomplete="off"
+                />
+            </div>
+        ` : '';
 
         const customerRefId = `customer_ref_${timestamp}`;
         const poNumberId = `po_number_${timestamp}`;
@@ -175,34 +247,34 @@ patch(ListController.prototype, {
         const filterDiv = document.createElement('div');
         filterDiv.className = 'sale_date_filter_wrapper_main';
         filterDiv.innerHTML = `
-            <div class="sale_date_filter_container">
+            <div class="sale_date_filter_container ${containerClass}">
                 <div class="date_filter_wrapper">
-                    <!-- 1. Date Range Filter (Small) -->
-                    <div class="filter_group filter_group_small date_group_small">
+                    <!-- 1. Date Range Filter (Small for Sale Orders, Regular for Invoices) -->
+                    <div class="filter_group ${isSaleOrder ? 'filter_group_small date_group_small' : 'date_group'}">
                         <div class="date_input_group">
-                            <input type="date" class="form-control date_input_small" id="${fromId}" value="${dateFrom}" placeholder="From" />
+                            <input type="date" class="form-control ${isSaleOrder ? 'date_input_small' : 'date_input'}" id="${fromId}" value="${dateFrom}" placeholder="From" />
                             <span class="date_separator">→</span>
-                            <input type="date" class="form-control date_input_small" id="${toId}" value="${dateTo}" placeholder="To" />
+                            <input type="date" class="form-control ${isSaleOrder ? 'date_input_small' : 'date_input'}" id="${toId}" value="${dateTo}" placeholder="To" />
                         </div>
                     </div>
 
-                    <!-- 2. Document Number Filter (Small) -->
-                    <div class="filter_group filter_group_small">
+                    <!-- 2. Document Number Filter (Small for Sale Orders, Regular for Invoices) -->
+                    <div class="filter_group ${isSaleOrder ? 'filter_group_small' : ''}">
                         <input
                             type="text"
-                            class="form-control filter_input_small"
+                            class="form-control ${isSaleOrder ? 'filter_input_small' : 'filter_input'}"
                             id="${documentNumberId}"
                             placeholder="${documentNumberPlaceholder}"
                             autocomplete="off"
                         />
                     </div>
 
-                    <!-- 3. Customer Filter (Small) -->
-                    <div class="filter_group filter_group_small autocomplete_group_small">
+                    <!-- 3. Customer Filter (Small for Sale Orders, Regular for Invoices) -->
+                    <div class="filter_group ${isSaleOrder ? 'filter_group_small autocomplete_group_small' : 'autocomplete_group'}">
                         <div class="autocomplete_wrapper">
                             <input
                                 type="text"
-                                class="form-control autocomplete_input_small"
+                                class="form-control ${isSaleOrder ? 'autocomplete_input_small' : 'autocomplete_input'}"
                                 id="${customerId}_input"
                                 placeholder="Customer"
                                 autocomplete="off"
@@ -212,26 +284,18 @@ patch(ListController.prototype, {
                         </div>
                     </div>
 
-                    <!-- 4. Warehouse Filter (Small) -->
+                    <!-- 4. Warehouse Filter (Only for Sale Orders) -->
                     ${warehouseFilter}
 
-                    <!-- 5. Customer Reference Filter (Small) -->
-                    <div class="filter_group filter_group_small">
-                        <input
-                            type="text"
-                            class="form-control filter_input_small"
-                            id="${customerRefId}"
-                            placeholder="Customer Reference"
-                            autocomplete="off"
-                        />
-                    </div>
+                    <!-- 5. Customer Reference Filter (Only for Sale Orders) -->
+                    ${customerRefFilter}
 
-                    <!-- 6. Salesperson Filter (Small) -->
-                    <div class="filter_group filter_group_small autocomplete_group_small">
+                    <!-- 6. Salesperson Filter (Small for Sale Orders, Regular for Invoices) -->
+                    <div class="filter_group ${isSaleOrder ? 'filter_group_small autocomplete_group_small' : 'autocomplete_group'}">
                         <div class="autocomplete_wrapper">
                             <input
                                 type="text"
-                                class="form-control autocomplete_input_small"
+                                class="form-control ${isSaleOrder ? 'autocomplete_input_small' : 'autocomplete_input'}"
                                 id="${salespersonId}_input"
                                 placeholder="Salesperson"
                                 autocomplete="off"
@@ -241,11 +305,11 @@ patch(ListController.prototype, {
                         </div>
                     </div>
 
-                    <!-- 7. Total Amount Filter (Small) -->
-                    <div class="filter_group filter_group_small">
+                    <!-- 7. Total Amount Filter (Small for Sale Orders, Regular for Invoices) -->
+                    <div class="filter_group ${isSaleOrder ? 'filter_group_small' : ''}">
                         <input
                             type="number"
-                            class="form-control filter_input_small"
+                            class="form-control ${isSaleOrder ? 'filter_input_small' : 'filter_input'}"
                             id="${totalAmountId}"
                             placeholder="Total Amount"
                             step="0.01"
@@ -253,27 +317,11 @@ patch(ListController.prototype, {
                         />
                     </div>
 
-                    <!-- 8. PO Number Filter (Small) -->
-                    <div class="filter_group filter_group_small">
-                        <input
-                            type="text"
-                            class="form-control filter_input_small"
-                            id="${poNumberId}"
-                            placeholder="PO Number"
-                            autocomplete="off"
-                        />
-                    </div>
+                    <!-- 8. PO Number Filter (Only for Sale Orders) -->
+                    ${poNumberFilter}
 
-                    <!-- 9. Shipping Reference Filter (Small) -->
-                    <div class="filter_group filter_group_small">
-                        <input
-                            type="text"
-                            class="form-control filter_input_small"
-                            id="${shippingRefId}"
-                            placeholder="Shipping Ref"
-                            autocomplete="off"
-                        />
-                    </div>
+                    <!-- 9. Shipping Reference Filter (Only for Sale Orders) -->
+                    ${shippingRefFilter}
 
                     <!-- Action Buttons -->
                     <div class="filter_actions">
@@ -291,7 +339,7 @@ patch(ListController.prototype, {
         this.setupAutocomplete(customerId, this._filterData.customers);
         this.setupAutocomplete(salespersonId, this._filterData.salespersons);
 
-        this.attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, poNumberId, shippingRefId, applyId, clearId, actionName);
+        this.attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, poNumberId, shippingRefId, applyId, clearId, actionName, isSaleOrder, isInvoice);
     },
 
     setupAutocomplete(fieldId, dataList) {
@@ -358,7 +406,7 @@ patch(ListController.prototype, {
         });
     },
 
-    attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, poNumberId, shippingRefId, applyId, clearId, actionName) {
+    attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, poNumberId, shippingRefId, applyId, clearId, actionName, isSaleOrder, isInvoice) {
         const dateFromInput = document.getElementById(fromId);
         const dateToInput = document.getElementById(toId);
         const warehouseSelect = document.getElementById(warehouseId);
@@ -390,15 +438,32 @@ patch(ListController.prototype, {
                 return;
             }
 
-            // Build domain for Sale Orders ONLY
-            let domain = [
-                ['date_order', '>=', dateFrom + ' 00:00:00'],
-                ['date_order', '<=', dateTo + ' 23:59:59'],
-                ['state', 'in', ['sale', 'done']]
-            ];
+            // Build domain based on model type
+            let domain = [];
+            let resModel = '';
+            let views = [];
 
-            // Add warehouse filter
-            if (warehouseSelect && warehouseSelect.value) {
+            if (isSaleOrder) {
+                domain = [
+                    ['date_order', '>=', dateFrom + ' 00:00:00'],
+                    ['date_order', '<=', dateTo + ' 23:59:59'],
+                    ['state', 'in', ['sale', 'done']]
+                ];
+                resModel = 'sale.order';
+                views = [[false, 'list'], [false, 'form']];
+            } else if (isInvoice) {
+                domain = [
+                    ['invoice_date', '>=', dateFrom],
+                    ['invoice_date', '<=', dateTo],
+                    ['move_type', '=', 'out_invoice'],
+                    ['state', '!=', 'cancel']
+                ];
+                resModel = 'account.move';
+                views = [[false, 'list'], [false, 'form']];
+            }
+
+            // Add warehouse filter (only for sale orders)
+            if (warehouseSelect && warehouseSelect.value && isSaleOrder) {
                 domain.push(['warehouse_id', '=', parseInt(warehouseSelect.value)]);
             }
 
@@ -409,7 +474,11 @@ patch(ListController.prototype, {
 
             // Add salesperson filter
             if (salespersonValue.value) {
-                domain.push(['user_id', '=', parseInt(salespersonValue.value)]);
+                if (isSaleOrder) {
+                    domain.push(['user_id', '=', parseInt(salespersonValue.value)]);
+                } else if (isInvoice) {
+                    domain.push(['invoice_user_id', '=', parseInt(salespersonValue.value)]);
+                }
             }
 
             // Add document number filter
@@ -423,26 +492,26 @@ patch(ListController.prototype, {
                 domain.push(['amount_total', '=', amount]);
             }
 
-            // Add customer reference filter
-            if (customerRefInput.value.trim()) {
+            // Add customer reference filter (only for sale orders)
+            if (customerRefInput && customerRefInput.value.trim() && isSaleOrder) {
                 domain.push(['client_order_ref', 'ilike', customerRefInput.value.trim()]);
             }
 
-            // Add PO number filter
-            if (poNumberInput.value.trim()) {
+            // Add PO number filter (only for sale orders)
+            if (poNumberInput && poNumberInput.value.trim() && isSaleOrder) {
                 domain.push(['client_order_ref', 'ilike', poNumberInput.value.trim()]);
             }
 
-            // Add shipping reference filter
-            if (shippingRefInput.value.trim()) {
+            // Add shipping reference filter (only for sale orders)
+            if (shippingRefInput && shippingRefInput.value.trim() && isSaleOrder) {
                 domain.push(['name', 'ilike', shippingRefInput.value.trim()]);
             }
 
             this.actionService.doAction({
                 type: 'ir.actions.act_window',
                 name: actionName,
-                res_model: 'sale.order',
-                views: [[false, 'list'], [false, 'form']],
+                res_model: resModel,
+                views: views,
                 domain: domain,
                 target: 'current',
             });
@@ -462,16 +531,30 @@ patch(ListController.prototype, {
             salespersonValue.value = '';
             documentNumberInput.value = '';
             totalAmountInput.value = '';
-            customerRefInput.value = '';
-            poNumberInput.value = '';
-            shippingRefInput.value = '';
+            if (customerRefInput) customerRefInput.value = '';
+            if (poNumberInput) poNumberInput.value = '';
+            if (shippingRefInput) shippingRefInput.value = '';
+
+            let domain = [];
+            let resModel = '';
+            let views = [];
+
+            if (isSaleOrder) {
+                domain = [['state', 'in', ['sale', 'done']]];
+                resModel = 'sale.order';
+                views = [[false, 'list'], [false, 'form']];
+            } else if (isInvoice) {
+                domain = [['move_type', '=', 'out_invoice']];
+                resModel = 'account.move';
+                views = [[false, 'list'], [false, 'form']];
+            }
 
             this.actionService.doAction({
                 type: 'ir.actions.act_window',
                 name: actionName,
-                res_model: 'sale.order',
-                views: [[false, 'list'], [false, 'form']],
-                domain: [['state', 'in', ['sale', 'done']]],
+                res_model: resModel,
+                views: views,
+                domain: domain,
                 target: 'current',
             });
 

@@ -10,6 +10,17 @@
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
+/* Different background colors for Sale Orders vs Invoices */
+.sale_date_filter_container.sale_order_filter {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.sale_date_filter_container.invoice_filter {
+    background-color: #fff9e6;
+    border-bottom: 2px solid #ffd966;
+}
+
 .date_filter_wrapper {
     display: flex;
     align-items: center;

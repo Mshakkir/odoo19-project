@@ -48,8 +48,8 @@
                         <!-- 10. Shipping Ref / Delivery Note -->
 <!--                        <field name="delivery_count" string="Delivery" optional="show"/>-->
 
-                        <!-- 11. PO Number / Origin -->
-<!--                        <field name="origin" string="Source Document" optional="show"/>-->
+<!--                         11. PO Number / Origin -->
+                        <field name="origin" string="Source Document" optional="hide"/>
 
                         <!-- ADDITIONAL DEFAULT ODOO FIELDS -->
 

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Additional Menu in Accounting for Easy Access -->
+    <menuitem id="menu_multi_payment_root"
+              name="Multi Payments"
+              parent="account.menu_finance_receivables"
+              sequence="15"/>
+
+    <menuitem id="menu_multi_payment_register"
+              name="Register Against Payment"
+              parent="menu_multi_payment_root"
+              action="action_multi_payment_wizard"
+              sequence="1"/>
+
+</odoo>

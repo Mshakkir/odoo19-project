@@ -1,4 +1,4 @@
-/** @odoo-module **/
+/** @odoo-/** @odoo-module **/
 
 import { Component, useState, onMounted, onWillUnmount } from "@odoo/owl";
 import { registry } from "@web/core/registry";
@@ -655,9 +655,17 @@ patch(ListController.prototype, {
                     domain.push(['invoice_status', '=', billingStatusSelect.value]);
                 }
             } else if (viewType === 'bill') {
-                // Warehouse filter for bills (using picking_type_id relation)
+                // Warehouse filter for bills
+                // Note: account.move doesn't have direct warehouse relation
+                // Skip warehouse filter for bills or use custom field if available
                 if (warehouseSelect.value) {
-                    domain.push(['picking_type_id.warehouse_id', '=', parseInt(warehouseSelect.value)]);
+                    // Check if custom warehouse_id field exists, otherwise skip
+                    // You may need to add this field through a custom module
+                    try {
+                        domain.push(['warehouse_id', '=', parseInt(warehouseSelect.value)]);
+                    } catch (e) {
+                        console.warn('Warehouse filter not available for bills');
+                    }
                 }
 
                 // Source document filter

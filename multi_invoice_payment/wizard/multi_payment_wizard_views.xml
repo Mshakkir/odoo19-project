@@ -6,16 +6,16 @@
         <field name="name">multi.payment.invoice.line.list</field>
         <field name="model">multi.payment.invoice.line</field>
         <field name="arch" type="xml">
-            <list editable="bottom" create="0" delete="0">
+            <list editable="bottom" create="0" delete="0" multi_edit="1">
                 <field name="wizard_id" column_invisible="1"/>
                 <field name="invoice_id" column_invisible="1"/>
                 <field name="currency_id" column_invisible="1"/>
-                <field name="selected" widget="boolean_toggle"/>
+                <field name="selected" widget="boolean_toggle" force_save="1"/>
                 <field name="invoice_number" readonly="1"/>
                 <field name="invoice_date" readonly="1"/>
                 <field name="amount_total" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 <field name="amount_residual" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                <field name="amount_to_pay" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="amount_to_pay" widget="monetary" options="{'currency_field': 'currency_id'}" force_save="1"/>
             </list>
         </field>
     </record>

@@ -215,22 +215,12 @@ class MultiPaymentInvoiceLine(models.TransientModel):
         elif not self.selected:
             self.amount_to_pay = 0.0
 
-    @api.onchange('amount_to_pay')
-    def _onchange_amount_to_pay(self):
+    @api.constrains('amount_to_pay', 'amount_residual')
+    def _check_amount_to_pay(self):
         """Validate amount to pay"""
-        if self.amount_to_pay < 0:
-            self.amount_to_pay = 0.0
-            return
-
-        if self.amount_to_pay > self.amount_residual:
-            return {
-                'warning': {
-                    'title': _('Warning'),
-                    'message': _('Amount to pay cannot exceed the amount due (%.2f)') % self.amount_residual
-                }
-            }
-
-        if self.amount_to_pay > 0:
-            self.selected = True
-        else:
-            self.selected = False
+        for record in self:
+            if record.amount_to_pay > record.amount_residual:
+                raise ValidationError(
+                    _('Amount to pay (%.2f) cannot exceed the amount due (%.2f) for invoice %s')
+                    % (record.amount_to_pay, record.amount_residual, record.invoice_number)
+                )

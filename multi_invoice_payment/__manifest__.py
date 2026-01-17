@@ -18,7 +18,6 @@
     'depends': ['account'],
     'data': [
         'security/ir.model.access.csv',
-        'views/multi_payment_views.xml',
         'wizard/multi_payment_wizard_views.xml',
     ],
     'installable': True,

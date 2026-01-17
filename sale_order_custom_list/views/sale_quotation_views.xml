@@ -43,7 +43,7 @@
 <!--                        <field name="amount_tax" string="Tax" optional="show"/>-->
 
                         <!-- 9. Total (Taxed Amount) -->
-                        <field name="amount_total" string="Total" optional="show"/>
+                        <field name="amount_total" string="Total" optional="show" sum="Total"/>
 
                         <!-- 10. Expiration Date -->
                         <field name="validity_date" string="Expiration" optional="show"/>
@@ -101,7 +101,7 @@
                         <!-- Note -->
                         <field name="note" string="Terms and Conditions" optional="hide"/>
                         <!-- 9. Total (Taxed Amount) -->
-<field name="amount_total" string="Total" optional="show" sum="Total"/>
+<!--<field name="amount_total" string="Total" optional="show" sum="Total"/>-->
 
 
                         <!-- Activity -->

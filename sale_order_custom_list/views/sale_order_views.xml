@@ -43,12 +43,12 @@
 <!--                        <field name="amount_tax" string="Tax" optional="show"/>-->
 
                         <!-- 9. Total (Taxed Amount) -->
-                        <field name="amount_total" string="Total" optional="show"/>
+                        <field name="amount_total" string="Total" optional="show" sum="Total"/>
 
                         <!-- 10. Shipping Ref / Delivery Note -->
 <!--                        <field name="delivery_count" string="Delivery" optional="show"/>-->
                         <!-- 9. Total (Taxed Amount) -->
-<field name="amount_total" string="Total" optional="show" sum="Total"/>
+<!--<field name="amount_total" string="Total" optional="show" sum="Total"/>-->
 
 <!--                         11. PO Number / Origin -->
                         <field name="origin" string="Source Document" optional="hide"/>

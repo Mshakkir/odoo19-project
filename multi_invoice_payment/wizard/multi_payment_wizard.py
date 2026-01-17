@@ -37,33 +37,10 @@ class MultiPaymentWizard(models.TransientModel):
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
-        """Load unpaid invoices when customer is selected"""
+        """Clear invoice lines when customer changes"""
         if not self.partner_id:
-            self.invoice_line_ids = [(5, 0, 0)]  # Clear existing lines
-            return
-
-        invoices = self.env['account.move'].search([
-            ('partner_id', '=', self.partner_id.id),
-            ('move_type', '=', 'out_invoice'),
-            ('state', '=', 'posted'),
-            ('payment_state', 'in', ['not_paid', 'partial'])
-        ], order='invoice_date asc, name asc')
-
-        # Create new lines with invoice data
-        lines_data = []
-        for invoice in invoices:
-            lines_data.append({
-                'invoice_id': invoice.id,
-                'invoice_date': invoice.invoice_date,
-                'invoice_number': invoice.name,
-                'amount_total': invoice.amount_total,
-                'amount_residual': invoice.amount_residual,
-                'amount_to_pay': 0.0,
-                'selected': False,
-            })
-
-        # Use command (0, 0, {...}) to create new records
-        self.invoice_line_ids = [(5, 0, 0)] + [(0, 0, vals) for vals in lines_data]
+            self.invoice_line_ids = False
+        # Don't auto-load invoices here - let user click the button
 
     @api.onchange('payment_amount', 'auto_allocate')
     def _onchange_auto_allocate(self):
@@ -85,8 +62,47 @@ class MultiPaymentWizard(models.TransientModel):
 
     def action_load_invoices(self):
         """Reload invoices - refresh button"""
-        self._onchange_partner_id()
-        return True
+        self.ensure_one()
+
+        if not self.partner_id:
+            raise UserError(_('Please select a customer first.'))
+
+        # Clear existing lines
+        self.invoice_line_ids.unlink()
+
+        # Search for unpaid invoices
+        invoices = self.env['account.move'].search([
+            ('partner_id', '=', self.partner_id.id),
+            ('move_type', '=', 'out_invoice'),
+            ('state', '=', 'posted'),
+            ('payment_state', 'in', ['not_paid', 'partial'])
+        ], order='invoice_date asc, name asc')
+
+        if not invoices:
+            raise UserError(_('No unpaid invoices found for this customer.'))
+
+        # Create invoice lines
+        for invoice in invoices:
+            self.env['multi.payment.invoice.line'].create({
+                'wizard_id': self.id,
+                'invoice_id': invoice.id,
+                'invoice_date': invoice.invoice_date,
+                'invoice_number': invoice.name,
+                'amount_total': invoice.amount_total,
+                'amount_residual': invoice.amount_residual,
+                'amount_to_pay': 0.0,
+                'selected': False,
+            })
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Success'),
+                'message': _('%d unpaid invoice(s) loaded.') % len(invoices),
+                'type': 'success',
+            }
+        }
 
     def action_create_payment(self):
         """Create payment and allocate to selected invoices"""

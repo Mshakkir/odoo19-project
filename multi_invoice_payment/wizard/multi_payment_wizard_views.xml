@@ -36,6 +36,13 @@
                                    widget="monetary"
                                    options="{'currency_field': 'currency_id'}"/>
                             <field name="currency_id" invisible="1"/>
+                            <button name="action_load_invoices"
+                                    string="Load Invoices"
+                                    type="object"
+                                    class="btn-primary"
+                                    icon="fa-download"
+                                    invisible="not partner_id"
+                                    help="Click to load unpaid invoices for the selected customer"/>
                         </group>
                         <group string="Payment Details">
                             <field name="journal_id"
@@ -53,17 +60,11 @@
                                    widget="boolean_toggle"/>
                         </group>
                         <group>
-                            <button name="action_load_invoices"
-                                    string="Refresh Invoices"
-                                    type="object"
-                                    class="btn-secondary"
-                                    icon="fa-refresh"
-                                    invisible="not partner_id"/>
                         </group>
                     </group>
 
                     <notebook>
-                        <page string="Invoices to Pay" invisible="not partner_id">
+                        <page string="Invoices to Pay" invisible="not invoice_line_ids">
                             <field name="invoice_line_ids" nolabel="1"/>
 
                             <group class="oe_subtotal_footer oe_right">
@@ -93,23 +94,24 @@
                                     <ol>
                                         <li><strong>Select Customer:</strong> Choose the customer who made the payment</li>
                                         <li><strong>Enter Payment Amount:</strong> Enter the exact amount received (e.g., 2500 SAR)</li>
+                                        <li><strong>Click "Load Invoices":</strong> This will fetch all unpaid invoices for the customer</li>
                                         <li><strong>Select Payment Journal:</strong> Choose your bank (e.g., Al Rajhi Bank)</li>
-                                        <li><strong>Review Invoices:</strong> All unpaid invoices for the customer will be displayed</li>
                                         <li><strong>Select Invoices:</strong>
                                             <ul>
-                                                <li>Check the "Pay" box for invoices you want to pay</li>
-                                                <li>Or enable "Auto Allocate" to automatically select oldest invoices</li>
-                                                <li>Edit "Amount to Pay" for partial payments</li>
+                                                <li>Enable "Auto Allocate" to automatically select and fill amounts for oldest invoices</li>
+                                                <li>OR manually check the "Pay" box and enter amounts for each invoice</li>
+                                                <li>Click OUTSIDE the row after entering amounts to save</li>
                                             </ul>
                                         </li>
                                         <li><strong>Create Payment:</strong> Click "Create Payment" button</li>
                                     </ol>
                                     <h4>Tips:</h4>
                                     <ul>
+                                        <li>You MUST click "Load Invoices" button after selecting the customer</li>
+                                        <li>Use "Auto Allocate" for quick allocation to oldest invoices</li>
                                         <li>You can partially pay multiple invoices</li>
                                         <li>Total allocated cannot exceed payment amount</li>
-                                        <li>Use "Auto Allocate" for quick allocation to oldest invoices</li>
-                                        <li>Click "Refresh Invoices" if invoice list needs updating</li>
+                                        <li>After entering an amount, click outside the row to save it</li>
                                     </ul>
                                 </div>
                             </group>

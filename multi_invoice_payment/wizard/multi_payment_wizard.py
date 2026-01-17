@@ -96,39 +96,66 @@ class MultiPaymentWizard(models.TransientModel):
 
         selected_lines = self.invoice_line_ids.filtered('selected')
 
-        # Create payment for each selected invoice
-        payments = self.env['account.payment']
+        # Collect all invoices to pay
+        invoices_to_pay = []
         for line in selected_lines:
-            if line.amount_to_pay <= 0:
-                continue
+            if line.amount_to_pay > 0:
+                invoices_to_pay.append({
+                    'invoice': line.invoice_id,
+                    'amount': line.amount_to_pay
+                })
 
+        if not invoices_to_pay:
+            raise UserError(_('Please enter amounts to pay for selected invoices.'))
+
+        # Create payments
+        payments = self.env['account.payment']
+        for invoice_data in invoices_to_pay:
+            invoice = invoice_data['invoice']
+            amount = invoice_data['amount']
+
+            # Create payment
             payment_vals = {
                 'payment_type': 'inbound',
                 'partner_type': 'customer',
                 'partner_id': self.partner_id.id,
-                'amount': line.amount_to_pay,
+                'amount': amount,
                 'currency_id': self.currency_id.id,
                 'date': self.payment_date,
                 'journal_id': self.journal_id.id,
-                'payment_method_line_id': self.payment_method_line_id.id,
-                'ref': self.memo or f'Payment for {line.invoice_number}',
+                'ref': self.memo or _('Payment for %s', invoice.name),
             }
+
+            if self.payment_method_line_id:
+                payment_vals['payment_method_line_id'] = self.payment_method_line_id.id
 
             payment = self.env['account.payment'].create(payment_vals)
             payment.action_post()
 
-            # Reconcile payment with invoice
-            line.invoice_id.js_assign_outstanding_line(payment.line_ids.filtered(
-                lambda l: l.account_id == payment.destination_account_id
-            ).id)
+            # Reconcile with invoice
+            # Get payment move lines
+            payment_lines = payment.line_ids.filtered(
+                lambda line: line.account_id.account_type in ('asset_receivable', 'liability_payable')
+                             and not line.reconciled
+            )
+
+            # Get invoice move lines
+            invoice_lines = invoice.line_ids.filtered(
+                lambda line: line.account_id.account_type in ('asset_receivable', 'liability_payable')
+                             and not line.reconciled
+            )
+
+            # Reconcile
+            if payment_lines and invoice_lines:
+                (payment_lines + invoice_lines).reconcile()
 
             payments |= payment
 
         # Show success message with payment details
         message = _('Payment(s) created successfully!\n\n')
-        message += _('Total Amount: %.2f %s\n') % (self.payment_amount, self.currency_id.symbol)
-        message += _('Allocated: %.2f %s\n') % (self.total_allocated, self.currency_id.symbol)
-        message += _('Number of invoices paid: %d') % len(selected_lines)
+        message += _('Total Amount: %.2f %s\n') % (self.payment_amount, self.currency_id.symbol or '')
+        message += _('Allocated: %.2f %s\n') % (self.total_allocated, self.currency_id.symbol or '')
+        message += _('Number of invoices paid: %d') % len(invoices_to_pay)
 
         return {
             'type': 'ir.actions.client',

@@ -45,15 +45,15 @@
 
                     <notebook>
                         <page string="Invoices to Pay" invisible="not partner_id">
-                            <field name="invoice_line_ids" nolabel="1">
-                                <tree editable="bottom" create="false" delete="false">
+                            <field name="invoice_line_ids" nolabel="1" context="{'tree_view_ref': 'multi_invoice_payment.view_multi_payment_invoice_line_tree'}">
+                                <tree editable="bottom" create="0" delete="0">
                                     <field name="selected" widget="boolean_toggle"/>
-                                    <field name="invoice_number"/>
-                                    <field name="invoice_date"/>
-                                    <field name="amount_total"
+                                    <field name="invoice_number" readonly="1"/>
+                                    <field name="invoice_date" readonly="1"/>
+                                    <field name="amount_total" readonly="1"
                                            widget="monetary"
                                            options="{'currency_field': 'currency_id'}"/>
-                                    <field name="amount_residual"
+                                    <field name="amount_residual" readonly="1"
                                            widget="monetary"
                                            options="{'currency_field': 'currency_id'}"/>
                                     <field name="amount_to_pay"

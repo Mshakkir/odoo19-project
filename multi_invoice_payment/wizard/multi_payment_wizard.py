@@ -184,21 +184,22 @@ class MultiPaymentWizard(models.TransientModel):
             payment.action_post()
 
             # Reconcile with invoice
-            # Get payment move lines
-            payment_lines = payment.line_ids.filtered(
-                lambda line: line.account_id.account_type in ('asset_receivable', 'liability_payable')
-                             and not line.reconciled
-            )
+            # In Odoo 19, payment lines are accessed through move_id
+            if payment.move_id:
+                payment_lines = payment.move_id.line_ids.filtered(
+                    lambda line: line.account_id.account_type in ('asset_receivable', 'liability_payable')
+                                 and not line.reconciled
+                )
 
-            # Get invoice move lines
-            invoice_lines = invoice.line_ids.filtered(
-                lambda line: line.account_id.account_type in ('asset_receivable', 'liability_payable')
-                             and not line.reconciled
-            )
+                # Get invoice move lines
+                invoice_lines = invoice.line_ids.filtered(
+                    lambda line: line.account_id.account_type in ('asset_receivable', 'liability_payable')
+                                 and not line.reconciled
+                )
 
-            # Reconcile
-            if payment_lines and invoice_lines:
-                (payment_lines + invoice_lines).reconcile()
+                # Reconcile
+                if payment_lines and invoice_lines:
+                    (payment_lines + invoice_lines).reconcile()
 
             payments |= payment
 

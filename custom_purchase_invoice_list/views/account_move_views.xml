@@ -34,11 +34,7 @@
                     <!-- 6. Reference (Vendor Reference) -->
                     <field name="ref" string="Vendor Reference"/>
 
-                    <!-- 7. Tax Excluded Amount -->
-                    <field name="amount_untaxed" string="Tax Excluded"/>
 
-                    <!-- 8. Tax -->
-                    <field name="amount_tax" string="Tax"/>
 
                     <!-- 9. Total -->
                     <field name="amount_total" string="Total"/>
@@ -54,6 +50,11 @@
 
                     <!-- 13. Delivery Note Number - FROM YOUR EXISTING FIELD (goods_receipt_number) -->
                     <field name="goods_receipt_number" string="Delivery Note #"/>
+                    <!-- 7. Tax Excluded Amount -->
+                    <field name="amount_untaxed" string="Tax Excluded"/>
+
+                    <!-- 8. Tax -->
+                    <field name="amount_tax" string="Tax"/>
 
                     <!-- ADDITIONAL DEFAULT ODOO FIELDS -->
 

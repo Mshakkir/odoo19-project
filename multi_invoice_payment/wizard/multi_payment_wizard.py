@@ -87,6 +87,9 @@ class MultiPaymentWizard(models.TransientModel):
         """Create payment and allocate to selected invoices"""
         self.ensure_one()
 
+        # Force refresh the record to get the latest values from the UI
+        self.invalidate_recordset(['invoice_line_ids'])
+
         selected_lines = self.invoice_line_ids.filtered('selected')
 
         if not selected_lines:
@@ -95,13 +98,14 @@ class MultiPaymentWizard(models.TransientModel):
         # Debug: Log selected lines and their amounts
         import logging
         _logger = logging.getLogger(__name__)
-        for line in selected_lines:
-            _logger.info(
-                f"Selected Invoice: {line.invoice_number}, Amount to Pay: {line.amount_to_pay}, Selected: {line.selected}")
+        _logger.info("=== Payment Creation Debug ===")
+        for line in self.invoice_line_ids:
+            _logger.info(f"Invoice: {line.invoice_number}, Selected: {line.selected}, Amount: {line.amount_to_pay}")
 
         # Collect all invoices to pay with valid amounts
         invoices_to_pay = []
         for line in selected_lines:
+            _logger.info(f"Processing selected line: {line.invoice_number}, amount_to_pay: {line.amount_to_pay}")
             if line.amount_to_pay > 0:
                 invoices_to_pay.append({
                     'invoice': line.invoice_id,
@@ -109,8 +113,17 @@ class MultiPaymentWizard(models.TransientModel):
                 })
 
         if not invoices_to_pay:
-            raise UserError(
-                _('Please enter amounts to pay for selected invoices. Selected lines: %d') % len(selected_lines))
+            # Provide detailed error message
+            error_details = []
+            for line in selected_lines:
+                error_details.append(f"{line.invoice_number}: {line.amount_to_pay}")
+
+            raise UserError(_(
+                'Please enter amounts to pay for selected invoices.\n\n'
+                'Selected invoices and their amounts:\n%s\n\n'
+                'Note: Please click on the Amount to Pay cell, enter the amount, '
+                'then click OUTSIDE the row to save the value before clicking Create Payment.'
+            ) % '\n'.join(error_details))
 
         total_allocated = sum(item['amount'] for item in invoices_to_pay)
 
@@ -197,23 +210,13 @@ class MultiPaymentInvoiceLine(models.TransientModel):
     @api.onchange('selected')
     def _onchange_selected(self):
         """Auto-fill amount when checkbox is selected"""
-        if self.selected and self.amount_to_pay == 0:
-            # Calculate total already allocated (excluding this line)
-            total_allocated = sum(
-                line.amount_to_pay
-                for line in self.wizard_id.invoice_line_ids
-                if line.selected and line.id != self.id
-            )
-            remaining = self.wizard_id.payment_amount - total_allocated
-
-            if remaining >= self.amount_residual:
-                self.amount_to_pay = self.amount_residual
-            elif remaining > 0:
-                self.amount_to_pay = remaining
-            else:
-                self.amount_to_pay = 0.0
-        elif not self.selected:
+        if not self.selected:
             self.amount_to_pay = 0.0
+            return
+
+        # Only auto-fill if amount is currently 0
+        if self.selected and self.amount_to_pay == 0 and self.amount_residual > 0:
+            self.amount_to_pay = self.amount_residual
 
     @api.constrains('amount_to_pay', 'amount_residual')
     def _check_amount_to_pay(self):

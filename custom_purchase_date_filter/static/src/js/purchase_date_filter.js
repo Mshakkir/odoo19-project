@@ -1,4 +1,4 @@
-/** @odoo-/** @odoo-module **/
+/** @odoo-module **/
 
 import { Component, useState, onMounted, onWillUnmount } from "@odoo/owl";
 import { registry } from "@web/core/registry";
@@ -566,10 +566,6 @@ patch(ListController.prototype, {
             }
 
             let domain = [];
-            let resModel = '';
-            let views = [];
-            let actionName = '';
-            let context = {};
 
             if (viewType === 'purchase_order') {
                 domain = [
@@ -577,18 +573,12 @@ patch(ListController.prototype, {
                     ['date_order', '<=', dateTo + ' 23:59:59'],
                     ['state', 'in', ['purchase', 'done']]
                 ];
-                resModel = 'purchase.order';
-                views = [[false, 'list'], [false, 'form']];
-                actionName = 'Purchase Orders';
             } else if (viewType === 'rfq') {
                 domain = [
                     ['date_order', '>=', dateFrom + ' 00:00:00'],
                     ['date_order', '<=', dateTo + ' 23:59:59'],
                     ['state', 'in', ['draft', 'sent', 'to approve']]
                 ];
-                resModel = 'purchase.order';
-                views = [[false, 'list'], [false, 'form']];
-                actionName = 'Request for Quotations';
             } else if (viewType === 'bill') {
                 domain = [
                     ['invoice_date', '>=', dateFrom],
@@ -596,9 +586,6 @@ patch(ListController.prototype, {
                     ['move_type', '=', 'in_invoice'],
                     ['state', '!=', 'cancel']
                 ];
-                resModel = 'account.move';
-                views = [[false, 'list'], [false, 'form']];
-                actionName = 'Vendor Bills';
             }
 
             // Common filters for all view types
@@ -656,16 +643,8 @@ patch(ListController.prototype, {
                 }
             } else if (viewType === 'bill') {
                 // Warehouse filter for bills
-                // Note: account.move doesn't have direct warehouse relation
-                // Skip warehouse filter for bills or use custom field if available
                 if (warehouseSelect.value) {
-                    // Check if custom warehouse_id field exists, otherwise skip
-                    // You may need to add this field through a custom module
-                    try {
-                        domain.push(['warehouse_id', '=', parseInt(warehouseSelect.value)]);
-                    } catch (e) {
-                        console.warn('Warehouse filter not available for bills');
-                    }
+                    domain.push(['warehouse_id', '=', parseInt(warehouseSelect.value)]);
                 }
 
                 // Source document filter
@@ -689,15 +668,9 @@ patch(ListController.prototype, {
                 }
             }
 
-            this.actionService.doAction({
-                type: 'ir.actions.act_window',
-                name: actionName,
-                res_model: resModel,
-                views: views,
-                domain: domain,
-                context: context,
-                target: 'current',
-            });
+            // Update the current action's domain instead of creating a new action
+            this.env.searchModel.domain = domain;
+            this.env.searchModel.search();
 
             this.notification.add("Filters applied", { type: "success" });
         };
@@ -770,6 +743,9 @@ patch(ListController.prototype, {
                 resModel = 'account.move';
                 views = [[false, 'list'], [false, 'form']];
                 actionName = 'Vendor Bills';
+                context = {
+                    'default_move_type': 'in_invoice',
+                };
             }
 
             this.actionService.doAction({

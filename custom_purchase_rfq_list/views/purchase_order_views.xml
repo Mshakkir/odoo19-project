@@ -30,8 +30,8 @@
 
                 <!-- Add fields in YOUR EXACT ORDER -->
                 <xpath expr="//list" position="inside">
-                    <!-- 1. Order Date -->
-                    <field name="date_order" string="Order Date" optional="show"/>
+                    <!-- 1. Confirmation Date (FIRST POSITION) -->
+                    <field name="date_approve" string="Confirmation Date" optional="show"/>
 
                     <!-- 2. Reference -->
                     <field name="name" string="Reference" readonly="1"/>
@@ -82,7 +82,7 @@
 
                     <!-- Additional Fields (Hidden by default) -->
                     <field name="priority" optional="hide" widget="priority" nolabel="1"/>
-                    <field name="date_approve" string="Confirmation Date" optional="hide"/>
+                    <field name="date_order" string="Order Date" optional="hide"/>
                     <field name="date_planned" string="Expected Arrival" optional="hide"/>
                     <field name="company_id" readonly="1" options="{'no_create': True}"
                            groups="base.group_multi_company" optional="hide"/>

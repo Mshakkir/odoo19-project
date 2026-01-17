@@ -13,7 +13,8 @@
                       sample="1"
                       decoration-info="state == 'draft'"
                       decoration-muted="state == 'cancel'"
-                      multi_edit="1">
+                      multi_edit="1"
+                      footer_visible="1">
 
                     <!-- COLUMN ORDER - PRIORITY ORDER -->
                     <!-- 1. Invoice Date -->
@@ -129,6 +130,21 @@
                     <field name="move_type" column_invisible="1"/>
 
                 </list>
+            </field>
+        </record>
+
+        <!-- Tree View with Totals Row -->
+        <record id="view_move_tree_purchase_invoice_custom" model="ir.ui.view">
+            <field name="name">account.move.tree.purchase.invoice.custom</field>
+            <field name="model">account.move</field>
+            <field name="arch" type="xml">
+                <tree string="Vendor Bills Totals">
+                    <field name="name" string="Bill Number"/>
+                    <field name="partner_id" string="Vendor"/>
+                    <field name="amount_untaxed" string="Tax Excluded"/>
+                    <field name="amount_tax" string="Tax"/>
+                    <field name="amount_total" string="Total"/>
+                </tree>
             </field>
         </record>
 

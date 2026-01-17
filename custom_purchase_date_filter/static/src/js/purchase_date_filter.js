@@ -202,7 +202,7 @@ patch(ListController.prototype, {
         const shippingRefId = `purchase_shipping_ref_${timestamp}`;
         const amountId = `purchase_amount_${timestamp}`;
         const sourceDocId = `purchase_source_doc_${timestamp}`;
-        const deliveryNoteId = `purchase_delivery_note_${timestamp}`;
+        const goodsReceiptId = `purchase_goods_receipt_${timestamp}`;
         const billingStatusId = `purchase_billing_status_${timestamp}`;
         const paymentStatusId = `purchase_payment_status_${timestamp}`;
         const applyId = `purchase_apply_${timestamp}`;
@@ -406,10 +406,10 @@ patch(ListController.prototype, {
                             <input type="text" class="form-control filter_input" id="${shippingRefId}" placeholder="AWB..." />
                         </div>
 
-                        <!-- Delivery Note Filter -->
+                        <!-- Goods Receipt Filter -->
                         <div class="filter_group">
-                            <label class="filter_label">Delivery Note:</label>
-                            <input type="text" class="form-control filter_input" id="${deliveryNoteId}" placeholder="Delivery Note..." />
+                            <label class="filter_label">Goods Receipt:</label>
+                            <input type="text" class="form-control filter_input" id="${goodsReceiptId}" placeholder="Goods Receipt..." />
                         </div>
 
                         <!-- Payment Status Filter -->
@@ -449,7 +449,7 @@ patch(ListController.prototype, {
         this.attachPurchaseFilterEvents(
             fromId, toId, warehouseId, vendorId, repId,
             orderRefId, vendorRefId, shippingRefId, amountId,
-            sourceDocId, deliveryNoteId, billingStatusId, paymentStatusId,
+            sourceDocId, goodsReceiptId, billingStatusId, paymentStatusId,
             applyId, clearId, viewType
         );
     },
@@ -527,7 +527,7 @@ patch(ListController.prototype, {
     attachPurchaseFilterEvents(
         fromId, toId, warehouseId, vendorId, repId,
         orderRefId, vendorRefId, shippingRefId, amountId,
-        sourceDocId, deliveryNoteId, billingStatusId, paymentStatusId,
+        sourceDocId, goodsReceiptId, billingStatusId, paymentStatusId,
         applyId, clearId, viewType
     ) {
         const dateFromInput = document.getElementById(fromId);
@@ -542,7 +542,7 @@ patch(ListController.prototype, {
         const shippingRefInput = document.getElementById(shippingRefId);
         const amountInput = document.getElementById(amountId);
         const sourceDocInput = document.getElementById(sourceDocId);
-        const deliveryNoteInput = document.getElementById(deliveryNoteId);
+        const goodsReceiptInput = document.getElementById(goodsReceiptId);
         const billingStatusSelect = document.getElementById(billingStatusId);
         const paymentStatusSelect = document.getElementById(paymentStatusId);
         const applyBtn = document.getElementById(applyId);
@@ -611,7 +611,8 @@ patch(ListController.prototype, {
             // Purchase rep/buyer filter
             if (repValue.value) {
                 if (viewType === 'bill') {
-                    domain.push(['invoice_user_id', '=', parseInt(repValue.value)]);
+                    // Use buyer_id for bills
+                    domain.push(['buyer_id', '=', parseInt(repValue.value)]);
                 } else {
                     domain.push(['user_id', '=', parseInt(repValue.value)]);
                 }
@@ -654,9 +655,9 @@ patch(ListController.prototype, {
                     domain.push(['invoice_status', '=', billingStatusSelect.value]);
                 }
             } else if (viewType === 'bill') {
-                // Warehouse filter for bills
+                // Warehouse filter for bills (using picking_type_id relation)
                 if (warehouseSelect.value) {
-                    domain.push(['warehouse_id', '=', parseInt(warehouseSelect.value)]);
+                    domain.push(['picking_type_id.warehouse_id', '=', parseInt(warehouseSelect.value)]);
                 }
 
                 // Source document filter
@@ -664,14 +665,14 @@ patch(ListController.prototype, {
                     domain.push(['invoice_origin', 'ilike', sourceDocInput.value.trim()]);
                 }
 
-                // Shipping reference filter
+                // Shipping reference filter (awb_number field)
                 if (shippingRefInput.value.trim()) {
                     domain.push(['awb_number', 'ilike', shippingRefInput.value.trim()]);
                 }
 
-                // Delivery note filter
-                if (deliveryNoteInput && deliveryNoteInput.value.trim()) {
-                    domain.push(['delivery_note', 'ilike', deliveryNoteInput.value.trim()]);
+                // Goods Receipt filter (goods_receipt_number field)
+                if (goodsReceiptInput && goodsReceiptInput.value.trim()) {
+                    domain.push(['goods_receipt_number', 'ilike', goodsReceiptInput.value.trim()]);
                 }
 
                 // Payment status filter
@@ -704,7 +705,7 @@ patch(ListController.prototype, {
 
         // Add bill-specific inputs if they exist
         if (sourceDocInput) allInputs.push(sourceDocInput);
-        if (deliveryNoteInput) allInputs.push(deliveryNoteInput);
+        if (goodsReceiptInput) allInputs.push(goodsReceiptInput);
         if (billingStatusSelect) allInputs.push(billingStatusSelect);
         if (paymentStatusSelect) allInputs.push(paymentStatusSelect);
 
@@ -736,7 +737,7 @@ patch(ListController.prototype, {
             amountInput.value = '';
 
             if (sourceDocInput) sourceDocInput.value = '';
-            if (deliveryNoteInput) deliveryNoteInput.value = '';
+            if (goodsReceiptInput) goodsReceiptInput.value = '';
             if (billingStatusSelect) billingStatusSelect.value = '';
             if (paymentStatusSelect) paymentStatusSelect.value = '';
 

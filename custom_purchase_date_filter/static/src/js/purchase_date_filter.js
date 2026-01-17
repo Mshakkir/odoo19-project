@@ -550,240 +550,229 @@ patch(ListController.prototype, {
 
         if (!dateFromInput || !dateToInput || !applyBtn || !clearBtn) return;
 
-        // Apply filter function
-        const applyFilter = () => {
-            const dateFrom = dateFromInput.value;
-            const dateTo = dateToInput.value;
+        // Apply filter function - WITH CUSTOM VIEW PRESERVATION
+const applyFilter = () => {
+    const dateFrom = dateFromInput.value;
+    const dateTo = dateToInput.value;
 
-            if (!dateFrom || !dateTo) {
-                this.notification.add("Please select both dates", { type: "warning" });
-                return;
-            }
+    if (!dateFrom || !dateTo) {
+        this.notification.add("Please select both dates", { type: "warning" });
+        return;
+    }
 
-            if (dateFrom > dateTo) {
-                this.notification.add("Start date must be before end date", { type: "warning" });
-                return;
-            }
+    if (dateFrom > dateTo) {
+        this.notification.add("Start date must be before end date", { type: "warning" });
+        return;
+    }
 
-            let domain = [];
-            let resModel = '';
-            let viewId = false;
-            let actionName = '';
-            let context = {};
+    let domain = [];
+    let resModel = '';
+    let viewId = false;
+    let actionName = '';
+    let context = {};
+    let views = [];
 
-            if (viewType === 'purchase_order') {
-                domain = [
-                    ['date_order', '>=', dateFrom + ' 00:00:00'],
-                    ['date_order', '<=', dateTo + ' 23:59:59'],
-                    ['state', 'in', ['purchase', 'done']]
-                ];
-                resModel = 'purchase.order';
-                actionName = 'Purchase Orders';
-            } else if (viewType === 'rfq') {
-                domain = [
-                    ['date_order', '>=', dateFrom + ' 00:00:00'],
-                    ['date_order', '<=', dateTo + ' 23:59:59'],
-                    ['state', 'in', ['draft', 'sent', 'to approve']]
-                ];
-                resModel = 'purchase.order';
-                actionName = 'Request for Quotations';
-            } else if (viewType === 'bill') {
-                domain = [
-                    ['invoice_date', '>=', dateFrom],
-                    ['invoice_date', '<=', dateTo],
-                    ['move_type', '=', 'in_invoice'],
-                    ['state', '!=', 'cancel']
-                ];
-                resModel = 'account.move';
-                actionName = 'Vendor Bills';
-                context = {
-                    'default_move_type': 'in_invoice',
-                };
-            }
-
-            // Common filters for all view types
-
-            // Vendor filter
-            if (vendorValue.value) {
-                domain.push(['partner_id', '=', parseInt(vendorValue.value)]);
-            }
-
-            // Purchase rep/buyer filter
-            if (repValue.value) {
-                if (viewType === 'bill') {
-                    // Use buyer_id for bills
-                    domain.push(['buyer_id', '=', parseInt(repValue.value)]);
-                } else {
-                    domain.push(['user_id', '=', parseInt(repValue.value)]);
-                }
-            }
-
-            // Reference filter (Order/Bill number)
-            if (orderRefInput.value.trim()) {
-                domain.push(['name', 'ilike', orderRefInput.value.trim()]);
-            }
-
-            // Vendor reference filter
-            if (vendorRefInput.value.trim()) {
-                if (viewType === 'bill') {
-                    domain.push(['ref', 'ilike', vendorRefInput.value.trim()]);
-                } else {
-                    domain.push(['partner_ref', 'ilike', vendorRefInput.value.trim()]);
-                }
-            }
-
-            // Amount filter
-            if (amountInput.value) {
-                const exactAmount = parseFloat(amountInput.value);
-                domain.push(['amount_total', '=', exactAmount]);
-            }
-
-            // View-specific filters
-            if (viewType === 'purchase_order' || viewType === 'rfq') {
-                // Warehouse filter
-                if (warehouseSelect.value) {
-                    domain.push(['picking_type_id.warehouse_id', '=', parseInt(warehouseSelect.value)]);
-                }
-
-                // Shipping reference filter
-                if (shippingRefInput.value.trim()) {
-                    domain.push(['awb_number', 'ilike', shippingRefInput.value.trim()]);
-                }
-
-                // Billing status filter
-                if (billingStatusSelect && billingStatusSelect.value) {
-                    domain.push(['invoice_status', '=', billingStatusSelect.value]);
-                }
-            } else if (viewType === 'bill') {
-                // Warehouse filter for bills
-                if (warehouseSelect.value) {
-                    domain.push(['warehouse_id', '=', parseInt(warehouseSelect.value)]);
-                }
-
-                // Source document filter
-                if (sourceDocInput && sourceDocInput.value.trim()) {
-                    domain.push(['invoice_origin', 'ilike', sourceDocInput.value.trim()]);
-                }
-
-                // Shipping reference filter (awb_number field)
-                if (shippingRefInput.value.trim()) {
-                    domain.push(['awb_number', 'ilike', shippingRefInput.value.trim()]);
-                }
-
-                // Goods Receipt filter (goods_receipt_number field)
-                if (goodsReceiptInput && goodsReceiptInput.value.trim()) {
-                    domain.push(['goods_receipt_number', 'ilike', goodsReceiptInput.value.trim()]);
-                }
-
-                // Payment status filter
-                if (paymentStatusSelect && paymentStatusSelect.value) {
-                    domain.push(['payment_state', '=', paymentStatusSelect.value]);
-                }
-            }
-
-            // Get the current action to preserve view settings
-            const currentAction = this.env.config.actionId;
-
-            this.actionService.doAction({
-                type: 'ir.actions.act_window',
-                name: actionName,
-                res_model: resModel,
-                views: [[false, 'list'], [false, 'form']],
-                domain: domain,
-                context: context,
-                target: 'current',
-            }, {
-                clearBreadcrumbs: false,
-            });
-
-            this.notification.add("Filters applied", { type: "success" });
-        };
-
-        // Click on Apply button
-        applyBtn.addEventListener('click', applyFilter);
-
-        // Press Enter on any input field to apply filter
-        const allInputs = [
-            dateFromInput, dateToInput, warehouseSelect, vendorInput, repInput,
-            orderRefInput, vendorRefInput, shippingRefInput, amountInput
+    if (viewType === 'purchase_order') {
+        domain = [
+            ['date_order', '>=', dateFrom + ' 00:00:00'],
+            ['date_order', '<=', dateTo + ' 23:59:59'],
+            ['state', 'in', ['purchase', 'done']]
         ];
-
-        // Add bill-specific inputs if they exist
-        if (sourceDocInput) allInputs.push(sourceDocInput);
-        if (goodsReceiptInput) allInputs.push(goodsReceiptInput);
-        if (billingStatusSelect) allInputs.push(billingStatusSelect);
-        if (paymentStatusSelect) allInputs.push(paymentStatusSelect);
-
-        allInputs.forEach(input => {
-            if (input) {
-                input.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        applyFilter();
-                    }
-                });
-            }
-        });
-
-        // Clear filter function
-        const clearFilter = () => {
-            const today = new Date();
-            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-            dateFromInput.value = firstDay.toISOString().split('T')[0];
-            dateToInput.value = today.toISOString().split('T')[0];
-            warehouseSelect.value = '';
-            vendorInput.value = '';
-            vendorValue.value = '';
-            repInput.value = '';
-            repValue.value = '';
-            orderRefInput.value = '';
-            vendorRefInput.value = '';
-            shippingRefInput.value = '';
-            amountInput.value = '';
-
-            if (sourceDocInput) sourceDocInput.value = '';
-            if (goodsReceiptInput) goodsReceiptInput.value = '';
-            if (billingStatusSelect) billingStatusSelect.value = '';
-            if (paymentStatusSelect) paymentStatusSelect.value = '';
-
-            let domain = [];
-            let resModel = '';
-            let views = [];
-            let actionName = '';
-            let context = {};
-
-            if (viewType === 'purchase_order') {
-                domain = [['state', 'in', ['purchase', 'done']]];
-                resModel = 'purchase.order';
-                views = [[false, 'list'], [false, 'form']];
-                actionName = 'Purchase Orders';
-            } else if (viewType === 'rfq') {
-                domain = [['state', 'in', ['draft', 'sent', 'to approve']]];
-                resModel = 'purchase.order';
-                views = [[false, 'list'], [false, 'form']];
-                actionName = 'Request for Quotations';
-            } else if (viewType === 'bill') {
-                domain = [['move_type', '=', 'in_invoice']];
-                resModel = 'account.move';
-                views = [[false, 'list'], [false, 'form']];
-                actionName = 'Vendor Bills';
-                context = {
-                    'default_move_type': 'in_invoice',
-                };
-            }
-
-            this.actionService.doAction({
-                type: 'ir.actions.act_window',
-                name: actionName,
-                res_model: resModel,
-                views: views,
-                domain: domain,
-                context: context,
-                target: 'current',
-            });
-
-            this.notification.add("Filters cleared", { type: "info" });
+        resModel = 'purchase.order';
+        actionName = 'Purchase Orders';
+        views = [[false, 'list'], [false, 'form']];
+    } else if (viewType === 'rfq') {
+        domain = [
+            ['date_order', '>=', dateFrom + ' 00:00:00'],
+            ['date_order', '<=', dateTo + ' 23:59:59'],
+            ['state', 'in', ['draft', 'sent', 'to approve']]
+        ];
+        resModel = 'purchase.order';
+        actionName = 'Request for Quotations';
+        views = [[false, 'list'], [false, 'form']];
+    } else if (viewType === 'bill') {
+        domain = [
+            ['invoice_date', '>=', dateFrom],
+            ['invoice_date', '<=', dateTo],
+            ['move_type', '=', 'in_invoice'],
+            ['state', '!=', 'cancel']
+        ];
+        resModel = 'account.move';
+        actionName = 'Vendor Bills';
+        context = {
+            'default_move_type': 'in_invoice',
         };
+        // IMPORTANT: Use custom view for bills
+        views = [['view_move_list_purchase_invoice_custom', 'list'], [false, 'form']];
+    }
+
+    // Common filters for all view types
+
+    // Vendor filter
+    if (vendorValue.value) {
+        domain.push(['partner_id', '=', parseInt(vendorValue.value)]);
+    }
+
+    // Purchase rep/buyer filter
+    if (repValue.value) {
+        if (viewType === 'bill') {
+            // Use buyer_id for bills
+            domain.push(['buyer_id', '=', parseInt(repValue.value)]);
+        } else {
+            domain.push(['user_id', '=', parseInt(repValue.value)]);
+        }
+    }
+
+    // Reference filter (Order/Bill number)
+    if (orderRefInput.value.trim()) {
+        domain.push(['name', 'ilike', orderRefInput.value.trim()]);
+    }
+
+    // Vendor reference filter
+    if (vendorRefInput.value.trim()) {
+        if (viewType === 'bill') {
+            domain.push(['ref', 'ilike', vendorRefInput.value.trim()]);
+        } else {
+            domain.push(['partner_ref', 'ilike', vendorRefInput.value.trim()]);
+        }
+    }
+
+    // Amount filter
+    if (amountInput.value) {
+        const exactAmount = parseFloat(amountInput.value);
+        domain.push(['amount_total', '=', exactAmount]);
+    }
+
+    // View-specific filters
+    if (viewType === 'purchase_order' || viewType === 'rfq') {
+        // Warehouse filter
+        if (warehouseSelect.value) {
+            domain.push(['picking_type_id.warehouse_id', '=', parseInt(warehouseSelect.value)]);
+        }
+
+        // Shipping reference filter
+        if (shippingRefInput.value.trim()) {
+            domain.push(['awb_number', 'ilike', shippingRefInput.value.trim()]);
+        }
+
+        // Billing status filter
+        if (billingStatusSelect && billingStatusSelect.value) {
+            domain.push(['invoice_status', '=', billingStatusSelect.value]);
+        }
+    } else if (viewType === 'bill') {
+        // Warehouse filter for bills
+        if (warehouseSelect.value) {
+            domain.push(['warehouse_id', '=', parseInt(warehouseSelect.value)]);
+        }
+
+        // Source document filter
+        if (sourceDocInput && sourceDocInput.value.trim()) {
+            domain.push(['invoice_origin', 'ilike', sourceDocInput.value.trim()]);
+        }
+
+        // Shipping reference filter (awb_number field)
+        if (shippingRefInput.value.trim()) {
+            domain.push(['awb_number', 'ilike', shippingRefInput.value.trim()]);
+        }
+
+        // Goods Receipt filter (goods_receipt_number field)
+        if (goodsReceiptInput && goodsReceiptInput.value.trim()) {
+            domain.push(['goods_receipt_number', 'ilike', goodsReceiptInput.value.trim()]);
+        }
+
+        // Payment status filter
+        if (paymentStatusSelect && paymentStatusSelect.value) {
+            domain.push(['payment_state', '=', paymentStatusSelect.value]);
+        }
+    }
+
+    // FIXED: Always use custom view for bills
+    const actionConfig = {
+        type: 'ir.actions.act_window',
+        name: actionName,
+        res_model: resModel,
+        views: views,
+        domain: domain,
+        context: context,
+        target: 'current',
+    };
+
+    // For bills, ensure custom view is used
+    if (viewType === 'bill') {
+        actionConfig.views = [
+            ['view_move_list_purchase_invoice_custom', 'list'],
+            [false, 'form']
+        ];
+    }
+
+    this.actionService.doAction(actionConfig, {
+        clearBreadcrumbs: false,
+    });
+
+    this.notification.add("Filters applied", { type: "success" });
+};
+
+
+// Clear filter function - WITH CUSTOM VIEW PRESERVATION
+const clearFilter = () => {
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    dateFromInput.value = firstDay.toISOString().split('T')[0];
+    dateToInput.value = today.toISOString().split('T')[0];
+    warehouseSelect.value = '';
+    vendorInput.value = '';
+    vendorValue.value = '';
+    repInput.value = '';
+    repValue.value = '';
+    orderRefInput.value = '';
+    vendorRefInput.value = '';
+    shippingRefInput.value = '';
+    amountInput.value = '';
+
+    if (sourceDocInput) sourceDocInput.value = '';
+    if (goodsReceiptInput) goodsReceiptInput.value = '';
+    if (billingStatusSelect) billingStatusSelect.value = '';
+    if (paymentStatusSelect) paymentStatusSelect.value = '';
+
+    let domain = [];
+    let resModel = '';
+    let views = [];
+    let actionName = '';
+    let context = {};
+
+    if (viewType === 'purchase_order') {
+        domain = [['state', 'in', ['purchase', 'done']]];
+        resModel = 'purchase.order';
+        views = [[false, 'list'], [false, 'form']];
+        actionName = 'Purchase Orders';
+    } else if (viewType === 'rfq') {
+        domain = [['state', 'in', ['draft', 'sent', 'to approve']]];
+        resModel = 'purchase.order';
+        views = [[false, 'list'], [false, 'form']];
+        actionName = 'Request for Quotations';
+    } else if (viewType === 'bill') {
+        domain = [['move_type', '=', 'in_invoice']];
+        resModel = 'account.move';
+        // IMPORTANT: Use custom view for bills
+        views = [['view_move_list_purchase_invoice_custom', 'list'], [false, 'form']];
+        actionName = 'Vendor Bills';
+        context = {
+            'default_move_type': 'in_invoice',
+        };
+    }
+
+    this.actionService.doAction({
+        type: 'ir.actions.act_window',
+        name: actionName,
+        res_model: resModel,
+        views: views,
+        domain: domain,
+        context: context,
+        target: 'current',
+    });
+
+    this.notification.add("Filters cleared", { type: "info" });
+};
 
         // Clear button click
         clearBtn.addEventListener('click', clearFilter);

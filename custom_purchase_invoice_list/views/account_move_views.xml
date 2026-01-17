@@ -41,6 +41,8 @@
 
                     <!-- 10. Amount Due -->
                     <field name="amount_residual" string="Amount Due"/>
+                     <!-- 15. Due Date -->
+                    <field name="invoice_date_due" string="Due Date"/>
 
                     <!-- 11. Purchase Representative / Buyer -->
                     <field name="buyer_id" string="Buyer" />
@@ -50,6 +52,16 @@
 
                     <!-- 13. Delivery Note Number - FROM YOUR EXISTING FIELD (goods_receipt_number) -->
                     <field name="goods_receipt_number" string="Delivery Note #"/>
+                    <!-- 21. Status -->
+                    <field name="state" string="Status" widget="badge"
+                           decoration-success="state == 'posted'"
+                           decoration-info="state == 'draft'"/>
+
+                    <!-- 22. Payment Status -->
+                    <field name="payment_state" string="Payment Status" widget="badge"
+                           decoration-success="payment_state == 'paid'"
+                           decoration-warning="payment_state == 'partial'"
+                           decoration-danger="payment_state in ('not_paid', 'in_payment')"/>
                     <!-- 7. Tax Excluded Amount -->
                     <field name="amount_untaxed" string="Tax Excluded"/>
 
@@ -61,8 +73,7 @@
                     <!-- 14. PO Number - FROM YOUR EXISTING FIELD -->
                     <field name="po_number" string="PO Number" optional="hide"/>
 
-                    <!-- 15. Due Date -->
-                    <field name="invoice_date_due" string="Due Date"/>
+
 
                     <!-- 16. Accounting Date -->
                     <field name="date" string="Accounting Date" optional="hide"/>
@@ -79,16 +90,7 @@
                     <!-- 20. Company -->
                     <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide"/>
 
-                    <!-- 21. Status -->
-                    <field name="state" string="Status" widget="badge"
-                           decoration-success="state == 'posted'"
-                           decoration-info="state == 'draft'"/>
 
-                    <!-- 22. Payment Status -->
-                    <field name="payment_state" string="Payment Status" widget="badge"
-                           decoration-success="payment_state == 'paid'"
-                           decoration-warning="payment_state == 'partial'"
-                           decoration-danger="payment_state in ('not_paid', 'in_payment')"/>
 
                     <!-- 23. Fiscal Position -->
                     <field name="fiscal_position_id" string="Fiscal Position" optional="hide"/>

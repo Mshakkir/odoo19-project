@@ -169,8 +169,13 @@ class MultiPaymentWizard(models.TransientModel):
                 'currency_id': self.currency_id.id,
                 'date': self.payment_date,
                 'journal_id': self.journal_id.id,
-                'ref': self.memo or _('Payment for %s', invoice.name),
             }
+
+            # Add memo/reference if provided
+            if self.memo:
+                payment_vals['payment_reference'] = self.memo
+            else:
+                payment_vals['payment_reference'] = _('Payment for %s', invoice.name)
 
             if self.payment_method_line_id:
                 payment_vals['payment_method_line_id'] = self.payment_method_line_id.id

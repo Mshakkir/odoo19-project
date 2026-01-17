@@ -822,8 +822,15 @@ patch(ListController.prototype, {
     updateTotalDisplay(total, count) {
         this.cleanupTotalDisplay();
 
+        // Try multiple selectors to find the table container
         const listTable = document.querySelector('.o_list_table');
-        if (!listTable) return;
+        const contentPanel = document.querySelector('.o_content');
+        const listRenderer = document.querySelector('.o_list_renderer');
+
+        if (!listTable) {
+            console.log('Table not found for total display');
+            return;
+        }
 
         // Format the total amount
         const formattedTotal = new Intl.NumberFormat('en-US', {
@@ -846,9 +853,17 @@ patch(ListController.prototype, {
             </div>
         `;
 
-        // Insert after the table
-        listTable.parentElement.appendChild(totalDiv);
+        // Insert after the table - try different parent elements
+        if (listRenderer) {
+            listRenderer.appendChild(totalDiv);
+        } else if (listTable.parentElement) {
+            listTable.parentElement.appendChild(totalDiv);
+        } else if (contentPanel) {
+            contentPanel.appendChild(totalDiv);
+        }
+
         this._totalElement = totalDiv;
+        console.log('Total display created:', total, count);
     },
 
     injectDateFilter() {
@@ -1225,8 +1240,10 @@ patch(ListController.prototype, {
 
             this.notification.add("Filters applied", { type: "success" });
 
-            // Recalculate total after action completes
+            // Recalculate total after action completes with multiple retries
             setTimeout(() => this.calculateAndDisplayTotal(domain, resModel), 500);
+            setTimeout(() => this.calculateAndDisplayTotal(domain, resModel), 1000);
+            setTimeout(() => this.calculateAndDisplayTotal(domain, resModel), 1500);
         };
 
         this._applyFiltersCallback = applyFilters;

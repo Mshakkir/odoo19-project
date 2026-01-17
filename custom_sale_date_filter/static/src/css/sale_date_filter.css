@@ -275,7 +275,11 @@
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-top: 2px solid #5a67d8;
     margin: 0;
+    margin-top: 0 !important;
     box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1;
+    width: 100%;
 }
 
 .total_container {

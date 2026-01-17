@@ -662,12 +662,13 @@ patch(ListController.prototype, {
         this.actionService = useService("action");
         this.orm = useService("orm");
         this._filterElement = null;
+        this._totalElement = null;
         this._filterData = {
             warehouses: [],
             customers: [],
             salespersons: []
         };
-        this._applyFiltersCallback = null; // Store reference to applyFilters function
+        this._applyFiltersCallback = null;
 
         onMounted(() => {
             if (this.shouldShowFilter()) {
@@ -677,17 +678,16 @@ patch(ListController.prototype, {
 
         onWillUnmount(() => {
             this.cleanupFilter();
+            this.cleanupTotalDisplay();
         });
     },
 
     shouldShowFilter() {
         const resModel = this.props.resModel;
 
-        // Check if it's Sale Orders or Quotations
         if (resModel === 'sale.order') {
             const action = this.env.config;
 
-            // Include both orders and quotations
             if (action.xmlId === 'sale.action_orders' || action.xmlId === 'sale.action_quotations') {
                 return true;
             }
@@ -717,14 +717,12 @@ patch(ListController.prototype, {
                 }
             }
 
-            return true; // Show for all sale.order views
+            return true;
         }
 
-        // Check if it's Sale Invoices (account.move)
         if (resModel === 'account.move') {
             const action = this.env.config;
 
-            // Check for Sale Invoice actions
             if (action.xmlId === 'sale.action_invoices' ||
                 action.xmlId === 'account.action_move_out_invoice_type') {
                 return true;
@@ -738,7 +736,6 @@ patch(ListController.prototype, {
                 }
             }
 
-            // Check if domain includes invoice type
             if (this.props.domain) {
                 const domainStr = JSON.stringify(this.props.domain);
                 if (domainStr.includes('move_type') &&
@@ -758,9 +755,15 @@ patch(ListController.prototype, {
         }
     },
 
+    cleanupTotalDisplay() {
+        if (this._totalElement && this._totalElement.parentNode) {
+            this._totalElement.remove();
+            this._totalElement = null;
+        }
+    },
+
     async loadFilterData() {
         try {
-            // Load warehouses
             const warehouses = await this.orm.searchRead(
                 'stock.warehouse',
                 [],
@@ -768,7 +771,6 @@ patch(ListController.prototype, {
                 { limit: 100 }
             );
 
-            // Load customers (partners that are customers)
             const customers = await this.orm.searchRead(
                 'res.partner',
                 [['customer_rank', '>', 0]],
@@ -776,7 +778,6 @@ patch(ListController.prototype, {
                 { limit: 500, order: 'name' }
             );
 
-            // Load salespersons (users)
             const salespersons = await this.orm.searchRead(
                 'res.users',
                 [],
@@ -795,6 +796,74 @@ patch(ListController.prototype, {
             console.error('Error loading filter data:', error);
             this.notification.add("Error loading filter options", { type: "danger" });
         }
+    },
+
+    async calculateAndDisplayTotal(domain, resModel) {
+        try {
+            // Read all records matching the domain
+            const records = await this.orm.searchRead(
+                resModel,
+                domain,
+                ['amount_total'],
+                {}
+            );
+
+            // Calculate total
+            const total = records.reduce((sum, record) => sum + (record.amount_total || 0), 0);
+            const count = records.length;
+
+            // Update or create total display
+            this.updateTotalDisplay(total, count);
+        } catch (error) {
+            console.error('Error calculating total:', error);
+        }
+    },
+
+    updateTotalDisplay(total, count) {
+        this.cleanupTotalDisplay();
+
+        // Try multiple selectors to find the table container
+        const listTable = document.querySelector('.o_list_table');
+        const contentPanel = document.querySelector('.o_content');
+        const listRenderer = document.querySelector('.o_list_renderer');
+
+        if (!listTable) {
+            console.log('Table not found for total display');
+            return;
+        }
+
+        // Format the total amount
+        const formattedTotal = new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(total);
+
+        const totalDiv = document.createElement('div');
+        totalDiv.className = 'sale_total_display';
+        totalDiv.innerHTML = `
+            <div class="total_container">
+                <div class="total_info">
+                    <span class="total_label">Total Records:</span>
+                    <span class="total_count">${count}</span>
+                </div>
+                <div class="total_info">
+                    <span class="total_label">Total Amount:</span>
+                    <span class="total_amount">${formattedTotal} SR</span>
+                </div>
+            </div>
+        `;
+
+        // Insert after the table - try different parent elements
+        if (listRenderer) {
+            listRenderer.appendChild(totalDiv);
+        } else if (listTable.parentElement) {
+            listTable.parentElement.appendChild(totalDiv);
+        } else if (contentPanel) {
+            contentPanel.appendChild(totalDiv);
+        }
+
+        this._totalElement = totalDiv;
+        console.log('Total display created:', total, count);
     },
 
     injectDateFilter() {
@@ -827,15 +896,12 @@ patch(ListController.prototype, {
         const dateFrom = firstDay.toISOString().split('T')[0];
         const dateTo = today.toISOString().split('T')[0];
 
-        // Determine the model type
         const isSaleOrder = this.props.resModel === 'sale.order';
         const isInvoice = this.props.resModel === 'account.move';
 
-        // Set placeholders based on model
         const documentNumberPlaceholder = isSaleOrder ? 'Sale Order/Quotation' : 'Invoice Number';
         const actionName = isSaleOrder ? 'Sale Orders/Quotations' : 'Invoices';
 
-        // Build options for warehouse dropdown - now for both orders and invoices
         const warehouseOptions = this._filterData.warehouses
             .map(w => `<option value="${w.id}">${w.name}</option>`)
             .join('');
@@ -857,7 +923,6 @@ patch(ListController.prototype, {
         filterDiv.innerHTML = `
             <div class="sale_date_filter_container">
                 <div class="date_filter_wrapper">
-                    <!-- 1. Date Range Filter (Small) -->
                     <div class="filter_group filter_group_small date_group_small">
                         <div class="date_input_group">
                             <input type="date" class="form-control date_input_small filter-input" id="${fromId}" value="${dateFrom}" placeholder="From" />
@@ -866,7 +931,6 @@ patch(ListController.prototype, {
                         </div>
                     </div>
 
-                    <!-- 2. Document Number Filter (Small) -->
                     <div class="filter_group filter_group_small">
                         <input
                             type="text"
@@ -877,7 +941,6 @@ patch(ListController.prototype, {
                         />
                     </div>
 
-                    <!-- 3. Customer Filter (Small) -->
                     <div class="filter_group filter_group_small autocomplete_group_small">
                         <div class="autocomplete_wrapper">
                             <input
@@ -892,10 +955,8 @@ patch(ListController.prototype, {
                         </div>
                     </div>
 
-                    <!-- 4. Warehouse Filter (Small) -->
                     ${warehouseFilter}
 
-                    <!-- 5. Customer Reference Filter (Small) -->
                     <div class="filter_group filter_group_small">
                         <input
                             type="text"
@@ -906,7 +967,6 @@ patch(ListController.prototype, {
                         />
                     </div>
 
-                    <!-- 6. Salesperson Filter (Small) -->
                     <div class="filter_group filter_group_small autocomplete_group_small">
                         <div class="autocomplete_wrapper">
                             <input
@@ -921,7 +981,6 @@ patch(ListController.prototype, {
                         </div>
                     </div>
 
-                    <!-- 7. Total Amount Filter (Small) -->
                     <div class="filter_group filter_group_small">
                         <input
                             type="number"
@@ -933,7 +992,6 @@ patch(ListController.prototype, {
                         />
                     </div>
 
-                    <!-- 8. AWB Number Filter (Small) -->
                     <div class="filter_group filter_group_small">
                         <input
                             type="text"
@@ -944,7 +1002,6 @@ patch(ListController.prototype, {
                         />
                     </div>
 
-                    <!-- Action Buttons -->
                     <div class="filter_actions">
                         <button class="btn btn-primary apply_filter_btn" id="${applyId}">Apply</button>
                         <button class="btn btn-secondary clear_filter_btn" id="${clearId}">Clear (Esc)</button>
@@ -956,11 +1013,7 @@ patch(ListController.prototype, {
         listTable.parentElement.insertBefore(filterDiv, listTable);
         this._filterElement = filterDiv;
 
-        // IMPORTANT: Attach filter events FIRST to set the applyFilters callback
-        // Then setup autocomplete so it has access to the callback
         this.attachFilterEvents(fromId, toId, warehouseId, customerId, salespersonId, documentNumberId, totalAmountId, customerRefId, awbNumberId, applyId, clearId, actionName, isSaleOrder, isInvoice);
-
-        // Now setup autocomplete - it will have access to this._applyFiltersCallback
         this.setupAutocomplete(customerId, this._filterData.customers);
         this.setupAutocomplete(salespersonId, this._filterData.salespersons);
     },
@@ -974,23 +1027,20 @@ patch(ListController.prototype, {
 
         let selectedIndex = -1;
 
-        // Show dropdown on focus
         input.addEventListener('focus', () => {
             this.filterAutocomplete(fieldId, dataList, '');
             dropdown.classList.add('show');
             selectedIndex = -1;
         });
 
-        // Filter as user types
         input.addEventListener('input', (e) => {
             const searchTerm = e.target.value;
-            hiddenValue.value = ''; // Clear hidden value when typing
+            hiddenValue.value = '';
             this.filterAutocomplete(fieldId, dataList, searchTerm);
             dropdown.classList.add('show');
             selectedIndex = -1;
         });
 
-        // Handle keyboard navigation in autocomplete
         input.addEventListener('keydown', (e) => {
             const items = dropdown.querySelectorAll('.autocomplete_item:not(.no_results)');
 
@@ -1003,10 +1053,7 @@ patch(ListController.prototype, {
                 selectedIndex = Math.max(selectedIndex - 1, -1);
                 updateSelection(items, selectedIndex);
             } else if (e.key === 'Enter') {
-                const isDropdownVisible = dropdown.classList.contains('show');
-
-                if (isDropdownVisible && selectedIndex >= 0 && items.length > 0) {
-                    // Item is selected from dropdown - select it
+                if (selectedIndex >= 0 && items.length > 0) {
                     e.preventDefault();
                     e.stopPropagation();
                     const selectedItem = items[selectedIndex];
@@ -1017,18 +1064,14 @@ patch(ListController.prototype, {
                     dropdown.classList.remove('show');
                     selectedIndex = -1;
 
-                    // Apply filters after selection
                     if (this._applyFiltersCallback) {
                         setTimeout(() => this._applyFiltersCallback(), 50);
                     }
                 } else {
-                    // No item selected OR dropdown not visible - apply filters
                     e.preventDefault();
-                    e.stopPropagation();
                     dropdown.classList.remove('show');
                     selectedIndex = -1;
 
-                    // Apply filters
                     if (this._applyFiltersCallback) {
                         this._applyFiltersCallback();
                     }
@@ -1050,7 +1093,6 @@ patch(ListController.prototype, {
             });
         }
 
-        // Hide dropdown when clicking outside
         document.addEventListener('click', (e) => {
             if (!input.contains(e.target) && !dropdown.contains(e.target)) {
                 dropdown.classList.remove('show');
@@ -1082,7 +1124,6 @@ patch(ListController.prototype, {
             </div>
         `).join('');
 
-        // Add click handlers to dropdown items
         dropdown.querySelectorAll('.autocomplete_item:not(.no_results)').forEach(item => {
             item.addEventListener('click', () => {
                 const id = item.getAttribute('data-id');
@@ -1111,8 +1152,7 @@ patch(ListController.prototype, {
 
         if (!dateFromInput || !dateToInput || !applyBtn || !clearBtn) return;
 
-        // Function to apply filters - use arrow function to maintain 'this' context
-        const applyFilters = () => {
+        const applyFilters = async () => {
             const dateFrom = dateFromInput.value;
             const dateTo = dateToInput.value;
 
@@ -1126,7 +1166,6 @@ patch(ListController.prototype, {
                 return;
             }
 
-            // Build domain based on model type
             let domain = [];
             let resModel = '';
             let views = [];
@@ -1149,23 +1188,19 @@ patch(ListController.prototype, {
                 views = [[false, 'list'], [false, 'form']];
             }
 
-            // Add warehouse filter (now for both orders and invoices)
             if (warehouseSelect && warehouseSelect.value) {
                 const warehouseId = parseInt(warehouseSelect.value);
                 if (isSaleOrder) {
                     domain.push(['warehouse_id', '=', warehouseId]);
                 } else if (isInvoice) {
-                    // For invoices, filter by warehouse through sale order
                     domain.push(['invoice_line_ids.sale_line_ids.order_id.warehouse_id', '=', warehouseId]);
                 }
             }
 
-            // Add customer filter
             if (customerValue.value) {
                 domain.push(['partner_id', '=', parseInt(customerValue.value)]);
             }
 
-            // Add salesperson filter
             if (salespersonValue.value) {
                 if (isSaleOrder) {
                     domain.push(['user_id', '=', parseInt(salespersonValue.value)]);
@@ -1174,30 +1209,25 @@ patch(ListController.prototype, {
                 }
             }
 
-            // Add document number filter
             if (documentNumberInput.value.trim()) {
                 domain.push(['name', 'ilike', documentNumberInput.value.trim()]);
             }
 
-            // Add total amount filter
             if (totalAmountInput.value && parseFloat(totalAmountInput.value) > 0) {
                 const amount = parseFloat(totalAmountInput.value);
                 domain.push(['amount_total', '=', amount]);
             }
 
-            // Add customer reference filter
             if (customerRefInput.value.trim()) {
-                if (isSaleOrder) {
-                    domain.push(['ref', 'ilike', customerRefInput.value.trim()]);
-                } else if (isInvoice) {
-                    domain.push(['ref', 'ilike', customerRefInput.value.trim()]);
-                }
+                domain.push(['ref', 'ilike', customerRefInput.value.trim()]);
             }
 
-            // Add AWB number filter using the actual field name
             if (awbNumberInput.value.trim()) {
                 domain.push(['awb_number', 'ilike', awbNumberInput.value.trim()]);
             }
+
+            // Calculate and display total BEFORE navigating
+            await this.calculateAndDisplayTotal(domain, resModel);
 
             this.actionService.doAction({
                 type: 'ir.actions.act_window',
@@ -1209,12 +1239,15 @@ patch(ListController.prototype, {
             });
 
             this.notification.add("Filters applied", { type: "success" });
+
+            // Recalculate total after action completes with multiple retries
+            setTimeout(() => this.calculateAndDisplayTotal(domain, resModel), 500);
+            setTimeout(() => this.calculateAndDisplayTotal(domain, resModel), 1000);
+            setTimeout(() => this.calculateAndDisplayTotal(domain, resModel), 1500);
         };
 
-        // Store the callback IMMEDIATELY so autocomplete can access it
         this._applyFiltersCallback = applyFilters;
 
-        // Function to clear filters
         const clearFilters = () => {
             const today = new Date();
             const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -1229,6 +1262,8 @@ patch(ListController.prototype, {
             totalAmountInput.value = '';
             customerRefInput.value = '';
             awbNumberInput.value = '';
+
+            this.cleanupTotalDisplay();
 
             let domain = [];
             let resModel = '';
@@ -1256,25 +1291,18 @@ patch(ListController.prototype, {
             this.notification.add("Filters cleared", { type: "info" });
         };
 
-        // Apply button click event
         applyBtn.addEventListener('click', applyFilters);
-
-        // Clear button click event
         clearBtn.addEventListener('click', clearFilters);
 
-        // Add keyboard event listeners to all filter inputs
         const filterContainer = document.querySelector('.sale_date_filter_container');
 
         if (filterContainer) {
-            // Global keyboard shortcuts
             document.addEventListener('keydown', (e) => {
-                // Escape key - Clear filters (works from anywhere)
                 if (e.key === 'Escape') {
                     const activeElement = document.activeElement;
                     const isInAutocomplete = activeElement && activeElement.classList.contains('autocomplete-input');
                     const isDropdownOpen = document.querySelector('.autocomplete_dropdown.show');
 
-                    // Only clear filters if not in autocomplete or dropdown is not open
                     if (!isInAutocomplete || !isDropdownOpen) {
                         e.preventDefault();
                         clearFilters();
@@ -1282,7 +1310,6 @@ patch(ListController.prototype, {
                 }
             });
 
-            // Enter key handler for NON-autocomplete inputs only
             const regularInputs = filterContainer.querySelectorAll('.filter-input:not(.autocomplete-input), select');
             regularInputs.forEach(input => {
                 input.addEventListener('keydown', (e) => {

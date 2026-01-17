@@ -34,32 +34,23 @@
                     <!-- 6. Vendor Reference -->
                     <field name="ref" string="Vendor Ref."/>
 
-                    <!-- 7. Tax Excluded Amount -->
-                    <field name="amount_untaxed" string="Tax Excluded"/>
-
-                    <!-- 8. Tax Amount -->
-                    <field name="amount_tax" string="Tax"/>
-
-                    <!-- 9. Total Amount - FIXED DISPLAY -->
+                    <!-- 7. Total Amount - FIXED DISPLAY -->
                     <field name="amount_total" string="Total"/>
 
-                    <!-- 10. Amount Due -->
+                    <!-- 8. Amount Due -->
                     <field name="amount_residual" string="Amount Due"/>
 
-                    <!-- 11. Due Date -->
+                    <!-- 9. Due Date -->
                     <field name="invoice_date_due" string="Due Date"/>
 
-                    <!-- 12. Buyer - ALWAYS VISIBLE -->
+                    <!-- 10. Buyer - ALWAYS VISIBLE -->
                     <field name="buyer_id" string="Buyer"/>
 
-                    <!-- 13. Shipping Reference (AWB Number) -->
+                    <!-- 11. Shipping Reference (AWB Number) -->
                     <field name="awb_number" string="Shipping Ref #"/>
 
-                    <!-- 14. Delivery Note Number -->
+                    <!-- 12. Delivery Note Number -->
                     <field name="goods_receipt_number" string="Delivery Note #"/>
-
-                    <!-- 15. PO Number -->
-                    <field name="po_number" string="PO Number"/>
 
                     <!-- 16. Status -->
                     <field name="state" string="Status" widget="badge"
@@ -73,6 +64,9 @@
                            decoration-danger="payment_state in ('not_paid', 'in_payment')"/>
 
                     <!-- ADDITIONAL OPTIONAL FIELDS (Hidden by default) -->
+
+                    <!-- 17. PO Number -->
+                    <field name="po_number" string="PO Number" optional="hide"/>
 
                     <!-- 18. Accounting Date -->
                     <field name="date" string="Accounting Date" optional="hide"/>
@@ -158,7 +152,6 @@ if records:
 
     </data>
 </odoo>
-
 
 
 

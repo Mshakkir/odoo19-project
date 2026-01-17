@@ -188,11 +188,20 @@ class MultiPaymentInvoiceLine(models.TransientModel):
     def _onchange_selected(self):
         """Auto-fill amount when checkbox is selected"""
         if self.selected and self.amount_to_pay == 0:
-            remaining = self.wizard_id.payment_amount - self.wizard_id.total_allocated
+            # Calculate total already allocated (excluding this line)
+            total_allocated = sum(
+                line.amount_to_pay
+                for line in self.wizard_id.invoice_line_ids
+                if line.selected and line.id != self.id
+            )
+            remaining = self.wizard_id.payment_amount - total_allocated
+
             if remaining >= self.amount_residual:
                 self.amount_to_pay = self.amount_residual
-            else:
+            elif remaining > 0:
                 self.amount_to_pay = remaining
+            else:
+                self.amount_to_pay = 0.0
         elif not self.selected:
             self.amount_to_pay = 0.0
 

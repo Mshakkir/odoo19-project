@@ -3,17 +3,21 @@
     'name': 'Purchase Order & Bill Date Filter',
     'version': '19.0.1.0.0',
     'category': 'Purchase',
-    'summary': 'Add custom date range filter to purchase orders and vendor bills list view',
+    'summary': 'Add custom date range filter to purchase orders, RFQs and vendor bills list view',
     'description': """
-        Adds a custom date range filter component to purchase order and vendor bill list views.
+        Adds a custom date range filter component to purchase order, RFQ and vendor bill list views.
         Features:
         - Date range filter (Order Date / Bill Date)
-        - Warehouse filter (Purchase Orders only)
+        - Warehouse filter
         - Vendor filter with autocomplete search
-        - Purchase Representative filter with autocomplete search
+        - Purchase Representative/Buyer filter with autocomplete search
+        - Reference filters (Order, Vendor, Shipping, Source Document)
+        - Amount filter
+        - Billing/Payment status filter
+        - Delivery note filter
         Built with OWL JS for Odoo 19 CE.
     """,
-    'depends': ['purchase', 'account', 'web'],
+    'depends': ['purchase', 'account', 'web', 'stock'],
     'data': [],
     'assets': {
         'web.assets_backend': [

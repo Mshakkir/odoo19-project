@@ -1,4 +1,4 @@
-/** @odoo-module **/
+///** @odoo-module **/
 
 import { Component, useState, onMounted, onWillUnmount } from "@odoo/owl";
 import { registry } from "@web/core/registry";
@@ -681,9 +681,13 @@ patch(ListController.prototype, {
                     }
                 }
 
-                // Reload the current view with the new domain
-                this.model.load({ domain: domain, context: context });
-                this.notification.add("Filters applied successfully", { type: "success" });
+                // Check if model and controller still exist before reloading
+                if (this.model && this.model.load) {
+                    this.model.load({ domain: domain, context: context }).catch((error) => {
+                        console.warn('Model load warning:', error);
+                    });
+                    this.notification.add("Filters applied successfully", { type: "success" });
+                }
             } catch (error) {
                 console.error('Filter error:', error);
                 this.notification.add("Error applying filters: " + error.message, { type: "danger" });
@@ -752,9 +756,13 @@ patch(ListController.prototype, {
                     };
                 }
 
-                // Reload the current view with the default domain
-                this.model.load({ domain: domain, context: context });
-                this.notification.add("Filters cleared successfully", { type: "info" });
+                // Check if model and controller still exist before reloading
+                if (this.model && this.model.load) {
+                    this.model.load({ domain: domain, context: context }).catch((error) => {
+                        console.warn('Model load warning during clear:', error);
+                    });
+                    this.notification.add("Filters cleared successfully", { type: "info" });
+                }
             } catch (error) {
                 console.error('Clear filter error:', error);
                 this.notification.add("Error clearing filters: " + error.message, { type: "danger" });

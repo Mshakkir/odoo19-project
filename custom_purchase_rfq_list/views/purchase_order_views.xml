@@ -27,7 +27,6 @@
                 <xpath expr="//field[@name='date_planned']" position="replace"/>
                 <xpath expr="//field[@name='invoice_status']" position="replace"/>
                 <xpath expr="//field[@name='activity_exception_decoration']" position="replace"/>
-                <xpath expr="//field[@name='amount_tax']" position="replace"/>
 
                 <!-- Add fields in YOUR EXACT ORDER -->
                 <xpath expr="//list" position="inside">

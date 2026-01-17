@@ -566,6 +566,10 @@ patch(ListController.prototype, {
             }
 
             let domain = [];
+            let resModel = '';
+            let viewId = false;
+            let actionName = '';
+            let context = {};
 
             if (viewType === 'purchase_order') {
                 domain = [
@@ -573,12 +577,16 @@ patch(ListController.prototype, {
                     ['date_order', '<=', dateTo + ' 23:59:59'],
                     ['state', 'in', ['purchase', 'done']]
                 ];
+                resModel = 'purchase.order';
+                actionName = 'Purchase Orders';
             } else if (viewType === 'rfq') {
                 domain = [
                     ['date_order', '>=', dateFrom + ' 00:00:00'],
                     ['date_order', '<=', dateTo + ' 23:59:59'],
                     ['state', 'in', ['draft', 'sent', 'to approve']]
                 ];
+                resModel = 'purchase.order';
+                actionName = 'Request for Quotations';
             } else if (viewType === 'bill') {
                 domain = [
                     ['invoice_date', '>=', dateFrom],
@@ -586,6 +594,11 @@ patch(ListController.prototype, {
                     ['move_type', '=', 'in_invoice'],
                     ['state', '!=', 'cancel']
                 ];
+                resModel = 'account.move';
+                actionName = 'Vendor Bills';
+                context = {
+                    'default_move_type': 'in_invoice',
+                };
             }
 
             // Common filters for all view types
@@ -668,9 +681,20 @@ patch(ListController.prototype, {
                 }
             }
 
-            // Use the model's load method to reload with new domain
-            this.model.root.domain = domain;
-            this.model.load();
+            // Get the current action to preserve view settings
+            const currentAction = this.env.config.actionId;
+
+            this.actionService.doAction({
+                type: 'ir.actions.act_window',
+                name: actionName,
+                res_model: resModel,
+                views: [[false, 'list'], [false, 'form']],
+                domain: domain,
+                context: context,
+                target: 'current',
+            }, {
+                clearBreadcrumbs: false,
+            });
 
             this.notification.add("Filters applied", { type: "success" });
         };

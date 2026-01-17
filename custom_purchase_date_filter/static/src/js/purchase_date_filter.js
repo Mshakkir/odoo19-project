@@ -668,9 +668,9 @@ patch(ListController.prototype, {
                 }
             }
 
-            // Update the current action's domain instead of creating a new action
-            this.env.searchModel.domain = domain;
-            this.env.searchModel.search();
+            // Use the model's load method to reload with new domain
+            this.model.root.domain = domain;
+            this.model.load();
 
             this.notification.add("Filters applied", { type: "success" });
         };

@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_multi_payment_wizard_user,multi.payment.wizard.user,model_multi_payment_wizard,account.group_account_invoice,1,1,1,1
+access_multi_payment_invoice_line_user,multi.payment.invoice.line.user,model_multi_payment_invoice_line,account.group_account_invoice,1,1,1,1
+access_multi_payment_wizard_manager,multi.payment.wizard.manager,model_multi_payment_wizard,account.group_account_manager,1,1,1,1
+access_multi_payment_invoice_line_manager,multi.payment.invoice.line.manager,model_multi_payment_invoice_line,account.group_account_manager,1,1,1,1

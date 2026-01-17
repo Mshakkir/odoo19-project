@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Multi Payment Invoice Line List View -->
+    <record id="view_multi_payment_invoice_line_tree" model="ir.ui.view">
+        <field name="name">multi.payment.invoice.line.list</field>
+        <field name="model">multi.payment.invoice.line</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" create="0" delete="0">
+                <field name="wizard_id" column_invisible="1"/>
+                <field name="invoice_id" column_invisible="1"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="selected" widget="boolean_toggle"/>
+                <field name="invoice_number" readonly="1"/>
+                <field name="invoice_date" readonly="1"/>
+                <field name="amount_total" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="amount_residual" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="amount_to_pay" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Multi Payment Wizard Form View -->
+    <record id="view_multi_payment_wizard_form" model="ir.ui.view">
+        <field name="name">multi.payment.wizard.form</field>
+        <field name="model">multi.payment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Register Payment Against Multiple Invoices">
+                <sheet>
+                    <group>
+                        <group string="Payment Information">
+                            <field name="partner_id" options="{'no_create': True}"
+                                   placeholder="Select customer..."/>
+                            <field name="payment_date"/>
+                            <field name="payment_amount"
+                                   widget="monetary"
+                                   options="{'currency_field': 'currency_id'}"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Payment Details">
+                            <field name="journal_id"
+                                   options="{'no_create': True}"/>
+                            <field name="payment_method_line_id"
+                                   options="{'no_create': True}"/>
+                            <field name="memo" placeholder="Payment reference or note..."/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group>
+                            <field name="auto_allocate"
+                                   string="Auto Allocate to Oldest Invoices"
+                                   widget="boolean_toggle"/>
+                        </group>
+                        <group>
+                            <button name="action_load_invoices"
+                                    string="Refresh Invoices"
+                                    type="object"
+                                    class="btn-secondary"
+                                    icon="fa-refresh"
+                                    invisible="not partner_id"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Invoices to Pay" invisible="not partner_id">
+                            <field name="invoice_line_ids" nolabel="1"/>
+
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="payment_amount"
+                                       string="Payment Amount"
+                                       widget="monetary"
+                                       options="{'currency_field': 'currency_id'}"
+                                       readonly="1"/>
+                                <field name="total_allocated"
+                                       string="Total Allocated"
+                                       widget="monetary"
+                                       options="{'currency_field': 'currency_id'}"
+                                       readonly="1"/>
+                                <field name="remaining_amount"
+                                       string="Remaining Amount"
+                                       widget="monetary"
+                                       options="{'currency_field': 'currency_id'}"
+                                       readonly="1"
+                                       class="oe_subtotal_footer_separator"/>
+                            </group>
+                        </page>
+
+                        <page string="Help" name="help_page">
+                            <group>
+                                <div class="alert alert-info" role="alert">
+                                    <h4>How to Use:</h4>
+                                    <ol>
+                                        <li><strong>Select Customer:</strong> Choose the customer who made the payment</li>
+                                        <li><strong>Enter Payment Amount:</strong> Enter the exact amount received (e.g., 2500 SAR)</li>
+                                        <li><strong>Select Payment Journal:</strong> Choose your bank (e.g., Al Rajhi Bank)</li>
+                                        <li><strong>Review Invoices:</strong> All unpaid invoices for the customer will be displayed</li>
+                                        <li><strong>Select Invoices:</strong>
+                                            <ul>
+                                                <li>Check the "Pay" box for invoices you want to pay</li>
+                                                <li>Or enable "Auto Allocate" to automatically select oldest invoices</li>
+                                                <li>Edit "Amount to Pay" for partial payments</li>
+                                            </ul>
+                                        </li>
+                                        <li><strong>Create Payment:</strong> Click "Create Payment" button</li>
+                                    </ol>
+                                    <h4>Tips:</h4>
+                                    <ul>
+                                        <li>You can partially pay multiple invoices</li>
+                                        <li>Total allocated cannot exceed payment amount</li>
+                                        <li>Use "Auto Allocate" for quick allocation to oldest invoices</li>
+                                        <li>Click "Refresh Invoices" if invoice list needs updating</li>
+                                    </ul>
+                                </div>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <footer>
+                    <button name="action_create_payment"
+                            string="Create Payment"
+                            type="object"
+                            class="btn-primary"
+                            invisible="not partner_id"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to Open Wizard -->
+    <record id="action_multi_payment_wizard" model="ir.actions.act_window">
+        <field name="name">Against Payment</field>
+        <field name="res_model">multi.payment.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Main Menu Item in Accounting Top Bar -->
+    <menuitem id="menu_multi_payment_wizard"
+              name="Against Payment"
+              parent="account.menu_finance"
+              action="action_multi_payment_wizard"
+              sequence="10"/>
+
+    <!-- Alternative Menu in Accounting Receivables -->
+    <menuitem id="menu_multi_payment_root"
+              name="Multi Payments"
+              parent="account.menu_finance_receivables"
+              sequence="15"/>
+
+    <menuitem id="menu_multi_payment_register"
+              name="Register Against Payment"
+              parent="menu_multi_payment_root"
+              action="action_multi_payment_wizard"
+              sequence="1"/>
+
+</odoo>

@@ -169,8 +169,13 @@ class MultiPaymentWizard(models.TransientModel):
                 'currency_id': self.currency_id.id,
                 'date': self.payment_date,
                 'journal_id': self.journal_id.id,
-                'ref': self.memo or _('Payment for %s', invoice.name),
             }
+
+            # Add memo/reference if provided
+            if self.memo:
+                payment_vals['payment_reference'] = self.memo
+            else:
+                payment_vals['payment_reference'] = _('Payment for %s', invoice.name)
 
             if self.payment_method_line_id:
                 payment_vals['payment_method_line_id'] = self.payment_method_line_id.id
@@ -179,21 +184,22 @@ class MultiPaymentWizard(models.TransientModel):
             payment.action_post()
 
             # Reconcile with invoice
-            # Get payment move lines
-            payment_lines = payment.line_ids.filtered(
-                lambda line: line.account_id.account_type in ('asset_receivable', 'liability_payable')
-                             and not line.reconciled
-            )
+            # In Odoo 19, payment lines are accessed through move_id
+            if payment.move_id:
+                payment_lines = payment.move_id.line_ids.filtered(
+                    lambda line: line.account_id.account_type in ('asset_receivable', 'liability_payable')
+                                 and not line.reconciled
+                )
 
-            # Get invoice move lines
-            invoice_lines = invoice.line_ids.filtered(
-                lambda line: line.account_id.account_type in ('asset_receivable', 'liability_payable')
-                             and not line.reconciled
-            )
+                # Get invoice move lines
+                invoice_lines = invoice.line_ids.filtered(
+                    lambda line: line.account_id.account_type in ('asset_receivable', 'liability_payable')
+                                 and not line.reconciled
+                )
 
-            # Reconcile
-            if payment_lines and invoice_lines:
-                (payment_lines + invoice_lines).reconcile()
+                # Reconcile
+                if payment_lines and invoice_lines:
+                    (payment_lines + invoice_lines).reconcile()
 
             payments |= payment
 

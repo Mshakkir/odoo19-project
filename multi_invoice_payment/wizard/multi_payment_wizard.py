@@ -87,16 +87,19 @@ class MultiPaymentWizard(models.TransientModel):
         """Create payment and allocate to selected invoices"""
         self.ensure_one()
 
-        if not self.invoice_line_ids.filtered('selected'):
-            raise UserError(_('Please select at least one invoice to pay.'))
-
-        if self.total_allocated > self.payment_amount:
-            raise ValidationError(_('Total allocated amount (%.2f) cannot exceed payment amount (%.2f)')
-                                  % (self.total_allocated, self.payment_amount))
-
         selected_lines = self.invoice_line_ids.filtered('selected')
 
-        # Collect all invoices to pay
+        if not selected_lines:
+            raise UserError(_('Please select at least one invoice to pay.'))
+
+        # Debug: Log selected lines and their amounts
+        import logging
+        _logger = logging.getLogger(__name__)
+        for line in selected_lines:
+            _logger.info(
+                f"Selected Invoice: {line.invoice_number}, Amount to Pay: {line.amount_to_pay}, Selected: {line.selected}")
+
+        # Collect all invoices to pay with valid amounts
         invoices_to_pay = []
         for line in selected_lines:
             if line.amount_to_pay > 0:
@@ -106,7 +109,14 @@ class MultiPaymentWizard(models.TransientModel):
                 })
 
         if not invoices_to_pay:
-            raise UserError(_('Please enter amounts to pay for selected invoices.'))
+            raise UserError(
+                _('Please enter amounts to pay for selected invoices. Selected lines: %d') % len(selected_lines))
+
+        total_allocated = sum(item['amount'] for item in invoices_to_pay)
+
+        if total_allocated > self.payment_amount:
+            raise ValidationError(_('Total allocated amount (%.2f) cannot exceed payment amount (%.2f)')
+                                  % (total_allocated, self.payment_amount))
 
         # Create payments
         payments = self.env['account.payment']
@@ -208,8 +218,17 @@ class MultiPaymentInvoiceLine(models.TransientModel):
     @api.onchange('amount_to_pay')
     def _onchange_amount_to_pay(self):
         """Validate amount to pay"""
+        if self.amount_to_pay < 0:
+            self.amount_to_pay = 0.0
+            return
+
         if self.amount_to_pay > self.amount_residual:
-            raise ValidationError(_('Amount to pay cannot exceed the amount due (%.2f)') % self.amount_residual)
+            return {
+                'warning': {
+                    'title': _('Warning'),
+                    'message': _('Amount to pay cannot exceed the amount due (%.2f)') % self.amount_residual
+                }
+            }
 
         if self.amount_to_pay > 0:
             self.selected = True

@@ -37,28 +37,10 @@ class MultiPaymentWizard(models.TransientModel):
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
-        """Load unpaid invoices when customer is selected"""
-        self.invoice_line_ids = [(5, 0, 0)]  # Clear existing lines
-        if self.partner_id:
-            invoices = self.env['account.move'].search([
-                ('partner_id', '=', self.partner_id.id),
-                ('move_type', '=', 'out_invoice'),
-                ('state', '=', 'posted'),
-                ('payment_state', 'in', ['not_paid', 'partial'])
-            ], order='invoice_date asc, name asc')
-
-            lines = []
-            for invoice in invoices:
-                lines.append((0, 0, {
-                    'invoice_id': invoice.id,
-                    'invoice_date': invoice.invoice_date,
-                    'invoice_number': invoice.name,
-                    'amount_total': invoice.amount_total,
-                    'amount_residual': invoice.amount_residual,
-                    'amount_to_pay': 0.0,
-                    'selected': False,
-                }))
-            self.invoice_line_ids = lines
+        """Clear invoice lines when customer changes"""
+        if not self.partner_id:
+            self.invoice_line_ids = False
+        # Don't auto-load invoices here - let user click the button
 
     @api.onchange('payment_amount', 'auto_allocate')
     def _onchange_auto_allocate(self):
@@ -80,8 +62,47 @@ class MultiPaymentWizard(models.TransientModel):
 
     def action_load_invoices(self):
         """Reload invoices - refresh button"""
-        self._onchange_partner_id()
-        return True
+        self.ensure_one()
+
+        if not self.partner_id:
+            raise UserError(_('Please select a customer first.'))
+
+        # Clear existing lines
+        self.invoice_line_ids.unlink()
+
+        # Search for unpaid invoices
+        invoices = self.env['account.move'].search([
+            ('partner_id', '=', self.partner_id.id),
+            ('move_type', '=', 'out_invoice'),
+            ('state', '=', 'posted'),
+            ('payment_state', 'in', ['not_paid', 'partial'])
+        ], order='invoice_date asc, name asc')
+
+        if not invoices:
+            raise UserError(_('No unpaid invoices found for this customer.'))
+
+        # Create invoice lines
+        for invoice in invoices:
+            self.env['multi.payment.invoice.line'].create({
+                'wizard_id': self.id,
+                'invoice_id': invoice.id,
+                'invoice_date': invoice.invoice_date,
+                'invoice_number': invoice.name,
+                'amount_total': invoice.amount_total,
+                'amount_residual': invoice.amount_residual,
+                'amount_to_pay': 0.0,
+                'selected': False,
+            })
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Success'),
+                'message': _('%d unpaid invoice(s) loaded.') % len(invoices),
+                'type': 'success',
+            }
+        }
 
     def action_create_payment(self):
         """Create payment and allocate to selected invoices"""
@@ -99,8 +120,10 @@ class MultiPaymentWizard(models.TransientModel):
         import logging
         _logger = logging.getLogger(__name__)
         _logger.info("=== Payment Creation Debug ===")
+        _logger.info(f"Total invoice lines: {len(self.invoice_line_ids)}")
         for line in self.invoice_line_ids:
-            _logger.info(f"Invoice: {line.invoice_number}, Selected: {line.selected}, Amount: {line.amount_to_pay}")
+            _logger.info(f"Line ID: {line.id}, Invoice ID: {line.invoice_id.id if line.invoice_id else 'None'}, "
+                         f"Invoice Number: {line.invoice_number}, Selected: {line.selected}, Amount: {line.amount_to_pay}")
 
         # Collect all invoices to pay with valid amounts
         invoices_to_pay = []
@@ -198,14 +221,14 @@ class MultiPaymentInvoiceLine(models.TransientModel):
     _description = 'Multi Payment Invoice Line'
 
     wizard_id = fields.Many2one('multi.payment.wizard', string='Wizard', required=True, ondelete='cascade')
-    invoice_id = fields.Many2one('account.move', string='Invoice', required=True)
-    invoice_date = fields.Date(string='Invoice Date')
-    invoice_number = fields.Char(string='Invoice Number')
-    amount_total = fields.Monetary(string='Total Amount', currency_field='currency_id')
-    amount_residual = fields.Monetary(string='Amount Due', currency_field='currency_id')
+    invoice_id = fields.Many2one('account.move', string='Invoice', required=True, readonly=True)
+    invoice_date = fields.Date(string='Invoice Date', readonly=True)
+    invoice_number = fields.Char(string='Invoice Number', readonly=True)
+    amount_total = fields.Monetary(string='Total Amount', currency_field='currency_id', readonly=True)
+    amount_residual = fields.Monetary(string='Amount Due', currency_field='currency_id', readonly=True)
     amount_to_pay = fields.Monetary(string='Amount to Pay', currency_field='currency_id')
     selected = fields.Boolean(string='Pay', default=False)
-    currency_id = fields.Many2one('res.currency', related='wizard_id.currency_id', string='Currency')
+    currency_id = fields.Many2one('res.currency', related='wizard_id.currency_id', string='Currency', readonly=True)
 
     @api.onchange('selected')
     def _onchange_selected(self):

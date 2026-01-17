@@ -81,7 +81,7 @@ class MultiPaymentWizard(models.TransientModel):
     def action_load_invoices(self):
         """Reload invoices - refresh button"""
         self._onchange_partner_id()
-        return {'type': 'ir.actions.do_nothing'}
+        return True
 
     def action_create_payment(self):
         """Create payment and allocate to selected invoices"""

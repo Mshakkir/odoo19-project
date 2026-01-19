@@ -26,12 +26,37 @@ class SaleOrder(models.Model):
         help='Remaining balance (Total Invoiced - Amount Paid)'
     )
 
+    def _check_accounting_module(self):
+        """Check if accounting module is installed"""
+        account_module = self.env['ir.module.module'].search([
+            ('name', '=', 'account'),
+            ('state', '=', 'installed')
+        ], limit=1)
+
+        if not account_module:
+            raise UserError(
+                "The Accounting/Invoicing module is not installed.\n\n"
+                "Please install it first:\n"
+                "1. Go to Apps menu\n"
+                "2. Remove 'Apps' filter\n"
+                "3. Search for 'Invoicing' or 'Accounting'\n"
+                "4. Click Install"
+            )
+        return True
+
     @api.depends('partner_id')
     def _compute_customer_balance(self):
         """Calculate customer financial summary"""
         for order in self:
             if order.partner_id:
                 try:
+                    # Check if account.move model exists
+                    if 'account.move' not in self.env:
+                        order.customer_total_invoiced = 0.0
+                        order.customer_total_paid = 0.0
+                        order.customer_balance_due = 0.0
+                        continue
+
                     invoices = self.env['account.move'].search([
                         ('partner_id', 'child_of', order.partner_id.commercial_partner_id.id),
                         ('move_type', 'in', ['out_invoice', 'out_refund']),
@@ -61,8 +86,9 @@ class SaleOrder(models.Model):
                 order.customer_balance_due = 0.0
 
     def action_view_customer_invoices(self):
-        """Open filtered list of customer invoices in a new window"""
+        """Open filtered list of customer invoices"""
         self.ensure_one()
+        self._check_accounting_module()
 
         if not self.partner_id:
             raise UserError("Please select a customer first.")
@@ -73,22 +99,29 @@ class SaleOrder(models.Model):
             ('state', '=', 'posted')
         ]
 
+        invoices = self.env['account.move'].search(domain)
+
+        if not invoices:
+            raise UserError(f"No posted invoices found for {self.partner_id.name}")
+
         return {
             'name': f'Invoices - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move',
-            'view_mode': 'tree,form',
             'domain': domain,
             'context': {
                 'create': False,
                 'default_move_type': 'out_invoice',
             },
-            'target': 'new',  # Opens in a popup/modal window
+            'view_id': False,
+            'view_mode': 'tree,form',
+            'target': 'current',
         }
 
     def action_view_customer_payments(self):
-        """Open filtered list of customer payments in a new window"""
+        """Open filtered list of customer payments"""
         self.ensure_one()
+        self._check_accounting_module()
 
         if not self.partner_id:
             raise UserError("Please select a customer first.")
@@ -99,16 +132,22 @@ class SaleOrder(models.Model):
             ('state', '=', 'posted')
         ]
 
+        payments = self.env['account.payment'].search(domain)
+
+        if not payments:
+            raise UserError(f"No posted payments found for {self.partner_id.name}")
+
         return {
             'name': f'Payments - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.payment',
-            'view_mode': 'tree,form',
             'domain': domain,
             'context': {
                 'create': False,
                 'default_partner_id': self.partner_id.id,
                 'default_partner_type': 'customer',
             },
-            'target': 'new',  # Opens in a popup/modal window
+            'view_id': False,
+            'view_mode': 'tree,form',
+            'target': 'current',
         }

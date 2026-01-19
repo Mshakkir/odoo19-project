@@ -9,12 +9,27 @@
             sequence="10"
     />
 
-            <menuitem
-        id="menu_purchase_receipts"
-        name="Receipts"
-        parent="purchase.menu_purchase_root"
-        action="stock.action_picking_tree_all"
-        sequence="11"
+    <!-- Create a custom action for receipts only -->
+    <record id="action_picking_tree_receipt" model="ir.actions.act_window">
+        <field name="name">Receipts</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('picking_type_code', '=', 'incoming')]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new receipt
+            </p>
+        </field>
+    </record>
+
+    <!-- Add menu item pointing to the custom action -->
+    <menuitem
+            id="menu_purchase_receipts"
+            name="Receipts"
+            parent="purchase.menu_purchase_root"
+            action="action_picking_tree_receipt"
+            sequence="11"
     />
 
 </odoo>

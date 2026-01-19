@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_customer_balance" model="ir.ui.view">
+        <field name="name">sale.order.form.customer.balance</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Add customer balance info after the Expiration field -->
+            <xpath expr="//field[@name='validity_date']" position="after">
+                <field name="customer_balance_due"
+                       invisible="not partner_id"
+                       readonly="1"
+                       decoration-danger="customer_balance_due > 0"
+                       widget="monetary"/>
+                <field name="customer_total_paid"
+                       invisible="not partner_id"
+                       readonly="1"
+                       widget="monetary"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

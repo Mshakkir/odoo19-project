@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<!--    &lt;!&ndash; Add "Sale Invoices" menu item under Sales &ndash;&gt;-->
-<!--    <menuitem-->
-<!--        id="menu_sale_invoices"-->
-<!--        name="Sale Invoices"-->
-<!--        parent="sale.sale_menu_root"-->
-<!--        action="account.action_move_out_invoice_type"-->
-<!--        sequence="10"/>-->
+
 
     <!-- Create a custom action for delivery notes only -->
     <record id="action_picking_tree_delivery" model="ir.actions.act_window">
@@ -32,21 +26,3 @@
     />
 </odoo>
 
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-<!--&lt;!&ndash;    &lt;!&ndash; Add "Sale Invoices" menu item under Sales &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;    <menuitem&ndash;&gt;-->
-<!--&lt;!&ndash;        id="menu_sale_invoices"&ndash;&gt;-->
-<!--&lt;!&ndash;        name="Sale Invoices"&ndash;&gt;-->
-<!--&lt;!&ndash;        parent="sale.sale_menu_root"&ndash;&gt;-->
-<!--&lt;!&ndash;        action="account.action_move_out_invoice_type"&ndash;&gt;-->
-<!--&lt;!&ndash;        sequence="10"/>&ndash;&gt;-->
-
-<!--        <menuitem-->
-<!--        id="menu_sales_delivery_notes"-->
-<!--        name="Delivery Notes"-->
-<!--        parent="sale.sale_menu_root"-->
-<!--        action="stock.action_picking_tree_all"-->
-<!--        sequence="15"-->
-<!--    />-->
-<!--</odoo>-->

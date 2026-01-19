@@ -99,47 +99,58 @@ class PurchaseOrder(models.Model):
         if not self.partner_id:
             raise UserError("Please select a vendor first.")
 
-        # Try different approaches
-        payments = self.env['account.payment'].search([
+        # Check if account.payment model exists
+        if 'account.payment' not in self.env:
+            raise UserError("Payment module is not installed.")
+
+        # Search for all payments for this vendor (no filters)
+        all_payments = self.env['account.payment'].search([
             ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
         ])
 
-        if payments:
-            domain = [
+        # Debug: Show what we found
+        if not all_payments:
+            # No account.payment records - try account.move with payment_state
+            moves_with_payment = self.env['account.move'].search([
                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
-                ('payment_type', '=', 'outbound'),
-            ]
-
-            return {
-                'name': f'Payments - {self.partner_id.name}',
-                'type': 'ir.actions.act_window',
-                'res_model': 'account.payment',
-                'view_mode': 'list,form',
-                'views': [(False, 'list'), (False, 'form')],
-                'domain': domain,
-                'context': {
-                    'create': False,
-                    'default_partner_id': self.partner_id.id,
-                    'default_payment_type': 'outbound',
-                },
-            }
-        else:
-            # Show payment moves
-            domain = [
-                ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
-                ('move_type', '=', 'entry'),
+                ('payment_state', 'in', ['paid', 'in_payment', 'partial']),
                 ('state', '=', 'posted'),
-                ('payment_id', '!=', False),
-            ]
+            ])
 
-            return {
-                'name': f'Payment Entries - {self.partner_id.name}',
-                'type': 'ir.actions.act_window',
-                'res_model': 'account.move',
-                'view_mode': 'list,form',
-                'views': [(False, 'list'), (False, 'form')],
-                'domain': domain,
-                'context': {
-                    'create': False,
-                },
-            }
+            if moves_with_payment:
+                return {
+                    'name': f'Paid Bills - {self.partner_id.name}',
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'account.move',
+                    'view_mode': 'list,form',
+                    'views': [(False, 'list'), (False, 'form')],
+                    'domain': [
+                        ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
+                        ('payment_state', 'in', ['paid', 'in_payment', 'partial']),
+                        ('state', '=', 'posted'),
+                    ],
+                    'context': {'create': False},
+                }
+            else:
+                raise UserError(
+                    f"No payment records found for {self.partner_id.name}.\n\nThis could mean:\n1. No payments have been recorded yet\n2. Payments are recorded in a different way in your Odoo Mates installation\n3. The accounting module uses a custom payment model")
+
+        # We found account.payment records - now show them
+        domain = [
+            ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
+            ('payment_type', '=', 'outbound'),
+        ]
+
+        return {
+            'name': f'Payments - {self.partner_id.name}',
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.payment',
+            'view_mode': 'list,form',
+            'views': [(False, 'list'), (False, 'form')],
+            'domain': domain,
+            'context': {
+                'create': False,
+                'default_partner_id': self.partner_id.id,
+                'default_payment_type': 'outbound',
+            },
+        }

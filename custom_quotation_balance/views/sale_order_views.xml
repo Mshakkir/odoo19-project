@@ -9,38 +9,29 @@
             <!-- Add customer balance info after the Expiration field -->
             <xpath expr="//field[@name='validity_date']" position="after">
 
-                <group invisible="not partner_id" string="Customer Account Summary" class="oe_subtotal_footer_separator">
-                    <group class="oe_subtotal_footer">
+                <!-- 1. Total Invoiced -->
+                <field name="customer_total_invoiced"
+                       invisible="not partner_id"
+                       readonly="1"
+                       widget="monetary"
+                       string="Total Invoiced"/>
 
-                        <!-- 1. Total Invoiced -->
-                        <field name="customer_total_invoiced"
-                               widget="monetary"
-                               readonly="1"
-                               string="📊 Total Invoiced"
-                               style="font-weight: bold;"/>
+                <!-- 2. Amount Paid -->
+                <field name="customer_total_paid"
+                       invisible="not partner_id"
+                       readonly="1"
+                       decoration-success="customer_total_paid > 0"
+                       widget="monetary"
+                       string="Amount Paid"/>
 
-                        <!-- 2. Amount Paid -->
-                        <field name="customer_total_paid"
-                               widget="monetary"
-                               readonly="1"
-                               decoration-success="customer_total_paid > 0"
-                               string="✅ Amount Paid"
-                               style="font-weight: bold; color: green;"/>
-
-                        <!-- Separator line -->
-                        <div class="oe_subtotal_footer_separator"/>
-
-                        <!-- 3. Balance Due -->
-                        <field name="customer_balance_due"
-                               widget="monetary"
-                               readonly="1"
-                               decoration-danger="customer_balance_due > 0"
-                               decoration-success="customer_balance_due == 0"
-                               string="⏳ Balance Due"
-                               style="font-weight: bold; font-size: 16px;"/>
-
-                    </group>
-                </group>
+                <!-- 3. Balance Due (Total Invoiced - Amount Paid) -->
+                <field name="customer_balance_due"
+                       invisible="not partner_id"
+                       readonly="1"
+                       decoration-danger="customer_balance_due > 0"
+                       decoration-success="customer_balance_due == 0"
+                       widget="monetary"
+                       string="Balance Due"/>
 
             </xpath>
 

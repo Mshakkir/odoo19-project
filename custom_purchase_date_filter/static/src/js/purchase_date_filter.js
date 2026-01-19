@@ -436,6 +436,10 @@ patch(ListController.prototype, {
         sourceDocId, goodsReceiptId, billingStatusId, paymentStatusId,
         applyId, clearId, viewType
     ) {
+        console.log('Attaching filter events...');
+        console.log('Apply button ID:', applyId);
+        console.log('Clear button ID:', clearId);
+
         const dateFromInput = document.getElementById(fromId);
         const dateToInput = document.getElementById(toId);
         const warehouseSelect = document.getElementById(warehouseId);
@@ -454,7 +458,20 @@ patch(ListController.prototype, {
         const applyBtn = document.getElementById(applyId);
         const clearBtn = document.getElementById(clearId);
 
-        if (!dateFromInput || !dateToInput || !applyBtn || !clearBtn) return;
+        console.log('Apply button found:', !!applyBtn);
+        console.log('Clear button found:', !!clearBtn);
+
+        if (!dateFromInput || !dateToInput) {
+            console.error('Date inputs not found');
+            return;
+        }
+
+        if (!applyBtn || !clearBtn) {
+            console.error('Apply or Clear button not found');
+            console.log('Looking for Apply button with ID:', applyId);
+            console.log('Looking for Clear button with ID:', clearId);
+            return;
+        }
 
         const applyFilter = () => {
             try {
@@ -587,7 +604,17 @@ patch(ListController.prototype, {
             }
         };
 
-        applyBtn.addEventListener('click', applyFilter);
+        applyBtn.addEventListener('click', (e) => {
+            console.log('Apply button clicked!');
+            e.preventDefault();
+            applyFilter();
+        });
+
+        clearBtn.addEventListener('click', (e) => {
+            console.log('Clear button clicked!');
+            e.preventDefault();
+            clearFilter();
+        });
 
         const allInputs = [
             dateFromInput, dateToInput, warehouseSelect, vendorInput, repInput,

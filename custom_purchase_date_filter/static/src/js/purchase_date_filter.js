@@ -496,27 +496,33 @@ patch(ListController.prototype, {
                     };
                 }
 
-                // FIX: Vendor filter - use partner_id
-                if (vendorValue.value) {
-                    domain.push(['partner_id', '=', parseInt(vendorValue.value)]);
+                // FIX: Check vendor value properly
+                console.log('Vendor ID Value:', vendorValue.value);
+                console.log('Vendor Input Value:', vendorInput.value);
+
+                if (vendorValue.value && vendorValue.value !== '') {
+                    const vendorId = parseInt(vendorValue.value);
+                    console.log('Adding vendor filter with ID:', vendorId);
+                    domain.push(['partner_id', '=', vendorId]);
                 }
 
                 // Buyer/Rep filter
-                if (repValue.value) {
+                if (repValue.value && repValue.value !== '') {
+                    const repId = parseInt(repValue.value);
                     if (viewType === 'bill') {
-                        domain.push(['buyer_id', '=', parseInt(repValue.value)]);
+                        domain.push(['buyer_id', '=', repId]);
                     } else {
-                        domain.push(['user_id', '=', parseInt(repValue.value)]);
+                        domain.push(['user_id', '=', repId]);
                     }
                 }
 
                 // Reference filter
-                if (orderRefInput.value.trim()) {
+                if (orderRefInput && orderRefInput.value.trim()) {
                     domain.push(['name', 'ilike', orderRefInput.value.trim()]);
                 }
 
                 // Vendor reference filter
-                if (vendorRefInput.value.trim()) {
+                if (vendorRefInput && vendorRefInput.value.trim()) {
                     if (viewType === 'bill') {
                         domain.push(['ref', 'ilike', vendorRefInput.value.trim()]);
                     } else {
@@ -525,30 +531,30 @@ patch(ListController.prototype, {
                 }
 
                 // Amount filter
-                if (amountInput.value) {
+                if (amountInput && amountInput.value) {
                     const exactAmount = parseFloat(amountInput.value);
                     domain.push(['amount_total', '=', exactAmount]);
                 }
 
                 // View-specific filters
                 if (viewType === 'purchase_order' || viewType === 'rfq') {
-                    if (warehouseSelect.value) {
+                    if (warehouseSelect && warehouseSelect.value) {
                         domain.push(['picking_type_id.warehouse_id', '=', parseInt(warehouseSelect.value)]);
                     }
-                    if (shippingRefInput.value.trim()) {
+                    if (shippingRefInput && shippingRefInput.value.trim()) {
                         domain.push(['awb_number', 'ilike', shippingRefInput.value.trim()]);
                     }
                     if (billingStatusSelect && billingStatusSelect.value) {
                         domain.push(['invoice_status', '=', billingStatusSelect.value]);
                     }
                 } else if (viewType === 'bill') {
-                    if (warehouseSelect.value) {
+                    if (warehouseSelect && warehouseSelect.value) {
                         domain.push(['warehouse_id', '=', parseInt(warehouseSelect.value)]);
                     }
                     if (sourceDocInput && sourceDocInput.value.trim()) {
                         domain.push(['invoice_origin', 'ilike', sourceDocInput.value.trim()]);
                     }
-                    if (shippingRefInput.value.trim()) {
+                    if (shippingRefInput && shippingRefInput.value.trim()) {
                         domain.push(['awb_number', 'ilike', shippingRefInput.value.trim()]);
                     }
                     if (goodsReceiptInput && goodsReceiptInput.value.trim()) {
@@ -558,6 +564,8 @@ patch(ListController.prototype, {
                         domain.push(['payment_state', '=', paymentStatusSelect.value]);
                     }
                 }
+
+                console.log('Final Domain:', domain);
 
                 if (this.model && this.model.load) {
                     this.model.load({ domain: domain, context: context }).catch((error) => {

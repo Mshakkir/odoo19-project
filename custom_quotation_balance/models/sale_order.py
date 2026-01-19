@@ -8,14 +8,14 @@ class SaleOrder(models.Model):
         string='Total Invoiced',
         compute='_compute_customer_balance',
         currency_field='currency_id',
-        help='Total amount invoiced to this customer'
+        help='Total amount invoiced to this customer (Click to view invoices)'
     )
 
     customer_total_paid = fields.Monetary(
         string='Amount Paid',
         compute='_compute_customer_balance',
         currency_field='currency_id',
-        help='Total amount paid by customer'
+        help='Total amount paid by customer (Click to view payments)'
     )
 
     customer_balance_due = fields.Monetary(
@@ -57,3 +57,52 @@ class SaleOrder(models.Model):
                 order.customer_total_invoiced = 0.0
                 order.customer_total_paid = 0.0
                 order.customer_balance_due = 0.0
+
+    def action_view_customer_invoices(self):
+        """Open list of all customer invoices"""
+        self.ensure_one()
+
+        # Get all invoices for this customer
+        invoices = self.env['account.move'].search([
+            ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
+            ('move_type', 'in', ['out_invoice', 'out_refund']),
+            ('state', '=', 'posted')
+        ])
+
+        return {
+            'name': f'Invoices - {self.partner_id.name}',
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+            'view_mode': 'tree,form',
+            'domain': [('id', 'in', invoices.ids)],
+            'context': {
+                'default_move_type': 'out_invoice',
+                'create': False,
+            },
+            'target': 'current',  # Use 'new' for popup window
+        }
+
+    def action_view_customer_payments(self):
+        """Open list of all customer payments"""
+        self.ensure_one()
+
+        # Get all payments for this customer
+        payments = self.env['account.payment'].search([
+            ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
+            ('partner_type', '=', 'customer'),
+            ('state', '=', 'posted')
+        ])
+
+        return {
+            'name': f'Payments - {self.partner_id.name}',
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.payment',
+            'view_mode': 'tree,form',
+            'domain': [('id', 'in', payments.ids)],
+            'context': {
+                'default_partner_id': self.partner_id.id,
+                'default_partner_type': 'customer',
+                'create': False,
+            },
+            'target': 'current',  # Use 'new' for popup window
+        }

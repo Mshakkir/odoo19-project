@@ -9,22 +9,44 @@
             <!-- Add customer balance info after the Expiration field -->
             <xpath expr="//field[@name='validity_date']" position="after">
 
-                <!-- 1. Total Invoiced -->
-                <field name="customer_total_invoiced"
+                <!-- 1. Total Invoiced - Clickable -->
+                <label for="customer_total_invoiced"
                        invisible="not partner_id"
-                       readonly="1"
-                       widget="monetary"
                        string="Total Invoiced"/>
+                <div class="o_row" invisible="not partner_id">
+                    <field name="customer_total_invoiced"
+                           widget="monetary"
+                           readonly="1"
+                           class="oe_inline oe_link"
+                           style="cursor: pointer; color: #007bff; text-decoration: underline;"/>
+                    <button name="action_view_customer_invoices"
+                            type="object"
+                            class="btn-link"
+                            icon="fa-external-link"
+                            invisible="not partner_id or customer_total_invoiced == 0"
+                            string="View Invoices"/>
+                </div>
 
-                <!-- 2. Amount Paid -->
-                <field name="customer_total_paid"
+                <!-- 2. Amount Paid - Clickable -->
+                <label for="customer_total_paid"
                        invisible="not partner_id"
-                       readonly="1"
-                       decoration-success="customer_total_paid > 0"
-                       widget="monetary"
                        string="Amount Paid"/>
+                <div class="o_row" invisible="not partner_id">
+                    <field name="customer_total_paid"
+                           widget="monetary"
+                           readonly="1"
+                           decoration-success="customer_total_paid > 0"
+                           class="oe_inline oe_link"
+                           style="cursor: pointer; color: #28a745; text-decoration: underline;"/>
+                    <button name="action_view_customer_payments"
+                            type="object"
+                            class="btn-link"
+                            icon="fa-external-link"
+                            invisible="not partner_id or customer_total_paid == 0"
+                            string="View Payments"/>
+                </div>
 
-                <!-- 3. Balance Due (Total Invoiced - Amount Paid) -->
+                <!-- 3. Balance Due - Not clickable (just display) -->
                 <field name="customer_balance_due"
                        invisible="not partner_id"
                        readonly="1"

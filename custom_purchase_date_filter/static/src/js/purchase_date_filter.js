@@ -6,6 +6,8 @@ import { useService } from "@web/core/utils/hooks";
 import { patch } from "@web/core/utils/patch";
 import { ListController } from "@web/views/list/list_controller";
 
+console.log('Purchase Date Filter module loaded');
+
 // Patch ListController to inject date filter for Purchase Orders, RFQs and Bills
 patch(ListController.prototype, {
     setup() {
@@ -456,8 +458,14 @@ patch(ListController.prototype, {
 
         const applyFilter = () => {
             try {
+                console.log('=== APPLY FILTER CLICKED ===');
+                console.log('ViewType:', viewType);
+
                 const dateFrom = dateFromInput.value;
                 const dateTo = dateToInput.value;
+
+                console.log('Date From:', dateFrom);
+                console.log('Date To:', dateTo);
 
                 if (!dateFrom || !dateTo) {
                     this.notification.add("Please select both dates", { type: "warning" });

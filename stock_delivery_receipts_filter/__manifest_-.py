@@ -17,7 +17,7 @@
     """,
     'depends': ['stock', 'delivery', 'web'],
     'data': [
-        # 'views/stock_picking_views.xml',
+        'views/stock_picking_views.xml',
     ],
     'assets': {
         'web.assets_backend': [

@@ -378,49 +378,6 @@ patch(ListController.prototype, {
             }
         });
 
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-
-                console.log('Enter key pressed on vendor field');
-                console.log('Current hidden value:', hiddenValue.value);
-                console.log('Input value:', input.value);
-
-                // Close dropdown first
-                dropdown.classList.remove('show');
-
-                // Wait a moment for any pending selection to complete
-                setTimeout(() => {
-                    console.log('After timeout - hidden value:', hiddenValue.value);
-
-                    if (hiddenValue.value && hiddenValue.value !== '') {
-                        // Find the apply button by looking for all buttons and finding the one with "Apply" text
-                        const allButtons = document.querySelectorAll('button');
-                        let applyBtn = null;
-
-                        // Try multiple methods to find the apply button
-                        applyBtn = document.querySelector('[id*="purchase_apply"]');
-
-                        if (!applyBtn) {
-                            applyBtn = Array.from(allButtons).find(btn =>
-                                btn.classList.contains('apply_filter_btn') ||
-                                btn.textContent.trim() === 'Apply'
-                            );
-                        }
-
-                        if (applyBtn) {
-                            console.log('Found Apply button, triggering click');
-                            applyBtn.click();
-                        } else {
-                            console.log('Apply button not found');
-                        }
-                    } else {
-                        console.log('No vendor selected - Enter key ignored');
-                    }
-                }, 150);
-            }
-        });
-
         document.addEventListener('click', (e) => {
             if (!input.contains(e.target) && !dropdown.contains(e.target)) {
                 dropdown.classList.remove('show');
@@ -673,11 +630,36 @@ patch(ListController.prototype, {
                 input.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
                         e.preventDefault();
+                        console.log('Enter key pressed on filter input');
                         applyFilter();
                     }
                 });
             }
         });
+
+        // IMPORTANT: Also add Enter key handler to autocomplete inputs
+        const vendorInput = document.getElementById(`${vendorId}_input`);
+        const repInput = document.getElementById(`${repId}_input`);
+
+        if (vendorInput) {
+            vendorInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    console.log('Enter key pressed on vendor autocomplete input');
+                    applyFilter();
+                }
+            });
+        }
+
+        if (repInput) {
+            repInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    console.log('Enter key pressed on rep autocomplete input');
+                    applyFilter();
+                }
+            });
+        }
 
         const clearFilter = () => {
             try {

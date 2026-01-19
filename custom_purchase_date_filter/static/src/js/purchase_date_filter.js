@@ -637,10 +637,7 @@ patch(ListController.prototype, {
             }
         });
 
-        // IMPORTANT: Also add Enter key handler to autocomplete inputs
-        const vendorInput = document.getElementById(`${vendorId}_input`);
-        const repInput = document.getElementById(`${repId}_input`);
-
+        // Add Enter key handler to autocomplete inputs (vendorInput and repInput already defined above)
         if (vendorInput) {
             vendorInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {

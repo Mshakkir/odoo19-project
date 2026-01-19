@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Delivery Date Filter Component Template (kept for reference) -->
+    <t t-name="custom_delivery_filter.DateFilter" owl="1">
+        <div class="delivery_filter_container">
+            <!-- Filter content injected dynamically via JavaScript -->
+        </div>
+    </t>
+
+</templates>

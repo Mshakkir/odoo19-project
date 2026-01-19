@@ -7,9 +7,11 @@
             <field name="name">stock.picking.delivery.tree.custom</field>
             <field name="model">stock.picking</field>
             <field name="inherit_id" ref="stock.vpicktree"/>
+            <field name="mode">primary</field>
+            <field name="priority">1000</field>
             <field name="arch" type="xml">
-                <xpath expr="//list" position="replace">
-                    <list string="Delivery Orders"
+                <xpath expr="//tree" position="replace">
+                    <tree string="Delivery Orders"
                           sample="1"
                           decoration-info="state == 'draft'"
                           decoration-muted="state == 'cancel'"
@@ -48,8 +50,8 @@
                         <field name="create_date" string="Created on" optional="hide"/>
                         <field name="write_uid" string="Last Updated by" optional="hide"/>
                         <field name="write_date" string="Last Updated on" optional="hide"/>
-                        <field name="picking_type_code" column_invisible="1"/>
-                    </list>
+                        <field name="picking_type_code" invisible="1"/>
+                    </tree>
                 </xpath>
             </field>
         </record>
@@ -58,9 +60,10 @@
         <record id="action_picking_tree_delivery" model="ir.actions.act_window">
             <field name="name">Delivery Notes</field>
             <field name="res_model">stock.picking</field>
-            <field name="view_mode">list,form</field>
+            <field name="view_mode">tree,form</field>
             <field name="domain">[('picking_type_code', '=', 'outgoing')]</field>
             <field name="context">{'search_default_picking_type_code': 'outgoing'}</field>
+            <field name="view_id" ref="view_picking_delivery_tree_custom"/>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     Create a new delivery note

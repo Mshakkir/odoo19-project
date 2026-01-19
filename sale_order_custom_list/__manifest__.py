@@ -13,9 +13,9 @@
     'data': [
         'views/sale_order_views.xml',
         "views/sale_quotation_views.xml",
-        #     "views/stock_picking_views.xml",
-        'views/delivery_note_views.xml',
-        'views/receipts_views.xml',
+            "views/stock_picking_views.xml",
+        # 'views/delivery_note_views.xml',
+        # 'views/receipts_views.xml',
     ],
     'installable': True,
     'application': False,

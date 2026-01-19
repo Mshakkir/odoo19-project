@@ -93,36 +93,32 @@ class SaleOrder(models.Model):
             'target': 'current',  # Changed to current for better compatibility
         }
 
-    def action_view_customer_payments(self):
-        """Open filtered list of customer payments"""
+    def action_view_customer_invoices(self):
+        """Open filtered list of customer invoices"""
         self.ensure_one()
 
         if not self.partner_id:
             raise UserError("Please select a customer first.")
 
-        # Search for payments
-        payments = self.env['account.payment'].search([
+        # Search for invoices
+        domain = [
             ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
-            ('partner_type', '=', 'customer'),
+            ('move_type', 'in', ['out_invoice', 'out_refund']),
             ('state', '=', 'posted')
-        ])
+        ]
 
-        if not payments:
-            raise UserError(f"No payments found for {self.partner_id.name}")
+        invoices = self.env['account.move'].search(domain)
 
-        # Return proper action with all required fields
+        # Return action even if no invoices (shows empty list)
         return {
-            'name': f'Payments - {self.partner_id.name}',
+            'name': f'Invoices - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
-            'res_model': 'account.payment',
-            'view_mode': 'tree,form',  # REQUIRED field
-            'views': [(False, 'tree'), (False, 'form')],  # Let Odoo find default views
-            'domain': [('id', 'in', payments.ids)],
+            'res_model': 'account.move',
+            'view_mode': 'tree,form',
+            'domain': domain,  # Use domain instead of ids for better performance
             'context': {
                 'create': False,
-                'edit': False,
-                'default_partner_id': self.partner_id.id,
-                'default_partner_type': 'customer',
+                'default_move_type': 'out_invoice',
             },
-            'target': 'current',  # Changed to current for better compatibility
+            'target': 'current',
         }

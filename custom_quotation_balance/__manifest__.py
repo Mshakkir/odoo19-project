@@ -7,7 +7,7 @@
         Shows customer balance information (amount to pay and amount paid) 
         on the quotation form when a customer is selected.
     """,
-    'depends': ['sale_management'],
+    'depends': ['sale_management', 'account'],  # Added 'account' here
     'data': [
         'views/sale_order_views.xml',
     ],

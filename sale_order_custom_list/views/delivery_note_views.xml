@@ -18,7 +18,7 @@
 
                         <field name="scheduled_date" string="Scheduled Date"/>
                         <field name="name" string="Number" readonly="1" decoration-bf="1"/>
-                        <field name="partner_id" string="Customer"/>
+                        <field name="partner_id" string="Customer" context="{'res_partner_search_mode': 'customer'}"/>
                         <field name="location_id" string="Source Location" optional="show" groups="stock.group_stock_multi_locations"/>
                         <field name="origin" string="Source Document" optional="show"/>
                         <field name="user_id" string="Responsible" optional="show" widget="many2one_avatar_user"/>

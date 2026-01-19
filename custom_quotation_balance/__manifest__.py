@@ -1,17 +1,22 @@
 {
-    'name': 'Quotation Customer Balance',
+    'name': 'Quotation & Purchase Customer/Vendor Balance',
     'version': '19.0.1.0.0',
-    'category': 'Sales',
-    'summary': 'Display customer balance on quotation form',
+    'category': 'Sales/Purchase',
+    'summary': 'Display customer/vendor balance on quotation and purchase order forms',
     'description': """
-        Shows customer balance information (amount to pay and amount paid) 
-        on the quotation form when a customer is selected.
+        Shows customer balance information on quotation forms and vendor balance on purchase orders.
+
+        Features:
+        - Customer balance on Sales Orders (Total Invoiced, Amount Paid, Balance Due)
+        - Vendor balance on Purchase Orders (Total Billed, Amount Paid, Balance Due)
+        - Clickable fields to view related invoices/bills and payments
 
         Compatible with Odoo Mates Accounting module for Odoo 19 CE.
     """,
-    'depends': ['sale_management', 'om_account_accountant'],
+    'depends': ['sale_management', 'purchase', 'om_account_accountant'],
     'data': [
         'views/sale_order_views.xml',
+        'views/purchase_order_view.xml',
     ],
     'installable': True,
     'application': False,

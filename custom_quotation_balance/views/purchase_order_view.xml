@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_purchase_order_form_vendor_balance" model="ir.ui.view">
+        <field name="name">purchase.order.form.vendor.balance</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Add vendor balance info after the Payment Terms field -->
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+
+                <!-- 1. Total Billed - Clickable -->
+                <label for="vendor_total_billed"
+                       invisible="not partner_id"
+                       string="Total Billed"/>
+                <div class="o_row" invisible="not partner_id">
+                    <field name="vendor_total_billed"
+                           widget="monetary"
+                           readonly="1"
+                           class="oe_inline oe_link"
+                           style="cursor: pointer; color: #007bff; text-decoration: underline;"/>
+                    <button name="action_view_vendor_bills"
+                            type="object"
+                            class="btn-link"
+                            icon="fa-external-link"
+                            invisible="not partner_id or vendor_total_billed == 0"
+                            string="View Bills"/>
+                </div>
+
+                <!-- 2. Amount Paid - Clickable -->
+                <label for="vendor_total_paid"
+                       invisible="not partner_id"
+                       string="Amount Paid"/>
+                <div class="o_row" invisible="not partner_id">
+                    <field name="vendor_total_paid"
+                           widget="monetary"
+                           readonly="1"
+                           decoration-success="vendor_total_paid > 0"
+                           class="oe_inline oe_link"
+                           style="cursor: pointer; color: #28a745; text-decoration: underline;"/>
+                    <button name="action_view_vendor_payments"
+                            type="object"
+                            class="btn-link"
+                            icon="fa-external-link"
+                            invisible="not partner_id or vendor_total_paid == 0"
+                            string="View Payments"/>
+                </div>
+
+                <!-- 3. Balance Due - Not clickable (just display) -->
+                <field name="vendor_balance_due"
+                       invisible="not partner_id"
+                       readonly="1"
+                       decoration-danger="vendor_balance_due > 0"
+                       decoration-success="vendor_balance_due == 0"
+                       widget="monetary"
+                       string="Balance Due"/>
+
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

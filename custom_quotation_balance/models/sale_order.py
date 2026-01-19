@@ -67,18 +67,22 @@ class SaleOrder(models.Model):
         if not self.partner_id:
             raise UserError("Please select a customer first.")
 
-        # Search for invoices
         domain = [
             ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
             ('move_type', 'in', ['out_invoice', 'out_refund']),
             ('state', '=', 'posted')
         ]
 
+        # Get the tree and form view IDs explicitly
+        tree_view_id = self.env.ref('account.view_invoice_tree').id
+        form_view_id = self.env.ref('account.view_move_form').id
+
         return {
             'name': f'Invoices - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move',
             'view_mode': 'tree,form',
+            'views': [(tree_view_id, 'tree'), (form_view_id, 'form')],
             'domain': domain,
             'context': {
                 'create': False,
@@ -94,18 +98,22 @@ class SaleOrder(models.Model):
         if not self.partner_id:
             raise UserError("Please select a customer first.")
 
-        # Search for payments
         domain = [
             ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
             ('partner_type', '=', 'customer'),
             ('state', '=', 'posted')
         ]
 
+        # Get the tree and form view IDs explicitly
+        tree_view_id = self.env.ref('account.view_account_payment_tree').id
+        form_view_id = self.env.ref('account.view_account_payment_form').id
+
         return {
             'name': f'Payments - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.payment',
             'view_mode': 'tree,form',
+            'views': [(tree_view_id, 'tree'), (form_view_id, 'form')],
             'domain': domain,
             'context': {
                 'create': False,

@@ -6,12 +6,15 @@
     'description': """
         Shows customer balance information (amount to pay and amount paid) 
         on the quotation form when a customer is selected.
+
+        Compatible with Odoo Mates Accounting module for Odoo 19 CE.
     """,
-    'depends': ['sale_management', 'account'],  # Added 'account' here
+    'depends': ['sale_management', 'om_account_accountant'],
     'data': [
         'views/sale_order_views.xml',
     ],
     'installable': True,
     'application': False,
     'auto_install': False,
+    'license': 'LGPL-3',
 }

@@ -26,31 +26,12 @@ class SaleOrder(models.Model):
         help='Remaining balance (Total Invoiced - Amount Paid)'
     )
 
-    def _check_accounting_module(self):
-        """Check if accounting module is installed"""
-        account_module = self.env['ir.module.module'].search([
-            ('name', '=', 'account'),
-            ('state', '=', 'installed')
-        ], limit=1)
-
-        if not account_module:
-            raise UserError(
-                "The Accounting/Invoicing module is not installed.\n\n"
-                "Please install it first:\n"
-                "1. Go to Apps menu\n"
-                "2. Remove 'Apps' filter\n"
-                "3. Search for 'Invoicing' or 'Accounting'\n"
-                "4. Click Install"
-            )
-        return True
-
     @api.depends('partner_id')
     def _compute_customer_balance(self):
         """Calculate customer financial summary"""
         for order in self:
             if order.partner_id:
                 try:
-                    # Check if account.move model exists
                     if 'account.move' not in self.env:
                         order.customer_total_invoiced = 0.0
                         order.customer_total_paid = 0.0
@@ -86,9 +67,8 @@ class SaleOrder(models.Model):
                 order.customer_balance_due = 0.0
 
     def action_view_customer_invoices(self):
-        """Open filtered list of customer invoices"""
+        """Open filtered list of customer invoices - Compatible with Odoo Mates"""
         self.ensure_one()
-        self._check_accounting_module()
 
         if not self.partner_id:
             raise UserError("Please select a customer first.")
@@ -104,24 +84,40 @@ class SaleOrder(models.Model):
         if not invoices:
             raise UserError(f"No posted invoices found for {self.partner_id.name}")
 
+        # Try to find the invoice tree view - works with both standard and Odoo Mates
+        try:
+            tree_view = self.env.ref('account.view_invoice_tree', raise_if_not_found=False)
+            form_view = self.env.ref('account.view_move_form', raise_if_not_found=False)
+        except:
+            tree_view = None
+            form_view = None
+
+        views = []
+        if tree_view:
+            views.append((tree_view.id, 'tree'))
+        if form_view:
+            views.append((form_view.id, 'form'))
+
+        # If no views found, let Odoo find them automatically
+        if not views:
+            views = [(False, 'tree'), (False, 'form')]
+
         return {
             'name': f'Invoices - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move',
+            'views': views,
             'domain': domain,
             'context': {
                 'create': False,
                 'default_move_type': 'out_invoice',
             },
-            'view_id': False,
-            'view_mode': 'tree,form',
             'target': 'current',
         }
 
     def action_view_customer_payments(self):
-        """Open filtered list of customer payments"""
+        """Open filtered list of customer payments - Compatible with Odoo Mates"""
         self.ensure_one()
-        self._check_accounting_module()
 
         if not self.partner_id:
             raise UserError("Please select a customer first.")
@@ -137,17 +133,34 @@ class SaleOrder(models.Model):
         if not payments:
             raise UserError(f"No posted payments found for {self.partner_id.name}")
 
+        # Try to find the payment views - works with both standard and Odoo Mates
+        try:
+            tree_view = self.env.ref('account.view_account_payment_tree', raise_if_not_found=False)
+            form_view = self.env.ref('account.view_account_payment_form', raise_if_not_found=False)
+        except:
+            tree_view = None
+            form_view = None
+
+        views = []
+        if tree_view:
+            views.append((tree_view.id, 'tree'))
+        if form_view:
+            views.append((form_view.id, 'form'))
+
+        # If no views found, let Odoo find them automatically
+        if not views:
+            views = [(False, 'tree'), (False, 'form')]
+
         return {
             'name': f'Payments - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.payment',
+            'views': views,
             'domain': domain,
             'context': {
                 'create': False,
                 'default_partner_id': self.partner_id.id,
                 'default_partner_type': 'customer',
             },
-            'view_id': False,
-            'view_mode': 'tree,form',
             'target': 'current',
         }

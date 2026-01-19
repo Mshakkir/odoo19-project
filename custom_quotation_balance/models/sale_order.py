@@ -77,14 +77,20 @@ class SaleOrder(models.Model):
         if not invoices:
             raise UserError(f"No invoices found for {self.partner_id.name}")
 
-        # Return action without specifying views - let Odoo find them automatically
+        # Return proper action with all required fields
         return {
             'name': f'Invoices - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move',
+            'view_mode': 'tree,form',  # REQUIRED field
+            'views': [(False, 'tree'), (False, 'form')],  # Let Odoo find default views
             'domain': [('id', 'in', invoices.ids)],
-            'context': {'create': False, 'edit': False},
-            'target': 'new',
+            'context': {
+                'create': False,
+                'edit': False,
+                'default_move_type': 'out_invoice',
+            },
+            'target': 'current',  # Changed to current for better compatibility
         }
 
     def action_view_customer_payments(self):
@@ -104,12 +110,19 @@ class SaleOrder(models.Model):
         if not payments:
             raise UserError(f"No payments found for {self.partner_id.name}")
 
-        # Return action without specifying views
+        # Return proper action with all required fields
         return {
             'name': f'Payments - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.payment',
+            'view_mode': 'tree,form',  # REQUIRED field
+            'views': [(False, 'tree'), (False, 'form')],  # Let Odoo find default views
             'domain': [('id', 'in', payments.ids)],
-            'context': {'create': False, 'edit': False},
-            'target': 'new',
+            'context': {
+                'create': False,
+                'edit': False,
+                'default_partner_id': self.partner_id.id,
+                'default_partner_type': 'customer',
+            },
+            'target': 'current',  # Changed to current for better compatibility
         }

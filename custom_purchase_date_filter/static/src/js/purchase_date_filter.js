@@ -380,10 +380,17 @@ patch(ListController.prototype, {
 
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                dropdown.classList.remove('show');
-                const applyBtn = document.querySelector('.apply_filter_btn');
-                if (applyBtn) {
-                    applyBtn.click();
+                e.preventDefault();
+                // FIX: Only trigger apply if an item is selected (hiddenValue is set)
+                if (hiddenValue.value) {
+                    dropdown.classList.remove('show');
+                    const applyBtn = document.querySelector('.apply_filter_btn');
+                    if (applyBtn) {
+                        console.log('Enter key triggered Apply button');
+                        applyBtn.click();
+                    }
+                } else {
+                    console.log('No vendor selected, ignoring Enter key');
                 }
             }
         });

@@ -61,7 +61,7 @@ class SaleOrder(models.Model):
                 order.customer_balance_due = 0.0
 
     def action_view_customer_invoices(self):
-        """Open filtered list of customer invoices"""
+        """Open filtered list of customer invoices in a new window"""
         self.ensure_one()
 
         if not self.partner_id:
@@ -73,26 +73,21 @@ class SaleOrder(models.Model):
             ('state', '=', 'posted')
         ]
 
-        # Get the tree and form view IDs explicitly
-        tree_view_id = self.env.ref('account.view_invoice_tree').id
-        form_view_id = self.env.ref('account.view_move_form').id
-
         return {
             'name': f'Invoices - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move',
             'view_mode': 'tree,form',
-            'views': [(tree_view_id, 'tree'), (form_view_id, 'form')],
             'domain': domain,
             'context': {
                 'create': False,
                 'default_move_type': 'out_invoice',
             },
-            'target': 'current',
+            'target': 'new',  # Opens in a popup/modal window
         }
 
     def action_view_customer_payments(self):
-        """Open filtered list of customer payments"""
+        """Open filtered list of customer payments in a new window"""
         self.ensure_one()
 
         if not self.partner_id:
@@ -104,21 +99,16 @@ class SaleOrder(models.Model):
             ('state', '=', 'posted')
         ]
 
-        # Get the tree and form view IDs explicitly
-        tree_view_id = self.env.ref('account.view_account_payment_tree').id
-        form_view_id = self.env.ref('account.view_account_payment_form').id
-
         return {
             'name': f'Payments - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.payment',
             'view_mode': 'tree,form',
-            'views': [(tree_view_id, 'tree'), (form_view_id, 'form')],
             'domain': domain,
             'context': {
                 'create': False,
                 'default_partner_id': self.partner_id.id,
                 'default_partner_type': 'customer',
             },
-            'target': 'current',
+            'target': 'new',  # Opens in a popup/modal window
         }

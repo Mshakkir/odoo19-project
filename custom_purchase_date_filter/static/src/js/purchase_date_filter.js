@@ -378,20 +378,31 @@ patch(ListController.prototype, {
             }
         });
 
-        input.addEventListener('keypress', (e) => {
+        input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                // FIX: Only trigger apply if an item is selected (hiddenValue is set)
-                if (hiddenValue.value) {
-                    dropdown.classList.remove('show');
-                    const applyBtn = document.querySelector('.apply_filter_btn');
-                    if (applyBtn) {
-                        console.log('Enter key triggered Apply button');
-                        applyBtn.click();
+
+                console.log('Enter key pressed on vendor field');
+                console.log('Current hidden value:', hiddenValue.value);
+                console.log('Input value:', input.value);
+
+                // Close dropdown first
+                dropdown.classList.remove('show');
+
+                // Wait a moment for any pending selection to complete
+                setTimeout(() => {
+                    console.log('After timeout - hidden value:', hiddenValue.value);
+
+                    if (hiddenValue.value && hiddenValue.value !== '') {
+                        const applyBtn = document.querySelector('.apply_filter_btn');
+                        if (applyBtn) {
+                            console.log('Triggering Apply via Enter key');
+                            applyBtn.click();
+                        }
+                    } else {
+                        console.log('No vendor selected - Enter key ignored');
                     }
-                } else {
-                    console.log('No vendor selected, ignoring Enter key');
-                }
+                }, 100);
             }
         });
 
@@ -426,13 +437,22 @@ patch(ListController.prototype, {
             </div>
         `).join('');
 
+        // FIX: Properly attach click handlers to each item
         dropdown.querySelectorAll('.autocomplete_item:not(.no_results)').forEach(item => {
-            item.addEventListener('click', () => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
                 const id = item.getAttribute('data-id');
                 const name = item.getAttribute('data-name');
+
+                console.log('Vendor item clicked - ID:', id, 'Name:', name);
+
                 input.value = name;
                 hiddenValue.value = id;
                 dropdown.classList.remove('show');
+
+                console.log('Vendor selected - Value stored:', hiddenValue.value);
             });
         });
     },

@@ -84,29 +84,11 @@ class SaleOrder(models.Model):
         if not invoices:
             raise UserError(f"No posted invoices found for {self.partner_id.name}")
 
-        # Try to find the invoice tree view - works with both standard and Odoo Mates
-        try:
-            tree_view = self.env.ref('account.view_invoice_tree', raise_if_not_found=False)
-            form_view = self.env.ref('account.view_move_form', raise_if_not_found=False)
-        except:
-            tree_view = None
-            form_view = None
-
-        views = []
-        if tree_view:
-            views.append((tree_view.id, 'tree'))
-        if form_view:
-            views.append((form_view.id, 'form'))
-
-        # If no views found, let Odoo find them automatically
-        if not views:
-            views = [(False, 'tree'), (False, 'form')]
-
         return {
             'name': f'Invoices - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move',
-            'views': views,
+            'view_mode': 'tree,form',
             'domain': domain,
             'context': {
                 'create': False,
@@ -133,29 +115,11 @@ class SaleOrder(models.Model):
         if not payments:
             raise UserError(f"No posted payments found for {self.partner_id.name}")
 
-        # Try to find the payment views - works with both standard and Odoo Mates
-        try:
-            tree_view = self.env.ref('account.view_account_payment_tree', raise_if_not_found=False)
-            form_view = self.env.ref('account.view_account_payment_form', raise_if_not_found=False)
-        except:
-            tree_view = None
-            form_view = None
-
-        views = []
-        if tree_view:
-            views.append((tree_view.id, 'tree'))
-        if form_view:
-            views.append((form_view.id, 'form'))
-
-        # If no views found, let Odoo find them automatically
-        if not views:
-            views = [(False, 'tree'), (False, 'form')]
-
         return {
             'name': f'Payments - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.payment',
-            'views': views,
+            'view_mode': 'tree,form',
             'domain': domain,
             'context': {
                 'create': False,

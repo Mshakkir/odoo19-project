@@ -99,10 +99,11 @@ class SaleOrder(models.Model):
         if not self.partner_id:
             raise UserError("Please select a customer first.")
 
+        # More flexible domain - works with both standard Odoo and Odoo Mates
         domain = [
             ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
-            ('partner_type', '=', 'customer'),
-            ('state', '=', 'posted')
+            ('payment_type', '=', 'inbound'),  # Changed from partner_type
+            ('state', 'in', ['posted', 'reconciled'])  # Include reconciled payments
         ]
 
         return {
@@ -115,6 +116,6 @@ class SaleOrder(models.Model):
             'context': {
                 'create': False,
                 'default_partner_id': self.partner_id.id,
-                'default_partner_type': 'customer',
+                'default_payment_type': 'inbound',
             },
         }

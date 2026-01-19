@@ -394,15 +394,30 @@ patch(ListController.prototype, {
                     console.log('After timeout - hidden value:', hiddenValue.value);
 
                     if (hiddenValue.value && hiddenValue.value !== '') {
-                        const applyBtn = document.querySelector('.apply_filter_btn');
+                        // Find the apply button by looking for all buttons and finding the one with "Apply" text
+                        const allButtons = document.querySelectorAll('button');
+                        let applyBtn = null;
+
+                        // Try multiple methods to find the apply button
+                        applyBtn = document.querySelector('[id*="purchase_apply"]');
+
+                        if (!applyBtn) {
+                            applyBtn = Array.from(allButtons).find(btn =>
+                                btn.classList.contains('apply_filter_btn') ||
+                                btn.textContent.trim() === 'Apply'
+                            );
+                        }
+
                         if (applyBtn) {
-                            console.log('Triggering Apply via Enter key');
+                            console.log('Found Apply button, triggering click');
                             applyBtn.click();
+                        } else {
+                            console.log('Apply button not found');
                         }
                     } else {
                         console.log('No vendor selected - Enter key ignored');
                     }
-                }, 100);
+                }, 150);
             }
         });
 

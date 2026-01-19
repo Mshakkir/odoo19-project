@@ -10,8 +10,8 @@
             <field name="mode">primary</field>
             <field name="priority">1000</field>
             <field name="arch" type="xml">
-                <xpath expr="//tree" position="replace">
-                    <tree string="Receipts"
+                <xpath expr="//list" position="replace">
+                    <list string="Receipts"
                           sample="1"
                           decoration-info="state == 'draft'"
                           decoration-muted="state == 'cancel'"
@@ -51,7 +51,7 @@
                         <field name="write_uid" string="Last Updated by" optional="hide"/>
                         <field name="write_date" string="Last Updated on" optional="hide"/>
                         <field name="picking_type_code" invisible="1"/>
-                    </tree>
+                    </list>
                 </xpath>
             </field>
         </record>

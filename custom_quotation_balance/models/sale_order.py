@@ -67,7 +67,7 @@ class SaleOrder(models.Model):
                 order.customer_balance_due = 0.0
 
     def action_view_customer_invoices(self):
-        """Open filtered list of customer invoices - Compatible with Odoo Mates"""
+        """Open filtered list of customer invoices"""
         self.ensure_one()
 
         if not self.partner_id:
@@ -79,26 +79,21 @@ class SaleOrder(models.Model):
             ('state', '=', 'posted')
         ]
 
-        invoices = self.env['account.move'].search(domain)
-
-        if not invoices:
-            raise UserError(f"No posted invoices found for {self.partner_id.name}")
-
         return {
             'name': f'Invoices - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
+            'views': [(False, 'list'), (False, 'form')],
             'domain': domain,
             'context': {
                 'create': False,
                 'default_move_type': 'out_invoice',
             },
-            'target': 'current',
         }
 
     def action_view_customer_payments(self):
-        """Open filtered list of customer payments - Compatible with Odoo Mates"""
+        """Open filtered list of customer payments"""
         self.ensure_one()
 
         if not self.partner_id:
@@ -110,21 +105,16 @@ class SaleOrder(models.Model):
             ('state', '=', 'posted')
         ]
 
-        payments = self.env['account.payment'].search(domain)
-
-        if not payments:
-            raise UserError(f"No posted payments found for {self.partner_id.name}")
-
         return {
             'name': f'Payments - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.payment',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
+            'views': [(False, 'list'), (False, 'form')],
             'domain': domain,
             'context': {
                 'create': False,
                 'default_partner_id': self.partner_id.id,
                 'default_partner_type': 'customer',
             },
-            'target': 'current',
         }

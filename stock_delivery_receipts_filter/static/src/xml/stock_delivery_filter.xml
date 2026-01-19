@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Stock Delivery Filter Component Template (for reference) -->
+    <t t-name="stock_delivery_receipts_filter.DeliveryFilter" owl="1">
+        <div class="stock_delivery_filter_container">
+            <!-- Filter content injected dynamically via JavaScript -->
+        </div>
+    </t>
+
+</templates>

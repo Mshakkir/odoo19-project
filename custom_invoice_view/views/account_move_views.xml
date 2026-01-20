@@ -38,13 +38,13 @@
                     <field name="invoice_user_id" string="Salesperson" widget="many2one_avatar_user" width="130px"/>
 
                     <!-- 8. Total -->
-                    <field name="amount_total" string="Total" sum="Total Amount" width="120px"/>
+                    <field name="amount_total" string="Total" sum="Total Amount" width="140px"/>
 
                     <!-- 9. Amount Due -->
-                    <field name="amount_residual" string="Amount Due" sum="Total Due" width="160px"/>
+                    <field name="amount_residual" string="Amount Due" sum="Total Due" width="140px"/>
 
                     <!-- 10. Due Date -->
-                    <field name="invoice_date_due" string="Due Date" width="110px"/>
+                    <field name="invoice_date_due" string="Due Date" width="120px"/>
 
                     <!-- 11. AWB Number (Shipping Ref) -->
                     <field name="awb_number" string="Shipping Ref #" width="110px"/>

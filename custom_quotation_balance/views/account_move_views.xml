@@ -12,7 +12,7 @@
 
                 <!-- Customer Balance Info (Only for Customer Invoices) -->
                 <group invisible="move_type not in ['out_invoice', 'out_refund'] or not partner_id"
-                       string="Customer Balance"
+                       string=""
                        col="2"
                        colspan="2">
 

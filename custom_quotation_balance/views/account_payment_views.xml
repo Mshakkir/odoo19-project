@@ -6,40 +6,48 @@
         <field name="inherit_id" ref="account.view_account_payment_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add partner balance in the right side bottom area -->
-            <xpath expr="//sheet" position="inside">
-                <group invisible="not partner_id">
-                    <group string="Partner Balance Summary" class="mt-3">
+            <!-- Add partner balance after the partner_id field -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+
+                <group invisible="not partner_id" colspan="2" col="2" string="Partner Balance Summary">
+
+                    <label for="partner_total_invoiced" string="Total Invoiced/Billed"/>
+                    <div class="o_row">
                         <field name="partner_total_invoiced"
                                widget="monetary"
                                readonly="1"
-                               string="Total Invoiced/Billed"/>
+                               nolabel="1"/>
                         <button name="action_view_partner_invoices"
                                 type="object"
-                                string="→ View Invoices/Bills"
-                                class="oe_link ps-3"
+                                string="View"
+                                class="btn-link"
                                 invisible="partner_total_invoiced == 0"/>
+                    </div>
 
+                    <label for="partner_total_paid" string="Amount Paid"/>
+                    <div class="o_row">
                         <field name="partner_total_paid"
                                widget="monetary"
                                readonly="1"
                                decoration-success="partner_total_paid > 0"
-                               string="Amount Paid"/>
+                               nolabel="1"/>
                         <button name="action_view_partner_payments"
                                 type="object"
-                                string="→ View All Payments"
-                                class="oe_link ps-3"
+                                string="View"
+                                class="btn-link"
                                 invisible="partner_total_paid == 0"/>
+                    </div>
 
-                        <field name="partner_balance_due"
-                               widget="monetary"
-                               readonly="1"
-                               decoration-danger="partner_balance_due > 0"
-                               decoration-success="partner_balance_due == 0"
-                               string="Balance Due"
-                               class="fw-bold"/>
-                    </group>
+                    <label for="partner_balance_due" string="Balance Due"/>
+                    <field name="partner_balance_due"
+                           widget="monetary"
+                           readonly="1"
+                           decoration-danger="partner_balance_due > 0"
+                           decoration-success="partner_balance_due == 0"
+                           nolabel="1"
+                           class="fw-bold"/>
                 </group>
+
             </xpath>
         </field>
     </record>

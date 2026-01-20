@@ -85,15 +85,17 @@ class AccountBankBookReportAnalytic(models.TransientModel):
             data['form']['display_account']
         )
 
-        # Create detail lines
-        detail_lines = []
+        # Create detail account records
+        detail_accounts = []
         for account in account_res:
+            # Create lines for this account
+            detail_lines = []
             for line in account.get('move_lines', []):
                 if line.get('lname') != 'Initial Balance':  # Skip initial balance lines
                     detail_lines.append((0, 0, {
-                        'account_code': account.get('code'),
-                        'account_name': account.get('name'),
                         'date': line.get('ldate'),
+                        'reference': line.get('move_name') or '',
+                        'description': line.get('lname') or '',
                         'journal_code': line.get('lcode'),
                         'partner_name': line.get('partner_name') or '',
                         'move_name': line.get('move_name') or '',
@@ -104,17 +106,24 @@ class AccountBankBookReportAnalytic(models.TransientModel):
                         'analytic_account_names': line.get('analytic_account_names') or '',
                     }))
 
+            # Create account record with its lines
+            detail_accounts.append((0, 0, {
+                'account_code': account.get('code'),
+                'account_name': account.get('name'),
+                'line_ids': detail_lines,
+            }))
+
         # Create the details record
         details = self.env['account.bankbook.details'].create({
             'wizard_id': self.id,
             'date_from': self.date_from,
             'date_to': self.date_to,
             'report_type': self.report_type,
-            'line_ids': detail_lines,
+            'account_ids': detail_accounts,
         })
 
         return {
-            'name': _('Bank Book Details'),
+            'name': _('Bank Book Report - Detailed View'),
             'type': 'ir.actions.act_window',
             'res_model': 'account.bankbook.details',
             'view_mode': 'form',

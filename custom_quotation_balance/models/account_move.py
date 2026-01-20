@@ -1,5 +1,8 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class AccountMove(models.Model):
@@ -49,76 +52,83 @@ class AccountMove(models.Model):
         help='Remaining balance for this vendor'
     )
 
-    @api.depends('partner_id', 'move_type')
+    @api.depends('partner_id', 'move_type', 'state')
     def _compute_partner_balance(self):
         """Calculate partner financial summary based on invoice type"""
         for move in self:
-            if move.partner_id and move.move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_refund']:
-                try:
-                    # Customer invoices
-                    if move.move_type in ['out_invoice', 'out_refund']:
-                        invoices = self.env['account.move'].search([
-                            ('partner_id', 'child_of', move.partner_id.commercial_partner_id.id),
-                            ('move_type', 'in', ['out_invoice', 'out_refund']),
-                            ('state', '=', 'posted')
-                        ])
+            # Reset all fields first
+            move.customer_total_invoiced = 0.0
+            move.customer_total_paid = 0.0
+            move.customer_balance_due = 0.0
+            move.vendor_total_billed = 0.0
+            move.vendor_total_paid = 0.0
+            move.vendor_balance_due = 0.0
 
-                        # Separate invoices and refunds
-                        out_invoices = invoices.filtered(lambda inv: inv.move_type == 'out_invoice')
-                        out_refunds = invoices.filtered(lambda inv: inv.move_type == 'out_refund')
+            if not move.partner_id or move.move_type not in ['out_invoice', 'out_refund', 'in_invoice', 'in_refund']:
+                continue
 
-                        total_invoiced = sum(out_invoices.mapped('amount_total'))
-                        total_refunded = sum(out_refunds.mapped('amount_total'))
+            try:
+                # Customer invoices
+                if move.move_type in ['out_invoice', 'out_refund']:
+                    invoices = self.env['account.move'].search([
+                        ('partner_id', 'child_of', move.partner_id.commercial_partner_id.id),
+                        ('move_type', 'in', ['out_invoice', 'out_refund']),
+                        ('state', '=', 'posted')
+                    ])
 
-                        # Calculate residual separately for invoices and refunds
-                        invoice_residual = sum(out_invoices.mapped('amount_residual'))
-                        refund_residual = sum(out_refunds.mapped('amount_residual'))
+                    _logger.info(
+                        f"DEBUG Customer {move.partner_id.name}: Found {len(invoices)} posted invoices/credit notes")
 
-                        move.customer_total_invoiced = total_invoiced - total_refunded
-                        move.customer_balance_due = invoice_residual - refund_residual
-                        move.customer_total_paid = move.customer_total_invoiced - move.customer_balance_due
+                    # Separate invoices and refunds
+                    out_invoices = invoices.filtered(lambda inv: inv.move_type == 'out_invoice')
+                    out_refunds = invoices.filtered(lambda inv: inv.move_type == 'out_refund')
 
-                        # Set vendor fields to 0 for customer invoices
-                        move.vendor_total_billed = 0.0
-                        move.vendor_total_paid = 0.0
-                        move.vendor_balance_due = 0.0
+                    _logger.info(f"DEBUG: {len(out_invoices)} invoices, {len(out_refunds)} credit notes")
 
-                    # Vendor bills
-                    elif move.move_type in ['in_invoice', 'in_refund']:
-                        bills = self.env['account.move'].search([
-                            ('partner_id', 'child_of', move.partner_id.commercial_partner_id.id),
-                            ('move_type', 'in', ['in_invoice', 'in_refund']),
-                            ('state', '=', 'posted')
-                        ])
+                    total_invoiced = sum(out_invoices.mapped('amount_total'))
+                    total_refunded = sum(out_refunds.mapped('amount_total'))
 
-                        # Separate bills and refunds
-                        in_invoices = bills.filtered(lambda bill: bill.move_type == 'in_invoice')
-                        in_refunds = bills.filtered(lambda bill: bill.move_type == 'in_refund')
+                    # Calculate residual separately for invoices and refunds
+                    invoice_residual = sum(out_invoices.mapped('amount_residual'))
+                    refund_residual = sum(out_refunds.mapped('amount_residual'))
 
-                        total_billed = sum(in_invoices.mapped('amount_total'))
-                        total_refunded = sum(in_refunds.mapped('amount_total'))
+                    _logger.info(
+                        f"DEBUG: Invoiced={total_invoiced}, Refunded={total_refunded}, InvResidual={invoice_residual}, RefResidual={refund_residual}")
 
-                        # Calculate residual separately for bills and refunds
-                        bill_residual = sum(in_invoices.mapped('amount_residual'))
-                        refund_residual = sum(in_refunds.mapped('amount_residual'))
+                    move.customer_total_invoiced = total_invoiced - total_refunded
+                    move.customer_balance_due = invoice_residual - refund_residual
+                    move.customer_total_paid = move.customer_total_invoiced - move.customer_balance_due
 
-                        move.vendor_total_billed = total_billed - total_refunded
-                        move.vendor_balance_due = bill_residual - refund_residual
-                        move.vendor_total_paid = move.vendor_total_billed - move.vendor_balance_due
+                    _logger.info(
+                        f"DEBUG FINAL: TotalInvoiced={move.customer_total_invoiced}, Paid={move.customer_total_paid}, Due={move.customer_balance_due}")
 
-                        # Set customer fields to 0 for vendor bills
-                        move.customer_total_invoiced = 0.0
-                        move.customer_total_paid = 0.0
-                        move.customer_balance_due = 0.0
+                # Vendor bills
+                elif move.move_type in ['in_invoice', 'in_refund']:
+                    bills = self.env['account.move'].search([
+                        ('partner_id', 'child_of', move.partner_id.commercial_partner_id.id),
+                        ('move_type', 'in', ['in_invoice', 'in_refund']),
+                        ('state', '=', 'posted')
+                    ])
 
-                except Exception:
-                    move.customer_total_invoiced = 0.0
-                    move.customer_total_paid = 0.0
-                    move.customer_balance_due = 0.0
-                    move.vendor_total_billed = 0.0
-                    move.vendor_total_paid = 0.0
-                    move.vendor_balance_due = 0.0
-            else:
+                    _logger.info(f"DEBUG Vendor {move.partner_id.name}: Found {len(bills)} posted bills/refunds")
+
+                    # Separate bills and refunds
+                    in_invoices = bills.filtered(lambda bill: bill.move_type == 'in_invoice')
+                    in_refunds = bills.filtered(lambda bill: bill.move_type == 'in_refund')
+
+                    total_billed = sum(in_invoices.mapped('amount_total'))
+                    total_refunded = sum(in_refunds.mapped('amount_total'))
+
+                    # Calculate residual separately for bills and refunds
+                    bill_residual = sum(in_invoices.mapped('amount_residual'))
+                    refund_residual = sum(in_refunds.mapped('amount_residual'))
+
+                    move.vendor_total_billed = total_billed - total_refunded
+                    move.vendor_balance_due = bill_residual - refund_residual
+                    move.vendor_total_paid = move.vendor_total_billed - move.vendor_balance_due
+
+            except Exception as e:
+                _logger.error(f"ERROR computing partner balance for {move.partner_id.name}: {str(e)}", exc_info=True)
                 move.customer_total_invoiced = 0.0
                 move.customer_total_paid = 0.0
                 move.customer_balance_due = 0.0

@@ -129,7 +129,7 @@
                                     <field name="subtotal_debit" sum="Total Debit"/>
                                     <field name="subtotal_credit" sum="Total Credit"/>
                                     <field name="subtotal_balance" sum="Total Balance"/>
-                                    <button name="action_view_transactions" type="object" string="View Details" class="btn-primary" icon="fa-eye"/>
+                                    <button name="action_view_transactions" type="object" string="View" class="btn-primary" icon="fa-eye"/>
                                 </list>
                             </field>
                         </page>

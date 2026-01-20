@@ -27,7 +27,7 @@
                                 invisible="customer_total_invoiced == 0"/>
                     </div>
 
-                    <label for="customer_total_paid" string="Amount Paid"/>
+                    <label for="customer_total_paid" string="Amount Received"/>
                     <div class="o_row">
                         <field name="customer_total_paid"
                                widget="monetary"

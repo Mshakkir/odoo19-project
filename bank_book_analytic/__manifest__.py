@@ -8,6 +8,7 @@
         - Separate bank book reports by analytic accounts
         - Combined bank book report (original functionality)
         - Filter by analytic accounts
+        - Show details in tree view
     """,
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',
@@ -16,8 +17,9 @@
         'analytic',
     ],
     'data': [
-
+        'security/ir.model.access.csv',
         'wizard/account_bankbook_report_views.xml',
+        'wizard/account_bankbook_details_views.xml',
         'report/report_bankbook_analytic.xml',
     ],
     'installable': True,

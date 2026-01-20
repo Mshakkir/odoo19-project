@@ -63,18 +63,19 @@ class AccountMove(models.Model):
                             ('state', '=', 'posted')
                         ])
 
-                        total_invoiced = sum(invoices.filtered(
-                            lambda inv: inv.move_type == 'out_invoice'
-                        ).mapped('amount_total'))
+                        # Separate invoices and refunds
+                        out_invoices = invoices.filtered(lambda inv: inv.move_type == 'out_invoice')
+                        out_refunds = invoices.filtered(lambda inv: inv.move_type == 'out_refund')
 
-                        total_refunded = sum(invoices.filtered(
-                            lambda inv: inv.move_type == 'out_refund'
-                        ).mapped('amount_total'))
+                        total_invoiced = sum(out_invoices.mapped('amount_total'))
+                        total_refunded = sum(out_refunds.mapped('amount_total'))
 
-                        total_residual = sum(invoices.mapped('amount_residual'))
+                        # Calculate residual separately for invoices and refunds
+                        invoice_residual = sum(out_invoices.mapped('amount_residual'))
+                        refund_residual = sum(out_refunds.mapped('amount_residual'))
 
                         move.customer_total_invoiced = total_invoiced - total_refunded
-                        move.customer_balance_due = total_residual
+                        move.customer_balance_due = invoice_residual - refund_residual
                         move.customer_total_paid = move.customer_total_invoiced - move.customer_balance_due
 
                         # Set vendor fields to 0 for customer invoices
@@ -90,18 +91,19 @@ class AccountMove(models.Model):
                             ('state', '=', 'posted')
                         ])
 
-                        total_billed = sum(bills.filtered(
-                            lambda bill: bill.move_type == 'in_invoice'
-                        ).mapped('amount_total'))
+                        # Separate bills and refunds
+                        in_invoices = bills.filtered(lambda bill: bill.move_type == 'in_invoice')
+                        in_refunds = bills.filtered(lambda bill: bill.move_type == 'in_refund')
 
-                        total_refunded = sum(bills.filtered(
-                            lambda bill: bill.move_type == 'in_refund'
-                        ).mapped('amount_total'))
+                        total_billed = sum(in_invoices.mapped('amount_total'))
+                        total_refunded = sum(in_refunds.mapped('amount_total'))
 
-                        total_residual = sum(bills.mapped('amount_residual'))
+                        # Calculate residual separately for bills and refunds
+                        bill_residual = sum(in_invoices.mapped('amount_residual'))
+                        refund_residual = sum(in_refunds.mapped('amount_residual'))
 
                         move.vendor_total_billed = total_billed - total_refunded
-                        move.vendor_balance_due = total_residual
+                        move.vendor_balance_due = bill_residual - refund_residual
                         move.vendor_total_paid = move.vendor_total_billed - move.vendor_balance_due
 
                         # Set customer fields to 0 for vendor bills

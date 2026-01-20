@@ -38,7 +38,7 @@
                     <field name="invoice_user_id" string="Salesperson" widget="many2one_avatar_user" width="130px"/>
 
                     <!-- 8. Total -->
-                    <field name="amount_total" string="Total" sum="Total Amount" width="1110px"/>
+                    <field name="amount_total" string="Total" sum="Total Amount" width="110px"/>
 
                     <!-- 9. Amount Due -->
                     <field name="amount_residual" string="Amount Due" sum="Total Due" width="110px"/>

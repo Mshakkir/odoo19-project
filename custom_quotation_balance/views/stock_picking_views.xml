@@ -6,50 +6,52 @@
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add partner balance in the right column after scheduled_date -->
-            <xpath expr="//field[@name='scheduled_date']" position="after">
+            <!-- Add partner balance after the main group, before the notebook -->
+            <xpath expr="//notebook" position="before">
                 <field name="currency_id" invisible="1"/>
 
-                <!-- Total Invoiced/Billed -->
-                <label for="partner_total_invoiced"
-                       invisible="not partner_id"
-                       string="Total Invoiced/Billed"/>
-                <div class="o_row" invisible="not partner_id">
-                    <field name="partner_total_invoiced"
-                           widget="monetary"
-                           readonly="1"/>
-                    <button name="action_view_partner_invoices"
-                            type="object"
-                            string="View"
-                            class="btn-link"
-                            invisible="partner_total_invoiced == 0"/>
-                </div>
+                <group invisible="not partner_id" string="Partner Balance">
+                    <group col="2" colspan="2">
+                        <!-- Total Invoiced/Billed -->
+                        <label for="partner_total_invoiced" string="Total Invoiced/Billed"/>
+                        <div class="o_row">
+                            <field name="partner_total_invoiced"
+                                   widget="monetary"
+                                   readonly="1"
+                                   nolabel="1"/>
+                            <button name="action_view_partner_invoices"
+                                    type="object"
+                                    string="View"
+                                    class="btn-link"
+                                    invisible="partner_total_invoiced == 0"/>
+                        </div>
 
-                <!-- Amount Paid -->
-                <label for="partner_total_paid"
-                       invisible="not partner_id"
-                       string="Amount Paid"/>
-                <div class="o_row" invisible="not partner_id">
-                    <field name="partner_total_paid"
-                           widget="monetary"
-                           readonly="1"
-                           decoration-success="partner_total_paid > 0"/>
-                    <button name="action_view_partner_payments"
-                            type="object"
-                            string="View"
-                            class="btn-link"
-                            invisible="partner_total_paid == 0"/>
-                </div>
+                        <!-- Amount Paid -->
+                        <label for="partner_total_paid" string="Amount Paid"/>
+                        <div class="o_row">
+                            <field name="partner_total_paid"
+                                   widget="monetary"
+                                   readonly="1"
+                                   decoration-success="partner_total_paid > 0"
+                                   nolabel="1"/>
+                            <button name="action_view_partner_payments"
+                                    type="object"
+                                    string="View"
+                                    class="btn-link"
+                                    invisible="partner_total_paid == 0"/>
+                        </div>
 
-                <!-- Balance Due -->
-                <field name="partner_balance_due"
-                       invisible="not partner_id"
-                       widget="monetary"
-                       readonly="1"
-                       decoration-danger="partner_balance_due > 0"
-                       decoration-success="partner_balance_due == 0"
-                       string="Balance Due"/>
-
+                        <!-- Balance Due -->
+                        <label for="partner_balance_due" string="Balance Due"/>
+                        <field name="partner_balance_due"
+                               widget="monetary"
+                               readonly="1"
+                               decoration-danger="partner_balance_due > 0"
+                               decoration-success="partner_balance_due == 0"
+                               nolabel="1"
+                               class="fw-bold"/>
+                    </group>
+                </group>
             </xpath>
         </field>
     </record>

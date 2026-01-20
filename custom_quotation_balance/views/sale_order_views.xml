@@ -30,7 +30,7 @@
                 <!-- 2. Amount Paid - Clickable -->
                 <label for="customer_total_paid"
                        invisible="not partner_id"
-                       string="Amount Paid"/>
+                       string="Amount Received"/>
                 <div class="o_row" invisible="not partner_id">
                     <field name="customer_total_paid"
                            widget="monetary"

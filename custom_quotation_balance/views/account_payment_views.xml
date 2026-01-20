@@ -6,8 +6,8 @@
         <field name="inherit_id" ref="account.view_account_payment_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add partner balance after the partner_id field -->
-            <xpath expr="//field[@name='partner_id']" position="after">
+            <!-- Add partner balance after the memo field -->
+            <xpath expr="//field[@name='ref']" position="after">
 
                 <group invisible="not partner_id" colspan="2" col="2" string="Partner Balance Summary">
 

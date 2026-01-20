@@ -17,119 +17,122 @@
 
                     <!-- COLUMN ORDER - PRIORITY ORDER -->
                     <!-- 1. Invoice Date -->
-                    <field name="invoice_date" string="Bill Date"/>
+                    <field name="invoice_date" string="Bill Date" width="100px"/>
 
                     <!-- 2. Invoice Number (Bill Number) -->
-                    <field name="name" string="Bill Number" readonly="1"/>
+                    <field name="name" string="Bill Number" readonly="1" width="130px"/>
 
                     <!-- 3. Vendor -->
-                    <field name="partner_id" string="Vendor"/>
+                    <field name="partner_id" string="Vendor" width="150px"/>
 
                     <!-- 4. Warehouse -->
-                    <field name="warehouse_id" string="Warehouse"/>
+                    <field name="warehouse_id" string="Warehouse" width="120px"/>
 
                     <!-- 5. Source Document -->
-                    <field name="invoice_origin" string="Source Doc."/>
+                    <field name="invoice_origin" string="Source Doc." width="110px"/>
 
                     <!-- 6. Vendor Reference -->
-                    <field name="ref" string="Vendor Ref."/>
+                    <field name="ref" string="Vendor Ref." width="100px"/>
 
                     <!-- 7. Total Amount -->
-                    <field name="amount_total" string="Total" sum="Total Amount"/>
+                    <field name="amount_total" string="Total" sum="Total Amount" width="120px"/>
 
                     <!-- 8. Amount Due -->
-                    <field name="amount_residual" string="Amount Due" sum="Total Due"/>
+                    <field name="amount_residual" string="Amount Due" sum="Total Due" width="120px"/>
 
                     <!-- 9. Due Date -->
-                    <field name="invoice_date_due" string="Due Date"/>
+                    <field name="invoice_date_due" string="Due Date" width="100px"/>
 
                     <!-- 10. Buyer - ALWAYS VISIBLE -->
-                    <field name="buyer_id" string="Buyer"/>
+                    <field name="buyer_id" string="Buyer" width="130px"/>
 
                     <!-- 11. Shipping Reference (AWB Number) -->
-                    <field name="awb_number" string="Shipping Ref #"/>
+                    <field name="awb_number" string="Shipping Ref #" width="110px"/>
 
                     <!-- 12. Delivery Note Number -->
-                    <field name="goods_receipt_number" string="Delivery Note #"/>
+                    <field name="goods_receipt_number" string="Delivery Note #" width="120px"/>
 
                     <!-- 13. Status -->
                     <field name="state" string="Status" widget="badge"
                            decoration-success="state == 'posted'"
-                           decoration-info="state == 'draft'"/>
+                           decoration-info="state == 'draft'"
+                           width="90px"/>
 
                     <!-- 14. Payment Status -->
                     <field name="payment_state" string="Payment Status" widget="badge"
                            decoration-success="payment_state == 'paid'"
                            decoration-warning="payment_state == 'partial'"
-                           decoration-danger="payment_state in ('not_paid', 'in_payment')"/>
+                           decoration-danger="payment_state in ('not_paid', 'in_payment')"
+                           width="110px"/>
 
                     <!-- 15. Tax Excluded Amount -->
-                    <field name="amount_untaxed" string="Tax Excluded" sum="Total Untaxed"/>
+                    <field name="amount_untaxed" string="Tax Excluded" sum="Total Untaxed" width="120px"/>
 
                     <!-- 16. Tax Amount -->
-                    <field name="amount_tax" string="Tax" sum="Total Tax"/>
+                    <field name="amount_tax" string="Tax" sum="Total Tax" width="100px"/>
 
                     <!-- ADDITIONAL OPTIONAL FIELDS (Hidden by default) -->
 
                     <!-- 17. PO Number -->
-                    <field name="po_number" string="PO Number" optional="hide"/>
+                    <field name="po_number" string="PO Number" optional="hide" width="110px"/>
 
                     <!-- 18. Accounting Date -->
-                    <field name="date" string="Accounting Date" optional="hide"/>
+                    <field name="date" string="Accounting Date" optional="hide" width="120px"/>
 
                     <!-- 19. Journal -->
-                    <field name="journal_id" string="Journal" optional="hide"/>
+                    <field name="journal_id" string="Journal" optional="hide" width="120px"/>
 
                     <!-- 20. Payment Terms -->
-                    <field name="invoice_payment_term_id" string="Payment Terms" optional="hide"/>
+                    <field name="invoice_payment_term_id" string="Payment Terms" optional="hide" width="140px"/>
 
                     <!-- 21. Currency -->
-                    <field name="currency_id" string="Currency" optional="hide"/>
+                    <field name="currency_id" string="Currency" optional="hide" width="80px"/>
 
                     <!-- 22. Company -->
-                    <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide"/>
+                    <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide" width="120px"/>
 
                     <!-- 23. Fiscal Position -->
-                    <field name="fiscal_position_id" string="Fiscal Position" optional="hide"/>
+                    <field name="fiscal_position_id" string="Fiscal Position" optional="hide" width="130px"/>
 
                     <!-- 24. Bank Account -->
-                    <field name="partner_bank_id" string="Vendor Bank" optional="hide"/>
+                    <field name="partner_bank_id" string="Vendor Bank" optional="hide" width="150px"/>
 
                     <!-- 25. Invoice Incoterm -->
-                    <field name="invoice_incoterm_id" string="Incoterm" optional="hide"/>
+                    <field name="invoice_incoterm_id" string="Incoterm" optional="hide" width="100px"/>
 
                     <!-- 26. Narration/Terms and Conditions -->
-                    <field name="narration" string="Terms and Conditions" optional="hide"/>
+                    <field name="narration" string="Terms and Conditions" optional="hide" width="180px"/>
 
                     <!-- 27. Invoice Source Email -->
-                    <field name="invoice_source_email" string="Source Email" optional="hide"/>
+                    <field name="invoice_source_email" string="Source Email" optional="hide" width="150px"/>
 
                     <!-- 28. Auto Post -->
-                    <field name="auto_post" string="Auto Post" optional="hide"/>
+                    <field name="auto_post" string="Auto Post" optional="hide" width="90px"/>
 
                     <!-- 29. Activity -->
-                    <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide"/>
+                    <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide" width="100px"/>
 
                     <!-- 30. Activity State -->
                     <field name="activity_state" string="Activity State" optional="hide" widget="badge"
                            decoration-success="activity_state == 'today'"
                            decoration-warning="activity_state == 'planned'"
-                           decoration-danger="activity_state == 'overdue'"/>
+                           decoration-danger="activity_state == 'overdue'"
+                           width="110px"/>
 
                     <!-- 31. Activity User -->
-                    <field name="activity_user_id" string="Responsible User" optional="hide"/>
+                    <field name="activity_user_id" string="Responsible User" optional="hide" width="130px"/>
 
                     <!-- 32. Activity Type -->
-                    <field name="activity_type_id" string="Next Activity Type" optional="hide"/>
+                    <field name="activity_type_id" string="Next Activity Type" optional="hide" width="140px"/>
 
                     <!-- 33. Activity Date -->
-                    <field name="activity_date_deadline" string="Next Activity Deadline" optional="hide"/>
+                    <field name="activity_date_deadline" string="Next Activity Deadline" optional="hide" width="150px"/>
 
                     <!-- 34. Activity Summary -->
-                    <field name="activity_summary" string="Activity Summary" optional="hide"/>
+                    <field name="activity_summary" string="Activity Summary" optional="hide" width="150px"/>
 
                     <!-- 35. Message -->
-                    <field name="message_needaction" string="Action Needed" optional="hide"/>
+                    <field name="message_needaction" string="Action Needed" optional="hide" width="110px"/>
 
                     <!-- Hidden technical fields -->
                     <field name="move_type" column_invisible="1"/>
@@ -162,6 +165,18 @@ if records:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 <!--    <data>-->
@@ -171,7 +186,7 @@ if records:
 <!--            <field name="name">account.move.list.purchase.invoice.custom</field>-->
 <!--            <field name="model">account.move</field>-->
 <!--            <field name="mode">primary</field>-->
-<!--            <field name="priority">1</field>-->
+<!--            <field name="priority">99</field>-->
 <!--            <field name="arch" type="xml">-->
 <!--                <list string="Vendor Bills"-->
 <!--                      sample="1"-->
@@ -179,82 +194,79 @@ if records:
 <!--                      decoration-muted="state == 'cancel'"-->
 <!--                      multi_edit="1">-->
 
-<!--                    &lt;!&ndash; YOUR REQUESTED ORDER &ndash;&gt;-->
+<!--                    &lt;!&ndash; COLUMN ORDER - PRIORITY ORDER &ndash;&gt;-->
 <!--                    &lt;!&ndash; 1. Invoice Date &ndash;&gt;-->
 <!--                    <field name="invoice_date" string="Bill Date"/>-->
 
 <!--                    &lt;!&ndash; 2. Invoice Number (Bill Number) &ndash;&gt;-->
 <!--                    <field name="name" string="Bill Number" readonly="1"/>-->
 
-<!--                    &lt;!&ndash; 3. Vendor (instead of Customer) &ndash;&gt;-->
+<!--                    &lt;!&ndash; 3. Vendor &ndash;&gt;-->
 <!--                    <field name="partner_id" string="Vendor"/>-->
 
 <!--                    &lt;!&ndash; 4. Warehouse &ndash;&gt;-->
 <!--                    <field name="warehouse_id" string="Warehouse"/>-->
 
-<!--                    &lt;!&ndash; 5. Source Document (like Purchase Order) &ndash;&gt;-->
-<!--                    <field name="invoice_origin" string="Source Document"/>-->
+<!--                    &lt;!&ndash; 5. Source Document &ndash;&gt;-->
+<!--                    <field name="invoice_origin" string="Source Doc."/>-->
 
-<!--                    &lt;!&ndash; 6. Reference (Vendor Reference) &ndash;&gt;-->
-<!--                    <field name="ref" string="Vendor Reference"/>-->
+<!--                    &lt;!&ndash; 6. Vendor Reference &ndash;&gt;-->
+<!--                    <field name="ref" string="Vendor Ref."/>-->
 
+<!--                    &lt;!&ndash; 7. Total Amount &ndash;&gt;-->
+<!--                    <field name="amount_total" string="Total" sum="Total Amount"/>-->
 
+<!--                    &lt;!&ndash; 8. Amount Due &ndash;&gt;-->
+<!--                    <field name="amount_residual" string="Amount Due" sum="Total Due"/>-->
 
-<!--                    &lt;!&ndash; 9. Total &ndash;&gt;-->
-<!--                    <field name="amount_total" string="Total"/>-->
-
-<!--                    &lt;!&ndash; 10. Amount Due &ndash;&gt;-->
-<!--                    <field name="amount_residual" string="Amount Due"/>-->
-<!--                     &lt;!&ndash; 15. Due Date &ndash;&gt;-->
+<!--                    &lt;!&ndash; 9. Due Date &ndash;&gt;-->
 <!--                    <field name="invoice_date_due" string="Due Date"/>-->
 
-<!--                    &lt;!&ndash; 11. Purchase Representative / Buyer &ndash;&gt;-->
-<!--                    <field name="buyer_id" string="Buyer" />-->
-<!--&lt;!&ndash;widget="many2one_avatar_user" optional="show"&ndash;&gt;-->
-<!--                    &lt;!&ndash; 12. AWB Number (Shipping Ref) - FROM YOUR EXISTING FIELD &ndash;&gt;-->
+<!--                    &lt;!&ndash; 10. Buyer - ALWAYS VISIBLE &ndash;&gt;-->
+<!--                    <field name="buyer_id" string="Buyer"/>-->
+
+<!--                    &lt;!&ndash; 11. Shipping Reference (AWB Number) &ndash;&gt;-->
 <!--                    <field name="awb_number" string="Shipping Ref #"/>-->
 
-<!--                    &lt;!&ndash; 13. Delivery Note Number - FROM YOUR EXISTING FIELD (goods_receipt_number) &ndash;&gt;-->
+<!--                    &lt;!&ndash; 12. Delivery Note Number &ndash;&gt;-->
 <!--                    <field name="goods_receipt_number" string="Delivery Note #"/>-->
-<!--                    &lt;!&ndash; 21. Status &ndash;&gt;-->
+
+<!--                    &lt;!&ndash; 13. Status &ndash;&gt;-->
 <!--                    <field name="state" string="Status" widget="badge"-->
 <!--                           decoration-success="state == 'posted'"-->
 <!--                           decoration-info="state == 'draft'"/>-->
 
-<!--                    &lt;!&ndash; 22. Payment Status &ndash;&gt;-->
+<!--                    &lt;!&ndash; 14. Payment Status &ndash;&gt;-->
 <!--                    <field name="payment_state" string="Payment Status" widget="badge"-->
 <!--                           decoration-success="payment_state == 'paid'"-->
 <!--                           decoration-warning="payment_state == 'partial'"-->
 <!--                           decoration-danger="payment_state in ('not_paid', 'in_payment')"/>-->
-<!--                    &lt;!&ndash; 7. Tax Excluded Amount &ndash;&gt;-->
-<!--                    <field name="amount_untaxed" string="Tax Excluded"/>-->
 
-<!--                    &lt;!&ndash; 8. Tax &ndash;&gt;-->
-<!--                    <field name="amount_tax" string="Tax"/>-->
+<!--                    &lt;!&ndash; 15. Tax Excluded Amount &ndash;&gt;-->
+<!--                    <field name="amount_untaxed" string="Tax Excluded" sum="Total Untaxed"/>-->
 
-<!--                    &lt;!&ndash; ADDITIONAL DEFAULT ODOO FIELDS &ndash;&gt;-->
+<!--                    &lt;!&ndash; 16. Tax Amount &ndash;&gt;-->
+<!--                    <field name="amount_tax" string="Tax" sum="Total Tax"/>-->
 
-<!--                    &lt;!&ndash; 14. PO Number - FROM YOUR EXISTING FIELD &ndash;&gt;-->
+<!--                    &lt;!&ndash; ADDITIONAL OPTIONAL FIELDS (Hidden by default) &ndash;&gt;-->
+
+<!--                    &lt;!&ndash; 17. PO Number &ndash;&gt;-->
 <!--                    <field name="po_number" string="PO Number" optional="hide"/>-->
 
-
-
-<!--                    &lt;!&ndash; 16. Accounting Date &ndash;&gt;-->
+<!--                    &lt;!&ndash; 18. Accounting Date &ndash;&gt;-->
 <!--                    <field name="date" string="Accounting Date" optional="hide"/>-->
 
-<!--                    &lt;!&ndash; 17. Journal &ndash;&gt;-->
+<!--                    &lt;!&ndash; 19. Journal &ndash;&gt;-->
 <!--                    <field name="journal_id" string="Journal" optional="hide"/>-->
 
-<!--                    &lt;!&ndash; 18. Payment Terms &ndash;&gt;-->
+<!--                    &lt;!&ndash; 20. Payment Terms &ndash;&gt;-->
 <!--                    <field name="invoice_payment_term_id" string="Payment Terms" optional="hide"/>-->
 
-<!--                    &lt;!&ndash; 19. Currency &ndash;&gt;-->
+<!--                    &lt;!&ndash; 21. Currency &ndash;&gt;-->
 <!--                    <field name="currency_id" string="Currency" optional="hide"/>-->
 
-<!--                    &lt;!&ndash; 20. Company &ndash;&gt;-->
+<!--                    &lt;!&ndash; 22. Company &ndash;&gt;-->
 <!--                    <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide"/>-->
-
-
 
 <!--                    &lt;!&ndash; 23. Fiscal Position &ndash;&gt;-->
 <!--                    <field name="fiscal_position_id" string="Fiscal Position" optional="hide"/>-->
@@ -305,9 +317,9 @@ if records:
 <!--            </field>-->
 <!--        </record>-->
 
-<!--        &lt;!&ndash; Override the default vendor bill action &ndash;&gt;-->
+<!--        &lt;!&ndash; Override the default vendor bill action to use custom view &ndash;&gt;-->
 <!--        <record id="account.action_move_in_invoice_type" model="ir.actions.act_window">-->
-<!--            <field name="view_id" ref="view_move_list_purchase_invoice_custom"/>-->
+<!--            <field name="view_ids" eval="[(6, 0, [ref('view_move_list_purchase_invoice_custom')])]"/>-->
 <!--        </record>-->
 
 <!--        &lt;!&ndash; Action to Recompute Warehouse for existing bills &ndash;&gt;-->
@@ -325,3 +337,6 @@ if records:
 
 <!--    </data>-->
 <!--</odoo>-->
+
+
+

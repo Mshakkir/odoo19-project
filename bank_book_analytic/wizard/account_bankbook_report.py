@@ -1,4 +1,6 @@
-from odoo import fields, models, api, _
+from odoo import fields, models, api, _, logging
+
+_logger = logging.getLogger(__name__)
 
 
 class AccountBankBookReportAnalytic(models.TransientModel):
@@ -54,26 +56,33 @@ class AccountBankBookReportAnalytic(models.TransientModel):
         """Show Details button - opens new window with detailed view"""
         self.ensure_one()
 
+        # Create the details wizard record with data
+        detail_wizard = self.env['bank.book.details.wizard'].create({
+            'date_from': self.date_from,
+            'date_to': self.date_to,
+            'journal_ids': [(6, 0, self.journal_ids.ids)],
+            'account_ids': [(6, 0, self.account_ids.ids)],
+            'analytic_account_ids': [(6, 0, self.analytic_account_ids.ids)],
+            'report_type': self.report_type,
+            'show_without_analytic': self.show_without_analytic,
+            'target_move': self.target_move,
+            'sortby': self.sortby,
+            'initial_balance': self.initial_balance,
+            'display_account': self.display_account,
+        })
+
+        # Fetch and populate detail lines
+        detail_wizard._fetch_details()
+
         return {
             'type': 'ir.actions.act_window',
             'name': 'Bank Book Details',
             'res_model': 'bank.book.details.wizard',
+            'res_id': detail_wizard.id,
             'view_mode': 'form',
             'view_type': 'form',
             'target': 'new',
-            'context': {
-                'default_date_from': self.date_from,
-                'default_date_to': self.date_to,
-                'default_journal_ids': [(6, 0, self.journal_ids.ids)],
-                'default_account_ids': [(6, 0, self.account_ids.ids)],
-                'default_analytic_account_ids': [(6, 0, self.analytic_account_ids.ids)],
-                'default_report_type': self.report_type,
-                'default_show_without_analytic': self.show_without_analytic,
-                'default_target_move': self.target_move,
-                'default_sortby': self.sortby,
-                'default_initial_balance': self.initial_balance,
-                'default_display_account': self.display_account,
-            }
+            'views': [(False, 'form')],
         }
 
 
@@ -113,32 +122,24 @@ class BankBookDetailsWizard(models.TransientModel):
         string='Details'
     )
 
-    @api.model
-    def default_get(self, fields_list):
-        result = super().default_get(fields_list)
-        self._fetch_details(result)
-        return result
-
-    def _fetch_details(self, values):
+    def _fetch_details(self):
         """Fetch bank book details"""
-        from odoo.addons.bank_book_analytic.report.report_bankbook_analytic import ReportBankBookAnalytic
-
         report = self.env['report.bank_book_analytic.report_bankbook_analytic']
 
         # Prepare data dictionary
         data = {
             'form': {
-                'date_from': values.get('date_from'),
-                'date_to': values.get('date_to'),
-                'journal_ids': values.get('journal_ids', []),
-                'account_ids': values.get('account_ids', []),
-                'analytic_account_ids': values.get('analytic_account_ids', []),
-                'report_type': values.get('report_type', 'combined'),
-                'show_without_analytic': values.get('show_without_analytic', True),
-                'target_move': values.get('target_move'),
-                'sortby': values.get('sortby'),
-                'initial_balance': values.get('initial_balance'),
-                'display_account': values.get('display_account'),
+                'date_from': self.date_from,
+                'date_to': self.date_to,
+                'journal_ids': self.journal_ids.ids or [],
+                'account_ids': self.account_ids.ids or [],
+                'analytic_account_ids': self.analytic_account_ids.ids or [],
+                'report_type': self.report_type,
+                'show_without_analytic': self.show_without_analytic,
+                'target_move': self.target_move,
+                'sortby': self.sortby,
+                'initial_balance': self.initial_balance,
+                'display_account': self.display_account,
             }
         }
 
@@ -167,9 +168,9 @@ class BankBookDetailsWizard(models.TransientModel):
                     }))
                     line_seq += 1
 
-            values['detail_line_ids'] = detail_lines
+            self.detail_line_ids = detail_lines
         except Exception as e:
-            pass
+            _logger.error(f"Error fetching bank book details: {str(e)}")
 
 
 class BankBookDetailLine(models.TransientModel):

@@ -40,30 +40,47 @@
         <field name="arch" type="xml">
             <form string="Bank Book Details">
                 <group col="4">
-                    <field name="date_from"/>
-                    <field name="date_to"/>
+                    <field name="date_from" readonly="1"/>
+                    <field name="date_to" readonly="1"/>
+                    <field name="report_type" readonly="1"/>
+                    <field name="show_without_analytic" readonly="1"/>
                 </group>
-                <group col="4">
-                    <field name="report_type"/>
-                    <field name="show_without_analytic"/>
-                </group>
-                <group>
-                    <field name="detail_line_ids" nolabel="1">
-                        <tree string="Transactions" editable="bottom">
-                            <field name="date"/>
-                            <field name="journal"/>
-                            <field name="account_code"/>
-                            <field name="account_name"/>
-                            <field name="reference"/>
-                            <field name="description"/>
-                            <field name="debit" sum="Debit"/>
-                            <field name="credit" sum="Credit"/>
-                            <field name="balance"/>
-                            <field name="analytic_accounts"/>
-                        </tree>
-                    </field>
-                </group>
+                <separator string="Transaction Details"/>
+                <field name="detail_line_ids" nolabel="1">
+                    <tree string="Transactions" editable="0">
+                        <field name="date"/>
+                        <field name="journal"/>
+                        <field name="account_code"/>
+                        <field name="account_name"/>
+                        <field name="reference"/>
+                        <field name="description"/>
+                        <field name="debit" sum="Debit"/>
+                        <field name="credit" sum="Credit"/>
+                        <field name="balance"/>
+                        <field name="analytic_accounts"/>
+                    </tree>
+                </field>
             </form>
+        </field>
+    </record>
+
+    <!-- Bank Book Detail Line Tree View -->
+    <record id="bank_book_detail_line_tree" model="ir.ui.view">
+        <field name="name">bank.book.detail.line.tree</field>
+        <field name="model">bank.book.detail.line</field>
+        <field name="arch" type="xml">
+            <tree string="Transaction Details">
+                <field name="date"/>
+                <field name="journal"/>
+                <field name="account_code"/>
+                <field name="account_name"/>
+                <field name="reference"/>
+                <field name="description"/>
+                <field name="debit" sum="Debit"/>
+                <field name="credit" sum="Credit"/>
+                <field name="balance"/>
+                <field name="analytic_accounts"/>
+            </tree>
         </field>
     </record>
 

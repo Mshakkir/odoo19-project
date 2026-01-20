@@ -40,10 +40,10 @@
                     <field name="partner_id" string="Vendor" readonly="1" width="150px"/>
 
                     <!-- 4. Vendor Reference -->
-                    <field name="partner_ref" string="Vendor Reference" optional="show" width="130px"/>
+                    <field name="partner_ref" string="Vendor Reference" optional="show" width="120px"/>
 
                     <!-- 5. Warehouse -->
-                    <field name="picking_type_id" string="Warehouse" optional="show" width="120px"/>
+                    <field name="picking_type_id" string="Warehouse" optional="show" width="130px"/>
 
                     <!-- 5.1 AWB Number (Shipping Reference) -->
                     <field name="awb_number" string="Shipping Ref #" optional="show" width="110px"/>

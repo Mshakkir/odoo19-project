@@ -6,7 +6,6 @@
         <field name="model">account.bankbook.report</field>
         <field name="inherit_id" ref="om_account_daily_reports.account_report_bankbook_view"/>
         <field name="arch" type="xml">
-            <!-- Add fields before the footer -->
             <xpath expr="//field[@name='display_account']" position="after">
                 <field name="report_type" widget="radio"/>
                 <field name="analytic_account_ids" widget="many2many_tags"
@@ -16,10 +15,13 @@
                        invisible="report_type == 'combined'"
                        string="Include Transactions Without Analytic Account"/>
             </xpath>
+            <xpath expr="//button[@name='check_report']" position="after">
+                <button name="show_details" string="Show Details" type="object" class="btn btn-info"/>
+            </xpath>
         </field>
     </record>
 
-    <!-- Report Action -->
+    <!-- Report Action - Summary -->
     <record id="action_report_bankbook_analytic" model="ir.actions.report">
         <field name="name">Bank Book with Analytic</field>
         <field name="model">account.bankbook.report</field>
@@ -29,6 +31,18 @@
         <field name="binding_model_id" ref="om_account_daily_reports.model_account_bankbook_report"/>
         <field name="binding_type">report</field>
         <field name="print_report_name">'Bank Book - %s' % (object.date_from)</field>
+    </record>
+
+    <!-- Report Action - Details -->
+    <record id="action_report_bankbook_analytic_details" model="ir.actions.report">
+        <field name="name">Bank Book Details with Analytic</field>
+        <field name="model">account.bankbook.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">bank_book_analytic.report_bankbook_analytic_details</field>
+        <field name="report_file">bank_book_analytic.report_bankbook_analytic_details</field>
+        <field name="binding_model_id" ref="om_account_daily_reports.model_account_bankbook_report"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Bank Book Details - %s' % (object.date_from)</field>
     </record>
 
 </odoo>
@@ -49,9 +63,9 @@
 <!--    <record id="account_bankbook_report_view_form_inherit" model="ir.ui.view">-->
 <!--        <field name="name">account.bankbook.report.form.inherit</field>-->
 <!--        <field name="model">account.bankbook.report</field>-->
-<!--        <field name="inherit_id" ref="om_account_daily_reports.view_account_bankbook_report"/>-->
+<!--        <field name="inherit_id" ref="om_account_daily_reports.account_report_bankbook_view"/>-->
 <!--        <field name="arch" type="xml">-->
-<!--            &lt;!&ndash; Add fields after the existing fields &ndash;&gt;-->
+<!--            &lt;!&ndash; Add fields before the footer &ndash;&gt;-->
 <!--            <xpath expr="//field[@name='display_account']" position="after">-->
 <!--                <field name="report_type" widget="radio"/>-->
 <!--                <field name="analytic_account_ids" widget="many2many_tags"-->
@@ -69,11 +83,13 @@
 <!--        <field name="name">Bank Book with Analytic</field>-->
 <!--        <field name="model">account.bankbook.report</field>-->
 <!--        <field name="report_type">qweb-pdf</field>-->
-<!--        <field name="report_name">bankbook_analytic.report_bankbook_analytic</field>-->
-<!--        <field name="report_file">bankbook_analytic.report_bankbook_analytic</field>-->
+<!--        <field name="report_name">bank_book_analytic.report_bankbook_analytic</field>-->
+<!--        <field name="report_file">bank_book_analytic.report_bankbook_analytic</field>-->
 <!--        <field name="binding_model_id" ref="om_account_daily_reports.model_account_bankbook_report"/>-->
 <!--        <field name="binding_type">report</field>-->
 <!--        <field name="print_report_name">'Bank Book - %s' % (object.date_from)</field>-->
 <!--    </record>-->
 
 <!--</odoo>-->
+
+

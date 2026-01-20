@@ -49,6 +49,27 @@ class AccountBankBookReportAnalytic(models.TransientModel):
             'bank_book_analytic.action_report_bankbook_analytic'
         ).report_action(self, data=data)
 
+    def show_details(self):
+        """Action to show details in a new window"""
+        data = {}
+        data['form'] = self.read([
+            'target_move', 'date_from', 'date_to', 'journal_ids',
+            'account_ids', 'sortby', 'initial_balance', 'display_account',
+            'analytic_account_ids', 'report_type', 'show_without_analytic'
+        ])[0]
+
+        comparison_context = self._build_comparison_context(data)
+        data['form']['comparison_context'] = comparison_context
+
+        return self.env.ref(
+            'bank_book_analytic.action_report_bankbook_analytic_details'
+        ).report_action(self, data=data)
+
+
+
+
+
+
 
 
 
@@ -106,5 +127,15 @@ class AccountBankBookReportAnalytic(models.TransientModel):
 #         data['form']['comparison_context'] = comparison_context
 #
 #         return self.env.ref(
-#             'bank_book_analytic.action_report_bank_book_analytic'
+#             'bank_book_analytic.action_report_bankbook_analytic'
 #         ).report_action(self, data=data)
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#

@@ -126,12 +126,11 @@ class AccountBankBookReportAnalytic(models.TransientModel):
             'name': _('Bank Book Report - Detailed View'),
             'type': 'ir.actions.act_window',
             'res_model': 'account.bankbook.details',
-            'view_mode': 'form',
+            'views': [(self.env.ref('bank_book_analytic.view_account_bankbook_details_form').id, 'form')],
             'res_id': details.id,
             'target': 'new',
             'context': self.env.context,
         }
-
 
 
 

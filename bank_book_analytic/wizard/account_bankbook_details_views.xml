@@ -18,61 +18,6 @@
         </field>
     </record>
 
-    <!-- Bank Book Details Account Form View -->
-    <record id="view_account_bankbook_details_account_form" model="ir.ui.view">
-        <field name="name">account.bankbook.details.account.form</field>
-        <field name="model">account.bankbook.details.account</field>
-        <field name="arch" type="xml">
-            <form string="Bank Account Details">
-                <sheet>
-                    <group>
-                        <group>
-                            <field name="account_code"/>
-                            <field name="account_name"/>
-                        </group>
-                        <group>
-                            <field name="subtotal_debit" widget="monetary"/>
-                            <field name="subtotal_credit" widget="monetary"/>
-                            <field name="subtotal_balance" widget="monetary"/>
-                        </group>
-                    </group>
-                    <field name="line_ids" nolabel="1"/>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
-    <!-- Bank Book Details Account List View -->
-    <record id="view_account_bankbook_details_account_tree" model="ir.ui.view">
-        <field name="name">account.bankbook.details.account.tree</field>
-        <field name="model">account.bankbook.details.account</field>
-        <field name="arch" type="xml">
-            <list string="Bank Accounts" create="false" edit="false" delete="false">
-                <field name="account_code"/>
-                <field name="account_name"/>
-                <field name="subtotal_debit" sum="Total Debit"/>
-                <field name="subtotal_credit" sum="Total Credit"/>
-                <field name="subtotal_balance" sum="Total Balance"/>
-            </list>
-        </field>
-    </record>
-
-    <!-- Bank Book Details Tree View -->
-    <record id="view_account_bankbook_details_tree" model="ir.ui.view">
-        <field name="name">account.bankbook.details.tree</field>
-        <field name="model">account.bankbook.details</field>
-        <field name="arch" type="xml">
-            <list string="Bank Book Details" create="false" edit="false" delete="false">
-                <field name="date_from"/>
-                <field name="date_to"/>
-                <field name="report_type"/>
-                <field name="total_debit"/>
-                <field name="total_credit"/>
-                <field name="total_balance"/>
-            </list>
-        </field>
-    </record>
-
     <!-- Bank Book Details Form View -->
     <record id="view_account_bankbook_details_form" model="ir.ui.view">
         <field name="name">account.bankbook.details.form</field>
@@ -101,46 +46,47 @@
                     <notebook>
                         <page string="Bank Accounts">
                             <field name="account_ids" nolabel="1">
-                                <form string="Bank Account">
+                                <tree string="Bank Accounts" create="false" edit="false" delete="false">
+                                    <field name="account_code"/>
+                                    <field name="account_name"/>
+                                    <field name="subtotal_debit" sum="Total Debit"/>
+                                    <field name="subtotal_credit" sum="Total Credit"/>
+                                    <field name="subtotal_balance" sum="Total Balance"/>
+                                </tree>
+                                <form string="Bank Account Transactions">
                                     <sheet>
                                         <group>
-                                            <h2>
-                                                <field name="account_code" readonly="1" class="oe_inline"/> -
-                                                <field name="account_name" readonly="1" class="oe_inline"/>
-                                            </h2>
-                                        </group>
-                                        <group>
-                                            <group></group>
+                                            <group>
+                                                <h2>
+                                                    <field name="account_code" readonly="1" class="oe_inline"/> -
+                                                    <field name="account_name" readonly="1" class="oe_inline"/>
+                                                </h2>
+                                            </group>
                                             <group>
                                                 <field name="subtotal_debit" widget="monetary"/>
                                                 <field name="subtotal_credit" widget="monetary"/>
                                                 <field name="subtotal_balance" widget="monetary"/>
                                             </group>
                                         </group>
+
+                                        <separator string="Transactions"/>
                                         <field name="line_ids" nolabel="1">
-                                            <list string="Transactions" create="false" edit="false" delete="false">
+                                            <tree string="Transactions" create="false" edit="false" delete="false">
                                                 <field name="date"/>
                                                 <field name="reference"/>
                                                 <field name="description"/>
                                                 <field name="journal_code"/>
-                                                <field name="debit" sum="Total"/>
-                                                <field name="credit" sum="Total"/>
+                                                <field name="debit" sum="Total Debit"/>
+                                                <field name="credit" sum="Total Credit"/>
                                                 <field name="balance"/>
                                                 <field name="analytic_account_names"/>
-                                            </list>
+                                            </tree>
                                         </field>
                                     </sheet>
                                     <footer>
                                         <button string="Close" class="btn-secondary" special="cancel"/>
                                     </footer>
                                 </form>
-                                <list string="Bank Accounts" create="false" edit="false" delete="false" editable="bottom">
-                                    <field name="account_code"/>
-                                    <field name="account_name"/>
-                                    <field name="subtotal_debit" sum="Total Debit"/>
-                                    <field name="subtotal_credit" sum="Total Credit"/>
-                                    <field name="subtotal_balance" sum="Total Balance"/>
-                                </list>
                             </field>
                         </page>
                     </notebook>
@@ -159,3 +105,175 @@
     </record>
 
 </odoo>
+
+
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    &lt;!&ndash; Bank Book Details Line List View &ndash;&gt;-->
+<!--    <record id="view_account_bankbook_details_line_tree" model="ir.ui.view">-->
+<!--        <field name="name">account.bankbook.details.line.tree</field>-->
+<!--        <field name="model">account.bankbook.details.line</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <list string="Transactions" create="false" edit="false" delete="false">-->
+<!--                <field name="date"/>-->
+<!--                <field name="reference"/>-->
+<!--                <field name="description"/>-->
+<!--                <field name="journal_code"/>-->
+<!--                <field name="debit" sum="Total"/>-->
+<!--                <field name="credit" sum="Total"/>-->
+<!--                <field name="balance"/>-->
+<!--                <field name="analytic_account_names"/>-->
+<!--            </list>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Bank Book Details Account Form View &ndash;&gt;-->
+<!--    <record id="view_account_bankbook_details_account_form" model="ir.ui.view">-->
+<!--        <field name="name">account.bankbook.details.account.form</field>-->
+<!--        <field name="model">account.bankbook.details.account</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <form string="Bank Account Details">-->
+<!--                <sheet>-->
+<!--                    <group>-->
+<!--                        <group>-->
+<!--                            <field name="account_code"/>-->
+<!--                            <field name="account_name"/>-->
+<!--                        </group>-->
+<!--                        <group>-->
+<!--                            <field name="subtotal_debit" widget="monetary"/>-->
+<!--                            <field name="subtotal_credit" widget="monetary"/>-->
+<!--                            <field name="subtotal_balance" widget="monetary"/>-->
+<!--                        </group>-->
+<!--                    </group>-->
+<!--                    <field name="line_ids" nolabel="1"/>-->
+<!--                </sheet>-->
+<!--            </form>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Bank Book Details Account List View &ndash;&gt;-->
+<!--    <record id="view_account_bankbook_details_account_tree" model="ir.ui.view">-->
+<!--        <field name="name">account.bankbook.details.account.tree</field>-->
+<!--        <field name="model">account.bankbook.details.account</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <list string="Bank Accounts" create="false" edit="false" delete="false">-->
+<!--                <field name="account_code"/>-->
+<!--                <field name="account_name"/>-->
+<!--                <field name="subtotal_debit" sum="Total Debit"/>-->
+<!--                <field name="subtotal_credit" sum="Total Credit"/>-->
+<!--                <field name="subtotal_balance" sum="Total Balance"/>-->
+<!--            </list>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Bank Book Details Tree View &ndash;&gt;-->
+<!--    <record id="view_account_bankbook_details_tree" model="ir.ui.view">-->
+<!--        <field name="name">account.bankbook.details.tree</field>-->
+<!--        <field name="model">account.bankbook.details</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <list string="Bank Book Details" create="false" edit="false" delete="false">-->
+<!--                <field name="date_from"/>-->
+<!--                <field name="date_to"/>-->
+<!--                <field name="report_type"/>-->
+<!--                <field name="total_debit"/>-->
+<!--                <field name="total_credit"/>-->
+<!--                <field name="total_balance"/>-->
+<!--            </list>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Bank Book Details Form View &ndash;&gt;-->
+<!--    <record id="view_account_bankbook_details_form" model="ir.ui.view">-->
+<!--        <field name="name">account.bankbook.details.form</field>-->
+<!--        <field name="model">account.bankbook.details</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <form string="Bank Book Report - Detailed View">-->
+<!--                <sheet>-->
+<!--                    <div class="oe_title">-->
+<!--                        <h1>Bank Book Report - Detailed View</h1>-->
+<!--                    </div>-->
+<!--                    <group>-->
+<!--                        <group>-->
+<!--                            <label for="date_from" string="Date From:"/>-->
+<!--                            <field name="date_from" nolabel="1"/>-->
+<!--                            <label for="date_to" string="Date To:"/>-->
+<!--                            <field name="date_to" nolabel="1"/>-->
+<!--                        </group>-->
+<!--                        <group>-->
+<!--                            <label for="report_type" string="Report Type:"/>-->
+<!--                            <field name="report_type" nolabel="1"/>-->
+<!--                            <label for="total_debit" string="Analytic Accounts:"/>-->
+<!--                            <div>All Accounts</div>-->
+<!--                        </group>-->
+<!--                    </group>-->
+
+<!--                    <notebook>-->
+<!--                        <page string="Bank Accounts">-->
+<!--                            <field name="account_ids" nolabel="1">-->
+<!--                                <form string="Bank Account">-->
+<!--                                    <sheet>-->
+<!--                                        <group>-->
+<!--                                            <h2>-->
+<!--                                                <field name="account_code" readonly="1" class="oe_inline"/> - -->
+<!--                                                <field name="account_name" readonly="1" class="oe_inline"/>-->
+<!--                                            </h2>-->
+<!--                                        </group>-->
+<!--                                        <group>-->
+<!--                                            <group></group>-->
+<!--                                            <group>-->
+<!--                                                <field name="subtotal_debit" widget="monetary"/>-->
+<!--                                                <field name="subtotal_credit" widget="monetary"/>-->
+<!--                                                <field name="subtotal_balance" widget="monetary"/>-->
+<!--                                            </group>-->
+<!--                                        </group>-->
+<!--                                        <field name="line_ids" nolabel="1">-->
+<!--                                            <list string="Transactions" create="false" edit="false" delete="false">-->
+<!--                                                <field name="date"/>-->
+<!--                                                <field name="reference"/>-->
+<!--                                                <field name="description"/>-->
+<!--                                                <field name="journal_code"/>-->
+<!--                                                <field name="debit" sum="Total"/>-->
+<!--                                                <field name="credit" sum="Total"/>-->
+<!--                                                <field name="balance"/>-->
+<!--                                                <field name="analytic_account_names"/>-->
+<!--                                            </list>-->
+<!--                                        </field>-->
+<!--                                    </sheet>-->
+<!--                                    <footer>-->
+<!--                                        <button string="Close" class="btn-secondary" special="cancel"/>-->
+<!--                                    </footer>-->
+<!--                                </form>-->
+<!--                                <list string="Bank Accounts" create="false" edit="false" delete="false" editable="bottom">-->
+<!--                                    <field name="account_code"/>-->
+<!--                                    <field name="account_name"/>-->
+<!--                                    <field name="subtotal_debit" sum="Total Debit"/>-->
+<!--                                    <field name="subtotal_credit" sum="Total Credit"/>-->
+<!--                                    <field name="subtotal_balance" sum="Total Balance"/>-->
+<!--                                </list>-->
+<!--                            </field>-->
+<!--                        </page>-->
+<!--                    </notebook>-->
+
+<!--                    <group class="oe_subtotal_footer oe_right" style="margin-top: 20px;">-->
+<!--                        <field name="total_debit" widget="monetary" style="font-weight: bold;"/>-->
+<!--                        <field name="total_credit" widget="monetary" style="font-weight: bold;"/>-->
+<!--                        <field name="total_balance" widget="monetary" style="font-weight: bold;"/>-->
+<!--                    </group>-->
+<!--                </sheet>-->
+<!--                <footer>-->
+<!--                    <button string="Close" class="btn-secondary" special="cancel"/>-->
+<!--                </footer>-->
+<!--            </form>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--</odoo>-->

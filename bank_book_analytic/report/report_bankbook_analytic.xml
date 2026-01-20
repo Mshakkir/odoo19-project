@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <!-- Main Report Template -->
     <template id="report_bankbook_analytic">
         <t t-call="web.html_container">
             <t t-call="web.internal_layout">
                 <div class="page">
                     <h2>Bank Book Report</h2>
-
                     <div class="row mb-3">
                         <div class="col-6">
                             <strong>Date From:</strong>
@@ -18,7 +15,6 @@
                             <p t-esc="data.get('date_to')"/>
                         </div>
                     </div>
-
                     <div class="row mb-3">
                         <div class="col-6">
                             <strong>Report Type:</strong>
@@ -26,177 +22,154 @@
                         </div>
                         <div class="col-6">
                             <strong>Analytic Accounts:</strong>
-                            <p>
-                                <t t-if="analytic_accounts">
-                                    <t t-foreach="analytic_accounts.items()" t-as="item">
-                                        <span t-esc="item[1]"/><br/>
-                                    </t>
-                                </t>
-                                <t t-else="">
-                                    All Accounts
+                            <p t-if="analytic_accounts">
+                                <t t-foreach="analytic_accounts.items()" t-as="item">
+                                    <span t-esc="item[1]"/><br/>
                                 </t>
                             </p>
+                            <p t-else="">All Accounts</p>
                         </div>
                     </div>
-
-                    <!-- Combined Report -->
                     <t t-if="report_type == 'combined'">
                         <table class="table table-sm table-bordered mt-4">
                             <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Reference</th>
-                                    <th>Description</th>
-                                    <th>Journal</th>
-                                    <th>Debit</th>
-                                    <th>Credit</th>
-                                    <th>Balance</th>
-                                    <th>Analytic Account</th>
+                                <tr class="table-light">
+                                    <th>Bank Account</th>
+                                    <th class="text-right">Debit</th>
+                                    <th class="text-right">Credit</th>
+                                    <th class="text-right">Balance</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <t t-foreach="Accounts" t-as="account">
-                                    <tr class="table-active">
-                                        <td colspan="8"><strong t-esc="account.get('code')"/> - <t t-esc="account.get('name')"/></td>
-                                    </tr>
-                                    <t t-foreach="account.get('move_lines', [])" t-as="line">
-                                        <tr>
-                                            <td t-esc="line.get('ldate')"/>
-                                            <td t-esc="line.get('lref')"/>
-                                            <td t-esc="line.get('lname')"/>
-                                            <td t-esc="line.get('lcode')"/>
-                                            <td class="text-right"><t t-esc="'{:,.2f}'.format(line.get('debit', 0))"/></td>
-                                            <td class="text-right"><t t-esc="'{:,.2f}'.format(line.get('credit', 0))"/></td>
-                                            <td class="text-right"><t t-esc="'{:,.2f}'.format(line.get('balance', 0))"/></td>
-                                            <td t-esc="', '.join(line.get('analytic_account_names', []))"/>
-                                        </tr>
-                                    </t>
-                                    <tr class="table-active">
-                                        <td colspan="4"><strong>Total</strong></td>
-                                        <td class="text-right"><strong t-esc="'{:,.2f}'.format(account.get('debit', 0))"/></td>
-                                        <td class="text-right"><strong t-esc="'{:,.2f}'.format(account.get('credit', 0))"/></td>
-                                        <td class="text-right"><strong t-esc="'{:,.2f}'.format(account.get('balance', 0))"/></td>
-                                        <td></td>
+                                    <tr>
+                                        <td>
+                                            <strong t-esc="account.get('code')"/>
+                                            <span> - </span>
+                                            <t t-esc="account.get('name')"/>
+                                        </td>
+                                        <td class="text-right" t-esc="'{:,.2f}'.format(account.get('debit', 0))"/>
+                                        <td class="text-right" t-esc="'{:,.2f}'.format(account.get('credit', 0))"/>
+                                        <td class="text-right">
+                                            <strong t-esc="'{:,.2f}'.format(account.get('balance', 0))"/>
+                                        </td>
                                     </tr>
                                 </t>
+                                <tr class="table-active" style="border-top: 2px solid black;">
+                                    <td><strong>GRAND TOTAL</strong></td>
+                                    <td class="text-right">
+                                        <strong t-esc="'{:,.2f}'.format(sum([a.get('debit', 0) for a in Accounts]))"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <strong t-esc="'{:,.2f}'.format(sum([a.get('credit', 0) for a in Accounts]))"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <strong t-esc="'{:,.2f}'.format(sum([a.get('balance', 0) for a in Accounts]))"/>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </t>
-
-                    <!-- Separate by Analytic Report -->
                     <t t-if="report_type == 'separate'">
                         <t t-foreach="analytic_accounts.items()" t-as="analytic">
-                            <h3 t-esc="analytic[1]" class="mt-4 mb-2"/>
+                            <h3 class="mt-4 mb-2" style="border-bottom: 2px solid #333; padding-bottom: 10px;">
+                                <t t-esc="analytic[1]"/>
+                            </h3>
                             <table class="table table-sm table-bordered">
                                 <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Reference</th>
-                                        <th>Description</th>
-                                        <th>Journal</th>
-                                        <th>Debit</th>
-                                        <th>Credit</th>
-                                        <th>Balance</th>
+                                    <tr class="table-light">
+                                        <th>Bank Account</th>
+                                        <th class="text-right">Debit</th>
+                                        <th class="text-right">Credit</th>
+                                        <th class="text-right">Balance</th>
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <t t-set="analytic_total_debit" t-value="0.0"/>
+                                    <t t-set="analytic_total_credit" t-value="0.0"/>
+                                    <t t-set="analytic_total_balance" t-value="0.0"/>
                                     <t t-foreach="analytic_groups.get(analytic[0], [])" t-as="account">
-                                        <tr class="table-active">
-                                            <td colspan="7"><strong t-esc="account.get('code')"/> - <t t-esc="account.get('name')"/></td>
+                                        <tr>
+                                            <td>
+                                                <strong t-esc="account.get('code')"/>
+                                                <span> - </span>
+                                                <t t-esc="account.get('name')"/>
+                                            </td>
+                                            <td class="text-right" t-esc="'{:,.2f}'.format(account.get('debit', 0))"/>
+                                            <td class="text-right" t-esc="'{:,.2f}'.format(account.get('credit', 0))"/>
+                                            <td class="text-right">
+                                                <strong t-esc="'{:,.2f}'.format(account.get('balance', 0))"/>
+                                            </td>
                                         </tr>
-                                        <t t-foreach="account.get('move_lines', [])" t-as="line">
-                                            <tr>
-                                                <td t-esc="line.get('ldate')"/>
-                                                <td t-esc="line.get('lref')"/>
-                                                <td t-esc="line.get('lname')"/>
-                                                <td t-esc="line.get('lcode')"/>
-                                                <td class="text-right"><t t-esc="'{:,.2f}'.format(line.get('debit', 0))"/></td>
-                                                <td class="text-right"><t t-esc="'{:,.2f}'.format(line.get('credit', 0))"/></td>
-                                                <td class="text-right"><t t-esc="'{:,.2f}'.format(line.get('balance', 0))"/></td>
-                                            </tr>
-                                        </t>
-                                        <tr class="table-active">
-                                            <td colspan="3"><strong>Total</strong></td>
-                                            <td></td>
-                                            <td class="text-right"><strong t-esc="'{:,.2f}'.format(account.get('debit', 0))"/></td>
-                                            <td class="text-right"><strong t-esc="'{:,.2f}'.format(account.get('credit', 0))"/></td>
-                                            <td class="text-right"><strong t-esc="'{:,.2f}'.format(account.get('balance', 0))"/></td>
-                                        </tr>
+                                        <t t-set="analytic_total_debit" t-value="analytic_total_debit + account.get('debit', 0)"/>
+                                        <t t-set="analytic_total_credit" t-value="analytic_total_credit + account.get('credit', 0)"/>
+                                        <t t-set="analytic_total_balance" t-value="analytic_total_balance + account.get('balance', 0)"/>
                                     </t>
+                                    <tr class="table-active" style="border-top: 2px solid black;">
+                                        <td><strong>Subtotal</strong></td>
+                                        <td class="text-right">
+                                            <strong t-esc="'{:,.2f}'.format(analytic_total_debit)"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <strong t-esc="'{:,.2f}'.format(analytic_total_credit)"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <strong t-esc="'{:,.2f}'.format(analytic_total_balance)"/>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </t>
-
-                        <!-- Transactions without Analytic Account -->
                         <t t-if="show_without_analytic and without_analytic_data">
-                            <h3 class="mt-4 mb-2">Transactions Without Analytic Account</h3>
+                            <h3 class="mt-4 mb-2" style="border-bottom: 2px solid #333; padding-bottom: 10px;">Transactions Without Analytic Account</h3>
                             <table class="table table-sm table-bordered">
                                 <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Reference</th>
-                                        <th>Description</th>
-                                        <th>Journal</th>
-                                        <th>Debit</th>
-                                        <th>Credit</th>
-                                        <th>Balance</th>
+                                    <tr class="table-light">
+                                        <th>Bank Account</th>
+                                        <th class="text-right">Debit</th>
+                                        <th class="text-right">Credit</th>
+                                        <th class="text-right">Balance</th>
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <t t-set="without_total_debit" t-value="0.0"/>
+                                    <t t-set="without_total_credit" t-value="0.0"/>
+                                    <t t-set="without_total_balance" t-value="0.0"/>
                                     <t t-foreach="without_analytic_data" t-as="account">
-                                        <tr class="table-active">
-                                            <td colspan="7"><strong t-esc="account.get('code')"/> - <t t-esc="account.get('name')"/></td>
+                                        <tr>
+                                            <td>
+                                                <strong t-esc="account.get('code')"/>
+                                                <span> - </span>
+                                                <t t-esc="account.get('name')"/>
+                                            </td>
+                                            <td class="text-right" t-esc="'{:,.2f}'.format(account.get('debit', 0))"/>
+                                            <td class="text-right" t-esc="'{:,.2f}'.format(account.get('credit', 0))"/>
+                                            <td class="text-right">
+                                                <strong t-esc="'{:,.2f}'.format(account.get('balance', 0))"/>
+                                            </td>
                                         </tr>
-                                        <t t-foreach="account.get('move_lines', [])" t-as="line">
-                                            <tr>
-                                                <td t-esc="line.get('ldate')"/>
-                                                <td t-esc="line.get('lref')"/>
-                                                <td t-esc="line.get('lname')"/>
-                                                <td t-esc="line.get('lcode')"/>
-                                                <td class="text-right"><t t-esc="'{:,.2f}'.format(line.get('debit', 0))"/></td>
-                                                <td class="text-right"><t t-esc="'{:,.2f}'.format(line.get('credit', 0))"/></td>
-                                                <td class="text-right"><t t-esc="'{:,.2f}'.format(line.get('balance', 0))"/></td>
-                                            </tr>
-                                        </t>
-                                        <tr class="table-active">
-                                            <td colspan="3"><strong>Total</strong></td>
-                                            <td></td>
-                                            <td class="text-right"><strong t-esc="'{:,.2f}'.format(account.get('debit', 0))"/></td>
-                                            <td class="text-right"><strong t-esc="'{:,.2f}'.format(account.get('credit', 0))"/></td>
-                                            <td class="text-right"><strong t-esc="'{:,.2f}'.format(account.get('balance', 0))"/></td>
-                                        </tr>
+                                        <t t-set="without_total_debit" t-value="without_total_debit + account.get('debit', 0)"/>
+                                        <t t-set="without_total_credit" t-value="without_total_credit + account.get('credit', 0)"/>
+                                        <t t-set="without_total_balance" t-value="without_total_balance + account.get('balance', 0)"/>
                                     </t>
+                                    <tr class="table-active" style="border-top: 2px solid black;">
+                                        <td><strong>Subtotal</strong></td>
+                                        <td class="text-right">
+                                            <strong t-esc="'{:,.2f}'.format(without_total_debit)"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <strong t-esc="'{:,.2f}'.format(without_total_credit)"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <strong t-esc="'{:,.2f}'.format(without_total_balance)"/>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </t>
                     </t>
-
                 </div>
             </t>
         </t>
     </template>
-
 </odoo>
-
-
-
-
-
-
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-
-<!--    <template id="report_bank_analytic_inherit" inherit_id="om_account_daily_reports.report_bankbook">-->
-
-<!--        &lt;!&ndash; Add Analytic Account information in the header section &ndash;&gt;-->
-<!--        <xpath expr="//div[@class='col-2'][last()]" position="after">-->
-<!--            <div class="col-4">-->
-<!--                <strong>Analytic Accounts:</strong>-->
-<!--                <p t-esc="analytic_accounts"/>-->
-<!--            </div>-->
-<!--        </xpath>-->
-
-<!--    </template>-->
-
-<!--</odoo>-->

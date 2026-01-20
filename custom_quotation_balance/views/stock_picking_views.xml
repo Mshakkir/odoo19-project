@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_picking_form_partner_balance" model="ir.ui.view">
+        <field name="name">stock.picking.form.partner.balance</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Add partner balance after the scheduled date -->
+            <xpath expr="//field[@name='scheduled_date']" position="after">
+
+                <label for="partner_total_invoiced"
+                       invisible="not partner_id"
+                       string="Total Invoiced/Billed"/>
+                <div class="o_row" invisible="not partner_id">
+                    <field name="partner_total_invoiced"
+                           widget="monetary"
+                           readonly="1"
+                           class="oe_inline oe_link"
+                           style="cursor: pointer; color: #007bff; text-decoration: underline;"/>
+                    <button name="action_view_partner_invoices"
+                            type="object"
+                            class="btn-link"
+                            icon="fa-external-link"
+                            invisible="partner_total_invoiced == 0"
+                            string="View Invoices/Bills"/>
+                </div>
+
+                <label for="partner_total_paid"
+                       invisible="not partner_id"
+                       string="Amount Paid"/>
+                <div class="o_row" invisible="not partner_id">
+                    <field name="partner_total_paid"
+                           widget="monetary"
+                           readonly="1"
+                           decoration-success="partner_total_paid > 0"
+                           class="oe_inline oe_link"
+                           style="cursor: pointer; color: #28a745; text-decoration: underline;"/>
+                    <button name="action_view_partner_payments"
+                            type="object"
+                            class="btn-link"
+                            icon="fa-external-link"
+                            invisible="partner_total_paid == 0"
+                            string="View Payments"/>
+                </div>
+
+                <field name="partner_balance_due"
+                       invisible="not partner_id"
+                       readonly="1"
+                       decoration-danger="partner_balance_due > 0"
+                       decoration-success="partner_balance_due == 0"
+                       widget="monetary"
+                       string="Balance Due"/>
+
+                <!-- Hidden field for currency -->
+                <field name="currency_id" invisible="1"/>
+
+            </xpath>
+        </field>
+    </record>
+</odoo>

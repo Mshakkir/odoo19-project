@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Bank Book Details Line Tree View -->
+    <!-- Bank Book Details Line List View -->
     <record id="view_account_bankbook_details_line_tree" model="ir.ui.view">
         <field name="name">account.bankbook.details.line.tree</field>
         <field name="model">account.bankbook.details.line</field>
         <field name="arch" type="xml">
-            <tree string="Transaction Details" create="false" edit="false" delete="false">
+            <list string="Transaction Details" create="false" edit="false" delete="false">
                 <field name="date"/>
                 <field name="account_code"/>
                 <field name="account_name"/>
@@ -17,7 +17,7 @@
                 <field name="debit" sum="Total Debit"/>
                 <field name="credit" sum="Total Credit"/>
                 <field name="balance" sum="Total Balance"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -62,19 +62,19 @@
         </field>
     </record>
 
-    <!-- Bank Book Details Tree View -->
+    <!-- Bank Book Details List View -->
     <record id="view_account_bankbook_details_tree" model="ir.ui.view">
         <field name="name">account.bankbook.details.tree</field>
         <field name="model">account.bankbook.details</field>
         <field name="arch" type="xml">
-            <tree string="Bank Book Details" create="false" edit="false" delete="false">
+            <list string="Bank Book Details" create="false" edit="false" delete="false">
                 <field name="date_from"/>
                 <field name="date_to"/>
                 <field name="report_type"/>
                 <field name="total_debit"/>
                 <field name="total_credit"/>
                 <field name="total_balance"/>
-            </tree>
+            </list>
         </field>
     </record>
 

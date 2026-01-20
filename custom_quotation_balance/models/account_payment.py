@@ -150,3 +150,4 @@ class AccountPayment(models.Model):
                 'default_payment_type': self.payment_type,
             },
         }
+

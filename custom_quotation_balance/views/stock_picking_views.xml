@@ -10,48 +10,45 @@
             <xpath expr="//field[@name='scheduled_date']" position="after">
                 <field name="currency_id" invisible="1"/>
 
-                <!-- Partner Balance Summary -->
+                <!-- Total Invoiced/Billed -->
                 <label for="partner_total_invoiced"
                        invisible="not partner_id"
-                       string="Total Invoiced/Billed"
-                       class="fw-bold"/>
-                <div invisible="not partner_id">
+                       string="Total Invoiced/Billed"/>
+                <div class="o_row" invisible="not partner_id">
                     <field name="partner_total_invoiced"
                            widget="monetary"
-                           readonly="1"
-                           class="oe_inline"/>
+                           readonly="1"/>
                     <button name="action_view_partner_invoices"
                             type="object"
                             string="View"
-                            class="btn-link ps-2"
+                            class="btn-link"
                             invisible="partner_total_invoiced == 0"/>
                 </div>
 
+                <!-- Amount Paid -->
                 <label for="partner_total_paid"
                        invisible="not partner_id"
-                       string="Amount Paid"
-                       class="fw-bold"/>
-                <div invisible="not partner_id">
+                       string="Amount Paid"/>
+                <div class="o_row" invisible="not partner_id">
                     <field name="partner_total_paid"
                            widget="monetary"
                            readonly="1"
-                           decoration-success="partner_total_paid > 0"
-                           class="oe_inline"/>
+                           decoration-success="partner_total_paid > 0"/>
                     <button name="action_view_partner_payments"
                             type="object"
                             string="View"
-                            class="btn-link ps-2"
+                            class="btn-link"
                             invisible="partner_total_paid == 0"/>
                 </div>
 
+                <!-- Balance Due -->
                 <field name="partner_balance_due"
                        invisible="not partner_id"
                        widget="monetary"
                        readonly="1"
                        decoration-danger="partner_balance_due > 0"
                        decoration-success="partner_balance_due == 0"
-                       string="Balance Due"
-                       class="fw-bold fs-5"/>
+                       string="Balance Due"/>
 
             </xpath>
         </field>

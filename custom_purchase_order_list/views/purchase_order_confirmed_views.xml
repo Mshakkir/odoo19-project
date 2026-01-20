@@ -43,7 +43,7 @@
                         <field name="picking_type_id"
                                string="Warehouse"
                                optional="show"
-                               width="120px"/>
+                               width="135px"/>
 
                         <field name="awb_number"
                                string="Shipping Ref #"

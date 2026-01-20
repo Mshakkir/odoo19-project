@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Parent menu without action (dropdown only) -->
-    <menuitem
-        id="menu_sale_invoices_parent"
-        name="Sale Invoices"
-        parent="sale.sale_menu_root"
-        sequence="10"/>
+<!--    <menuitem-->
+<!--        id="menu_sale_invoices_parent"-->
+<!--        name="Sale Invoices"-->
+<!--        parent="sale.sale_menu_root"-->
+<!--        sequence="10"/>-->
 
     <!-- Child 1: Actual Sale Invoices list -->
     <menuitem
@@ -13,6 +13,6 @@
         name="Sale Invoices"
         parent="menu_sale_invoices_parent"
         action="account.action_move_out_invoice_type"
-        sequence="1"/>
+        sequence="10"/>
 
 </odoo>

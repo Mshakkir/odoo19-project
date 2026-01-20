@@ -35,6 +35,7 @@ class AccountBankBookReportAnalytic(models.TransientModel):
         return result
 
     def check_report(self):
+        """Print button - generates PDF with bank totals only"""
         data = {}
         data['form'] = self.read([
             'target_move', 'date_from', 'date_to', 'journal_ids',
@@ -50,21 +51,143 @@ class AccountBankBookReportAnalytic(models.TransientModel):
         ).report_action(self, data=data)
 
     def show_details(self):
-        """Action to show details in a new window"""
-        data = {}
-        data['form'] = self.read([
-            'target_move', 'date_from', 'date_to', 'journal_ids',
-            'account_ids', 'sortby', 'initial_balance', 'display_account',
-            'analytic_account_ids', 'report_type', 'show_without_analytic'
-        ])[0]
+        """Show Details button - opens new window with detailed view"""
+        self.ensure_one()
 
-        comparison_context = self._build_comparison_context(data)
-        data['form']['comparison_context'] = comparison_context
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Bank Book Details',
+            'res_model': 'bank.book.details.wizard',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'context': {
+                'default_date_from': self.date_from,
+                'default_date_to': self.date_to,
+                'default_journal_ids': [(6, 0, self.journal_ids.ids)],
+                'default_account_ids': [(6, 0, self.account_ids.ids)],
+                'default_analytic_account_ids': [(6, 0, self.analytic_account_ids.ids)],
+                'default_report_type': self.report_type,
+                'default_show_without_analytic': self.show_without_analytic,
+                'default_target_move': self.target_move,
+                'default_sortby': self.sortby,
+                'default_initial_balance': self.initial_balance,
+                'default_display_account': self.display_account,
+            }
+        }
 
-        return self.env.ref(
-            'bank_book_analytic.action_report_bankbook_analytic_details'
-        ).report_action(self, data=data)
 
+class BankBookDetailsWizard(models.TransientModel):
+    _name = 'bank.book.details.wizard'
+    _description = 'Bank Book Details View'
+
+    date_from = fields.Date('Start Date')
+    date_to = fields.Date('End Date')
+    journal_ids = fields.Many2many('account.journal')
+    account_ids = fields.Many2many('account.account')
+    analytic_account_ids = fields.Many2many('account.analytic.account')
+    report_type = fields.Selection([
+        ('combined', 'Combined Report'),
+        ('separate', 'Separate by Analytic Account'),
+    ])
+    show_without_analytic = fields.Boolean()
+    target_move = fields.Selection([
+        ('posted', 'Posted Entries'),
+        ('all', 'All Entries'),
+    ])
+    sortby = fields.Selection([
+        ('sort_date', 'Date'),
+        ('sort_journal_partner', 'Journal & Partner'),
+    ])
+    initial_balance = fields.Boolean()
+    display_account = fields.Selection([
+        ('all', 'All'),
+        ('movement', 'With Movements'),
+        ('not_zero', 'With Balance'),
+    ])
+
+    # Store the detailed data
+    detail_line_ids = fields.One2many(
+        'bank.book.detail.line',
+        'wizard_id',
+        string='Details'
+    )
+
+    @api.model
+    def default_get(self, fields_list):
+        result = super().default_get(fields_list)
+        self._fetch_details(result)
+        return result
+
+    def _fetch_details(self, values):
+        """Fetch bank book details"""
+        from odoo.addons.bank_book_analytic.report.report_bankbook_analytic import ReportBankBookAnalytic
+
+        report = self.env['report.bank_book_analytic.report_bankbook_analytic']
+
+        # Prepare data dictionary
+        data = {
+            'form': {
+                'date_from': values.get('date_from'),
+                'date_to': values.get('date_to'),
+                'journal_ids': values.get('journal_ids', []),
+                'account_ids': values.get('account_ids', []),
+                'analytic_account_ids': values.get('analytic_account_ids', []),
+                'report_type': values.get('report_type', 'combined'),
+                'show_without_analytic': values.get('show_without_analytic', True),
+                'target_move': values.get('target_move'),
+                'sortby': values.get('sortby'),
+                'initial_balance': values.get('initial_balance'),
+                'display_account': values.get('display_account'),
+            }
+        }
+
+        try:
+            # Get report values
+            report_values = report._get_report_values([], data=data)
+            accounts = report_values.get('Accounts', [])
+
+            detail_lines = []
+            line_seq = 1
+
+            for account in accounts:
+                for move_line in account.get('move_lines', []):
+                    detail_lines.append((0, 0, {
+                        'sequence': line_seq,
+                        'date': move_line.get('ldate'),
+                        'reference': move_line.get('lref'),
+                        'description': move_line.get('lname'),
+                        'journal': move_line.get('lcode'),
+                        'account_code': account.get('code'),
+                        'account_name': account.get('name'),
+                        'debit': move_line.get('debit', 0),
+                        'credit': move_line.get('credit', 0),
+                        'balance': move_line.get('balance', 0),
+                        'analytic_accounts': move_line.get('analytic_account_names', ''),
+                    }))
+                    line_seq += 1
+
+            values['detail_line_ids'] = detail_lines
+        except Exception as e:
+            pass
+
+
+class BankBookDetailLine(models.TransientModel):
+    _name = 'bank.book.detail.line'
+    _description = 'Bank Book Detail Line'
+
+    wizard_id = fields.Many2one('bank.book.details.wizard')
+    sequence = fields.Integer('Seq')
+    date = fields.Date('Date')
+    reference = fields.Char('Reference')
+    description = fields.Char('Description')
+    journal = fields.Char('Journal')
+    account_code = fields.Char('Account Code')
+    account_name = fields.Char('Account Name')
+    debit = fields.Float('Debit')
+    credit = fields.Float('Credit')
+    balance = fields.Float('Balance')
+    analytic_accounts = fields.Char('Analytic Accounts')
 
 
 

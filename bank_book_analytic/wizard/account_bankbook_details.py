@@ -21,7 +21,7 @@ class AccountBankBookDetails(models.TransientModel):
     def _compute_totals(self):
         for record in self:
             record.total_debit = sum(record.account_ids.mapped('subtotal_debit'))
-            record.total_credit = sum(record.account_ids.mapped('credit'))
+            record.total_credit = sum(record.account_ids.mapped('subtotal_credit'))
             record.total_balance = sum(record.account_ids.mapped('subtotal_balance'))
 
 
@@ -77,7 +77,6 @@ class AccountBankBookDetailsLine(models.TransientModel):
     credit = fields.Float(string='Credit', readonly=True, digits=(16, 2))
     balance = fields.Float(string='Balance', readonly=True, digits=(16, 2))
     analytic_account_names = fields.Char(string='Analytic Accounts', readonly=True)
-
 
 
 

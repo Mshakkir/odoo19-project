@@ -121,19 +121,19 @@ class MultiPaymentWizard(models.TransientModel):
         if not self.partner_id:
             raise UserError(_('Please select a customer first.'))
 
+        # Search for all payments related to customer (broader search)
         payments = self.env['account.payment'].search([
             ('partner_id', '=', self.partner_id.id),
-            ('payment_type', '=', 'inbound'),
-            ('state', '=', 'posted'),
         ], order='date desc')
 
         if not payments:
+            # If no payments found, show detailed message
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
                     'title': _('No Payments'),
-                    'message': _('No payments found for this customer.'),
+                    'message': _('No payments found for this customer. Please check if payments have been created and reconciled.'),
                     'type': 'info',
                 }
             }
@@ -146,8 +146,6 @@ class MultiPaymentWizard(models.TransientModel):
             'views': [(False, 'tree'), (False, 'form')],
             'domain': [
                 ('partner_id', '=', self.partner_id.id),
-                ('payment_type', '=', 'inbound'),
-                ('state', '=', 'posted'),
             ],
             'context': {'default_partner_id': self.partner_id.id},
             'target': 'current',

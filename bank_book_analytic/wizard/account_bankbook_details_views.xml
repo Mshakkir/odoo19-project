@@ -10,6 +10,7 @@
                     <div class="oe_title">
                         <h1>Bank Book Report - Detailed View</h1>
                     </div>
+
                     <group>
                         <group>
                             <label for="date_from" string="Date From:"/>
@@ -17,6 +18,7 @@
                             <label for="date_to" string="Date To:"/>
                             <field name="date_to" nolabel="1"/>
                         </group>
+
                         <group>
                             <label for="report_type" string="Report Type:"/>
                             <field name="report_type" nolabel="1"/>
@@ -29,11 +31,11 @@
                     <group string="Bank Accounts Summary">
                         <field name="account_ids" nolabel="1">
                             <list string="Bank Accounts" create="false" edit="false" delete="false">
-                                <field name="account_code" column_invisible="0"/>
-                                <field name="account_name" column_invisible="0"/>
-                                <field name="subtotal_debit" sum="Total Debit" column_invisible="0"/>
-                                <field name="subtotal_credit" sum="Total Credit" column_invisible="0"/>
-                                <field name="subtotal_balance" sum="Total Balance" column_invisible="0"/>
+                                <field name="account_code" string="Account Code" width="100"/>
+                                <field name="account_name" string="Account Name" width="200"/>
+                                <field name="subtotal_debit" sum="Total Debit" width="120"/>
+                                <field name="subtotal_credit" sum="Total Credit" width="120"/>
+                                <field name="subtotal_balance" sum="Total Balance" width="120"/>
                             </list>
                         </field>
                     </group>
@@ -41,34 +43,81 @@
                     <!-- All Transaction Lines -->
                     <group string="Transaction Details">
                         <field name="all_line_ids" nolabel="1">
-                            <list string="All Transactions" create="false" edit="false" delete="false" class="o_list_view" decoration-bf="1">
-                                <field name="account_code" string="Account" optional="show" column_invisible="0"/>
-                                <field name="date" optional="show" column_invisible="0"/>
-                                <field name="reference" optional="show" column_invisible="0"/>
-                                <field name="partner_name" string="Particulars" optional="show" column_invisible="0"/>
-                                <field name="journal_code" string="Journal" optional="show" column_invisible="0"/>
-                                <field name="debit" sum="Total Debit" optional="show" column_invisible="0"/>
-                                <field name="credit" sum="Total Credit" optional="show" column_invisible="0"/>
-                                <field name="balance" optional="show" column_invisible="0"/>
-                                <field name="description" optional="show" column_invisible="0"/>
-                                <field name="analytic_account_names" string="Analytic" optional="show" column_invisible="0"/>
+                            <list string="All Transactions"
+                                  create="false"
+                                  edit="false"
+                                  delete="false"
+                                  class="o_list_view">
+
+                                <field name="account_code"
+                                       string="Account"
+                                       optional="show"
+                                       width="90"/>
+
+                                <field name="date"
+                                       string="Date"
+                                       optional="show"
+                                       width="90"/>
+
+                                <field name="reference"
+                                       string="Reference"
+                                       optional="show"
+                                       width="120"/>
+
+                                <field name="partner_name"
+                                       string="Particulars"
+                                       optional="show"
+                                       width="180"/>
+
+                                <field name="journal_code"
+                                       string="Journal"
+                                       optional="show"
+                                       width="80"/>
+
+                                <field name="debit"
+                                       string="Debit"
+                                       sum="Total Debit"
+                                       optional="show"
+                                       width="110"/>
+
+                                <field name="credit"
+                                       string="Credit"
+                                       sum="Total Credit"
+                                       optional="show"
+                                       width="110"/>
+
+                                <field name="balance"
+                                       string="Balance"
+                                       optional="show"
+                                       width="120"/>
+
+                                <field name="description"
+                                       string="Description"
+                                       optional="show"
+                                       width="200"/>
+
+                                <field name="analytic_account_names"
+                                       string="Analytic"
+                                       optional="show"
+                                       width="160"/>
                             </list>
                         </field>
                     </group>
 
+                    <!-- Footer Totals -->
                     <group class="oe_subtotal_footer oe_right" style="margin-top: 20px;">
                         <field name="total_debit" widget="monetary" style="font-weight: bold;"/>
                         <field name="total_credit" widget="monetary" style="font-weight: bold;"/>
                         <field name="total_balance" widget="monetary" style="font-weight: bold;"/>
                     </group>
                 </sheet>
+
                 <footer>
                     <button string="Close" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
         </field>
     </record>
-
 </odoo>
 
 

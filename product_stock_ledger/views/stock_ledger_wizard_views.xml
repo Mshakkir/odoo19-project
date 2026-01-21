@@ -29,12 +29,12 @@
         <field name="target">new</field>
     </record>
 
-    <!-- Add menu under Inventory → Reporting -->
+    <!-- Add menu under Inventory menu -->
     <menuitem id="menu_product_stock_ledger"
               name="Product Stock Ledger"
-              parent="stock.menu_stock_report_business"
+              parent="stock.menu_stock_root"
               action="action_open_stock_ledger_wizard"
-              sequence="15"
+              sequence="60"
               />
 </odoo>
 

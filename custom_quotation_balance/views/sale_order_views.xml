@@ -6,53 +6,80 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add customer balance info in the right side panel, after validity_date -->
-            <xpath expr="//field[@name='validity_date']" position="after">
+            <!-- Add balance info box with absolute positioning at top right corner -->
+            <xpath expr="//form/sheet" position="inside">
+                <div class="customer_balance_box"
+                     invisible="not partner_id"
+                     style="position: absolute;
+                            top: 0px;
+                            right: 0px;
+                            background: #f8f9fa;
+                            border: 1px solid #dee2e6;
+                            border-radius: 4px;
+                            padding: 10px 15px;
+                            min-width: 250px;
+                            z-index: 1;">
 
-                <!-- Customer Balance Section -->
-                <group colspan="2" col="2" invisible="not partner_id" string="Customer Balance">
-
-                    <!-- 1. Total Invoiced - Clickable -->
-                    <label for="customer_total_invoiced" string="Total Invoiced"/>
-                    <div class="o_row">
+                    <div style="margin-bottom: 8px;">
+                        <label for="customer_total_invoiced"
+                               string="Total Invoiced"
+                               style="margin-bottom: 2px; display: block; font-weight: normal; color: #6c757d; font-size: 13px;"/>
+                        <button name="action_view_customer_invoices"
+                                type="object"
+                                class="btn btn-link p-0"
+                                style="text-decoration: underline; font-size: 14px; font-weight: 600;"
+                                invisible="customer_total_invoiced == 0">
+                            <field name="customer_total_invoiced"
+                                   widget="monetary"
+                                   readonly="1"
+                                   nolabel="1"
+                                   style="color: #007bff;"/>
+                        </button>
                         <field name="customer_total_invoiced"
                                widget="monetary"
                                readonly="1"
-                               nolabel="1"/>
-                        <button name="action_view_customer_invoices"
-                                type="object"
-                                class="btn-link"
-                                icon="fa-external-link"
-                                invisible="customer_total_invoiced == 0"
-                                string="View"/>
+                               invisible="customer_total_invoiced != 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: block;"/>
                     </div>
 
-                    <!-- 2. Amount Paid - Clickable -->
-                    <label for="customer_total_paid" string="Amount Received"/>
-                    <div class="o_row">
+                    <div style="margin-bottom: 8px;">
+                        <label for="customer_total_paid"
+                               string="Amount Received"
+                               style="margin-bottom: 2px; display: block; font-weight: normal; color: #6c757d; font-size: 13px;"/>
+                        <button name="action_view_customer_payments"
+                                type="object"
+                                class="btn btn-link p-0"
+                                style="text-decoration: underline; font-size: 14px; font-weight: 600;"
+                                invisible="customer_total_paid == 0">
+                            <field name="customer_total_paid"
+                                   widget="monetary"
+                                   readonly="1"
+                                   decoration-success="customer_total_paid > 0"
+                                   nolabel="1"
+                                   style="color: #28a745;"/>
+                        </button>
                         <field name="customer_total_paid"
                                widget="monetary"
                                readonly="1"
-                               decoration-success="customer_total_paid > 0"
-                               nolabel="1"/>
-                        <button name="action_view_customer_payments"
-                                type="object"
-                                class="btn-link"
-                                icon="fa-external-link"
-                                invisible="customer_total_paid == 0"
-                                string="View"/>
+                               invisible="customer_total_paid != 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: block;"/>
                     </div>
 
-                    <!-- 3. Balance Due - Not clickable (just display) -->
-                    <label for="customer_balance_due" string="Balance Due"/>
-                    <field name="customer_balance_due"
-                           readonly="1"
-                           decoration-danger="customer_balance_due > 0"
-                           decoration-success="customer_balance_due == 0"
-                           widget="monetary"
-                           nolabel="1"/>
-                </group>
-
+                    <div>
+                        <label for="customer_balance_due"
+                               string="Balance Due"
+                               style="margin-bottom: 2px; display: block; font-weight: normal; color: #6c757d; font-size: 13px;"/>
+                        <field name="customer_balance_due"
+                               widget="monetary"
+                               readonly="1"
+                               decoration-danger="customer_balance_due > 0"
+                               decoration-success="customer_balance_due == 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: block;"/>
+                    </div>
+                </div>
             </xpath>
 
         </field>

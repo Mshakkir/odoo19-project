@@ -8,13 +8,6 @@
                 <div class="top_bar">
                     <div class="container">
                         <div class="contact_info">
-                            <!--                            <a href="tel:+1234567890" class="contact_item">-->
-                            <!--                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"-->
-                            <!--                                     stroke-width="2">-->
-                            <!--                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>-->
-                            <!--                                </svg>-->
-                            <!--&lt;!&ndash;                                <span>+123 456 7890</span>&ndash;&gt;-->
-                            <!--                            </a>-->
                             <a href="mailto:info@yourcompany.com" class="contact_item">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                      stroke-width="2">
@@ -25,17 +18,26 @@
                             </a>
                         </div>
                         <div class="social_links">
-                            <a href="#" class="social_link" aria-label="Facebook">
+
+                            <!-- Facebook -->
+                            <a href="https://www.facebook.com/profile.php?id=61586545337564"
+                               class="social_link" aria-label="Facebook" target="_blank" rel="noopener">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
                                 </svg>
                             </a>
-                            <a href="#" class="social_link" aria-label="Twitter">
+
+                            <!-- Twitter (X) -->
+                            <a href="https://x.com/airmixs"
+                               class="social_link" aria-label="Twitter" target="_blank" rel="noopener">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
                                 </svg>
                             </a>
-                            <a href="#" class="social_link" aria-label="Instagram">
+
+                            <!-- Instagram -->
+                            <a href="https://www.instagram.com/airmixs_pneumatics/"
+                               class="social_link" aria-label="Instagram" target="_blank" rel="noopener">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                      stroke-width="2">
                                     <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
@@ -43,14 +45,62 @@
                                     <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                                 </svg>
                             </a>
-                            <a href="#" class="social_link" aria-label="LinkedIn">
+
+                            <!-- LinkedIn -->
+                            <a href="https://www.linkedin.com/in/airmixs-pneumatics-a637893a7/"
+                               class="social_link" aria-label="LinkedIn" target="_blank" rel="noopener">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
                                     <rect x="2" y="9" width="4" height="12"></rect>
                                     <circle cx="4" cy="4" r="2"></circle>
                                 </svg>
                             </a>
+
+                            <!-- YouTube -->
+                            <a href="https://www.youtube.com/channel/UCQnRca12eAT02kWkIYlpJSA"
+                               class="social_link" aria-label="YouTube" target="_blank" rel="noopener">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M23 7s-.2-1.4-.8-2a3 3 0 0 0-2.1-.8C17.1 4 12 4 12 4h0s-5.1 0-8.1.2a3 3 0 0 0-2.1.8c-.6.6-.8 2-.8 2S1 8.6 1 10.2v1.6c0 1.6.1 3.2.1 3.2s.2 1.4.8 2a3.6 3.6 0 0 0 2.3.8c1.7.2 7.7.2 7.7.2s5.1 0 8.1-.2a3 3 0 0 0 2.1-.8c.6-.6.8-2 .8-2s.1-1.6.1-3.2v-1.6C23.1 8.6 23 7 23 7zM9.8 14.8V8.8l5.2 3-5.2 3z"></path>
+                                </svg>
+                            </a>
+
+                            <!-- Pinterest -->
+                            <a href="https://pin.it/1TR24GtB0"
+                               class="social_link" aria-label="Pinterest" target="_blank" rel="noopener">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2a10 10 0 0 0-3.6 19.3c-.1-.8-.2-2 .1-2.9.2-.8 1.3-5.2 1.3-5.2s-.3-.7-.3-1.7c0-1.6.9-2.8 2.1-2.8 1 0 1.5.8 1.5 1.7 0 1-.6 2.5-.9 3.9-.3 1.1.6 2 1.7 2 2 0 3.5-2.1 3.5-5.1 0-2.7-1.9-4.5-4.7-4.5-3.2 0-5.1 2.4-5.1 4.9 0 1 .4 2 .9 2.5.1.1.1.2.1.4-.1.4-.3 1.3-.4 1.5-.1.2-.2.3-.4.2-1.5-.7-2.4-2.9-2.4-4.7 0-3.8 2.8-7.3 8-7.3 4.2 0 7.4 3 7.4 7 0 4.2-2.6 7.5-6.2 7.5-1.2 0-2.3-.6-2.7-1.3l-.7 2.7c-.2.9-.8 2.1-1.2 2.8A10 10 0 0 0 12 22a10 10 0 0 0 0-20z"></path>
+                                </svg>
+                            </a>
+
                         </div>
+
+                        <!--                        <div class="social_links">-->
+                        <!--                            <a href="#" class="social_link" aria-label="Facebook">-->
+                        <!--                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">-->
+                        <!--                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>-->
+                        <!--                                </svg>-->
+                        <!--                            </a>-->
+                        <!--                            <a href="#" class="social_link" aria-label="Twitter">-->
+                        <!--                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">-->
+                        <!--                                    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>-->
+                        <!--                                </svg>-->
+                        <!--                            </a>-->
+                        <!--                            <a href="#" class="social_link" aria-label="Instagram">-->
+                        <!--                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"-->
+                        <!--                                     stroke-width="2">-->
+                        <!--                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>-->
+                        <!--                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>-->
+                        <!--                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>-->
+                        <!--                                </svg>-->
+                        <!--                            </a>-->
+                        <!--                            <a href="#" class="social_link" aria-label="LinkedIn">-->
+                        <!--                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">-->
+                        <!--                                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>-->
+                        <!--                                    <rect x="2" y="9" width="4" height="12"></rect>-->
+                        <!--                                    <circle cx="4" cy="4" r="2"></circle>-->
+                        <!--                                </svg>-->
+                        <!--                            </a>-->
+                        <!--                        </div>-->
                     </div>
                 </div>
 
@@ -594,343 +644,3 @@
         </template>
     </data>
 </odoo>
-
-
-        <!--<?xml version="1.0" encoding="utf-8"?>-->
-        <!--<odoo>-->
-        <!--    <data>-->
-        <!--        &lt;!&ndash; Hide Default Odoo Header &ndash;&gt;-->
-        <!--        <template id="hide_default_header" inherit_id="website.layout" name="Hide Default Header">-->
-        <!--            <xpath expr="//header[@id='top']" position="replace">-->
-        <!--                &lt;!&ndash; Top Bar &ndash;&gt;-->
-        <!--                <div class="top_bar">-->
-        <!--                    <div class="container">-->
-        <!--                        <div class="contact_info">-->
-        <!--                            <a href="tel:+1234567890" class="contact_item">-->
-        <!--                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"-->
-        <!--                                     stroke-width="2">-->
-        <!--                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>-->
-        <!--                                </svg>-->
-        <!--                                <span>+123 456 7890</span>-->
-        <!--                            </a>-->
-        <!--                            <a href="mailto:info@yourcompany.com" class="contact_item">-->
-        <!--                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"-->
-        <!--                                     stroke-width="2">-->
-        <!--                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>-->
-        <!--                                    <polyline points="22,6 12,13 2,6"></polyline>-->
-        <!--                                </svg>-->
-        <!--                                <span>info@yourcompany.com</span>-->
-        <!--                            </a>-->
-        <!--                        </div>-->
-        <!--                        <div class="social_links">-->
-        <!--                            <a href="#" class="social_link" aria-label="Facebook">-->
-        <!--                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">-->
-        <!--                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>-->
-        <!--                                </svg>-->
-        <!--                            </a>-->
-        <!--                            <a href="#" class="social_link" aria-label="Twitter">-->
-        <!--                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">-->
-        <!--                                    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>-->
-        <!--                                </svg>-->
-        <!--                            </a>-->
-        <!--                            <a href="#" class="social_link" aria-label="Instagram">-->
-        <!--                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"-->
-        <!--                                     stroke-width="2">-->
-        <!--                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>-->
-        <!--                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>-->
-        <!--                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>-->
-        <!--                                </svg>-->
-        <!--                            </a>-->
-        <!--                            <a href="#" class="social_link" aria-label="LinkedIn">-->
-        <!--                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">-->
-        <!--                                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>-->
-        <!--                                    <rect x="2" y="9" width="4" height="12"></rect>-->
-        <!--                                    <circle cx="4" cy="4" r="2"></circle>-->
-        <!--                                </svg>-->
-        <!--                            </a>-->
-        <!--                        </div>-->
-        <!--                    </div>-->
-        <!--                </div>-->
-
-        <!--                &lt;!&ndash; Main Navbar &ndash;&gt;-->
-        <!--                <nav class="main_navbar">-->
-        <!--                    <div class="container">-->
-        <!--                        <a href="/" class="logo">-->
-        <!--                            <img src="/custom_theme_module/static/src/img/newlogo.png" alt="Airmixs Logo"-->
-        <!--                                 class="logo_image"/>-->
-        <!--                        </a>-->
-
-        <!--                        <ul class="nav_menu" id="navMenu">-->
-        <!--                            <li>-->
-        <!--                                <a href="/" class="nav_link active">Home</a>-->
-        <!--                            </li>-->
-        <!--                            <li>-->
-        <!--                                <a href="/about-us" class="nav_link">About</a>-->
-        <!--                            </li>-->
-        <!--                            <li>-->
-        <!--                                <a href="/shop" class="nav_link">Shop</a>-->
-        <!--                            </li>-->
-        <!--                            <li>-->
-        <!--                                <a href="/category" class="nav_link">Categories</a>-->
-        <!--                            </li>-->
-        <!--                            <li>-->
-        <!--                                <a href="/blog" class="nav_link">Blogs</a>-->
-        <!--                            </li>-->
-        <!--                            <li>-->
-        <!--                                <a href="/distributors" class="nav_link">Distributors</a>-->
-        <!--                            </li>-->
-        <!--                            <li>-->
-        <!--                                <a href="/contactus" class="nav_link">Contact</a>-->
-        <!--                            </li>-->
-        <!--                        </ul>-->
-
-        <!--                        <div class="nav_right_section">-->
-        <!--                            <a href="/shop/cart" class="cart_icon" aria-label="Shopping Cart">-->
-        <!--                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">-->
-        <!--                                    <circle cx="9" cy="21" r="1"></circle>-->
-        <!--                                    <circle cx="20" cy="21" r="1"></circle>-->
-        <!--                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>-->
-        <!--                                </svg>-->
-        <!--                            </a>-->
-
-        <!--                            <button class="mobile_toggle" onclick="toggleMenu()" aria-label="Toggle Menu">-->
-        <!--                                <span></span>-->
-        <!--                                <span></span>-->
-        <!--                                <span></span>-->
-        <!--                            </button>-->
-        <!--                        </div>-->
-        <!--                    </div>-->
-        <!--                </nav>-->
-
-        <!--                <script>-->
-        <!--                    function toggleMenu() {-->
-        <!--                        const menu = document.getElementById('navMenu');-->
-        <!--                        const toggle = document.querySelector('.mobile_toggle');-->
-        <!--                        const body = document.body;-->
-
-        <!--                        if (menu) {-->
-        <!--                            menu.classList.toggle('active');-->
-        <!--                            if (toggle) {-->
-        <!--                                toggle.classList.toggle('active');-->
-        <!--                            }-->
-        <!--                            // Prevent body scroll when menu is open-->
-        <!--                            if (menu.classList.contains('active')) {-->
-        <!--                                body.style.overflow = 'hidden';-->
-        <!--                            } else {-->
-        <!--                                body.style.overflow = '';-->
-        <!--                            }-->
-        <!--                        }-->
-        <!--                    }-->
-
-        <!--                    // Close mobile menu when clicking outside-->
-        <!--                    document.addEventListener('click', function(event) {-->
-        <!--                        const menu = document.getElementById('navMenu');-->
-        <!--                        const toggle = document.querySelector('.mobile_toggle');-->
-        <!--                        const body = document.body;-->
-
-        <!--                        if (menu &amp;&amp; toggle &amp;&amp; !menu.contains(event.target) &amp;&amp;-->
-        <!--                            !toggle.contains(event.target)) {-->
-        <!--                            menu.classList.remove('active');-->
-        <!--                            toggle.classList.remove('active');-->
-        <!--                            body.style.overflow = '';-->
-        <!--                        }-->
-        <!--                    });-->
-
-        <!--                    // Close mobile menu when clicking on a link-->
-        <!--                    document.addEventListener('DOMContentLoaded', function() {-->
-        <!--                        const navLinks = document.querySelectorAll('.nav_link');-->
-        <!--                        const body = document.body;-->
-
-        <!--                        navLinks.forEach(link => {-->
-        <!--                            link.addEventListener('click', function() {-->
-        <!--                                const menu = document.getElementById('navMenu');-->
-        <!--                                const toggle = document.querySelector('.mobile_toggle');-->
-        <!--                                if (menu &amp;&amp; window.innerWidth &lt;= 768) {-->
-        <!--                                    menu.classList.remove('active');-->
-        <!--                                    if (toggle) {-->
-        <!--                                        toggle.classList.remove('active');-->
-        <!--                                    }-->
-        <!--                                    body.style.overflow = '';-->
-        <!--                                }-->
-        <!--                            });-->
-        <!--                        });-->
-        <!--                    });-->
-        <!--                </script>-->
-        <!--            </xpath>-->
-        <!--        </template>-->
-
-        <!--        &lt;!&ndash; Modern Footer Layout &ndash;&gt;-->
-        <!--        <template id="custom_layout_footer" inherit_id="website.layout" name="Modern Footer Layout">-->
-        <!--            <xpath expr="//footer" position="replace">-->
-        <!--                <div id="footer" class="oe_structure oe_structure_solo">-->
-        <!--                    <footer class="modern_ecommerce_footer">-->
-        <!--                        <div class="footer-top">-->
-        <!--                            <div class="container">-->
-        <!--                                <div class="row">-->
-        <!--                                    &lt;!&ndash; Column 1: Company Info & Logo &ndash;&gt;-->
-        <!--                                    <div class="col-lg-4 col-md-6 col-sm-12 footer-column">-->
-        <!--                                        <div class="footer-logo">-->
-        <!--                                            <a href="/" class="logo">-->
-        <!--                                                <img id="footlogo" src="/custom_theme_module/static/src/img/newlogo.png"-->
-        <!--                                                     alt="Airmixs Logo" class="logo_image"/>-->
-        <!--                                            </a>-->
-        <!--                                        </div>-->
-        <!--                                        <div class="footer-description">-->
-        <!--                                            <p>Airmixs is a trusted supplier of pneumatic and industrial automation solutions. We specialize in delivering reliable components, technical expertise, and dependable service to keep your operations running efficiently.-->
-        <!--                                            </p>-->
-        <!--                                        </div>-->
-        <!--                                    </div>-->
-
-        <!--                                    &lt;!&ndash; Column 2: Quick Links &ndash;&gt;-->
-        <!--                                    <div class="col-lg-2 col-md-6 col-6 footer-column">-->
-        <!--                                        <h4 class="footer-heading">Market Place</h4>-->
-        <!--                                        <ul class="footer-links">-->
-        <!--                                            <li>-->
-        <!--                                                <a href="/shop" class="footer-link">All Products</a>-->
-        <!--                                            </li>-->
-        <!--                                            <li>-->
-        <!--                                                <a href="/shop" class="footer-link">New Arrivals</a>-->
-        <!--                                            </li>-->
-        <!--                                            <li>-->
-        <!--                                                <a href="/shop/cart" class="footer-link">Cart</a>-->
-        <!--                                            </li>-->
-        <!--                                            <li>-->
-        <!--                                                <a href="/blog" class="footer-link">Our Blogs</a>-->
-        <!--                                            </li>-->
-        <!--                                        </ul>-->
-        <!--                                    </div>-->
-
-        <!--                                    &lt;!&ndash; Column 3: Customer Service &ndash;&gt;-->
-        <!--                                    <div class="col-lg-2 col-md-6 col-6 footer-column">-->
-        <!--                                        <h4 class="footer-heading">Support</h4>-->
-        <!--                                        <ul class="footer-links">-->
-        <!--                                            <li>-->
-        <!--                                                <a href="/contactus" class="footer-link">Contact Us</a>-->
-        <!--                                            </li>-->
-        <!--                                            <li>-->
-        <!--                                                <a href="/page/faq" class="footer-link">FAQ</a>-->
-        <!--                                            </li>-->
-        <!--                                            <li>-->
-        <!--                                                <a href="/page/shipping" class="footer-link">Shipping Info</a>-->
-        <!--                                            </li>-->
-        <!--                                            <li>-->
-        <!--                                                <a href="/page/returns" class="footer-link">Returns</a>-->
-        <!--                                            </li>-->
-        <!--                                        </ul>-->
-        <!--                                    </div>-->
-
-        <!--                                    &lt;!&ndash; Column 4: Newsletter &ndash;&gt;-->
-        <!--                                    <div class="col-lg-4 col-md-6 col-sm-12 footer-column">-->
-        <!--                                        <h4 class="footer-heading">Newsletter</h4>-->
-        <!--                                        <div class="footer-newsletter">-->
-        <!--                                            <p>Subscribe to get special offers, free giveaways, and updates.</p>-->
-        <!--                                            <form class="newsletter-form js_subscribe" method="post"-->
-        <!--                                                  action="/mail-subscribe">-->
-        <!--                                                <input type="hidden" name="csrf_token"-->
-        <!--                                                       t-att-value="request.csrf_token()"/>-->
-        <!--                                                <input type="hidden" name="list_id" value="1"/>-->
-        <!--                                                <div class="input-group">-->
-        <!--                                                    <input type="email" name="email"-->
-        <!--                                                           class="form-control newsletter-input"-->
-        <!--                                                           placeholder="Enter your email" required="required"/>-->
-        <!--                                                    <button type="submit" class="btn btn-subscribe">-->
-        <!--                                                        Subscribe-->
-        <!--                                                    </button>-->
-        <!--                                                </div>-->
-        <!--                                            </form>-->
-        <!--                                        </div>-->
-
-        <!--                                        &lt;!&ndash; Payment Methods &ndash;&gt;-->
-        <!--                                        <div class="footer-payment">-->
-        <!--                                            <div class="footer-payment-title">We Accept</div>-->
-        <!--                                            <div class="payment-icons">-->
-        <!--                                                <div class="payment-icon" title="Visa">-->
-        <!--                                                    <i class="fa fa-cc-visa fa-2x"></i>-->
-        <!--                                                </div>-->
-        <!--                                                <div class="payment-icon" title="Mastercard">-->
-        <!--                                                    <i class="fa fa-cc-mastercard fa-2x"></i>-->
-        <!--                                                </div>-->
-        <!--                                                <div class="payment-icon" title="PayPal">-->
-        <!--                                                    <i class="fa fa-cc-paypal fa-2x"></i>-->
-        <!--                                                </div>-->
-        <!--                                                <div class="payment-icon" title="American Express">-->
-        <!--                                                    <i class="fa fa-cc-amex fa-2x"></i>-->
-        <!--                                                </div>-->
-        <!--                                            </div>-->
-        <!--                                        </div>-->
-        <!--                                    </div>-->
-        <!--                                </div>-->
-        <!--                            </div>-->
-        <!--                        </div>-->
-
-        <!--                        &lt;!&ndash; Footer Middle - Trust Features &ndash;&gt;-->
-        <!--                        <div class="footer-middle">-->
-        <!--                            <div class="container">-->
-        <!--                                <div class="footer-features">-->
-        <!--                                    <div class="footer-feature">-->
-        <!--                                        <div class="footer-feature-icon">-->
-        <!--                                            <i class="fa fa-truck"></i>-->
-        <!--                                        </div>-->
-        <!--                                        <div class="footer-feature-content">-->
-        <!--                                            <h4>Free Shipping</h4>-->
-        <!--                                            <p>On orders over $50</p>-->
-        <!--                                        </div>-->
-        <!--                                    </div>-->
-
-        <!--                                    <div class="footer-feature">-->
-        <!--                                        <div class="footer-feature-icon">-->
-        <!--                                            <i class="fa fa-refresh"></i>-->
-        <!--                                        </div>-->
-        <!--                                        <div class="footer-feature-content">-->
-        <!--                                            <h4>Easy Returns</h4>-->
-        <!--                                            <p>30-day return policy</p>-->
-        <!--                                        </div>-->
-        <!--                                    </div>-->
-
-        <!--                                    <div class="footer-feature">-->
-        <!--                                        <div class="footer-feature-icon">-->
-        <!--                                            <i class="fa fa-lock"></i>-->
-        <!--                                        </div>-->
-        <!--                                        <div class="footer-feature-content">-->
-        <!--                                            <h4>Secure Payment</h4>-->
-        <!--                                            <p>100% secure transactions</p>-->
-        <!--                                        </div>-->
-        <!--                                    </div>-->
-
-        <!--                                    <div class="footer-feature">-->
-        <!--                                        <div class="footer-feature-icon">-->
-        <!--                                            <i class="fa fa-headphones"></i>-->
-        <!--                                        </div>-->
-        <!--                                        <div class="footer-feature-content">-->
-        <!--                                            <h4>24/7 Support</h4>-->
-        <!--                                            <p>Dedicated customer service</p>-->
-        <!--                                        </div>-->
-        <!--                                    </div>-->
-        <!--                                </div>-->
-        <!--                            </div>-->
-        <!--                        </div>-->
-
-        <!--                        &lt;!&ndash; Footer Bottom - Copyright &ndash;&gt;-->
-        <!--                        <div class="footer-bottom">-->
-        <!--                            <div class="container">-->
-        <!--                                <div class="footer-bottom-content">-->
-        <!--                                    <div class="footer-copyright">-->
-        <!--                                        <p>©️-->
-        <!--                                            <span>Airmixs</span>-->
-        <!--                                            <span t-esc="datetime.datetime.now().year"/>-->
-        <!--                                            - All Rights Reserved-->
-        <!--                                        </p>-->
-        <!--                                    </div>-->
-        <!--                                    <div class="footer-links-bottom">-->
-        <!--                                        <a href="/page/privacy-policy">Privacy Policy</a>-->
-        <!--                                        <a href="/page/terms-conditions">Terms &amp; Conditions</a>-->
-        <!--                                    </div>-->
-        <!--                                </div>-->
-        <!--                            </div>-->
-        <!--                        </div>-->
-        <!--                    </footer>-->
-        <!--                </div>-->
-        <!--            </xpath>-->
-        <!--        </template>-->
-        <!--    </data>-->
-        <!--</odoo>-->

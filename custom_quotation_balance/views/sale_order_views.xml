@@ -6,33 +6,50 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add customer balance info at the top of right side panel, after partner_id -->
-            <xpath expr="//field[@name='partner_id']" position="after">
+            <!-- Add customer balance info at the TOP of the RIGHT side panel -->
+            <!-- We add it BEFORE date_order so it appears at the very top -->
+            <xpath expr="//field[@name='date_order']" position="before">
 
-                <!-- Customer Balance Fields - Compact Layout -->
+                <!-- Total Invoiced - Clickable -->
                 <label for="customer_total_invoiced"
                        string="Total Invoiced"
                        invisible="not partner_id"/>
+                <button name="action_view_customer_invoices"
+                        type="object"
+                        class="oe_link oe_read_only ps-0"
+                        invisible="not partner_id or customer_total_invoiced == 0">
+                    <field name="customer_total_invoiced"
+                           widget="monetary"
+                           readonly="1"
+                           nolabel="1"/>
+                </button>
                 <field name="customer_total_invoiced"
                        widget="monetary"
                        readonly="1"
-                       invisible="not partner_id"
-                       class="oe_link"
-                       style="cursor: pointer;"
-                       options="{'field_to_call': 'action_view_customer_invoices'}"/>
+                       invisible="customer_total_invoiced != 0 or not partner_id"
+                       nolabel="1"/>
 
+                <!-- Amount Received - Clickable -->
                 <label for="customer_total_paid"
                        string="Amount Received"
                        invisible="not partner_id"/>
+                <button name="action_view_customer_payments"
+                        type="object"
+                        class="oe_link oe_read_only ps-0"
+                        invisible="not partner_id or customer_total_paid == 0">
+                    <field name="customer_total_paid"
+                           widget="monetary"
+                           readonly="1"
+                           decoration-success="customer_total_paid > 0"
+                           nolabel="1"/>
+                </button>
                 <field name="customer_total_paid"
                        widget="monetary"
                        readonly="1"
-                       invisible="not partner_id"
-                       decoration-success="customer_total_paid > 0"
-                       class="oe_link"
-                       style="cursor: pointer;"
-                       options="{'field_to_call': 'action_view_customer_payments'}"/>
+                       invisible="customer_total_paid != 0 or not partner_id"
+                       nolabel="1"/>
 
+                <!-- Balance Due - Not clickable -->
                 <label for="customer_balance_due"
                        string="Balance Due"
                        invisible="not partner_id"/>
@@ -41,7 +58,8 @@
                        readonly="1"
                        invisible="not partner_id"
                        decoration-danger="customer_balance_due > 0"
-                       decoration-success="customer_balance_due == 0"/>
+                       decoration-success="customer_balance_due == 0"
+                       nolabel="1"/>
 
             </xpath>
 

@@ -3,3 +3,7 @@ access_multi_payment_wizard_user,multi.payment.wizard.user,model_multi_payment_w
 access_multi_payment_invoice_line_user,multi.payment.invoice.line.user,model_multi_payment_invoice_line,account.group_account_invoice,1,1,1,1
 access_multi_payment_wizard_manager,multi.payment.wizard.manager,model_multi_payment_wizard,account.group_account_manager,1,1,1,1
 access_multi_payment_invoice_line_manager,multi.payment.invoice.line.manager,model_multi_payment_invoice_line,account.group_account_manager,1,1,1,1
+access_customer_invoice_list_wizard_user,customer.invoice.list.wizard.user,model_customer_invoice_list_wizard,account.group_account_invoice,1,1,1,1
+access_customer_invoice_list_wizard_manager,customer.invoice.list.wizard.manager,model_customer_invoice_list_wizard,account.group_account_manager,1,1,1,1
+access_customer_payment_list_wizard_user,customer.payment.list.wizard.user,model_customer_payment_list_wizard,account.group_account_invoice,1,1,1,1
+access_customer_payment_list_wizard_manager,customer.payment.list.wizard.manager,model_customer_payment_list_wizard,account.group_account_manager,1,1,1,1

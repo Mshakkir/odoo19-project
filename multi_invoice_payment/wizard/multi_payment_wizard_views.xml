@@ -1,6 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- Customer Invoice List Wizard View -->
+    <record id="view_customer_invoice_list_wizard_form" model="ir.ui.view">
+        <field name="name">customer.invoice.list.wizard.form</field>
+        <field name="model">customer.invoice.list.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Customer Invoices">
+                <sheet>
+                    <group>
+                        <field name="partner_id" readonly="1"/>
+                    </group>
+                    <field name="invoice_ids" nolabel="1">
+                        <tree>
+                            <field name="name" string="Invoice Number"/>
+                            <field name="invoice_date" string="Date"/>
+                            <field name="amount_total" string="Total Amount" sum="Total"/>
+                            <field name="amount_residual" string="Amount Due" sum="Total"/>
+                            <field name="payment_state" string="Status"/>
+                        </tree>
+                    </field>
+                </sheet>
+                <footer>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Customer Payment List Wizard View -->
+    <record id="view_customer_payment_list_wizard_form" model="ir.ui.view">
+        <field name="name">customer.payment.list.wizard.form</field>
+        <field name="model">customer.payment.list.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Customer Payments">
+                <sheet>
+                    <group>
+                        <field name="partner_id" readonly="1"/>
+                    </group>
+                    <field name="payment_ids" nolabel="1">
+                        <tree>
+                            <field name="name" string="Payment Reference"/>
+                            <field name="date" string="Date"/>
+                            <field name="amount" string="Amount" sum="Total"/>
+                            <field name="journal_id" string="Journal"/>
+                            <field name="state" string="Status"/>
+                        </tree>
+                    </field>
+                </sheet>
+                <footer>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
     <!-- Multi Payment Invoice Line List View -->
     <record id="view_multi_payment_invoice_line_tree" model="ir.ui.view">
         <field name="name">multi.payment.invoice.line.list</field>

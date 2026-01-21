@@ -25,36 +25,36 @@
                         </group>
                     </group>
 
-                    <notebook>
-                        <page string="Bank Accounts">
-                            <field name="account_ids" nolabel="1">
-                                <list string="Bank Accounts" create="false" edit="false" delete="false">
-                                    <field name="account_code"/>
-                                    <field name="account_name"/>
-                                    <field name="subtotal_debit" sum="Total Debit"/>
-                                    <field name="subtotal_credit" sum="Total Credit"/>
-                                    <field name="subtotal_balance" sum="Total Balance"/>
-                                </list>
-                            </field>
-                        </page>
+                    <!-- Bank Account Summaries -->
+                    <group string="Bank Accounts Summary">
+                        <field name="account_ids" nolabel="1">
+                            <list string="Bank Accounts" create="false" edit="false" delete="false">
+                                <field name="account_code"/>
+                                <field name="account_name"/>
+                                <field name="subtotal_debit" sum="Total Debit"/>
+                                <field name="subtotal_credit" sum="Total Credit"/>
+                                <field name="subtotal_balance" sum="Total Balance"/>
+                            </list>
+                        </field>
+                    </group>
 
-                        <page string="All Transaction Details">
-                            <field name="all_line_ids" nolabel="1">
-                                <list string="All Transactions" create="false" edit="false" delete="false">
-                                    <field name="account_code" string="Account"/>
-                                    <field name="date"/>
-                                    <field name="reference"/>
-                                    <field name="partner_name"/>
-                                    <field name="journal_code"/>
-                                    <field name="debit" sum="Total Debit"/>
-                                    <field name="credit" sum="Total Credit"/>
-                                    <field name="balance" sum="Balance"/>
-                                    <field name="description"/>
-                                    <field name="analytic_account_names" string="Analytic"/>
-                                </list>
-                            </field>
-                        </page>
-                    </notebook>
+                    <!-- All Transaction Lines -->
+                    <group string="Transaction Details">
+                        <field name="all_line_ids" nolabel="1">
+                            <list string="All Transactions" create="false" edit="false" delete="false">
+                                <field name="account_code" string="Account"/>
+                                <field name="date"/>
+                                <field name="reference"/>
+                                <field name="partner_name" string="Particulars"/>
+                                <field name="journal_code"/>
+                                <field name="debit" sum="Total Debit"/>
+                                <field name="credit" sum="Total Credit"/>
+                                <field name="balance"/>
+                                <field name="description"/>
+                                <field name="analytic_account_names" string="Analytic"/>
+                            </list>
+                        </field>
+                    </group>
 
                     <group class="oe_subtotal_footer oe_right" style="margin-top: 20px;">
                         <field name="total_debit" widget="monetary" style="font-weight: bold;"/>

@@ -8,89 +8,50 @@
             <field name="model">res.config.settings</field>
             <field name="inherit_id" ref="base.res_config_settings_view_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//div[hasclass('settings')]" position="inside">
+                <xpath expr="//form" position="inside">
 
-                    <div class="app_settings_block" data-string="Quick Invoice Pro"
-                         string="Quick Invoice Pro" data-key="quick_invoice_pro">
+                    <app string="Quick Invoice Pro" name="quick_invoice_pro">
 
-                        <h2>Quick Invoice Pro Settings</h2>
-
-                        <!-- Approval Settings -->
-                        <div class="row mt16 o_settings_container">
-                            <div class="col-12 col-lg-6 o_setting_box">
-                                <div class="o_setting_left_pane">
-                                    <field name="quick_invoice_approval_required"/>
-                                </div>
-                                <div class="o_setting_right_pane">
-                                    <label for="quick_invoice_approval_required"/>
-                                    <div class="text-muted">
-                                        Orders above threshold require manager approval
-                                    </div>
-                                    <div class="content-group"
-                                         attrs="{'invisible': [('quick_invoice_approval_required', '=', False)]}">
-                                        <div class="mt16">
-                                            <label for="quick_invoice_approval_threshold"
-                                                   class="o_light_label"/>
-                                            <field name="quick_invoice_approval_threshold"
-                                                   class="oe_inline"/>
-                                        </div>
+                        <block title="Approval Settings">
+                            <setting id="quick_invoice_approval_setting"
+                                     help="Orders above threshold require manager approval">
+                                <field name="quick_invoice_approval_required"/>
+                                <div class="content-group" invisible="quick_invoice_approval_required == False">
+                                    <div class="mt16">
+                                        <label for="quick_invoice_approval_threshold" string="Approval Threshold Amount"/>
+                                        <field name="quick_invoice_approval_threshold" class="oe_inline"/>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+                            </setting>
+                        </block>
 
-                        <!-- Stock Management -->
-                        <div class="row mt16 o_settings_container">
-                            <div class="col-12 col-lg-6 o_setting_box">
-                                <div class="o_setting_left_pane">
-                                    <field name="quick_invoice_check_stock"/>
-                                </div>
-                                <div class="o_setting_right_pane">
-                                    <label for="quick_invoice_check_stock"/>
-                                    <div class="text-muted">
-                                        Check stock availability before creating invoice
-                                    </div>
-                                    <div class="content-group"
-                                         attrs="{'invisible': [('quick_invoice_check_stock', '=', False)]}">
-                                        <div class="mt16">
-                                            <label for="quick_invoice_partial_delivery"
-                                                   class="o_light_label"/>
-                                            <field name="quick_invoice_partial_delivery"
-                                                   class="oe_inline"/>
-                                        </div>
+                        <block title="Stock Management">
+                            <setting id="quick_invoice_stock_setting"
+                                     help="Check stock availability before creating invoice">
+                                <field name="quick_invoice_check_stock"/>
+                                <div class="content-group" invisible="quick_invoice_check_stock == False">
+                                    <div class="mt16">
+                                        <label for="quick_invoice_partial_delivery" string="When Stock Unavailable"/>
+                                        <field name="quick_invoice_partial_delivery" class="oe_inline"/>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+                            </setting>
+                        </block>
 
-                        <!-- Invoice Settings -->
-                        <div class="row mt16 o_settings_container">
-                            <div class="col-12 col-lg-6 o_setting_box">
-                                <div class="o_setting_left_pane">
-                                    <field name="quick_invoice_allow_draft"/>
-                                </div>
-                                <div class="o_setting_right_pane">
-                                    <label for="quick_invoice_allow_draft"/>
-                                    <div class="text-muted">
-                                        Create invoices in draft state for review
-                                    </div>
-                                </div>
-                            </div>
+                        <block title="Invoice Settings">
+                            <setting id="quick_invoice_draft_setting"
+                                     help="Create invoices in draft state for review">
+                                <field name="quick_invoice_allow_draft"/>
+                            </setting>
 
-                            <div class="col-12 col-lg-6 o_setting_box">
-                                <div class="o_setting_left_pane">
-                                    <field name="quick_invoice_auto_payment"/>
-                                </div>
-                                <div class="o_setting_right_pane">
-                                    <label for="quick_invoice_auto_payment"/>
-                                    <div class="text-muted">
-                                        Automatically open payment wizard after invoice creation
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                            <setting id="quick_invoice_payment_setting"
+                                     help="Automatically open payment wizard after invoice creation">
+                                <field name="quick_invoice_auto_payment"/>
+                            </setting>
+                        </block>
 
-                    </div>
+                    </app>
+
                 </xpath>
             </field>
         </record>

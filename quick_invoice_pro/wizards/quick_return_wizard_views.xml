@@ -22,7 +22,7 @@
                             <page string="Return Items">
                                 <field name="return_line_ids">
                                     <tree editable="bottom">
-                                        <field name="product_id" readonly="1"/>
+                                        <field name="product_uom_id" readonly="1"/>
                                         <field name="ordered_qty" readonly="1"/>
                                         <field name="return_qty"/>
                                         <field name="price_unit" readonly="1"/>
@@ -36,7 +36,7 @@
                                     <group>
                                         <field name="create_credit_note"/>
                                         <field name="refund_method"
-                                               attrs="{'invisible': [('create_credit_note', '=', False)]}"/>
+                                               invisible="create_credit_note == False"/>
                                     </group>
                                     <group>
                                         <field name="reverse_delivery"/>

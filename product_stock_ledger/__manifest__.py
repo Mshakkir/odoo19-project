@@ -14,7 +14,6 @@
     ],
     "data": [
         "security/ir.model.access.csv",
-        "views/ledger_line_views.xml",
         "views/stock_ledger_wizard_views.xml",
         "views/report_action.xml",
         "report/product_stock_ledger_templates.xml",

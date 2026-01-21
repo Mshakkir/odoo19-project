@@ -79,22 +79,40 @@ class MultiPaymentWizard(models.TransientModel):
         # Don't auto-load invoices here - let user click the button
 
     def action_view_customer_invoices(self):
-        """View all invoices for the selected customer"""
+        """View all invoices for the selected customer in a popup dialog"""
         self.ensure_one()
         if not self.partner_id:
             raise UserError(_('Please select a customer first.'))
+
+        invoices = self.env['account.move'].search([
+            ('partner_id', '=', self.partner_id.id),
+            ('move_type', '=', 'out_invoice'),
+            ('state', '=', 'posted'),
+        ], order='invoice_date desc')
+
+        if not invoices:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Invoices'),
+                    'message': _('No invoices found for this customer.'),
+                    'type': 'info',
+                }
+            }
 
         return {
             'name': _('Customer Invoices - %s') % self.partner_id.name,
             'type': 'ir.actions.act_window',
             'res_model': 'account.move',
-            'view_mode': 'form',
+            'view_mode': 'list,form',
             'domain': [
                 ('partner_id', '=', self.partner_id.id),
                 ('move_type', '=', 'out_invoice'),
                 ('state', '=', 'posted'),
             ],
             'context': {'default_partner_id': self.partner_id.id},
+            'target': 'current',
         }
 
     def action_view_customer_payments(self):
@@ -103,17 +121,36 @@ class MultiPaymentWizard(models.TransientModel):
         if not self.partner_id:
             raise UserError(_('Please select a customer first.'))
 
+        payments = self.env['account.payment'].search([
+            ('partner_id', '=', self.partner_id.id),
+            ('payment_type', '=', 'inbound'),
+            ('state', '=', 'posted'),
+        ], order='date desc')
+
+        if not payments:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Payments'),
+                    'message': _('No payments found for this customer.'),
+                    'type': 'info',
+                }
+            }
+
         return {
             'name': _('Customer Payments - %s') % self.partner_id.name,
             'type': 'ir.actions.act_window',
             'res_model': 'account.payment',
-            'view_mode': 'form',
+            'view_mode': 'tree,form',
+            'views': [(False, 'tree'), (False, 'form')],
             'domain': [
                 ('partner_id', '=', self.partner_id.id),
                 ('payment_type', '=', 'inbound'),
                 ('state', '=', 'posted'),
             ],
             'context': {'default_partner_id': self.partner_id.id},
+            'target': 'current',
         }
 
     @api.onchange('payment_amount', 'auto_allocate')

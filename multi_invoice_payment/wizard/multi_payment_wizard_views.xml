@@ -1,6 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- Payment List Display Wizard View -->
+    <record id="view_payment_list_display_wizard_form" model="ir.ui.view">
+        <field name="name">payment.list.display.wizard.form</field>
+        <field name="model">payment.list.display.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Customer Payments">
+                <sheet>
+                    <group>
+                        <field name="partner_id" readonly="1" string="Customer"/>
+                    </group>
+                    <separator string="Payment History"/>
+                    <field name="payment_line_ids" nolabel="1" readonly="1">
+                        <list>
+                            <field name="date"/>
+                            <field name="number"/>
+                            <field name="journal_id"/>
+                            <field name="payment_method"/>
+                            <field name="amount"/>
+                            <field name="state"/>
+                        </list>
+                    </field>
+                </sheet>
+                <footer>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Payment List Display Line List View -->
+    <record id="view_payment_list_display_line_list" model="ir.ui.view">
+        <field name="name">payment.list.display.line.list</field>
+        <field name="model">payment.list.display.line</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0">
+                <field name="date"/>
+                <field name="number"/>
+                <field name="journal_id"/>
+                <field name="payment_method"/>
+                <field name="amount"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
     <!-- Multi Payment Invoice Line List View -->
     <record id="view_multi_payment_invoice_line_tree" model="ir.ui.view">
         <field name="name">multi.payment.invoice.line.list</field>

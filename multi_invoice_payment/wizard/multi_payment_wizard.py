@@ -116,7 +116,7 @@ class MultiPaymentWizard(models.TransientModel):
         }
 
     def action_view_customer_payments(self):
-        """View all payments received from the selected customer"""
+        """View all payments received from the selected customer in a list"""
         self.ensure_one()
         if not self.partner_id:
             raise UserError(_('Please select a customer first.'))
@@ -127,27 +127,36 @@ class MultiPaymentWizard(models.TransientModel):
         ], order='date desc')
 
         if not payments:
-            # If no payments found, show detailed message
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
                     'title': _('No Payments'),
-                    'message': _('No payments found for this customer. Please check if payments have been created and reconciled.'),
+                    'message': _('No payments found for this customer.'),
                     'type': 'info',
                 }
             }
 
+        # Create payment list display wizard with payment records
+        wizard = self.env['payment.list.display.wizard'].create({
+            'partner_id': self.partner_id.id,
+            'payment_line_ids': [(0, 0, {
+                'date': payment.date,
+                'number': payment.name,
+                'journal_id': payment.journal_id.id,
+                'payment_method': payment.payment_method_line_id.name if payment.payment_method_line_id else '',
+                'amount': payment.amount,
+                'state': payment.state,
+            }) for payment in payments],
+        })
+
         return {
             'name': _('Customer Payments - %s') % self.partner_id.name,
             'type': 'ir.actions.act_window',
-            'res_model': 'account.payment',
+            'res_model': 'payment.list.display.wizard',
+            'res_id': wizard.id,
             'view_mode': 'form',
-            'domain': [
-                ('partner_id', '=', self.partner_id.id),
-            ],
-            'context': {'default_partner_id': self.partner_id.id},
-            'target': 'current',
+            'target': 'new',
         }
 
     @api.onchange('payment_amount', 'auto_allocate')
@@ -376,3 +385,25 @@ class MultiPaymentInvoiceLine(models.TransientModel):
                     _('Amount to pay (%.2f) cannot exceed the amount due (%.2f) for invoice %s')
                     % (record.amount_to_pay, record.amount_residual, record.invoice_number)
                 )
+
+
+class PaymentListDisplayWizard(models.TransientModel):
+    _name = 'payment.list.display.wizard'
+    _description = 'Payment List Display'
+
+    partner_id = fields.Many2one('res.partner', string='Customer', readonly=True)
+    payment_line_ids = fields.One2many('payment.list.display.line', 'wizard_id', string='Payments')
+
+
+class PaymentListDisplayLine(models.TransientModel):
+    _name = 'payment.list.display.line'
+    _description = 'Payment List Display Line'
+
+    wizard_id = fields.Many2one('payment.list.display.wizard', string='Wizard', ondelete='cascade')
+    date = fields.Date(string='Date')
+    number = fields.Char(string='Number')
+    journal_id = fields.Many2one('account.journal', string='Journal')
+    payment_method = fields.Char(string='Payment Method')
+    amount = fields.Monetary(string='Amount', currency_field='currency_id')
+    state = fields.Char(string='State')
+    currency_id = fields.Many2one('res.currency', related='wizard_id.partner_id.company_id.currency_id', string='Currency', readonly=True)

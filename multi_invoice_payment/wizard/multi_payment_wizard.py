@@ -79,41 +79,79 @@ class MultiPaymentWizard(models.TransientModel):
         # Don't auto-load invoices here - let user click the button
 
     def action_view_customer_invoices(self):
-        """View all invoices for the selected customer"""
+        """View all invoices for the selected customer in a popup dialog"""
         self.ensure_one()
         if not self.partner_id:
             raise UserError(_('Please select a customer first.'))
+
+        invoices = self.env['account.move'].search([
+            ('partner_id', '=', self.partner_id.id),
+            ('move_type', '=', 'out_invoice'),
+            ('state', '=', 'posted'),
+        ], order='invoice_date desc')
+
+        if not invoices:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Invoices'),
+                    'message': _('No invoices found for this customer.'),
+                    'type': 'info',
+                }
+            }
+
+        # Create a transient record to display invoice list
+        wizard = self.env['customer.invoice.list.wizard'].create({
+            'partner_id': self.partner_id.id,
+            'invoice_ids': [(6, 0, invoices.ids)],
+        })
 
         return {
             'name': _('Customer Invoices - %s') % self.partner_id.name,
             'type': 'ir.actions.act_window',
-            'res_model': 'account.move',
+            'res_model': 'customer.invoice.list.wizard',
+            'res_id': wizard.id,
             'view_mode': 'form',
-            'domain': [
-                ('partner_id', '=', self.partner_id.id),
-                ('move_type', '=', 'out_invoice'),
-                ('state', '=', 'posted'),
-            ],
-            'context': {'default_partner_id': self.partner_id.id},
+            'target': 'new',
         }
 
     def action_view_customer_payments(self):
-        """View all payments received from the selected customer"""
+        """View all payments received from the selected customer in a popup dialog"""
         self.ensure_one()
         if not self.partner_id:
             raise UserError(_('Please select a customer first.'))
 
+        payments = self.env['account.payment'].search([
+            ('partner_id', '=', self.partner_id.id),
+            ('payment_type', '=', 'inbound'),
+            ('state', '=', 'posted'),
+        ], order='date desc')
+
+        if not payments:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Payments'),
+                    'message': _('No payments found for this customer.'),
+                    'type': 'info',
+                }
+            }
+
+        # Create a transient record to display payment list
+        wizard = self.env['customer.payment.list.wizard'].create({
+            'partner_id': self.partner_id.id,
+            'payment_ids': [(6, 0, payments.ids)],
+        })
+
         return {
             'name': _('Customer Payments - %s') % self.partner_id.name,
             'type': 'ir.actions.act_window',
-            'res_model': 'account.payment',
+            'res_model': 'customer.payment.list.wizard',
+            'res_id': wizard.id,
             'view_mode': 'form',
-            'domain': [
-                ('partner_id', '=', self.partner_id.id),
-                ('payment_type', '=', 'inbound'),
-                ('state', '=', 'posted'),
-            ],
-            'context': {'default_partner_id': self.partner_id.id},
+            'target': 'new',
         }
 
     @api.onchange('payment_amount', 'auto_allocate')
@@ -342,3 +380,19 @@ class MultiPaymentInvoiceLine(models.TransientModel):
                     _('Amount to pay (%.2f) cannot exceed the amount due (%.2f) for invoice %s')
                     % (record.amount_to_pay, record.amount_residual, record.invoice_number)
                 )
+
+
+class CustomerInvoiceListWizard(models.TransientModel):
+    _name = 'customer.invoice.list.wizard'
+    _description = 'Customer Invoice List'
+
+    partner_id = fields.Many2one('res.partner', string='Customer', readonly=True)
+    invoice_ids = fields.Many2many('account.move', string='Invoices')
+
+
+class CustomerPaymentListWizard(models.TransientModel):
+    _name = 'customer.payment.list.wizard'
+    _description = 'Customer Payment List'
+
+    partner_id = fields.Many2one('res.partner', string='Customer', readonly=True)
+    payment_ids = fields.Many2many('account.payment', string='Payments')

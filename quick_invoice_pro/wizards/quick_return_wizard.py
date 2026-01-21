@@ -52,7 +52,7 @@ class QuickReturnWizard(models.TransientModel):
         ('modify', 'Modify invoice'),
     ], string='Refund Method', default='refund', required=True)
 
-    @api.onchange('sale_order_id', 'return_type')
+    @api.onchange('sale_order_id')
     def _onchange_sale_order(self):
         """Populate return lines from sale order"""
         if self.sale_order_id:
@@ -93,7 +93,7 @@ class QuickReturnWizard(models.TransientModel):
         else:
             return_picking = None
 
-        # Step 3: Show success message
+        # Step 3: Show summary
         message = _('Return processed successfully!\n\n')
 
         if credit_note:
@@ -206,31 +206,26 @@ class QuickReturnLine(models.TransientModel):
         'product.product',
         string='Product',
         required=True,
-        readonly=True,
     )
 
     ordered_qty = fields.Float(
         string='Ordered Quantity',
         readonly=True,
-        digits='Product Unit of Measure',
     )
 
     return_qty = fields.Float(
         string='Return Quantity',
         required=True,
-        digits='Product Unit of Measure',
     )
 
     price_unit = fields.Float(
         string='Unit Price',
         readonly=True,
-        digits='Product Price',
     )
 
     subtotal = fields.Float(
         string='Subtotal',
         compute='_compute_subtotal',
-        digits='Product Price',
     )
 
     @api.depends('return_qty', 'price_unit')

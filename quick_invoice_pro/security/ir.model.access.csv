@@ -1,9 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_quick_invoice_wizard_user,quick.invoice.wizard.user,model_quick_invoice_wizard,group_quick_invoice_user,1,1,1,1
-access_quick_invoice_wizard_manager,quick.invoice.wizard.manager,model_quick_invoice_wizard,group_quick_invoice_manager,1,1,1,1
 access_quick_payment_wizard_user,quick.payment.wizard.user,model_quick_payment_wizard,group_quick_invoice_user,1,1,1,1
-access_quick_payment_wizard_manager,quick.payment.wizard.manager,model_quick_payment_wizard,group_quick_invoice_manager,1,1,1,1
 access_quick_return_wizard_user,quick.return.wizard.user,model_quick_return_wizard,group_quick_invoice_user,1,1,1,1
-access_quick_return_wizard_manager,quick.return.wizard.manager,model_quick_return_wizard,group_quick_invoice_manager,1,1,1,1
 access_quick_return_line_user,quick.return.line.user,model_quick_return_line,group_quick_invoice_user,1,1,1,1
-access_quick_return_line_manager,quick.return.line.manager,model_quick_return_line,group_quick_invoice_manager,1,1,1,1

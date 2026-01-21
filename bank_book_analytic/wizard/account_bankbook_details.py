@@ -72,7 +72,7 @@ class AccountBankBookDetailsLine(models.TransientModel):
     move_id = fields.Integer(string='Move ID', readonly=True)  # Store the account.move id
 
     def action_view_bill(self):
-        """Open the related bill/payment"""
+        """Open the related bill/invoice"""
         self.ensure_one()
 
         if not self.move_id:
@@ -81,7 +81,7 @@ class AccountBankBookDetailsLine(models.TransientModel):
                 'tag': 'display_notification',
                 'params': {
                     'title': 'No Bill Found',
-                    'message': 'No related bill or payment found for this transaction.',
+                    'message': 'No related bill or invoice found for this transaction.',
                     'type': 'warning',
                     'sticky': False,
                 }
@@ -96,28 +96,65 @@ class AccountBankBookDetailsLine(models.TransientModel):
                 'tag': 'display_notification',
                 'params': {
                     'title': 'Bill Not Found',
-                    'message': 'The related bill or payment no longer exists.',
+                    'message': 'The related bill or invoice no longer exists.',
                     'type': 'warning',
                     'sticky': False,
                 }
             }
 
         # Check if this is a payment entry
-        # In Odoo 19, payments create account.move records with payment_id field through account.payment model
         payment = self.env['account.payment'].search([('move_id', '=', move.id)], limit=1)
 
         if payment:
-            # This move is linked to a payment
-            return {
-                'name': 'Payment',
-                'type': 'ir.actions.act_window',
-                'res_model': 'account.payment',
-                'res_id': payment.id,
-                'view_mode': 'form',
-                'target': 'current',
-            }
+            # This is a payment - find the related invoices/bills
+            # Get reconciled invoices/bills from the payment
+            reconciled_invoices = payment.reconciled_bill_ids | payment.reconciled_invoice_ids
 
-        # Determine the view and name based on move type
+            if reconciled_invoices:
+                # If there's only one invoice/bill, open it directly
+                if len(reconciled_invoices) == 1:
+                    invoice = reconciled_invoices[0]
+                    if invoice.move_type in ['out_invoice', 'out_receipt']:
+                        view_name = 'Customer Invoice'
+                    elif invoice.move_type == 'out_refund':
+                        view_name = 'Customer Credit Note'
+                    elif invoice.move_type in ['in_invoice', 'in_receipt']:
+                        view_name = 'Vendor Bill'
+                    elif invoice.move_type == 'in_refund':
+                        view_name = 'Vendor Credit Note'
+                    else:
+                        view_name = 'Invoice'
+
+                    return {
+                        'name': view_name,
+                        'type': 'ir.actions.act_window',
+                        'res_model': 'account.move',
+                        'res_id': invoice.id,
+                        'view_mode': 'form',
+                        'target': 'current',
+                    }
+                else:
+                    # Multiple invoices - show list view
+                    return {
+                        'name': 'Related Invoices/Bills',
+                        'type': 'ir.actions.act_window',
+                        'res_model': 'account.move',
+                        'view_mode': 'tree,form',
+                        'domain': [('id', 'in', reconciled_invoices.ids)],
+                        'target': 'current',
+                    }
+            else:
+                # No reconciled invoices found - show the payment itself
+                return {
+                    'name': 'Payment',
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'account.payment',
+                    'res_id': payment.id,
+                    'view_mode': 'form',
+                    'target': 'current',
+                }
+
+        # Not a payment - it's an invoice/bill or journal entry
         if move.move_type == 'entry':
             view_name = 'Journal Entry'
         elif move.move_type in ['out_invoice', 'out_receipt']:

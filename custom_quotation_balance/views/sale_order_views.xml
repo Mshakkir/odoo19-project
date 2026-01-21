@@ -9,9 +9,6 @@
             <!-- Add customer balance info in the right side panel, after validity_date -->
             <xpath expr="//field[@name='validity_date']" position="after">
 
-                <!-- Add a separator for visual clarity -->
-                <label string="" colspan="2"/>
-
                 <!-- Customer Balance Section -->
                 <group colspan="2" col="2" invisible="not partner_id" string="Customer Balance">
 

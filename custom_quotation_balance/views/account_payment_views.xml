@@ -6,49 +6,79 @@
         <field name="inherit_id" ref="account.view_account_payment_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add partner balance before the notebook (tabs section) -->
-            <xpath expr="//notebook" position="before">
+            <!-- Add partner balance box at top right corner -->
+            <xpath expr="//form/sheet" position="inside">
+                <div class="partner_balance_box"
+                     invisible="not partner_id"
+                     style="position: absolute;
+                            top: 0px;
+                            right: 0px;
+                            padding: 10px 15px;
+                            min-width: 250px;
+                            z-index: 1;">
 
-                <group invisible="not partner_id" colspan="2" col="2" string="Partner Balance Summary">
-
-                    <label for="partner_total_invoiced" string="Total Invoiced/Billed"/>
-                    <div class="o_row">
+                    <div style="margin-bottom: 8px;">
+                        <label for="partner_total_invoiced"
+                               string="Total Invoiced/Billed"
+                               style="margin-bottom: 2px; display: block; font-weight: normal; color: #6c757d; font-size: 13px;"/>
+                        <button name="action_view_partner_invoices"
+                                type="object"
+                                class="btn btn-link p-0"
+                                style="text-decoration: underline; font-size: 14px; font-weight: 600;"
+                                invisible="partner_total_invoiced == 0">
+                            <field name="partner_total_invoiced"
+                                   widget="monetary"
+                                   readonly="1"
+                                   nolabel="1"
+                                   style="color: #007bff;"/>
+                        </button>
                         <field name="partner_total_invoiced"
                                widget="monetary"
                                readonly="1"
-                               nolabel="1"/>
-                        <button name="action_view_partner_invoices"
-                                type="object"
-                                string="View"
-                                class="btn-link"
-                                invisible="partner_total_invoiced == 0"/>
+                               invisible="partner_total_invoiced != 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: block;"/>
                     </div>
 
-                    <label for="partner_total_paid" string="Amount Paid"/>
-                    <div class="o_row">
+                    <div style="margin-bottom: 8px;">
+                        <label for="partner_total_paid"
+                               string="Amount Paid"
+                               style="margin-bottom: 2px; display: block; font-weight: normal; color: #6c757d; font-size: 13px;"/>
+                        <button name="action_view_partner_payments"
+                                type="object"
+                                class="btn btn-link p-0"
+                                style="text-decoration: underline; font-size: 14px; font-weight: 600;"
+                                invisible="partner_total_paid == 0">
+                            <field name="partner_total_paid"
+                                   widget="monetary"
+                                   readonly="1"
+                                   decoration-success="partner_total_paid > 0"
+                                   nolabel="1"
+                                   style="color: #28a745;"/>
+                        </button>
                         <field name="partner_total_paid"
                                widget="monetary"
                                readonly="1"
-                               decoration-success="partner_total_paid > 0"
-                               nolabel="1"/>
-                        <button name="action_view_partner_payments"
-                                type="object"
-                                string="View"
-                                class="btn-link"
-                                invisible="partner_total_paid == 0"/>
+                               invisible="partner_total_paid != 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: block;"/>
                     </div>
 
-                    <label for="partner_balance_due" string="Balance Due"/>
-                    <field name="partner_balance_due"
-                           widget="monetary"
-                           readonly="1"
-                           decoration-danger="partner_balance_due > 0"
-                           decoration-success="partner_balance_due == 0"
-                           nolabel="1"
-                           class="fw-bold"/>
-                </group>
-
+                    <div>
+                        <label for="partner_balance_due"
+                               string="Balance Due"
+                               style="margin-bottom: 2px; display: block; font-weight: normal; color: #6c757d; font-size: 13px;"/>
+                        <field name="partner_balance_due"
+                               widget="monetary"
+                               readonly="1"
+                               decoration-danger="partner_balance_due > 0"
+                               decoration-success="partner_balance_due == 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: block;"/>
+                    </div>
+                </div>
             </xpath>
+
         </field>
     </record>
 </odoo>

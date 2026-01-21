@@ -6,55 +6,77 @@
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add vendor balance info after the Payment Terms field -->
-            <xpath expr="//field[@name='payment_term_id']" position="after">
+            <!-- Add balance info box with absolute positioning at top right corner -->
+            <xpath expr="//form/sheet" position="inside">
+                <div class="vendor_balance_box"
+                     invisible="not partner_id"
+                     style="position: absolute;
+                            top: 0px;
+                            right: 0px;
+                            padding: 10px 15px;
+                            min-width: 250px;
+                            z-index: 1;">
 
-                <!-- 1. Total Billed - Clickable -->
-                <label for="vendor_total_billed"
-                       invisible="not partner_id"
-                       string="Total Billed"/>
-                <div class="o_row" invisible="not partner_id">
-                    <field name="vendor_total_billed"
-                           widget="monetary"
-                           readonly="1"
-                           class="oe_inline oe_link"
-                           style="cursor: pointer; color: #007bff; text-decoration: underline;"/>
-                    <button name="action_view_vendor_bills"
-                            type="object"
-                            class="btn-link"
-                            icon="fa-external-link"
-                            invisible="not partner_id or vendor_total_billed == 0"
-                            string="View Bills"/>
+                    <div style="margin-bottom: 8px;">
+                        <label for="vendor_total_billed"
+                               string="Total Billed"
+                               style="margin-bottom: 2px; display: block; font-weight: normal; color: #6c757d; font-size: 13px;"/>
+                        <button name="action_view_vendor_bills"
+                                type="object"
+                                class="btn btn-link p-0"
+                                style="text-decoration: underline; font-size: 14px; font-weight: 600;"
+                                invisible="vendor_total_billed == 0">
+                            <field name="vendor_total_billed"
+                                   widget="monetary"
+                                   readonly="1"
+                                   nolabel="1"
+                                   style="color: #007bff;"/>
+                        </button>
+                        <field name="vendor_total_billed"
+                               widget="monetary"
+                               readonly="1"
+                               invisible="vendor_total_billed != 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: block;"/>
+                    </div>
+
+                    <div style="margin-bottom: 8px;">
+                        <label for="vendor_total_paid"
+                               string="Amount Paid"
+                               style="margin-bottom: 2px; display: block; font-weight: normal; color: #6c757d; font-size: 13px;"/>
+                        <button name="action_view_vendor_payments"
+                                type="object"
+                                class="btn btn-link p-0"
+                                style="text-decoration: underline; font-size: 14px; font-weight: 600;"
+                                invisible="vendor_total_paid == 0">
+                            <field name="vendor_total_paid"
+                                   widget="monetary"
+                                   readonly="1"
+                                   decoration-success="vendor_total_paid > 0"
+                                   nolabel="1"
+                                   style="color: #28a745;"/>
+                        </button>
+                        <field name="vendor_total_paid"
+                               widget="monetary"
+                               readonly="1"
+                               invisible="vendor_total_paid != 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: block;"/>
+                    </div>
+
+                    <div>
+                        <label for="vendor_balance_due"
+                               string="Balance Due"
+                               style="margin-bottom: 2px; display: block; font-weight: normal; color: #6c757d; font-size: 13px;"/>
+                        <field name="vendor_balance_due"
+                               widget="monetary"
+                               readonly="1"
+                               decoration-danger="vendor_balance_due > 0"
+                               decoration-success="vendor_balance_due == 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: block;"/>
+                    </div>
                 </div>
-
-                <!-- 2. Amount Paid - Clickable -->
-                <label for="vendor_total_paid"
-                       invisible="not partner_id"
-                       string="Amount Paid"/>
-                <div class="o_row" invisible="not partner_id">
-                    <field name="vendor_total_paid"
-                           widget="monetary"
-                           readonly="1"
-                           decoration-success="vendor_total_paid > 0"
-                           class="oe_inline oe_link"
-                           style="cursor: pointer; color: #28a745; text-decoration: underline;"/>
-                    <button name="action_view_vendor_payments"
-                            type="object"
-                            class="btn-link"
-                            icon="fa-external-link"
-                            invisible="not partner_id or vendor_total_paid == 0"
-                            string="View Payments"/>
-                </div>
-
-                <!-- 3. Balance Due - Not clickable (just display) -->
-                <field name="vendor_balance_due"
-                       invisible="not partner_id"
-                       readonly="1"
-                       decoration-danger="vendor_balance_due > 0"
-                       decoration-success="vendor_balance_due == 0"
-                       widget="monetary"
-                       string="Balance Due"/>
-
             </xpath>
 
         </field>

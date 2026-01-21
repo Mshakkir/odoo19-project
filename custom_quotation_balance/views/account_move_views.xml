@@ -7,90 +7,150 @@
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add customer/vendor balance in a clean group after partner_id -->
-            <xpath expr="//field[@name='partner_id']" position="after">
+            <!-- Add customer balance box for customer invoices -->
+            <xpath expr="//form/sheet" position="inside">
+                <div class="customer_balance_box"
+                     invisible="move_type not in ['out_invoice', 'out_refund'] or not partner_id"
+                     style="position: absolute;
+                            top: 0px;
+                            right: 0px;
+                            padding: 10px 15px;
+                            min-width: 250px;
+                            z-index: 1;">
 
-                <!-- Customer Balance Group (Only for Customer Invoices) -->
-                <group invisible="move_type not in ['out_invoice', 'out_refund'] or not partner_id"
-                       colspan="2" col="2">
-
-                    <label for="customer_total_invoiced" string="Total Invoiced"/>
-                    <div class="o_row">
+                    <div style="margin-bottom: 8px;">
+                        <label for="customer_total_invoiced"
+                               string="Total Invoiced"
+                               style="margin-bottom: 2px; display: block; font-weight: normal; color: #6c757d; font-size: 13px;"/>
+                        <button name="action_view_customer_invoices"
+                                type="object"
+                                class="btn btn-link p-0"
+                                style="text-decoration: underline; font-size: 14px; font-weight: 600;"
+                                invisible="customer_total_invoiced == 0">
+                            <field name="customer_total_invoiced"
+                                   widget="monetary"
+                                   readonly="1"
+                                   nolabel="1"
+                                   style="color: #007bff;"/>
+                        </button>
                         <field name="customer_total_invoiced"
                                widget="monetary"
                                readonly="1"
-                               nolabel="1"/>
-                        <button name="action_view_customer_invoices"
-                                type="object"
-                                string="View"
-                                class="btn-link"
-                                invisible="customer_total_invoiced == 0"/>
+                               invisible="customer_total_invoiced != 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: block;"/>
                     </div>
 
-                    <label for="customer_total_paid" string="Amount Received"/>
-                    <div class="o_row">
+                    <div style="margin-bottom: 8px;">
+                        <label for="customer_total_paid"
+                               string="Amount Received"
+                               style="margin-bottom: 2px; display: block; font-weight: normal; color: #6c757d; font-size: 13px;"/>
+                        <button name="action_view_customer_payments"
+                                type="object"
+                                class="btn btn-link p-0"
+                                style="text-decoration: underline; font-size: 14px; font-weight: 600;"
+                                invisible="customer_total_paid == 0">
+                            <field name="customer_total_paid"
+                                   widget="monetary"
+                                   readonly="1"
+                                   decoration-success="customer_total_paid > 0"
+                                   nolabel="1"
+                                   style="color: #28a745;"/>
+                        </button>
                         <field name="customer_total_paid"
                                widget="monetary"
                                readonly="1"
-                               decoration-success="customer_total_paid > 0"
-                               nolabel="1"/>
-                        <button name="action_view_customer_payments"
-                                type="object"
-                                string="View"
-                                class="btn-link"
-                                invisible="customer_total_paid == 0"/>
+                               invisible="customer_total_paid != 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: block;"/>
                     </div>
 
-                    <label for="customer_balance_due" string="Balance Due"/>
-                    <field name="customer_balance_due"
-                           widget="monetary"
-                           readonly="1"
-                           decoration-danger="customer_balance_due > 0"
-                           decoration-success="customer_balance_due == 0"
-                           nolabel="1"/>
-                </group>
+                    <div>
+                        <label for="customer_balance_due"
+                               string="Balance Due"
+                               style="margin-bottom: 2px; display: block; font-weight: normal; color: #6c757d; font-size: 13px;"/>
+                        <field name="customer_balance_due"
+                               widget="monetary"
+                               readonly="1"
+                               decoration-danger="customer_balance_due > 0"
+                               decoration-success="customer_balance_due == 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: block;"/>
+                    </div>
+                </div>
 
-                <!-- Vendor Balance Group (Only for Vendor Bills) -->
-                <group invisible="move_type not in ['in_invoice', 'in_refund'] or not partner_id"
-                       colspan="2" col="2">
+                <!-- Add vendor balance box for vendor bills -->
+                <div class="vendor_balance_box"
+                     invisible="move_type not in ['in_invoice', 'in_refund'] or not partner_id"
+                     style="position: absolute;
+                            top: 0px;
+                            right: 0px;
+                            padding: 10px 15px;
+                            min-width: 250px;
+                            z-index: 1;">
 
-                    <label for="vendor_total_billed" string="Total Billed"/>
-                    <div class="o_row">
+                    <div style="margin-bottom: 8px;">
+                        <label for="vendor_total_billed"
+                               string="Total Billed"
+                               style="margin-bottom: 2px; display: block; font-weight: normal; color: #6c757d; font-size: 13px;"/>
+                        <button name="action_view_vendor_bills"
+                                type="object"
+                                class="btn btn-link p-0"
+                                style="text-decoration: underline; font-size: 14px; font-weight: 600;"
+                                invisible="vendor_total_billed == 0">
+                            <field name="vendor_total_billed"
+                                   widget="monetary"
+                                   readonly="1"
+                                   nolabel="1"
+                                   style="color: #007bff;"/>
+                        </button>
                         <field name="vendor_total_billed"
                                widget="monetary"
                                readonly="1"
-                               nolabel="1"/>
-                        <button name="action_view_vendor_bills"
-                                type="object"
-                                string="View"
-                                class="btn-link"
-                                invisible="vendor_total_billed == 0"/>
+                               invisible="vendor_total_billed != 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: block;"/>
                     </div>
 
-                    <label for="vendor_total_paid" string="Amount Paid"/>
-                    <div class="o_row">
+                    <div style="margin-bottom: 8px;">
+                        <label for="vendor_total_paid"
+                               string="Amount Paid"
+                               style="margin-bottom: 2px; display: block; font-weight: normal; color: #6c757d; font-size: 13px;"/>
+                        <button name="action_view_vendor_payments"
+                                type="object"
+                                class="btn btn-link p-0"
+                                style="text-decoration: underline; font-size: 14px; font-weight: 600;"
+                                invisible="vendor_total_paid == 0">
+                            <field name="vendor_total_paid"
+                                   widget="monetary"
+                                   readonly="1"
+                                   decoration-success="vendor_total_paid > 0"
+                                   nolabel="1"
+                                   style="color: #28a745;"/>
+                        </button>
                         <field name="vendor_total_paid"
                                widget="monetary"
                                readonly="1"
-                               decoration-success="vendor_total_paid > 0"
-                               nolabel="1"/>
-                        <button name="action_view_vendor_payments"
-                                type="object"
-                                string="View"
-                                class="btn-link"
-                                invisible="vendor_total_paid == 0"/>
+                               invisible="vendor_total_paid != 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: block;"/>
                     </div>
 
-                    <label for="vendor_balance_due" string="Balance Due"/>
-                    <field name="vendor_balance_due"
-                           widget="monetary"
-                           readonly="1"
-                           decoration-danger="vendor_balance_due > 0"
-                           decoration-success="vendor_balance_due == 0"
-                           nolabel="1"/>
-                </group>
-
+                    <div>
+                        <label for="vendor_balance_due"
+                               string="Balance Due"
+                               style="margin-bottom: 2px; display: block; font-weight: normal; color: #6c757d; font-size: 13px;"/>
+                        <field name="vendor_balance_due"
+                               widget="monetary"
+                               readonly="1"
+                               decoration-danger="vendor_balance_due > 0"
+                               decoration-success="vendor_balance_due == 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: block;"/>
+                    </div>
+                </div>
             </xpath>
+
         </field>
     </record>
 </odoo>

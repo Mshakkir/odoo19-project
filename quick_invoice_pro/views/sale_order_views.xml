@@ -15,44 +15,45 @@
                             string="📄 Create Invoice (Draft)"
                             type="object"
                             class="btn-primary"
-                            attrs="{'invisible': ['|', ('quick_invoice_mode', '=', False), ('invoice_status', '=', 'invoiced')]}"
+                            invisible="quick_invoice_mode == False or invoice_status == 'invoiced'"
                             groups="quick_invoice_pro.group_quick_invoice_user"/>
 
                     <button name="action_quick_invoice_posted"
                             string="✅ Create Invoice &amp; Pay"
                             type="object"
                             class="btn-success"
-                            attrs="{'invisible': ['|', ('quick_invoice_mode', '=', False), ('invoice_status', '=', 'invoiced')]}"
+                            invisible="quick_invoice_mode == False or invoice_status == 'invoiced'"
                             groups="quick_invoice_pro.group_quick_invoice_user"/>
 
                     <button name="action_quick_return"
                             string="↩️ Quick Return"
                             type="object"
                             class="btn-warning"
-                            attrs="{'invisible': ['|', ('quick_invoice_mode', '=', False), ('invoice_count', '=', 0)]}"
+                            invisible="quick_invoice_mode == False or invoice_count == 0"
                             groups="quick_invoice_pro.group_quick_invoice_user"/>
                 </xpath>
 
                 <!-- Add Stock Warning Banner -->
                 <xpath expr="//sheet" position="before">
                     <div class="alert alert-warning" role="alert"
-                         attrs="{'invisible': ['|', ('quick_invoice_mode', '=', False), ('stock_availability_status', '=', 'available')]}">
+                         invisible="quick_invoice_mode == False or stock_availability_status == 'available'">
                         <strong>⚠️ Stock Warning</strong>
                         <field name="stock_warning_message" readonly="1"/>
                     </div>
 
                     <div class="alert alert-info" role="alert"
-                         attrs="{'invisible': [('requires_approval', '=', False)]}">
+                         invisible="requires_approval == False">
                         <strong>🔒 Manager Approval Required</strong>
                         <p>This order exceeds the approval threshold and requires manager approval.</p>
                     </div>
                 </xpath>
 
                 <!-- Add Stock Info to Order Lines -->
-                <xpath expr="//field[@name='order_line']/tree/field[@name='product_uom_qty']" position="after">
+                <xpath expr="//field[@name='order_line']//field[@name='product_uom_qty']" position="after">
                     <field name="available_qty"
                            string="Available"
-                           attrs="{'column_invisible': [('parent.quick_invoice_mode', '=', False)]}"/>
+                           column_invisible="parent.quick_invoice_mode == False"
+                           optional="show"/>
                 </xpath>
 
                 <!-- Add Quick Invoice Fields -->

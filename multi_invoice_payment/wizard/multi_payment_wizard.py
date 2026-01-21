@@ -88,7 +88,7 @@ class MultiPaymentWizard(models.TransientModel):
             'name': _('Customer Invoices - %s') % self.partner_id.name,
             'type': 'ir.actions.act_window',
             'res_model': 'account.move',
-            'view_mode': 'tree,form',
+            'view_mode': 'form',
             'domain': [
                 ('partner_id', '=', self.partner_id.id),
                 ('move_type', '=', 'out_invoice'),
@@ -107,7 +107,7 @@ class MultiPaymentWizard(models.TransientModel):
             'name': _('Customer Payments - %s') % self.partner_id.name,
             'type': 'ir.actions.act_window',
             'res_model': 'account.payment',
-            'view_mode': 'tree,form',
+            'view_mode': 'form',
             'domain': [
                 ('partner_id', '=', self.partner_id.id),
                 ('payment_type', '=', 'inbound'),
@@ -173,7 +173,7 @@ class MultiPaymentWizard(models.TransientModel):
             'name': _('Customer Invoices'),
             'type': 'ir.actions.act_window',
             'res_model': 'account.move',
-            'view_mode': 'tree,form',
+            'view_mode': 'form',
             'domain': [
                 ('partner_id', '=', self.partner_id.id),
                 ('move_type', '=', 'out_invoice'),

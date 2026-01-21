@@ -6,60 +6,71 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add customer balance info at the TOP of the RIGHT side panel -->
-            <!-- We add it BEFORE date_order so it appears at the very top -->
-            <xpath expr="//field[@name='date_order']" position="before">
+            <!-- Insert at the beginning of the right-side group that contains validity_date -->
+            <xpath expr="//field[@name='validity_date']" position="before">
 
-                <!-- Total Invoiced - Clickable -->
+                <!-- Total Invoiced - Clickable when non-zero -->
                 <label for="customer_total_invoiced"
                        string="Total Invoiced"
-                       invisible="not partner_id"/>
-                <button name="action_view_customer_invoices"
-                        type="object"
-                        class="oe_link oe_read_only ps-0"
-                        invisible="not partner_id or customer_total_invoiced == 0">
+                       invisible="not partner_id"
+                       class="fw-normal"/>
+                <div class="o_row" invisible="not partner_id">
+                    <button name="action_view_customer_invoices"
+                            type="object"
+                            class="btn btn-link p-0 oe_link"
+                            style="text-decoration: underline;"
+                            invisible="customer_total_invoiced == 0">
+                        <field name="customer_total_invoiced"
+                               widget="monetary"
+                               readonly="1"
+                               nolabel="1"
+                               class="text-primary"/>
+                    </button>
                     <field name="customer_total_invoiced"
                            widget="monetary"
                            readonly="1"
+                           invisible="customer_total_invoiced != 0"
                            nolabel="1"/>
-                </button>
-                <field name="customer_total_invoiced"
-                       widget="monetary"
-                       readonly="1"
-                       invisible="customer_total_invoiced != 0 or not partner_id"
-                       nolabel="1"/>
+                </div>
 
-                <!-- Amount Received - Clickable -->
+                <!-- Amount Received - Clickable when non-zero -->
                 <label for="customer_total_paid"
                        string="Amount Received"
-                       invisible="not partner_id"/>
-                <button name="action_view_customer_payments"
-                        type="object"
-                        class="oe_link oe_read_only ps-0"
-                        invisible="not partner_id or customer_total_paid == 0">
+                       invisible="not partner_id"
+                       class="fw-normal"/>
+                <div class="o_row" invisible="not partner_id">
+                    <button name="action_view_customer_payments"
+                            type="object"
+                            class="btn btn-link p-0 oe_link"
+                            style="text-decoration: underline;"
+                            invisible="customer_total_paid == 0">
+                        <field name="customer_total_paid"
+                               widget="monetary"
+                               readonly="1"
+                               decoration-success="customer_total_paid > 0"
+                               nolabel="1"
+                               class="text-success"/>
+                    </button>
                     <field name="customer_total_paid"
                            widget="monetary"
                            readonly="1"
-                           decoration-success="customer_total_paid > 0"
+                           invisible="customer_total_paid != 0"
                            nolabel="1"/>
-                </button>
-                <field name="customer_total_paid"
-                       widget="monetary"
-                       readonly="1"
-                       invisible="customer_total_paid != 0 or not partner_id"
-                       nolabel="1"/>
+                </div>
 
                 <!-- Balance Due - Not clickable -->
                 <label for="customer_balance_due"
                        string="Balance Due"
-                       invisible="not partner_id"/>
-                <field name="customer_balance_due"
-                       widget="monetary"
-                       readonly="1"
                        invisible="not partner_id"
-                       decoration-danger="customer_balance_due > 0"
-                       decoration-success="customer_balance_due == 0"
-                       nolabel="1"/>
+                       class="fw-normal"/>
+                <div invisible="not partner_id">
+                    <field name="customer_balance_due"
+                           widget="monetary"
+                           readonly="1"
+                           decoration-danger="customer_balance_due > 0"
+                           decoration-success="customer_balance_due == 0"
+                           nolabel="1"/>
+                </div>
 
             </xpath>
 

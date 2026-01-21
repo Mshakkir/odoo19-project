@@ -3,6 +3,53 @@ from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
 
+class QuickReturnLine(models.TransientModel):
+    """Define this FIRST so it exists when QuickReturnWizard references it"""
+    _name = 'quick.return.line'
+    _description = 'Quick Return Line'
+
+    wizard_id = fields.Many2one(
+        'quick.return.wizard',
+        string='Wizard',
+        required=True,
+        ondelete='cascade',
+    )
+
+    product_id = fields.Many2one(
+        'product.product',
+        string='Product',
+        required=True,
+        readonly=True,
+    )
+
+    ordered_qty = fields.Float(
+        string='Ordered Quantity',
+        readonly=True,
+    )
+
+    return_qty = fields.Float(
+        string='Return Quantity',
+        required=True,
+    )
+
+    price_unit = fields.Float(
+        string='Unit Price',
+        readonly=True,
+    )
+
+    subtotal = fields.Float(
+        string='Subtotal',
+        compute='_compute_subtotal',
+        store=True,
+    )
+
+    @api.depends('return_qty', 'price_unit')
+    def _compute_subtotal(self):
+        """Calculate subtotal for return line"""
+        for line in self:
+            line.subtotal = line.return_qty * line.price_unit
+
+
 class QuickReturnWizard(models.TransientModel):
     _name = 'quick.return.wizard'
     _description = 'Quick Return/Refund Wizard'
@@ -52,7 +99,7 @@ class QuickReturnWizard(models.TransientModel):
         ('modify', 'Modify invoice'),
     ], string='Refund Method', default='refund', required=True)
 
-    @api.onchange('sale_order_id')
+    @api.onchange('sale_order_id', 'return_type')
     def _onchange_sale_order(self):
         """Populate return lines from sale order"""
         if self.sale_order_id:
@@ -93,7 +140,7 @@ class QuickReturnWizard(models.TransientModel):
         else:
             return_picking = None
 
-        # Step 3: Show summary
+        # Step 3: Show success message
         message = _('Return processed successfully!\n\n')
 
         if credit_note:
@@ -189,47 +236,3 @@ class QuickReturnWizard(models.TransientModel):
         return_picking = self.env['stock.picking'].browse(result['res_id'])
 
         return return_picking
-
-
-class QuickReturnLine(models.TransientModel):
-    _name = 'quick.return.line'
-    _description = 'Quick Return Line'
-
-    wizard_id = fields.Many2one(
-        'quick.return.wizard',
-        string='Wizard',
-        required=True,
-        ondelete='cascade',
-    )
-
-    product_id = fields.Many2one(
-        'product.product',
-        string='Product',
-        required=True,
-    )
-
-    ordered_qty = fields.Float(
-        string='Ordered Quantity',
-        readonly=True,
-    )
-
-    return_qty = fields.Float(
-        string='Return Quantity',
-        required=True,
-    )
-
-    price_unit = fields.Float(
-        string='Unit Price',
-        readonly=True,
-    )
-
-    subtotal = fields.Float(
-        string='Subtotal',
-        compute='_compute_subtotal',
-    )
-
-    @api.depends('return_qty', 'price_unit')
-    def _compute_subtotal(self):
-        """Calculate subtotal for return line"""
-        for line in self:
-            line.subtotal = line.return_qty * line.price_unit

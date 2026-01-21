@@ -116,7 +116,7 @@ class MultiPaymentWizard(models.TransientModel):
         }
 
     def action_view_customer_payments(self):
-        """View all payments received from the selected customer in a popup dialog"""
+        """View all payments received from the selected customer"""
         self.ensure_one()
         if not self.partner_id:
             raise UserError(_('Please select a customer first.'))
@@ -142,7 +142,8 @@ class MultiPaymentWizard(models.TransientModel):
             'name': _('Customer Payments - %s') % self.partner_id.name,
             'type': 'ir.actions.act_window',
             'res_model': 'account.payment',
-            'view_mode': 'list,form',
+            'view_mode': 'tree,form',
+            'views': [(False, 'tree'), (False, 'form')],
             'domain': [
                 ('partner_id', '=', self.partner_id.id),
                 ('payment_type', '=', 'inbound'),

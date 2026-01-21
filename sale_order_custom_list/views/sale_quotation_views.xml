@@ -19,135 +19,127 @@
 
                         <!-- YOUR REQUESTED ORDER -->
                         <!-- 1. Quotation Date -->
-                        <field name="date_order" string="Quotation Date"/>
+                        <field name="date_order" string="Quotation Date" width="110px"/>
 
                         <!-- 2. Number (Quotation Reference) -->
-                        <field name="name" string="Number" readonly="1"/>
+                        <field name="name" string="Number" readonly="1" width="130px"/>
 
                         <!-- 3. Customer -->
-                        <field name="partner_id" string="Customer"/>
+                        <field name="partner_id" string="Customer" width="150px"/>
 
                         <!-- 4. Warehouse -->
-                        <field name="warehouse_id" string="Warehouse" optional="show" groups="stock.group_stock_multi_warehouses"/>
+                        <field name="warehouse_id" string="Warehouse" optional="show" groups="stock.group_stock_multi_warehouses" width="120px"/>
 
                         <!-- 5. Customer Reference -->
-                        <field name="ref" string="Customer Reference" optional="show"/>
+                        <field name="ref" string="Customer Reference" optional="show" width="130px"/>
 
                         <!-- 6. Salesperson -->
-                        <field name="user_id" string="Salesperson" optional="show" widget="many2one_avatar_user"/>
+                        <field name="user_id" string="Salesperson" optional="show" widget="many2one_avatar_user" width="130px"/>
 
-                        <!-- 7. Tax Excluded (Untaxed Amount) -->
-<!--                        <field name="amount_untaxed" string="Tax Excluded" optional="show"/>-->
+                        <!-- 7. Total -->
+                        <field name="amount_total" string="Total" optional="show" sum="Total" width="120px"/>
 
-<!--                        &lt;!&ndash; 8. Tax &ndash;&gt;-->
-<!--                        <field name="amount_tax" string="Tax" optional="show"/>-->
+                        <!-- 8. Expiration Date -->
+                        <field name="validity_date" string="Expiration" optional="show" width="110px"/>
 
-                        <!-- 9. Total (Taxed Amount) -->
-                        <field name="amount_total" string="Total" optional="show" sum="Total"/>
-
-                        <!-- 10. Expiration Date -->
-                        <field name="validity_date" string="Expiration" optional="show"/>
-
-                        <!-- 11. Source Document -->
-                        <field name="origin" string="Source Document" optional="show"/>
+                        <!-- 9. Source Document -->
+                        <field name="origin" string="Source Document" optional="show" width="130px"/>
 
                         <!-- ADDITIONAL DEFAULT ODOO FIELDS -->
 
-                        <!-- Status -->
+                        <!-- 10. Status -->
                         <field name="state" string="Status" optional="show" widget="badge"
                                decoration-success="state in ('sale', 'done')"
-                               decoration-info="state in ('draft', 'sent')"/>
+                               decoration-info="state in ('draft', 'sent')"
+                               width="90px"/>
 
-                        <!-- Expected Confirmation Date -->
-                        <field name="commitment_date" string="Delivery Date" optional="hide"/>
+                        <!-- 11. Delivery Date -->
+                        <field name="commitment_date" string="Delivery Date" optional="hide" width="120px"/>
 
-                        <!-- Pricelist -->
-                        <field name="pricelist_id" string="Pricelist" optional="hide" groups="product.group_sale_pricelist"/>
+                        <!-- 12. Pricelist -->
+                        <field name="pricelist_id" string="Pricelist" optional="hide" groups="product.group_sale_pricelist" width="120px"/>
 
-                        <!-- Payment Terms -->
-                        <field name="payment_term_id" string="Payment Terms" optional="hide"/>
+                        <!-- 13. Payment Terms -->
+                        <field name="payment_term_id" string="Payment Terms" optional="hide" width="140px"/>
 
-                        <!-- Fiscal Position -->
-                        <field name="fiscal_position_id" string="Fiscal Position" optional="hide"/>
+                        <!-- 14. Fiscal Position -->
+                        <field name="fiscal_position_id" string="Fiscal Position" optional="hide" width="130px"/>
 
-                        <!-- Currency -->
-                        <field name="currency_id" string="Currency" optional="hide"/>
+                        <!-- 15. Currency -->
+                        <field name="currency_id" string="Currency" optional="hide" width="80px"/>
 
-                        <!-- Company -->
-                        <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide"/>
+                        <!-- 16. Company -->
+                        <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide" width="120px"/>
 
-                        <!-- Sales Team -->
-                        <field name="team_id" string="Sales Team" optional="hide"/>
+                        <!-- 17. Sales Team -->
+                        <field name="team_id" string="Sales Team" optional="hide" width="120px"/>
 
-                        <!-- Analytic Account -->
-<!--                        <field name="analytic_account_id" string="Analytic Account" optional="hide" groups="analytic.group_analytic_accounting"/>-->
+                        <!-- 18. Tags -->
+                        <field name="tag_ids" string="Tags" optional="hide" widget="many2many_tags" width="150px"/>
 
-                        <!-- Tags -->
-                        <field name="tag_ids" string="Tags" optional="hide" widget="many2many_tags"/>
+                        <!-- 19. Incoterm -->
+                        <field name="incoterm" string="Incoterm" optional="hide" width="100px"/>
 
-                        <!-- Incoterm -->
-                        <field name="incoterm" string="Incoterm" optional="hide"/>
+                        <!-- 20. Invoice Address -->
+                        <field name="partner_invoice_id" string="Invoice Address" optional="hide" width="150px"/>
 
-                        <!-- Invoice Address -->
-                        <field name="partner_invoice_id" string="Invoice Address" optional="hide"/>
+                        <!-- 21. Delivery Address -->
+                        <field name="partner_shipping_id" string="Delivery Address" optional="hide" width="150px"/>
 
-                        <!-- Delivery Address -->
-                        <field name="partner_shipping_id" string="Delivery Address" optional="hide"/>
-                              <field name="amount_untaxed" string="Tax Excluded" optional="hide"/>
+                        <!-- 22. Tax Excluded -->
+                        <field name="amount_untaxed" string="Tax Excluded" sum="Total Untaxed" optional="hide" width="120px"/>
 
-                        <!-- 8. Tax -->
-                        <field name="amount_tax" string="Tax" optional="hide"/>
+                        <!-- 23. Tax -->
+                        <field name="amount_tax" string="Tax" sum="Total Tax" optional="hide" width="100px"/>
 
-                        <!-- Note -->
-                        <field name="note" string="Terms and Conditions" optional="hide"/>
-                        <!-- 9. Total (Taxed Amount) -->
-<!--<field name="amount_total" string="Total" optional="show" sum="Total"/>-->
+                        <!-- 24. Note -->
+                        <field name="note" string="Terms and Conditions" optional="hide" width="180px"/>
 
+                        <!-- 25. Activity -->
+                        <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide" width="100px"/>
 
-                        <!-- Activity -->
-                        <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide"/>
-
-                        <!-- Activity State -->
+                        <!-- 26. Activity State -->
                         <field name="activity_state" string="Activity State" optional="hide" widget="badge"
                                decoration-success="activity_state == 'today'"
                                decoration-warning="activity_state == 'planned'"
-                               decoration-danger="activity_state == 'overdue'"/>
+                               decoration-danger="activity_state == 'overdue'"
+                               width="110px"/>
 
-                        <!-- Activity User -->
-                        <field name="activity_user_id" string="Responsible User" optional="hide"/>
+                        <!-- 27. Activity User -->
+                        <field name="activity_user_id" string="Responsible User" optional="hide" width="130px"/>
 
-                        <!-- Activity Type -->
-                        <field name="activity_type_id" string="Next Activity Type" optional="hide"/>
+                        <!-- 28. Activity Type -->
+                        <field name="activity_type_id" string="Next Activity Type" optional="hide" width="140px"/>
 
-                        <!-- Activity Date -->
-                        <field name="activity_date_deadline" string="Next Activity Deadline" optional="hide"/>
+                        <!-- 29. Activity Date -->
+                        <field name="activity_date_deadline" string="Next Activity Deadline" optional="hide" width="150px"/>
 
-                        <!-- Activity Summary -->
-                        <field name="activity_summary" string="Activity Summary" optional="hide"/>
+                        <!-- 30. Activity Summary -->
+                        <field name="activity_summary" string="Activity Summary" optional="hide" width="150px"/>
 
-                        <!-- Message -->
-                        <field name="message_needaction" string="Action Needed" optional="hide"/>
+                        <!-- 31. Message -->
+                        <field name="message_needaction" string="Action Needed" optional="hide" width="110px"/>
 
-                        <!-- Campaign -->
-                        <field name="campaign_id" string="Campaign" optional="hide" groups="base.group_no_one"/>
+                        <!-- 32. Campaign -->
+                        <field name="campaign_id" string="Campaign" optional="hide" groups="base.group_no_one" width="120px"/>
 
-                        <!-- Medium -->
-                        <field name="medium_id" string="Medium" optional="hide" groups="base.group_no_one"/>
+                        <!-- 33. Medium -->
+                        <field name="medium_id" string="Medium" optional="hide" groups="base.group_no_one" width="100px"/>
 
-                        <!-- Source -->
-                        <field name="source_id" string="Source" optional="hide" groups="base.group_no_one"/>
+                        <!-- 34. Source -->
+                        <field name="source_id" string="Source" optional="hide" groups="base.group_no_one" width="100px"/>
 
-                        <!-- Created By -->
-                        <field name="create_uid" string="Created by" optional="hide"/>
+                        <!-- 35. Created By -->
+                        <field name="create_uid" string="Created by" optional="hide" width="120px"/>
 
-                        <!-- Created On -->
-                        <field name="create_date" string="Created on" optional="hide"/>
+                        <!-- 36. Created On -->
+                        <field name="create_date" string="Created on" optional="hide" width="130px"/>
 
-                        <!-- Last Updated By -->
-                        <field name="write_uid" string="Last Updated by" optional="hide"/>
+                        <!-- 37. Last Updated By -->
+                        <field name="write_uid" string="Last Updated by" optional="hide" width="130px"/>
 
-                        <!-- Last Updated On -->
-                        <field name="write_date" string="Last Updated on" optional="hide"/>
+                        <!-- 38. Last Updated On -->
+                        <field name="write_date" string="Last Updated on" optional="hide" width="130px"/>
 
                         <!-- Hidden technical fields -->
                         <field name="invoice_count" column_invisible="1"/>
@@ -160,3 +152,159 @@
 
     </data>
 </odoo>
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <data>-->
+
+<!--        &lt;!&ndash; Custom Sale Quotation List View - Inherit and modify &ndash;&gt;-->
+<!--        <record id="view_quotation_tree_custom" model="ir.ui.view">-->
+<!--            <field name="name">sale.order.quotation.tree.custom</field>-->
+<!--            <field name="model">sale.order</field>-->
+<!--            <field name="inherit_id" ref="sale.view_quotation_tree"/>-->
+<!--            <field name="arch" type="xml">-->
+
+<!--                &lt;!&ndash; Replace all fields with new structure &ndash;&gt;-->
+<!--                <xpath expr="//list" position="replace">-->
+<!--                    <list string="Quotations"-->
+<!--                          sample="1"-->
+<!--                          decoration-info="state == 'draft'"-->
+<!--                          decoration-muted="state == 'cancel'"-->
+<!--                          multi_edit="1">-->
+
+<!--                        &lt;!&ndash; YOUR REQUESTED ORDER &ndash;&gt;-->
+<!--                        &lt;!&ndash; 1. Quotation Date &ndash;&gt;-->
+<!--                        <field name="date_order" string="Quotation Date"/>-->
+
+<!--                        &lt;!&ndash; 2. Number (Quotation Reference) &ndash;&gt;-->
+<!--                        <field name="name" string="Number" readonly="1"/>-->
+
+<!--                        &lt;!&ndash; 3. Customer &ndash;&gt;-->
+<!--                        <field name="partner_id" string="Customer"/>-->
+
+<!--                        &lt;!&ndash; 4. Warehouse &ndash;&gt;-->
+<!--                        <field name="warehouse_id" string="Warehouse" optional="show" groups="stock.group_stock_multi_warehouses"/>-->
+
+<!--                        &lt;!&ndash; 5. Customer Reference &ndash;&gt;-->
+<!--                        <field name="ref" string="Customer Reference" optional="show"/>-->
+
+<!--                        &lt;!&ndash; 6. Salesperson &ndash;&gt;-->
+<!--                        <field name="user_id" string="Salesperson" optional="show" widget="many2one_avatar_user"/>-->
+
+<!--                        <field name="amount_total" string="Total" optional="show" sum="Total"/>-->
+
+<!--                        &lt;!&ndash; 10. Expiration Date &ndash;&gt;-->
+<!--                        <field name="validity_date" string="Expiration" optional="show"/>-->
+
+<!--                        &lt;!&ndash; 11. Source Document &ndash;&gt;-->
+<!--                        <field name="origin" string="Source Document" optional="show"/>-->
+
+<!--                        &lt;!&ndash; ADDITIONAL DEFAULT ODOO FIELDS &ndash;&gt;-->
+
+<!--                        &lt;!&ndash; Status &ndash;&gt;-->
+<!--                        <field name="state" string="Status" optional="show" widget="badge"-->
+<!--                               decoration-success="state in ('sale', 'done')"-->
+<!--                               decoration-info="state in ('draft', 'sent')"/>-->
+
+<!--                        &lt;!&ndash; Expected Confirmation Date &ndash;&gt;-->
+<!--                        <field name="commitment_date" string="Delivery Date" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Pricelist &ndash;&gt;-->
+<!--                        <field name="pricelist_id" string="Pricelist" optional="hide" groups="product.group_sale_pricelist"/>-->
+
+<!--                        &lt;!&ndash; Payment Terms &ndash;&gt;-->
+<!--                        <field name="payment_term_id" string="Payment Terms" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Fiscal Position &ndash;&gt;-->
+<!--                        <field name="fiscal_position_id" string="Fiscal Position" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Currency &ndash;&gt;-->
+<!--                        <field name="currency_id" string="Currency" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Company &ndash;&gt;-->
+<!--                        <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Sales Team &ndash;&gt;-->
+<!--                        <field name="team_id" string="Sales Team" optional="hide"/>-->
+
+<!--                        <field name="tag_ids" string="Tags" optional="hide" widget="many2many_tags"/>-->
+
+<!--                        &lt;!&ndash; Incoterm &ndash;&gt;-->
+<!--                        <field name="incoterm" string="Incoterm" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Invoice Address &ndash;&gt;-->
+<!--                        <field name="partner_invoice_id" string="Invoice Address" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Delivery Address &ndash;&gt;-->
+<!--                        <field name="partner_shipping_id" string="Delivery Address" optional="hide"/>-->
+<!--                              <field name="amount_untaxed" string="Tax Excluded" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; 8. Tax &ndash;&gt;-->
+<!--                        <field name="amount_tax" string="Tax" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Note &ndash;&gt;-->
+<!--                        <field name="note" string="Terms and Conditions" optional="hide"/>-->
+
+<!--                        <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Activity State &ndash;&gt;-->
+<!--                        <field name="activity_state" string="Activity State" optional="hide" widget="badge"-->
+<!--                               decoration-success="activity_state == 'today'"-->
+<!--                               decoration-warning="activity_state == 'planned'"-->
+<!--                               decoration-danger="activity_state == 'overdue'"/>-->
+
+<!--                        &lt;!&ndash; Activity User &ndash;&gt;-->
+<!--                        <field name="activity_user_id" string="Responsible User" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Activity Type &ndash;&gt;-->
+<!--                        <field name="activity_type_id" string="Next Activity Type" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Activity Date &ndash;&gt;-->
+<!--                        <field name="activity_date_deadline" string="Next Activity Deadline" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Activity Summary &ndash;&gt;-->
+<!--                        <field name="activity_summary" string="Activity Summary" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Message &ndash;&gt;-->
+<!--                        <field name="message_needaction" string="Action Needed" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Campaign &ndash;&gt;-->
+<!--                        <field name="campaign_id" string="Campaign" optional="hide" groups="base.group_no_one"/>-->
+
+<!--                        &lt;!&ndash; Medium &ndash;&gt;-->
+<!--                        <field name="medium_id" string="Medium" optional="hide" groups="base.group_no_one"/>-->
+
+<!--                        &lt;!&ndash; Source &ndash;&gt;-->
+<!--                        <field name="source_id" string="Source" optional="hide" groups="base.group_no_one"/>-->
+
+<!--                        &lt;!&ndash; Created By &ndash;&gt;-->
+<!--                        <field name="create_uid" string="Created by" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Created On &ndash;&gt;-->
+<!--                        <field name="create_date" string="Created on" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Last Updated By &ndash;&gt;-->
+<!--                        <field name="write_uid" string="Last Updated by" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Last Updated On &ndash;&gt;-->
+<!--                        <field name="write_date" string="Last Updated on" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Hidden technical fields &ndash;&gt;-->
+<!--                        <field name="invoice_count" column_invisible="1"/>-->
+
+<!--                    </list>-->
+<!--                </xpath>-->
+
+<!--            </field>-->
+<!--        </record>-->
+
+<!--    </data>-->
+<!--</odoo>-->

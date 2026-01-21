@@ -12,21 +12,24 @@ class StockPicking(models.Model):
         string='Total Invoiced/Billed',
         compute='_compute_partner_balance',
         currency_field='currency_id',
-        help='Total invoiced or billed for this partner'
+        help='Total invoiced or billed for this partner',
+        store=False  # Don't store, always compute fresh
     )
 
     partner_total_paid = fields.Monetary(
         string='Amount Paid',
         compute='_compute_partner_balance',
         currency_field='currency_id',
-        help='Total amount paid'
+        help='Total amount paid',
+        store=False  # Don't store, always compute fresh
     )
 
     partner_balance_due = fields.Monetary(
         string='Balance Due',
         compute='_compute_partner_balance',
         currency_field='currency_id',
-        help='Remaining balance'
+        help='Remaining balance',
+        store=False  # Don't store, always compute fresh
     )
 
     currency_id = fields.Many2one(
@@ -52,7 +55,7 @@ class StockPicking(models.Model):
                 _logger.error(f"CURRENCY ERROR for picking {picking.name}: {str(e)}", exc_info=True)
                 picking.currency_id = self.env['res.currency'].search([('name', '=', 'USD')], limit=1)
 
-    @api.depends('partner_id', 'picking_type_id')
+    @api.depends('partner_id', 'picking_type_id', 'state')
     def _compute_partner_balance(self):
         """Calculate partner financial summary based on picking type"""
         _logger.info("=" * 80)
@@ -62,7 +65,6 @@ class StockPicking(models.Model):
         # Check if account.move model exists
         if 'account.move' not in self.env:
             _logger.error("CRITICAL: account.move model NOT FOUND in environment!")
-            _logger.error("Available models: %s", list(self.env.keys())[:20])
             for picking in self:
                 picking.partner_total_invoiced = 0.0
                 picking.partner_total_paid = 0.0
@@ -78,22 +80,25 @@ class StockPicking(models.Model):
             _logger.info(f"  Picking Type: {picking.picking_type_id.name if picking.picking_type_id else 'NO TYPE'}")
             _logger.info(
                 f"  Picking Type Code: {picking.picking_type_id.code if picking.picking_type_id else 'NO CODE'}")
+            _logger.info(f"  State: {picking.state if picking.state else 'NO STATE'}")
 
             # Reset all fields first
             picking.partner_total_invoiced = 0.0
             picking.partner_total_paid = 0.0
             picking.partner_balance_due = 0.0
 
+            # Skip if no partner
             if not picking.partner_id:
                 _logger.warning(f"  ⚠ Skipping - No partner assigned")
                 continue
 
+            # Skip if no picking type
             if not picking.picking_type_id:
                 _logger.warning(f"  ⚠ Skipping - No picking type assigned")
                 continue
 
             try:
-                # Delivery orders (customer)
+                # Delivery orders (customer) - code == 'outgoing'
                 if picking.picking_type_id.code == 'outgoing':
                     _logger.info(f"  → Processing as OUTGOING (Customer Delivery)")
 
@@ -107,21 +112,8 @@ class StockPicking(models.Model):
 
                     if len(invoices) == 0:
                         _logger.warning(f"  ⚠ NO INVOICES FOUND for partner {picking.partner_id.name}")
-                        _logger.info(f"  → Search criteria:")
-                        _logger.info(f"     - Partner ID: {picking.partner_id.id}")
-                        _logger.info(f"     - Commercial Partner ID: {picking.partner_id.commercial_partner_id.id}")
-                        _logger.info(f"     - Move types: ['out_invoice', 'out_refund']")
-                        _logger.info(f"     - State: posted")
-
-                        # Check if ANY invoices exist for this partner
-                        any_invoices = self.env['account.move'].search([
-                            ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
-                        ])
-                        _logger.info(f"  → Total account.move records for partner: {len(any_invoices)}")
-
-                        if any_invoices:
-                            for inv in any_invoices[:5]:  # Show first 5
-                                _logger.info(f"     - Invoice: {inv.name}, Type: {inv.move_type}, State: {inv.state}")
+                        _logger.info(f"  → Partner ID: {picking.partner_id.id}")
+                        _logger.info(f"  → Commercial Partner ID: {picking.partner_id.commercial_partner_id.id}")
 
                     out_invoices = invoices.filtered(lambda inv: inv.move_type == 'out_invoice')
                     out_refunds = invoices.filtered(lambda inv: inv.move_type == 'out_refund')
@@ -149,7 +141,7 @@ class StockPicking(models.Model):
                     _logger.info(f"     - Total Paid: {picking.partner_total_paid}")
                     _logger.info(f"     - Balance Due: {picking.partner_balance_due}")
 
-                # Receipts (vendor)
+                # Receipts (vendor) - code == 'incoming'
                 elif picking.picking_type_id.code == 'incoming':
                     _logger.info(f"  → Processing as INCOMING (Vendor Receipt)")
 
@@ -163,21 +155,8 @@ class StockPicking(models.Model):
 
                     if len(bills) == 0:
                         _logger.warning(f"  ⚠ NO BILLS FOUND for vendor {picking.partner_id.name}")
-                        _logger.info(f"  → Search criteria:")
-                        _logger.info(f"     - Partner ID: {picking.partner_id.id}")
-                        _logger.info(f"     - Commercial Partner ID: {picking.partner_id.commercial_partner_id.id}")
-                        _logger.info(f"     - Move types: ['in_invoice', 'in_refund']")
-                        _logger.info(f"     - State: posted")
-
-                        # Check if ANY bills exist for this partner
-                        any_bills = self.env['account.move'].search([
-                            ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
-                        ])
-                        _logger.info(f"  → Total account.move records for partner: {len(any_bills)}")
-
-                        if any_bills:
-                            for bill in any_bills[:5]:  # Show first 5
-                                _logger.info(f"     - Bill: {bill.name}, Type: {bill.move_type}, State: {bill.state}")
+                        _logger.info(f"  → Partner ID: {picking.partner_id.id}")
+                        _logger.info(f"  → Commercial Partner ID: {picking.partner_id.commercial_partner_id.id}")
 
                     in_invoices = bills.filtered(lambda bill: bill.move_type == 'in_invoice')
                     in_refunds = bills.filtered(lambda bill: bill.move_type == 'in_refund')
@@ -206,9 +185,6 @@ class StockPicking(models.Model):
                     _logger.info(f"     - Balance Due: {picking.partner_balance_due}")
                 else:
                     _logger.warning(f"  ⚠ Unknown picking type code: {picking.picking_type_id.code}")
-                    picking.partner_total_invoiced = 0.0
-                    picking.partner_total_paid = 0.0
-                    picking.partner_balance_due = 0.0
 
             except Exception as e:
                 _logger.error(f"  ✗ ERROR computing balance for {picking.partner_id.name}: {str(e)}", exc_info=True)

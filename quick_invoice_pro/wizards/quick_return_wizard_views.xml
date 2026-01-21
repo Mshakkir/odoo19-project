@@ -36,7 +36,7 @@
                                     <group>
                                         <field name="create_credit_note"/>
                                         <field name="refund_method"
-                                               attrs="{'invisible': [('create_credit_note', '=', False)]}"/>
+                                               invisible="create_credit_note == False"/>
                                     </group>
                                     <group>
                                         <field name="reverse_delivery"/>

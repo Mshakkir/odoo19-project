@@ -27,12 +27,12 @@
                             <group>
                                 <field name="create_draft"/>
                                 <field name="force_create"
-                                       attrs="{'invisible': [('stock_status', '=', 'available')]}"/>
+                                       invisible="stock_status == 'available'"/>
                             </group>
                         </page>
 
                         <page string="Stock Warning"
-                              attrs="{'invisible': [('stock_status', '=', 'available')]}">
+                              invisible="stock_status == 'available'">
                             <field name="stock_warning" readonly="1" nolabel="1"/>
                         </page>
                     </notebook>

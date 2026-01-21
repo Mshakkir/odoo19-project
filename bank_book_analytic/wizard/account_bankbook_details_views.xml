@@ -100,6 +100,15 @@
                                        string="Analytic"
                                        optional="show"
                                        width="160"/>
+
+                                <field name="move_id" column_invisible="1"/>
+
+                                <button name="action_view_bill"
+                                        type="object"
+                                        string="Bill"
+                                        class="btn-link"
+                                        icon="fa-file-text-o"
+                                        title="View Related Bill/Payment"/>
                             </list>
                         </field>
                     </group>

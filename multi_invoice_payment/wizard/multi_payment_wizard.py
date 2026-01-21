@@ -121,34 +121,66 @@ class MultiPaymentWizard(models.TransientModel):
         if not self.partner_id:
             raise UserError(_('Please select a customer first.'))
 
-        # Search for all payments related to customer
-        payments = self.env['account.payment'].search([
+        # Search for payment records in account.move (where payments are stored)
+        # Look for inbound payment entries (opposite of invoices)
+        payments = self.env['account.move'].search([
             ('partner_id', '=', self.partner_id.id),
-        ], order='date desc')
+            ('move_type', '=', 'in_invoice'),  # Or could be other types
+            ('state', '=', 'posted'),
+        ], order='invoice_date desc')
+
+        # If no results, try searching in account.payment with broader criteria
+        if not payments:
+            payments = self.env['account.payment'].search([
+                ('partner_id', '=', self.partner_id.id),
+            ], order='date desc', limit=100)
 
         if not payments:
-            # If no payments found, show detailed message
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'title': _('No Payments'),
-                    'message': _('No payments found for this customer. Please check if payments have been created and reconciled.'),
-                    'type': 'info',
+                    'title': _('No Payments Found'),
+                    'message': _('No payments found for customer: %s. Payments may be recorded as journal entries or reconciled invoices.') % self.partner_id.name,
+                    'type': 'warning',
                 }
             }
+
+        # Create a wizard to display payment list
+        wizard = self.env['payment.list.display.wizard'].create({
+            'partner_id': self.partner_id.id,
+            'payment_list': self._format_payment_list(payments),
+        })
 
         return {
             'name': _('Customer Payments - %s') % self.partner_id.name,
             'type': 'ir.actions.act_window',
-            'res_model': 'account.payment',
+            'res_model': 'payment.list.display.wizard',
+            'res_id': wizard.id,
             'view_mode': 'form',
-            'domain': [
-                ('partner_id', '=', self.partner_id.id),
-            ],
-            'context': {'default_partner_id': self.partner_id.id},
-            'target': 'current',
+            'target': 'new',
         }
+
+    def _format_payment_list(self, payments):
+        """Format payment list into readable text"""
+        lines = []
+        total = 0
+        for payment in payments:
+            if hasattr(payment, 'amount_total'):
+                amount = payment.amount_total
+                date = payment.invoice_date
+                ref = payment.name
+            else:
+                amount = payment.amount if hasattr(payment, 'amount') else 0
+                date = payment.date if hasattr(payment, 'date') else ''
+                ref = payment.name if hasattr(payment, 'name') else ''
+
+            lines.append(f"{ref} | {date} | {amount}")
+            total += amount
+
+        lines.append(f"\n{'='*60}")
+        lines.append(f"TOTAL PAYMENTS: {total}")
+        return '\n'.join(lines)
 
     @api.onchange('payment_amount', 'auto_allocate')
     def _onchange_auto_allocate(self):
@@ -376,3 +408,11 @@ class MultiPaymentInvoiceLine(models.TransientModel):
                     _('Amount to pay (%.2f) cannot exceed the amount due (%.2f) for invoice %s')
                     % (record.amount_to_pay, record.amount_residual, record.invoice_number)
                 )
+
+
+class PaymentListDisplayWizard(models.TransientModel):
+    _name = 'payment.list.display.wizard'
+    _description = 'Payment List Display'
+
+    partner_id = fields.Many2one('res.partner', string='Customer', readonly=True)
+    payment_list = fields.Text(string='Payments', readonly=True)

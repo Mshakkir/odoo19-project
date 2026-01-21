@@ -9,21 +9,24 @@ class StockPicking(models.Model):
         string='Total Invoiced/Billed',
         compute='_compute_partner_balance',
         currency_field='currency_id',
-        help='Total invoiced or billed for this partner'
+        help='Total invoiced or billed for this partner',
+        store=False
     )
 
     partner_total_paid = fields.Monetary(
         string='Amount Paid',
         compute='_compute_partner_balance',
         currency_field='currency_id',
-        help='Total amount paid'
+        help='Total amount paid',
+        store=False
     )
 
     partner_balance_due = fields.Monetary(
         string='Balance Due',
         compute='_compute_partner_balance',
         currency_field='currency_id',
-        help='Remaining balance'
+        help='Remaining balance',
+        store=False
     )
 
     currency_id = fields.Many2one(
@@ -39,12 +42,23 @@ class StockPicking(models.Model):
         for picking in self:
             picking.currency_id = picking.company_id.currency_id or self.env.company.currency_id
 
-    @api.depends('partner_id', 'picking_type_id')
+    @api.depends('partner_id', 'picking_type_id', 'picking_type_id.code')
     def _compute_partner_balance(self):
         """Calculate partner financial summary based on picking type"""
         for picking in self:
-            if picking.partner_id and picking.picking_type_id:
-                try:
+            # Reset values
+            picking.partner_total_invoiced = 0.0
+            picking.partner_total_paid = 0.0
+            picking.partner_balance_due = 0.0
+
+            # Need at least a partner
+            if not picking.partner_id:
+                continue
+
+            try:
+                # If picking_type_id is set, use it to determine customer/vendor
+                if picking.picking_type_id and picking.picking_type_id.code:
+
                     # Delivery orders (customer)
                     if picking.picking_type_id.code == 'outgoing':
                         invoices = self.env['account.move'].search([
@@ -53,18 +67,17 @@ class StockPicking(models.Model):
                             ('state', '=', 'posted')
                         ])
 
-                        total_invoiced = sum(invoices.filtered(
-                            lambda inv: inv.move_type == 'out_invoice'
-                        ).mapped('amount_total'))
+                        out_invoices = invoices.filtered(lambda inv: inv.move_type == 'out_invoice')
+                        out_refunds = invoices.filtered(lambda inv: inv.move_type == 'out_refund')
 
-                        total_refunded = sum(invoices.filtered(
-                            lambda inv: inv.move_type == 'out_refund'
-                        ).mapped('amount_total'))
+                        total_invoiced = sum(out_invoices.mapped('amount_total'))
+                        total_refunded = sum(out_refunds.mapped('amount_total'))
 
-                        total_residual = sum(invoices.mapped('amount_residual'))
+                        invoice_residual = sum(out_invoices.mapped('amount_residual'))
+                        refund_residual = sum(out_refunds.mapped('amount_residual'))
 
                         picking.partner_total_invoiced = total_invoiced - total_refunded
-                        picking.partner_balance_due = total_residual
+                        picking.partner_balance_due = invoice_residual - refund_residual
                         picking.partner_total_paid = picking.partner_total_invoiced - picking.partner_balance_due
 
                     # Receipts (vendor)
@@ -75,29 +88,91 @@ class StockPicking(models.Model):
                             ('state', '=', 'posted')
                         ])
 
-                        total_billed = sum(bills.filtered(
-                            lambda bill: bill.move_type == 'in_invoice'
-                        ).mapped('amount_total'))
+                        in_invoices = bills.filtered(lambda bill: bill.move_type == 'in_invoice')
+                        in_refunds = bills.filtered(lambda bill: bill.move_type == 'in_refund')
 
-                        total_refunded = sum(bills.filtered(
-                            lambda bill: bill.move_type == 'in_refund'
-                        ).mapped('amount_total'))
+                        total_billed = sum(in_invoices.mapped('amount_total'))
+                        total_refunded = sum(in_refunds.mapped('amount_total'))
 
-                        total_residual = sum(bills.mapped('amount_residual'))
+                        bill_residual = sum(in_invoices.mapped('amount_residual'))
+                        refund_residual = sum(in_refunds.mapped('amount_residual'))
 
                         picking.partner_total_invoiced = total_billed - total_refunded
-                        picking.partner_balance_due = total_residual
+                        picking.partner_balance_due = bill_residual - refund_residual
                         picking.partner_total_paid = picking.partner_total_invoiced - picking.partner_balance_due
-                    else:
-                        picking.partner_total_invoiced = 0.0
-                        picking.partner_total_paid = 0.0
-                        picking.partner_balance_due = 0.0
 
-                except Exception:
-                    picking.partner_total_invoiced = 0.0
-                    picking.partner_total_paid = 0.0
-                    picking.partner_balance_due = 0.0
-            else:
+                else:
+                    # No picking_type_id set yet - try to detect from location or show both
+                    # For new records, show customer invoices by default (most common case)
+                    # You can also check picking.location_dest_id to determine direction
+
+                    # Check if this looks like a delivery (to customer)
+                    if picking.location_dest_id and picking.location_dest_id.usage == 'customer':
+                        # This is a delivery - show customer balance
+                        invoices = self.env['account.move'].search([
+                            ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
+                            ('move_type', 'in', ['out_invoice', 'out_refund']),
+                            ('state', '=', 'posted')
+                        ])
+
+                        out_invoices = invoices.filtered(lambda inv: inv.move_type == 'out_invoice')
+                        out_refunds = invoices.filtered(lambda inv: inv.move_type == 'out_refund')
+
+                        total_invoiced = sum(out_invoices.mapped('amount_total'))
+                        total_refunded = sum(out_refunds.mapped('amount_total'))
+
+                        invoice_residual = sum(out_invoices.mapped('amount_residual'))
+                        refund_residual = sum(out_refunds.mapped('amount_residual'))
+
+                        picking.partner_total_invoiced = total_invoiced - total_refunded
+                        picking.partner_balance_due = invoice_residual - refund_residual
+                        picking.partner_total_paid = picking.partner_total_invoiced - picking.partner_balance_due
+
+                    # Check if this looks like a receipt (from vendor)
+                    elif picking.location_id and picking.location_id.usage == 'supplier':
+                        # This is a receipt - show vendor balance
+                        bills = self.env['account.move'].search([
+                            ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
+                            ('move_type', 'in', ['in_invoice', 'in_refund']),
+                            ('state', '=', 'posted')
+                        ])
+
+                        in_invoices = bills.filtered(lambda bill: bill.move_type == 'in_invoice')
+                        in_refunds = bills.filtered(lambda bill: bill.move_type == 'in_refund')
+
+                        total_billed = sum(in_invoices.mapped('amount_total'))
+                        total_refunded = sum(in_refunds.mapped('amount_total'))
+
+                        bill_residual = sum(in_invoices.mapped('amount_residual'))
+                        refund_residual = sum(in_refunds.mapped('amount_residual'))
+
+                        picking.partner_total_invoiced = total_billed - total_refunded
+                        picking.partner_balance_due = bill_residual - refund_residual
+                        picking.partner_total_paid = picking.partner_total_invoiced - picking.partner_balance_due
+
+                    else:
+                        # Can't determine - show customer data as default
+                        # (or you could show vendor data, or show both)
+                        invoices = self.env['account.move'].search([
+                            ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
+                            ('move_type', 'in', ['out_invoice', 'out_refund']),
+                            ('state', '=', 'posted')
+                        ])
+
+                        out_invoices = invoices.filtered(lambda inv: inv.move_type == 'out_invoice')
+                        out_refunds = invoices.filtered(lambda inv: inv.move_type == 'out_refund')
+
+                        total_invoiced = sum(out_invoices.mapped('amount_total'))
+                        total_refunded = sum(out_refunds.mapped('amount_total'))
+
+                        invoice_residual = sum(out_invoices.mapped('amount_residual'))
+                        refund_residual = sum(out_refunds.mapped('amount_residual'))
+
+                        picking.partner_total_invoiced = total_invoiced - total_refunded
+                        picking.partner_balance_due = invoice_residual - refund_residual
+                        picking.partner_total_paid = picking.partner_total_invoiced - picking.partner_balance_due
+
+            except Exception:
                 picking.partner_total_invoiced = 0.0
                 picking.partner_total_paid = 0.0
                 picking.partner_balance_due = 0.0
@@ -109,7 +184,7 @@ class StockPicking(models.Model):
         if not self.partner_id:
             raise UserError("No partner selected.")
 
-        if self.picking_type_id.code == 'outgoing':
+        if self.picking_type_id and self.picking_type_id.code == 'outgoing':
             # Customer invoices
             return {
                 'name': f'Invoices - {self.partner_id.name}',
@@ -125,7 +200,7 @@ class StockPicking(models.Model):
                 'context': {'create': False},
             }
         else:
-            # Vendor bills
+            # Vendor bills (or default)
             return {
                 'name': f'Bills - {self.partner_id.name}',
                 'type': 'ir.actions.act_window',
@@ -151,7 +226,7 @@ class StockPicking(models.Model):
             ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
         ])
 
-        payment_type = 'inbound' if self.picking_type_id.code == 'outgoing' else 'outbound'
+        payment_type = 'inbound' if (self.picking_type_id and self.picking_type_id.code == 'outgoing') else 'outbound'
 
         if not all_payments:
             return {

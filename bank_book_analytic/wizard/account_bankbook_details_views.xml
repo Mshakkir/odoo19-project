@@ -94,7 +94,7 @@
                                 <field name="description"
                                        string="Description"
                                        optional="show"
-                                       width="200"/>
+                                       width="230"/>
 
                                 <field name="analytic_account_names"
                                        string="Analytic"

@@ -6,8 +6,9 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Insert at the beginning of the right-side group that contains validity_date -->
-            <xpath expr="//field[@name='validity_date']" position="before">
+            <!-- Move balance to absolute top by inserting before the FIRST field in right column -->
+            <!-- In Odoo sale order, date_order is typically the first field in right column -->
+            <xpath expr="//field[@name='date_order']" position="before">
 
                 <!-- Total Invoiced - Clickable when non-zero -->
                 <label for="customer_total_invoiced"

@@ -111,7 +111,7 @@
         </field>
     </record>
 
-    <!-- Action to open Ledger Lines directly (No Wizard) -->
+    <!-- Action to open Ledger Lines with Generate Button -->
     <record id="action_product_stock_ledger_lines" model="ir.actions.act_window">
         <field name="name">Product Stock Ledger</field>
         <field name="res_model">product.stock.ledger.line</field>
@@ -123,6 +123,17 @@
             'edit': False,
             'delete': False,
         }</field>
+    </record>
+
+    <!-- Server Action to Generate Ledger -->
+    <record id="action_generate_stock_ledger" model="ir.actions.server">
+        <field name="name">Generate Stock Ledger</field>
+        <field name="model_id" ref="model_product_stock_ledger_line"/>
+        <field name="binding_model_id" ref="model_product_stock_ledger_line"/>
+        <field name="state">code</field>
+        <field name="code">
+            model.action_generate_all()
+        </field>
     </record>
 
     <!-- Menu Item - Direct Window (No Wizard) -->

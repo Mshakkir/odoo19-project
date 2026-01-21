@@ -186,8 +186,8 @@ class ProductStockLedgerLine(models.Model):
 
             # Partner info
             partner_name = (
-                mv.partner_id.name
-                or (mv.picking_id.partner_id.name if mv.picking_id and mv.picking_id.partner_id else '')
+                    mv.partner_id.name
+                    or (mv.picking_id.partner_id.name if mv.picking_id and mv.picking_id.partner_id else '')
             )
             particulars = f"{partner_name} - {mv.location_id.complete_name} → {mv.location_dest_id.complete_name}"
 
@@ -214,3 +214,28 @@ class ProductStockLedgerLine(models.Model):
                 'uom': mv.product_uom.name if mv.product_uom else mv.product_id.uom_id.name,
                 'invoice_status': invoice_status,
             })
+
+    @api.model
+    def _auto_generate_on_open(self):
+        """Auto-generate ledger data when window is opened"""
+        # Check if table is empty
+        existing_records = self.search([], limit=1)
+
+        # If no records exist, generate them
+        if not existing_records:
+            self.generate_ledger()
+
+    @api.model
+    def action_generate_all(self):
+        """Action to generate all ledger lines"""
+        self.generate_ledger()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Success',
+                'message': 'Stock Ledger Data Generated Successfully!',
+                'type': 'success',
+                'sticky': False,
+            }
+        }

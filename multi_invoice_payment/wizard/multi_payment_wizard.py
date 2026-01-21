@@ -121,7 +121,7 @@ class MultiPaymentWizard(models.TransientModel):
         if not self.partner_id:
             raise UserError(_('Please select a customer first.'))
 
-        # Search for all payments related to customer (broader search)
+        # Search for all payments related to customer
         payments = self.env['account.payment'].search([
             ('partner_id', '=', self.partner_id.id),
         ], order='date desc')
@@ -142,8 +142,7 @@ class MultiPaymentWizard(models.TransientModel):
             'name': _('Customer Payments - %s') % self.partner_id.name,
             'type': 'ir.actions.act_window',
             'res_model': 'account.payment',
-            'view_mode': 'tree,form',
-            'views': [(False, 'tree'), (False, 'form')],
+            'view_mode': 'form',
             'domain': [
                 ('partner_id', '=', self.partner_id.id),
             ],

@@ -102,31 +102,41 @@ class AccountBankBookDetailsLine(models.TransientModel):
                 }
             }
 
-        # Determine the view based on move type
-        view_id = False
-        if move.move_type in ['out_invoice', 'out_refund']:
-            view_id = self.env.ref('account.view_move_form').id
-        elif move.move_type in ['in_invoice', 'in_refund']:
-            view_id = self.env.ref('account.view_move_form').id
-        elif move.payment_id:
-            # This is a payment
+        # Check if this is a payment entry
+        # In Odoo 19, payments create account.move records with payment_id field through account.payment model
+        payment = self.env['account.payment'].search([('move_id', '=', move.id)], limit=1)
+
+        if payment:
+            # This move is linked to a payment
             return {
                 'name': 'Payment',
                 'type': 'ir.actions.act_window',
                 'res_model': 'account.payment',
-                'res_id': move.payment_id.id,
+                'res_id': payment.id,
                 'view_mode': 'form',
-                'view_id': self.env.ref('account.view_account_payment_form').id,
                 'target': 'current',
             }
 
+        # Determine the view and name based on move type
+        if move.move_type == 'entry':
+            view_name = 'Journal Entry'
+        elif move.move_type in ['out_invoice', 'out_receipt']:
+            view_name = 'Customer Invoice'
+        elif move.move_type == 'out_refund':
+            view_name = 'Customer Credit Note'
+        elif move.move_type in ['in_invoice', 'in_receipt']:
+            view_name = 'Vendor Bill'
+        elif move.move_type == 'in_refund':
+            view_name = 'Vendor Credit Note'
+        else:
+            view_name = 'Journal Entry'
+
         return {
-            'name': 'Journal Entry',
+            'name': view_name,
             'type': 'ir.actions.act_window',
             'res_model': 'account.move',
             'res_id': move.id,
             'view_mode': 'form',
-            'view_id': view_id,
             'target': 'current',
         }
 

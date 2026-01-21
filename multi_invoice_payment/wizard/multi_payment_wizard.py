@@ -101,19 +101,18 @@ class MultiPaymentWizard(models.TransientModel):
                 }
             }
 
-        # Create a transient record to display invoice list
-        wizard = self.env['customer.invoice.list.wizard'].create({
-            'partner_id': self.partner_id.id,
-            'invoice_ids': [(6, 0, invoices.ids)],
-        })
-
         return {
             'name': _('Customer Invoices - %s') % self.partner_id.name,
             'type': 'ir.actions.act_window',
-            'res_model': 'customer.invoice.list.wizard',
-            'res_id': wizard.id,
-            'view_mode': 'form',
-            'target': 'new',
+            'res_model': 'account.move',
+            'view_mode': 'list,form',
+            'domain': [
+                ('partner_id', '=', self.partner_id.id),
+                ('move_type', '=', 'out_invoice'),
+                ('state', '=', 'posted'),
+            ],
+            'context': {'default_partner_id': self.partner_id.id},
+            'target': 'current',
         }
 
     def action_view_customer_payments(self):
@@ -139,19 +138,18 @@ class MultiPaymentWizard(models.TransientModel):
                 }
             }
 
-        # Create a transient record to display payment list
-        wizard = self.env['customer.payment.list.wizard'].create({
-            'partner_id': self.partner_id.id,
-            'payment_ids': [(6, 0, payments.ids)],
-        })
-
         return {
             'name': _('Customer Payments - %s') % self.partner_id.name,
             'type': 'ir.actions.act_window',
-            'res_model': 'customer.payment.list.wizard',
-            'res_id': wizard.id,
-            'view_mode': 'form',
-            'target': 'new',
+            'res_model': 'account.payment',
+            'view_mode': 'list,form',
+            'domain': [
+                ('partner_id', '=', self.partner_id.id),
+                ('payment_type', '=', 'inbound'),
+                ('state', '=', 'posted'),
+            ],
+            'context': {'default_partner_id': self.partner_id.id},
+            'target': 'current',
         }
 
     @api.onchange('payment_amount', 'auto_allocate')
@@ -380,19 +378,3 @@ class MultiPaymentInvoiceLine(models.TransientModel):
                     _('Amount to pay (%.2f) cannot exceed the amount due (%.2f) for invoice %s')
                     % (record.amount_to_pay, record.amount_residual, record.invoice_number)
                 )
-
-
-class CustomerInvoiceListWizard(models.TransientModel):
-    _name = 'customer.invoice.list.wizard'
-    _description = 'Customer Invoice List'
-
-    partner_id = fields.Many2one('res.partner', string='Customer', readonly=True)
-    invoice_ids = fields.Many2many('account.move', string='Invoices')
-
-
-class CustomerPaymentListWizard(models.TransientModel):
-    _name = 'customer.payment.list.wizard'
-    _description = 'Customer Payment List'
-
-    partner_id = fields.Many2one('res.partner', string='Customer', readonly=True)
-    payment_ids = fields.Many2many('account.payment', string='Payments')

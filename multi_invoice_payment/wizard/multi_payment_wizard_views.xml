@@ -12,12 +12,37 @@
                         <field name="partner_id" readonly="1" string="Customer"/>
                     </group>
                     <separator string="Payment History"/>
-                    <field name="payment_list" nolabel="1" readonly="1" widget="text"/>
+                    <field name="payment_line_ids" nolabel="1" readonly="1">
+                        <tree create="0" edit="0" delete="0">
+                            <field name="date"/>
+                            <field name="number"/>
+                            <field name="journal_id"/>
+                            <field name="payment_method"/>
+                            <field name="amount" sum="Total"/>
+                            <field name="state"/>
+                        </tree>
+                    </field>
                 </sheet>
                 <footer>
                     <button string="Close" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
+        </field>
+    </record>
+
+    <!-- Payment List Display Line Tree View -->
+    <record id="view_payment_list_display_line_tree" model="ir.ui.view">
+        <field name="name">payment.list.display.line.tree</field>
+        <field name="model">payment.list.display.line</field>
+        <field name="arch" type="xml">
+            <tree create="0" edit="0" delete="0">
+                <field name="date"/>
+                <field name="number"/>
+                <field name="journal_id"/>
+                <field name="payment_method"/>
+                <field name="amount" sum="Total"/>
+                <field name="state"/>
+            </tree>
         </field>
     </record>
 

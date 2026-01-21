@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Default Configuration Parameters -->
+        <record id="default_approval_required" model="ir.config_parameter">
+            <field name="key">quick_invoice_pro.approval_required</field>
+            <field name="value">True</field>
+        </record>
+
+        <record id="default_approval_threshold" model="ir.config_parameter">
+            <field name="key">quick_invoice_pro.approval_threshold</field>
+            <field name="value">500.0</field>
+        </record>
+
+        <record id="default_check_stock" model="ir.config_parameter">
+            <field name="key">quick_invoice_pro.check_stock</field>
+            <field name="value">True</field>
+        </record>
+
+        <record id="default_allow_draft" model="ir.config_parameter">
+            <field name="key">quick_invoice_pro.allow_draft</field>
+            <field name="value">True</field>
+        </record>
+
+        <record id="default_auto_payment" model="ir.config_parameter">
+            <field name="key">quick_invoice_pro.auto_payment</field>
+            <field name="value">True</field>
+        </record>
+
+        <record id="default_partial_delivery" model="ir.config_parameter">
+            <field name="key">quick_invoice_pro.partial_delivery</field>
+            <field name="value">warn</field>
+        </record>
+
+        <!-- Create Walk-in Customer -->
+        <record id="partner_walkin_customer" model="res.partner">
+            <field name="name">Walk-in Customer</field>
+            <field name="customer_rank">1</field>
+            <field name="company_type">person</field>
+            <field name="comment">Default customer for quick invoice walk-in sales</field>
+        </record>
+
+    </data>
+</odoo>

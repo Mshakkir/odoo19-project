@@ -12,7 +12,7 @@
                         <field name="partner_id" readonly="1" string="Customer"/>
                     </group>
                     <separator string="Payment History"/>
-                    <field name="payment_line_ids" nolabel="1" readonly="1" mode="tree">
+                    <field name="payment_line_ids" nolabel="1" readonly="1">
                         <list>
                             <field name="date"/>
                             <field name="number"/>
@@ -30,19 +30,19 @@
         </field>
     </record>
 
-    <!-- Payment List Display Line Tree View -->
-    <record id="view_payment_list_display_line_tree" model="ir.ui.view">
-        <field name="name">payment.list.display.line.tree</field>
+    <!-- Payment List Display Line List View -->
+    <record id="view_payment_list_display_line_list" model="ir.ui.view">
+        <field name="name">payment.list.display.line.list</field>
         <field name="model">payment.list.display.line</field>
         <field name="arch" type="xml">
-            <tree create="0" edit="0" delete="0">
+            <list create="0" edit="0" delete="0">
                 <field name="date"/>
                 <field name="number"/>
                 <field name="journal_id"/>
                 <field name="payment_method"/>
                 <field name="amount"/>
                 <field name="state"/>
-            </tree>
+            </list>
         </field>
     </record>
 

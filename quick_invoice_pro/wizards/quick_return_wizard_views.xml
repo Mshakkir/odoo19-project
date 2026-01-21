@@ -22,11 +22,11 @@
                             <page string="Return Items">
                                 <field name="return_line_ids">
                                     <tree editable="bottom">
-                                        <field name="product_uom_id" readonly="1"/>
-                                        <field name="ordered_qty" readonly="1"/>
+                                        <field name="product_id"/>
+                                        <field name="ordered_qty"/>
                                         <field name="return_qty"/>
-                                        <field name="price_unit" readonly="1"/>
-                                        <field name="subtotal" readonly="1" sum="Total"/>
+                                        <field name="price_unit"/>
+                                        <field name="subtotal" sum="Total"/>
                                     </tree>
                                 </field>
                             </page>

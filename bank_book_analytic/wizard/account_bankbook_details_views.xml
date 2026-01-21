@@ -29,11 +29,11 @@
                     <group string="Bank Accounts Summary">
                         <field name="account_ids" nolabel="1">
                             <list string="Bank Accounts" create="false" edit="false" delete="false">
-                                <field name="account_code"/>
-                                <field name="account_name"/>
-                                <field name="subtotal_debit" sum="Total Debit"/>
-                                <field name="subtotal_credit" sum="Total Credit"/>
-                                <field name="subtotal_balance" sum="Total Balance"/>
+                                <field name="account_code" column_invisible="0"/>
+                                <field name="account_name" column_invisible="0"/>
+                                <field name="subtotal_debit" sum="Total Debit" column_invisible="0"/>
+                                <field name="subtotal_credit" sum="Total Credit" column_invisible="0"/>
+                                <field name="subtotal_balance" sum="Total Balance" column_invisible="0"/>
                             </list>
                         </field>
                     </group>
@@ -41,17 +41,17 @@
                     <!-- All Transaction Lines -->
                     <group string="Transaction Details">
                         <field name="all_line_ids" nolabel="1">
-                            <list string="All Transactions" create="false" edit="false" delete="false">
-                                <field name="account_code" string="Account"/>
-                                <field name="date"/>
-                                <field name="reference"/>
-                                <field name="partner_name" string="Particulars"/>
-                                <field name="journal_code"/>
-                                <field name="debit" sum="Total Debit"/>
-                                <field name="credit" sum="Total Credit"/>
-                                <field name="balance"/>
-                                <field name="description"/>
-                                <field name="analytic_account_names" string="Analytic"/>
+                            <list string="All Transactions" create="false" edit="false" delete="false" class="o_list_view" decoration-bf="1">
+                                <field name="account_code" string="Account" optional="show" column_invisible="0"/>
+                                <field name="date" optional="show" column_invisible="0"/>
+                                <field name="reference" optional="show" column_invisible="0"/>
+                                <field name="partner_name" string="Particulars" optional="show" column_invisible="0"/>
+                                <field name="journal_code" string="Journal" optional="show" column_invisible="0"/>
+                                <field name="debit" sum="Total Debit" optional="show" column_invisible="0"/>
+                                <field name="credit" sum="Total Credit" optional="show" column_invisible="0"/>
+                                <field name="balance" optional="show" column_invisible="0"/>
+                                <field name="description" optional="show" column_invisible="0"/>
+                                <field name="analytic_account_names" string="Analytic" optional="show" column_invisible="0"/>
                             </list>
                         </field>
                     </group>

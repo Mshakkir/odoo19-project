@@ -6,7 +6,7 @@ from odoo.exceptions import UserError
 class QuickReturnLine(models.TransientModel):
     """Define this FIRST so it exists when QuickReturnWizard references it"""
     _name = 'quick.return.line'
-    _description = 'Quick Return Line'
+    # _description = 'Quick Return Line'
 
     wizard_id = fields.Many2one(
         'quick.return.wizard',

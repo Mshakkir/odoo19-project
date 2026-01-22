@@ -80,8 +80,8 @@ class SaleOrder(models.Model):
             for line in order.order_line:
                 product = line.product_id
 
-                # Skip services and consumables
-                if product.detailed_type != 'product':
+                # Skip services and consumables - FIXED FOR ODOO 19
+                if product.type != 'product':
                     continue
 
                 has_stockable = True
@@ -310,7 +310,8 @@ class SaleOrderLine(models.Model):
     def _compute_available_qty(self):
         """Show available stock on order line"""
         for line in self:
-            if line.product_id.detailed_type == 'product':
+            # FIXED FOR ODOO 19 - Changed detailed_type to type
+            if line.product_id.type == 'product':
                 line.available_qty = line.product_id.with_context(
                     warehouse=line.order_id.warehouse_id.id
                 ).qty_available

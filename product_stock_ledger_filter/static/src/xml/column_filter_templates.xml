@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Column Filter Dropdown Template -->
+    <t t-name="product_stock_ledger_filter.ColumnFilterDropdown">
+        <div class="ledger_column_filter">
+            <!-- Filter Button -->
+            <button class="btn btn-secondary o_column_filter_btn"
+                    t-on-click="toggleDropdown"
+                    title="Column Filter">
+                <i class="fa fa-columns"/> Columns
+            </button>
+
+            <!-- Dropdown Panel -->
+            <div class="o_column_filter_dropdown"
+                 t-if="state.isOpen"
+                 t-on-click.stop="">
+
+                <!-- Header -->
+                <div class="o_filter_header">
+                    <h5>Column Visibility &amp; Order</h5>
+                    <button class="btn-close" t-on-click="toggleDropdown"/>
+                </div>
+
+                <!-- Search Box -->
+                <div class="o_filter_search">
+                    <input type="text"
+                           class="form-control form-control-sm"
+                           placeholder="Search columns..."
+                           t-model="state.searchQuery"
+                           t-on-input="onSearchInput"/>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="o_filter_actions">
+                    <button class="btn btn-sm btn-light"
+                            t-on-click="() => this.toggleAll(true)">
+                        <i class="fa fa-check-square-o"/> Show All
+                    </button>
+                    <button class="btn btn-sm btn-light"
+                            t-on-click="() => this.toggleAll(false)">
+                        <i class="fa fa-square-o"/> Hide All
+                    </button>
+                    <button class="btn btn-sm btn-warning"
+                            t-on-click="resetToDefault">
+                        <i class="fa fa-refresh"/> Reset
+                    </button>
+                </div>
+
+                <!-- Column List -->
+                <div class="o_filter_columns">
+                    <t t-foreach="filteredColumns" t-as="column" t-key="column.name">
+                        <div class="o_column_item">
+                            <!-- Checkbox -->
+                            <div class="form-check">
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       t-att-id="'col_' + column.name"
+                                       t-att-checked="column.visible"
+                                       t-on-change="() => this.toggleColumn(column)"/>
+                                <label class="form-check-label"
+                                       t-att-for="'col_' + column.name">
+                                    <t t-esc="column.label"/>
+                                </label>
+                            </div>
+
+                            <!-- Reorder Buttons -->
+                            <div class="o_column_reorder">
+                                <button class="btn btn-sm btn-link"
+                                        t-on-click="() => this.moveColumnUp(column_index)"
+                                        t-att-disabled="column_index === 0"
+                                        title="Move Up">
+                                    <i class="fa fa-chevron-up"/>
+                                </button>
+                                <button class="btn btn-sm btn-link"
+                                        t-on-click="() => this.moveColumnDown(column_index)"
+                                        t-att-disabled="column_index === filteredColumns.length - 1"
+                                        title="Move Down">
+                                    <i class="fa fa-chevron-down"/>
+                                </button>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+
+                <!-- Footer -->
+                <div class="o_filter_footer">
+                    <small class="text-muted">
+                        <t t-esc="state.columns.filter(c => c.visible).length"/> of
+                        <t t-esc="state.columns.length"/> columns visible
+                    </small>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

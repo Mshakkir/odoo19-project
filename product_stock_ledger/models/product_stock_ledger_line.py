@@ -132,8 +132,13 @@ class ProductStockLedgerLine(models.Model):
 
     def _get_warehouse_from_picking_type(self, picking_type):
         """Get warehouse from picking type"""
-        if picking_type and hasattr(picking_type, 'warehouse_id') and picking_type.warehouse_id:
+        if not picking_type:
+            return False
+
+        # Check if warehouse_id exists and is set
+        if picking_type.warehouse_id:
             return picking_type.warehouse_id
+
         return False
 
     @api.model
@@ -173,18 +178,18 @@ class ProductStockLedgerLine(models.Model):
             # ===== IMPROVED WAREHOUSE DETECTION =====
             move_warehouse = False
 
-            # Method 1: From picking_type_id (Most reliable for Odoo 19)
-            if mv.picking_type_id:
-                move_warehouse = self._get_warehouse_from_picking_type(mv.picking_type_id)
+            # Method 1: From picking_type_id (Most reliable - shown in your screenshot)
+            if mv.picking_type_id and mv.picking_type_id.warehouse_id:
+                move_warehouse = mv.picking_type_id.warehouse_id
 
-            # Method 2: From picking_id
-            if not move_warehouse and mv.picking_id:
-                if mv.picking_id.picking_type_id:
-                    move_warehouse = self._get_warehouse_from_picking_type(mv.picking_id.picking_type_id)
+            # Method 2: From picking_id's picking_type_id
+            if not move_warehouse and mv.picking_id and mv.picking_id.picking_type_id:
+                if mv.picking_id.picking_type_id.warehouse_id:
+                    move_warehouse = mv.picking_id.picking_type_id.warehouse_id
 
-            # Method 3: From warehouse_id field on picking
-            if not move_warehouse and mv.picking_id and hasattr(mv.picking_id, 'warehouse_id'):
-                move_warehouse = mv.picking_id.warehouse_id
+            # Method 3: From warehouse_id field on move (if exists)
+            if not move_warehouse and hasattr(mv, 'warehouse_id') and mv.warehouse_id:
+                move_warehouse = mv.warehouse_id
 
             # Method 4: From locations (destination first for incoming, source for outgoing)
             if not move_warehouse:
@@ -314,8 +319,6 @@ class ProductStockLedgerLine(models.Model):
     def action_refresh_ledger(self):
         """Refresh ledger data"""
         return self.action_generate_all()
-
-
 
 
 

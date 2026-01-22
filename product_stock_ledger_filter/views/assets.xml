@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="assets_backend" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/product_stock_ledger_filter/static/src/js/column_filter_component.js"/>
+                <script type="text/javascript" src="/product_stock_ledger_filter/static/src/js/list_controller_patch.js"/>
+                <link rel="stylesheet" href="/product_stock_ledger_filter/static/src/css/column_filter_styles.css"/>
+            </xpath>
+        </template>
+    </data>
+</odoo>

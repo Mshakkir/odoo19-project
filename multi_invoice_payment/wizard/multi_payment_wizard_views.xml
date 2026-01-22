@@ -81,23 +81,23 @@
                                     style="border: none; background: none; padding: 0; cursor: pointer; text-decoration: underline;">
                                 <field name="total_invoiced_amount" widget="monetary"
                                        options="{'currency_field': 'currency_id'}" nolabel="1"
-                                       style="font-weight: bold; color: inherit;"/>
+                                      />
                             </button>
                         </div>
                         <div>
-                            <span>Total Amount Received = </span>
+                            <span>Total Received = </span>
                             <button name="action_view_customer_payments" type="object"
                                     style="border: none; background: none; padding: 0; cursor: pointer; text-decoration: underline;">
                                 <field name="total_amount_received" widget="monetary"
                                        options="{'currency_field': 'currency_id'}" nolabel="1"
-                                       style="font-weight: bold; color: inherit;"/>
+                                       />
                             </button>
                         </div>
                         <div>
                             <span>Balance Due = </span>
                             <field name="total_balance_due" widget="monetary"
                                    options="{'currency_field': 'currency_id'}" nolabel="1"
-                                   style="font-weight: bold; color: inherit;"/>
+                                  />
                         </div>
                     </div>
 

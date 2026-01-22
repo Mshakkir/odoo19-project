@@ -87,14 +87,6 @@ patch(ListController.prototype, {
                             <input type="text" class="form-control filter_input" id="filter_voucher_${timestamp}" placeholder="Voucher..." />
                         </div>
 
-                        <!-- Particulars Filter -->
-                        <div class="filter_group">
-                            <label>Particulars</label>
-                            <select class="form-control filter_select" id="filter_particulars_${timestamp}">
-                                <option value="">All Particulars</option>
-                            </select>
-                        </div>
-
                         <!-- Type Filter -->
                         <div class="filter_group">
                             <label>Type</label>
@@ -174,6 +166,13 @@ patch(ListController.prototype, {
 
         if (!applyBtn || !clearBtn) return;
 
+        // Trigger clear on ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                clearBtn.click();
+            }
+        });
+
         // Apply filter
         applyBtn.addEventListener('click', () => {
             const domain = [];
@@ -210,11 +209,6 @@ patch(ListController.prototype, {
                 domain.push(['voucher', 'ilike', voucherInput.value.trim()]);
             }
 
-            // Particulars filter
-            if (particularsSelect.value) {
-                domain.push(['particulars', '=', particularsSelect.value]);
-            }
-
             // Type filter
             if (typeSelect.value) {
                 domain.push(['type', '=', typeSelect.value]);
@@ -239,7 +233,6 @@ patch(ListController.prototype, {
             productInput.value = '';
             warehouseSelect.value = '';
             voucherInput.value = '';
-            particularsSelect.value = '';
             typeSelect.value = '';
             invoiceStatusSelect.value = '';
 
@@ -258,7 +251,7 @@ patch(ListController.prototype, {
         });
 
         // Enter key to apply
-        const allInputs = [productInput, warehouseSelect, dateFromInput, dateToInput, voucherInput, particularsSelect, typeSelect, invoiceStatusSelect];
+        const allInputs = [productInput, warehouseSelect, dateFromInput, dateToInput, voucherInput, typeSelect, invoiceStatusSelect];
         allInputs.forEach(input => {
             if (input) {
                 input.addEventListener('keypress', (e) => {

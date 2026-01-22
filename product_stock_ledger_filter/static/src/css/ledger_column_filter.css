@@ -34,6 +34,8 @@
     font-weight: 500;
     color: #495057;
     margin: 0;
+    display: block;
+    white-space: nowrap;
 }
 
 .filter_input,

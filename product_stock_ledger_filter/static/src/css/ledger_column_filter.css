@@ -1,6 +1,6 @@
-/* Product Stock Ledger - Column Filter Styles */
+/* Product Stock Ledger - Filter Bar Styles */
 
-.ledger_column_filter_bar {
+.ledger_filter_bar {
     width: 100%;
     background-color: #f8f9fa;
     border-bottom: 2px solid #e9ecef;
@@ -14,314 +14,192 @@
     max-width: 100%;
 }
 
-.ledger_filter_content {
+.filter_row {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     gap: 12px;
     flex-wrap: wrap;
+    width: 100%;
 }
 
-.ledger_filter_btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    font-size: 13px;
-    font-weight: 500;
-    white-space: nowrap;
-    background-color: #ffffff;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.ledger_filter_btn:hover {
-    background-color: #e9ecef;
-    border-color: #adb5bd;
-}
-
-.ledger_filter_info {
-    font-size: 12px;
-    color: #6c757d;
-    margin: 0;
-    font-weight: 500;
-}
-
-/* Dropdown Panel */
-.ledger_filter_dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 16px;
-    width: 340px;
-    max-height: 500px;
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    z-index: 1050;
+.filter_group {
     display: flex;
     flex-direction: column;
+    gap: 4px;
+    min-width: 120px;
 }
 
-/* Header */
-.ledger_filter_header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px;
-    border-bottom: 1px solid #dee2e6;
-    background: #f8f9fa;
-    border-radius: 6px 6px 0 0;
-}
-
-.ledger_filter_header h6 {
+.filter_group label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #495057;
     margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: #212529;
 }
 
-.btn-close {
-    padding: 0;
-    background: none;
-    border: none;
-    cursor: pointer;
-    opacity: 0.6;
-    font-size: 20px;
-    line-height: 1;
-    color: #000;
-}
-
-.btn-close:hover {
-    opacity: 1;
-}
-
-/* Search Box */
-.ledger_filter_search {
-    padding: 12px 16px;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.ledger_filter_search input {
+.filter_input,
+.filter_select,
+.filter_date {
     width: 100%;
-    padding: 6px 12px;
+    padding: 6px 8px;
     border: 1px solid #ced4da;
     border-radius: 4px;
     font-size: 12px;
+    background-color: #ffffff;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-.ledger_filter_search input:focus {
+.filter_input:focus,
+.filter_select:focus,
+.filter_date:focus {
     border-color: #80bdff;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-/* Action Buttons */
-.ledger_filter_actions {
-    display: flex;
-    gap: 8px;
-    padding: 12px 16px;
-    border-bottom: 1px solid #dee2e6;
-    background: #f8f9fa;
-    flex-wrap: wrap;
+.filter_input::placeholder {
+    color: #adb5bd;
 }
 
-.ledger_filter_actions .btn {
+/* Date Group */
+.date_group {
+    min-width: 220px;
+}
+
+.date_inputs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.filter_date {
     flex: 1;
-    min-width: 80px;
+    margin: 0;
+}
+
+.date_sep {
+    font-size: 13px;
+    color: #6c757d;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+/* Action Buttons */
+.filter_actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.apply_btn,
+.clear_btn {
+    padding: 6px 16px;
     font-size: 12px;
-    padding: 6px 8px;
+    font-weight: 500;
+    white-space: nowrap;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    background-color: #ffffff;
-    border: 1px solid #dee2e6;
     transition: all 0.2s;
 }
 
-.ledger_filter_actions .btn:hover {
-    background-color: #e9ecef;
+.apply_btn {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
 }
 
-.ledger_filter_actions .btn-light {
-    background-color: #ffffff;
-    color: #212529;
+.apply_btn:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
 }
 
-.ledger_filter_actions .btn-warning {
-    background-color: #ffc107;
-    color: #000;
-    border-color: #ffc107;
+.clear_btn {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
 }
 
-.ledger_filter_actions .btn-warning:hover {
-    background-color: #e0a800;
-    border-color: #d39e00;
-}
-
-/* Column List */
-.ledger_filter_columns {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px 0;
-    max-height: 350px;
-}
-
-.ledger_column_item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 16px;
-    border-bottom: 1px solid #f0f0f0;
-    transition: background-color 0.2s;
-}
-
-.ledger_column_item:hover {
-    background-color: #f8f9fa;
-}
-
-.ledger_column_item:last-child {
-    border-bottom: none;
-}
-
-.column_checkbox {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0;
-}
-
-.column_checkbox input[type="checkbox"] {
-    cursor: pointer;
-    margin: 0;
-    width: 16px;
-    height: 16px;
-}
-
-.column_checkbox label {
-    font-size: 13px;
-    color: #495057;
-    cursor: pointer;
-    user-select: none;
-    margin: 0;
-}
-
-/* Column Actions */
-.column_actions {
-    display: flex;
-    gap: 4px;
-    margin-left: 8px;
-}
-
-.column_actions button {
-    padding: 4px 6px;
-    border: none;
-    background: none;
-    cursor: pointer;
-    color: #6c757d;
-    font-size: 13px;
-    transition: color 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.column_actions button:hover:not(:disabled) {
-    color: #0d6efd;
-}
-
-.column_actions button:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-}
-
-/* Footer */
-.ledger_filter_footer {
-    padding: 12px 16px;
-    border-top: 1px solid #dee2e6;
-    background: #f8f9fa;
-    text-align: center;
-    border-radius: 0 0 6px 6px;
-    font-size: 12px;
-    color: #6c757d;
-}
-
-/* Scrollbar Styling */
-.ledger_filter_columns::-webkit-scrollbar {
-    width: 6px;
-}
-
-.ledger_filter_columns::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.ledger_filter_columns::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 3px;
-}
-
-.ledger_filter_columns::-webkit-scrollbar-thumb:hover {
-    background: #555;
+.clear_btn:hover {
+    background-color: #5c636a;
+    border-color: #565e64;
 }
 
 /* Responsive Design */
-@media (max-width: 1024px) {
-    .ledger_filter_container {
-        padding: 0 12px;
+@media (max-width: 1600px) {
+    .filter_group {
+        min-width: 110px;
     }
 
-    .ledger_filter_dropdown {
-        width: 300px;
-        left: 12px;
+    .date_group {
+        min-width: 200px;
     }
 
-    .ledger_filter_content {
+    .filter_row {
         gap: 10px;
     }
 }
 
+@media (max-width: 1200px) {
+    .filter_row {
+        flex-wrap: wrap;
+    }
+
+    .filter_actions {
+        flex-basis: 100%;
+        margin-left: 0;
+    }
+
+    .filter_group {
+        flex: 1;
+        min-width: 100px;
+    }
+
+    .date_group {
+        flex: 1;
+        min-width: 150px;
+    }
+}
+
 @media (max-width: 768px) {
-    .ledger_column_filter_bar {
+    .ledger_filter_bar {
         padding: 10px 0;
     }
 
     .ledger_filter_container {
-        padding: 0 8px;
+        padding: 0 12px;
     }
 
-    .ledger_filter_dropdown {
-        width: 90vw;
-        left: 5vw;
-        max-height: 400px;
-    }
-
-    .ledger_filter_content {
+    .filter_row {
         flex-direction: column;
         align-items: stretch;
-        gap: 8px;
+        gap: 10px;
     }
 
-    .ledger_filter_btn {
+    .filter_group {
         width: 100%;
-        justify-content: center;
+        min-width: 100%;
     }
 
-    .ledger_filter_info {
-        text-align: center;
+    .filter_actions {
+        flex-direction: row;
+        gap: 8px;
+        width: 100%;
+        margin-left: 0;
     }
 
-    .ledger_filter_columns {
-        max-height: 250px;
+    .apply_btn,
+    .clear_btn {
+        flex: 1;
     }
 
-    .ledger_filter_actions .btn {
-        min-width: 70px;
-        font-size: 11px;
+    .date_inputs {
+        width: 100%;
     }
 
-    .column_checkbox label {
-        font-size: 12px;
+    .filter_date {
+        width: 100%;
     }
 }

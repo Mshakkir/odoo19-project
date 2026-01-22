@@ -8,13 +8,12 @@ patch(ListController.prototype, {
     setup() {
         super.setup(...arguments);
 
+        this.notification = useService("notification");
         this._ledgerFilterElement = null;
-        this._ledgerFilterColumns = [];
-        this._ledgerFilterStorage = null;
 
         onMounted(() => {
             if (this.shouldShowLedgerFilter()) {
-                setTimeout(() => this.injectLedgerColumnFilter(), 200);
+                setTimeout(() => this.injectLedgerFilterBar(), 200);
             }
         });
 
@@ -35,117 +34,93 @@ patch(ListController.prototype, {
         }
     },
 
-    loadLedgerColumnPreferences() {
-        const defaultColumns = [
-            { name: 'product_id', label: 'Product', visible: true, order: 1 },
-            { name: 'warehouse_id', label: 'Warehouse', visible: true, order: 2 },
-            { name: 'date', label: 'Date', visible: true, order: 3 },
-            { name: 'voucher', label: 'Voucher', visible: true, order: 4 },
-            { name: 'particulars', label: 'Particulars', visible: true, order: 5 },
-            { name: 'type', label: 'Type', visible: true, order: 6 },
-            { name: 'rec_qty', label: 'Rec. Qty', visible: true, order: 7 },
-            { name: 'rec_rate', label: 'Rec. Rate', visible: true, order: 8 },
-            { name: 'issue_qty', label: 'Issue Qty', visible: true, order: 9 },
-            { name: 'issue_rate', label: 'Issue Rate', visible: true, order: 10 },
-            { name: 'balance', label: 'Balance', visible: true, order: 11 },
-            { name: 'uom', label: 'Unit', visible: true, order: 12 },
-            { name: 'invoice_status', label: 'Invoice Status', visible: true, order: 13 },
-        ];
-
-        const saved = localStorage.getItem('ledger_column_preferences');
-        if (saved) {
-            try {
-                this._ledgerFilterColumns = JSON.parse(saved);
-            } catch (e) {
-                this._ledgerFilterColumns = defaultColumns;
-            }
-        } else {
-            this._ledgerFilterColumns = defaultColumns;
-        }
-
-        return this._ledgerFilterColumns.sort((a, b) => a.order - b.order);
-    },
-
-    saveLedgerColumnPreferences() {
-        localStorage.setItem('ledger_column_preferences', JSON.stringify(this._ledgerFilterColumns));
-    },
-
-    injectLedgerColumnFilter() {
+    injectLedgerFilterBar() {
         this.cleanupLedgerFilter();
 
         const listTable = document.querySelector('.o_list_table');
         if (!listTable) {
-            setTimeout(() => this.injectLedgerColumnFilter(), 100);
+            setTimeout(() => this.injectLedgerFilterBar(), 100);
             return;
         }
 
-        if (document.querySelector('.ledger_column_filter_bar')) {
+        if (document.querySelector('.ledger_filter_bar')) {
             return;
         }
-
-        this.loadLedgerColumnPreferences();
 
         const timestamp = Date.now();
-        const filterId = `ledger_filter_${timestamp}`;
-        const dropdownId = `ledger_filter_dropdown_${timestamp}`;
-        const searchId = `ledger_filter_search_${timestamp}`;
-
-        const columnItems = this._ledgerFilterColumns.map((col, idx) => `
-            <div class="ledger_column_item" data-column="${col.name}" data-index="${idx}">
-                <div class="column_checkbox">
-                    <input type="checkbox" class="column_toggle" ${col.visible ? 'checked' : ''} />
-                    <label>${col.label}</label>
-                </div>
-                <div class="column_actions">
-                    <button class="btn-move-up" title="Move Up" ${idx === 0 ? 'disabled' : ''}><i class="fa fa-chevron-up"></i></button>
-                    <button class="btn-move-down" title="Move Down" ${idx === this._ledgerFilterColumns.length - 1 ? 'disabled' : ''}><i class="fa fa-chevron-down"></i></button>
-                </div>
-            </div>
-        `).join('');
-
-        const visibleCount = this._ledgerFilterColumns.filter(c => c.visible).length;
+        const today = new Date();
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        const dateFrom = firstDay.toISOString().split('T')[0];
+        const dateTo = today.toISOString().split('T')[0];
 
         const filterHTML = `
-            <div class="ledger_column_filter_bar">
+            <div class="ledger_filter_bar">
                 <div class="ledger_filter_container">
-                    <div class="ledger_filter_content">
-                        <button class="btn btn-sm btn-light ledger_filter_btn" id="${filterId}" title="Show/Hide Columns">
-                            <i class="fa fa-columns"></i> Columns
-                        </button>
+                    <div class="filter_row">
+                        <!-- Product Filter -->
+                        <div class="filter_group">
+                            <label>Product</label>
+                            <input type="text" class="form-control filter_input" id="filter_product_${timestamp}" placeholder="Product..." />
+                        </div>
 
-                        <span class="ledger_filter_info">
-                            ${visibleCount}/${this._ledgerFilterColumns.length} columns visible
-                        </span>
+                        <!-- Warehouse Filter -->
+                        <div class="filter_group">
+                            <label>Warehouse</label>
+                            <select class="form-control filter_select" id="filter_warehouse_${timestamp}">
+                                <option value="">All Warehouses</option>
+                            </select>
+                        </div>
 
-                        <div class="ledger_filter_dropdown" id="${dropdownId}" style="display: none;">
-                            <div class="ledger_filter_header">
-                                <h6>Column Visibility &amp; Order</h6>
-                                <button class="btn-close" id="filter_close_${timestamp}" type="button"></button>
+                        <!-- Date Range Filter -->
+                        <div class="filter_group date_group">
+                            <label>Date</label>
+                            <div class="date_inputs">
+                                <input type="date" class="form-control filter_date" id="filter_date_from_${timestamp}" value="${dateFrom}" />
+                                <span class="date_sep">→</span>
+                                <input type="date" class="form-control filter_date" id="filter_date_to_${timestamp}" value="${dateTo}" />
                             </div>
+                        </div>
 
-                            <div class="ledger_filter_search">
-                                <input type="text" class="form-control form-control-sm" id="${searchId}" placeholder="Search columns..." />
-                            </div>
+                        <!-- Voucher Filter -->
+                        <div class="filter_group">
+                            <label>Voucher</label>
+                            <input type="text" class="form-control filter_input" id="filter_voucher_${timestamp}" placeholder="Voucher..." />
+                        </div>
 
-                            <div class="ledger_filter_actions">
-                                <button class="btn btn-sm btn-light" id="show_all_${timestamp}">
-                                    <i class="fa fa-check-square-o"></i> Show All
-                                </button>
-                                <button class="btn btn-sm btn-light" id="hide_all_${timestamp}">
-                                    <i class="fa fa-square-o"></i> Hide All
-                                </button>
-                                <button class="btn btn-sm btn-warning" id="reset_${timestamp}">
-                                    <i class="fa fa-refresh"></i> Reset
-                                </button>
-                            </div>
+                        <!-- Particulars Filter -->
+                        <div class="filter_group">
+                            <label>Particulars</label>
+                            <select class="form-control filter_select" id="filter_particulars_${timestamp}">
+                                <option value="">All Particulars</option>
+                            </select>
+                        </div>
 
-                            <div class="ledger_filter_columns" id="columns_list_${timestamp}">
-                                ${columnItems}
-                            </div>
+                        <!-- Type Filter -->
+                        <div class="filter_group">
+                            <label>Type</label>
+                            <select class="form-control filter_select" id="filter_type_${timestamp}">
+                                <option value="">All Types</option>
+                                <option value="Receipts">Receipts</option>
+                                <option value="Delivery">Delivery</option>
+                                <option value="Internal Transfer">Internal Transfer</option>
+                            </select>
+                        </div>
 
-                            <div class="ledger_filter_footer">
-                                <small><span id="visible_count_${timestamp}">${visibleCount}</span> of ${this._ledgerFilterColumns.length} columns visible</small>
-                            </div>
+                        <!-- Invoice Status Filter -->
+                        <div class="filter_group">
+                            <label>Invoice Status</label>
+                            <select class="form-control filter_select" id="filter_invoice_status_${timestamp}">
+                                <option value="">All Status</option>
+                                <option value="Invoiced">Invoiced</option>
+                                <option value="Not Invoiced">Not Invoiced</option>
+                                <option value="To Invoice">To Invoice</option>
+                            </select>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="filter_actions">
+                            <button class="btn btn-primary apply_btn" id="apply_filter_${timestamp}">Apply</button>
+                            <button class="btn btn-secondary clear_btn" id="clear_filter_${timestamp}">Clear</button>
                         </div>
                     </div>
                 </div>
@@ -156,161 +131,146 @@ patch(ListController.prototype, {
         filterDiv.innerHTML = filterHTML;
 
         listTable.parentElement.insertBefore(filterDiv.firstElementChild, listTable);
-        this._ledgerFilterElement = document.querySelector('.ledger_column_filter_bar');
+        this._ledgerFilterElement = document.querySelector('.ledger_filter_bar');
 
-        this.attachLedgerFilterEvents(filterId, dropdownId, searchId, timestamp);
+        this.loadFilterOptions(timestamp);
+        this.attachFilterEvents(timestamp);
     },
 
-    attachLedgerFilterEvents(filterId, dropdownId, searchId, timestamp) {
-        const filterBtn = document.getElementById(filterId);
-        const dropdown = document.getElementById(dropdownId);
-        const closeBtn = document.getElementById(`filter_close_${timestamp}`);
-        const searchInput = document.getElementById(searchId);
-        const showAllBtn = document.getElementById(`show_all_${timestamp}`);
-        const hideAllBtn = document.getElementById(`hide_all_${timestamp}`);
-        const resetBtn = document.getElementById(`reset_${timestamp}`);
-        const columnsList = document.getElementById(`columns_list_${timestamp}`);
+    async loadFilterOptions(timestamp) {
+        try {
+            // Load warehouses
+            const warehouses = await this.orm.searchRead(
+                'stock.warehouse',
+                [],
+                ['id', 'name'],
+                { limit: 100 }
+            );
 
-        if (!filterBtn || !dropdown) return;
-
-        // Toggle dropdown
-        filterBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-        });
-
-        // Close dropdown
-        closeBtn.addEventListener('click', () => {
-            dropdown.style.display = 'none';
-        });
-
-        // Close on outside click
-        document.addEventListener('click', (e) => {
-            if (!filterBtn.contains(e.target) && !dropdown.contains(e.target)) {
-                dropdown.style.display = 'none';
-            }
-        });
-
-        // Search functionality
-        searchInput.addEventListener('input', (e) => {
-            const search = e.target.value.toLowerCase();
-            document.querySelectorAll('.ledger_column_item').forEach(item => {
-                const label = item.querySelector('label').textContent.toLowerCase();
-                item.style.display = label.includes(search) ? '' : 'none';
+            const warehouseSelect = document.getElementById(`filter_warehouse_${timestamp}`);
+            warehouses.forEach(wh => {
+                const option = document.createElement('option');
+                option.value = wh.id;
+                option.textContent = wh.name;
+                warehouseSelect.appendChild(option);
             });
-        });
 
-        // Show All
-        showAllBtn.addEventListener('click', () => {
-            this._ledgerFilterColumns.forEach(col => col.visible = true);
-            this.updateLedgerColumnUI(timestamp);
-            this.applyLedgerColumnFilter();
-        });
-
-        // Hide All
-        hideAllBtn.addEventListener('click', () => {
-            this._ledgerFilterColumns.forEach(col => col.visible = false);
-            this.updateLedgerColumnUI(timestamp);
-            this.applyLedgerColumnFilter();
-        });
-
-        // Reset
-        resetBtn.addEventListener('click', () => {
-            localStorage.removeItem('ledger_column_preferences');
-            this.loadLedgerColumnPreferences();
-            this.updateLedgerColumnUI(timestamp);
-            this.applyLedgerColumnFilter();
-        });
-
-        // Column toggle
-        columnsList.addEventListener('change', (e) => {
-            if (e.target.classList.contains('column_toggle')) {
-                const item = e.target.closest('.ledger_column_item');
-                const colName = item.getAttribute('data-column');
-                const col = this._ledgerFilterColumns.find(c => c.name === colName);
-                if (col) {
-                    col.visible = e.target.checked;
-                    this.saveLedgerColumnPreferences();
-                    this.updateLedgerColumnUI(timestamp);
-                    this.applyLedgerColumnFilter();
-                    this.updateFilterInfo();
-                }
-            }
-        });
-
-        // Move up/down
-        columnsList.addEventListener('click', (e) => {
-            const btn = e.target.closest('.btn-move-up, .btn-move-down');
-            if (!btn) return;
-
-            const item = e.target.closest('.ledger_column_item');
-            const currentIndex = parseInt(item.getAttribute('data-index'));
-
-            if (btn.classList.contains('btn-move-up') && currentIndex > 0) {
-                [this._ledgerFilterColumns[currentIndex], this._ledgerFilterColumns[currentIndex - 1]] =
-                    [this._ledgerFilterColumns[currentIndex - 1], this._ledgerFilterColumns[currentIndex]];
-
-                this._ledgerFilterColumns.forEach((col, idx) => col.order = idx + 1);
-                this.saveLedgerColumnPreferences();
-                this.injectLedgerColumnFilter();
-            } else if (btn.classList.contains('btn-move-down') && currentIndex < this._ledgerFilterColumns.length - 1) {
-                [this._ledgerFilterColumns[currentIndex], this._ledgerFilterColumns[currentIndex + 1]] =
-                    [this._ledgerFilterColumns[currentIndex + 1], this._ledgerFilterColumns[currentIndex]];
-
-                this._ledgerFilterColumns.forEach((col, idx) => col.order = idx + 1);
-                this.saveLedgerColumnPreferences();
-                this.injectLedgerColumnFilter();
-            }
-        });
-    },
-
-    updateLedgerColumnUI(timestamp) {
-        const visibleCount = this._ledgerFilterColumns.filter(c => c.visible).length;
-        const countSpan = document.getElementById(`visible_count_${timestamp}`);
-        if (countSpan) {
-            countSpan.textContent = visibleCount;
-        }
-
-        document.querySelectorAll('.ledger_column_item').forEach(item => {
-            const colName = item.getAttribute('data-column');
-            const col = this._ledgerFilterColumns.find(c => c.name === colName);
-            if (col) {
-                item.querySelector('.column_toggle').checked = col.visible;
-            }
-        });
-    },
-
-    updateFilterInfo() {
-        const filterInfo = document.querySelector('.ledger_filter_info');
-        if (filterInfo) {
-            const visibleCount = this._ledgerFilterColumns.filter(c => c.visible).length;
-            filterInfo.textContent = `${visibleCount}/${this._ledgerFilterColumns.length} columns visible`;
+        } catch (error) {
+            console.error('Error loading filter options:', error);
         }
     },
 
-    applyLedgerColumnFilter() {
-        setTimeout(() => {
-            const table = document.querySelector('.o_list_table');
-            if (!table) return;
+    attachFilterEvents(timestamp) {
+        const productInput = document.getElementById(`filter_product_${timestamp}`);
+        const warehouseSelect = document.getElementById(`filter_warehouse_${timestamp}`);
+        const dateFromInput = document.getElementById(`filter_date_from_${timestamp}`);
+        const dateToInput = document.getElementById(`filter_date_to_${timestamp}`);
+        const voucherInput = document.getElementById(`filter_voucher_${timestamp}`);
+        const particularsSelect = document.getElementById(`filter_particulars_${timestamp}`);
+        const typeSelect = document.getElementById(`filter_type_${timestamp}`);
+        const invoiceStatusSelect = document.getElementById(`filter_invoice_status_${timestamp}`);
+        const applyBtn = document.getElementById(`apply_filter_${timestamp}`);
+        const clearBtn = document.getElementById(`clear_filter_${timestamp}`);
 
-            const headers = table.querySelectorAll('thead th');
-            const rows = table.querySelectorAll('tbody tr');
+        if (!applyBtn || !clearBtn) return;
 
-            // Hide/show columns
-            this._ledgerFilterColumns.forEach((col, idx) => {
-                const colIndex = idx + 1; // +1 for checkbox column
+        // Apply filter
+        applyBtn.addEventListener('click', () => {
+            const domain = [];
 
-                if (headers[colIndex]) {
-                    headers[colIndex].style.display = col.visible ? '' : 'none';
+            // Product filter
+            if (productInput.value.trim()) {
+                domain.push(['product_id.name', 'ilike', productInput.value.trim()]);
+            }
+
+            // Warehouse filter
+            if (warehouseSelect.value) {
+                domain.push(['warehouse_id', '=', parseInt(warehouseSelect.value)]);
+            }
+
+            // Date range filter
+            const dateFrom = dateFromInput.value;
+            const dateTo = dateToInput.value;
+
+            if (dateFrom && dateTo) {
+                if (dateFrom > dateTo) {
+                    this.notification.add("Start date must be before end date", { type: "warning" });
+                    return;
                 }
+                domain.push(['date', '>=', dateFrom + ' 00:00:00']);
+                domain.push(['date', '<=', dateTo + ' 23:59:59']);
+            } else if (dateFrom) {
+                domain.push(['date', '>=', dateFrom + ' 00:00:00']);
+            } else if (dateTo) {
+                domain.push(['date', '<=', dateTo + ' 23:59:59']);
+            }
 
-                rows.forEach(row => {
-                    const cells = row.querySelectorAll('td');
-                    if (cells[colIndex]) {
-                        cells[colIndex].style.display = col.visible ? '' : 'none';
+            // Voucher filter
+            if (voucherInput.value.trim()) {
+                domain.push(['voucher', 'ilike', voucherInput.value.trim()]);
+            }
+
+            // Particulars filter
+            if (particularsSelect.value) {
+                domain.push(['particulars', '=', particularsSelect.value]);
+            }
+
+            // Type filter
+            if (typeSelect.value) {
+                domain.push(['type', '=', typeSelect.value]);
+            }
+
+            // Invoice status filter
+            if (invoiceStatusSelect.value) {
+                domain.push(['invoice_status', '=', invoiceStatusSelect.value]);
+            }
+
+            // Apply domain
+            if (this.model && this.model.load) {
+                this.model.load({ domain: domain }).catch((error) => {
+                    console.warn('Model load warning:', error);
+                });
+                this.notification.add("Filters applied successfully", { type: "success" });
+            }
+        });
+
+        // Clear filter
+        clearBtn.addEventListener('click', () => {
+            productInput.value = '';
+            warehouseSelect.value = '';
+            voucherInput.value = '';
+            particularsSelect.value = '';
+            typeSelect.value = '';
+            invoiceStatusSelect.value = '';
+
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            dateFromInput.value = firstDay.toISOString().split('T')[0];
+            dateToInput.value = today.toISOString().split('T')[0];
+
+            // Reset to default domain
+            if (this.model && this.model.load) {
+                this.model.load({ domain: [] }).catch((error) => {
+                    console.warn('Model load warning:', error);
+                });
+                this.notification.add("Filters cleared", { type: "info" });
+            }
+        });
+
+        // Enter key to apply
+        const allInputs = [productInput, warehouseSelect, dateFromInput, dateToInput, voucherInput, particularsSelect, typeSelect, invoiceStatusSelect];
+        allInputs.forEach(input => {
+            if (input) {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        applyBtn.click();
                     }
                 });
-            });
-        }, 100);
+            }
+        });
     },
 });
+
+// Import useService
+import { useService } from "@web/core/utils/hooks";

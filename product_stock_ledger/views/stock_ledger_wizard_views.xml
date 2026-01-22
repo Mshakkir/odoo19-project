@@ -1,16 +1,11 @@
 <!-- product_stock_ledger/views/stock_ledger_wizard_views.xml -->
 <odoo>
-    <!-- Ledger Line List View with Generate Button -->
+    <!-- Ledger Line List View -->
     <record id="view_ledger_line_list" model="ir.ui.view">
         <field name="name">product.stock.ledger.line.list</field>
         <field name="model">product.stock.ledger.line</field>
         <field name="arch" type="xml">
             <list string="Product Stock Ledger" create="false" edit="false" delete="false">
-                <!-- Action Button at top -->
-                <header>
-                    <button name="action_generate_all" type="object" string="Generate Ledger Data" class="btn-primary"/>
-                </header>
-
                 <field name="product_id" string="Product"/>
                 <field name="warehouse_id" string="Warehouse"/>
                 <field name="date" string="Date"/>
@@ -120,32 +115,42 @@
         </field>
     </record>
 
-    <!-- Action to open Ledger Lines -->
-    <record id="action_product_stock_ledger_lines" model="ir.actions.act_window">
-        <field name="name">Product Stock Ledger</field>
-        <field name="res_model">product.stock.ledger.line</field>
-        <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="view_ledger_line_search"/>
-        <field name="target">current</field>
-        <field name="context">{
-            'create': False,
-            'edit': False,
-            'delete': False,
-        }</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                No Stock Ledger Data Available
-            </p>
-            <p>
-                Click the "Generate Ledger Data" button above to load stock movement data.
-            </p>
+    <!-- Server Action to Auto-Generate Data -->
+    <record id="action_auto_generate_ledger" model="ir.actions.server">
+        <field name="name">Auto Generate Stock Ledger</field>
+        <field name="model_id" ref="model_product_stock_ledger_line"/>
+        <field name="state">code</field>
+        <field name="code">
+# Check if data already exists
+existing_records = model.search([], limit=1)
+
+# Only generate if table is empty
+if not existing_records:
+    model.generate_ledger()
+
+# Return action to open the list view
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Product Stock Ledger',
+    'res_model': 'product.stock.ledger.line',
+    'view_mode': 'list,form',
+    'views': [(env.ref('product_stock_ledger.view_ledger_line_list').id, 'list'),
+              (env.ref('product_stock_ledger.view_ledger_line_form').id, 'form')],
+    'search_view_id': env.ref('product_stock_ledger.view_ledger_line_search').id,
+    'target': 'current',
+    'context': {
+        'create': False,
+        'edit': False,
+        'delete': False,
+    },
+}
         </field>
     </record>
 
-    <!-- Menu Item under Inventory -->
+    <!-- Menu Item - Uses Server Action -->
     <menuitem id="menu_product_stock_ledger"
               name="Product Stock Ledger"
               parent="stock.menu_stock_root"
-              action="action_product_stock_ledger_lines"
+              action="action_auto_generate_ledger"
               sequence="60"/>
 </odoo>

@@ -105,6 +105,26 @@ class ProductStockLedgerLine(models.Model):
 
         return status
 
+    def _get_warehouse_from_location(self, location):
+        """Get warehouse from location"""
+        if not location:
+            return False
+
+        # Try to find warehouse from location's warehouse_id
+        if hasattr(location, 'warehouse_id') and location.warehouse_id:
+            return location.warehouse_id
+
+        # Search for warehouse that contains this location
+        warehouses = self.env['stock.warehouse'].search([])
+        for wh in warehouses:
+            if wh.view_location_id:
+                wh_locations = self.env['stock.location'].search([
+                    ('id', 'child_of', wh.view_location_id.id)
+                ])
+                if location.id in wh_locations.ids:
+                    return wh
+        return False
+
     @api.model
     def generate_ledger(self, product_id=None, warehouse_id=None, date_from=None, date_to=None):
         """Generate stock ledger lines based on filters"""
@@ -139,8 +159,26 @@ class ProductStockLedgerLine(models.Model):
         for mv in moves:
             qty = mv.product_uom_qty or 0.0
 
+            # Determine warehouse for this move
+            move_warehouse = False
+            if warehouse_id:
+                move_warehouse = wh
+            else:
+                # Try to get warehouse from picking
+                if mv.picking_id and mv.picking_id.location_id:
+                    move_warehouse = self._get_warehouse_from_location(mv.picking_id.location_id)
+                if not move_warehouse and mv.picking_id and mv.picking_id.location_dest_id:
+                    move_warehouse = self._get_warehouse_from_location(mv.picking_id.location_dest_id)
+                # Fallback: try from move locations
+                if not move_warehouse:
+                    move_warehouse = self._get_warehouse_from_location(mv.location_dest_id)
+                if not move_warehouse:
+                    move_warehouse = self._get_warehouse_from_location(mv.location_id)
+
+            move_warehouse_id = move_warehouse.id if move_warehouse else False
+
             # Create unique key for product-warehouse
-            key = (mv.product_id.id, warehouse_id if warehouse_id else False)
+            key = (mv.product_id.id, move_warehouse_id)
             if key not in balances:
                 balances[key] = 0.0
 
@@ -205,7 +243,7 @@ class ProductStockLedgerLine(models.Model):
             # Prepare line data
             lines_to_create.append({
                 'product_id': mv.product_id.id,
-                'warehouse_id': warehouse_id if warehouse_id else False,
+                'warehouse_id': move_warehouse_id,  # ✅ Now properly set
                 'date': mv.date,
                 'voucher': mv.reference or mv.name or '',
                 'particulars': particulars,

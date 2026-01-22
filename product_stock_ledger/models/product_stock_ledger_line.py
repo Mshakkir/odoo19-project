@@ -132,9 +132,17 @@ class ProductStockLedgerLine(models.Model):
         # Clear existing lines
         self.search([]).unlink()
 
-        running = 0.0
+        # Track balance per product-warehouse combination
+        balances = {}
+
+        lines_to_create = []
         for mv in moves:
             qty = mv.product_uom_qty or 0.0
+
+            # Create unique key for product-warehouse
+            key = (mv.product_id.id, warehouse_id if warehouse_id else False)
+            if key not in balances:
+                balances[key] = 0.0
 
             # Determine move type
             if warehouse_id and wh and wh.view_location_id:
@@ -180,9 +188,9 @@ class ProductStockLedgerLine(models.Model):
             issue_qty = qty if move_type == 'outgoing' else 0.0
 
             if move_type == 'incoming':
-                running += rec_qty
+                balances[key] += rec_qty
             elif move_type == 'outgoing':
-                running -= issue_qty
+                balances[key] -= issue_qty
 
             # Partner info
             partner_name = (
@@ -194,8 +202,8 @@ class ProductStockLedgerLine(models.Model):
             # Get invoice status
             invoice_status = self._get_invoice_status(mv)
 
-            # Create line
-            self.create({
+            # Prepare line data
+            lines_to_create.append({
                 'product_id': mv.product_id.id,
                 'warehouse_id': warehouse_id if warehouse_id else False,
                 'date': mv.date,
@@ -210,24 +218,17 @@ class ProductStockLedgerLine(models.Model):
                 'rec_rate': rate if rec_qty else 0.0,
                 'issue_qty': issue_qty,
                 'issue_rate': rate if issue_qty else 0.0,
-                'balance': running,
+                'balance': balances[key],
                 'uom': mv.product_uom.name if mv.product_uom else mv.product_id.uom_id.name,
                 'invoice_status': invoice_status,
             })
 
-    @api.model
-    def _auto_generate_on_open(self):
-        """Auto-generate ledger data when window is opened"""
-        # Check if table is empty
-        existing_records = self.search([], limit=1)
+        # Batch create all lines
+        self.create(lines_to_create)
+        return True
 
-        # If no records exist, generate them
-        if not existing_records:
-            self.generate_ledger()
-
-    @api.model
     def action_generate_all(self):
-        """Action to generate all ledger lines"""
+        """Action to generate all ledger lines - called from button"""
         self.generate_ledger()
         return {
             'type': 'ir.actions.client',
@@ -239,3 +240,7 @@ class ProductStockLedgerLine(models.Model):
                 'sticky': False,
             }
         }
+
+    def action_refresh_ledger(self):
+        """Refresh ledger data"""
+        return self.action_generate_all()

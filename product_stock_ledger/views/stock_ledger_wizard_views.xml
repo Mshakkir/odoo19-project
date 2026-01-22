@@ -1,22 +1,27 @@
 <!-- product_stock_ledger/views/stock_ledger_wizard_views.xml -->
 <odoo>
-    <!-- Ledger Line List View -->
+    <!-- Ledger Line List View with Generate Button -->
     <record id="view_ledger_line_list" model="ir.ui.view">
         <field name="name">product.stock.ledger.line.list</field>
         <field name="model">product.stock.ledger.line</field>
         <field name="arch" type="xml">
             <list string="Product Stock Ledger" create="false" edit="false" delete="false">
+                <!-- Action Button at top -->
+                <header>
+                    <button name="action_generate_all" type="object" string="Generate Ledger Data" class="btn-primary"/>
+                </header>
+
                 <field name="product_id" string="Product"/>
                 <field name="warehouse_id" string="Warehouse"/>
                 <field name="date" string="Date"/>
                 <field name="voucher" string="Voucher"/>
                 <field name="particulars" string="Particulars"/>
                 <field name="type" string="Type"/>
-                <field name="rec_qty" string="Rec. Qty" widget="sum"/>
+                <field name="rec_qty" string="Rec. Qty" sum="Total Received"/>
                 <field name="rec_rate" string="Rec. Rate"/>
-                <field name="issue_qty" string="Issue Qty" widget="sum"/>
+                <field name="issue_qty" string="Issue Qty" sum="Total Issued"/>
                 <field name="issue_rate" string="Issue Rate"/>
-                <field name="balance" string="Balance" widget="sum"/>
+                <field name="balance" string="Balance"/>
                 <field name="uom" string="Unit"/>
                 <field name="invoice_status" string="Invoice Status"/>
             </list>
@@ -81,9 +86,13 @@
                 <separator/>
 
                 <!-- Date Filter -->
-                <filter name="filter_today" string="Today" domain="[('date', '>=', context_today().strftime('%Y-%m-%d')), ('date', '&lt;', (context_today() + relativedelta(days=1)).strftime('%Y-%m-%d'))]"/>
-                <filter name="filter_this_month" string="This Month" domain="[('date', '>=', context_today().replace(day=1).strftime('%Y-%m-%d')), ('date', '&lt;', (context_today().replace(day=1) + relativedelta(months=1)).strftime('%Y-%m-%d'))]"/>
-                <filter name="filter_this_year" string="This Year" domain="[('date', '>=', context_today().replace(month=1, day=1).strftime('%Y-%m-%d')), ('date', '&lt;', context_today().replace(month=1, day=1, year=context_today().year + 1).strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_today" string="Today"
+                        domain="[('date', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00')),
+                                 ('date', '&lt;=', context_today().strftime('%Y-%m-%d 23:59:59'))]"/>
+                <filter name="filter_this_week" string="This Week"
+                        domain="[('date', '&gt;=', (context_today() - relativedelta(weeks=1)).strftime('%Y-%m-%d 00:00:00'))]"/>
+                <filter name="filter_this_month" string="This Month"
+                        domain="[('date', '&gt;=', context_today().strftime('%Y-%m-01 00:00:00'))]"/>
 
                 <separator/>
 
@@ -104,14 +113,14 @@
                 <!-- Grouping Options -->
                 <filter name="group_by_product" string="Product" context="{'group_by': 'product_id'}"/>
                 <filter name="group_by_warehouse" string="Warehouse" context="{'group_by': 'warehouse_id'}"/>
-                <filter name="group_by_date" string="Date" context="{'group_by': 'date'}"/>
+                <filter name="group_by_date" string="Date" context="{'group_by': 'date:day'}"/>
                 <filter name="group_by_type" string="Type" context="{'group_by': 'type'}"/>
                 <filter name="group_by_invoice_status" string="Invoice Status" context="{'group_by': 'invoice_status'}"/>
             </search>
         </field>
     </record>
 
-    <!-- Action to open Ledger Lines with Generate Button -->
+    <!-- Action to open Ledger Lines -->
     <record id="action_product_stock_ledger_lines" model="ir.actions.act_window">
         <field name="name">Product Stock Ledger</field>
         <field name="res_model">product.stock.ledger.line</field>
@@ -123,24 +132,20 @@
             'edit': False,
             'delete': False,
         }</field>
-    </record>
-
-    <!-- Server Action to Generate Ledger -->
-    <record id="action_generate_stock_ledger" model="ir.actions.server">
-        <field name="name">Generate Stock Ledger</field>
-        <field name="model_id" ref="model_product_stock_ledger_line"/>
-        <field name="binding_model_id" ref="model_product_stock_ledger_line"/>
-        <field name="state">code</field>
-        <field name="code">
-            model.action_generate_all()
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No Stock Ledger Data Available
+            </p>
+            <p>
+                Click the "Generate Ledger Data" button above to load stock movement data.
+            </p>
         </field>
     </record>
 
-    <!-- Menu Item - Direct Window (No Wizard) -->
+    <!-- Menu Item under Inventory -->
     <menuitem id="menu_product_stock_ledger"
               name="Product Stock Ledger"
               parent="stock.menu_stock_root"
               action="action_product_stock_ledger_lines"
-              sequence="60"
-              />
+              sequence="60"/>
 </odoo>

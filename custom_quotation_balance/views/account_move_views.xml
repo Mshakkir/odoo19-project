@@ -13,7 +13,7 @@
                      invisible="move_type not in ['out_invoice', 'out_refund'] or not partner_id"
                      style="position: absolute;
                             top: 0px;
-                            right: 40px;
+                            right: 80px;
                             padding: 8px 15px;
                             text-align: right;
                             z-index: 1000;">

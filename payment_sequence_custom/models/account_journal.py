@@ -22,31 +22,33 @@ class AccountJournal(models.Model):
 class AccountPayment(models.Model):
     _inherit = 'account.payment'
 
-    def action_post(self):
-        """Override action_post to assign sequence from custom sequences"""
-        for payment in self:
-            journal = payment.journal_id
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Override create to assign sequence before payment is created"""
+        for vals in vals_list:
+            if 'journal_id' in vals and 'payment_type' in vals:
+                journal = self.env['account.journal'].browse(vals['journal_id'])
+                payment_type = vals['payment_type']
 
-            # Assign sequence before posting
-            if payment.payment_type == 'inbound' and journal.inbound_payment_sequence_id:
-                if not payment.name or payment.name == '/':
+                # Assign custom sequence for inbound payments
+                if payment_type == 'inbound' and journal.inbound_payment_sequence_id:
+                    vals['name'] = journal.inbound_payment_sequence_id.next_by_id()
+
+                # Assign custom sequence for outbound payments
+                elif payment_type == 'outbound' and journal.outbound_payment_sequence_id:
+                    vals['name'] = journal.outbound_payment_sequence_id.next_by_id()
+
+        return super().create(vals_list)
+
+    def action_post(self):
+        """Ensure sequence is set before posting"""
+        for payment in self:
+            if not payment.name or payment.name == '/':
+                journal = payment.journal_id
+
+                if payment.payment_type == 'inbound' and journal.inbound_payment_sequence_id:
                     payment.name = journal.inbound_payment_sequence_id.next_by_id()
-            elif payment.payment_type == 'outbound' and journal.outbound_payment_sequence_id:
-                if not payment.name or payment.name == '/':
+                elif payment.payment_type == 'outbound' and journal.outbound_payment_sequence_id:
                     payment.name = journal.outbound_payment_sequence_id.next_by_id()
 
         return super().action_post()
-
-    def _seek_for_lines(self):
-        """Override to ensure sequence is applied"""
-        for payment in self:
-            journal = payment.journal_id
-
-            if payment.payment_type == 'inbound' and journal.inbound_payment_sequence_id:
-                if not payment.name or payment.name == '/':
-                    payment.name = journal.inbound_payment_sequence_id.next_by_id()
-            elif payment.payment_type == 'outbound' and journal.outbound_payment_sequence_id:
-                if not payment.name or payment.name == '/':
-                    payment.name = journal.outbound_payment_sequence_id.next_by_id()
-
-        return super()._seek_for_lines()

@@ -6,61 +6,70 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add balance info at top right corner in clean format -->
-            <xpath expr="//form/sheet" position="before">
-                <div invisible="not partner_id"
+            <!-- Add balance info box at top right corner - Updated Position Only -->
+            <xpath expr="//form/sheet" position="inside">
+                <div class="customer_balance_box"
+                     invisible="not partner_id"
                      style="position: absolute;
-                            right: 20px;
-                            top: 10px;
+                            top: 0px;
+                            right: 0px;
+                            padding: 8px 15px;
                             text-align: right;
-                            font-size: 13px;
-                            line-height: 2;
                             z-index: 1000;">
-                    <div>
-                        <span>Total Invoiced = </span>
+
+                    <!-- Vertical layout format -->
+                    <div style="margin-bottom: 5px;">
+                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">Total Invoiced = </span>
                         <button name="action_view_customer_invoices"
                                 type="object"
-                                class="btn btn-link"
-                                style="padding: 0; font-weight: bold; text-decoration: none; color: inherit;"
+                                class="btn btn-link p-0"
+                                style="text-decoration: underline; font-size: 14px; font-weight: 600;"
                                 invisible="customer_total_invoiced == 0">
                             <field name="customer_total_invoiced"
                                    widget="monetary"
+                                   readonly="1"
                                    nolabel="1"
-                                   readonly="1"/>
+                                   style="color: #007bff;"/>
                         </button>
                         <field name="customer_total_invoiced"
                                widget="monetary"
-                               nolabel="1"
                                readonly="1"
                                invisible="customer_total_invoiced != 0"
-                               style="font-weight: bold; display: inline;"/>
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: inline;"/>
                     </div>
-                    <div>
-                        <span>Total Received = </span>
+
+                    <div style="margin-bottom: 5px;">
+                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">Amount Received = </span>
                         <button name="action_view_customer_payments"
                                 type="object"
-                                class="btn btn-link"
-                                style="padding: 0; font-weight: bold; text-decoration: none; color: inherit;"
+                                class="btn btn-link p-0"
+                                style="text-decoration: underline; font-size: 14px; font-weight: 600;"
                                 invisible="customer_total_paid == 0">
                             <field name="customer_total_paid"
                                    widget="monetary"
+                                   readonly="1"
+                                   decoration-success="customer_total_paid > 0"
                                    nolabel="1"
-                                   readonly="1"/>
+                                   style="color: #28a745;"/>
                         </button>
                         <field name="customer_total_paid"
                                widget="monetary"
-                               nolabel="1"
                                readonly="1"
                                invisible="customer_total_paid != 0"
-                               style="font-weight: bold; display: inline;"/>
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: inline;"/>
                     </div>
+
                     <div>
-                        <span>Balance Due = </span>
+                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">Balance Due = </span>
                         <field name="customer_balance_due"
                                widget="monetary"
-                               nolabel="1"
                                readonly="1"
-                               style="font-weight: bold; display: inline;"/>
+                               decoration-danger="customer_balance_due > 0"
+                               decoration-success="customer_balance_due == 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: inline;"/>
                     </div>
                 </div>
             </xpath>

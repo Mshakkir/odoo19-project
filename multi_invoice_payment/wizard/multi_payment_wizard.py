@@ -196,7 +196,16 @@ class MultiPaymentWizard(models.TransientModel):
         ], order='invoice_date asc, name asc')
 
         if not invoices:
-            raise UserError(_('No unpaid invoices found for this customer.'))
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Invoices'),
+                    'message': _('No unpaid invoices found for this customer.'),
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
 
         # Create invoice lines
         for invoice in invoices:
@@ -211,20 +220,18 @@ class MultiPaymentWizard(models.TransientModel):
                 'selected': False,
             })
 
-        # Return action to display all invoices for the selected customer
+        # Show success notification with count of loaded invoices
         return {
-            'name': _('Customer Invoices'),
-            'type': 'ir.actions.act_window',
-            'res_model': 'account.move',
-            'view_mode': 'form',
-            'domain': [
-                ('partner_id', '=', self.partner_id.id),
-                ('move_type', '=', 'out_invoice'),
-                ('state', '=', 'posted'),
-            ],
-            'context': {'default_partner_id': self.partner_id.id},
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Invoices Loaded'),
+                'message': _('%d unpaid invoice(s) loaded successfully. Check the "Invoices to Pay" tab below.') % len(
+                    invoices),
+                'type': 'success',
+                'sticky': False,
+            }
         }
-
     def action_create_payment(self):
         """Create payment and allocate to selected invoices"""
         self.ensure_one()

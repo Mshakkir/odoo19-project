@@ -1,35 +1,59 @@
 /* Product Stock Ledger - Column Filter Styles */
 
-.ledger_column_filter_wrapper {
+.ledger_column_filter_bar {
     width: 100%;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+    padding: 12px 0;
+    margin: 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.ledger_column_filter_container {
-    position: relative;
-    display: inline-block;
-    margin: 10px 16px;
+.ledger_filter_container {
+    padding: 0 16px;
+    max-width: 100%;
+}
+
+.ledger_filter_content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .ledger_filter_btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 12px;
+    padding: 6px 14px;
     font-size: 13px;
+    font-weight: 500;
     white-space: nowrap;
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
 .ledger_filter_btn:hover {
     background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.ledger_filter_info {
+    font-size: 12px;
+    color: #6c757d;
+    margin: 0;
+    font-weight: 500;
 }
 
 /* Dropdown Panel */
 .ledger_filter_dropdown {
     position: absolute;
-    top: 100%;
-    right: 0;
-    margin-top: 8px;
-    width: 320px;
+    top: calc(100% + 8px);
+    left: 16px;
+    width: 340px;
     max-height: 500px;
     background: white;
     border: 1px solid #dee2e6;
@@ -64,6 +88,9 @@
     border: none;
     cursor: pointer;
     opacity: 0.6;
+    font-size: 20px;
+    line-height: 1;
+    color: #000;
 }
 
 .btn-close:hover {
@@ -78,6 +105,16 @@
 
 .ledger_filter_search input {
     width: 100%;
+    padding: 6px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.ledger_filter_search input:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
 /* Action Buttons */
@@ -94,7 +131,33 @@
     flex: 1;
     min-width: 80px;
     font-size: 12px;
-    padding: 4px 8px;
+    padding: 6px 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    transition: all 0.2s;
+}
+
+.ledger_filter_actions .btn:hover {
+    background-color: #e9ecef;
+}
+
+.ledger_filter_actions .btn-light {
+    background-color: #ffffff;
+    color: #212529;
+}
+
+.ledger_filter_actions .btn-warning {
+    background-color: #ffc107;
+    color: #000;
+    border-color: #ffc107;
+}
+
+.ledger_filter_actions .btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
 }
 
 /* Column List */
@@ -133,6 +196,8 @@
 .column_checkbox input[type="checkbox"] {
     cursor: pointer;
     margin: 0;
+    width: 16px;
+    height: 16px;
 }
 
 .column_checkbox label {
@@ -147,6 +212,7 @@
 .column_actions {
     display: flex;
     gap: 4px;
+    margin-left: 8px;
 }
 
 .column_actions button {
@@ -155,8 +221,11 @@
     background: none;
     cursor: pointer;
     color: #6c757d;
-    font-size: 12px;
+    font-size: 13px;
     transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .column_actions button:hover:not(:disabled) {
@@ -176,6 +245,7 @@
     text-align: center;
     border-radius: 0 0 6px 6px;
     font-size: 12px;
+    color: #6c757d;
 }
 
 /* Scrollbar Styling */
@@ -197,26 +267,61 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
-    .ledger_column_filter_container {
-        margin: 10px 8px;
+@media (max-width: 1024px) {
+    .ledger_filter_container {
+        padding: 0 12px;
     }
 
     .ledger_filter_dropdown {
-        width: 280px;
+        width: 300px;
+        left: 12px;
+    }
+
+    .ledger_filter_content {
+        gap: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .ledger_column_filter_bar {
+        padding: 10px 0;
+    }
+
+    .ledger_filter_container {
+        padding: 0 8px;
+    }
+
+    .ledger_filter_dropdown {
+        width: 90vw;
+        left: 5vw;
         max-height: 400px;
     }
 
-    .ledger_column_item {
-        padding: 8px 12px;
+    .ledger_filter_content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .ledger_filter_btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .ledger_filter_info {
+        text-align: center;
     }
 
     .ledger_filter_columns {
-        max-height: 280px;
+        max-height: 250px;
     }
 
     .ledger_filter_actions .btn {
         min-width: 70px;
         font-size: 11px;
+    }
+
+    .column_checkbox label {
+        font-size: 12px;
     }
 }

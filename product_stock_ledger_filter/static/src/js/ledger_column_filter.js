@@ -79,7 +79,7 @@ patch(ListController.prototype, {
             return;
         }
 
-        if (document.querySelector('.ledger_column_filter_wrapper')) {
+        if (document.querySelector('.ledger_column_filter_bar')) {
             return;
         }
 
@@ -103,51 +103,60 @@ patch(ListController.prototype, {
             </div>
         `).join('');
 
+        const visibleCount = this._ledgerFilterColumns.filter(c => c.visible).length;
+
         const filterHTML = `
-            <div class="ledger_column_filter_container">
-                <button class="btn btn-sm btn-secondary ledger_filter_btn" id="${filterId}" title="Column Filter">
-                    <i class="fa fa-columns"></i> Columns
-                </button>
-
-                <div class="ledger_filter_dropdown" id="${dropdownId}" style="display: none;">
-                    <div class="ledger_filter_header">
-                        <h6>Column Visibility &amp; Order</h6>
-                        <button class="btn-close" id="filter_close_${timestamp}" type="button"></button>
-                    </div>
-
-                    <div class="ledger_filter_search">
-                        <input type="text" class="form-control form-control-sm" id="${searchId}" placeholder="Search columns..." />
-                    </div>
-
-                    <div class="ledger_filter_actions">
-                        <button class="btn btn-sm btn-light" id="show_all_${timestamp}">
-                            <i class="fa fa-check-square-o"></i> Show All
+            <div class="ledger_column_filter_bar">
+                <div class="ledger_filter_container">
+                    <div class="ledger_filter_content">
+                        <button class="btn btn-sm btn-light ledger_filter_btn" id="${filterId}" title="Show/Hide Columns">
+                            <i class="fa fa-columns"></i> Columns
                         </button>
-                        <button class="btn btn-sm btn-light" id="hide_all_${timestamp}">
-                            <i class="fa fa-square-o"></i> Hide All
-                        </button>
-                        <button class="btn btn-sm btn-warning" id="reset_${timestamp}">
-                            <i class="fa fa-refresh"></i> Reset
-                        </button>
-                    </div>
 
-                    <div class="ledger_filter_columns" id="columns_list_${timestamp}">
-                        ${columnItems}
-                    </div>
+                        <span class="ledger_filter_info">
+                            ${visibleCount}/${this._ledgerFilterColumns.length} columns visible
+                        </span>
 
-                    <div class="ledger_filter_footer">
-                        <small><span id="visible_count_${timestamp}">${this._ledgerFilterColumns.filter(c => c.visible).length}</span> of ${this._ledgerFilterColumns.length} columns visible</small>
+                        <div class="ledger_filter_dropdown" id="${dropdownId}" style="display: none;">
+                            <div class="ledger_filter_header">
+                                <h6>Column Visibility &amp; Order</h6>
+                                <button class="btn-close" id="filter_close_${timestamp}" type="button"></button>
+                            </div>
+
+                            <div class="ledger_filter_search">
+                                <input type="text" class="form-control form-control-sm" id="${searchId}" placeholder="Search columns..." />
+                            </div>
+
+                            <div class="ledger_filter_actions">
+                                <button class="btn btn-sm btn-light" id="show_all_${timestamp}">
+                                    <i class="fa fa-check-square-o"></i> Show All
+                                </button>
+                                <button class="btn btn-sm btn-light" id="hide_all_${timestamp}">
+                                    <i class="fa fa-square-o"></i> Hide All
+                                </button>
+                                <button class="btn btn-sm btn-warning" id="reset_${timestamp}">
+                                    <i class="fa fa-refresh"></i> Reset
+                                </button>
+                            </div>
+
+                            <div class="ledger_filter_columns" id="columns_list_${timestamp}">
+                                ${columnItems}
+                            </div>
+
+                            <div class="ledger_filter_footer">
+                                <small><span id="visible_count_${timestamp}">${visibleCount}</span> of ${this._ledgerFilterColumns.length} columns visible</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         `;
 
         const filterDiv = document.createElement('div');
-        filterDiv.className = 'ledger_column_filter_wrapper';
         filterDiv.innerHTML = filterHTML;
 
-        listTable.parentElement.insertBefore(filterDiv, listTable);
-        this._ledgerFilterElement = filterDiv;
+        listTable.parentElement.insertBefore(filterDiv.firstElementChild, listTable);
+        this._ledgerFilterElement = document.querySelector('.ledger_column_filter_bar');
 
         this.attachLedgerFilterEvents(filterId, dropdownId, searchId, timestamp);
     },
@@ -224,6 +233,7 @@ patch(ListController.prototype, {
                     this.saveLedgerColumnPreferences();
                     this.updateLedgerColumnUI(timestamp);
                     this.applyLedgerColumnFilter();
+                    this.updateFilterInfo();
                 }
             }
         });
@@ -268,6 +278,14 @@ patch(ListController.prototype, {
                 item.querySelector('.column_toggle').checked = col.visible;
             }
         });
+    },
+
+    updateFilterInfo() {
+        const filterInfo = document.querySelector('.ledger_filter_info');
+        if (filterInfo) {
+            const visibleCount = this._ledgerFilterColumns.filter(c => c.visible).length;
+            filterInfo.textContent = `${visibleCount}/${this._ledgerFilterColumns.length} columns visible`;
+        }
     },
 
     applyLedgerColumnFilter() {

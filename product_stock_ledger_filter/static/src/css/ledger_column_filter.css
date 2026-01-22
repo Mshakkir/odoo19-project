@@ -25,17 +25,8 @@
 .filter_group {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 0;
     min-width: 120px;
-}
-
-.filter_group label {
-    font-size: 12px;
-    font-weight: 500;
-    color: #495057;
-    margin: 0;
-    display: block;
-    white-space: nowrap;
 }
 
 .filter_input,

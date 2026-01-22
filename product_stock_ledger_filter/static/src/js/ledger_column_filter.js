@@ -59,21 +59,18 @@ patch(ListController.prototype, {
                     <div class="filter_row">
                         <!-- Product Filter -->
                         <div class="filter_group">
-                            <label>Product</label>
-                            <input type="text" class="form-control filter_input" id="filter_product_${timestamp}" placeholder="Product..." />
+                            <input type="text" class="form-control filter_input" id="filter_product_${timestamp}" placeholder="Product" />
                         </div>
 
                         <!-- Warehouse Filter -->
                         <div class="filter_group">
-                            <label>Warehouse</label>
                             <select class="form-control filter_select" id="filter_warehouse_${timestamp}">
-                                <option value="">All Warehouses</option>
+                                <option value="">Warehouse</option>
                             </select>
                         </div>
 
                         <!-- Date Range Filter -->
                         <div class="filter_group date_group">
-                            <label>Date</label>
                             <div class="date_inputs">
                                 <input type="date" class="form-control filter_date" id="filter_date_from_${timestamp}" value="${dateFrom}" />
                                 <span class="date_sep">→</span>
@@ -83,15 +80,13 @@ patch(ListController.prototype, {
 
                         <!-- Voucher Filter -->
                         <div class="filter_group">
-                            <label>Voucher</label>
-                            <input type="text" class="form-control filter_input" id="filter_voucher_${timestamp}" placeholder="Voucher..." />
+                            <input type="text" class="form-control filter_input" id="filter_voucher_${timestamp}" placeholder="Voucher" />
                         </div>
 
                         <!-- Type Filter -->
                         <div class="filter_group">
-                            <label>Type</label>
                             <select class="form-control filter_select" id="filter_type_${timestamp}">
-                                <option value="">All Types</option>
+                                <option value="">Type</option>
                                 <option value="Receipts">Receipts</option>
                                 <option value="Delivery">Delivery</option>
                                 <option value="Internal Transfer">Internal Transfer</option>
@@ -100,9 +95,8 @@ patch(ListController.prototype, {
 
                         <!-- Invoice Status Filter -->
                         <div class="filter_group">
-                            <label>Invoice Status</label>
                             <select class="form-control filter_select" id="filter_invoice_status_${timestamp}">
-                                <option value="">All Status</option>
+                                <option value="">Invoice Status</option>
                                 <option value="Invoiced">Invoiced</option>
                                 <option value="Not Invoiced">Not Invoiced</option>
                                 <option value="To Invoice">To Invoice</option>

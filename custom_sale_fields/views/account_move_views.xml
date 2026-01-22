@@ -54,7 +54,8 @@
             </field>
         </record>
     </data>
-</odoo><!--<?xml version="1.0" encoding="utf-8"?>-->
+</odoo>
+        <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 <!--    <data>-->
 <!--        &lt;!&ndash; Inherit Invoice Form View &ndash;&gt;-->

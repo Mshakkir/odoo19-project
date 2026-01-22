@@ -17,13 +17,13 @@
 
                     <!-- YOUR REQUESTED ORDER -->
                     <!-- 1. Invoice Date -->
-                    <field name="invoice_date" string="Invoice Date" width="100px"/>
+                    <field name="invoice_date" string="Invoice Date" width="90px"/>
 
                     <!-- 2. Invoice Number -->
-                    <field name="name" string="Invoice Number" readonly="1" width="130px"/>
+                    <field name="name" string="Invoice Number" readonly="1" width="135px"/>
 
                     <!-- 3. Customer -->
-                    <field name="partner_id" string="Customer" width="150px"/>
+                    <field name="partner_id" string="Customer" width="160px"/>
 
                     <!-- 4. Warehouse (NEW - after customer) -->
                     <field name="warehouse_id" string="Warehouse" width="120px"/>
@@ -35,10 +35,10 @@
                     <field name="ref" string="Reference" width="100px"/>
 
                     <!-- 7. Salesperson -->
-                    <field name="invoice_user_id" string="Salesperson" widget="many2one_avatar_user" width="130px"/>
+                    <field name="invoice_user_id" string="Salesperson" widget="many2one_avatar_user" width="120px"/>
 
                     <!-- 8. Total -->
-                    <field name="amount_total" string="Total" sum="Total Amount" width="110px"/>
+                    <field name="amount_total" string="Total" sum="Total Amount" width="100px"/>
 
                     <!-- 9. Amount Due -->
                     <field name="amount_residual" string="Amount Due" sum="Total Due" width="110px"/>

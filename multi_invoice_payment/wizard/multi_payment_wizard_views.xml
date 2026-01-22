@@ -72,34 +72,38 @@
         <field name="model">multi.payment.wizard</field>
         <field name="arch" type="xml">
             <form string="Register Payment Against Multiple Invoices">
-                <sheet>
-                    <!-- Customer Summary Section - Top Right Corner -->
-                    <div invisible="not partner_id" style="position: absolute; right: 0; top: 0; text-align: right; font-size: 13px; line-height: 1.8;">
-                        <div>
-                            <span>Total Invoiced = </span>
-                            <button name="action_view_customer_invoices" type="object"
-                                    style="border: none; background: none; padding: 0; cursor: pointer; text-decoration: underline;">
+                <!-- Customer Summary Section - Top Right Corner, Outside Sheet -->
+                <div invisible="not partner_id" style="position: absolute; right: 20px; top: 10px; text-align: right; font-size: 13px; line-height: 1.8; z-index: 1000;">
+                    <div>
+                        <span>Total Invoiced = </span>
+                        <button name="action_view_customer_invoices" type="object"
+                                style="border: none; background: none; padding: 0; cursor: pointer; text-decoration: none;">
+                            <span style="font-weight: bold;">
                                 <field name="total_invoiced_amount" widget="monetary"
-                                       options="{'currency_field': 'currency_id'}" nolabel="1"
-                                      />
-                            </button>
-                        </div>
-                        <div>
-                            <span>Total Received = </span>
-                            <button name="action_view_customer_payments" type="object"
-                                    style="border: none; background: none; padding: 0; cursor: pointer; text-decoration: underline;">
-                                <field name="total_amount_received" widget="monetary"
-                                       options="{'currency_field': 'currency_id'}" nolabel="1"
-                                       />
-                            </button>
-                        </div>
-                        <div>
-                            <span>Balance Due = </span>
-                            <field name="total_balance_due" widget="monetary"
-                                   options="{'currency_field': 'currency_id'}" nolabel="1"
-                                  />
-                        </div>
+                                       options="{'currency_field': 'currency_id'}" nolabel="1"/>
+                            </span>
+                        </button>
                     </div>
+                    <div>
+                        <span>Total Received = </span>
+                        <button name="action_view_customer_payments" type="object"
+                                style="border: none; background: none; padding: 0; cursor: pointer; text-decoration: none;">
+                            <span style="font-weight: bold;">
+                                <field name="total_amount_received" widget="monetary"
+                                       options="{'currency_field': 'currency_id'}" nolabel="1"/>
+                            </span>
+                        </button>
+                    </div>
+                    <div>
+                        <span>Balance Due = </span>
+                        <span style="font-weight: bold;">
+                            <field name="total_balance_due" widget="monetary"
+                                   options="{'currency_field': 'currency_id'}" nolabel="1"/>
+                        </span>
+                    </div>
+                </div>
+
+                <sheet>
 
                     <group>
                         <group string="Payment Information">

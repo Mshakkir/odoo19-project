@@ -211,20 +211,9 @@ class MultiPaymentWizard(models.TransientModel):
                 'selected': False,
             })
 
-        # Return action to display all invoices for the selected customer
-        return {
-            'name': _('Customer Invoices'),
-            'type': 'ir.actions.act_window',
-            'res_model': 'account.move',
-            'view_mode': 'form',
-            'domain': [
-                ('partner_id', '=', self.partner_id.id),
-                ('move_type', '=', 'out_invoice'),
-                ('state', '=', 'posted'),
-            ],
-            'context': {'default_partner_id': self.partner_id.id},
-        }
-
+        # Don't return anything - just refresh the current form view
+        # The invoice_line_ids field will automatically update and display the loaded invoices
+        return True
     def action_create_payment(self):
         """Create payment and allocate to selected invoices"""
         self.ensure_one()

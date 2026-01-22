@@ -1,63 +1,247 @@
-<notebook>
-    <page string="Invoices to Pay" name="invoices_page">
-        <!-- Show message when no invoices are loaded -->
-        <div invisible="invoice_line_ids" class="alert alert-info" role="alert">
-            <p><strong>No invoices loaded yet.</strong></p>
-            <p>Please click the "Load Invoices" button above to fetch unpaid invoices for the selected customer.</p>
-        </div>
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
 
-        <!-- Show invoice lines when loaded -->
-        <field name="invoice_line_ids" nolabel="1" invisible="not invoice_line_ids"/>
+    <!-- Payment List Display Wizard View -->
+    <record id="view_payment_list_display_wizard_form" model="ir.ui.view">
+        <field name="name">payment.list.display.wizard.form</field>
+        <field name="model">payment.list.display.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Customer Payments">
+                <sheet>
+                    <group>
+                        <field name="partner_id" readonly="1" string="Customer"/>
+                    </group>
+                    <separator string="Payment History"/>
+                    <field name="payment_line_ids" nolabel="1" readonly="1">
+                        <list>
+                            <field name="date"/>
+                            <field name="number"/>
+                            <field name="journal_id"/>
+                            <field name="payment_method"/>
+                            <field name="amount"/>
+                            <field name="state"/>
+                        </list>
+                    </field>
+                </sheet>
+                <footer>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
 
-        <group class="oe_subtotal_footer oe_right" invisible="not invoice_line_ids">
-            <field name="payment_amount"
-                   string="Payment Amount"
-                   widget="monetary"
-                   options="{'currency_field': 'currency_id'}"
-                   readonly="1"/>
-            <field name="total_allocated"
-                   string="Total Allocated"
-                   widget="monetary"
-                   options="{'currency_field': 'currency_id'}"
-                   readonly="1"/>
-            <field name="remaining_amount"
-                   string="Remaining Amount"
-                   widget="monetary"
-                   options="{'currency_field': 'currency_id'}"
-                   readonly="1"
-                   class="oe_subtotal_footer_separator"/>
-        </group>
-    </page>
+    <!-- Payment List Display Line List View -->
+    <record id="view_payment_list_display_line_list" model="ir.ui.view">
+        <field name="name">payment.list.display.line.list</field>
+        <field name="model">payment.list.display.line</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0">
+                <field name="date"/>
+                <field name="number"/>
+                <field name="journal_id"/>
+                <field name="payment_method"/>
+                <field name="amount"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
 
-    <page string="Help" name="help_page">
-        <group>
-            <div class="alert alert-info" role="alert">
-                <h4>How to Use:</h4>
-                <ol>
-                    <li><strong>Select Customer:</strong> Choose the customer who made the payment</li>
-                    <li><strong>Enter Payment Amount:</strong> Enter the exact amount received (e.g., 2500 SAR)</li>
-                    <li><strong>Click "Load Invoices":</strong> This will fetch all unpaid invoices for the customer and display them in the table</li>
-                    <li><strong>Select Payment Journal:</strong> Choose your bank (e.g., SNB Bank)</li>
-                    <li><strong>Select Invoices:</strong>
-                        <ul>
-                            <li>Enable "Auto Allocate" to automatically select and fill amounts for oldest invoices</li>
-                            <li>OR manually check the "Pay" box and enter amounts for each invoice</li>
-                            <li>Click OUTSIDE the row after entering amounts to save</li>
-                        </ul>
-                    </li>
-                    <li><strong>Create Payment:</strong> Click "Create Payment" button</li>
-                </ol>
-                <h4>Tips:</h4>
-                <ul>
-                    <li>You MUST click "Load Invoices" button after selecting the customer</li>
-                    <li>Use "Auto Allocate" for quick allocation to oldest invoices</li>
-                    <li>You can partially pay multiple invoices</li>
-                    <li>Total allocated cannot exceed payment amount</li>
-                    <li>After entering an amount, click outside the row to save it</li>
-                    <li><strong>Balance Amount:</strong> Shows the remaining amount due after subtracting what you're paying</li>
-                    <li><strong>View Details:</strong> Click on "Total Invoiced Amount" to see all invoices or "Total Amount Received" to see payment history</li>
-                </ul>
-            </div>
-        </group>
-    </page>
-</notebook>
+    <!-- Multi Payment Invoice Line List View -->
+    <record id="view_multi_payment_invoice_line_tree" model="ir.ui.view">
+        <field name="name">multi.payment.invoice.line.list</field>
+        <field name="model">multi.payment.invoice.line</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" create="0" delete="0" multi_edit="1">
+                <field name="wizard_id" column_invisible="1"/>
+                <field name="invoice_id" column_invisible="1"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="selected" widget="boolean_toggle" force_save="1"/>
+                <field name="invoice_number" readonly="1"/>
+                <field name="invoice_date" readonly="1"/>
+                <field name="amount_total" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="amount_residual" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="amount_to_pay" widget="monetary" options="{'currency_field': 'currency_id'}" force_save="1"/>
+                <field name="balance_amount" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Multi Payment Wizard Form View -->
+    <record id="view_multi_payment_wizard_form" model="ir.ui.view">
+        <field name="name">multi.payment.wizard.form</field>
+        <field name="model">multi.payment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Register Payment Against Multiple Invoices">
+                <sheet>
+                    <!-- Customer Summary Section - Clean style without blue background -->
+                    <div invisible="not partner_id" style="margin: 10px 0; padding: 0;">
+                        <div style="display: flex; gap: 40px; font-size: 13px;">
+                            <div style="text-align: center;">
+                                <div style="color: #666; font-weight: bold; margin-bottom: 5px;">Total Invoiced Amount</div>
+                                <button name="action_view_customer_invoices" type="object"
+                                        style="border: none; background: none; padding: 0; cursor: pointer; text-decoration: underline;">
+                                    <field name="total_invoiced_amount" widget="monetary"
+                                           options="{'currency_field': 'currency_id'}" nolabel="1"
+                                           style="font-size: 16px; color: #0066cc; font-weight: bold;"/>
+                                </button>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="color: #666; font-weight: bold; margin-bottom: 5px;">Total Amount Received</div>
+                                <button name="action_view_customer_payments" type="object"
+                                        style="border: none; background: none; padding: 0; cursor: pointer; text-decoration: underline;">
+                                    <field name="total_amount_received" widget="monetary"
+                                           options="{'currency_field': 'currency_id'}" nolabel="1"
+                                           style="font-size: 16px; color: #28a745; font-weight: bold;"/>
+                                </button>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="color: #666; font-weight: bold; margin-bottom: 5px;">Total Balance Due</div>
+                                <field name="total_balance_due" widget="monetary"
+                                       options="{'currency_field': 'currency_id'}" nolabel="1"
+                                       style="font-size: 16px; color: #dc3545; font-weight: bold;"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <group>
+                        <group string="Payment Information">
+                            <field name="partner_id" options="{'no_create': True}"
+                                   placeholder="Select customer..."/>
+                            <field name="payment_date"/>
+                            <field name="payment_amount"
+                                   widget="monetary"
+                                   options="{'currency_field': 'currency_id'}"/>
+                            <field name="currency_id" invisible="1"/>
+                            <button name="action_load_invoices"
+                                    string="Load Invoices"
+                                    type="object"
+                                    class="btn-primary"
+                                    icon="fa-download"
+                                    invisible="not partner_id"
+                                    help="Click to load unpaid invoices for the selected customer"/>
+                        </group>
+                        <group string="Payment Details">
+                            <field name="journal_id"
+                                   options="{'no_create': True}"/>
+                            <field name="payment_method_line_id"
+                                   options="{'no_create': True}"/>
+                            <field name="memo" placeholder="Payment reference or note..."/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group>
+                            <field name="auto_allocate"
+                                   string="Auto Allocate to Oldest Invoices"
+                                   widget="boolean_toggle"/>
+                        </group>
+                        <group>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Invoices to Pay" name="invoices_page">
+                            <!-- Show message when no invoices are loaded -->
+                            <div invisible="invoice_line_ids" class="alert alert-info" role="alert">
+                                <p><strong>No invoices loaded yet.</strong></p>
+                                <p>Please click the "Load Invoices" button above to fetch unpaid invoices for the selected customer.</p>
+                            </div>
+
+                            <!-- Show invoice lines when loaded -->
+                            <field name="invoice_line_ids" nolabel="1" invisible="not invoice_line_ids"/>
+
+                            <group class="oe_subtotal_footer oe_right" invisible="not invoice_line_ids">
+                                <field name="payment_amount"
+                                       string="Payment Amount"
+                                       widget="monetary"
+                                       options="{'currency_field': 'currency_id'}"
+                                       readonly="1"/>
+                                <field name="total_allocated"
+                                       string="Total Allocated"
+                                       widget="monetary"
+                                       options="{'currency_field': 'currency_id'}"
+                                       readonly="1"/>
+                                <field name="remaining_amount"
+                                       string="Remaining Amount"
+                                       widget="monetary"
+                                       options="{'currency_field': 'currency_id'}"
+                                       readonly="1"
+                                       class="oe_subtotal_footer_separator"/>
+                            </group>
+                        </page>
+
+                        <page string="Help" name="help_page">
+                            <group>
+                                <div class="alert alert-info" role="alert">
+                                    <h4>How to Use:</h4>
+                                    <ol>
+                                        <li><strong>Select Customer:</strong> Choose the customer who made the payment</li>
+                                        <li><strong>Enter Payment Amount:</strong> Enter the exact amount received (e.g., 2500 SAR)</li>
+                                        <li><strong>Click "Load Invoices":</strong> This will fetch all unpaid invoices for the customer and display them in the table</li>
+                                        <li><strong>Select Payment Journal:</strong> Choose your bank (e.g., SNB Bank)</li>
+                                        <li><strong>Select Invoices:</strong>
+                                            <ul>
+                                                <li>Enable "Auto Allocate" to automatically select and fill amounts for oldest invoices</li>
+                                                <li>OR manually check the "Pay" box and enter amounts for each invoice</li>
+                                                <li>Click OUTSIDE the row after entering amounts to save</li>
+                                            </ul>
+                                        </li>
+                                        <li><strong>Create Payment:</strong> Click "Create Payment" button</li>
+                                    </ol>
+                                    <h4>Tips:</h4>
+                                    <ul>
+                                        <li>You MUST click "Load Invoices" button after selecting the customer</li>
+                                        <li>Use "Auto Allocate" for quick allocation to oldest invoices</li>
+                                        <li>You can partially pay multiple invoices</li>
+                                        <li>Total allocated cannot exceed payment amount</li>
+                                        <li>After entering an amount, click outside the row to save it</li>
+                                        <li><strong>Balance Amount:</strong> Shows the remaining amount due after subtracting what you're paying</li>
+                                        <li><strong>View Details:</strong> Click on "Total Invoiced Amount" to see all invoices or "Total Amount Received" to see payment history</li>
+                                    </ul>
+                                </div>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <footer>
+                    <button name="action_create_payment"
+                            string="Create Payment"
+                            type="object"
+                            class="btn-primary"
+                            invisible="not partner_id"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to Open Wizard -->
+    <record id="action_multi_payment_wizard" model="ir.actions.act_window">
+        <field name="name">Against Payment</field>
+        <field name="res_model">multi.payment.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Main Menu Item in Accounting Top Bar -->
+    <menuitem id="menu_multi_payment_wizard"
+              name="Against Payment"
+              parent="account.menu_finance"
+              action="action_multi_payment_wizard"
+              sequence="10"/>
+
+    <!-- Alternative Menu in Accounting Receivables -->
+    <menuitem id="menu_multi_payment_root"
+              name="Multi Payments"
+              parent="account.menu_finance_receivables"
+              sequence="15"/>
+
+    <menuitem id="menu_multi_payment_register"
+              name="Register Against Payment"
+              parent="menu_multi_payment_root"
+              action="action_multi_payment_wizard"
+              sequence="1"/>
+
+</odoo>

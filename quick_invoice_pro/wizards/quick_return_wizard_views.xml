@@ -26,7 +26,7 @@
                                         <field name="ordered_qty" readonly="1"/>
                                         <field name="return_qty"/>
                                         <field name="price_unit" readonly="1"/>
-                                        <field name="subtotal" readonly="1" sum="Total"/>
+                                        <field name="subtotal" readonly="1"/>
                                     </tree>
                                 </field>
                             </page>

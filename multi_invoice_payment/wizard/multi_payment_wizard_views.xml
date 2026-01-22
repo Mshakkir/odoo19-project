@@ -77,32 +77,31 @@
                     <div invisible="not partner_id" class="oe_right" style="font-size: 13px; line-height: 2; margin-bottom: 15px;">
                         <div>
                             <span>Total Invoiced = </span>
-                            <field name="total_invoiced_amount" widget="monetary"
-                                   options="{'currency_field': 'currency_id'}" nolabel="1"
-                                   class="oe_inline"
-                                   style="font-weight: bold;"/>
                             <button name="action_view_customer_invoices" type="object"
-                                    string="📋" class="btn btn-link oe_link"
-                                    style="padding: 0 5px; text-decoration: none;"
-                                    title="View all customer invoices"/>
+                                    class="btn btn-link"
+                                    style="padding: 0; font-weight: bold; text-decoration: none; color: inherit;">
+                                <field name="total_invoiced_amount" widget="monetary"
+                                       options="{'currency_field': 'currency_id'}" nolabel="1"
+                                       readonly="1"/>
+                            </button>
                         </div>
                         <div>
                             <span>Total Received = </span>
-                            <field name="total_amount_received" widget="monetary"
-                                   options="{'currency_field': 'currency_id'}" nolabel="1"
-                                   class="oe_inline"
-                                   style="font-weight: bold;"/>
                             <button name="action_view_customer_payments" type="object"
-                                    string="💰" class="btn btn-link oe_link"
-                                    style="padding: 0 5px; text-decoration: none;"
-                                    title="View payment history"/>
+                                    class="btn btn-link"
+                                    style="padding: 0; font-weight: bold; text-decoration: none; color: inherit;">
+                                <field name="total_amount_received" widget="monetary"
+                                       options="{'currency_field': 'currency_id'}" nolabel="1"
+                                       readonly="1"/>
+                            </button>
                         </div>
                         <div>
                             <span>Balance Due = </span>
                             <field name="total_balance_due" widget="monetary"
                                    options="{'currency_field': 'currency_id'}" nolabel="1"
                                    class="oe_inline"
-                                   style="font-weight: bold;"/>
+                                   style="font-weight: bold;"
+                                   readonly="1"/>
                         </div>
                     </div>
 

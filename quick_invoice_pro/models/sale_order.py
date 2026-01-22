@@ -31,6 +31,28 @@ class SaleOrder(models.Model):
     )
 
     # ============================================
+    # Default Values for Quick Invoice
+    # ============================================
+    @api.model
+    def default_get(self, fields_list):
+        """Set default values for quick invoice mode"""
+        res = super().default_get(fields_list)
+
+        # If opening from quick invoice context
+        if self.env.context.get('quick_invoice_view'):
+            res['quick_invoice_mode'] = True
+
+            # Set Walk-in Customer as default
+            walkin = self.env['res.partner'].search([
+                ('name', '=', 'Walk-in Customer')
+            ], limit=1)
+
+            if walkin:
+                res['partner_id'] = walkin.id
+
+        return res
+
+    # ============================================
     # DEMERIT #1: Approval Workflow
     # ============================================
     @api.depends('amount_total')

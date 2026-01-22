@@ -8,10 +8,14 @@
         "web",
         "product_stock_ledger",
     ],
+    "data": [
+        "views/ledger_view_extension.xml",
+    ],
     "assets": {
         "web.assets_backend": [
             "product_stock_ledger_filter/static/src/js/column_filter_component.js",
             "product_stock_ledger_filter/static/src/js/list_controller_patch.js",
+            "product_stock_ledger_filter/static/src/js/list_view_extension.js",
             "product_stock_ledger_filter/static/src/xml/column_filter_templates.xml",
             "product_stock_ledger_filter/static/src/css/column_filter_styles.css",
         ],

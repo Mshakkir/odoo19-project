@@ -4,19 +4,21 @@ import { patch } from "@web/core/utils/patch";
 import { ListController } from "@web/views/list/list_controller";
 import { ColumnFilterComponent } from "./column_filter_component";
 
-// Register the component globally
+// Patch to add column filter component
 patch(ListController.prototype, {
-    setup() {
-        super.setup(...arguments);
-
-        // Make component available
+    get componentProps() {
+        const props = super.componentProps;
         if (this.props.resModel === 'product.stock.ledger.line') {
-            // Component will be used in template
+            props.columnFilter = {
+                showFilter: true,
+                Component: ColumnFilterComponent,
+            };
         }
+        return props;
     },
 });
 
-// Register component in the global scope
+// Add the component to ListController
 ListController.components = {
     ...ListController.components,
     ColumnFilterComponent,

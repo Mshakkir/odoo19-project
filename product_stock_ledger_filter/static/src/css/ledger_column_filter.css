@@ -1,0 +1,222 @@
+/* Product Stock Ledger - Column Filter Styles */
+
+.ledger_column_filter_wrapper {
+    width: 100%;
+}
+
+.ledger_column_filter_container {
+    position: relative;
+    display: inline-block;
+    margin: 10px 16px;
+}
+
+.ledger_filter_btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.ledger_filter_btn:hover {
+    background-color: #e9ecef;
+}
+
+/* Dropdown Panel */
+.ledger_filter_dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    width: 320px;
+    max-height: 500px;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.ledger_filter_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #dee2e6;
+    background: #f8f9fa;
+    border-radius: 6px 6px 0 0;
+}
+
+.ledger_filter_header h6 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #212529;
+}
+
+.btn-close {
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.btn-close:hover {
+    opacity: 1;
+}
+
+/* Search Box */
+.ledger_filter_search {
+    padding: 12px 16px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.ledger_filter_search input {
+    width: 100%;
+}
+
+/* Action Buttons */
+.ledger_filter_actions {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #dee2e6;
+    background: #f8f9fa;
+    flex-wrap: wrap;
+}
+
+.ledger_filter_actions .btn {
+    flex: 1;
+    min-width: 80px;
+    font-size: 12px;
+    padding: 4px 8px;
+}
+
+/* Column List */
+.ledger_filter_columns {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+    max-height: 350px;
+}
+
+.ledger_column_item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+}
+
+.ledger_column_item:hover {
+    background-color: #f8f9fa;
+}
+
+.ledger_column_item:last-child {
+    border-bottom: none;
+}
+
+.column_checkbox {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.column_checkbox input[type="checkbox"] {
+    cursor: pointer;
+    margin: 0;
+}
+
+.column_checkbox label {
+    font-size: 13px;
+    color: #495057;
+    cursor: pointer;
+    user-select: none;
+    margin: 0;
+}
+
+/* Column Actions */
+.column_actions {
+    display: flex;
+    gap: 4px;
+}
+
+.column_actions button {
+    padding: 4px 6px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #6c757d;
+    font-size: 12px;
+    transition: color 0.2s;
+}
+
+.column_actions button:hover:not(:disabled) {
+    color: #0d6efd;
+}
+
+.column_actions button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Footer */
+.ledger_filter_footer {
+    padding: 12px 16px;
+    border-top: 1px solid #dee2e6;
+    background: #f8f9fa;
+    text-align: center;
+    border-radius: 0 0 6px 6px;
+    font-size: 12px;
+}
+
+/* Scrollbar Styling */
+.ledger_filter_columns::-webkit-scrollbar {
+    width: 6px;
+}
+
+.ledger_filter_columns::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.ledger_filter_columns::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.ledger_filter_columns::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .ledger_column_filter_container {
+        margin: 10px 8px;
+    }
+
+    .ledger_filter_dropdown {
+        width: 280px;
+        max-height: 400px;
+    }
+
+    .ledger_column_item {
+        padding: 8px 12px;
+    }
+
+    .ledger_filter_columns {
+        max-height: 280px;
+    }
+
+    .ledger_filter_actions .btn {
+        min-width: 70px;
+        font-size: 11px;
+    }
+}

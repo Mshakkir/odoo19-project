@@ -73,31 +73,36 @@
         <field name="arch" type="xml">
             <form string="Register Payment Against Multiple Invoices">
                 <sheet>
-                    <!-- Customer Summary Section - Top Right Corner -->
-                    <div invisible="not partner_id" style="position: absolute; right: 0; top: 0; text-align: right; font-size: 13px; line-height: 1.8;">
+                    <!-- Customer Summary Section - Top Right, Clean Display -->
+                    <div invisible="not partner_id" class="oe_right" style="font-size: 13px; line-height: 2; margin-bottom: 15px;">
                         <div>
                             <span>Total Invoiced = </span>
+                            <field name="total_invoiced_amount" widget="monetary"
+                                   options="{'currency_field': 'currency_id'}" nolabel="1"
+                                   class="oe_inline"
+                                   style="font-weight: bold;"/>
                             <button name="action_view_customer_invoices" type="object"
-                                    style="border: none; background: none; padding: 0; cursor: pointer; text-decoration: underline;">
-                                <field name="total_invoiced_amount" widget="monetary"
-                                       options="{'currency_field': 'currency_id'}" nolabel="1"
-                                      />
-                            </button>
+                                    string="📋" class="btn btn-link oe_link"
+                                    style="padding: 0 5px; text-decoration: none;"
+                                    title="View all customer invoices"/>
                         </div>
                         <div>
                             <span>Total Received = </span>
+                            <field name="total_amount_received" widget="monetary"
+                                   options="{'currency_field': 'currency_id'}" nolabel="1"
+                                   class="oe_inline"
+                                   style="font-weight: bold;"/>
                             <button name="action_view_customer_payments" type="object"
-                                    style="border: none; background: none; padding: 0; cursor: pointer; text-decoration: underline;">
-                                <field name="total_amount_received" widget="monetary"
-                                       options="{'currency_field': 'currency_id'}" nolabel="1"
-                                       />
-                            </button>
+                                    string="💰" class="btn btn-link oe_link"
+                                    style="padding: 0 5px; text-decoration: none;"
+                                    title="View payment history"/>
                         </div>
                         <div>
                             <span>Balance Due = </span>
                             <field name="total_balance_due" widget="monetary"
                                    options="{'currency_field': 'currency_id'}" nolabel="1"
-                                  />
+                                   class="oe_inline"
+                                   style="font-weight: bold;"/>
                         </div>
                     </div>
 
@@ -130,7 +135,7 @@
                     <group>
                         <group>
                             <field name="auto_allocate"
-                                   string="Display invoices"
+                                   string="Display Invoices"
                                    widget="boolean_toggle"/>
                         </group>
                         <group>

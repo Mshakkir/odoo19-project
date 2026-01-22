@@ -17,13 +17,13 @@
 
                     <!-- COLUMN ORDER - PRIORITY ORDER -->
                     <!-- 1. Invoice Date -->
-                    <field name="invoice_date" string="Bill Date" width="100px"/>
+                    <field name="invoice_date" string="Bill Date" width="80px"/>
 
                     <!-- 2. Invoice Number (Bill Number) -->
-                    <field name="name" string="Bill Number" readonly="1" width="130px"/>
+                    <field name="name" string="Bill Number" readonly="1" width="140px"/>
 
                     <!-- 3. Vendor -->
-                    <field name="partner_id" string="Vendor" width="150px"/>
+                    <field name="partner_id" string="Vendor" width="155px"/>
 
                     <!-- 4. Warehouse -->
                     <field name="warehouse_id" string="Warehouse" width="120px"/>

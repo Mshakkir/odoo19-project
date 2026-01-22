@@ -132,7 +132,7 @@
                     <group>
                         <group>
                             <field name="auto_allocate"
-                                   string="Auto Allocate to Oldest Invoices"
+                                   string="Display invoices"
                                    widget="boolean_toggle"/>
                         </group>
                         <group>

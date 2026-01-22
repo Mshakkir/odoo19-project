@@ -2,6 +2,22 @@
 <odoo>
     <data>
 
+        <!-- Return Line Tree View - Define FIRST -->
+        <record id="view_quick_return_line_tree" model="ir.ui.view">
+            <field name="name">quick.return.line.tree</field>
+            <field name="model">quick.return.line</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="product_id" readonly="1"/>
+                    <field name="ordered_qty" readonly="1"/>
+                    <field name="return_qty"/>
+                    <field name="price_unit" readonly="1"/>
+                    <field name="subtotal" readonly="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Return Wizard Form View -->
         <record id="view_quick_return_wizard_form" model="ir.ui.view">
             <field name="name">quick.return.wizard.form</field>
             <field name="model">quick.return.wizard</field>
@@ -20,7 +36,9 @@
 
                         <notebook>
                             <page string="Return Items">
-                                <field name="return_line_ids">
+                                <field name="return_line_ids"
+                                       widget="one2many"
+                                       mode="tree">
                                     <tree editable="bottom">
                                         <field name="product_id" readonly="1"/>
                                         <field name="ordered_qty" readonly="1"/>
@@ -52,7 +70,7 @@
                     </sheet>
 
                     <footer>
-                        <button string="↩️ Process Return"
+                        <button string="Process Return"
                                 name="action_process_return"
                                 type="object"
                                 class="btn-primary"/>

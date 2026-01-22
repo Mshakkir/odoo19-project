@@ -196,7 +196,16 @@ class MultiPaymentWizard(models.TransientModel):
         ], order='invoice_date asc, name asc')
 
         if not invoices:
-            raise UserError(_('No unpaid invoices found for this customer.'))
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Invoices'),
+                    'message': _('No unpaid invoices found for this customer.'),
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
 
         # Create invoice lines
         for invoice in invoices:
@@ -211,9 +220,18 @@ class MultiPaymentWizard(models.TransientModel):
                 'selected': False,
             })
 
-        # Don't return anything - just refresh the current form view
-        # The invoice_line_ids field will automatically update and display the loaded invoices
-        return True
+        # Show success notification with count of loaded invoices
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Invoices Loaded'),
+                'message': _('%d unpaid invoice(s) loaded successfully. Check the "Invoices to Pay" tab below.') % len(
+                    invoices),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
     def action_create_payment(self):
         """Create payment and allocate to selected invoices"""
         self.ensure_one()

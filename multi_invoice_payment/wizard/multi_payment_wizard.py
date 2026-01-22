@@ -27,14 +27,14 @@ class MultiPaymentWizard(models.TransientModel):
 
     # Customer Summary Fields
     total_invoiced_amount = fields.Monetary(string='Total Invoiced Amount',
-                                           compute='_compute_customer_summary',
-                                           currency_field='currency_id', store=False)
+                                            compute='_compute_customer_summary',
+                                            currency_field='currency_id', store=False)
     total_amount_received = fields.Monetary(string='Total Amount Received',
-                                           compute='_compute_customer_summary',
-                                           currency_field='currency_id', store=False)
+                                            compute='_compute_customer_summary',
+                                            currency_field='currency_id', store=False)
     total_balance_due = fields.Monetary(string='Total Balance Due',
-                                       compute='_compute_customer_summary',
-                                       currency_field='currency_id', store=False)
+                                        compute='_compute_customer_summary',
+                                        currency_field='currency_id', store=False)
 
     @api.depends('partner_id')
     def _compute_customer_summary(self):
@@ -74,9 +74,9 @@ class MultiPaymentWizard(models.TransientModel):
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
         """Clear invoice lines when customer changes"""
-        if not self.partner_id:
-            self.invoice_line_ids = False
-        # Don't auto-load invoices here - let user click the button
+        # IMPORTANT: Clear invoice lines when customer changes
+        self.invoice_line_ids = [(5, 0, 0)]  # Delete all records
+        self.auto_allocate = False  # Reset auto allocate
 
     def action_view_customer_invoices(self):
         """View all invoices for the selected customer in a popup dialog"""
@@ -184,8 +184,12 @@ class MultiPaymentWizard(models.TransientModel):
         if not self.partner_id:
             raise UserError(_('Please select a customer first.'))
 
-        # Clear existing lines
-        self.invoice_line_ids.unlink()
+        # IMPORTANT: Properly clear existing lines - use unlink() for existing records
+        if self.invoice_line_ids:
+            self.invoice_line_ids.unlink()
+
+        # Also reset the field to ensure it's empty
+        self.invoice_line_ids = [(5, 0, 0)]
 
         # Search for unpaid invoices
         invoices = self.env['account.move'].search([
@@ -207,10 +211,10 @@ class MultiPaymentWizard(models.TransientModel):
                 }
             }
 
-        # Create invoice lines
+        # Create invoice lines using command (0, 0, {...})
+        invoice_lines = []
         for invoice in invoices:
-            self.env['multi.payment.invoice.line'].create({
-                'wizard_id': self.id,
+            invoice_lines.append((0, 0, {
                 'invoice_id': invoice.id,
                 'invoice_date': invoice.invoice_date,
                 'invoice_number': invoice.name,
@@ -218,20 +222,23 @@ class MultiPaymentWizard(models.TransientModel):
                 'amount_residual': invoice.amount_residual,
                 'amount_to_pay': 0.0,
                 'selected': False,
-            })
+            }))
 
-        # Show success notification with count of loaded invoices
+        # Assign all lines at once
+        self.invoice_line_ids = invoice_lines
+
+        # Return a dummy action that refreshes the view
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': _('Invoices Loaded'),
-                'message': _('%d unpaid invoice(s) loaded successfully. Check the "Invoices to Pay" tab below.') % len(
-                    invoices),
+                'message': _('%d unpaid invoice(s) loaded successfully.') % len(invoices),
                 'type': 'success',
                 'sticky': False,
             }
         }
+
     def action_create_payment(self):
         """Create payment and allocate to selected invoices"""
         self.ensure_one()
@@ -362,7 +369,7 @@ class MultiPaymentInvoiceLine(models.TransientModel):
     amount_residual = fields.Monetary(string='Amount Due', currency_field='currency_id', readonly=True)
     amount_to_pay = fields.Monetary(string='Amount to Pay', currency_field='currency_id')
     balance_amount = fields.Monetary(string='Balance Amount', compute='_compute_balance_amount',
-                                    currency_field='currency_id', store=False)
+                                     currency_field='currency_id', store=False)
     selected = fields.Boolean(string='Pay', default=False)
     currency_id = fields.Many2one('res.currency', related='wizard_id.currency_id', string='Currency', readonly=True)
 
@@ -413,4 +420,5 @@ class PaymentListDisplayLine(models.TransientModel):
     payment_method = fields.Char(string='Payment Method')
     amount = fields.Monetary(string='Amount', currency_field='currency_id')
     state = fields.Char(string='State')
-    currency_id = fields.Many2one('res.currency', related='wizard_id.partner_id.company_id.currency_id', string='Currency', readonly=True)
+    currency_id = fields.Many2one('res.currency', related='wizard_id.partner_id.company_id.currency_id',
+                                  string='Currency', readonly=True)

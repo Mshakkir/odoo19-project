@@ -173,7 +173,7 @@ class QuickReturnWizard(models.TransientModel):
 
     def _create_credit_note(self):
         """Create credit note for returned items"""
-        invoice = self.invoice_ids[0]  # Take first invoice
+        invoice = self.invoice_ids[0]
 
         # Use Odoo's standard reverse move method
         move_reversal = self.env['account.move.reversal'].with_context(
@@ -204,7 +204,6 @@ class QuickReturnWizard(models.TransientModel):
 
     def _create_return_picking(self):
         """Create return picking (reverse delivery)"""
-        # Get original delivery
         pickings = self.sale_order_id.picking_ids.filtered(
             lambda p: p.state == 'done' and p.picking_type_code == 'outgoing'
         )

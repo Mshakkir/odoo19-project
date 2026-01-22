@@ -22,8 +22,10 @@ class MultiPaymentWizard(models.TransientModel):
                                       currency_field='currency_id', store=True)
     remaining_amount = fields.Monetary(string='Remaining Amount', compute='_compute_remaining_amount',
                                        currency_field='currency_id', store=True)
-    auto_allocate = fields.Boolean(string='Auto Allocate', default=False,
-                                   help='Automatically allocate payment to oldest invoices')
+    # auto_allocate = fields.Boolean(string='Auto Allocate', default=False,
+    #                                help='Automatically allocate payment to oldest invoices')
+    auto_allocate = fields.Boolean(string='Display invoices', default=False,
+                                   help='Display invoices')
 
     # Customer Summary Fields
     total_invoiced_amount = fields.Monetary(string='Total Invoiced Amount',

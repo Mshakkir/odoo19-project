@@ -21,13 +21,13 @@
                         <notebook>
                             <page string="Return Items">
                                 <field name="return_line_ids">
-                                    <tree editable="bottom">
+                                    <list editable="bottom">
                                         <field name="product_id" readonly="1"/>
                                         <field name="ordered_qty" readonly="1"/>
                                         <field name="return_qty"/>
                                         <field name="price_unit" readonly="1"/>
                                         <field name="subtotal" readonly="1"/>
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
 
@@ -52,7 +52,7 @@
                     </sheet>
 
                     <footer>
-                        <button string="↩️ Process Return"
+                        <button string="Process Return"
                                 name="action_process_return"
                                 type="object"
                                 class="btn-primary"/>

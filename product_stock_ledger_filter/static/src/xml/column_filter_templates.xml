@@ -13,8 +13,7 @@
 
             <!-- Dropdown Panel -->
             <div class="o_column_filter_dropdown"
-                 t-if="state.isOpen"
-                 t-on-click.stop="">
+                 t-if="state.isOpen">
 
                 <!-- Header -->
                 <div class="o_filter_header">

@@ -1,7 +1,6 @@
 /** @odoo-module **/
 
 import { Component, useState, onWillStart } from "@odoo/owl";
-import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 
 export class ColumnFilterComponent extends Component {
@@ -43,7 +42,12 @@ export class ColumnFilterComponent extends Component {
         const savedColumns = this.localStorage.getItem('ledger_column_filter');
 
         if (savedColumns) {
-            this.state.columns = JSON.parse(savedColumns);
+            try {
+                this.state.columns = JSON.parse(savedColumns);
+            } catch (e) {
+                console.error('Error parsing saved columns:', e);
+                this.state.columns = defaultColumns;
+            }
         } else {
             this.state.columns = defaultColumns;
         }
@@ -217,8 +221,3 @@ export class ColumnFilterComponent extends Component {
         this.state.searchQuery = ev.target.value;
     }
 }
-
-// Register the component
-registry.category("main_components").add("ColumnFilterComponent", {
-    Component: ColumnFilterComponent,
-});

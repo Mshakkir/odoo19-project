@@ -140,10 +140,17 @@
                     </group>
 
                     <notebook>
-                        <page string="Invoices to Pay" invisible="not invoice_line_ids">
-                            <field name="invoice_line_ids" nolabel="1"/>
+                        <page string="Invoices to Pay" name="invoices_page">
+                            <!-- Show message when no invoices are loaded -->
+                            <div invisible="invoice_line_ids" class="alert alert-info" role="alert">
+                                <p><strong>No invoices loaded yet.</strong></p>
+                                <p>Please click the "Load Invoices" button above to fetch unpaid invoices for the selected customer.</p>
+                            </div>
 
-                            <group class="oe_subtotal_footer oe_right">
+                            <!-- Show invoice lines when loaded -->
+                            <field name="invoice_line_ids" nolabel="1" invisible="not invoice_line_ids"/>
+
+                            <group class="oe_subtotal_footer oe_right" invisible="not invoice_line_ids">
                                 <field name="payment_amount"
                                        string="Payment Amount"
                                        widget="monetary"

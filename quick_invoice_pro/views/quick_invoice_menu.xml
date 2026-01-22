@@ -7,7 +7,6 @@
             id="menu_quick_invoice_root"
             name="Quick Invoice"
             sequence="5"
-            web_icon="quick_invoice_pro,static/description/icon.png"
             groups="group_quick_invoice_user"/>
 
         <!-- Direct Invoice Menu -->
@@ -18,14 +17,13 @@
             <field name="target">current</field>
             <field name="context">{
                 'default_quick_invoice_mode': True,
-                'default_partner_id': ref('partner_walkin_customer'),
                 'quick_invoice_view': True,
             }</field>
         </record>
 
         <menuitem
             id="menu_quick_invoice_create"
-            name="📝 Direct Invoice"
+            name="Direct Invoice"
             parent="menu_quick_invoice_root"
             action="action_quick_invoice_create"
             sequence="10"
@@ -42,7 +40,7 @@
 
         <menuitem
             id="menu_quick_invoice_orders"
-            name="📋 Quick Orders"
+            name="Quick Orders"
             parent="menu_quick_invoice_root"
             action="action_quick_invoice_orders"
             sequence="20"
@@ -51,7 +49,7 @@
         <!-- Configuration Menu -->
         <menuitem
             id="menu_quick_invoice_config"
-            name="⚙️ Configuration"
+            name="Configuration"
             parent="menu_quick_invoice_root"
             sequence="100"
             groups="group_quick_invoice_manager"/>

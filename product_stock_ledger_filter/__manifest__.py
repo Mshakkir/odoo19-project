@@ -1,5 +1,5 @@
 {
-"name": "Product Stock Ledger - Column Filter",
+    "name": "Product Stock Ledger - Column Filter",
     "version": "1.0",
     "author": "You",
     "category": "Inventory",
@@ -7,9 +7,6 @@
     "depends": [
         "web",
         "product_stock_ledger",
-    ],
-    "data": [
-        "views/assets.xml",
     ],
     "assets": {
         "web.assets_backend": [

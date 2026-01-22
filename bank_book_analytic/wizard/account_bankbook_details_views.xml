@@ -59,15 +59,10 @@
                                        optional="show"
                                        width="90"/>
 
-                                <button name="action_view_payment"
-                                        type="object"
-                                        string=""
-                                        class="btn-link oe_link"
-                                        style="text-align: left; padding: 0;"
-                                        attrs="{'invisible': [('reference', '=', False)]}"
-                                        width="120">
-                                    <field name="reference" string="Reference" nolabel="1"/>
-                                </button>
+                                <field name="reference"
+                                       string="Reference"
+                                       optional="show"
+                                       width="120"/>
 
                                 <field name="partner_name"
                                        string="Particulars"
@@ -108,12 +103,19 @@
 
                                 <field name="move_id" column_invisible="1"/>
 
+                                <button name="action_view_payment"
+                                        type="object"
+                                        string="Payment"
+                                        class="btn-link"
+                                        icon="fa-money"
+                                        title="View Payment/Journal Entry"/>
+
                                 <button name="action_view_bill"
                                         type="object"
                                         string="Bill"
                                         class="btn-link"
                                         icon="fa-file-text-o"
-                                        title="View Related Bill/Payment"/>
+                                        title="View Related Bill/Invoice"/>
                             </list>
                         </field>
                     </group>
@@ -133,8 +135,6 @@
         </field>
     </record>
 </odoo>
-
-
 
 
 

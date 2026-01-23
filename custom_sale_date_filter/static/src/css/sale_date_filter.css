@@ -218,7 +218,8 @@
     transition: background-color 0.15s;
 }
 
-.autocomplete_item:hover {
+.autocomplete_item:hover,
+.autocomplete_item.selected {
     background-color: #e9ecef;
 }
 

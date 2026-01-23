@@ -57,12 +57,12 @@ class SaleOrder(models.Model):
                     order.customer_total_invoiced = total_invoiced - total_refunded
                     order.customer_balance_due = total_residual
 
-                    # Get all customer payments (including unmatched ones)
-                    # Include both 'posted' and other valid states
+                    # Get all customer payments (including direct payments)
                     payments = self.env['account.payment'].search([
                         ('partner_id', 'child_of', order.partner_id.commercial_partner_id.id),
+                        ('partner_type', '=', 'customer'),
                         ('payment_type', '=', 'inbound'),
-                        ('state', 'in', ['posted', 'sent', 'reconciled'])
+                        ('state', '=', 'posted')
                     ])
 
                     total_payments = sum(payments.mapped('amount'))
@@ -115,8 +115,9 @@ class SaleOrder(models.Model):
 
         domain = [
             ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
+            ('partner_type', '=', 'customer'),
             ('payment_type', '=', 'inbound'),
-            ('state', 'in', ['posted', 'sent', 'reconciled'])
+            ('state', '=', 'posted')
         ]
 
         return {
@@ -129,6 +130,7 @@ class SaleOrder(models.Model):
             'context': {
                 'create': False,
                 'default_partner_id': self.partner_id.id,
+                'default_partner_type': 'customer',
                 'default_payment_type': 'inbound',
             },
         }

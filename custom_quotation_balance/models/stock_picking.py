@@ -79,11 +79,12 @@ class StockPicking(models.Model):
                         picking.partner_total_invoiced = total_invoiced - total_refunded
                         picking.partner_balance_due = invoice_residual - refund_residual
 
-                        # Get all customer payments
+                        # Get all customer payments (including direct payments)
                         payments = self.env['account.payment'].search([
                             ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
+                            ('partner_type', '=', 'customer'),
                             ('payment_type', '=', 'inbound'),
-                            ('state', 'in', ['posted', 'sent', 'reconciled'])
+                            ('state', '=', 'posted')
                         ])
                         picking.partner_total_paid = sum(payments.mapped('amount'))
 
@@ -107,11 +108,12 @@ class StockPicking(models.Model):
                         picking.partner_total_invoiced = total_billed - total_refunded
                         picking.partner_balance_due = bill_residual - refund_residual
 
-                        # Get all vendor payments
+                        # Get all vendor payments (including direct payments)
                         payments = self.env['account.payment'].search([
                             ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
+                            ('partner_type', '=', 'supplier'),
                             ('payment_type', '=', 'outbound'),
-                            ('state', 'in', ['posted', 'sent', 'reconciled'])
+                            ('state', '=', 'posted')
                         ])
                         picking.partner_total_paid = sum(payments.mapped('amount'))
 
@@ -137,11 +139,12 @@ class StockPicking(models.Model):
                         picking.partner_total_invoiced = total_invoiced - total_refunded
                         picking.partner_balance_due = invoice_residual - refund_residual
 
-                        # Get all customer payments
+                        # Get all customer payments (including direct payments)
                         payments = self.env['account.payment'].search([
                             ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
+                            ('partner_type', '=', 'customer'),
                             ('payment_type', '=', 'inbound'),
-                            ('state', 'in', ['posted', 'sent', 'reconciled'])
+                            ('state', '=', 'posted')
                         ])
                         picking.partner_total_paid = sum(payments.mapped('amount'))
 
@@ -165,11 +168,12 @@ class StockPicking(models.Model):
                         picking.partner_total_invoiced = total_billed - total_refunded
                         picking.partner_balance_due = bill_residual - refund_residual
 
-                        # Get all vendor payments
+                        # Get all vendor payments (including direct payments)
                         payments = self.env['account.payment'].search([
                             ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
+                            ('partner_type', '=', 'supplier'),
                             ('payment_type', '=', 'outbound'),
-                            ('state', 'in', ['posted', 'sent', 'reconciled'])
+                            ('state', '=', 'posted')
                         ])
                         picking.partner_total_paid = sum(payments.mapped('amount'))
 
@@ -193,11 +197,12 @@ class StockPicking(models.Model):
                         picking.partner_total_invoiced = total_invoiced - total_refunded
                         picking.partner_balance_due = invoice_residual - refund_residual
 
-                        # Get all customer payments
+                        # Get all customer payments (including direct payments)
                         payments = self.env['account.payment'].search([
                             ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
+                            ('partner_type', '=', 'customer'),
                             ('payment_type', '=', 'inbound'),
-                            ('state', 'in', ['posted', 'sent', 'reconciled'])
+                            ('state', '=', 'posted')
                         ])
                         picking.partner_total_paid = sum(payments.mapped('amount'))
 
@@ -251,7 +256,13 @@ class StockPicking(models.Model):
         if not self.partner_id:
             raise UserError("No partner selected.")
 
-        payment_type = 'inbound' if (self.picking_type_id and self.picking_type_id.code == 'outgoing') else 'outbound'
+        # Determine partner type and payment type
+        if self.picking_type_id and self.picking_type_id.code == 'outgoing':
+            partner_type = 'customer'
+            payment_type = 'inbound'
+        else:
+            partner_type = 'supplier'
+            payment_type = 'outbound'
 
         return {
             'name': f'Payments - {self.partner_id.name}',
@@ -261,12 +272,14 @@ class StockPicking(models.Model):
             'views': [(False, 'list'), (False, 'form')],
             'domain': [
                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
+                ('partner_type', '=', partner_type),
                 ('payment_type', '=', payment_type),
-                ('state', 'in', ['posted', 'sent', 'reconciled'])
+                ('state', '=', 'posted')
             ],
             'context': {
                 'create': False,
                 'default_partner_id': self.partner_id.id,
+                'default_partner_type': partner_type,
                 'default_payment_type': payment_type,
             },
         }

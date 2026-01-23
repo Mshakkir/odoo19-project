@@ -57,12 +57,12 @@ class PurchaseOrder(models.Model):
                     order.vendor_total_billed = total_billed - total_refunded
                     order.vendor_balance_due = total_residual
 
-                    # Get all vendor payments (including unmatched ones)
-                    # Include both 'posted' and other valid states
+                    # Get all vendor payments (including direct payments)
                     payments = self.env['account.payment'].search([
                         ('partner_id', 'child_of', order.partner_id.commercial_partner_id.id),
+                        ('partner_type', '=', 'supplier'),
                         ('payment_type', '=', 'outbound'),
-                        ('state', 'in', ['posted', 'sent', 'reconciled'])
+                        ('state', '=', 'posted')
                     ])
 
                     total_payments = sum(payments.mapped('amount'))
@@ -115,8 +115,9 @@ class PurchaseOrder(models.Model):
 
         domain = [
             ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
+            ('partner_type', '=', 'supplier'),
             ('payment_type', '=', 'outbound'),
-            ('state', 'in', ['posted', 'sent', 'reconciled'])
+            ('state', '=', 'posted')
         ]
 
         return {
@@ -129,6 +130,7 @@ class PurchaseOrder(models.Model):
             'context': {
                 'create': False,
                 'default_partner_id': self.partner_id.id,
+                'default_partner_type': 'supplier',
                 'default_payment_type': 'outbound',
             },
         }

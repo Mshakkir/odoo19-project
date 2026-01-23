@@ -90,12 +90,13 @@ class AccountMove(models.Model):
                     move.customer_total_invoiced = total_invoiced - total_refunded
                     move.customer_balance_due = invoice_residual - refund_residual
 
-                    # Get all customer payments (including unmatched ones)
-                    # Include both 'posted' and other valid states
+                    # Get all customer payments (including direct payments)
+                    # Changed: Only use 'posted' state to get confirmed payments
                     payments = self.env['account.payment'].search([
                         ('partner_id', 'child_of', move.partner_id.commercial_partner_id.id),
+                        ('partner_type', '=', 'customer'),
                         ('payment_type', '=', 'inbound'),
-                        ('state', 'in', ['posted', 'sent', 'reconciled'])
+                        ('state', '=', 'posted')
                     ])
 
                     total_payments = sum(payments.mapped('amount'))
@@ -128,12 +129,13 @@ class AccountMove(models.Model):
                     move.vendor_total_billed = total_billed - total_refunded
                     move.vendor_balance_due = bill_residual - refund_residual
 
-                    # Get all vendor payments (including unmatched ones)
-                    # Include both 'posted' and other valid states
+                    # Get all vendor payments (including direct payments)
+                    # Changed: Only use 'posted' state and add partner_type
                     payments = self.env['account.payment'].search([
                         ('partner_id', 'child_of', move.partner_id.commercial_partner_id.id),
+                        ('partner_type', '=', 'supplier'),
                         ('payment_type', '=', 'outbound'),
-                        ('state', 'in', ['posted', 'sent', 'reconciled'])
+                        ('state', '=', 'posted')
                     ])
 
                     total_payments = sum(payments.mapped('amount'))
@@ -184,12 +186,14 @@ class AccountMove(models.Model):
             'views': [(False, 'list'), (False, 'form')],
             'domain': [
                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
+                ('partner_type', '=', 'customer'),
                 ('payment_type', '=', 'inbound'),
                 ('state', '=', 'posted')
             ],
             'context': {
                 'create': False,
                 'default_partner_id': self.partner_id.id,
+                'default_partner_type': 'customer',
                 'default_payment_type': 'inbound',
             },
         }
@@ -230,12 +234,14 @@ class AccountMove(models.Model):
             'views': [(False, 'list'), (False, 'form')],
             'domain': [
                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
+                ('partner_type', '=', 'supplier'),
                 ('payment_type', '=', 'outbound'),
                 ('state', '=', 'posted')
             ],
             'context': {
                 'create': False,
                 'default_partner_id': self.partner_id.id,
+                'default_partner_type': 'supplier',
                 'default_payment_type': 'outbound',
             },
         }

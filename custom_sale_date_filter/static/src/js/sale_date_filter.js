@@ -280,19 +280,7 @@ patch(ListController.prototype, {
         });
     },
 
-    attachFilterEvents(instanceId, isSaleOrder, isInvoice) {
-        const fromInput = document.getElementById(`date_from_${instanceId}`);
-        const toInput = document.getElementById(`date_to_${instanceId}`);
-        const warehouseSelect = document.getElementById(`warehouse_${instanceId}`);
-        const customerValue = document.getElementById(`customer_${instanceId}_value`);
-        const customerInput = document.getElementById(`customer_${instanceId}_input`);
-        const salespersonValue = document.getElementById(`salesperson_${instanceId}_value`);
-        const documentNumberInput = document.getElementById(`doc_number_${instanceId}`);
-        const totalAmountInput = document.getElementById(`total_amount_${instanceId}`);
-        const customerRefInput = document.getElementById(`customer_ref_${instanceId}`);
-        const awbNumberInput = document.getElementById(`awb_number_${instanceId}`);
-        const applyBtn = document.getElementById(`apply_filter_${instanceId}`);
-        const clearBtn = document.getElementById(`clear_filter_${instanceId}`);
+const clearBtn = document.getElementById(`clear_filter_${instanceId}`);
 
         if (!fromInput || !toInput || !applyBtn || !clearBtn) {
             console.error('Filter elements not found');

@@ -333,13 +333,7 @@ patch(ListController.prototype, {
         const salespersonValue = document.getElementById(`salesperson_${timestamp}_value`);
         const salespersonInput = document.getElementById(`salesperson_${timestamp}_input`);
         const documentNumberInput = document.getElementById(`doc_number_${timestamp}`);
-        const totalAmountInput = document.getElementById(`total_amount_${timestamp}`);
-        const customerRefInput = document.getElementById(`customer_ref_${timestamp}`);
-        const awbNumberInput = document.getElementById(`awb_number_${timestamp}`);
-        const applyBtn = document.getElementById(`apply_filter_${timestamp}`);
-        const clearBtn = document.getElementById(`clear_filter_${timestamp}`);
-
-        if (!dateFromInput || !dateToInput || !applyBtn || !clearBtn) return;
+        const totalAmountInput = document.getElementById(`
 
         const applyFilters = () => {
             const dateFrom = dateFromInput.value;

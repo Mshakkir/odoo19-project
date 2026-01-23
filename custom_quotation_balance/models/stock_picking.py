@@ -83,7 +83,7 @@ class StockPicking(models.Model):
                         payments = self.env['account.payment'].search([
                             ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
                             ('payment_type', '=', 'inbound'),
-                            ('state', '=', 'posted')
+                            ('state', 'in', ['posted', 'sent', 'reconciled'])
                         ])
                         picking.partner_total_paid = sum(payments.mapped('amount'))
 
@@ -111,7 +111,7 @@ class StockPicking(models.Model):
                         payments = self.env['account.payment'].search([
                             ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
                             ('payment_type', '=', 'outbound'),
-                            ('state', '=', 'posted')
+                            ('state', 'in', ['posted', 'sent', 'reconciled'])
                         ])
                         picking.partner_total_paid = sum(payments.mapped('amount'))
 
@@ -141,7 +141,7 @@ class StockPicking(models.Model):
                         payments = self.env['account.payment'].search([
                             ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
                             ('payment_type', '=', 'inbound'),
-                            ('state', '=', 'posted')
+                            ('state', 'in', ['posted', 'sent', 'reconciled'])
                         ])
                         picking.partner_total_paid = sum(payments.mapped('amount'))
 
@@ -169,7 +169,7 @@ class StockPicking(models.Model):
                         payments = self.env['account.payment'].search([
                             ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
                             ('payment_type', '=', 'outbound'),
-                            ('state', '=', 'posted')
+                            ('state', 'in', ['posted', 'sent', 'reconciled'])
                         ])
                         picking.partner_total_paid = sum(payments.mapped('amount'))
 
@@ -197,7 +197,7 @@ class StockPicking(models.Model):
                         payments = self.env['account.payment'].search([
                             ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
                             ('payment_type', '=', 'inbound'),
-                            ('state', '=', 'posted')
+                            ('state', 'in', ['posted', 'sent', 'reconciled'])
                         ])
                         picking.partner_total_paid = sum(payments.mapped('amount'))
 
@@ -262,7 +262,7 @@ class StockPicking(models.Model):
             'domain': [
                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
                 ('payment_type', '=', payment_type),
-                ('state', '=', 'posted')
+                ('state', 'in', ['posted', 'sent', 'reconciled'])
             ],
             'context': {
                 'create': False,

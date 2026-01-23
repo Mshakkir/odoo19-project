@@ -58,10 +58,11 @@ class SaleOrder(models.Model):
                     order.customer_balance_due = total_residual
 
                     # Get all customer payments (including unmatched ones)
+                    # Include both 'posted' and other valid states
                     payments = self.env['account.payment'].search([
                         ('partner_id', 'child_of', order.partner_id.commercial_partner_id.id),
                         ('payment_type', '=', 'inbound'),
-                        ('state', '=', 'posted')
+                        ('state', 'in', ['posted', 'sent', 'reconciled'])
                     ])
 
                     total_payments = sum(payments.mapped('amount'))
@@ -115,7 +116,7 @@ class SaleOrder(models.Model):
         domain = [
             ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
             ('payment_type', '=', 'inbound'),
-            ('state', '=', 'posted')
+            ('state', 'in', ['posted', 'sent', 'reconciled'])
         ]
 
         return {

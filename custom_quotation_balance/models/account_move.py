@@ -91,10 +91,11 @@ class AccountMove(models.Model):
                     move.customer_balance_due = invoice_residual - refund_residual
 
                     # Get all customer payments (including unmatched ones)
+                    # Include both 'posted' and other valid states
                     payments = self.env['account.payment'].search([
                         ('partner_id', 'child_of', move.partner_id.commercial_partner_id.id),
                         ('payment_type', '=', 'inbound'),
-                        ('state', '=', 'posted')
+                        ('state', 'in', ['posted', 'sent', 'reconciled'])
                     ])
 
                     total_payments = sum(payments.mapped('amount'))
@@ -128,10 +129,11 @@ class AccountMove(models.Model):
                     move.vendor_balance_due = bill_residual - refund_residual
 
                     # Get all vendor payments (including unmatched ones)
+                    # Include both 'posted' and other valid states
                     payments = self.env['account.payment'].search([
                         ('partner_id', 'child_of', move.partner_id.commercial_partner_id.id),
                         ('payment_type', '=', 'outbound'),
-                        ('state', '=', 'posted')
+                        ('state', 'in', ['posted', 'sent', 'reconciled'])
                     ])
 
                     total_payments = sum(payments.mapped('amount'))

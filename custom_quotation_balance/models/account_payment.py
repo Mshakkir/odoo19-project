@@ -52,7 +52,16 @@ class AccountPayment(models.Model):
 
                         payment.partner_total_invoiced = total_invoiced - total_refunded
                         payment.partner_balance_due = total_residual
-                        payment.partner_total_paid = payment.partner_total_invoiced - payment.partner_balance_due
+
+                        # Get all customer payments (including unmatched ones)
+                        payments = self.env['account.payment'].search([
+                            ('partner_id', 'child_of', payment.partner_id.commercial_partner_id.id),
+                            ('payment_type', '=', 'inbound'),
+                            ('state', '=', 'posted')
+                        ])
+
+                        total_payments = sum(payments.mapped('amount'))
+                        payment.partner_total_paid = total_payments
 
                     # Vendor payments (outbound)
                     elif payment.payment_type == 'outbound':
@@ -74,7 +83,17 @@ class AccountPayment(models.Model):
 
                         payment.partner_total_invoiced = total_billed - total_refunded
                         payment.partner_balance_due = total_residual
-                        payment.partner_total_paid = payment.partner_total_invoiced - payment.partner_balance_due
+
+                        # Get all vendor payments (including unmatched ones)
+                        payments = self.env['account.payment'].search([
+                            ('partner_id', 'child_of', payment.partner_id.commercial_partner_id.id),
+                            ('payment_type', '=', 'outbound'),
+                            ('state', '=', 'posted')
+                        ])
+
+                        total_payments = sum(payments.mapped('amount'))
+                        payment.partner_total_paid = total_payments
+
                     else:
                         payment.partner_total_invoiced = 0.0
                         payment.partner_total_paid = 0.0
@@ -143,6 +162,7 @@ class AccountPayment(models.Model):
             'domain': [
                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
                 ('payment_type', '=', self.payment_type),
+                ('state', '=', 'posted')
             ],
             'context': {
                 'create': False,
@@ -150,4 +170,3 @@ class AccountPayment(models.Model):
                 'default_payment_type': self.payment_type,
             },
         }
-

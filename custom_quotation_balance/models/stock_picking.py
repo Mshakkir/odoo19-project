@@ -78,7 +78,14 @@ class StockPicking(models.Model):
 
                         picking.partner_total_invoiced = total_invoiced - total_refunded
                         picking.partner_balance_due = invoice_residual - refund_residual
-                        picking.partner_total_paid = picking.partner_total_invoiced - picking.partner_balance_due
+
+                        # Get all customer payments
+                        payments = self.env['account.payment'].search([
+                            ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
+                            ('payment_type', '=', 'inbound'),
+                            ('state', '=', 'posted')
+                        ])
+                        picking.partner_total_paid = sum(payments.mapped('amount'))
 
                     # Receipts (vendor)
                     elif picking.picking_type_id.code == 'incoming':
@@ -99,16 +106,19 @@ class StockPicking(models.Model):
 
                         picking.partner_total_invoiced = total_billed - total_refunded
                         picking.partner_balance_due = bill_residual - refund_residual
-                        picking.partner_total_paid = picking.partner_total_invoiced - picking.partner_balance_due
+
+                        # Get all vendor payments
+                        payments = self.env['account.payment'].search([
+                            ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
+                            ('payment_type', '=', 'outbound'),
+                            ('state', '=', 'posted')
+                        ])
+                        picking.partner_total_paid = sum(payments.mapped('amount'))
 
                 else:
-                    # No picking_type_id set yet - try to detect from location or show both
-                    # For new records, show customer invoices by default (most common case)
-                    # You can also check picking.location_dest_id to determine direction
-
-                    # Check if this looks like a delivery (to customer)
+                    # No picking_type_id set yet - determine from location
                     if picking.location_dest_id and picking.location_dest_id.usage == 'customer':
-                        # This is a delivery - show customer balance
+                        # Delivery - show customer balance
                         invoices = self.env['account.move'].search([
                             ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
                             ('move_type', 'in', ['out_invoice', 'out_refund']),
@@ -126,11 +136,17 @@ class StockPicking(models.Model):
 
                         picking.partner_total_invoiced = total_invoiced - total_refunded
                         picking.partner_balance_due = invoice_residual - refund_residual
-                        picking.partner_total_paid = picking.partner_total_invoiced - picking.partner_balance_due
 
-                    # Check if this looks like a receipt (from vendor)
+                        # Get all customer payments
+                        payments = self.env['account.payment'].search([
+                            ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
+                            ('payment_type', '=', 'inbound'),
+                            ('state', '=', 'posted')
+                        ])
+                        picking.partner_total_paid = sum(payments.mapped('amount'))
+
                     elif picking.location_id and picking.location_id.usage == 'supplier':
-                        # This is a receipt - show vendor balance
+                        # Receipt - show vendor balance
                         bills = self.env['account.move'].search([
                             ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
                             ('move_type', 'in', ['in_invoice', 'in_refund']),
@@ -148,11 +164,17 @@ class StockPicking(models.Model):
 
                         picking.partner_total_invoiced = total_billed - total_refunded
                         picking.partner_balance_due = bill_residual - refund_residual
-                        picking.partner_total_paid = picking.partner_total_invoiced - picking.partner_balance_due
+
+                        # Get all vendor payments
+                        payments = self.env['account.payment'].search([
+                            ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
+                            ('payment_type', '=', 'outbound'),
+                            ('state', '=', 'posted')
+                        ])
+                        picking.partner_total_paid = sum(payments.mapped('amount'))
 
                     else:
-                        # Can't determine - show customer data as default
-                        # (or you could show vendor data, or show both)
+                        # Default to customer data
                         invoices = self.env['account.move'].search([
                             ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
                             ('move_type', 'in', ['out_invoice', 'out_refund']),
@@ -170,7 +192,14 @@ class StockPicking(models.Model):
 
                         picking.partner_total_invoiced = total_invoiced - total_refunded
                         picking.partner_balance_due = invoice_residual - refund_residual
-                        picking.partner_total_paid = picking.partner_total_invoiced - picking.partner_balance_due
+
+                        # Get all customer payments
+                        payments = self.env['account.payment'].search([
+                            ('partner_id', 'child_of', picking.partner_id.commercial_partner_id.id),
+                            ('payment_type', '=', 'inbound'),
+                            ('state', '=', 'posted')
+                        ])
+                        picking.partner_total_paid = sum(payments.mapped('amount'))
 
             except Exception:
                 picking.partner_total_invoiced = 0.0
@@ -222,26 +251,7 @@ class StockPicking(models.Model):
         if not self.partner_id:
             raise UserError("No partner selected.")
 
-        all_payments = self.env['account.payment'].search([
-            ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
-        ])
-
         payment_type = 'inbound' if (self.picking_type_id and self.picking_type_id.code == 'outgoing') else 'outbound'
-
-        if not all_payments:
-            return {
-                'name': f'Paid Invoices - {self.partner_id.name}',
-                'type': 'ir.actions.act_window',
-                'res_model': 'account.move',
-                'view_mode': 'list,form',
-                'views': [(False, 'list'), (False, 'form')],
-                'domain': [
-                    ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
-                    ('payment_state', 'in', ['paid', 'in_payment', 'partial']),
-                    ('state', '=', 'posted'),
-                ],
-                'context': {'create': False},
-            }
 
         return {
             'name': f'Payments - {self.partner_id.name}',
@@ -252,6 +262,7 @@ class StockPicking(models.Model):
             'domain': [
                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
                 ('payment_type', '=', payment_type),
+                ('state', '=', 'posted')
             ],
             'context': {
                 'create': False,

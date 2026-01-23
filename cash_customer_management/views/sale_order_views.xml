@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sale Order Form View Extension -->
+    <record id="view_order_form_cash_customer" model="ir.ui.view">
+        <field name="name">sale.order.form.cash.customer</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Add custom fields after partner_id -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="is_cash_customer" invisible="1"/>
+
+                <!-- Show these fields only when Cash Customer is selected -->
+                <group string="Actual Customer Details" invisible="not is_cash_customer" class="oe_subtotal_footer_separator">
+                    <group>
+                        <field name="actual_customer_name" required="is_cash_customer" placeholder="e.g., John Doe"/>
+                        <field name="actual_customer_mobile" placeholder="e.g., +1234567890"/>
+                    </group>
+                    <group>
+                        <field name="actual_customer_address" placeholder="Enter customer address"/>
+                        <field name="actual_customer_email" placeholder="e.g., john@example.com"/>
+                    </group>
+                </group>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Invoice Report Template Extension -->
+    <template id="report_invoice_document_cash_customer" inherit_id="account.report_invoice_document">
+
+        <!-- Replace customer address section -->
+        <xpath expr="//t[@t-set='address']" position="replace">
+            <t t-set="address">
+                <!-- For Cash Customer: Show actual customer details -->
+                <t t-if="o.is_cash_customer and o.actual_customer_name">
+                    <div>
+                        <strong><span t-field="o.actual_customer_name"/></strong><br/>
+                        <span t-if="o.actual_customer_mobile">
+                            Mobile: <span t-field="o.actual_customer_mobile"/><br/>
+                        </span>
+                        <span t-if="o.actual_customer_email">
+                            Email: <span t-field="o.actual_customer_email"/><br/>
+                        </span>
+                        <span t-if="o.actual_customer_address">
+                            <span t-field="o.actual_customer_address"/><br/>
+                        </span>
+                    </div>
+                </t>
+
+                <!-- For regular customers: Show normal partner address -->
+                <t t-else="">
+                    <div t-field="o.partner_id"
+                         t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
+                </t>
+            </t>
+        </xpath>
+
+    </template>
+
+</odoo>

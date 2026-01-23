@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Create the default Cash Customer -->
+        <record id="cash_customer_partner" model="res.partner">
+            <field name="name">Cash Customer</field>
+            <field name="customer_rank">1</field>
+            <field name="is_company" eval="False"/>
+            <field name="active" eval="True"/>
+            <field name="street">Walk-in Customer</field>
+            <field name="city">Store</field>
+            <field name="comment">This is a generic customer account for all walk-in cash sales. Individual customer details are captured in the sale order/invoice custom fields.</field>
+        </record>
+
+    </data>
+</odoo>

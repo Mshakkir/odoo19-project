@@ -7,21 +7,30 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add custom fields after partner_id -->
-            <xpath expr="//field[@name='partner_id']" position="after">
+            <!-- Add invisible field to track if Cash Customer is selected -->
+            <xpath expr="//field[@name='partner_shipping_id']" position="after">
                 <field name="is_cash_customer" invisible="1"/>
+            </xpath>
 
-                <!-- Show these fields only when Cash Customer is selected -->
-                <group string="Actual Customer Details" invisible="not is_cash_customer" class="oe_subtotal_footer_separator">
+            <!-- Add custom fields in a new notebook page -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Cash Customer Details" invisible="not is_cash_customer">
                     <group>
-                        <field name="actual_customer_name" required="is_cash_customer" placeholder="e.g., John Doe"/>
-                        <field name="actual_customer_mobile" placeholder="e.g., +1234567890"/>
+                        <group string="Customer Information">
+                            <field name="actual_customer_name" required="is_cash_customer" placeholder="Enter customer name (e.g., John Doe)"/>
+                            <field name="actual_customer_mobile" placeholder="Enter mobile number"/>
+                            <field name="actual_customer_email" placeholder="Enter email address"/>
+                        </group>
+                        <group string="Address">
+                            <field name="actual_customer_address" placeholder="Enter complete address"/>
+                        </group>
                     </group>
-                    <group>
-                        <field name="actual_customer_address" placeholder="Enter customer address"/>
-                        <field name="actual_customer_email" placeholder="e.g., john@example.com"/>
-                    </group>
-                </group>
+                    <separator/>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Note:</strong> These details will be printed on the invoice instead of "Cash Customer".
+                        The accounting ledger will show "Cash Customer" to keep your records organized.
+                    </div>
+                </page>
             </xpath>
 
         </field>

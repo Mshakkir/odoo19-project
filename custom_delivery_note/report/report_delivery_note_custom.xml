@@ -230,7 +230,7 @@
                                     رقم الطلب
                                 </span>
                                 <br/>
-                                <span t-if="o.sale_id" t-field="o.sale_id.client_order_ref"/>
+                                <span t-if="o.sale_id" t-field="o.ref"/>
                             </td>
                         </tr>
 

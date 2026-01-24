@@ -19,7 +19,7 @@ class PurchaseOrderLine(models.Model):
     tax_amount = fields.Monetary(
         string='Tax Value',
         compute='_compute_tax_amount',
-        store=True,
+        store=False,
         currency_field='currency_id'
     )
 

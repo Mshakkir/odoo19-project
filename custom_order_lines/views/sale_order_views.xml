@@ -5,15 +5,6 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <!-- Hide optional columns in the gear menu -->
-            <xpath expr="//field[@name='order_line']//field[@name='product_packaging_qty']" position="attributes">
-                <attribute name="column_invisible">1</attribute>
-            </xpath>
-
-            <xpath expr="//field[@name='order_line']//field[@name='product_packaging_id']" position="attributes">
-                <attribute name="column_invisible">1</attribute>
-            </xpath>
-
             <!-- Replace the order_line tree view -->
             <xpath expr="//field[@name='order_line']/tree" position="replace">
                 <tree string="Sales Order Lines" editable="bottom">
@@ -26,7 +17,7 @@
                     <!-- 3. Product -->
                     <field name="product_id"
                            required="1"
-                           context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'uom':product_uom, 'company_id': parent.company_id}"
+                           context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'uom':product_uom_id, 'company_id': parent.company_id}"
                            widget="sol_product_many2one"/>
 
                     <!-- 4. Analytic Distribution -->
@@ -39,7 +30,7 @@
                     <field name="product_uom_qty" string="Qty"/>
 
                     <!-- 6. Unit -->
-                    <field name="product_uom"
+                    <field name="product_uom_id"
                            string="Unit"
                            groups="uom.group_uom"
                            optional="show"/>
@@ -50,18 +41,14 @@
                     <!-- 8. Discount -->
                     <field name="discount" string="Disc" optional="show"/>
 
-                    <!-- 9. Disc % (hidden by default) -->
-                    <field name="discount" string="Disc %" optional="hide"/>
-
                     <!-- 10. Untax Amount (after discount) -->
                     <field name="untaxed_amount_after_discount" string="Untax Amount" readonly="1"/>
 
-                    <!-- 11. Tax - only show if field exists -->
-                    <field name="tax_id"
+                    <!-- 11. Tax - using tax_ids (correct field name) -->
+                    <field name="tax_ids"
                            widget="many2many_tags"
                            optional="show"
-                           context="{'active_test': True}"
-                           column_invisible="'tax_id' not in parent._fields"/>
+                           context="{'active_test': True}"/>
 
                     <!-- 12. Tax Value -->
                     <field name="tax_amount" string="Tax Value" readonly="1" optional="show"/>
@@ -70,15 +57,14 @@
                     <field name="total_amount" string="Total" readonly="1" sum="Total"/>
 
                     <!-- Hidden optional fields -->
-                    <field name="customer_lead" string="Lead Time" optional="hide" column_invisible="'customer_lead' not in parent._fields"/>
-                    <field name="product_template_id" column_invisible="1"/>
-                    <field name="product_no_variant_attribute_value_ids" column_invisible="1"/>
-                    <field name="product_custom_attribute_value_ids" column_invisible="1"/>
+                    <field name="customer_lead" string="Lead Time" optional="hide"/>
+                    <field name="warehouse_id" string="Delivery Warehouse" optional="hide"/>
+                    <field name="product_template_id" column_invisible="1" invisible="1"/>
 
                     <!-- Currency field (hidden but needed for monetary fields) -->
                     <field name="currency_id" column_invisible="1"/>
                     <field name="company_id" column_invisible="1"/>
-                    <field name="state" column_invisible="1"/>
+                    <field name="state" column_invisible="1" invisible="1"/>
                 </tree>
             </xpath>
         </field>

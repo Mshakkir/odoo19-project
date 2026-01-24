@@ -48,28 +48,11 @@ class SaleOrderLine(models.Model):
             price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
             line.untaxed_amount_after_discount = price * line.product_uom_qty
 
-    @api.depends('product_uom_qty', 'price_unit', 'discount', 'price_subtotal', 'price_total')
+    @api.depends('product_uom_qty', 'price_unit', 'discount', 'price_tax')
     def _compute_tax_amount(self):
         for line in self:
-            # Method 1: Use price_total and price_subtotal if available
-            if hasattr(line, 'price_total') and hasattr(line, 'price_subtotal'):
-                line.tax_amount = line.price_total - line.price_subtotal
-            # Method 2: Calculate manually if we have tax fields
-            elif 'tax_id' in line._fields and line.tax_id:
-                try:
-                    price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
-                    taxes = line.tax_id.compute_all(
-                        price,
-                        line.order_id.currency_id,
-                        line.product_uom_qty,
-                        product=line.product_id,
-                        partner=line.order_id.partner_shipping_id
-                    )
-                    line.tax_amount = sum(t.get('amount', 0.0) for t in taxes.get('taxes', []))
-                except:
-                    line.tax_amount = 0.0
-            else:
-                line.tax_amount = 0.0
+            # Use the existing price_tax field which already contains the tax amount
+            line.tax_amount = line.price_tax if hasattr(line, 'price_tax') else 0.0
 
     @api.depends('untaxed_amount_after_discount', 'tax_amount')
     def _compute_total_amount(self):

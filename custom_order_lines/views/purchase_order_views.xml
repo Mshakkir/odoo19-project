@@ -89,7 +89,7 @@
                            optional="show"/>
 
                     <!-- 8. Tax -->
-                    <field name="taxes_ids"
+                    <field name="tax_ids"
                            string="Tax"
                            widget="many2many_tags"
                            options="{'no_create': True}"

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_custom_lines" model="ir.ui.view">
+        <field name="name">sale.order.form.custom.lines</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Hide optional columns in the gear menu -->
+            <xpath expr="//field[@name='order_line']//field[@name='product_packaging_qty']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']//field[@name='product_packaging_id']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+
+            <!-- Replace the order_line tree view -->
+            <xpath expr="//field[@name='order_line']/tree" position="replace">
+                <tree string="Sales Order Lines" editable="bottom">
+                    <!-- 1. SN -->
+                    <field name="sequence_number" string="SN" readonly="1"/>
+
+                    <!-- 2. P. Code -->
+                    <field name="product_code" string="P. Code" optional="show"/>
+
+                    <!-- 3. Product -->
+                    <field name="product_id"
+                           required="1"
+                           context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'uom':product_uom, 'company_id': parent.company_id}"
+                           widget="sol_product_many2one"/>
+
+                    <!-- 4. Analytic Distribution -->
+                    <field name="analytic_distribution"
+                           widget="analytic_distribution"
+                           optional="show"
+                           groups="analytic.group_analytic_accounting"/>
+
+                    <!-- 5. Quantity -->
+                    <field name="product_uom_qty" string="Qty"/>
+
+                    <!-- 6. Unit -->
+                    <field name="product_uom"
+                           string="Unit"
+                           groups="uom.group_uom"
+                           optional="show"/>
+
+                    <!-- 7. Price -->
+                    <field name="price_unit" string="Price"/>
+
+                    <!-- 8. Discount -->
+                    <field name="discount" string="Disc" optional="show"/>
+
+                    <!-- 9. Disc % (hidden by default) -->
+                    <field name="discount" string="Disc %" optional="hide"/>
+
+                    <!-- 10. Untax Amount (after discount) -->
+                    <field name="untaxed_amount_after_discount" string="Untax Amount" readonly="1"/>
+
+                    <!-- 11. Tax -->
+                    <field name="tax_id"
+                           widget="many2many_tags"
+                           optional="show"
+                           context="{'active_test': True}"/>
+
+                    <!-- 12. Tax Value -->
+                    <field name="tax_amount" string="Tax Value" readonly="1"/>
+
+                    <!-- 13. Total -->
+                    <field name="total_amount" string="Total" readonly="1" sum="Total"/>
+
+                    <!-- Hidden optional fields -->
+                    <field name="customer_lead" string="Lead Time" optional="hide"/>
+                    <field name="product_template_id" column_invisible="1"/>
+                    <field name="product_no_variant_attribute_value_ids" column_invisible="1"/>
+                    <field name="product_custom_attribute_value_ids" column_invisible="1"/>
+
+                    <!-- Currency field (hidden but needed for monetary fields) -->
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="company_id" column_invisible="1"/>
+                    <field name="state" column_invisible="1"/>
+                </tree>
+            </xpath>
+        </field>
+    </record>
+</odoo>

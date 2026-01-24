@@ -151,7 +151,7 @@
                            invisible="1"/>
 
                     <!-- Propagate Cancellation (Hidden by default) -->
-                    <field name="propagate_cancellation"
+                    <field name="propagate_cancel"
                            string="Propagate Cancellation"
                            optional="hide"
                            width="80px"

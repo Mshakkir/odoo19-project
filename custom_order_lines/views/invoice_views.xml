@@ -10,20 +10,22 @@
                 <list string="Invoice Lines" editable="bottom" limit="200">
                     <!-- Required invisible fields -->
                     <field name="display_type" column_invisible="True"/>
-                    <field name="sequence" widget="handle"/>
                     <field name="currency_id" column_invisible="True"/>
                     <field name="company_id" column_invisible="True"/>
                     <field name="move_id" column_invisible="True"/>
 
-                    <!-- 1. SN (Serial Number) -->
-                    <field name="sequence" string="SN" readonly="1" optional="show" width="20px"/>
+                    <!-- Sequence handle for drag/drop -->
+                    <field name="sequence" widget="handle" column_invisible="False"/>
 
-                    <!-- 2. P. Code (Product Code) -->
-                    <field name="product_id"
+                    <!-- 1. SN (Serial Number) - Use custom sequence_number field -->
+                    <field name="sequence_number" string="SN" readonly="1" optional="show" width="20px"/>
+
+                    <!-- 2. P. Code (Product Code) - Show product reference only -->
+                    <field name="product_code"
                            string="P. Code"
                            optional="show"
                            width="30px"
-                           attrs="{'readonly': [('parent.state', '!=', 'draft')]}"/>
+                           readonly="1"/>
 
                     <!-- 3. Product (Main Product Field) -->
                     <field name="product_id"
@@ -49,7 +51,8 @@
                     <field name="quantity"
                            string="Qty"
                            readonly="parent.state != 'draft'"
-                           width="30px"/>
+                           width="30px"
+                           optional="show"/>
 
                     <!-- 6. Unit of Measure -->
                     <field name="product_uom_id"
@@ -67,7 +70,8 @@
                     <field name="price_unit"
                            string="Price"
                            readonly="parent.state != 'draft'"
-                           width="60px"/>
+                           width="60px"
+                           optional="show"/>
 
                     <!-- 8. Tax -->
                     <field name="tax_ids"
@@ -79,29 +83,22 @@
                            optional="show"
                            width="40px"/>
 
-                    <!-- 9. Discount (Fixed Amount) -->
-                    <field name="discount"
-                           string="Disc"
-                           readonly="parent.state != 'draft'"
-                           width="60px"
-                           optional="show"/>
-
-                    <!-- 9a. Discount % (Hidden by default) -->
+                    <!-- 9. Discount % (SHOW by default) -->
                     <field name="discount"
                            string="Disc%"
                            readonly="parent.state != 'draft'"
                            width="60px"
-                           optional="hide"
+                           optional="show"
                            groups="sale.group_discount_per_so_line"/>
 
-                    <!-- 10. Untaxed Amount (Subtotal after discount) -->
+                    <!-- 10. Untaxed Amount (Subtotal) -->
                     <field name="price_subtotal"
                            string="Untax Amt"
                            readonly="1"
                            optional="show"
                            width="60px"/>
 
-                    <!-- 11. Tax Value (Tax Amount) -->
+                    <!-- 11. Tax Value (Custom computed field) -->
                     <field name="tax_amount"
                            string="Tax Value"
                            readonly="1"
@@ -115,11 +112,20 @@
                            optional="show"
                            width="60px"/>
 
+                    <!-- 13. Product Variant (HIDDEN by default) -->
+                    <field name="product_id"
+                           string="Variant"
+                           readonly="parent.state != 'draft'"
+                           optional="hide"
+                           width="80px"
+                           invisible="1"/>
+
                     <!-- Description (Hidden by default) -->
                     <field name="name"
                            widget="text"
                            optional="hide"
-                           width="200px"/>
+                           width="200px"
+                           invisible="1"/>
 
                     <!-- Account (Hidden by default) -->
                     <field name="account_id"
@@ -127,20 +133,15 @@
                            readonly="parent.state != 'draft'"
                            required="1"
                            optional="hide"
-                           width="80px"/>
+                           width="80px"
+                           invisible="1"/>
 
-                    <!-- Warehouse (Hidden by default) - for stock module compatibility -->
+                    <!-- Warehouse (Hidden by default) -->
                     <field name="warehouse_id"
                            string="Warehouse"
                            optional="hide"
-                           width="70px"/>
-
-                    <!-- Product Variant Info (Hidden by default) -->
-                    <field name="product_id"
-                           string="Variant"
-                           readonly="parent.state != 'draft'"
-                           optional="hide"
-                           width="80px"/>
+                           width="70px"
+                           invisible="1"/>
 
                 </list>
             </xpath>

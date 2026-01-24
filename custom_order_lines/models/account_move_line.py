@@ -23,11 +23,12 @@ class AccountMoveLine(models.Model):
         currency_field='currency_id'
     )
 
-    @api.depends('move_id.invoice_line_ids')
+    @api.depends('move_id.invoice_line_ids', 'display_type')
     def _compute_sequence_number(self):
         for move in self.mapped('move_id'):
             number = 1
-            for line in move.invoice_line_ids.filtered(lambda l: l.display_type == 'product'):
+            # Only count lines with display_type 'product' or empty (regular lines)
+            for line in move.invoice_line_ids.filtered(lambda l: l.display_type in ['product', False]):
                 line.sequence_number = number
                 number += 1
 

@@ -12,7 +12,7 @@
     """,
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',
-    'depends': ['sale_management'],
+    'depends': ['sale_management','account_invoice_fixed_discount'],
     'data': [
         'views/sale_order_views.xml',
     ],

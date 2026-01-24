@@ -1,4 +1,4 @@
-///** @odoo-module **/
+/** @odoo-module **/
 
 import { patch } from "@web/core/utils/patch";
 import { ListController } from "@web/views/list/list_controller";
@@ -48,6 +48,7 @@ patch(ListController.prototype, {
     shouldShowFilter() {
         const resModel = this.props.resModel;
         const context = this.props.context || {};
+        const domain = this.props.domain || [];
 
         // Check if it's a sale order
         if (resModel === 'sale.order') {
@@ -56,18 +57,19 @@ patch(ListController.prototype, {
 
         // Check if it's a sale invoice (account.move with move_type 'out_invoice')
         if (resModel === 'account.move') {
-            // Check the context or domain to determine if it's a sales invoice
-            // If the domain already filters for out_invoice, allow it
-            if (this.props.domain) {
-                const hasOutInvoiceFilter = this.props.domain.some(condition =>
-                    Array.isArray(condition) &&
-                    condition[0] === 'move_type' &&
-                    condition[2] === 'out_invoice'
-                );
-                return hasOutInvoiceFilter;
-            }
-            // Default: don't show for account.move unless explicitly a sales invoice
-            return false;
+            // Check if domain contains out_invoice filter
+            const hasOutInvoiceFilter = domain.some(condition =>
+                Array.isArray(condition) &&
+                condition[0] === 'move_type' &&
+                condition[2] === 'out_invoice'
+            );
+
+            // Check context for type indicator
+            const isOutInvoiceFromContext = context.default_move_type === 'out_invoice' ||
+                                           context.type === 'out_invoice';
+
+            // If either check passes, it's a sales invoice
+            return hasOutInvoiceFilter || isOutInvoiceFromContext;
         }
 
         return false;

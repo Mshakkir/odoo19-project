@@ -10,12 +10,10 @@
                 <list string="Invoice Lines" editable="bottom" limit="200">
                     <!-- Required invisible fields -->
                     <field name="display_type" column_invisible="True"/>
-                    <field name="exclude_from_invoice_tab" column_invisible="True"/>
-                    <field name="sequence" widget="handle" column_invisible="False"/>
+                    <field name="sequence" widget="handle"/>
                     <field name="currency_id" column_invisible="True"/>
                     <field name="company_id" column_invisible="True"/>
                     <field name="move_id" column_invisible="True"/>
-                    <field name="product_code" column_invisible="True"/>
 
                     <!-- 1. SN (Serial Number) -->
                     <field name="sequence" string="SN" readonly="1" optional="show" width="20px"/>
@@ -25,12 +23,12 @@
                            string="P. Code"
                            optional="show"
                            width="30px"
-                           attrs="{'readonly': [('move_id.state', '!=', 'draft')]}"/>
+                           attrs="{'readonly': [('parent.state', '!=', 'draft')]}"/>
 
                     <!-- 3. Product (Main Product Field) -->
                     <field name="product_id"
                            string="Product"
-                           readonly="move_id.state != 'draft'"
+                           readonly="parent.state != 'draft'"
                            required="not display_type"
                            context="{'default_list_price': price_unit}"
                            options="{'show_label_warning': True}"
@@ -50,14 +48,14 @@
                     <!-- 5. Quantity -->
                     <field name="quantity"
                            string="Qty"
-                           readonly="move_id.state != 'draft'"
+                           readonly="parent.state != 'draft'"
                            width="30px"/>
 
                     <!-- 6. Unit of Measure -->
                     <field name="product_uom_id"
                            string="Unit"
                            force_save="1"
-                           readonly="move_id.state != 'draft'"
+                           readonly="parent.state != 'draft'"
                            required="not display_type"
                            widget="many2one_uom"
                            groups="uom.group_uom"
@@ -68,7 +66,7 @@
                     <!-- 7. Price Unit -->
                     <field name="price_unit"
                            string="Price"
-                           readonly="move_id.state != 'draft'"
+                           readonly="parent.state != 'draft'"
                            width="60px"/>
 
                     <!-- 8. Tax -->
@@ -77,33 +75,33 @@
                            widget="many2many_tax_tags"
                            options="{'no_create': True}"
                            context="{'active_test': True}"
-                           readonly="move_id.state != 'draft'"
+                           readonly="parent.state != 'draft'"
                            optional="show"
                            width="40px"/>
 
-                    <!-- 9. Discount (Fixed) -->
+                    <!-- 9. Discount (Fixed Amount) -->
                     <field name="discount"
                            string="Disc"
-                           readonly="move_id.state != 'draft'"
+                           readonly="parent.state != 'draft'"
                            width="60px"
                            optional="show"/>
 
                     <!-- 9a. Discount % (Hidden by default) -->
-                    <field name="discount_percentage"
+                    <field name="discount"
                            string="Disc%"
-                           readonly="move_id.state != 'draft'"
+                           readonly="parent.state != 'draft'"
                            width="60px"
                            optional="hide"
                            groups="sale.group_discount_per_so_line"/>
 
-                    <!-- 10. Untaxed Amount (after discount) -->
+                    <!-- 10. Untaxed Amount (Subtotal after discount) -->
                     <field name="price_subtotal"
                            string="Untax Amt"
                            readonly="1"
                            optional="show"
                            width="60px"/>
 
-                    <!-- 11. Tax Value -->
+                    <!-- 11. Tax Value (Tax Amount) -->
                     <field name="price_tax"
                            string="Tax Value"
                            readonly="1"
@@ -126,23 +124,21 @@
                     <!-- Account (Hidden by default) -->
                     <field name="account_id"
                            string="Account"
-                           readonly="move_id.state != 'draft' or move_id.move_type != 'entry'"
+                           readonly="parent.state != 'draft'"
                            required="1"
                            optional="hide"
-                           domain="[('move_type', '=', move_id.move_type)]"
                            width="80px"/>
 
-                    <!-- Warehouse (Hidden by default) - if applicable -->
+                    <!-- Warehouse (Hidden by default) - for stock module compatibility -->
                     <field name="warehouse_id"
                            string="Warehouse"
                            optional="hide"
-                           width="70px"
-                           groups="stock.group_stock_multi_locations"/>
+                           width="70px"/>
 
-                    <!-- Product Variant (Hidden by default) -->
+                    <!-- Product Variant Info (Hidden by default) -->
                     <field name="product_id"
                            string="Variant"
-                           readonly="move_id.state != 'draft'"
+                           readonly="parent.state != 'draft'"
                            optional="hide"
                            width="80px"/>
 

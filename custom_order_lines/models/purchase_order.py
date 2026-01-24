@@ -16,6 +16,13 @@ class PurchaseOrderLine(models.Model):
         readonly=True
     )
 
+    tax_amount = fields.Monetary(
+        string='Tax Value',
+        compute='_compute_tax_amount',
+        store=True,
+        currency_field='currency_id'
+    )
+
     @api.depends('order_id.order_line', 'display_type')
     def _compute_sequence_number(self):
         for order in self.mapped('order_id'):

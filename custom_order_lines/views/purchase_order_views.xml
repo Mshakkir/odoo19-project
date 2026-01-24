@@ -14,14 +14,6 @@
 
                     <!-- Required invisible fields -->
                     <field name="display_type" column_invisible="True"/>
-                    <field name="product_packaging_id" column_invisible="True"/>
-                    <field name="product_no_variant_attribute_value_ids" column_invisible="1"/>
-                    <field name="product_custom_attribute_value_ids" column_invisible="1">
-                        <list>
-                            <field name="custom_product_template_attribute_value_id"/>
-                            <field name="custom_value"/>
-                        </list>
-                    </field>
                     <field name="currency_id" column_invisible="True"/>
 
                     <!-- Sequence handle for drag/drop -->

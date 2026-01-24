@@ -32,7 +32,7 @@ class PurchaseOrderLine(models.Model):
                 line.sequence_number = number
                 number += 1
 
-    @api.depends( 'price_unit', 'discount', 'tax_ids', 'move_id.currency_id')
+    @api.depends( 'price_unit', 'discount', 'tax_ids')
     def _compute_tax_amount(self):
         for line in self:
             if line.display_type == 'product' and line.tax_ids:

@@ -41,17 +41,9 @@ class AccountPayment(models.Model):
             if not payment.partner_id:
                 continue
 
-            _logger.info(f"=== Computing balance for payment {payment.name} ===")
-            _logger.info(f"Partner: {payment.partner_id.name}")
-            _logger.info(f"Partner Type: {payment.partner_type}")
-            _logger.info(f"Payment Type: {payment.payment_type}")
-            _logger.info(f"State: {payment.state}")
-            _logger.info(f"Amount: {payment.amount}")
-
             try:
                 # Customer payments (inbound)
                 if payment.partner_type == 'customer' and payment.payment_type == 'inbound':
-                    _logger.info("Processing CUSTOMER payment")
 
                     # Get invoices
                     invoices = self.env['account.move'].search([
@@ -59,7 +51,6 @@ class AccountPayment(models.Model):
                         ('move_type', 'in', ['out_invoice', 'out_refund']),
                         ('state', '=', 'posted')
                     ])
-                    _logger.info(f"Found {len(invoices)} invoices for customer")
 
                     total_invoiced = sum(invoices.filtered(
                         lambda inv: inv.move_type == 'out_invoice'
@@ -74,36 +65,26 @@ class AccountPayment(models.Model):
                     payment.partner_total_invoiced = total_invoiced - total_refunded
                     payment.partner_balance_due = total_residual
 
-                    _logger.info(f"Total Invoiced: {payment.partner_total_invoiced}")
-                    _logger.info(f"Balance Due: {payment.partner_balance_due}")
-
                     # Get all customer payments (including direct payments)
+                    # FIXED: Include both 'posted' and 'paid' states
                     payments = self.env['account.payment'].search([
                         ('partner_id', 'child_of', payment.partner_id.commercial_partner_id.id),
                         ('partner_type', '=', 'customer'),
                         ('payment_type', '=', 'inbound'),
-                        ('state', '=', 'posted')
+                        ('state', 'in', ['posted', 'paid'])  # ← THIS IS THE FIX
                     ])
-
-                    _logger.info(f"Found {len(payments)} posted customer payments:")
-                    for p in payments:
-                        _logger.info(f"  - {p.name}: {p.amount} {p.currency_id.name} (State: {p.state})")
 
                     total_payments = sum(payments.mapped('amount'))
                     payment.partner_total_paid = total_payments
 
-                    _logger.info(f"Total Payments: {payment.partner_total_paid}")
-
                 # Vendor payments (outbound)
                 elif payment.partner_type == 'supplier' and payment.payment_type == 'outbound':
-                    _logger.info("Processing VENDOR payment")
 
                     bills = self.env['account.move'].search([
                         ('partner_id', 'child_of', payment.partner_id.commercial_partner_id.id),
                         ('move_type', 'in', ['in_invoice', 'in_refund']),
                         ('state', '=', 'posted')
                     ])
-                    _logger.info(f"Found {len(bills)} bills for vendor")
 
                     total_billed = sum(bills.filtered(
                         lambda bill: bill.move_type == 'in_invoice'
@@ -119,25 +100,21 @@ class AccountPayment(models.Model):
                     payment.partner_balance_due = total_residual
 
                     # Get all vendor payments (including direct payments)
+                    # FIXED: Include both 'posted' and 'paid' states
                     payments = self.env['account.payment'].search([
                         ('partner_id', 'child_of', payment.partner_id.commercial_partner_id.id),
                         ('partner_type', '=', 'supplier'),
                         ('payment_type', '=', 'outbound'),
-                        ('state', '=', 'posted')
+                        ('state', 'in', ['posted', 'paid'])  # ← THIS IS THE FIX
                     ])
-
-                    _logger.info(f"Found {len(payments)} posted vendor payments:")
-                    for p in payments:
-                        _logger.info(f"  - {p.name}: {p.amount} (State: {p.state})")
 
                     total_payments = sum(payments.mapped('amount'))
                     payment.partner_total_paid = total_payments
 
-                    _logger.info(f"Total Payments: {payment.partner_total_paid}")
-
                 else:
-                    _logger.warning(
-                        f"Unexpected payment configuration: partner_type={payment.partner_type}, payment_type={payment.payment_type}")
+                    payment.partner_total_invoiced = 0.0
+                    payment.partner_total_paid = 0.0
+                    payment.partner_balance_due = 0.0
 
             except Exception as e:
                 _logger.error(f"ERROR computing partner balance: {str(e)}", exc_info=True)
@@ -200,7 +177,7 @@ class AccountPayment(models.Model):
                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
                 ('partner_type', '=', self.partner_type),
                 ('payment_type', '=', self.payment_type),
-                ('state', '=', 'posted')
+                ('state', 'in', ['posted', 'paid'])  # ← ALSO FIX HERE
             ],
             'context': {
                 'create': False,

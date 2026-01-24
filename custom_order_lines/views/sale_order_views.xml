@@ -56,20 +56,21 @@
                     <!-- 10. Untax Amount (after discount) -->
                     <field name="untaxed_amount_after_discount" string="Untax Amount" readonly="1"/>
 
-                    <!-- 11. Tax -->
+                    <!-- 11. Tax - only show if field exists -->
                     <field name="tax_id"
                            widget="many2many_tags"
                            optional="show"
-                           context="{'active_test': True}"/>
+                           context="{'active_test': True}"
+                           column_invisible="'tax_id' not in parent._fields"/>
 
                     <!-- 12. Tax Value -->
-                    <field name="tax_amount" string="Tax Value" readonly="1"/>
+                    <field name="tax_amount" string="Tax Value" readonly="1" optional="show"/>
 
                     <!-- 13. Total -->
                     <field name="total_amount" string="Total" readonly="1" sum="Total"/>
 
                     <!-- Hidden optional fields -->
-                    <field name="customer_lead" string="Lead Time" optional="hide"/>
+                    <field name="customer_lead" string="Lead Time" optional="hide" column_invisible="'customer_lead' not in parent._fields"/>
                     <field name="product_template_id" column_invisible="1"/>
                     <field name="product_no_variant_attribute_value_ids" column_invisible="1"/>
                     <field name="product_custom_attribute_value_ids" column_invisible="1"/>

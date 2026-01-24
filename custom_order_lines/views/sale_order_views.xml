@@ -41,7 +41,7 @@
                     <field name="sequence" invisible="combo_item_id" widget="handle"/>
 
                     <!-- 2. P. Code -->
-                    <field name="product_code" string="P. Code" optional="show"/>
+                    <field name="product_code" string="P. Code" optional="show" width="30px"/>
 
                     <!-- 3. Product Template (main product field) -->
                     <field name="product_template_id"
@@ -52,7 +52,8 @@
                            options="{'show_label_warning': True}"
                            optional="show"
                            widget="sol_product_many2one"
-                           placeholder="Type to find a product..."/>
+                           placeholder="Type to find a product..."
+                           width="90px"/>
 
                     <!-- Product variant (hidden by default) -->
                     <field name="product_id"
@@ -73,7 +74,8 @@
                            widget="analytic_distribution"
                            options="{'product_field': 'product_id', 'business_domain': 'sale_order', 'amount_field': 'price_subtotal'}"
                            optional="show"
-                           groups="analytic.group_analytic_accounting"/>
+                           groups="analytic.group_analytic_accounting"
+                           width="70px"/>
 
                     <!-- 5. Quantity -->
                     <field name="product_uom_qty"
@@ -108,7 +110,7 @@
                            widget="many2one_uom"
                            groups="uom.group_uom"
                            options="{'no_open': True, 'no_create': True}"
-                           width="30px"
+                           width="50px"
                            optional="show"/>
 
                     <!-- Lead Time (hidden by default) -->
@@ -119,7 +121,7 @@
                            readonly="parent.state not in ['draft', 'sent', 'sale'] or is_downpayment or product_type != 'consu'"/>
 
                     <!-- 7. Price -->
-                    <field name="price_unit" string="Price" readonly="qty_invoiced &gt; 0" width="40px"/>
+                    <field name="price_unit" string="Price" readonly="qty_invoiced &gt; 0" width="60px"/>
 
                     <!-- 11. Tax -->
                     <field name="tax_ids"
@@ -129,19 +131,19 @@
                            context="{'active_test': True}"
                            readonly="qty_invoiced &gt; 0 or is_downpayment"
                            optional="show"
-                           width="20px"/>
+                           width="40px"/>
 
                     <!-- 8. Discount -->
                     <field name="discount"
                            string="Disc%"
                            groups="sale.group_discount_per_so_line"
-                           width="30px"
+                           width="60px"
                            optional="hide"/>
                                         <!-- 8. Discount -->
                     <field name="discount_fixed"
                            string="Disc"
                            groups="sale.group_discount_per_so_line"
-                           width="30px"
+                           width="60px"
                            optional="show"/>
 
                     <!-- 10. Untax Amount (after discount) -->
@@ -149,7 +151,7 @@
                            string="Untax Amt"
                            readonly="1"
                            optional="show"
-                           width="40px"/>
+                           width="60px"/>
 
 
                     <!-- 12. Tax Value -->
@@ -157,14 +159,14 @@
                            string="Tax Value"
                            readonly="1"
                            optional="show"
-                           width="30px"/>
+                           width="60px"/>
 
                     <!-- 13. Total -->
                     <field name="total_amount"
                            string="Total"
                            readonly="1"
                            optional="show"
-                           width="30px"/>
+                           width="60px"/>
 
                     <!-- Original amount fields (keep for compatibility) -->
                     <field name="price_subtotal"

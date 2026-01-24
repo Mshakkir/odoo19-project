@@ -97,9 +97,9 @@
                            optional="show"/>
 
                     <!-- 8. Tax -->
-                    <field name="taxes_ids"
+                    <field name="taxes_id"
                            string="Tax"
-                           widget="many2many_tax_tags"
+                           widget="many2many_tags"
                            options="{'no_create': True}"
                            context="{'active_test': True}"
                            readonly="state not in ['draft', 'sent']"
@@ -121,14 +121,7 @@
                            optional="show"
                            width="60px"/>
 
-                    <!-- 11. Tax Value (Custom computed field) -->
-                    <field name="tax_amount"
-                           string="Tax Value"
-                           readonly="1"
-                           optional="show"
-                           width="60px"/>
-
-                    <!-- 12. Total Amount -->
+                    <!-- 11. Total Amount (includes tax) -->
                     <field name="price_total"
                            string="Total"
                            readonly="1"

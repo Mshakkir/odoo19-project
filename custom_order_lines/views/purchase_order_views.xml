@@ -113,6 +113,13 @@
                            optional="show"
                            width="60px"/>
 
+
+                         <field name="tax_amount"
+                           string="Tax Value"
+                           readonly="1"
+                           optional="show"
+                           width="60px"/>
+
                     <!-- 11. Total Amount (includes tax) -->
                     <field name="price_total"
                            string="Total"
@@ -135,13 +142,13 @@
                            invisible="1"
                            groups="purchase.group_discount_per_po_line"/>
 
-                    <!-- Product Variant (Hidden by default) -->
-                    <field name="product_id"
-                           string="Variant"
-                           readonly="state not in ['draft', 'sent']"
-                           optional="hide"
-                           width="80px"
-                           invisible="1"/>
+<!--                    &lt;!&ndash; Product Variant (Hidden by default) &ndash;&gt;-->
+<!--                    <field name="product_id"-->
+<!--                           string="Variant"-->
+<!--                           readonly="state not in ['draft', 'sent']"-->
+<!--                           optional="hide"-->
+<!--                           width="80px"-->
+<!--                           invisible="1"/>-->
 
                     <!-- Expected Arrival (Hidden by default) -->
                     <field name="date_planned"

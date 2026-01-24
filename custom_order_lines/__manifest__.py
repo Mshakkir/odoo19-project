@@ -15,6 +15,7 @@
     'depends': ['sale_management','account_invoice_fixed_discount'],
     'data': [
         'views/sale_order_views.xml',
+'views/invoice_views.xml',
     ],
     'installable': True,
     'application': False,

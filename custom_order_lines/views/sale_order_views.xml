@@ -35,7 +35,7 @@
                     <field name="currency_id" column_invisible="True"/>
 
                     <!-- 1. SN -->
-                    <field name="sequence_number" string="SN" readonly="1" optional="show"/>
+                    <field name="sequence_number" string="SN" readonly="1" optional="show" width="20px"/>
 
                     <!-- Sequence handle -->
                     <field name="sequence" invisible="combo_item_id" widget="handle"/>
@@ -80,7 +80,9 @@
                            string="Qty"
                            decoration-info="(not display_type and invoice_status == 'to invoice')"
                            decoration-bf="(not display_type and invoice_status == 'to invoice')"
-                           readonly="is_downpayment"/>
+                           readonly="is_downpayment"
+                           width="30px"/>
+
 
                     <!-- Delivered & Invoiced (hidden by default, shown in sale state) -->
                     <field name="qty_delivered"
@@ -106,7 +108,7 @@
                            widget="many2one_uom"
                            groups="uom.group_uom"
                            options="{'no_open': True, 'no_create': True}"
-                           width="60px"
+                           width="30px"
                            optional="show"/>
 
                     <!-- Lead Time (hidden by default) -->
@@ -117,7 +119,7 @@
                            readonly="parent.state not in ['draft', 'sent', 'sale'] or is_downpayment or product_type != 'consu'"/>
 
                     <!-- 7. Price -->
-                    <field name="price_unit" string="Price" readonly="qty_invoiced &gt; 0"/>
+                    <field name="price_unit" string="Price" readonly="qty_invoiced &gt; 0" width="40px"/>
 
                     <!-- 11. Tax -->
                     <field name="tax_ids"
@@ -126,38 +128,43 @@
                            options="{'no_create': True}"
                            context="{'active_test': True}"
                            readonly="qty_invoiced &gt; 0 or is_downpayment"
-                           optional="show"/>
+                           optional="show"
+                           width="20px"/>
 
                     <!-- 8. Discount -->
                     <field name="discount"
                            string="Disc%"
                            groups="sale.group_discount_per_so_line"
-                           width="50px"
+                           width="30px"
                            optional="hide"/>
                                         <!-- 8. Discount -->
                     <field name="discount_fixed"
                            string="Disc"
                            groups="sale.group_discount_per_so_line"
-                           width="50px"
-                           optional="hide"/>
+                           width="30px"
+                           optional="show"/>
 
                     <!-- 10. Untax Amount (after discount) -->
                     <field name="untaxed_amount_after_discount"
-                           string="Untax Amount"
+                           string="Untax Amt"
                            readonly="1"
-                           optional="show"/>
+                           optional="show"
+                           width="40px"/>
+
 
                     <!-- 12. Tax Value -->
                     <field name="tax_amount"
                            string="Tax Value"
                            readonly="1"
-                           optional="show"/>
+                           optional="show"
+                           width="30px"/>
 
                     <!-- 13. Total -->
                     <field name="total_amount"
                            string="Total"
                            readonly="1"
-                           optional="show"/>
+                           optional="show"
+                           width="30px"/>
 
                     <!-- Original amount fields (keep for compatibility) -->
                     <field name="price_subtotal"

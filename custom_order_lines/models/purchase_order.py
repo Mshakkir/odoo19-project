@@ -32,16 +32,16 @@ class PurchaseOrderLine(models.Model):
                 line.sequence_number = number
                 number += 1
 
-    @api.depends('product_qty', 'price_unit', 'discount', 'taxes_id', 'order_id.currency_id')
+    @api.depends('product_qty', 'price_unit', 'discount', 'taxes_ids', 'order_id.currency_id')
     def _compute_tax_amount(self):
         for line in self:
-            if line.display_type == 'product' and line.taxes_id:
+            if line.display_type == 'product' and line.taxes_ids:
                 # Calculate the base price after discount
                 price_after_discount = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
                 base_amount = price_after_discount * line.product_qty
 
                 # Compute taxes on the base amount
-                tax_results = line.taxes_id.compute_all(
+                tax_results = line.taxes_ids.compute_all(
                     price_after_discount,
                     line.order_id.currency_id,
                     line.product_qty,

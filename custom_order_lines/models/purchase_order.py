@@ -19,7 +19,7 @@ class PurchaseOrderLine(models.Model):
     tax_amount = fields.Monetary(
         string='Tax Value',
         compute='_compute_tax_amount',
-        store=True,
+        store=False,
         currency_field='currency_id'
     )
 
@@ -32,24 +32,27 @@ class PurchaseOrderLine(models.Model):
                 line.sequence_number = number
                 number += 1
 
-    @api.depends( 'price_unit', 'discount', 'tax_ids')
+    @api.depends('product_qty', 'price_unit', 'discount', 'tax_ids')
     def _compute_tax_amount(self):
         for line in self:
             if line.display_type == 'product' and line.tax_ids:
-                # Calculate the base price after discount
-                price_after_discount = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
-                base_amount = price_after_discount * line.quantity
+                try:
+                    # Calculate the base price after discount
+                    price_after_discount = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
 
-                # Compute taxes on the base amount
-                tax_results = line.tax_ids.compute_all(
-                    price_after_discount,
-                    line.move_id.currency_id,
-                    line.quantity,
-                    product=line.product_id,
-                    partner=line.move_id.partner_id
-                )
+                    # Compute taxes on the base amount
+                    tax_results = line.tax_ids.compute_all(
+                        price_after_discount,
+                        line.order_id.currency_id,
+                        line.product_qty,
+                        product=line.product_id,
+                        partner=line.order_id.partner_id
+                    )
 
-                # Extract tax amount from computation
-                line.tax_amount = tax_results['total_included'] - tax_results['total_excluded']
+                    # Extract tax amount from computation
+                    line.tax_amount = tax_results['total_included'] - tax_results['total_excluded']
+                except Exception as e:
+                    # If tax computation fails, set to 0
+                    line.tax_amount = 0.0
             else:
                 line.tax_amount = 0.0

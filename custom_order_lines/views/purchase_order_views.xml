@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <!-- Replace the list view inside order_line field -->
             <xpath expr="//field[@name='order_line']/list" position="replace">
-                <list string="Purchase Order Lines" editable="bottom" limit="200" decoration-info="(state in ['draft', 'sent'] and is_product_archived)">
+                <list string="Purchase Order Lines" editable="bottom" limit="200">
                     <control>
                         <create name="add_product_control" string="Add a product"/>
                     </control>

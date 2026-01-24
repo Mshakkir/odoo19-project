@@ -94,7 +94,7 @@
                     <!-- 9. Discount % (SHOW by default) -->
                     <field name="discount"
                            string="Disc%"
-                           readonly="parent.state != 'draft'"
+
                            width="60px"
                            optional="hide"
                            groups="sale.group_discount_per_so_line"/>

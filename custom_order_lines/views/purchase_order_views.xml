@@ -34,7 +34,7 @@
                            string="Product"
                            readonly="state not in ['draft', 'sent']"
                            required="not display_type"
-                           context="{'default_list_price': price_unit, 'default_uom_id': product_uom}"
+                           context="{'default_list_price': price_unit, 'default_uom_id': product_uom_id}"
                            options="{'show_label_warning': True}"
                            optional="show"
                            widget="many2one"
@@ -70,7 +70,7 @@
                            width="30px"/>
 
                     <!-- 6. Unit of Measure -->
-                    <field name="product_uom"
+                    <field name="product_uom_id"
                            string="Unit"
                            force_save="1"
                            readonly="state not in ['draft', 'sent']"

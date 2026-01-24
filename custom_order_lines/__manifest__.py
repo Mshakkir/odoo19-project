@@ -9,13 +9,15 @@
         - Product Code (from product reference)
         - Reorganized columns with discount calculations
         - Hide optional fields (Disc%, Delivery Warehouse, Lead Time, Product Variant)
+        - Applied to Sales Orders, Invoices, and Purchase Orders
     """,
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',
-    'depends': ['sale_management','account_invoice_fixed_discount'],
+    'depends': ['sale_management', 'account_invoice_fixed_discount', 'purchase'],
     'data': [
         'views/sale_order_views.xml',
-'views/invoice_views.xml',
+        'views/invoice_views.xml',
+        'views/purchase_order_views.xml',
     ],
     'installable': True,
     'application': False,

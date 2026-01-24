@@ -102,7 +102,7 @@
                            width="60px"/>
 
                     <!-- 11. Tax Value (Tax Amount) -->
-                    <field name="price_tax"
+                    <field name="tax_amount"
                            string="Tax Value"
                            readonly="1"
                            optional="show"

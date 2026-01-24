@@ -130,10 +130,16 @@
 
                     <!-- 8. Discount -->
                     <field name="discount"
+                           string="Disc%"
+                           groups="sale.group_discount_per_so_line"
+                           width="50px"
+                           optional="hide"/>
+                                        <!-- 8. Discount -->
+                    <field name="discount_fixed"
                            string="Disc"
                            groups="sale.group_discount_per_so_line"
                            width="50px"
-                           optional="show"/>
+                           optional="hide"/>
 
                     <!-- 10. Untax Amount (after discount) -->
                     <field name="untaxed_amount_after_discount"

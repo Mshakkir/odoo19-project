@@ -127,13 +127,6 @@
                            width="70px"
                            invisible="1"/>
 
-                    <!-- Account (Hidden by default) -->
-                    <field name="account_analytic_id"
-                           string="Analytic Account"
-                           optional="hide"
-                           width="80px"
-                           invisible="1"/>
-
                     <!-- Disc% (Hidden - already shown as Discount) -->
                     <field name="discount"
                            string="Disc% Alt"

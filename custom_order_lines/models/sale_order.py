@@ -59,7 +59,6 @@
 #         for line in self:
 #             line.total_amount = line.untaxed_amount_after_discount + line.tax_amount
 
-
 from odoo import api, fields, models
 
 
@@ -122,27 +121,10 @@ class SaleOrderLine(models.Model):
             line.total_amount = line.untaxed_amount_after_discount + line.tax_amount
 
     def action_product_forecast_report(self):
-        """Open the product form with forecast information"""
+        """Open the product's forecasted report"""
         self.ensure_one()
         if not self.product_id:
             return False
 
-        # Try to open the forecast report if available
-        try:
-            action = self.env.ref('stock.stock_replenishment_product_product_action')
-            result = action.read()[0]
-            result['context'] = {
-                'default_product_id': self.product_id.id,
-                'search_default_product_id': self.product_id.id,
-            }
-            return result
-        except:
-            # Fallback: Open product form
-            return {
-                'name': 'Product Information',
-                'type': 'ir.actions.act_window',
-                'res_model': 'product.product',
-                'res_id': self.product_id.id,
-                'view_mode': 'form',
-                'target': 'new',
-            }
+        # Call the product's action_product_forecast_report method
+        return self.product_id.action_product_forecast_report()

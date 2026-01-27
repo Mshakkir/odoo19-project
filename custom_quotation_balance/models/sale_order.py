@@ -1,3 +1,142 @@
+# # from odoo import models, fields, api
+# # from odoo.exceptions import UserError
+# #
+# #
+# # class SaleOrder(models.Model):
+# #     _inherit = 'sale.order'
+# #
+# #     customer_total_invoiced = fields.Monetary(
+# #         string='Total Invoiced',
+# #         compute='_compute_customer_balance',
+# #         currency_field='currency_id',
+# #         help='Click to view all customer invoices'
+# #     )
+# #
+# #     customer_total_paid = fields.Monetary(
+# #         string='Amount Paid',
+# #         compute='_compute_customer_balance',
+# #         currency_field='currency_id',
+# #         help='Click to view all customer payments'
+# #     )
+# #
+# #     customer_balance_due = fields.Monetary(
+# #         string='Balance Due',
+# #         compute='_compute_customer_balance',
+# #         currency_field='currency_id',
+# #         help='Remaining balance (Total Invoiced - Amount Paid)'
+# #     )
+# #
+# #     @api.depends('partner_id')
+# #     def _compute_customer_balance(self):
+# #         """Calculate customer financial summary"""
+# #         for order in self:
+# #             if order.partner_id:
+# #                 try:
+# #                     if 'account.move' not in self.env:
+# #                         order.customer_total_invoiced = 0.0
+# #                         order.customer_total_paid = 0.0
+# #                         order.customer_balance_due = 0.0
+# #                         continue
+# #
+# #                     invoices = self.env['account.move'].search([
+# #                         ('partner_id', 'child_of', order.partner_id.commercial_partner_id.id),
+# #                         ('move_type', 'in', ['out_invoice', 'out_refund']),
+# #                         ('state', '=', 'posted')
+# #                     ])
+# #
+# #                     total_invoiced = sum(invoices.filtered(
+# #                         lambda inv: inv.move_type == 'out_invoice'
+# #                     ).mapped('amount_total'))
+# #
+# #                     total_refunded = sum(invoices.filtered(
+# #                         lambda inv: inv.move_type == 'out_refund'
+# #                     ).mapped('amount_total'))
+# #
+# #                     total_residual = sum(invoices.mapped('amount_residual'))
+# #
+# #                     order.customer_total_invoiced = total_invoiced - total_refunded
+# #                     order.customer_balance_due = total_residual
+# #
+# #                     # Get all customer payments (including direct payments)
+# #                     # FIXED: Include both 'posted' and 'paid' states
+# #                     payments = self.env['account.payment'].search([
+# #                         ('partner_id', 'child_of', order.partner_id.commercial_partner_id.id),
+# #                         ('partner_type', '=', 'customer'),
+# #                         ('payment_type', '=', 'inbound'),
+# #                         ('state', 'in', ['posted', 'paid'])
+# #                     ])
+# #
+# #                     total_payments = sum(payments.mapped('amount'))
+# #                     order.customer_total_paid = total_payments
+# #
+# #                 except Exception as e:
+# #                     order.customer_total_invoiced = 0.0
+# #                     order.customer_total_paid = 0.0
+# #                     order.customer_balance_due = 0.0
+# #             else:
+# #                 order.customer_total_invoiced = 0.0
+# #                 order.customer_total_paid = 0.0
+# #                 order.customer_balance_due = 0.0
+# #
+# #     def action_view_customer_invoices(self):
+# #         """Open filtered list of customer invoices"""
+# #         self.ensure_one()
+# #
+# #         if not self.partner_id:
+# #             raise UserError("Please select a customer first.")
+# #
+# #         domain = [
+# #             ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
+# #             ('move_type', 'in', ['out_invoice', 'out_refund']),
+# #             ('state', '=', 'posted')
+# #         ]
+# #
+# #         return {
+# #             'name': f'Invoices - {self.partner_id.name}',
+# #             'type': 'ir.actions.act_window',
+# #             'res_model': 'account.move',
+# #             'view_mode': 'list,form',
+# #             'views': [(False, 'list'), (False, 'form')],
+# #             'domain': domain,
+# #             'context': {
+# #                 'create': False,
+# #                 'default_move_type': 'out_invoice',
+# #             },
+# #         }
+# #
+# #     def action_view_customer_payments(self):
+# #         """Open filtered list of customer payments"""
+# #         self.ensure_one()
+# #
+# #         if not self.partner_id:
+# #             raise UserError("Please select a customer first.")
+# #
+# #         if 'account.payment' not in self.env:
+# #             raise UserError("Payment module is not installed.")
+# #
+# #         # FIXED: Include both 'posted' and 'paid' states
+# #         domain = [
+# #             ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
+# #             ('partner_type', '=', 'customer'),
+# #             ('payment_type', '=', 'inbound'),
+# #             ('state', 'in', ['posted', 'paid'])
+# #         ]
+# #
+# #         return {
+# #             'name': f'Payments - {self.partner_id.name}',
+# #             'type': 'ir.actions.act_window',
+# #             'res_model': 'account.payment',
+# #             'view_mode': 'list,form',
+# #             'views': [(False, 'list'), (False, 'form')],
+# #             'domain': domain,
+# #             'context': {
+# #                 'create': False,
+# #                 'default_partner_id': self.partner_id.id,
+# #                 'default_partner_type': 'customer',
+# #                 'default_payment_type': 'inbound',
+# #             },
+# #         }
+#
 # from odoo import models, fields, api
 # from odoo.exceptions import UserError
 #
@@ -5,35 +144,47 @@
 # class SaleOrder(models.Model):
 #     _inherit = 'sale.order'
 #
+#     # Customer Balance - 4 FIELDS
 #     customer_total_invoiced = fields.Monetary(
 #         string='Total Invoiced',
 #         compute='_compute_customer_balance',
 #         currency_field='currency_id',
-#         help='Click to view all customer invoices'
+#         help='Total of all customer invoices (before credit notes)'
+#     )
+#
+#     customer_total_credits = fields.Monetary(
+#         string='Total Credits',
+#         compute='_compute_customer_balance',
+#         currency_field='currency_id',
+#         help='Total credit notes issued to customer'
 #     )
 #
 #     customer_total_paid = fields.Monetary(
 #         string='Amount Paid',
 #         compute='_compute_customer_balance',
 #         currency_field='currency_id',
-#         help='Click to view all customer payments'
+#         help='Total amount paid by customer'
 #     )
 #
 #     customer_balance_due = fields.Monetary(
 #         string='Balance Due',
 #         compute='_compute_customer_balance',
 #         currency_field='currency_id',
-#         help='Remaining balance (Total Invoiced - Amount Paid)'
+#         help='Net balance: (Invoiced - Credits - Paid)'
 #     )
 #
 #     @api.depends('partner_id')
 #     def _compute_customer_balance(self):
-#         """Calculate customer financial summary"""
+#         """
+#         Calculate customer financial summary - SIMPLE METHOD
+#         For Sales Orders, show complete financial picture
+#         """
 #         for order in self:
 #             if order.partner_id:
 #                 try:
 #                     if 'account.move' not in self.env:
 #                         order.customer_total_invoiced = 0.0
+#                         order.customer_total_credits = 0.0
 #                         order.customer_total_paid = 0.0
 #                         order.customer_balance_due = 0.0
 #                         continue
@@ -44,21 +195,18 @@
 #                         ('state', '=', 'posted')
 #                     ])
 #
-#                     total_invoiced = sum(invoices.filtered(
-#                         lambda inv: inv.move_type == 'out_invoice'
-#                     ).mapped('amount_total'))
+#                     # Separate invoices and credit notes
+#                     out_invoices = invoices.filtered(lambda inv: inv.move_type == 'out_invoice')
+#                     out_refunds = invoices.filtered(lambda inv: inv.move_type == 'out_refund')
 #
-#                     total_refunded = sum(invoices.filtered(
-#                         lambda inv: inv.move_type == 'out_refund'
-#                     ).mapped('amount_total'))
+#                     # Calculate totals
+#                     total_invoiced = sum(out_invoices.mapped('amount_total'))
+#                     total_credits = sum(out_refunds.mapped('amount_total'))
 #
-#                     total_residual = sum(invoices.mapped('amount_residual'))
+#                     order.customer_total_invoiced = total_invoiced
+#                     order.customer_total_credits = total_credits
 #
-#                     order.customer_total_invoiced = total_invoiced - total_refunded
-#                     order.customer_balance_due = total_residual
-#
-#                     # Get all customer payments (including direct payments)
-#                     # FIXED: Include both 'posted' and 'paid' states
+#                     # Get all customer payments
 #                     payments = self.env['account.payment'].search([
 #                         ('partner_id', 'child_of', order.partner_id.commercial_partner_id.id),
 #                         ('partner_type', '=', 'customer'),
@@ -69,12 +217,18 @@
 #                     total_payments = sum(payments.mapped('amount'))
 #                     order.customer_total_paid = total_payments
 #
+#                     # SIMPLE CALCULATION for Sales Orders
+#                     # Shows complete financial picture
+#                     order.customer_balance_due = (total_invoiced - total_credits) - total_payments
+#
 #                 except Exception as e:
 #                     order.customer_total_invoiced = 0.0
+#                     order.customer_total_credits = 0.0
 #                     order.customer_total_paid = 0.0
 #                     order.customer_balance_due = 0.0
 #             else:
 #                 order.customer_total_invoiced = 0.0
+#                 order.customer_total_credits = 0.0
 #                 order.customer_total_paid = 0.0
 #                 order.customer_balance_due = 0.0
 #
@@ -85,23 +239,39 @@
 #         if not self.partner_id:
 #             raise UserError("Please select a customer first.")
 #
-#         domain = [
-#             ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
-#             ('move_type', 'in', ['out_invoice', 'out_refund']),
-#             ('state', '=', 'posted')
-#         ]
-#
 #         return {
 #             'name': f'Invoices - {self.partner_id.name}',
 #             'type': 'ir.actions.act_window',
 #             'res_model': 'account.move',
 #             'view_mode': 'list,form',
 #             'views': [(False, 'list'), (False, 'form')],
-#             'domain': domain,
-#             'context': {
-#                 'create': False,
-#                 'default_move_type': 'out_invoice',
-#             },
+#             'domain': [
+#                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
+#                 ('move_type', 'in', ['out_invoice', 'out_refund']),
+#                 ('state', '=', 'posted')
+#             ],
+#             'context': {'create': False},
+#         }
+#
+#     def action_view_customer_credits(self):
+#         """Open customer credit notes"""
+#         self.ensure_one()
+#
+#         if not self.partner_id:
+#             raise UserError("Please select a customer first.")
+#
+#         return {
+#             'name': f'Credit Notes - {self.partner_id.name}',
+#             'type': 'ir.actions.act_window',
+#             'res_model': 'account.move',
+#             'view_mode': 'list,form',
+#             'views': [(False, 'list'), (False, 'form')],
+#             'domain': [
+#                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
+#                 ('move_type', '=', 'out_refund'),
+#                 ('state', '=', 'posted')
+#             ],
+#             'context': {'create': False},
 #         }
 #
 #     def action_view_customer_payments(self):
@@ -114,21 +284,18 @@
 #         if 'account.payment' not in self.env:
 #             raise UserError("Payment module is not installed.")
 #
-#         # FIXED: Include both 'posted' and 'paid' states
-#         domain = [
-#             ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
-#             ('partner_type', '=', 'customer'),
-#             ('payment_type', '=', 'inbound'),
-#             ('state', 'in', ['posted', 'paid'])
-#         ]
-#
 #         return {
 #             'name': f'Payments - {self.partner_id.name}',
 #             'type': 'ir.actions.act_window',
 #             'res_model': 'account.payment',
 #             'view_mode': 'list,form',
 #             'views': [(False, 'list'), (False, 'form')],
-#             'domain': domain,
+#             'domain': [
+#                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
+#                 ('partner_type', '=', 'customer'),
+#                 ('payment_type', '=', 'inbound'),
+#                 ('state', 'in', ['posted', 'paid'])
+#             ],
 #             'context': {
 #                 'create': False,
 #                 'default_partner_id': self.partner_id.id,
@@ -136,7 +303,6 @@
 #                 'default_payment_type': 'inbound',
 #             },
 #         }
-
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 
@@ -144,51 +310,41 @@ from odoo.exceptions import UserError
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    # Customer Balance - 4 FIELDS
+    # Customer Balance - Using Accounting Terminology
     customer_total_invoiced = fields.Monetary(
-        string='Total Invoiced',
+        string='Total Debits',
         compute='_compute_customer_balance',
         currency_field='currency_id',
-        help='Total of all customer invoices (before credit notes)'
+        help='Total debits (invoices) for this customer'
     )
 
     customer_total_credits = fields.Monetary(
         string='Total Credits',
         compute='_compute_customer_balance',
         currency_field='currency_id',
-        help='Total credit notes issued to customer'
-    )
-
-    customer_total_paid = fields.Monetary(
-        string='Amount Paid',
-        compute='_compute_customer_balance',
-        currency_field='currency_id',
-        help='Total amount paid by customer'
+        help='Total credits (payments + credit notes) received from customer'
     )
 
     customer_balance_due = fields.Monetary(
-        string='Balance Due',
+        string='Due Amount',
         compute='_compute_customer_balance',
         currency_field='currency_id',
-        help='Net balance: (Invoiced - Credits - Paid)'
+        help='Outstanding balance (Debits - Credits)'
     )
 
     @api.depends('partner_id')
     def _compute_customer_balance(self):
-        """
-        Calculate customer financial summary - SIMPLE METHOD
-        For Sales Orders, show complete financial picture
-        """
+        """Calculate customer financial summary using accounting terminology"""
         for order in self:
             if order.partner_id:
                 try:
                     if 'account.move' not in self.env:
                         order.customer_total_invoiced = 0.0
                         order.customer_total_credits = 0.0
-                        order.customer_total_paid = 0.0
                         order.customer_balance_due = 0.0
                         continue
 
+                    # Get all customer invoices and credit notes
                     invoices = self.env['account.move'].search([
                         ('partner_id', 'child_of', order.partner_id.commercial_partner_id.id),
                         ('move_type', 'in', ['out_invoice', 'out_refund']),
@@ -199,12 +355,9 @@ class SaleOrder(models.Model):
                     out_invoices = invoices.filtered(lambda inv: inv.move_type == 'out_invoice')
                     out_refunds = invoices.filtered(lambda inv: inv.move_type == 'out_refund')
 
-                    # Calculate totals
-                    total_invoiced = sum(out_invoices.mapped('amount_total'))
-                    total_credits = sum(out_refunds.mapped('amount_total'))
-
-                    order.customer_total_invoiced = total_invoiced
-                    order.customer_total_credits = total_credits
+                    # Total Debits = All invoices
+                    total_debits = sum(out_invoices.mapped('amount_total'))
+                    order.customer_total_invoiced = total_debits
 
                     # Get all customer payments
                     payments = self.env['account.payment'].search([
@@ -215,21 +368,21 @@ class SaleOrder(models.Model):
                     ])
 
                     total_payments = sum(payments.mapped('amount'))
-                    order.customer_total_paid = total_payments
+                    total_credit_notes = sum(out_refunds.mapped('amount_total'))
 
-                    # SIMPLE CALCULATION for Sales Orders
-                    # Shows complete financial picture
-                    order.customer_balance_due = (total_invoiced - total_credits) - total_payments
+                    # Total Credits = Payments + Credit Notes
+                    order.customer_total_credits = total_payments + total_credit_notes
+
+                    # Due Amount = Debits - Credits
+                    order.customer_balance_due = total_debits - (total_payments + total_credit_notes)
 
                 except Exception as e:
                     order.customer_total_invoiced = 0.0
                     order.customer_total_credits = 0.0
-                    order.customer_total_paid = 0.0
                     order.customer_balance_due = 0.0
             else:
                 order.customer_total_invoiced = 0.0
                 order.customer_total_credits = 0.0
-                order.customer_total_paid = 0.0
                 order.customer_balance_due = 0.0
 
     def action_view_customer_invoices(self):

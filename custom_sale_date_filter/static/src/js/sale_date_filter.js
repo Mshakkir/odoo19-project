@@ -191,7 +191,7 @@ patch(ListController.prototype, {
                         </div>
 
                         <div class="filter_group filter_group_small">
-                            <input type="text" class="form-control filter_input_small filter_awb_number" placeholder="AWB Number" />
+                            <input type="text" class="form-control filter_input_small filter_awb_number" placeholder="Shipping Rep" />
                         </div>
 
                         <div class="filter_actions">

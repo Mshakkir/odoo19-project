@@ -12,10 +12,9 @@
         <field name="rec_rate" string="Rate"/>
         <field name="issue_qty" string="Issue Qty" sum="Total Issued"/>
         <field name="issue_rate" string="Rate"/>
-        <field name="balance" string="Balance"/>
+        <field name="balance" string="Balance" sum="Balance"/>
         <field name="uom" string="Unit" invisible="0"/>
         <field name="invoice_status" string="Invoice Status"/>
-        <field name="is_opening" invisible="1"/>
       </list>
     </field>
   </record>
@@ -45,7 +44,6 @@
         <filter name="filter_receipts" string="Receipts" domain="[('type', '=', 'Receipts')]"/>
         <filter name="filter_delivery" string="Delivery" domain="[('type', '=', 'Delivery')]"/>
         <filter name="filter_internal" string="Internal Transfer" domain="[('type', '=', 'Internal Transfer')]"/>
-        <filter name="filter_opening" string="Opening Balance" domain="[('type', '=', 'Opening')]"/>
 
         <!-- Separator -->
         <separator/>

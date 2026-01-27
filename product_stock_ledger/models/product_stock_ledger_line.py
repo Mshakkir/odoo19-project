@@ -20,7 +20,6 @@ class ProductStockLedgerLine(models.Model):
     balance = fields.Float(string='Balance')
     uom = fields.Char(string='Unit')
     invoice_status = fields.Char(string='Invoice Status')
-    is_opening = fields.Boolean(string='Is Opening Balance', default=False)
 
     def _get_invoice_status(self, move):
         """Determine invoice status based on move type and related documents."""
@@ -105,34 +104,6 @@ class ProductStockLedgerLine(models.Model):
 
         return status
 
-    def _calculate_opening_balance(self, product_id, date_from):
-        """Calculate opening balance for a product before the date_from"""
-        if not product_id or not date_from:
-            return 0.0
-
-        # Get all done moves before date_from
-        domain = [
-            ('state', '=', 'done'),
-            ('product_id', '=', product_id),
-            ('date', '<', date_from)
-        ]
-
-        moves = self.env['stock.move'].search(domain, order='date asc')
-
-        balance = 0.0
-        for mv in moves:
-            qty = mv.product_uom_qty or 0.0
-
-            # Determine if it's incoming or outgoing
-            if mv.location_dest_id.usage == 'internal' and mv.location_id.usage != 'internal':
-                # Incoming
-                balance += qty
-            elif mv.location_id.usage == 'internal' and mv.location_dest_id.usage != 'internal':
-                # Outgoing
-                balance -= qty
-
-        return balance
-
     @api.model
     def generate_ledger(self, product_id=None, date_from=None, date_to=None):
         """Generate stock ledger lines based on filters"""
@@ -150,38 +121,10 @@ class ProductStockLedgerLine(models.Model):
         # Clear existing lines
         self.search([]).unlink()
 
-        lines_to_create = []
-
-        # Calculate and add opening balance if date_from is specified
-        if product_id and date_from:
-            opening_balance = self._calculate_opening_balance(product_id, date_from)
-
-            if opening_balance != 0:
-                product = self.env['product.product'].browse(product_id)
-                lines_to_create.append({
-                    'product_id': product_id,
-                    'date': date_from,
-                    'voucher': '',
-                    'particulars': 'Opening Balance',
-                    'type': 'Opening',
-                    'rec_qty': 0.0,
-                    'rec_rate': 0.0,
-                    'issue_qty': 0.0,
-                    'issue_rate': 0.0,
-                    'balance': opening_balance,
-                    'uom': product.uom_id.name,
-                    'invoice_status': '',
-                    'is_opening': True,
-                })
-
         # Track balance per product
         balances = {}
 
-        # Initialize balance with opening balance
-        if product_id and date_from:
-            opening_balance = self._calculate_opening_balance(product_id, date_from)
-            balances[product_id] = opening_balance
-
+        lines_to_create = []
         for mv in moves:
             qty = mv.product_uom_qty or 0.0
 
@@ -255,7 +198,6 @@ class ProductStockLedgerLine(models.Model):
                 'balance': balances[key],
                 'uom': mv.product_uom.name if mv.product_uom else mv.product_id.uom_id.name,
                 'invoice_status': invoice_status,
-                'is_opening': False,
             })
 
         # Batch create all lines
@@ -279,7 +221,6 @@ class ProductStockLedgerLine(models.Model):
     def action_refresh_ledger(self):
         """Refresh ledger data"""
         return self.action_generate_all()
-
 
 
 

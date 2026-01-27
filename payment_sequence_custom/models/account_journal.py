@@ -22,6 +22,13 @@ class AccountJournal(models.Model):
 class AccountPayment(models.Model):
     _inherit = 'account.payment'
 
+    name = fields.Char(
+        string='Reference',
+        copy=False,
+        readonly=True,
+        tracking=True
+    )
+
     @api.model_create_multi
     def create(self, vals_list):
         """Override create to assign sequence before payment is created"""
@@ -30,20 +37,23 @@ class AccountPayment(models.Model):
                 journal = self.env['account.journal'].browse(vals['journal_id'])
                 payment_type = vals['payment_type']
 
-                # Assign custom sequence for inbound payments
-                if payment_type == 'inbound' and journal.inbound_payment_sequence_id:
-                    vals['name'] = journal.inbound_payment_sequence_id.next_by_id()
+                # Only assign if name is not already set
+                if 'name' not in vals or not vals['name'] or vals['name'] == '/':
+                    # Assign custom sequence for inbound payments
+                    if payment_type == 'inbound' and journal.inbound_payment_sequence_id:
+                        vals['name'] = journal.inbound_payment_sequence_id.next_by_id()
 
-                # Assign custom sequence for outbound payments
-                elif payment_type == 'outbound' and journal.outbound_payment_sequence_id:
-                    vals['name'] = journal.outbound_payment_sequence_id.next_by_id()
+                    # Assign custom sequence for outbound payments
+                    elif payment_type == 'outbound' and journal.outbound_payment_sequence_id:
+                        vals['name'] = journal.outbound_payment_sequence_id.next_by_id()
 
         return super().create(vals_list)
 
     def action_post(self):
         """Ensure sequence is set before posting"""
         for payment in self:
-            if not payment.name or payment.name == '/':
+            # Double-check in case it still has default sequence
+            if not payment.name or payment.name.startswith('PAY'):
                 journal = payment.journal_id
 
                 if payment.payment_type == 'inbound' and journal.inbound_payment_sequence_id:

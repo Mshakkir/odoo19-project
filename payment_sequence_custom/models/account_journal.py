@@ -25,78 +25,55 @@ class AccountPayment(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         """Override create to assign custom sequence"""
+        # First call super to create the records
         payments = super().create(vals_list)
 
+        # Then update the sequence for each payment
         for payment in payments:
-            # Only process draft payments that need a sequence
-            if payment.state == 'draft':
-                journal = payment.journal_id
-
-                # Check if we should use custom sequence
-                should_update = False
-                new_name = False
-
-                # Assign custom sequence for inbound payments
-                if payment.payment_type == 'inbound' and journal.inbound_payment_sequence_id:
-                    new_name = journal.inbound_payment_sequence_id.next_by_id()
-                    should_update = True
-
-                # Assign custom sequence for outbound payments
-                elif payment.payment_type == 'outbound' and journal.outbound_payment_sequence_id:
-                    new_name = journal.outbound_payment_sequence_id.next_by_id()
-                    should_update = True
-
-                # Update the name if we have a custom sequence
-                if should_update and new_name:
-                    payment.write({'name': new_name})
+            if payment.state == 'draft' and payment.name == '/':
+                self._assign_custom_sequence(payment)
 
         return payments
+
+    def _assign_custom_sequence(self, payment=None):
+        """Assign custom sequence to payment based on type"""
+        if payment is None:
+            payment = self
+
+        journal = payment.journal_id
+        new_name = False
+
+        # Assign custom sequence for inbound payments
+        if payment.payment_type == 'inbound' and journal.inbound_payment_sequence_id:
+            new_name = journal.inbound_payment_sequence_id.next_by_id()
+
+        # Assign custom sequence for outbound payments
+        elif payment.payment_type == 'outbound' and journal.outbound_payment_sequence_id:
+            new_name = journal.outbound_payment_sequence_id.next_by_id()
+
+        # Update the name if we have a custom sequence
+        if new_name:
+            # Use sudo to bypass readonly restrictions
+            payment.sudo().write({'name': new_name})
+            return True
+
+        return False
 
     def action_post(self):
         """Ensure custom sequence is set before posting"""
         for payment in self:
-            # Only update if payment is in draft state
-            if payment.state == 'draft':
-                journal = payment.journal_id
-
-                # Check if we need to update the sequence
-                should_update = False
-                new_name = False
-
-                # Assign custom sequence for inbound payments
-                if payment.payment_type == 'inbound' and journal.inbound_payment_sequence_id:
-                    new_name = journal.inbound_payment_sequence_id.next_by_id()
-                    should_update = True
-
-                # Assign custom sequence for outbound payments
-                elif payment.payment_type == 'outbound' and journal.outbound_payment_sequence_id:
-                    new_name = journal.outbound_payment_sequence_id.next_by_id()
-                    should_update = True
-
-                # Update the name if we have a custom sequence
-                if should_update and new_name:
-                    # Use sudo to bypass readonly restriction
-                    payment.sudo().write({'name': new_name})
+            # Only update if payment is in draft state and has default sequence
+            if payment.state == 'draft' and (not payment.name or payment.name == '/'):
+                self._assign_custom_sequence(payment)
 
         return super().action_post()
 
-    def _prepare_move_line_default_vals(self, write_off_line_vals=None):
-        """Override to ensure the payment name is set before move creation"""
-        # This method is called before creating the journal entry
-        # Make sure we have the custom sequence set
-        if self.state == 'draft':
-            journal = self.journal_id
+    def write(self, vals):
+        """Intercept write to set sequence before journal entry is created"""
+        # If state is changing to something other than draft and name is still default
+        if 'state' in vals and vals.get('state') != 'draft':
+            for payment in self:
+                if payment.state == 'draft' and (not payment.name or payment.name == '/'):
+                    self._assign_custom_sequence(payment)
 
-            # Assign custom sequence for inbound payments
-            if self.payment_type == 'inbound' and journal.inbound_payment_sequence_id:
-                if not self.name or self.name == '/' or self.name.startswith('DRAFT'):
-                    new_name = journal.inbound_payment_sequence_id.next_by_id()
-                    self.sudo().write({'name': new_name})
-
-            # Assign custom sequence for outbound payments
-            elif self.payment_type == 'outbound' and journal.outbound_payment_sequence_id:
-                if not self.name or self.name == '/' or self.name.startswith('DRAFT'):
-                    new_name = journal.outbound_payment_sequence_id.next_by_id()
-                    self.sudo().write({'name': new_name})
-
-        return super()._prepare_move_line_default_vals(write_off_line_vals)
+        return super().write(vals)

@@ -410,6 +410,7 @@
 #                     self.l10n_in_shipping_bill_number = picking.name
 #                 elif hasattr(self, 'delivery_note_number'):
 #                     self.delivery_note_number = picking.name
+
 from odoo import models, fields, api
 
 

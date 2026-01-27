@@ -557,33 +557,30 @@ class AccountPayment(models.Model):
         }
 
     def action_view_credits(self):
-        """Open BOTH credit notes AND advance payments together"""
+        """Open BOTH credit notes AND advance payments together in accounting view"""
         self.ensure_one()
 
         if not self.partner_id:
             raise UserError("No partner selected.")
 
         if self.partner_type == 'customer':
-            partner_type = 'customer'
-            payment_type = 'inbound'
+            move_types = ['out_refund', 'entry']
             name_prefix = 'Amount Received'
         else:
-            partner_type = 'supplier'
-            payment_type = 'outbound'
+            move_types = ['in_refund', 'entry']
             name_prefix = 'Amount Paid'
 
-        # Show all payments which includes advance payments and credit notes
+        # Show all payment and credit note entries together
         return {
             'name': f'{name_prefix} (Credit Notes & Advance Payments) - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
-            'res_model': 'account.payment',
+            'res_model': 'account.move.line',
             'view_mode': 'list,form',
             'views': [(False, 'list'), (False, 'form')],
             'domain': [
                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
-                ('partner_type', '=', partner_type),
-                ('payment_type', '=', payment_type),
-                ('state', 'in', ['posted', 'paid'])
+                ('move_id.state', '=', 'posted'),
+                ('move_id.move_type', 'in', move_types)
             ],
             'context': {'create': False},
         }

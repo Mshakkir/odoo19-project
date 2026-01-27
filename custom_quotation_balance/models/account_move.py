@@ -717,24 +717,23 @@ class AccountMove(models.Model):
         }
 
     def action_view_customer_credits(self):
-        """Open BOTH credit notes AND advance payments together"""
+        """Open BOTH credit notes AND advance payments together in accounting view"""
         self.ensure_one()
 
         if not self.partner_id:
             raise UserError("No customer selected.")
 
-        # Shows all advance payments received from customer (including credit notes applied)
+        # Shows payment and credit note entries together
         return {
             'name': f'Amount Received (Credit Notes & Advance Payments) - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
-            'res_model': 'account.payment',
+            'res_model': 'account.move.line',
             'view_mode': 'list,form',
             'views': [(False, 'list'), (False, 'form')],
             'domain': [
                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
-                ('partner_type', '=', 'customer'),
-                ('payment_type', '=', 'inbound'),
-                ('state', 'in', ['posted', 'paid'])
+                ('move_id.state', '=', 'posted'),
+                ('move_id.move_type', 'in', ['out_refund', 'entry'])
             ],
             'context': {'create': False},
         }
@@ -788,24 +787,23 @@ class AccountMove(models.Model):
         }
 
     def action_view_vendor_credits(self):
-        """Open BOTH credit notes AND advance payments together"""
+        """Open BOTH credit notes AND advance payments together in accounting view"""
         self.ensure_one()
 
         if not self.partner_id:
             raise UserError("No vendor selected.")
 
-        # Shows all advance payments made to vendor (including credit notes applied)
+        # Shows payment and credit note entries together
         return {
             'name': f'Amount Paid (Credit Notes & Advance Payments) - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
-            'res_model': 'account.payment',
+            'res_model': 'account.move.line',
             'view_mode': 'list,form',
             'views': [(False, 'list'), (False, 'form')],
             'domain': [
                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
-                ('partner_type', '=', 'supplier'),
-                ('payment_type', '=', 'outbound'),
-                ('state', 'in', ['posted', 'paid'])
+                ('move_id.state', '=', 'posted'),
+                ('move_id.move_type', 'in', ['in_refund', 'entry'])
             ],
             'context': {'create': False},
         }

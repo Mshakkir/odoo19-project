@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Wizard Form View -->
+    <record id="view_multi_sale_invoice_wizard_form" model="ir.ui.view">
+        <field name="name">multi.sale.invoice.wizard.form</field>
+        <field name="model">multi.sale.invoice.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Create Invoice from Multiple Sale Orders">
+                <group>
+                    <group>
+                        <field name="partner_id" readonly="1"/>
+                        <field name="invoice_date"/>
+                    </group>
+                </group>
+
+                <notebook>
+                    <page string="Sale Orders to Invoice">
+                        <field name="sale_order_line_ids">
+                            <tree editable="bottom">
+                                <field name="selected" widget="boolean_toggle"/>
+                                <field name="sale_order_id" readonly="1"/>
+                                <field name="order_date" readonly="1"/>
+                                <field name="invoice_status" readonly="1"/>
+                                <field name="amount_total" readonly="1" sum="Total"/>
+                                <field name="currency_id" invisible="1"/>
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
+
+                <footer>
+                    <button string="Create Invoice"
+                            type="object"
+                            name="action_create_invoice"
+                            class="btn-primary"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

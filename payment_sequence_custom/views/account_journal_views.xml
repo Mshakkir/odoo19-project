@@ -9,10 +9,8 @@
             <xpath expr="//page[@name='advanced_settings']" position="inside">
                 <group string="Payment Sequences" invisible="type not in ['bank', 'cash']">
                     <field name="inbound_payment_sequence_id"
-                           context="{'default_name': 'Inbound Payment ' + name, 'default_code': 'INPAY', 'default_prefix': 'IN/%(range_year)s/', 'default_padding': 5}"
                            options="{'no_create_edit': True}"/>
                     <field name="outbound_payment_sequence_id"
-                           context="{'default_name': 'Outbound Payment ' + name, 'default_code': 'OUTPAY', 'default_prefix': 'OUT/%(range_year)s/', 'default_padding': 5}"
                            options="{'no_create_edit': True}"/>
                 </group>
             </xpath>

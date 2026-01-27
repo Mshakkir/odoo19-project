@@ -20,12 +20,5 @@
     ],
     "installable": True,
     "application": False,
-    # "assets": {
-    #     "web.report_assets_common": [
-    #         "product_stock_ledger/static/src/css/report_styles.css",
-    #     ],
-    # },
-    "installable": True,
-    "application": False,
     "license": "LGPL-3",
 }

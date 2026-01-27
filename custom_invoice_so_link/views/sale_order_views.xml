@@ -1,15 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add action button in Sale Order tree view -->
-    <record id="view_order_tree_inherit_multi_invoice" model="ir.ui.view">
-        <field name="name">sale.order.tree.inherit.multi.invoice</field>
-        <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_quotation_tree"/>
-        <field name="arch" type="xml">
-            <!-- This will add the button in the action menu when orders are selected -->
-        </field>
-    </record>
-
     <!-- Server Action for Multi Invoice -->
     <record id="action_sale_order_multi_invoice" model="ir.actions.server">
         <field name="name">Create Combined Invoice</field>

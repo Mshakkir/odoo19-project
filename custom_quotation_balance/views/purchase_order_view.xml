@@ -5,25 +5,75 @@
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='partner_id']" position="after">
-                <group name="vendor_balance_group" string="Vendor Balance" class="oe_inline">
-                    <field name="vendor_total_billed" widget="monetary"
-                           options="{'currency_field': 'currency_id'}"
-                           readonly="1"
-                           class="oe_link"
-                           style="cursor: pointer; color: #007bff; text-decoration: underline;"
-                           on_click="action_view_vendor_bills"/>
-                    <field name="vendor_total_paid" widget="monetary"
-                           options="{'currency_field': 'currency_id'}"
-                           readonly="1"
-                           class="oe_link"
-                           style="cursor: pointer; color: #007bff; text-decoration: underline;"
-                           on_click="action_view_vendor_payments"/>
-                    <field name="vendor_balance_due" widget="monetary"
-                           options="{'currency_field': 'currency_id'}"
-                           readonly="1"/>
-                </group>
+
+            <!-- Add balance info box - Vertical Layout -->
+            <xpath expr="//form/sheet" position="inside">
+                <div class="vendor_balance_box"
+                     invisible="not partner_id"
+                     style="position: absolute;
+                            top: 0px;
+                            right: 0px;
+                            padding: 8px 15px;
+                            text-align: right;
+                            z-index: 1000;">
+
+                    <!-- Vertical layout format -->
+                    <div style="margin-bottom: 5px;">
+                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">Total Billed = </span>
+                        <button name="action_view_vendor_bills"
+                                type="object"
+                                class="btn btn-link p-0"
+                                style="text-decoration: underline; font-size: 14px; font-weight: 600;"
+                                invisible="vendor_total_billed == 0">
+                            <field name="vendor_total_billed"
+                                   widget="monetary"
+                                   readonly="1"
+                                   nolabel="1"
+                                   style="color: #007bff;"/>
+                        </button>
+                        <field name="vendor_total_billed"
+                               widget="monetary"
+                               readonly="1"
+                               invisible="vendor_total_billed != 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: inline;"/>
+                    </div>
+
+                    <div style="margin-bottom: 5px;">
+                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">Amount Paid = </span>
+                        <button name="action_view_vendor_payments"
+                                type="object"
+                                class="btn btn-link p-0"
+                                style="text-decoration: underline; font-size: 14px; font-weight: 600;"
+                                invisible="vendor_total_paid == 0">
+                            <field name="vendor_total_paid"
+                                   widget="monetary"
+                                   readonly="1"
+                                   decoration-success="vendor_total_paid > 0"
+                                   nolabel="1"
+                                   style="color: #28a745;"/>
+                        </button>
+                        <field name="vendor_total_paid"
+                               widget="monetary"
+                               readonly="1"
+                               invisible="vendor_total_paid != 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: inline;"/>
+                    </div>
+
+                    <div>
+                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">Balance Due = </span>
+                        <field name="vendor_balance_due"
+                               widget="monetary"
+                               readonly="1"
+                               decoration-danger="vendor_balance_due > 0"
+                               decoration-success="vendor_balance_due == 0"
+                               nolabel="1"
+                               style="font-size: 14px; font-weight: 600; display: inline;"/>
+                    </div>
+                </div>
             </xpath>
+
         </field>
     </record>
 </odoo>
@@ -38,7 +88,7 @@
 <!--        <field name="inherit_id" ref="purchase.purchase_order_form"/>-->
 <!--        <field name="arch" type="xml">-->
 
-<!--            &lt;!&ndash; Add balance info box - Vertical Layout &ndash;&gt;-->
+<!--            &lt;!&ndash; Add balance info box in single line format at top right corner &ndash;&gt;-->
 <!--            <xpath expr="//form/sheet" position="inside">-->
 <!--                <div class="vendor_balance_box"-->
 <!--                     invisible="not partner_id"-->
@@ -46,143 +96,61 @@
 <!--                            top: 0px;-->
 <!--                            right: 0px;-->
 <!--                            padding: 8px 15px;-->
-<!--                            text-align: right;-->
-<!--                            z-index: 1000;">-->
+<!--                            min-width: 600px;-->
+<!--                            z-index: 1;-->
+<!--                            white-space: nowrap;">-->
 
-<!--                    &lt;!&ndash; Vertical layout format &ndash;&gt;-->
-<!--                    <div style="margin-bottom: 5px;">-->
-<!--                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">Total Billed = </span>-->
-<!--                        <button name="action_view_vendor_bills"-->
-<!--                                type="object"-->
-<!--                                class="btn btn-link p-0"-->
-<!--                                style="text-decoration: underline; font-size: 14px; font-weight: 600;"-->
-<!--                                invisible="vendor_total_billed == 0">-->
-<!--                            <field name="vendor_total_billed"-->
-<!--                                   widget="monetary"-->
-<!--                                   readonly="1"-->
-<!--                                   nolabel="1"-->
-<!--                                   style="color: #007bff;"/>-->
-<!--                        </button>-->
+<!--                    &lt;!&ndash; Single line format &ndash;&gt;-->
+<!--                    <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">Total Billed:</span>-->
+<!--                    <button name="action_view_vendor_bills"-->
+<!--                            type="object"-->
+<!--                            class="btn btn-link p-0"-->
+<!--                            style="text-decoration: underline; font-size: 14px; font-weight: 600; margin-right: 20px;"-->
+<!--                            invisible="vendor_total_billed == 0">-->
 <!--                        <field name="vendor_total_billed"-->
 <!--                               widget="monetary"-->
 <!--                               readonly="1"-->
-<!--                               invisible="vendor_total_billed != 0"-->
 <!--                               nolabel="1"-->
-<!--                               style="font-size: 14px; font-weight: 600; display: inline;"/>-->
-<!--                    </div>-->
+<!--                               style="color: #007bff;"/>-->
+<!--                    </button>-->
+<!--                    <field name="vendor_total_billed"-->
+<!--                           widget="monetary"-->
+<!--                           readonly="1"-->
+<!--                           invisible="vendor_total_billed != 0"-->
+<!--                           nolabel="1"-->
+<!--                           style="font-size: 14px; font-weight: 600; margin-right: 20px; display: inline;"/>-->
 
-<!--                    <div style="margin-bottom: 5px;">-->
-<!--                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">Amount Paid = </span>-->
-<!--                        <button name="action_view_vendor_payments"-->
-<!--                                type="object"-->
-<!--                                class="btn btn-link p-0"-->
-<!--                                style="text-decoration: underline; font-size: 14px; font-weight: 600;"-->
-<!--                                invisible="vendor_total_paid == 0">-->
-<!--                            <field name="vendor_total_paid"-->
-<!--                                   widget="monetary"-->
-<!--                                   readonly="1"-->
-<!--                                   decoration-success="vendor_total_paid > 0"-->
-<!--                                   nolabel="1"-->
-<!--                                   style="color: #28a745;"/>-->
-<!--                        </button>-->
+<!--                    <span style="color: #6c757d; font-size: 13px; margin-right: 5px;margin-left:5px;">Amount Paid:</span>-->
+<!--                    <button name="action_view_vendor_payments"-->
+<!--                            type="object"-->
+<!--                            class="btn btn-link p-0"-->
+<!--                            style="text-decoration: underline; font-size: 14px; font-weight: 600; margin-right: 20px;"-->
+<!--                            invisible="vendor_total_paid == 0">-->
 <!--                        <field name="vendor_total_paid"-->
 <!--                               widget="monetary"-->
 <!--                               readonly="1"-->
-<!--                               invisible="vendor_total_paid != 0"-->
+<!--                               decoration-success="vendor_total_paid > 0"-->
 <!--                               nolabel="1"-->
-<!--                               style="font-size: 14px; font-weight: 600; display: inline;"/>-->
-<!--                    </div>-->
+<!--                               style="color: #28a745;"/>-->
+<!--                    </button>-->
+<!--                    <field name="vendor_total_paid"-->
+<!--                           widget="monetary"-->
+<!--                           readonly="1"-->
+<!--                           invisible="vendor_total_paid != 0"-->
+<!--                           nolabel="1"-->
+<!--                           style="font-size: 14px; font-weight: 600; margin-right: 20px; display: inline;"/>-->
 
-<!--                    <div>-->
-<!--                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">Balance Due = </span>-->
-<!--                        <field name="vendor_balance_due"-->
-<!--                               widget="monetary"-->
-<!--                               readonly="1"-->
-<!--                               decoration-danger="vendor_balance_due > 0"-->
-<!--                               decoration-success="vendor_balance_due == 0"-->
-<!--                               nolabel="1"-->
-<!--                               style="font-size: 14px; font-weight: 600; display: inline;"/>-->
-<!--                    </div>-->
+<!--                    <span style="color: #6c757d; font-size: 13px; margin-right: 5px;margin-left:5px;">Balance Due:</span>-->
+<!--                    <field name="vendor_balance_due"-->
+<!--                           widget="monetary"-->
+<!--                           readonly="1"-->
+<!--                           decoration-danger="vendor_balance_due > 0"-->
+<!--                           decoration-success="vendor_balance_due == 0"-->
+<!--                           nolabel="1"-->
+<!--                           style="font-size: 14px; font-weight: 600; display: inline;"/>-->
 <!--                </div>-->
 <!--            </xpath>-->
 
 <!--        </field>-->
 <!--    </record>-->
 <!--</odoo>-->
-
-
-
-<!--&lt;!&ndash;<?xml version="1.0" encoding="utf-8"?>&ndash;&gt;-->
-<!--&lt;!&ndash;<odoo>&ndash;&gt;-->
-<!--&lt;!&ndash;    <record id="view_purchase_order_form_vendor_balance" model="ir.ui.view">&ndash;&gt;-->
-<!--&lt;!&ndash;        <field name="name">purchase.order.form.vendor.balance</field>&ndash;&gt;-->
-<!--&lt;!&ndash;        <field name="model">purchase.order</field>&ndash;&gt;-->
-<!--&lt;!&ndash;        <field name="inherit_id" ref="purchase.purchase_order_form"/>&ndash;&gt;-->
-<!--&lt;!&ndash;        <field name="arch" type="xml">&ndash;&gt;-->
-
-<!--&lt;!&ndash;            &lt;!&ndash; Add balance info box in single line format at top right corner &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;            <xpath expr="//form/sheet" position="inside">&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="vendor_balance_box"&ndash;&gt;-->
-<!--&lt;!&ndash;                     invisible="not partner_id"&ndash;&gt;-->
-<!--&lt;!&ndash;                     style="position: absolute;&ndash;&gt;-->
-<!--&lt;!&ndash;                            top: 0px;&ndash;&gt;-->
-<!--&lt;!&ndash;                            right: 0px;&ndash;&gt;-->
-<!--&lt;!&ndash;                            padding: 8px 15px;&ndash;&gt;-->
-<!--&lt;!&ndash;                            min-width: 600px;&ndash;&gt;-->
-<!--&lt;!&ndash;                            z-index: 1;&ndash;&gt;-->
-<!--&lt;!&ndash;                            white-space: nowrap;">&ndash;&gt;-->
-
-<!--&lt;!&ndash;                    &lt;!&ndash; Single line format &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;                    <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">Total Billed:</span>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <button name="action_view_vendor_bills"&ndash;&gt;-->
-<!--&lt;!&ndash;                            type="object"&ndash;&gt;-->
-<!--&lt;!&ndash;                            class="btn btn-link p-0"&ndash;&gt;-->
-<!--&lt;!&ndash;                            style="text-decoration: underline; font-size: 14px; font-weight: 600; margin-right: 20px;"&ndash;&gt;-->
-<!--&lt;!&ndash;                            invisible="vendor_total_billed == 0">&ndash;&gt;-->
-<!--&lt;!&ndash;                        <field name="vendor_total_billed"&ndash;&gt;-->
-<!--&lt;!&ndash;                               widget="monetary"&ndash;&gt;-->
-<!--&lt;!&ndash;                               readonly="1"&ndash;&gt;-->
-<!--&lt;!&ndash;                               nolabel="1"&ndash;&gt;-->
-<!--&lt;!&ndash;                               style="color: #007bff;"/>&ndash;&gt;-->
-<!--&lt;!&ndash;                    </button>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <field name="vendor_total_billed"&ndash;&gt;-->
-<!--&lt;!&ndash;                           widget="monetary"&ndash;&gt;-->
-<!--&lt;!&ndash;                           readonly="1"&ndash;&gt;-->
-<!--&lt;!&ndash;                           invisible="vendor_total_billed != 0"&ndash;&gt;-->
-<!--&lt;!&ndash;                           nolabel="1"&ndash;&gt;-->
-<!--&lt;!&ndash;                           style="font-size: 14px; font-weight: 600; margin-right: 20px; display: inline;"/>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                    <span style="color: #6c757d; font-size: 13px; margin-right: 5px;margin-left:5px;">Amount Paid:</span>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <button name="action_view_vendor_payments"&ndash;&gt;-->
-<!--&lt;!&ndash;                            type="object"&ndash;&gt;-->
-<!--&lt;!&ndash;                            class="btn btn-link p-0"&ndash;&gt;-->
-<!--&lt;!&ndash;                            style="text-decoration: underline; font-size: 14px; font-weight: 600; margin-right: 20px;"&ndash;&gt;-->
-<!--&lt;!&ndash;                            invisible="vendor_total_paid == 0">&ndash;&gt;-->
-<!--&lt;!&ndash;                        <field name="vendor_total_paid"&ndash;&gt;-->
-<!--&lt;!&ndash;                               widget="monetary"&ndash;&gt;-->
-<!--&lt;!&ndash;                               readonly="1"&ndash;&gt;-->
-<!--&lt;!&ndash;                               decoration-success="vendor_total_paid > 0"&ndash;&gt;-->
-<!--&lt;!&ndash;                               nolabel="1"&ndash;&gt;-->
-<!--&lt;!&ndash;                               style="color: #28a745;"/>&ndash;&gt;-->
-<!--&lt;!&ndash;                    </button>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <field name="vendor_total_paid"&ndash;&gt;-->
-<!--&lt;!&ndash;                           widget="monetary"&ndash;&gt;-->
-<!--&lt;!&ndash;                           readonly="1"&ndash;&gt;-->
-<!--&lt;!&ndash;                           invisible="vendor_total_paid != 0"&ndash;&gt;-->
-<!--&lt;!&ndash;                           nolabel="1"&ndash;&gt;-->
-<!--&lt;!&ndash;                           style="font-size: 14px; font-weight: 600; margin-right: 20px; display: inline;"/>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                    <span style="color: #6c757d; font-size: 13px; margin-right: 5px;margin-left:5px;">Balance Due:</span>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <field name="vendor_balance_due"&ndash;&gt;-->
-<!--&lt;!&ndash;                           widget="monetary"&ndash;&gt;-->
-<!--&lt;!&ndash;                           readonly="1"&ndash;&gt;-->
-<!--&lt;!&ndash;                           decoration-danger="vendor_balance_due > 0"&ndash;&gt;-->
-<!--&lt;!&ndash;                           decoration-success="vendor_balance_due == 0"&ndash;&gt;-->
-<!--&lt;!&ndash;                           nolabel="1"&ndash;&gt;-->
-<!--&lt;!&ndash;                           style="font-size: 14px; font-weight: 600; display: inline;"/>&ndash;&gt;-->
-<!--&lt;!&ndash;                </div>&ndash;&gt;-->
-<!--&lt;!&ndash;            </xpath>&ndash;&gt;-->
-
-<!--&lt;!&ndash;        </field>&ndash;&gt;-->
-<!--&lt;!&ndash;    </record>&ndash;&gt;-->
-<!--&lt;!&ndash;</odoo>&ndash;&gt;-->

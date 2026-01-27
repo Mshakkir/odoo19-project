@@ -557,55 +557,33 @@ class AccountPayment(models.Model):
         }
 
     def action_view_credits(self):
-        """Open credit notes for the partner"""
+        """Open BOTH credit notes AND advance payments together"""
         self.ensure_one()
 
         if not self.partner_id:
             raise UserError("No partner selected.")
 
         if self.partner_type == 'customer':
-            move_type = 'out_refund'
-        else:
-            move_type = 'in_refund'
-
-        return {
-            'name': f'Credit Notes - {self.partner_id.name}',
-            'type': 'ir.actions.act_window',
-            'res_model': 'account.move',
-            'view_mode': 'list,form',
-            'views': [(False, 'list'), (False, 'form')],
-            'domain': [
-                ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
-                ('move_type', '=', move_type),
-                ('state', '=', 'posted')
-            ],
-            'context': {'create': False},
-        }
-
-    def action_view_credits_and_payments(self):
-        """Open BOTH credit notes AND payments together"""
-        self.ensure_one()
-
-        if not self.partner_id:
-            raise UserError("No partner selected.")
-
-        if self.partner_type == 'customer':
-            move_type = 'out_refund'
+            partner_type = 'customer'
+            payment_type = 'inbound'
             name_prefix = 'Amount Received'
         else:
-            move_type = 'in_refund'
+            partner_type = 'supplier'
+            payment_type = 'outbound'
             name_prefix = 'Amount Paid'
 
+        # Show all payments which includes advance payments and credit notes
         return {
-            'name': f'{name_prefix} (Credit Notes & Payments) - {self.partner_id.name}',
+            'name': f'{name_prefix} (Credit Notes & Advance Payments) - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
-            'res_model': 'account.move',
+            'res_model': 'account.payment',
             'view_mode': 'list,form',
             'views': [(False, 'list'), (False, 'form')],
             'domain': [
                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
-                ('move_type', '=', move_type),
-                ('state', '=', 'posted')
+                ('partner_type', '=', partner_type),
+                ('payment_type', '=', payment_type),
+                ('state', 'in', ['posted', 'paid'])
             ],
             'context': {'create': False},
         }

@@ -717,44 +717,24 @@ class AccountMove(models.Model):
         }
 
     def action_view_customer_credits(self):
-        """Open all customer credit notes"""
+        """Open BOTH credit notes AND advance payments together"""
         self.ensure_one()
 
         if not self.partner_id:
             raise UserError("No customer selected.")
 
+        # Shows all advance payments received from customer (including credit notes applied)
         return {
-            'name': f'Credit Notes - {self.partner_id.name}',
+            'name': f'Amount Received (Credit Notes & Advance Payments) - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
-            'res_model': 'account.move',
+            'res_model': 'account.payment',
             'view_mode': 'list,form',
             'views': [(False, 'list'), (False, 'form')],
             'domain': [
                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
-                ('move_type', '=', 'out_refund'),
-                ('state', '=', 'posted')
-            ],
-            'context': {'create': False},
-        }
-
-    def action_view_customer_credits_and_payments(self):
-        """Open BOTH customer credit notes AND payments together"""
-        self.ensure_one()
-
-        if not self.partner_id:
-            raise UserError("No customer selected.")
-
-        # Get credit notes and payments and display them together
-        return {
-            'name': f'Amount Received (Credit Notes & Payments) - {self.partner_id.name}',
-            'type': 'ir.actions.act_window',
-            'res_model': 'account.move',
-            'view_mode': 'list,form',
-            'views': [(False, 'list'), (False, 'form')],
-            'domain': [
-                ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
-                ('move_type', '=', 'out_refund'),
-                ('state', '=', 'posted')
+                ('partner_type', '=', 'customer'),
+                ('payment_type', '=', 'inbound'),
+                ('state', 'in', ['posted', 'paid'])
             ],
             'context': {'create': False},
         }
@@ -808,44 +788,24 @@ class AccountMove(models.Model):
         }
 
     def action_view_vendor_credits(self):
-        """Open all vendor credit notes"""
+        """Open BOTH credit notes AND advance payments together"""
         self.ensure_one()
 
         if not self.partner_id:
             raise UserError("No vendor selected.")
 
+        # Shows all advance payments made to vendor (including credit notes applied)
         return {
-            'name': f'Credit Notes - {self.partner_id.name}',
+            'name': f'Amount Paid (Credit Notes & Advance Payments) - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
-            'res_model': 'account.move',
+            'res_model': 'account.payment',
             'view_mode': 'list,form',
             'views': [(False, 'list'), (False, 'form')],
             'domain': [
                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
-                ('move_type', '=', 'in_refund'),
-                ('state', '=', 'posted')
-            ],
-            'context': {'create': False},
-        }
-
-    def action_view_vendor_credits_and_payments(self):
-        """Open BOTH vendor credit notes AND payments together"""
-        self.ensure_one()
-
-        if not self.partner_id:
-            raise UserError("No vendor selected.")
-
-        # Get credit notes and payments and display them together
-        return {
-            'name': f'Amount Paid (Credit Notes & Payments) - {self.partner_id.name}',
-            'type': 'ir.actions.act_window',
-            'res_model': 'account.move',
-            'view_mode': 'list,form',
-            'views': [(False, 'list'), (False, 'form')],
-            'domain': [
-                ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
-                ('move_type', '=', 'in_refund'),
-                ('state', '=', 'posted')
+                ('partner_type', '=', 'supplier'),
+                ('payment_type', '=', 'outbound'),
+                ('state', 'in', ['posted', 'paid'])
             ],
             'context': {'create': False},
         }

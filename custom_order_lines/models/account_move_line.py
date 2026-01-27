@@ -80,11 +80,18 @@ class AccountMoveLine(models.Model):
 
     @api.depends('move_id.invoice_line_ids', 'display_type')
     def _compute_sequence_number(self):
-        for move in self.mapped('move_id'):
+        for line in self:
+            # Handle new records that don't have a move_id yet
+            if not line.move_id or not line.move_id.id:
+                line.sequence_number = 0
+                continue
+
             number = 1
             # Only count lines with display_type 'product' or empty (regular lines)
-            for line in move.invoice_line_ids.filtered(lambda l: l.display_type in ['product', False]):
-                line.sequence_number = number
+            for invoice_line in line.move_id.invoice_line_ids.filtered(lambda l: l.display_type in ['product', False]):
+                if invoice_line.id == line.id:
+                    line.sequence_number = number
+                    break
                 number += 1
 
     @api.depends('quantity', 'price_unit', 'discount', 'tax_ids', 'move_id.currency_id')
@@ -110,15 +117,13 @@ class AccountMoveLine(models.Model):
                 line.tax_amount = 0.0
 
     def action_product_forecast_report(self):
+        """Open the product's forecast report"""
+        self.ensure_one()
         if self.product_id:
-            return {
-                'name': 'Product Forecast',
-                'type': 'ir.actions.act_window',
-                'res_model': 'purchase.order.line',
-                'view_mode': 'form',
-                'view_id': self.env.ref('purchase.purchase_order_line_form').id,
-                'context': {
-                    'default_product_id': self.product_id.id,
-                    'forecast_mode': True
-                }
+            action = self.env["ir.actions.actions"]._for_xml_id("stock.report_product_product_replenishment")
+            action['context'] = {
+                'default_product_id': self.product_id.id,
+                'default_product_tmpl_id': self.product_id.product_tmpl_id.id,
             }
+            return action
+        return False

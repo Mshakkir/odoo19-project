@@ -58,6 +58,8 @@
 #     def _compute_total_amount(self):
 #         for line in self:
 #             line.total_amount = line.untaxed_amount_after_discount + line.tax_amount
+
+
 from odoo import api, fields, models
 
 
@@ -120,15 +122,13 @@ class SaleOrderLine(models.Model):
             line.total_amount = line.untaxed_amount_after_discount + line.tax_amount
 
     def action_product_forecast_report(self):
+        """Open the product's forecast report"""
+        self.ensure_one()
         if self.product_id:
-            return {
-                'name': 'Product Forecast',
-                'type': 'ir.actions.act_window',
-                'res_model': 'purchase.order.line',
-                'view_mode': 'form',
-                'view_id': self.env.ref('purchase.purchase_order_line_form').id,
-                'context': {
-                    'default_product_id': self.product_id.id,
-                    'forecast_mode': True
-                }
+            action = self.env["ir.actions.actions"]._for_xml_id("stock.report_product_product_replenishment")
+            action['context'] = {
+                'default_product_id': self.product_id.id,
+                'default_product_tmpl_id': self.product_id.product_tmpl_id.id,
             }
+            return action
+        return False

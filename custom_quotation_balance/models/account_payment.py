@@ -557,7 +557,7 @@ class AccountPayment(models.Model):
         }
 
     def action_view_credits(self):
-        """Open BOTH credit notes AND advance payments together in accounting view"""
+        """Open BOTH credit notes AND advance payments - credit entries only"""
         self.ensure_one()
 
         if not self.partner_id:
@@ -570,7 +570,7 @@ class AccountPayment(models.Model):
             move_types = ['in_refund', 'entry']
             name_prefix = 'Amount Paid'
 
-        # Show all payment and credit note entries together
+        # Show only CREDIT entries (advance payments + credit notes)
         return {
             'name': f'{name_prefix} (Credit Notes & Advance Payments) - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
@@ -580,7 +580,8 @@ class AccountPayment(models.Model):
             'domain': [
                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
                 ('move_id.state', '=', 'posted'),
-                ('move_id.move_type', 'in', move_types)
+                ('move_id.move_type', 'in', move_types),
+                ('credit', '>', 0)
             ],
             'context': {'create': False},
         }

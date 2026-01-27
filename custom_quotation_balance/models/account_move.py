@@ -717,13 +717,13 @@ class AccountMove(models.Model):
         }
 
     def action_view_customer_credits(self):
-        """Open BOTH credit notes AND advance payments together in accounting view"""
+        """Open BOTH credit notes AND advance payments - credit entries only"""
         self.ensure_one()
 
         if not self.partner_id:
             raise UserError("No customer selected.")
 
-        # Shows payment and credit note entries together
+        # Shows only CREDIT entries (advance payments + credit notes)
         return {
             'name': f'Amount Received (Credit Notes & Advance Payments) - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
@@ -733,7 +733,8 @@ class AccountMove(models.Model):
             'domain': [
                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
                 ('move_id.state', '=', 'posted'),
-                ('move_id.move_type', 'in', ['out_refund', 'entry'])
+                ('move_id.move_type', 'in', ['out_refund', 'entry']),
+                ('credit', '>', 0)
             ],
             'context': {'create': False},
         }
@@ -787,13 +788,13 @@ class AccountMove(models.Model):
         }
 
     def action_view_vendor_credits(self):
-        """Open BOTH credit notes AND advance payments together in accounting view"""
+        """Open BOTH credit notes AND advance payments - credit entries only"""
         self.ensure_one()
 
         if not self.partner_id:
             raise UserError("No vendor selected.")
 
-        # Shows payment and credit note entries together
+        # Shows only CREDIT entries (advance payments + credit notes)
         return {
             'name': f'Amount Paid (Credit Notes & Advance Payments) - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
@@ -803,7 +804,8 @@ class AccountMove(models.Model):
             'domain': [
                 ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
                 ('move_id.state', '=', 'posted'),
-                ('move_id.move_type', 'in', ['in_refund', 'entry'])
+                ('move_id.move_type', 'in', ['in_refund', 'entry']),
+                ('credit', '>', 0)
             ],
             'context': {'create': False},
         }

@@ -6,12 +6,13 @@
         <field name="model">account.journal</field>
         <field name="inherit_id" ref="account.view_account_journal_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//page[@name='advanced_settings']" position="inside">
+            <!-- Find the Advanced Settings page and add our fields inside -->
+            <xpath expr="//page[@name='advanced_settings']//group[last()]" position="after">
                 <group string="Payment Sequences" invisible="type not in ['bank', 'cash']">
-                    <field name="inbound_payment_sequence_id"
-                           options="{'no_create_edit': True}"/>
-                    <field name="outbound_payment_sequence_id"
-                           options="{'no_create_edit': True}"/>
+                    <group>
+                        <field name="inbound_payment_sequence_id"/>
+                        <field name="outbound_payment_sequence_id"/>
+                    </group>
                 </group>
             </xpath>
         </field>

@@ -6,16 +6,16 @@
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add Sales Order field right after Customer field -->
+            <!-- Add Sales Orders field right after Customer field -->
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="available_sale_order_ids" invisible="1"/>
-                <field name="sale_order_id"
+                <field name="sale_order_ids"
                        string="Sales Orders"
-                       widget="selection"
+                       widget="many2many_tags"
                        options="{'no_create': True, 'no_open': True}"
                        domain="[('id', 'in', available_sale_order_ids)]"
                        invisible="move_type not in ['out_invoice', 'out_refund'] or not partner_id"
-                       placeholder="Select a Sales Order..."/>
+                       placeholder="Select Sales Orders..."/>
 
             </xpath>
 

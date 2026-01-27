@@ -544,12 +544,10 @@ class AccountMove(models.Model):
             self.invoice_origin = self.sale_order_id.name
             self.payment_reference = self.sale_order_id.name
 
-            # Set PO Number and Customer Reference from Sales Order
+            # Set Customer Reference from Sales Order (client_order_ref from SO -> ref in Invoice)
+            # Note: account.move uses 'ref' field, not 'client_order_ref'
             if hasattr(self.sale_order_id, 'client_order_ref') and self.sale_order_id.client_order_ref:
-                # Set PO Number field (client_order_ref) - shown on main form
-                self.client_order_ref = self.sale_order_id.client_order_ref
-
-                # Set Customer Reference field (ref) - shown in Other Info tab
+                # Set Customer Reference field (ref) - this is the correct field name in account.move
                 self.ref = self.sale_order_id.client_order_ref
 
             # Set AWB Number from Sales Order

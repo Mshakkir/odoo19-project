@@ -124,13 +124,48 @@ class AccountMoveLine(models.Model):
         if not self.product_id:
             return False
 
-        # Open the replenishment report for this product
+        # Try different methods to open the forecast report
+        # Method 1: Try to find and use the stock forecasted report action
+        try:
+            # Look for the report.stock.quantity action or similar
+            action = self.env['ir.actions.act_window'].search([
+                ('res_model', '=', 'report.stock.quantity'),
+            ], limit=1)
+
+            if action:
+                result = action.read()[0]
+                result['context'] = {
+                    'search_default_product_id': self.product_id.id,
+                    'default_product_id': self.product_id.id,
+                }
+                return result
+        except:
+            pass
+
+        # Method 2: Try stock.quantitative.forecasted
+        try:
+            action = self.env['ir.actions.act_window'].search([
+                ('res_model', '=', 'stock.forecasted'),
+            ], limit=1)
+
+            if action:
+                result = action.read()[0]
+                result['context'] = {
+                    'search_default_product_id': self.product_id.id,
+                }
+                return result
+        except:
+            pass
+
+        # Method 3: Open product form and let user click replenish manually
         return {
-            'name': 'Forecasted Report',
-            'type': 'ir.actions.client',
-            'tag': 'replenish_report',
+            'name': self.product_id.display_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 'product.product',
+            'res_id': self.product_id.id,
+            'view_mode': 'form',
+            'target': 'current',
             'context': {
-                'default_product_id': self.product_id.id,
-                'default_product_tmpl_id': self.product_id.product_tmpl_id.id,
-            },
+                'default_detailed_type': 'product',
+            }
         }

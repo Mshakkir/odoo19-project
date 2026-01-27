@@ -1,0 +1,42 @@
+# -*- coding: utf-8 -*-
+
+from odoo import models, fields, api
+
+
+class SaleOrderLine(models.Model):
+    _inherit = 'sale.order.line'
+
+    def action_view_product_stock_ledger(self):
+        """
+        Opens the Product Stock Ledger list view filtered by the current product
+        """
+        self.ensure_one()
+
+        if not self.product_id:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Warning',
+                    'message': 'No product selected in this line.',
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
+
+        # Get the list view ID for product stock ledger
+        view_id = self.env.ref('stock.product_stock_ledger_view_ledger_line_list', raise_if_not_found=False)
+
+        return {
+            'name': f'Stock Ledger - {self.product_id.name}',
+            'type': 'ir.actions.act_window',
+            'res_model': 'product.stock.ledger.line',
+            'view_mode': 'list',
+            'view_id': view_id.id if view_id else False,
+            'domain': [('product_id', '=', self.product_id.id)],
+            'context': {
+                'default_product_id': self.product_id.id,
+                'search_default_product_id': self.product_id.id,
+            },
+            'target': 'current',
+        }

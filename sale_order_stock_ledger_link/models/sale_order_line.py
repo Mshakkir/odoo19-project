@@ -24,19 +24,14 @@ class SaleOrderLine(models.Model):
                 }
             }
 
-        # Get the list view ID for product stock ledger
-        view_id = self.env.ref('stock.product_stock_ledger_view_ledger_line_list', raise_if_not_found=False)
-
         return {
             'name': f'Stock Ledger - {self.product_id.name}',
             'type': 'ir.actions.act_window',
-            'res_model': 'product.stock.ledger.line',
-            'view_mode': 'list',
-            'view_id': view_id.id if view_id else False,
+            'res_model': 'stock.valuation.layer',
+            'view_mode': 'list,form',
             'domain': [('product_id', '=', self.product_id.id)],
             'context': {
                 'default_product_id': self.product_id.id,
-                'search_default_product_id': self.product_id.id,
             },
             'target': 'current',
         }

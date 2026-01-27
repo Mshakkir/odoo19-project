@@ -59,6 +59,7 @@
 #         for line in self:
 #             line.total_amount = line.untaxed_amount_after_discount + line.tax_amount
 
+
 from odoo import api, fields, models
 
 
@@ -126,5 +127,13 @@ class SaleOrderLine(models.Model):
         if not self.product_id:
             return False
 
-        # Call the product's action_product_forecast_report method
-        return self.product_id.action_product_forecast_report()
+        # Open the replenishment report for this product
+        return {
+            'name': 'Forecasted Report',
+            'type': 'ir.actions.client',
+            'tag': 'replenish_report',
+            'context': {
+                'default_product_id': self.product_id.id,
+                'default_product_tmpl_id': self.product_id.product_tmpl_id.id,
+            },
+        }

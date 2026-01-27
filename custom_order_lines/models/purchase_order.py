@@ -57,6 +57,8 @@
 #                     line.tax_amount = 0.0
 #             else:
 #                 line.tax_amount = 0.0
+
+
 from odoo import api, fields, models
 
 
@@ -123,6 +125,13 @@ class PurchaseOrderLine(models.Model):
         if not self.product_id:
             return False
 
-        # Call the product's action_product_forecast_report method
-        return self.product_id.action_product_forecast_report()
-
+        # Open the replenishment report for this product
+        return {
+            'name': 'Forecasted Report',
+            'type': 'ir.actions.client',
+            'tag': 'replenish_report',
+            'context': {
+                'default_product_id': self.product_id.id,
+                'default_product_tmpl_id': self.product_id.product_tmpl_id.id,
+            },
+        }

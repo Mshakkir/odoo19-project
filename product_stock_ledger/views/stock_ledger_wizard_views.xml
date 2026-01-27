@@ -4,7 +4,7 @@
         <field name="model">product.stock.ledger.line</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
-            <tree string="Product Stock Ledger" create="false" edit="false" delete="false" export_xlsx="true">
+            <list string="Product Stock Ledger" create="false" edit="false" delete="false" export_xlsx="true">
                 <header>
                     <button name="action_refresh_ledger" type="object" string="Refresh Data" class="btn-primary" icon="fa-refresh"/>
                 </header>
@@ -21,7 +21,7 @@
                 <field name="balance" string="Balance"/>
                 <field name="uom" string="Unit"/>
                 <field name="invoice_status" string="Invoice Status"/>
-            </tree>
+            </list>
         </field>
     </record>
 

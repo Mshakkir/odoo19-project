@@ -1,61 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Customer Invoice View -->
     <record id="view_move_form_customer_balance" model="ir.ui.view">
         <field name="name">account.move.form.customer.balance</field>
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="priority">99</field>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='partner_id']" position="after">
-                <!-- Customer Balance - Only show for customer invoices -->
-                <group name="customer_balance_info" invisible="move_type not in ['out_invoice', 'out_refund']">
-                    <group>
-                        <label for="customer_total_invoiced" string="Total Invoiced"/>
-                        <div class="o_row">
-                            <field name="customer_total_invoiced" widget="monetary" readonly="1"/>
+            <!-- Add to notebook page instead of after partner_id -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Partner Balance" name="partner_balance_page"
+                      invisible="move_type not in ['out_invoice', 'out_refund', 'in_invoice', 'in_refund']">
+
+                    <!-- Customer Balance Section -->
+                    <group name="customer_balance_section" string="Customer Balance"
+                           invisible="move_type not in ['out_invoice', 'out_refund']">
+                        <group>
+                            <field name="customer_total_invoiced" widget="monetary"/>
+                            <field name="customer_total_received" widget="monetary"/>
+                            <field name="customer_balance_due" widget="monetary"/>
+                        </group>
+                        <group>
                             <button name="action_view_customer_invoices"
+                                    string="View Invoices"
                                     type="object"
-                                    string="View"
-                                    class="btn-link"/>
-                        </div>
-
-                        <label for="customer_total_received" string="Amount Received"/>
-                        <div class="o_row">
-                            <field name="customer_total_received" widget="monetary" readonly="1"/>
+                                    class="btn-primary"/>
                             <button name="action_view_customer_payments"
+                                    string="View Payments"
                                     type="object"
-                                    string="View"
-                                    class="btn-link"/>
-                        </div>
-
-                        <field name="customer_balance_due" widget="monetary" readonly="1"/>
+                                    class="btn-primary"/>
+                        </group>
                     </group>
-                </group>
 
-                <!-- Vendor Balance - Only show for vendor bills -->
-                <group name="vendor_balance_info" invisible="move_type not in ['in_invoice', 'in_refund']">
-                    <group>
-                        <label for="vendor_total_billed" string="Total Billed"/>
-                        <div class="o_row">
-                            <field name="vendor_total_billed" widget="monetary" readonly="1"/>
+                    <!-- Vendor Balance Section -->
+                    <group name="vendor_balance_section" string="Vendor Balance"
+                           invisible="move_type not in ['in_invoice', 'in_refund']">
+                        <group>
+                            <field name="vendor_total_billed" widget="monetary"/>
+                            <field name="vendor_total_paid" widget="monetary"/>
+                            <field name="vendor_balance_due" widget="monetary"/>
+                        </group>
+                        <group>
                             <button name="action_view_vendor_bills"
+                                    string="View Bills"
                                     type="object"
-                                    string="View"
-                                    class="btn-link"/>
-                        </div>
-
-                        <label for="vendor_total_paid" string="Amount Paid"/>
-                        <div class="o_row">
-                            <field name="vendor_total_paid" widget="monetary" readonly="1"/>
+                                    class="btn-primary"/>
                             <button name="action_view_vendor_payments"
+                                    string="View Payments"
                                     type="object"
-                                    string="View"
-                                    class="btn-link"/>
-                        </div>
-
-                        <field name="vendor_balance_due" widget="monetary" readonly="1"/>
+                                    class="btn-primary"/>
+                        </group>
                     </group>
-                </group>
+                </page>
             </xpath>
         </field>
     </record>

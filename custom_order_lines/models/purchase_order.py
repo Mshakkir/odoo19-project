@@ -118,13 +118,27 @@ class PurchaseOrderLine(models.Model):
                 line.tax_amount = 0.0
 
     def action_product_forecast_report(self):
-        """Open the product's forecast report"""
+        """Open the product form with forecast information"""
         self.ensure_one()
-        if self.product_id:
-            action = self.env["ir.actions.actions"]._for_xml_id("stock.report_product_product_replenishment")
-            action['context'] = {
+        if not self.product_id:
+            return False
+
+        # Try to open the forecast report if available
+        try:
+            action = self.env.ref('stock.stock_replenishment_product_product_action')
+            result = action.read()[0]
+            result['context'] = {
                 'default_product_id': self.product_id.id,
-                'default_product_tmpl_id': self.product_id.product_tmpl_id.id,
+                'search_default_product_id': self.product_id.id,
             }
-            return action
-        return False
+            return result
+        except:
+            # Fallback: Open product form
+            return {
+                'name': 'Product Information',
+                'type': 'ir.actions.act_window',
+                'res_model': 'product.product',
+                'res_id': self.product_id.id,
+                'view_mode': 'form',
+                'target': 'new',
+            }

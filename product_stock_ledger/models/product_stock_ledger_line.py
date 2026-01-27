@@ -1,3 +1,4 @@
+# product_stock_ledger/models/product_stock_ledger_line.py
 from odoo import fields, models, api
 from datetime import datetime
 
@@ -8,6 +9,7 @@ class ProductStockLedgerLine(models.Model):
     _order = 'date asc'
 
     product_id = fields.Many2one('product.product', string='Product')
+    warehouse_id = fields.Many2one('stock.warehouse', string='Warehouse')
     date = fields.Datetime(string='Date')
     voucher = fields.Char(string='Voucher')
     particulars = fields.Char(string='Particulars')
@@ -103,8 +105,28 @@ class ProductStockLedgerLine(models.Model):
 
         return status
 
+    def _get_warehouse_from_location(self, location):
+        """Get warehouse from location"""
+        if not location:
+            return False
+
+        # Try to find warehouse from location's warehouse_id
+        if hasattr(location, 'warehouse_id') and location.warehouse_id:
+            return location.warehouse_id
+
+        # Search for warehouse that contains this location
+        warehouses = self.env['stock.warehouse'].search([])
+        for wh in warehouses:
+            if wh.view_location_id:
+                wh_locations = self.env['stock.location'].search([
+                    ('id', 'child_of', wh.view_location_id.id)
+                ])
+                if location.id in wh_locations.ids:
+                    return wh
+        return False
+
     @api.model
-    def generate_ledger(self, product_id=None, date_from=None, date_to=None):
+    def generate_ledger(self, product_id=None, warehouse_id=None, date_from=None, date_to=None):
         """Generate stock ledger lines based on filters"""
         domain = [('state', '=', 'done')]
 
@@ -115,30 +137,69 @@ class ProductStockLedgerLine(models.Model):
         if date_to:
             domain.append(('date', '<=', date_to))
 
+        wh = False
+        loc_ids = []
+        if warehouse_id:
+            wh = self.env['stock.warehouse'].browse(warehouse_id)
+            if wh.view_location_id:
+                loc_ids = self.env['stock.location'].search([
+                    ('id', 'child_of', wh.view_location_id.id)
+                ]).ids
+                domain += ['|', ('location_id', 'in', loc_ids), ('location_dest_id', 'in', loc_ids)]
+
         moves = self.env['stock.move'].search(domain, order='date asc')
 
         # Clear existing lines
         self.search([]).unlink()
 
-        # Track balance per product
+        # Track balance per product-warehouse combination
         balances = {}
 
         lines_to_create = []
         for mv in moves:
             qty = mv.product_uom_qty or 0.0
 
-            # Create unique key for product
-            key = mv.product_id.id
+            # Determine warehouse for this move
+            move_warehouse = False
+            if warehouse_id:
+                move_warehouse = wh
+            else:
+                # Try to get warehouse from picking
+                if mv.picking_id and mv.picking_id.location_id:
+                    move_warehouse = self._get_warehouse_from_location(mv.picking_id.location_id)
+                if not move_warehouse and mv.picking_id and mv.picking_id.location_dest_id:
+                    move_warehouse = self._get_warehouse_from_location(mv.picking_id.location_dest_id)
+                # Fallback: try from move locations
+                if not move_warehouse:
+                    move_warehouse = self._get_warehouse_from_location(mv.location_dest_id)
+                if not move_warehouse:
+                    move_warehouse = self._get_warehouse_from_location(mv.location_id)
+
+            move_warehouse_id = move_warehouse.id if move_warehouse else False
+
+            # Create unique key for product-warehouse
+            key = (mv.product_id.id, move_warehouse_id)
             if key not in balances:
                 balances[key] = 0.0
 
             # Determine move type
-            if mv.location_dest_id.usage == 'internal' and mv.location_id.usage != 'internal':
-                move_type = 'incoming'
-            elif mv.location_id.usage == 'internal' and mv.location_dest_id.usage != 'internal':
-                move_type = 'outgoing'
+            if warehouse_id and wh and wh.view_location_id:
+                dest_in_wh = mv.location_dest_id.id in loc_ids
+                src_in_wh = mv.location_id.id in loc_ids
+
+                if dest_in_wh and not src_in_wh:
+                    move_type = 'incoming'
+                elif src_in_wh and not dest_in_wh:
+                    move_type = 'outgoing'
+                else:
+                    move_type = 'internal'
             else:
-                move_type = 'internal'
+                if mv.location_dest_id.usage == 'internal' and mv.location_id.usage != 'internal':
+                    move_type = 'incoming'
+                elif mv.location_id.usage == 'internal' and mv.location_dest_id.usage != 'internal':
+                    move_type = 'outgoing'
+                else:
+                    move_type = 'internal'
 
             # Determine rate
             rate = 0.0
@@ -182,6 +243,7 @@ class ProductStockLedgerLine(models.Model):
             # Prepare line data
             lines_to_create.append({
                 'product_id': mv.product_id.id,
+                'warehouse_id': move_warehouse_id,
                 'date': mv.date,
                 'voucher': mv.reference or mv.name or '',
                 'particulars': particulars,
@@ -219,10 +281,9 @@ class ProductStockLedgerLine(models.Model):
         }
 
     def action_refresh_ledger(self):
-        """Refresh ledger data - called from Refresh button"""
-        self.search([]).unlink()  # Clear all existing ledger lines
-        self.generate_ledger()  # Regenerate with all data
-
+        """Refresh ledger data"""
+        self.search([]).unlink()
+        self.generate_ledger()
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -242,16 +303,6 @@ class ProductStockLedgerLine(models.Model):
 
 
 
-
-
-
-
-
-
-
-
-
-# # product_stock_ledger/models/product_stock_ledger_line.py
 # from odoo import fields, models, api
 # from datetime import datetime
 #
@@ -454,7 +505,8 @@ class ProductStockLedgerLine(models.Model):
 #             })
 #
 #         # Batch create all lines
-#         self.create(lines_to_create)
+#         if lines_to_create:
+#             self.create(lines_to_create)
 #         return True
 #
 #     def action_generate_all(self):
@@ -472,6 +524,18 @@ class ProductStockLedgerLine(models.Model):
 #         }
 #
 #     def action_refresh_ledger(self):
-#         """Refresh ledger data"""
-#         return self.action_generate_all()
+#         """Refresh ledger data - called from Refresh button"""
+#         self.search([]).unlink()  # Clear all existing ledger lines
+#         self.generate_ledger()  # Regenerate with all data
+#
+#         return {
+#             'type': 'ir.actions.client',
+#             'tag': 'display_notification',
+#             'params': {
+#                 'title': 'Refreshed',
+#                 'message': 'Stock Ledger Data Refreshed Successfully!',
+#                 'type': 'success',
+#                 'sticky': False,
+#             }
+#         }
 #

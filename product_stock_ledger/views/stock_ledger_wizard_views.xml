@@ -8,6 +8,7 @@
                     <button name="action_refresh_ledger" type="object" string="Refresh Data" class="btn-primary" icon="fa-refresh"/>
                 </header>
                 <field name="product_id" string="Product" width="120px"/>
+                <field name="warehouse_id" string="Warehouse" width="100px"/>
                 <field name="date" string="Date" width="140px"/>
                 <field name="voucher" string="Voucher" width="150px"/>
                 <field name="particulars" string="Particulars" width="300px"/>
@@ -36,6 +37,7 @@
                     </div>
                     <group>
                         <group string="Basic Information">
+                            <field name="warehouse_id"/>
                             <field name="date"/>
                             <field name="voucher"/>
                             <field name="type"/>
@@ -70,6 +72,7 @@
         <field name="arch" type="xml">
             <search string="Product Stock Ledger">
                 <field name="product_id" string="Product" filter_domain="[('product_id', 'ilike', self)]"/>
+                <field name="warehouse_id" string="Warehouse"/>
                 <field name="voucher" string="Voucher"/>
                 <field name="particulars" string="Particulars"/>
 
@@ -98,6 +101,7 @@
                 <separator/>
 
                 <filter name="group_by_product" string="Product" context="{'group_by': 'product_id'}"/>
+                <filter name="group_by_warehouse" string="Warehouse" context="{'group_by': 'warehouse_id'}"/>
                 <filter name="group_by_date" string="Date" context="{'group_by': 'date:day'}"/>
                 <filter name="group_by_type" string="Type" context="{'group_by': 'type'}"/>
                 <filter name="group_by_invoice_status" string="Invoice Status" context="{'group_by': 'invoice_status'}"/>
@@ -147,12 +151,18 @@ action = {
 
 
 
+
+
+
 <!--<odoo>-->
 <!--    <record id="view_ledger_line_list" model="ir.ui.view">-->
 <!--        <field name="name">product.stock.ledger.line.list</field>-->
 <!--        <field name="model">product.stock.ledger.line</field>-->
 <!--        <field name="arch" type="xml">-->
 <!--            <list string="Product Stock Ledger" create="false" edit="false" delete="false" export_xlsx="true">-->
+<!--                <header>-->
+<!--                    <button name="action_refresh_ledger" type="object" string="Refresh Data" class="btn-primary" icon="fa-refresh"/>-->
+<!--                </header>-->
 <!--                <field name="product_id" string="Product" width="120px"/>-->
 <!--                <field name="date" string="Date" width="140px"/>-->
 <!--                <field name="voucher" string="Voucher" width="150px"/>-->
@@ -285,3 +295,4 @@ action = {
 <!--              action="action_auto_generate_ledger"-->
 <!--              sequence="60"/>-->
 <!--</odoo>-->
+

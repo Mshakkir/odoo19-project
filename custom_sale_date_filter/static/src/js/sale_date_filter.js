@@ -181,7 +181,7 @@ patch(ListController.prototype, {
 
                         <div class="filter_group filter_group_small autocomplete_group_small">
                             <div class="autocomplete_wrapper">
-                                <input type="text" class="form-control autocomplete_input_small filter_salesperson_input" placeholder="Salesperson" />
+                                <input type="text" class="form-control autocomplete_input_small filter_salesperson_input" placeholder="Sales Rep" />
                                 <div class="autocomplete_dropdown filter_salesperson_dropdown"></div>
                             </div>
                         </div>
@@ -191,7 +191,7 @@ patch(ListController.prototype, {
                         </div>
 
                         <div class="filter_group filter_group_small">
-                            <input type="text" class="form-control filter_input_small filter_awb_number" placeholder="AWB Number" />
+                            <input type="text" class="form-control filter_input_small filter_awb_number" placeholder="Shipping Rep" />
                         </div>
 
                         <div class="filter_actions">

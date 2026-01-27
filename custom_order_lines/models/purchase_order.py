@@ -35,7 +35,8 @@ class PurchaseOrderLine(models.Model):
     @api.depends('product_qty', 'price_unit', 'discount', 'tax_ids')
     def _compute_tax_amount(self):
         for line in self:
-            if line.display_type == 'product' and line.tax_ids:
+            # Changed condition to include both 'product' and False display_type
+            if line.display_type in ['product', False] and line.tax_ids:
                 try:
                     # Calculate the base price after discount
                     price_after_discount = line.price_unit * (1 - (line.discount or 0.0) / 100.0)

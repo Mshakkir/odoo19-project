@@ -1,65 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Add custom sequence fields to journal form -->
     <record id="view_account_journal_form_inherit" model="ir.ui.view">
-        <field name="name">account.journal.form.inherit</field>
+        <field name="name">account.journal.form.inherit.payment.sequence</field>
         <field name="model">account.journal</field>
         <field name="inherit_id" ref="account.view_account_journal_form"/>
         <field name="arch" type="xml">
             <xpath expr="//page[@name='advanced_settings']" position="inside">
-                <group string="Payment Sequences">
-                    <field name="inbound_payment_sequence_id"/>
-                    <field name="outbound_payment_sequence_id"/>
+                <group string="Payment Sequences" invisible="type not in ['bank', 'cash']">
+                    <field name="inbound_payment_sequence_id"
+                           context="{'default_name': 'Inbound Payment ' + name, 'default_code': 'INPAY', 'default_prefix': 'IN/%(range_year)s/', 'default_padding': 5}"
+                           options="{'no_create_edit': True}"/>
+                    <field name="outbound_payment_sequence_id"
+                           context="{'default_name': 'Outbound Payment ' + name, 'default_code': 'OUTPAY', 'default_prefix': 'OUT/%(range_year)s/', 'default_padding': 5}"
+                           options="{'no_create_edit': True}"/>
                 </group>
             </xpath>
         </field>
     </record>
-
-    <!-- Override payment form to remove readonly from name field -->
-    <record id="view_account_payment_form_inherit" model="ir.ui.view">
-        <field name="name">account.payment.form.inherit</field>
-        <field name="model">account.payment</field>
-        <field name="inherit_id" ref="account.view_account_payment_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='name']" position="attributes">
-                <attribute name="readonly">0</attribute>
-                <attribute name="force_save">1</attribute>
-            </xpath>
-        </field>
-    </record>
 </odoo>
-
-
-
-
-
-
-
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-<!--    <record id="view_account_journal_form_inherit" model="ir.ui.view">-->
-<!--        <field name="name">account.journal.form.inherit</field>-->
-<!--        <field name="model">account.journal</field>-->
-<!--        <field name="inherit_id" ref="account.view_account_journal_form"/>-->
-<!--        <field name="arch" type="xml">-->
-<!--            <xpath expr="//page[@name='advanced_settings']" position="inside">-->
-<!--                <group string="Payment Sequences">-->
-<!--                    <field name="inbound_payment_sequence_id"/>-->
-<!--                    <field name="outbound_payment_sequence_id"/>-->
-<!--                </group>-->
-<!--            </xpath>-->
-<!--        </field>-->
-<!--    </record>-->
-
-<!--    &lt;!&ndash; Add this to override the payment form to show the journal sequence being used &ndash;&gt;-->
-<!--    <record id="view_account_payment_form_inherit" model="ir.ui.view">-->
-<!--        <field name="name">account.payment.form.inherit</field>-->
-<!--        <field name="model">account.payment</field>-->
-<!--        <field name="inherit_id" ref="account.view_account_payment_form"/>-->
-<!--        <field name="arch" type="xml">-->
-<!--            <xpath expr="//field[@name='name']" position="attributes">-->
-<!--                <attribute name="readonly">0</attribute>-->
-<!--            </xpath>-->
-<!--        </field>-->
-<!--    </record>-->
-<!--</odoo>-->

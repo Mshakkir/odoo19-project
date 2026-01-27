@@ -1,6 +1,6 @@
 <odoo>
-    <record id="view_product_ledger_line_tree" model="ir.ui.view">
-        <field name="name">product.stock.ledger.line.tree</field>
+    <record id="view_product_ledger_line_list" model="ir.ui.view">
+        <field name="name">product.stock.ledger.line.list</field>
         <field name="model">product.stock.ledger.line</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
@@ -115,7 +115,7 @@
     <record id="action_product_stock_ledger" model="ir.actions.act_window">
         <field name="name">Product Stock Ledger</field>
         <field name="res_model">product.stock.ledger.line</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="view_id" ref="view_product_ledger_line_tree"/>
         <field name="search_view_id" ref="view_product_ledger_line_search"/>
         <field name="context">{'create': False, 'edit': False, 'delete': False}</field>

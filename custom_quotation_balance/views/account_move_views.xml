@@ -20,7 +20,7 @@
 
                     <!-- Total Debits -->
                     <div style="margin-bottom: 5px;">
-                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">Total Debits = </span>
+                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">Total Invoiced = </span>
                         <button name="action_view_customer_invoices"
                                 type="object"
                                 class="btn btn-link p-0"
@@ -42,7 +42,7 @@
 
                     <!-- Total Credits -->
                     <div style="margin-bottom: 5px;">
-                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">Total Credits = </span>
+                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">AMT Received = </span>
                         <button name="action_view_customer_credits"
                                 type="object"
                                 class="btn btn-link p-0"
@@ -101,7 +101,7 @@
 
                     <!-- Total Debits -->
                     <div style="margin-bottom: 5px;">
-                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">Total Debits = </span>
+                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">Total Invoiced = </span>
                         <button name="action_view_vendor_bills"
                                 type="object"
                                 class="btn btn-link p-0"
@@ -123,7 +123,7 @@
 
                     <!-- Total Credits -->
                     <div style="margin-bottom: 5px;">
-                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">Total Credits = </span>
+                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">AMT Received = </span>
                         <button name="action_view_vendor_credits"
                                 type="object"
                                 class="btn btn-link p-0"

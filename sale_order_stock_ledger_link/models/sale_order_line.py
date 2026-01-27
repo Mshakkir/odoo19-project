@@ -8,7 +8,7 @@ class SaleOrderLine(models.Model):
 
     def action_view_product_stock_ledger(self):
         """
-        Opens the Product Stock Ledger list view filtered by the current product
+        Opens the Stock Moves view filtered by the current product
         """
         self.ensure_one()
 
@@ -25,13 +25,14 @@ class SaleOrderLine(models.Model):
             }
 
         return {
-            'name': f'Stock Ledger - {self.product_id.name}',
+            'name': f'Stock Moves - {self.product_id.name}',
             'type': 'ir.actions.act_window',
-            'res_model': 'stock.valuation.layer',
+            'res_model': 'stock.move',
             'view_mode': 'list,form',
             'domain': [('product_id', '=', self.product_id.id)],
             'context': {
                 'default_product_id': self.product_id.id,
+                'search_default_done': 1,  # Show done moves by default
             },
             'target': 'current',
         }

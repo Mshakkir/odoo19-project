@@ -737,6 +737,28 @@ class AccountMove(models.Model):
             'context': {'create': False},
         }
 
+    def action_view_customer_credits_and_payments(self):
+        """Open BOTH customer credit notes AND payments together"""
+        self.ensure_one()
+
+        if not self.partner_id:
+            raise UserError("No customer selected.")
+
+        # Get credit notes and payments and display them together
+        return {
+            'name': f'Amount Received (Credit Notes & Payments) - {self.partner_id.name}',
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+            'view_mode': 'list,form',
+            'views': [(False, 'list'), (False, 'form')],
+            'domain': [
+                ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
+                ('move_type', '=', 'out_refund'),
+                ('state', '=', 'posted')
+            ],
+            'context': {'create': False},
+        }
+
     def action_view_customer_payments(self):
         """Open customer payments"""
         self.ensure_one()
@@ -794,6 +816,28 @@ class AccountMove(models.Model):
 
         return {
             'name': f'Credit Notes - {self.partner_id.name}',
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+            'view_mode': 'list,form',
+            'views': [(False, 'list'), (False, 'form')],
+            'domain': [
+                ('partner_id', 'child_of', self.partner_id.commercial_partner_id.id),
+                ('move_type', '=', 'in_refund'),
+                ('state', '=', 'posted')
+            ],
+            'context': {'create': False},
+        }
+
+    def action_view_vendor_credits_and_payments(self):
+        """Open BOTH vendor credit notes AND payments together"""
+        self.ensure_one()
+
+        if not self.partner_id:
+            raise UserError("No vendor selected.")
+
+        # Get credit notes and payments and display them together
+        return {
+            'name': f'Amount Paid (Credit Notes & Payments) - {self.partner_id.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move',
             'view_mode': 'list,form',

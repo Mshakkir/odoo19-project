@@ -1,5 +1,4 @@
-<odoo>
-    <!-- Ledger Line List View with Balance Sum -->
+<<odoo>
     <record id="view_ledger_line_list" model="ir.ui.view">
         <field name="name">product.stock.ledger.line.list</field>
         <field name="model">product.stock.ledger.line</field>
@@ -14,14 +13,13 @@
                 <field name="rec_rate" string="Rec. Rate" width="90px"/>
                 <field name="issue_qty" string="Issue Qty" sum="Total Issued" width="90px"/>
                 <field name="issue_rate" string="Issue Rate" width="90px"/>
-                <field name="balance" string="Balance" sum="Balance" width="90px"/>
+                <field name="balance" string="Balance" width="90px"/>
                 <field name="uom" string="Unit" width="60px"/>
                 <field name="invoice_status" string="Invoice Status" width="110px"/>
             </list>
         </field>
     </record>
 
-    <!-- Ledger Line Form View -->
     <record id="view_ledger_line_form" model="ir.ui.view">
         <field name="name">product.stock.ledger.line.form</field>
         <field name="model">product.stock.ledger.line</field>
@@ -63,20 +61,17 @@
         </field>
     </record>
 
-    <!-- Search View with Filters -->
     <record id="view_ledger_line_search" model="ir.ui.view">
         <field name="name">product.stock.ledger.line.search</field>
         <field name="model">product.stock.ledger.line</field>
         <field name="arch" type="xml">
             <search string="Product Stock Ledger">
-                <!-- Text Filters -->
                 <field name="product_id" string="Product" filter_domain="[('product_id', 'ilike', self)]"/>
                 <field name="voucher" string="Voucher"/>
                 <field name="particulars" string="Particulars"/>
 
                 <separator/>
 
-                <!-- Date Filter -->
                 <filter name="filter_today" string="Today"
                         domain="[('date', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00')),
                                  ('date', '&lt;=', context_today().strftime('%Y-%m-%d 23:59:59'))]"/>
@@ -87,21 +82,18 @@
 
                 <separator/>
 
-                <!-- Type Filters -->
                 <filter name="filter_receipts" string="Receipts" domain="[('type', '=', 'Receipts')]"/>
                 <filter name="filter_delivery" string="Delivery" domain="[('type', '=', 'Delivery')]"/>
                 <filter name="filter_internal" string="Internal Transfer" domain="[('type', '=', 'Internal Transfer')]"/>
 
                 <separator/>
 
-                <!-- Invoice Status Filters -->
                 <filter name="filter_invoiced" string="Invoiced" domain="[('invoice_status', '=', 'Invoiced')]"/>
                 <filter name="filter_not_invoiced" string="Not Invoiced" domain="[('invoice_status', '=', 'Not Invoiced')]"/>
                 <filter name="filter_to_invoice" string="To Invoice" domain="[('invoice_status', '=', 'To Invoice')]"/>
 
                 <separator/>
 
-                <!-- Grouping Options -->
                 <filter name="group_by_product" string="Product" context="{'group_by': 'product_id'}"/>
                 <filter name="group_by_date" string="Date" context="{'group_by': 'date:day'}"/>
                 <filter name="group_by_type" string="Type" context="{'group_by': 'type'}"/>
@@ -110,20 +102,16 @@
         </field>
     </record>
 
-    <!-- Server Action to Auto-Generate Data -->
     <record id="action_auto_generate_ledger" model="ir.actions.server">
         <field name="name">Auto Generate Stock Ledger</field>
         <field name="model_id" ref="model_product_stock_ledger_line"/>
         <field name="state">code</field>
         <field name="code">
-# Check if data already exists
 existing_records = model.search([], limit=1)
 
-# Only generate if table is empty
 if not existing_records:
     model.generate_ledger()
 
-# Return action to open the list view
 action = {
     'type': 'ir.actions.act_window',
     'name': 'Product Stock Ledger',
@@ -142,7 +130,6 @@ action = {
         </field>
     </record>
 
-    <!-- Menu Item - Uses Server Action -->
     <menuitem id="menu_product_stock_ledger"
               name="Product Stock Ledger"
               parent="stock.menu_stock_root"

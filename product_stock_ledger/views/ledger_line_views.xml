@@ -12,7 +12,7 @@
         <field name="rec_rate" string="Rate"/>
         <field name="issue_qty" string="Issue Qty" sum="Total Issued"/>
         <field name="issue_rate" string="Rate"/>
-        <field name="balance" string="Balance" sum="Balance"/>
+        <field name="balance" string="Balance"/>
         <field name="uom" string="Unit" invisible="0"/>
         <field name="invoice_status" string="Invoice Status"/>
       </list>
@@ -24,39 +24,30 @@
     <field name="model">product.stock.ledger.line</field>
     <field name="arch" type="xml">
       <search string="Product Stock Ledger">
-        <!-- Text Filters -->
         <field name="voucher" string="Voucher"/>
         <field name="particulars" string="Particulars"/>
         <field name="product_id" string="Product"/>
 
-        <!-- Separator -->
         <separator/>
 
-        <!-- Date Filter -->
         <filter name="filter_today" string="Today" domain="[('date', '&gt;=', context_today().strftime('%Y-%m-%d')), ('date', '&lt;', (context_today() + relativedelta(days=1)).strftime('%Y-%m-%d'))]"/>
         <filter name="filter_this_month" string="This Month" domain="[('date', '&gt;=', context_today().replace(day=1).strftime('%Y-%m-%d')), ('date', '&lt;', (context_today().replace(day=1) + relativedelta(months=1)).strftime('%Y-%m-%d'))]"/>
         <filter name="filter_this_year" string="This Year" domain="[('date', '&gt;=', context_today().replace(month=1, day=1).strftime('%Y-%m-%d')), ('date', '&lt;', context_today().replace(month=1, day=1, year=context_today().year + 1).strftime('%Y-%m-%d'))]"/>
 
-        <!-- Separator -->
         <separator/>
 
-        <!-- Type Filters -->
         <filter name="filter_receipts" string="Receipts" domain="[('type', '=', 'Receipts')]"/>
         <filter name="filter_delivery" string="Delivery" domain="[('type', '=', 'Delivery')]"/>
         <filter name="filter_internal" string="Internal Transfer" domain="[('type', '=', 'Internal Transfer')]"/>
 
-        <!-- Separator -->
         <separator/>
 
-        <!-- Invoice Status Filters -->
         <filter name="filter_invoiced" string="Invoiced" domain="[('invoice_status', '=', 'Invoiced')]"/>
         <filter name="filter_not_invoiced" string="Not Invoiced" domain="[('invoice_status', '=', 'Not Invoiced')]"/>
         <filter name="filter_to_invoice" string="To Invoice" domain="[('invoice_status', '=', 'To Invoice')]"/>
 
-        <!-- Separator -->
         <separator/>
 
-        <!-- Grouping Options -->
         <filter name="group_by_date" string="Date" context="{'group_by': 'date'}"/>
         <filter name="group_by_type" string="Type" context="{'group_by': 'type'}"/>
         <filter name="group_by_invoice_status" string="Invoice Status" context="{'group_by': 'invoice_status'}"/>

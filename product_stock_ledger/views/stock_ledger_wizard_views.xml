@@ -1,4 +1,3 @@
-<!-- pr<!-- product_stock_ledger/views/stock_ledger_wizard_views.xml -->
 <odoo>
     <!-- Ledger Line List View with Balance Sum -->
     <record id="view_ledger_line_list" model="ir.ui.view">

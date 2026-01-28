@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from from odoo import models, fields, api
 from odoo.exceptions import UserError
 
 
@@ -11,6 +11,7 @@ class AccountMove(models.Model):
         string='PO Numbers',
         compute='_compute_po_numbers',
         store=True,
+        readonly=False,
         help='Purchase Orders linked to this invoice'
     )
 
@@ -51,15 +52,19 @@ class AccountMove(models.Model):
         readonly=True
     )
 
-    @api.depends('invoice_line_ids.purchase_line_id')
+    @api.depends('invoice_line_ids.purchase_line_id', 'invoice_line_ids.purchase_line_id.order_id')
     def _compute_po_numbers(self):
         """Compute all related purchase orders from invoice lines"""
         for move in self:
             if move.move_type in ['in_invoice', 'in_refund']:
+                # Get all purchase orders from invoice lines
                 purchase_orders = move.invoice_line_ids.mapped('purchase_line_id.order_id')
-                move.po_number = purchase_orders
+                if purchase_orders:
+                    move.po_number = [(6, 0, purchase_orders.ids)]
+                else:
+                    move.po_number = [(5, 0, 0)]
             else:
-                move.po_number = False
+                move.po_number = [(5, 0, 0)]
 
     @api.depends('po_number', 'goods_receipt_number', 'deliver_to')
     def _compute_warehouse_id(self):
@@ -106,28 +111,34 @@ class AccountMove(models.Model):
 
         if purchase_order:
             # Auto-fill Buyer (user_id from PO)
-            if purchase_order.user_id:
+            if not self.buyer_id and purchase_order.user_id:
                 self.buyer_id = purchase_order.user_id
 
             # Auto-fill Deliver To (picking_type_id from PO)
-            if purchase_order.picking_type_id:
+            if not self.deliver_to and purchase_order.picking_type_id:
                 self.deliver_to = purchase_order.picking_type_id
 
             # Auto-fill AWB from Purchase Order (if exists)
-            if hasattr(purchase_order, 'awb_number') and purchase_order.awb_number:
+            if not self.awb_number and hasattr(purchase_order, 'awb_number') and purchase_order.awb_number:
                 self.awb_number = purchase_order.awb_number
 
             # Find related Goods Receipt (incoming picking)
-            pickings = self.env['stock.picking'].search([
-                ('purchase_id', '=', purchase_order.id),
-                ('picking_type_id.code', '=', 'incoming'),
-                ('state', '=', 'done')
-            ], limit=1)
+            if not self.goods_receipt_number:
+                pickings = self.env['stock.picking'].search([
+                    ('purchase_id', '=', purchase_order.id),
+                    ('picking_type_id.code', '=', 'incoming'),
+                    ('state', '=', 'done')
+                ], limit=1)
 
-            if pickings:
-                self.goods_receipt_number = pickings
+                if pickings:
+                    self.goods_receipt_number = pickings
 
         return res
+
+    @api.onchange('invoice_line_ids')
+    def _onchange_invoice_lines(self):
+        """Recompute PO numbers when invoice lines change"""
+        self._compute_po_numbers()
 
     @api.onchange('goods_receipt_number')
     def _onchange_goods_receipt(self):
@@ -163,7 +174,8 @@ class AccountMoveLine(models.Model):
         # After creation, trigger the computation of PO numbers in the parent move
         moves = lines.mapped('move_id').filtered(lambda m: m.move_type in ['in_invoice', 'in_refund'])
         if moves:
-            moves._compute_po_numbers()
+            # Use sudo to ensure we can write to computed field
+            moves.sudo()._compute_po_numbers()
 
         return lines
 
@@ -172,11 +184,20 @@ class AccountMoveLine(models.Model):
         res = super().write(vals)
 
         # If purchase_line_id is changed, recompute PO numbers
-        if 'purchase_line_id' in vals:
+        if 'purchase_line_id' in vals or 'product_id' in vals:
             moves = self.mapped('move_id').filtered(lambda m: m.move_type in ['in_invoice', 'in_refund'])
             if moves:
-                moves._compute_po_numbers()
+                # Use sudo to ensure we can write to computed field
+                moves.sudo()._compute_po_numbers()
 
+        return res
+
+    def unlink(self):
+        """Recompute PO numbers when invoice lines are deleted"""
+        moves = self.mapped('move_id').filtered(lambda m: m.move_type in ['in_invoice', 'in_refund'])
+        res = super().unlink()
+        if moves:
+            moves.sudo()._compute_po_numbers()
         return res
 
 

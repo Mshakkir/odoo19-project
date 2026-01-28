@@ -24,7 +24,7 @@
                     <field name="product_code"
                            string="P. Code"
                            optional="show"
-                           width="30px"
+                           width="40px"
                            readonly="1"/>
 
                     <!-- 3. Product (Main Product Field) -->
@@ -37,7 +37,7 @@
                            optional="show"
                            widget="many2one"
                            placeholder="Type to find a product..."
-                           width="130px"/>
+                           width="150px"/>
 
                     <!-- 4. Analytic Distribution -->
                     <field name="analytic_distribution"
@@ -46,7 +46,7 @@
                            options="{'product_field': 'product_id', 'business_domain': 'purchase', 'amount_field': 'price_subtotal'}"
                            optional="show"
                            groups="analytic.group_analytic_accounting"
-                           width="30px"/>
+                           width="40px"/>
 
                     <!-- 5. Quantity -->
                     <field name="quantity"
@@ -74,7 +74,7 @@
                     <field name="price_unit"
                            string="Price"
                            readonly="parent.state != 'draft'"
-                           width="60px"
+                           width="90px"
                            optional="show"/>
 
                     <!-- 8. Tax -->
@@ -109,21 +109,21 @@
                            string="Untax Amt"
                            readonly="1"
                            optional="show"
-                           width="60px"/>
+                           width="90px"/>
 
                     <!-- 11. Tax Value (Custom computed field) -->
                     <field name="tax_amount"
                            string="Tax Value"
                            readonly="1"
                            optional="show"
-                           width="60px"/>
+                           width="90px"/>
 
                     <!-- 12. Total Amount -->
                     <field name="price_total"
                            string="Total"
                            readonly="1"
                            optional="show"
-                           width="60px"/>
+                           width="100px"/>
 
                     <!-- 13. Product Variant (HIDDEN by default) -->
 <!--                    <field name="product_id"-->

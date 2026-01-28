@@ -1,69 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="sale_order_form_hide_invoice_button_conditional" model="ir.ui.view">
-        <field name="name">sale.order.form.hide.invoice.button.conditional</field>
+    <record id="sale_order_form_hide_invoice_button" model="ir.ui.view">
+        <field name="name">sale.order.form.hide.invoice.button</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Hide the Create Invoice button ONLY if invoice already exists -->
+            <!-- Hide the Create Invoice button by its ID -->
             <xpath expr="//button[@id='create_invoice']" position="attributes">
-                <attribute name="invisible">invoice_ids and len(invoice_ids) > 0</attribute>
+                <attribute name="invisible">1</attribute>
             </xpath>
 
-            <!-- Add informational message about the custom workflow -->
+            <!-- Add warning message at the top -->
             <xpath expr="//sheet" position="before">
-                <div class="alert alert-info" invisible="invoice_ids and len(invoice_ids) > 0">
-                    <strong>📝 Custom Invoice Workflow Available</strong>
-                    <p>
-                        You can create invoices in two ways:<br/>
-                        <strong>1. Direct Way:</strong> Use the "Create Invoice" button above (standard Odoo)<br/>
-                        <strong>2. Custom Way:</strong> Go to Invoicing → Invoices and select multiple sales orders
+                <div class="alert alert-warning">
+                    <strong style="font-size: 16px;">⚠️ Custom Invoice Workflow Active</strong>
+                    <p style="margin-top: 10px;">
+                        <strong>The "Create Invoice" button is disabled.</strong><br/>
+                        Please use this workflow instead:<br/>
+                        <strong>Invoicing → Invoices → Create</strong>
                     </p>
-                </div>
-            </xpath>
-
-            <!-- Show message when invoice already created -->
-            <xpath expr="//sheet" position="before">
-                <div class="alert alert-success" invisible="not (invoice_ids and len(invoice_ids) > 0)">
-                    <strong>✅ Invoice Already Created</strong>
-                    <p>This sales order has been linked to an invoice. Create Invoice button is disabled.</p>
+                    <p>
+                        This allows you to select and combine multiple sales orders into a single invoice
+                        with automatic line population.
+                    </p>
                 </div>
             </xpath>
 
         </field>
     </record>
 </odoo>
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-<!--    <record id="sale_order_form_hide_invoice_button" model="ir.ui.view">-->
-<!--        <field name="name">sale.order.form.hide.invoice.button</field>-->
-<!--        <field name="model">sale.order</field>-->
-<!--        <field name="inherit_id" ref="sale.view_order_form"/>-->
-<!--        <field name="arch" type="xml">-->
-
-<!--            &lt;!&ndash; Hide the Create Invoice button by its ID &ndash;&gt;-->
-<!--            <xpath expr="//button[@id='create_invoice']" position="attributes">-->
-<!--                <attribute name="invisible">1</attribute>-->
-<!--            </xpath>-->
-
-<!--            &lt;!&ndash; Add warning message at the top &ndash;&gt;-->
-<!--            <xpath expr="//sheet" position="before">-->
-<!--                <div class="alert alert-warning">-->
-<!--                    <strong style="font-size: 16px;">⚠️ Custom Invoice Workflow Active</strong>-->
-<!--                    <p style="margin-top: 10px;">-->
-<!--                        <strong>The "Create Invoice" button is disabled.</strong><br/>-->
-<!--                        Please use this workflow instead:<br/>-->
-<!--                        <strong>Invoicing → Invoices → Create</strong>-->
-<!--                    </p>-->
-<!--                    <p>-->
-<!--                        This allows you to select and combine multiple sales orders into a single invoice-->
-<!--                        with automatic line population.-->
-<!--                    </p>-->
-<!--                </div>-->
-<!--            </xpath>-->
-
-<!--        </field>-->
-<!--    </record>-->
-<!--</odoo>-->

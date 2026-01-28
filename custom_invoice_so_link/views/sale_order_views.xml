@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="sale_order_form_info" model="ir.ui.view">
-        <field name="name">sale.order.form.info</field>
+    <record id="sale_order_form_hide_invoice_button" model="ir.ui.view">
+        <field name="name">sale.order.form.hide.invoice.button</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Just add the informational message - no XPath for button -->
+            <!-- Hide the Create Invoice button by its ID -->
+            <xpath expr="//button[@id='create_invoice']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Add warning message at the top -->
             <xpath expr="//sheet" position="before">
                 <div class="alert alert-warning">
                     <strong style="font-size: 16px;">⚠️ Custom Invoice Workflow Active</strong>
                     <p style="margin-top: 10px;">
-                        <strong>Do NOT use the "Create Invoice" button below.</strong><br/>
+                        <strong>The "Create Invoice" button is disabled.</strong><br/>
                         Please use this workflow instead:<br/>
                         <strong>Invoicing → Invoices → Create</strong>
                     </p>

@@ -210,16 +210,15 @@ class AccountMove(models.Model):
         This method ensures that all POs referenced in the invoice lines are properly linked.
         """
         for move in self:
-            if move.move_type in ['in_invoice', 'in_refund'] and move.state == 'draft':
+            if move.move_type in ['in_invoice', 'in_refund']:
                 # Collect all unique purchase orders from invoice lines
                 purchase_orders = move.invoice_line_ids.mapped('purchase_line_id.order_id')
 
                 if purchase_orders:
-                    # If we have a primary PO in po_number field, ensure it's in the purchase_id field
+                    # Set the primary PO in purchase_id field (Odoo standard field)
                     if move.po_number and move.po_number in purchase_orders:
-                        # Set the primary PO
-                        if not move.purchase_id:
-                            move.purchase_id = move.po_number
+                        # Use the PO from po_number field as primary
+                        move.purchase_id = move.po_number
                     elif not move.purchase_id and purchase_orders:
                         # If no purchase_id is set, use the first one from lines
                         move.purchase_id = purchase_orders[0]
@@ -227,21 +226,58 @@ class AccountMove(models.Model):
     def action_post(self):
         """
         Override action_post to ensure purchase orders are properly linked before posting.
-        This ensures the billing status is updated correctly.
+        This ensures the billing status is updated correctly for ALL purchase orders.
         """
-        # Link purchase orders from invoice lines before posting
+        # First, link purchase orders from invoice lines
         self._link_purchase_orders_from_lines()
 
         # Call the parent method to post the invoice
-        return super(AccountMove, self).action_post()
+        res = super(AccountMove, self).action_post()
+
+        # After posting, manually update invoice_status for all related POs
+        # This is necessary because Odoo's purchase_id field only tracks ONE PO
+        for move in self:
+            if move.move_type in ['in_invoice', 'in_refund'] and move.state == 'posted':
+                # Get all unique purchase orders from invoice lines
+                purchase_orders = move.invoice_line_ids.mapped('purchase_line_id.order_id')
+
+                if purchase_orders:
+                    # Force recompute of invoice status for all related POs
+                    purchase_orders._compute_invoice_status()
+
+        return res
 
     def button_draft(self):
         """
-        Override button_draft to maintain PO linkage when resetting to draft.
+        Override button_draft to update PO status when resetting to draft.
         """
+        # Get all related purchase orders before resetting to draft
+        purchase_orders = self.invoice_line_ids.mapped('purchase_line_id.order_id')
+
         res = super(AccountMove, self).button_draft()
+
         # Re-link purchase orders when going back to draft
         self._link_purchase_orders_from_lines()
+
+        # Recompute invoice status for all related POs
+        if purchase_orders:
+            purchase_orders._compute_invoice_status()
+
+        return res
+
+    def button_cancel(self):
+        """
+        Override button_cancel to update PO status when canceling.
+        """
+        # Get all related purchase orders before canceling
+        purchase_orders = self.invoice_line_ids.mapped('purchase_line_id.order_id')
+
+        res = super(AccountMove, self).button_cancel()
+
+        # Recompute invoice status for all related POs
+        if purchase_orders:
+            purchase_orders._compute_invoice_status()
+
         return res
 
     @api.model_create_multi
@@ -256,16 +292,42 @@ class AccountMove(models.Model):
 
     def write(self, vals):
         """
-        Override write to maintain purchase order linkage on updates.
+        Override write to maintain purchase order linkage and status updates.
         """
+        # Get related POs before write
+        old_purchase_orders = self.invoice_line_ids.mapped('purchase_line_id.order_id')
+
         res = super(AccountMove, self).write(vals)
 
         # If invoice lines are updated, re-link purchase orders
-        if 'invoice_line_ids' in vals:
+        if 'invoice_line_ids' in vals or 'state' in vals:
             self._link_purchase_orders_from_lines()
+
+            # Get new related POs after write
+            new_purchase_orders = self.invoice_line_ids.mapped('purchase_line_id.order_id')
+
+            # Combine old and new POs to ensure all are updated
+            all_purchase_orders = old_purchase_orders | new_purchase_orders
+
+            if all_purchase_orders:
+                all_purchase_orders._compute_invoice_status()
 
         return res
 
+    def unlink(self):
+        """
+        Override unlink to update PO status when deleting invoices.
+        """
+        # Get all related purchase orders before deletion
+        purchase_orders = self.invoice_line_ids.mapped('purchase_line_id.order_id')
+
+        res = super(AccountMove, self).unlink()
+
+        # Recompute invoice status for all related POs after deletion
+        if purchase_orders:
+            purchase_orders._compute_invoice_status()
+
+        return res
 
 
 

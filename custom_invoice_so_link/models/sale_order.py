@@ -1,27 +1,36 @@
-from odoo import models, fields, api
+from odoo import models, api
 from odoo.exceptions import UserError
 
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    @api.model
     def action_create_invoice(self):
-        """
-        Override the create invoice action to redirect users to use the custom invoice module.
-        This prevents the standard Odoo invoice creation and guides them to the proper workflow.
-        """
+        """Override the standard create invoice action"""
         raise UserError(
-            "Invoice Creation via Sales Order is Disabled\n\n"
-            "Please use the custom 'Invoice Sales Order Link' workflow instead:\n\n"
-            "1. Go to Invoicing → Invoices\n"
-            "2. Click 'Create'\n"
-            "3. Select your customer\n"
-            "4. Choose one or multiple sales orders from the 'Sales Orders' field\n"
-            "5. Invoice lines will be populated automatically\n\n"
-            "This allows you to combine multiple sales orders into a single invoice."
+            "❌ Invoice Creation via Sales Order is Disabled\n\n"
+            "Your Odoo instance uses a CUSTOM INVOICE WORKFLOW.\n\n"
+            "📋 PLEASE USE THIS WORKFLOW INSTEAD:\n"
+            "1. Go to: Invoicing → Invoices\n"
+            "2. Click: Create\n"
+            "3. Select: Customer\n"
+            "4. Choose: Sales Orders (you can select multiple)\n"
+            "5. Invoice lines will populate AUTOMATICALLY\n\n"
+            "✅ BENEFITS:\n"
+            "• Combine multiple sales orders into ONE invoice\n"
+            "• Automatic line item population\n"
+            "• Better invoice management\n"
         )
 
     def action_view_invoice(self):
-        """Override to show related invoices"""
+        """Keep the view invoices action working"""
         return super().action_view_invoice()
+
+    @api.model
+    def create(self, vals):
+        """Allow normal creation"""
+        return super().create(vals)
+
+    def write(self, vals):
+        """Allow normal updates"""
+        return super().write(vals)

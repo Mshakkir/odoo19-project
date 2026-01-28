@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="sale_order_form_custom_info" model="ir.ui.view">
-        <field name="name">sale.order.form.custom.invoice.info</field>
+    <record id="sale_order_form_info" model="ir.ui.view">
+        <field name="name">sale.order.form.info</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add informational section at the top -->
+            <!-- Just add the informational message - no XPath for button -->
             <xpath expr="//sheet" position="before">
-                <div class="alert alert-info" attrs="{'invisible': [('invoice_status', 'not in', ['to invoice', 'upselling'])]}">
-                    <strong>💡 Custom Invoice Workflow Active</strong>
-                    <p>To create invoices, please use: <strong>Invoicing → Invoices → Create</strong></p>
-                    <p>Select this sales order and combine with others if needed. Invoice lines will populate automatically.</p>
+                <div class="alert alert-warning">
+                    <strong style="font-size: 16px;">⚠️ Custom Invoice Workflow Active</strong>
+                    <p style="margin-top: 10px;">
+                        <strong>Do NOT use the "Create Invoice" button below.</strong><br/>
+                        Please use this workflow instead:<br/>
+                        <strong>Invoicing → Invoices → Create</strong>
+                    </p>
+                    <p>
+                        This allows you to select and combine multiple sales orders into a single invoice
+                        with automatic line population.
+                    </p>
                 </div>
             </xpath>
 

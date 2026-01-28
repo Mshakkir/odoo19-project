@@ -7,29 +7,71 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Modify the list view of order lines -->
-            <xpath expr="//field[@name='order_line']/list/field[@name='product_template_id']" position="attributes">
-                <attribute name="widget">sol_product_many2one</attribute>
-                <attribute name="options">{'show_label_warning': True, 'open_action': 'action_view_product_stock_ledger'}</attribute>
-            </xpath>
-
-            <!-- Also add icon button next to product for direct access -->
+            <!-- Add button in list view after product -->
             <xpath expr="//field[@name='order_line']/list/field[@name='product_template_id']" position="after">
                 <button name="action_view_product_stock_ledger"
                         type="object"
                         icon="fa-line-chart"
-                        title="View Stock Ledger"
+                        title="View Product Stock Ledger"
+                        string=""
+                        class="btn-link p-0"
+                        invisible="not product_id"/>
+            </xpath>
+
+            <!-- Add button in form view after product field -->
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="after">
+                <button name="action_view_product_stock_ledger"
+                        type="object"
+                        string="📊 View Stock Ledger"
                         class="btn-link"
                         invisible="not product_id"/>
             </xpath>
 
-            <!-- Also modify form view inside order lines -->
-            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="after">
+            <!-- Add button in kanban view -->
+            <xpath expr="//field[@name='order_line']/kanban//field[@name='product_id']" position="after">
                 <button name="action_view_product_stock_ledger"
                         type="object"
                         string="View Stock Ledger"
+                        class="btn-sm btn-secondary mt-1"
+                        invisible="not product_id"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Inherit Invoice/Bill Form View to add stock ledger link -->
+    <record id="view_move_form_product_ledger_link" model="ir.ui.view">
+        <field name="name">account.move.form.product.ledger.link</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Add button in invoice line list view after product -->
+            <xpath expr="//field[@name='invoice_line_ids']/list/field[@name='product_id']" position="after">
+                <button name="action_view_product_stock_ledger"
+                        type="object"
                         icon="fa-line-chart"
+                        title="View Product Stock Ledger"
+                        string=""
+                        class="btn-link p-0"
+                        invisible="not product_id or display_type in ('line_section', 'line_subsection', 'line_note')"/>
+            </xpath>
+
+            <!-- Add button in invoice line form view after product field -->
+            <xpath expr="//field[@name='invoice_line_ids']/form//field[@name='product_id']" position="after">
+                <button name="action_view_product_stock_ledger"
+                        type="object"
+                        string="📊 View Stock Ledger"
                         class="btn-link"
+                        invisible="not product_id"/>
+            </xpath>
+
+            <!-- Add button in invoice line kanban view -->
+            <xpath expr="//field[@name='invoice_line_ids']/kanban//field[@name='product_id']" position="after">
+                <button name="action_view_product_stock_ledger"
+                        type="object"
+                        string="View Stock Ledger"
+                        class="btn-sm btn-secondary mt-1"
                         invisible="not product_id"/>
             </xpath>
 
@@ -37,3 +79,49 @@
     </record>
 
 </odoo>
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    &lt;!&ndash; Inherit Sale Order Form View to make product clickable &ndash;&gt;-->
+<!--    <record id="view_order_form_product_ledger_link" model="ir.ui.view">-->
+<!--        <field name="name">sale.order.form.product.ledger.link</field>-->
+<!--        <field name="model">sale.order</field>-->
+<!--        <field name="inherit_id" ref="sale.view_order_form"/>-->
+<!--        <field name="arch" type="xml">-->
+
+<!--            &lt;!&ndash; Modify the list view of order lines &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='order_line']/list/field[@name='product_template_id']" position="attributes">-->
+<!--                <attribute name="widget">sol_product_many2one</attribute>-->
+<!--                <attribute name="options">{'show_label_warning': True, 'open_action': 'action_view_product_stock_ledger'}</attribute>-->
+<!--            </xpath>-->
+
+<!--            &lt;!&ndash; Also add icon button next to product for direct access &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='order_line']/list/field[@name='product_template_id']" position="after">-->
+<!--                <button name="action_view_product_stock_ledger"-->
+<!--                        type="object"-->
+<!--                        icon="fa-line-chart"-->
+<!--                        title="View Stock Ledger"-->
+<!--                        class="btn-link"-->
+<!--                        invisible="not product_id"/>-->
+<!--            </xpath>-->
+
+<!--            &lt;!&ndash; Also modify form view inside order lines &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="after">-->
+<!--                <button name="action_view_product_stock_ledger"-->
+<!--                        type="object"-->
+<!--                        string="View Stock Ledger"-->
+<!--                        icon="fa-line-chart"-->
+<!--                        class="btn-link"-->
+<!--                        invisible="not product_id"/>-->
+<!--            </xpath>-->
+
+<!--        </field>-->
+<!--    </record>-->
+
+<!--</odoo>-->

@@ -13,6 +13,7 @@
         Features:
         ---------
         * Click 📊 icon next to products in Sales Order lines
+        * Click 📊 icon next to products in Customer Invoices/Vendor Bills
         * Automatically generates and displays stock ledger for that product
         * Shows receipts, deliveries, rates, balance, and invoice status
         * Seamlessly integrates with your custom stock ledger module
@@ -23,6 +24,7 @@
     'depends': [
         'sale',
         'stock',
+        'account',
         'product_stock_ledger',  # Your custom stock ledger module
     ],
     'data': [

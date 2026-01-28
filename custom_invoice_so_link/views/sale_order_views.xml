@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="sale_order_form_custom_info" model="ir.ui.view">
-        <field name="name">sale.order.form.custom.invoice.info</field>
+    <record id="sale_order_form_info" model="ir.ui.view">
+        <field name="name">sale.order.form.info</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
 
+            <!-- Hide the Create Invoice button by making it invisible -->
+            <xpath expr="//button[@name='action_create_invoice']" position="attributes">
+                <attribute name="invisible">True</attribute>
+            </xpath>
+
             <!-- Add informational section at the top -->
             <xpath expr="//sheet" position="before">
                 <div class="alert alert-info">
-                    <strong>💡 Custom Invoice Workflow Active</strong>
-                    <p>To create invoices, please use: <strong>Invoicing → Invoices → Create</strong></p>
+                    <h4>📝 Custom Invoice Workflow Active</h4>
+                    <p><strong>To create invoices, please use:</strong> Invoicing → Invoices → Create</p>
                     <p>Select this sales order and combine with others if needed. Invoice lines will populate automatically.</p>
                 </div>
             </xpath>

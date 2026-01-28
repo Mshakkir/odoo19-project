@@ -5,16 +5,9 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-
-            <!--
-            Hide Create Invoice button when:
-            1. invoice_ids exists (invoice already created from any source)
-            2. OR invoice_status is 'fully invoiced' (Odoo standard fully invoiced state)
-            -->
             <xpath expr="//button[@id='create_invoice']" position="attributes">
                 <attribute name="invisible">invoice_ids or invoice_status == 'fully invoiced'</attribute>
             </xpath>
-
         </field>
     </record>
 </odoo>

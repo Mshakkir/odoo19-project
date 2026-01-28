@@ -330,11 +330,10 @@ class AccountMove(models.Model):
         return record
 
     def action_post(self):
-        """Override action_post to ensure proper linking when invoice is posted"""
+        """Override action_post to refresh sales orders when invoice is posted"""
         result = super().action_post()
 
         # Refresh sale orders to update their invoice status
-        # This ensures the sales order status changes to "fully invoiced"
         if self.sale_order_ids:
             self.sale_order_ids.onchange_order_line()
 

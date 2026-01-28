@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Server Action for Multi Invoice -->
+    <record id="action_sale_order_multi_invoice" model="ir.actions.server">
+        <field name="name">Create Combined Invoice</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+action = records.action_create_multi_invoice()
+        </field>
+    </record>
+</odoo>

@@ -1,91 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<!-- COPY THIS ENTIRE BLOCK -->
-<!-- Paste it at the TOP of your purchase_order_views.xml file, right after <odoo> tag -->
+    <record id="view_purchase_order_form_chatter_position" model="ir.ui.view">
+        <field name="name">purchase.order.form.chatter.position</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="attributes">
+                <attribute name="chatter_position">side</attribute>
+            </xpath>
+        </field>
+    </record>
 
-<record id="view_purchase_order_form_chatter_position" model="ir.ui.view">
-    <field name="name">purchase.order.form.chatter.position</field>
-    <field name="model">purchase.order</field>
-    <field name="inherit_id" ref="purchase.purchase_order_form"/>
-    <field name="arch" type="xml">
-        <xpath expr="//form" position="attributes">
-            <attribute name="chatter_position">side</attribute>
-        </xpath>
-    </field>
-</record>
     <record id="view_purchase_order_form_custom_lines" model="ir.ui.view">
         <field name="name">purchase.order.form.custom.lines</field>
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
-            <!-- Replace the list view inside order_line field -->
             <xpath expr="//field[@name='order_line']/list" position="replace">
                 <list string="Purchase Order Lines" editable="bottom" limit="200">
                     <control>
                         <create name="add_product_control" string="Add a product"/>
                     </control>
 
-                    <!-- Required invisible fields -->
                     <field name="display_type" column_invisible="True"/>
                     <field name="currency_id" column_invisible="True"/>
+                    <field name="sequence" column_invisible="True"/>
 
-                    <!-- Sequence handle for drag/drop -->
-                    <field name="sequence" widget="handle" column_invisible="False" widt="10px"/>
+                    <field name="sequence_number" string="SN" readonly="1" width="35px"/>
 
-                    <!-- 1. SN (Serial Number) -->
-                    <field name="sequence_number" string="SN" readonly="1" optional="show" width="10px"/>
+                    <field name="product_code" string="P. Code" width="70px" readonly="1"/>
 
-                    <!-- 2. P. Code (Product Code) -->
-                    <field name="product_code"
-                           string="P. Code"
-                           optional="show"
-                           width="30px"
-                           readonly="1"/>
-
-                    <!-- 3. Product (Main Product Field) -->
                     <field name="product_id"
                            string="Product"
                            readonly="state not in ['draft', 'sent']"
                            required="not display_type"
                            context="{'default_list_price': price_unit, 'default_uom_id': product_uom_id}"
                            options="{'show_label_warning': True}"
-                           optional="show"
                            widget="many2one"
-                           placeholder="Type to find a product..."
-                           width="120px"/>
+                           placeholder="Type to find a product..."/>
 
-                    <!-- 4. Analytic Distribution -->
                     <field name="analytic_distribution"
+                           string="Analytic"
                            widget="analytic_distribution"
                            options="{'product_field': 'product_id', 'business_domain': 'purchase_order', 'amount_field': 'price_subtotal'}"
-                           optional="show"
                            groups="analytic.group_analytic_accounting"
-                           width="20px"/>
+                           width="60px"/>
 
-                    <!-- 5. Quantity -->
                     <field name="product_qty"
                            string="Qty"
                            readonly="state not in ['draft', 'sent', 'purchase']"
-                           width="20px"
-                           optional="show"/>
+                           width="45px"/>
 
-                    <!-- Forecast Report Button -->
-                    <button string="" name="action_product_forecast_report" type="object" icon="fa-area-chart" invisible="display_type" class="px-4" width="30px"/>
+                    <button string="" name="action_product_forecast_report" type="object" icon="fa-area-chart" invisible="display_type" class="px-4" width="20px"/>
 
-                    <!-- Received & Billed (visible only in purchase state) -->
                     <field name="qty_received"
                            string="Received"
                            column_invisible="parent.state != 'purchase'"
                            readonly="qty_received_method != 'manual'"
-                           optional="hide"
-                           width="30px"/>
+                           optional="hide"/>
                     <field name="qty_invoiced"
                            string="Billed"
                            column_invisible="parent.state != 'purchase'"
-                           optional="hide"
-                           width="30px"/>
+                           optional="hide"/>
 
-                    <!-- 6. Unit of Measure -->
                     <field name="product_uom_id"
                            string="Unit"
                            force_save="1"
@@ -94,99 +71,46 @@
                            widget="many2one_uom"
                            groups="uom.group_uom"
                            options="{'no_open': True, 'no_create': True}"
-                           width="20px"
-                           optional="show"/>
+                           width="50px"/>
 
-                    <!-- 7. Price Unit -->
                     <field name="price_unit"
                            string="Price"
                            readonly="state not in ['draft', 'sent']"
-                           width="60px"
-                           optional="show"/>
+                           width="90px"/>
 
-                    <!-- 8. Tax -->
                     <field name="tax_ids"
                            string="Tax"
                            widget="many2many_tags"
                            options="{'no_create': True}"
                            context="{'active_test': True}"
                            readonly="state not in ['draft', 'sent']"
-                           optional="show"
-                           width="20px"/>
+                           width="40px"/>
 
-                    <!-- 9. Discount % (SHOW by default) -->
                     <field name="discount"
                            string="Disc%"
                            readonly="state not in ['draft', 'sent']"
-                           width="30px"
-                           optional="show"
+                           width="70px"
                            groups="purchase.group_discount_per_po_line"/>
 
-                    <!-- 10. Untaxed Amount (Subtotal) -->
                     <field name="price_subtotal"
                            string="Untax Amt"
                            readonly="1"
-                           optional="show"
-                           width="60px"/>
+                           width="100px"/>
 
-
-                         <field name="tax_amount"
+                    <field name="tax_amount"
                            string="Tax Value"
                            readonly="1"
-                           optional="show"
-                           width="60px"/>
+                           width="90px"/>
 
-                    <!-- 11. Total Amount (includes tax) -->
                     <field name="price_total"
                            string="Total"
                            readonly="1"
-                           optional="show"
-                           width="60px"/>
+                           width="110px"/>
 
-                    <!-- 13. Warehouse (Hidden by default) -->
-                    <field name="warehouse_id"
-                           string="Warehouse"
-                           optional="hide"
-                           width="70px"
-                           invisible="1"/>
-
-                    <!-- Disc% (Hidden - already shown as Discount) -->
-                    <field name="discount"
-                           string="Disc% Alt"
-                           optional="hide"
-                           width="60px"
-                           invisible="1"
-                           groups="purchase.group_discount_per_po_line"/>
-
-<!--                    &lt;!&ndash; Product Variant (Hidden by default) &ndash;&gt;-->
-<!--                    <field name="product_id"-->
-<!--                           string="Variant"-->
-<!--                           readonly="state not in ['draft', 'sent']"-->
-<!--                           optional="hide"-->
-<!--                           width="80px"-->
-<!--                           invisible="1"/>-->
-
-                    <!-- Expected Arrival (Hidden by default) -->
-                    <field name="date_planned"
-                           string="Expected Arrival"
-                           optional="hide"
-                           width="100px"
-                           invisible="1"/>
-
-                    <!-- Propagate Cancellation (Hidden by default) -->
-                    <field name="propagate_cancel"
-                           string="Propagate Cancellation"
-                           optional="hide"
-                           width="80px"
-                           invisible="1"/>
-
-                    <!-- Description (Hidden by default) -->
-                    <field name="name"
-                           widget="text"
-                           optional="hide"
-                           width="200px"
-                           invisible="1"/>
-
+                    <field name="warehouse_id" string="Warehouse" optional="hide" invisible="1"/>
+                    <field name="date_planned" string="Expected Arrival" optional="hide" invisible="1"/>
+                    <field name="propagate_cancel" string="Propagate Cancellation" optional="hide" invisible="1"/>
+                    <field name="name" widget="text" optional="hide" invisible="1"/>
                 </list>
             </xpath>
         </field>

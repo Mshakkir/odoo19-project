@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- COPY THIS ENTIRE BLOCK -->
+<!-- Paste it at the TOP of your sale_order_views.xml file, right after <odoo> tag -->
+
+<record id="view_order_form_chatter_position" model="ir.ui.view">
+    <field name="name">sale.order.form.chatter.position</field>
+    <field name="model">sale.order</field>
+    <field name="inherit_id" ref="sale.view_order_form"/>
+    <field name="arch" type="xml">
+        <xpath expr="//form" position="attributes">
+            <attribute name="chatter_position">side</attribute>
+        </xpath>
+    </field>
+</record>
     <record id="view_order_form_custom_lines" model="ir.ui.view">
         <field name="name">sale.order.form.custom.lines</field>
         <field name="model">sale.order</field>

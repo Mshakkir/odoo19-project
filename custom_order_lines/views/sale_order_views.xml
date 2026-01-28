@@ -71,11 +71,12 @@
 
                     <!-- 4. Analytic Distribution -->
                     <field name="analytic_distribution"
+                           string="Analytic"
                            widget="analytic_distribution"
                            options="{'product_field': 'product_id', 'business_domain': 'sale_order', 'amount_field': 'price_subtotal'}"
                            optional="show"
                            groups="analytic.group_analytic_accounting"
-                           width="70px"/>
+                           width="30px"/>
 
                     <!-- 5. Quantity -->
                     <field name="product_uom_qty"

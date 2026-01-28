@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- This adds the action button to the invoice list view -->
+    <!-- No need to inherit the view, just add the action binding -->
+
+    <!-- Alternative: Add as a menu item in Invoicing -->
+    <menuitem id="menu_sale_order_batch_invoice"
+              name="Create Invoice from Sale Orders"
+              parent="account.menu_finance_receivables"
+              action="action_sale_order_invoice_wizard"
+              sequence="50"/>
+</odoo>

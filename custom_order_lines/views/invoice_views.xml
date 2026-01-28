@@ -74,7 +74,7 @@
                     <field name="price_unit"
                            string="Price"
                            readonly="parent.state != 'draft'"
-                           width="90px"
+                           width="80px"
                            optional="show"/>
 
                     <!-- 8. Tax -->
@@ -85,13 +85,13 @@
                            context="{'active_test': True}"
                            readonly="parent.state != 'draft'"
                            optional="show"
-                           width="40px"/>
+                           width="30px"/>
 
                     <!-- 9. Discount % (SHOW by default) -->
                     <field name="discount_fixed"
                            string="Disc"
                            readonly="parent.state != 'draft'"
-                           width="60px"
+                           width="45px"
                            optional="show"
                            groups="sale.group_discount_per_so_line"/>
 
@@ -99,7 +99,7 @@
                     <field name="discount"
                            string="Disc%"
 
-                           width="60px"
+                           width="45px"
                            optional="hide"
                            groups="sale.group_discount_per_so_line"/>
 
@@ -109,21 +109,21 @@
                            string="Untax Amt"
                            readonly="1"
                            optional="show"
-                           width="90px"/>
+                           width="80px"/>
 
                     <!-- 11. Tax Value (Custom computed field) -->
                     <field name="tax_amount"
                            string="Tax Value"
                            readonly="1"
                            optional="show"
-                           width="90px"/>
+                           width="80px"/>
 
                     <!-- 12. Total Amount -->
                     <field name="price_total"
                            string="Total"
                            readonly="1"
                            optional="show"
-                           width="100px"/>
+                           width="80px"/>
 
                     <!-- 13. Product Variant (HIDDEN by default) -->
 <!--                    <field name="product_id"-->

@@ -37,7 +37,7 @@
                            optional="show"
                            widget="many2one"
                            placeholder="Type to find a product..."
-                           width="170px"/>
+                           width="120px"/>
 
                     <!-- 4. Analytic Distribution -->
                     <field name="analytic_distribution"

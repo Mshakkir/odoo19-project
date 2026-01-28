@@ -22,12 +22,11 @@
                     <field name="currency_id" column_invisible="True"/>
                     <field name="company_id" column_invisible="True"/>
                     <field name="move_id" column_invisible="True"/>
+                    <field name="sequence" column_invisible="True"/>
 
-                    <field name="sequence" widget="handle" column_invisible="True"/>
+                    <field name="sequence_number" string="SN" readonly="1" width="35px"/>
 
-                    <field name="sequence_number" string="SN" readonly="1" optional="show" width="10px"/>
-
-                    <field name="product_code" string="P. Code" optional="show" width="30px" readonly="1"/>
+                    <field name="product_code" string="P. Code" width="70px" readonly="1"/>
 
                     <field name="product_id"
                            string="Product"
@@ -35,20 +34,16 @@
                            required="not display_type"
                            context="{'default_list_price': price_unit}"
                            options="{'show_label_warning': True}"
-                           optional="show"
-                           widget="many2one"
-                           placeholder="Type to find a product..."
-                           width="120px"/>
+                           widget="many2one"/>
 
                     <field name="analytic_distribution"
                            string="Analytic"
                            widget="analytic_distribution"
                            options="{'product_field': 'product_id', 'business_domain': 'purchase', 'amount_field': 'price_subtotal'}"
-                           optional="show"
                            groups="analytic.group_analytic_accounting"
-                           width="20px"/>
+                           width="60px"/>
 
-                    <field name="quantity" string="Qty" readonly="parent.state != 'draft'" width="20px" optional="show"/>
+                    <field name="quantity" string="Qty" readonly="parent.state != 'draft'" width="45px"/>
 
                     <field name="product_uom_id"
                            string="Unit"
@@ -58,10 +53,9 @@
                            widget="many2one_uom"
                            groups="uom.group_uom"
                            options="{'no_open': True, 'no_create': True}"
-                           width="20px"
-                           optional="show"/>
+                           width="50px"/>
 
-                    <field name="price_unit" string="Price" readonly="parent.state != 'draft'" width="60px" optional="show"/>
+                    <field name="price_unit" string="Price" readonly="parent.state != 'draft'" width="90px"/>
 
                     <field name="tax_ids"
                            string="Tax"
@@ -69,29 +63,25 @@
                            options="{'no_create': True}"
                            context="{'active_test': True}"
                            readonly="parent.state != 'draft'"
-                           optional="show"
-                           width="20px"/>
+                           width="40px"/>
 
                     <field name="discount_fixed"
                            string="Disc"
                            readonly="parent.state != 'draft'"
-                           width="30px"
-                           optional="show"
+                           width="70px"
                            groups="sale.group_discount_per_so_line"/>
 
-                    <field name="discount" string="Disc%" width="30px" optional="hide" groups="sale.group_discount_per_so_line"/>
+                    <field name="discount" string="Disc%" width="50px" optional="hide" groups="sale.group_discount_per_so_line"/>
 
-                    <field name="price_subtotal" string="Untax Amt" readonly="1" optional="show" width="60px"/>
+                    <field name="price_subtotal" string="Untax Amt" readonly="1" width="100px"/>
 
-                    <field name="tax_amount" string="Tax Value" readonly="1" optional="show" width="60px"/>
+                    <field name="tax_amount" string="Tax Value" readonly="1" width="90px"/>
 
-                    <field name="price_total" string="Total" readonly="1" optional="show" width="60px"/>
+                    <field name="price_total" string="Total" readonly="1" width="110px"/>
 
-                    <field name="name" widget="text" optional="hide" width="200px" invisible="1"/>
-
-                    <field name="account_id" string="Account" readonly="parent.state != 'draft'" required="1" optional="hide" width="80px" invisible="1"/>
-
-                    <field name="warehouse_id" string="Warehouse" optional="hide" width="70px" invisible="1"/>
+                    <field name="name" widget="text" optional="hide" invisible="1"/>
+                    <field name="account_id" string="Account" readonly="parent.state != 'draft'" required="1" optional="hide" invisible="1"/>
+                    <field name="warehouse_id" string="Warehouse" optional="hide" invisible="1"/>
                 </list>
             </xpath>
         </field>

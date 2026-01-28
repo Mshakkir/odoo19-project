@@ -83,7 +83,7 @@
                            readonly="is_downpayment"
                            width="45px"/>
 
-                    <button string="" name="action_product_forecast_report" type="object" icon="fa-area-chart" invisible="display_type" class="px-4"/>
+                    <button string="" name="action_product_forecast_report" type="object" icon="fa-area-chart" invisible="display_type" class="px-4" width="20px"/>
 
                     <field name="qty_delivered"
                            string="Delivered"

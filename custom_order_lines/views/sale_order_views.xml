@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add chatter position control to Invoice form -->
     <record id="view_move_form_chatter_position" model="ir.ui.view">
         <field name="name">account.move.form.chatter.position</field>
         <field name="model">account.move</field>
@@ -24,7 +23,7 @@
                     <field name="company_id" column_invisible="True"/>
                     <field name="move_id" column_invisible="True"/>
 
-                    <field name="sequence" widget="handle" width="10px"/>
+                    <field name="sequence" widget="handle" column_invisible="True"/>
 
                     <field name="sequence_number" string="SN" readonly="1" optional="show" width="10px"/>
 

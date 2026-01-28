@@ -35,7 +35,7 @@
                     <field name="currency_id" column_invisible="True"/>
 
                     <!-- 1. SN -->
-                    <field name="sequence_number" string="SN" readonly="1" optional="show" width="20px"/>
+                    <field name="sequence_number" string="SN" readonly="1" optional="show" width="10px"/>
 
                     <!-- Sequence handle -->
                     <field name="sequence" invisible="combo_item_id" widget="handle"/>
@@ -53,7 +53,7 @@
                            optional="show"
                            widget="sol_product_many2one"
                            placeholder="Type to find a product..."
-                           width="90px"/>
+                           width="120px"/>
 
                     <!-- Product variant (hidden by default) -->
                     <field name="product_id"
@@ -71,11 +71,12 @@
 
                     <!-- 4. Analytic Distribution -->
                     <field name="analytic_distribution"
+                           string="Analytic"
                            widget="analytic_distribution"
                            options="{'product_field': 'product_id', 'business_domain': 'sale_order', 'amount_field': 'price_subtotal'}"
                            optional="show"
                            groups="analytic.group_analytic_accounting"
-                           width="70px"/>
+                           width="20px"/>
 
                     <!-- 5. Quantity -->
                     <field name="product_uom_qty"
@@ -83,7 +84,7 @@
                            decoration-info="(not display_type and invoice_status == 'to invoice')"
                            decoration-bf="(not display_type and invoice_status == 'to invoice')"
                            readonly="is_downpayment"
-                           width="30px"/>
+                           width="20px"/>
 
                     <!-- Forecast Report Button -->
                     <button string="" name="action_product_forecast_report" type="object" icon="fa-area-chart" invisible="display_type" class="px-4" width="30px"/>
@@ -112,7 +113,7 @@
                            widget="many2one_uom"
                            groups="uom.group_uom"
                            options="{'no_open': True, 'no_create': True}"
-                           width="50px"
+                           width="25px"
                            optional="show"/>
 
                     <!-- Lead Time (hidden by default) -->
@@ -133,19 +134,19 @@
                            context="{'active_test': True}"
                            readonly="qty_invoiced &gt; 0 or is_downpayment"
                            optional="show"
-                           width="40px"/>
+                           width="20px"/>
 
                     <!-- 8. Discount -->
                     <field name="discount"
                            string="Disc%"
                            groups="sale.group_discount_per_so_line"
-                           width="60px"
+                           width="30px"
                            optional="hide"/>
                                         <!-- 8. Discount -->
                     <field name="discount_fixed"
                            string="Disc"
                            groups="sale.group_discount_per_so_line"
-                           width="60px"
+                           width="30px"
                            optional="show"/>
 
                     <!-- 10. Untax Amount (after discount) -->

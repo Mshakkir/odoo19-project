@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit stock picking form view to add custom fields and domain -->
+    <record id="view_picking_form_custom" model="ir.ui.view">
+        <field name="name">stock.picking.form.custom</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Add domain to partner_id to show only vendors (suppliers) -->
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="domain">[('supplier_rank', '>', 0)]</attribute>
+                <attribute name="context">{'res_partner_search_mode': 'supplier', 'show_vat': True}</attribute>
+            </xpath>
+
+            <!-- Replace origin field with purchase_order_id field for incoming pickings -->
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="purchase_order_id"
+                       string="Source Document"
+                       invisible="picking_type_code != 'incoming'"
+                       readonly="state in ['cancel', 'done']"
+                       options="{'no_create': True}"
+                       placeholder="Select Purchase Order"/>
+            </xpath>
+
+            <!-- Hide original origin field for incoming pickings -->
+            <xpath expr="//field[@name='origin']" position="attributes">
+                <attribute name="invisible">picking_type_code == 'incoming'</attribute>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

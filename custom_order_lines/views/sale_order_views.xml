@@ -74,16 +74,16 @@
                            widget="analytic_distribution"
                            options="{'product_field': 'product_id', 'business_domain': 'sale_order', 'amount_field': 'price_subtotal'}"
                            groups="analytic.group_analytic_accounting"
-                           width="60px"/>
+                           width="50px"/>
 
                     <field name="product_uom_qty"
                            string="Qty"
                            decoration-info="(not display_type and invoice_status == 'to invoice')"
                            decoration-bf="(not display_type and invoice_status == 'to invoice')"
                            readonly="is_downpayment"
-                           width="45px"/>
+                           width="35px"/>
 
-                    <button string="" name="action_product_forecast_report" type="object" icon="fa-area-chart" invisible="display_type" class="px-4"/>
+                    <button string="" name="action_product_forecast_report" type="object" icon="fa-area-chart" invisible="display_type" class="px-4" width="25px"/>
 
                     <field name="qty_delivered"
                            string="Delivered"
@@ -107,14 +107,14 @@
                            widget="many2one_uom"
                            groups="uom.group_uom"
                            options="{'no_open': True, 'no_create': True}"
-                           width="50px"/>
+                           width="40px"/>
 
                     <field name="customer_lead"
                            string="Lead Time"
                            optional="hide"
                            readonly="parent.state not in ['draft', 'sent', 'sale'] or is_downpayment or product_type != 'consu'"/>
 
-                    <field name="price_unit" string="Price" readonly="qty_invoiced &gt; 0" width="90px"/>
+                    <field name="price_unit" string="Price" readonly="qty_invoiced &gt; 0" width="80px"/>
 
                     <field name="tax_ids"
                            string="Tax"
@@ -127,28 +127,28 @@
                     <field name="discount"
                            string="Disc%"
                            groups="sale.group_discount_per_so_line"
-                           width="50px"
+                           width="40px"
                            optional="hide"/>
 
                     <field name="discount_fixed"
                            string="Disc"
                            groups="sale.group_discount_per_so_line"
-                           width="70px"/>
+                           width="60px"/>
 
                     <field name="untaxed_amount_after_discount"
                            string="Untax Amt"
                            readonly="1"
-                           width="100px"/>
+                           width="90px"/>
 
                     <field name="tax_amount"
                            string="Tax Value"
                            readonly="1"
-                           width="90px"/>
+                           width="80px"/>
 
                     <field name="total_amount"
                            string="Total"
                            readonly="1"
-                           width="110px"/>
+                           width="100px"/>
 
                     <field name="price_subtotal"
                            string="Amount"

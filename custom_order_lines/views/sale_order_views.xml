@@ -51,7 +51,7 @@
                     <field name="sequence_number" string="SN" readonly="1" optional="show" width="10px"/>
 
                     <!-- Sequence handle -->
-                    <field name="sequence" invisible="combo_item_id" widget="handle"/>
+                    <field name="sequence" invisible="combo_item_id" widget="handle" width="10px"/>
 
                     <!-- 2. P. Code -->
                     <field name="product_code" string="P. Code" optional="show" width="30px"/>

@@ -30,10 +30,10 @@
                     <field name="currency_id" column_invisible="True"/>
 
                     <!-- Sequence handle for drag/drop -->
-                    <field name="sequence" widget="handle" column_invisible="False"/>
+                    <field name="sequence" widget="handle" column_invisible="False" widt="10px"/>
 
                     <!-- 1. SN (Serial Number) -->
-                    <field name="sequence_number" string="SN" readonly="1" optional="show" width="20px"/>
+                    <field name="sequence_number" string="SN" readonly="1" optional="show" width="10px"/>
 
                     <!-- 2. P. Code (Product Code) -->
                     <field name="product_code"
@@ -52,7 +52,7 @@
                            optional="show"
                            widget="many2one"
                            placeholder="Type to find a product..."
-                           width="90px"/>
+                           width="120px"/>
 
                     <!-- 4. Analytic Distribution -->
                     <field name="analytic_distribution"
@@ -60,17 +60,17 @@
                            options="{'product_field': 'product_id', 'business_domain': 'purchase_order', 'amount_field': 'price_subtotal'}"
                            optional="show"
                            groups="analytic.group_analytic_accounting"
-                           width="70px"/>
+                           width="20px"/>
 
                     <!-- 5. Quantity -->
                     <field name="product_qty"
                            string="Qty"
                            readonly="state not in ['draft', 'sent', 'purchase']"
-                           width="30px"
+                           width="20px"
                            optional="show"/>
 
                     <!-- Forecast Report Button -->
-                    <button string="" name="action_product_forecast_report" type="object" icon="fa-area-chart" invisible="display_type" class="px-4"/>
+                    <button string="" name="action_product_forecast_report" type="object" icon="fa-area-chart" invisible="display_type" class="px-4" width="30px"/>
 
                     <!-- Received & Billed (visible only in purchase state) -->
                     <field name="qty_received"
@@ -94,7 +94,7 @@
                            widget="many2one_uom"
                            groups="uom.group_uom"
                            options="{'no_open': True, 'no_create': True}"
-                           width="50px"
+                           width="20px"
                            optional="show"/>
 
                     <!-- 7. Price Unit -->
@@ -112,13 +112,13 @@
                            context="{'active_test': True}"
                            readonly="state not in ['draft', 'sent']"
                            optional="show"
-                           width="40px"/>
+                           width="20px"/>
 
                     <!-- 9. Discount % (SHOW by default) -->
                     <field name="discount"
                            string="Disc%"
                            readonly="state not in ['draft', 'sent']"
-                           width="60px"
+                           width="30px"
                            optional="show"
                            groups="purchase.group_discount_per_po_line"/>
 

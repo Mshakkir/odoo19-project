@@ -37,7 +37,7 @@
                            optional="show"
                            widget="many2one"
                            placeholder="Type to find a product..."
-                           width="150px"/>
+                           width="120px"/>
 
                     <!-- 4. Analytic Distribution -->
                     <field name="analytic_distribution"
@@ -46,13 +46,13 @@
                            options="{'product_field': 'product_id', 'business_domain': 'purchase', 'amount_field': 'price_subtotal'}"
                            optional="show"
                            groups="analytic.group_analytic_accounting"
-                           width="40px"/>
+                           width="20px"/>
 
                     <!-- 5. Quantity -->
                     <field name="quantity"
                            string="Qty"
                            readonly="parent.state != 'draft'"
-                           width="30px"
+                           width="20px"
                            optional="show"/>
 
 <!--                    &lt;!&ndash; Forecast Report Button &ndash;&gt;-->
@@ -74,7 +74,7 @@
                     <field name="price_unit"
                            string="Price"
                            readonly="parent.state != 'draft'"
-                           width="80px"
+                           width="70px"
                            optional="show"/>
 
                     <!-- 8. Tax -->
@@ -85,13 +85,13 @@
                            context="{'active_test': True}"
                            readonly="parent.state != 'draft'"
                            optional="show"
-                           width="30px"/>
+                           width="20px"/>
 
                     <!-- 9. Discount % (SHOW by default) -->
                     <field name="discount_fixed"
                            string="Disc"
                            readonly="parent.state != 'draft'"
-                           width="45px"
+                           width="30px"
                            optional="show"
                            groups="sale.group_discount_per_so_line"/>
 
@@ -99,7 +99,7 @@
                     <field name="discount"
                            string="Disc%"
 
-                           width="45px"
+                           width="30px"
                            optional="hide"
                            groups="sale.group_discount_per_so_line"/>
 
@@ -109,21 +109,21 @@
                            string="Untax Amt"
                            readonly="1"
                            optional="show"
-                           width="80px"/>
+                           width="70px"/>
 
                     <!-- 11. Tax Value (Custom computed field) -->
                     <field name="tax_amount"
                            string="Tax Value"
                            readonly="1"
                            optional="show"
-                           width="80px"/>
+                           width="70px"/>
 
                     <!-- 12. Total Amount -->
                     <field name="price_total"
                            string="Total"
                            readonly="1"
                            optional="show"
-                           width="80px"/>
+                           width="70px"/>
 
                     <!-- 13. Product Variant (HIDDEN by default) -->
 <!--                    <field name="product_id"-->

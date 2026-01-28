@@ -57,6 +57,7 @@
 #                     line.tax_amount = 0.0
 #             else:
 #                 line.tax_amount = 0.0
+
 from odoo import api, fields, models
 
 
@@ -118,27 +119,53 @@ class PurchaseOrderLine(models.Model):
                 line.tax_amount = 0.0
 
     def action_product_forecast_report(self):
-        """Open the product form with forecast information"""
+        """Open the product's forecasted report"""
         self.ensure_one()
         if not self.product_id:
             return False
 
-        # Try to open the forecast report if available
+        # Try different methods to open the forecast report
+        # Method 1: Try to find and use the stock forecasted report action
         try:
-            action = self.env.ref('stock.stock_replenishment_product_product_action')
-            result = action.read()[0]
-            result['context'] = {
-                'default_product_id': self.product_id.id,
-                'search_default_product_id': self.product_id.id,
-            }
-            return result
+            # Look for the report.stock.quantity action or similar
+            action = self.env['ir.actions.act_window'].search([
+                ('res_model', '=', 'report.stock.quantity'),
+            ], limit=1)
+
+            if action:
+                result = action.read()[0]
+                result['context'] = {
+                    'search_default_product_id': self.product_id.id,
+                    'default_product_id': self.product_id.id,
+                }
+                return result
         except:
-            # Fallback: Open product form
-            return {
-                'name': 'Product Information',
-                'type': 'ir.actions.act_window',
-                'res_model': 'product.product',
-                'res_id': self.product_id.id,
-                'view_mode': 'form',
-                'target': 'new',
+            pass
+
+        # Method 2: Try stock.quantitative.forecasted
+        try:
+            action = self.env['ir.actions.act_window'].search([
+                ('res_model', '=', 'stock.forecasted'),
+            ], limit=1)
+
+            if action:
+                result = action.read()[0]
+                result['context'] = {
+                    'search_default_product_id': self.product_id.id,
+                }
+                return result
+        except:
+            pass
+
+        # Method 3: Open product form and let user click replenish manually
+        return {
+            'name': self.product_id.display_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 'product.product',
+            'res_id': self.product_id.id,
+            'view_mode': 'form',
+            'target': 'current',
+            'context': {
+                'default_detailed_type': 'product',
             }
+        }

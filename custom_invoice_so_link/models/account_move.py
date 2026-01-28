@@ -157,7 +157,6 @@
 #             # Set fiscal position from first order
 #             if self.sale_order_ids and self.sale_order_ids[0].fiscal_position_id:
 #                 self.fiscal_position_id = self.sale_order_ids[0].fiscal_position_id
-
 from odoo import models, fields, api
 
 
@@ -318,23 +317,12 @@ class AccountMove(models.Model):
             if self.sale_order_ids and self.sale_order_ids[0].fiscal_position_id:
                 self.fiscal_position_id = self.sale_order_ids[0].fiscal_position_id
 
-    @api.model
-    def create(self, vals):
-        """Override create to ensure sales orders are linked when invoice is created"""
-        record = super().create(vals)
-
-        # The Many2many relationship is automatically created
-        # Odoo automatically populates invoice_ids on the sale orders
-        # So the sales order status will automatically update to "fully invoiced"
-
-        return record
-
     def action_post(self):
-        """Override action_post to refresh sales orders when invoice is posted"""
+        """Override action_post - DO NOT call onchange_order_line on multiple records"""
         result = super().action_post()
 
-        # Refresh sale orders to update their invoice status
-        if self.sale_order_ids:
-            self.sale_order_ids.onchange_order_line()
+        # The Many2many relationship automatically updates the sales order's invoice_ids
+        # Odoo handles this automatically, no need to manually refresh
+        # Just return the result from the parent action_post
 
         return result

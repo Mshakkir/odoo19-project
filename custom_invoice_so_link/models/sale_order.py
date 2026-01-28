@@ -7,6 +7,18 @@ class SaleOrder(models.Model):
 
     def action_create_invoice(self):
         """Override the standard create invoice action"""
+        self._raise_custom_invoice_error()
+
+    def action_invoice_create(self):
+        """Alternative method name - some versions use this"""
+        self._raise_custom_invoice_error()
+
+    def create_invoices(self):
+        """Another possible method name"""
+        self._raise_custom_invoice_error()
+
+    def _raise_custom_invoice_error(self):
+        """Raise error for all invoice creation attempts"""
         raise UserError(
             "❌ Invoice Creation via Sales Order is Disabled\n\n"
             "Your Odoo instance uses a CUSTOM INVOICE WORKFLOW.\n\n"
@@ -25,12 +37,3 @@ class SaleOrder(models.Model):
     def action_view_invoice(self):
         """Keep the view invoices action working"""
         return super().action_view_invoice()
-
-    @api.model
-    def create(self, vals):
-        """Allow normal creation"""
-        return super().create(vals)
-
-    def write(self, vals):
-        """Allow normal updates"""
-        return super().write(vals)

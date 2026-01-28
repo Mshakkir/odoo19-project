@@ -5,8 +5,22 @@ from odoo.exceptions import UserError
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    # PO Number field
-    po_number = fields.Many2one(
+    # PO Number field - Changed to Many2many to support multiple POs
+    po_number = fields.Many2many(
+        'purchase.order',
+        'account_move_purchase_order_rel',
+        'move_id',
+        'purchase_id',
+        string='PO Numbers',
+        domain="[('partner_id', '=', partner_id), ('state', 'in', ['purchase', 'done'])]",
+        help='Select Purchase Orders',
+        compute='_compute_po_numbers',
+        store=True,
+        readonly=False
+    )
+
+    # Single PO field for backward compatibility and auto-complete
+    po_number_single = fields.Many2one(
         'purchase.order',
         string='PO Number',
         domain="[('partner_id', '=', partner_id), ('state', 'in', ['purchase', 'done'])]",
@@ -50,6 +64,16 @@ class AccountMove(models.Model):
         readonly=True
     )
 
+    @api.depends('invoice_line_ids.purchase_line_id')
+    def _compute_po_numbers(self):
+        """Compute all related purchase orders from invoice lines"""
+        for move in self:
+            if move.move_type in ['in_invoice', 'in_refund']:
+                purchase_orders = move.invoice_line_ids.mapped('purchase_line_id.order_id')
+                move.po_number = [(6, 0, purchase_orders.ids)]
+            else:
+                move.po_number = [(5, 0, 0)]
+
     @api.depends('po_number', 'goods_receipt_number', 'deliver_to')
     def _compute_warehouse_id(self):
         """Compute warehouse from PO or Goods Receipt or Deliver To"""
@@ -62,9 +86,11 @@ class AccountMove(models.Model):
             # Try to get warehouse from Goods Receipt
             elif move.goods_receipt_number and move.goods_receipt_number.picking_type_id:
                 warehouse = move.goods_receipt_number.picking_type_id.warehouse_id
-            # If not found, try from PO
-            elif move.po_number and move.po_number.picking_type_id:
-                warehouse = move.po_number.picking_type_id.warehouse_id
+            # If not found, try from first PO
+            elif move.po_number:
+                first_po = move.po_number[0] if move.po_number else False
+                if first_po and first_po.picking_type_id:
+                    warehouse = first_po.picking_type_id.warehouse_id
 
             move.warehouse_id = warehouse
 
@@ -73,7 +99,8 @@ class AccountMove(models.Model):
         """Clear PO and GR fields when vendor changes"""
         res = super(AccountMove, self)._onchange_partner_id()
         if self.move_type in ['in_invoice', 'in_refund']:
-            self.po_number = False
+            self.po_number_single = False
+            self.po_number = [(5, 0, 0)]
             self.goods_receipt_number = False
             self.awb_number = False
             self.deliver_to = False
@@ -93,8 +120,8 @@ class AccountMove(models.Model):
             purchase_order = self.purchase_id
 
         if purchase_order:
-            # Auto-fill PO Number
-            self.po_number = purchase_order
+            # Auto-fill PO Number (single for UI)
+            self.po_number_single = purchase_order
 
             # Auto-fill Buyer (user_id from PO)
             if purchase_order.user_id:
@@ -120,11 +147,11 @@ class AccountMove(models.Model):
 
         return res
 
-    @api.onchange('po_number')
-    def _onchange_po_number(self):
+    @api.onchange('po_number_single')
+    def _onchange_po_number_single(self):
         """Populate invoice details when PO is manually selected"""
-        if self.po_number:
-            po = self.po_number
+        if self.po_number_single:
+            po = self.po_number_single
 
             # Update bill reference
             if not self.ref:
@@ -188,9 +215,9 @@ class AccountMove(models.Model):
             gr = self.goods_receipt_number
 
             # If PO is not set, try to set it from GR
-            if not self.po_number and gr.purchase_id:
+            if not self.po_number_single and gr.purchase_id:
                 po = gr.purchase_id
-                self.po_number = po
+                self.po_number_single = po
 
                 # Get Buyer from the related PO
                 if po.user_id:
@@ -204,130 +231,47 @@ class AccountMove(models.Model):
                 if hasattr(po, 'awb_number') and po.awb_number:
                     self.awb_number = po.awb_number
 
-    def _link_purchase_orders_from_lines(self):
-        """
-        Link all purchase orders from invoice lines to ensure proper billing status tracking.
-        This method ensures that all POs referenced in the invoice lines are properly linked.
-        """
-        for move in self:
-            if move.move_type in ['in_invoice', 'in_refund']:
-                # Collect all unique purchase orders from invoice lines
-                purchase_orders = move.invoice_line_ids.mapped('purchase_line_id.order_id')
+    def _stock_account_prepare_anglo_saxon_out_lines_vals(self):
+        """Override to ensure proper purchase line linking"""
+        lines_vals_list = super()._stock_account_prepare_anglo_saxon_out_lines_vals()
+        return lines_vals_list
 
-                if purchase_orders:
-                    # Set the primary PO in purchase_id field (Odoo standard field)
-                    if move.po_number and move.po_number in purchase_orders:
-                        # Use the PO from po_number field as primary
-                        move.purchase_id = move.po_number
-                    elif not move.purchase_id and purchase_orders:
-                        # If no purchase_id is set, use the first one from lines
-                        move.purchase_id = purchase_orders[0]
 
-    def action_post(self):
-        """
-        Override action_post to ensure purchase orders are properly linked before posting.
-        This ensures the billing status is updated correctly for ALL purchase orders.
-        """
-        # First, link purchase orders from invoice lines
-        self._link_purchase_orders_from_lines()
-
-        # Call the parent method to post the invoice
-        res = super(AccountMove, self).action_post()
-
-        # After posting, manually update invoice_status for all related POs
-        # This is necessary because Odoo's purchase_id field only tracks ONE PO
-        for move in self:
-            if move.move_type in ['in_invoice', 'in_refund'] and move.state == 'posted':
-                # Get all unique purchase orders from invoice lines
-                purchase_orders = move.invoice_line_ids.mapped('purchase_line_id.order_id')
-
-                if purchase_orders:
-                    # Force recompute of invoice status for all related POs
-                    purchase_orders._compute_invoice_status()
-
-        return res
-
-    def button_draft(self):
-        """
-        Override button_draft to update PO status when resetting to draft.
-        """
-        # Get all related purchase orders before resetting to draft
-        purchase_orders = self.invoice_line_ids.mapped('purchase_line_id.order_id')
-
-        res = super(AccountMove, self).button_draft()
-
-        # Re-link purchase orders when going back to draft
-        self._link_purchase_orders_from_lines()
-
-        # Recompute invoice status for all related POs
-        if purchase_orders:
-            purchase_orders._compute_invoice_status()
-
-        return res
-
-    def button_cancel(self):
-        """
-        Override button_cancel to update PO status when canceling.
-        """
-        # Get all related purchase orders before canceling
-        purchase_orders = self.invoice_line_ids.mapped('purchase_line_id.order_id')
-
-        res = super(AccountMove, self).button_cancel()
-
-        # Recompute invoice status for all related POs
-        if purchase_orders:
-            purchase_orders._compute_invoice_status()
-
-        return res
+class AccountMoveLine(models.Model):
+    _inherit = 'account.move.line'
 
     @api.model_create_multi
     def create(self, vals_list):
-        """
-        Override create to ensure purchase order linkage on creation.
-        """
-        moves = super(AccountMove, self).create(vals_list)
-        # Link purchase orders after creation
-        moves._link_purchase_orders_from_lines()
-        return moves
+        """Ensure purchase_line_id is properly set when creating invoice lines"""
+        lines = super().create(vals_list)
+
+        # After creation, trigger the computation of PO numbers in the parent move
+        moves = lines.mapped('move_id').filtered(lambda m: m.move_type in ['in_invoice', 'in_refund'])
+        if moves:
+            moves._compute_po_numbers()
+
+        return lines
 
     def write(self, vals):
-        """
-        Override write to maintain purchase order linkage and status updates.
-        """
-        # Get related POs before write
-        old_purchase_orders = self.invoice_line_ids.mapped('purchase_line_id.order_id')
+        """Ensure PO numbers are updated when invoice lines change"""
+        res = super().write(vals)
 
-        res = super(AccountMove, self).write(vals)
-
-        # If invoice lines are updated, re-link purchase orders
-        if 'invoice_line_ids' in vals or 'state' in vals:
-            self._link_purchase_orders_from_lines()
-
-            # Get new related POs after write
-            new_purchase_orders = self.invoice_line_ids.mapped('purchase_line_id.order_id')
-
-            # Combine old and new POs to ensure all are updated
-            all_purchase_orders = old_purchase_orders | new_purchase_orders
-
-            if all_purchase_orders:
-                all_purchase_orders._compute_invoice_status()
+        # If purchase_line_id is changed, recompute PO numbers
+        if 'purchase_line_id' in vals:
+            moves = self.mapped('move_id').filtered(lambda m: m.move_type in ['in_invoice', 'in_refund'])
+            if moves:
+                moves._compute_po_numbers()
 
         return res
 
-    def unlink(self):
-        """
-        Override unlink to update PO status when deleting invoices.
-        """
-        # Get all related purchase orders before deletion
-        purchase_orders = self.invoice_line_ids.mapped('purchase_line_id.order_id')
 
-        res = super(AccountMove, self).unlink()
 
-        # Recompute invoice status for all related POs after deletion
-        if purchase_orders:
-            purchase_orders._compute_invoice_status()
 
-        return res
+
+
+
+
+
 
 
 

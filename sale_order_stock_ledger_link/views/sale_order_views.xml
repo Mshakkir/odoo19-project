@@ -14,6 +14,7 @@
                         icon="fa-line-chart"
                         title="View Product Stock Ledger"
                         string=""
+                        width="40px"
                         class="btn-link p-0"
                         invisible="not product_id"/>
             </xpath>
@@ -53,6 +54,7 @@
                         icon="fa-line-chart"
                         title="View Product Stock Ledger"
                         string=""
+                        width="40px"
                         class="btn-link p-0"
                         invisible="not product_id or display_type in ('line_section', 'line_subsection', 'line_note')"/>
             </xpath>

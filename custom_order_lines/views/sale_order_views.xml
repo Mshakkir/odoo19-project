@@ -1,212 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- COPY THIS ENTIRE BLOCK -->
-<!-- Paste it at the TOP of your sale_order_views.xml file, right after <odoo> tag -->
-
-<record id="view_order_form_chatter_position" model="ir.ui.view">
-    <field name="name">sale.order.form.chatter.position</field>
-    <field name="model">sale.order</field>
-    <field name="inherit_id" ref="sale.view_order_form"/>
-    <field name="arch" type="xml">
-        <xpath expr="//form" position="attributes">
-            <attribute name="chatter_position">side</attribute>
-        </xpath>
-    </field>
-</record>
-    <record id="view_order_form_custom_lines" model="ir.ui.view">
-        <field name="name">sale.order.form.custom.lines</field>
-        <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_form"/>
+    <!-- Add chatter position control to Invoice form -->
+    <record id="view_move_form_chatter_position" model="ir.ui.view">
+        <field name="name">account.move.form.chatter.position</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
-            <!-- Replace the list view inside order_line field -->
-            <xpath expr="//field[@name='order_line']/list" position="replace">
-                <list string="Sales Order Lines" editable="bottom" limit="200" decoration-warning="(state in ['draft', 'sent'] and is_product_archived) or sale_line_warn_msg">
-                    <control>
-                        <create name="add_product_control" string="Add a product"/>
-                        <create name="add_section_control" string="Add a section" context="{'default_display_type': 'line_section'}"/>
-                        <create name="add_note_control" string="Add a note" context="{'default_display_type': 'line_note'}"/>
-                        <button string="Catalog" name="action_add_from_catalog" type="object" class="px-4 btn-link" context="{'order_id': parent.id}"/>
-                    </control>
+            <xpath expr="//form" position="attributes">
+                <attribute name="chatter_position">side</attribute>
+            </xpath>
+        </field>
+    </record>
 
-                    <!-- Required invisible fields -->
+    <record id="view_invoice_form_custom_lines" model="ir.ui.view">
+        <field name="name">account.move.form.custom.lines</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_line_ids']/list" position="replace">
+                <list string="Invoice Lines" editable="bottom" limit="200">
                     <field name="display_type" column_invisible="True"/>
-                    <field name="product_custom_attribute_value_ids" column_invisible="1">
-                        <list>
-                            <field name="custom_product_template_attribute_value_id"/>
-                            <field name="custom_value"/>
-                        </list>
-                    </field>
-                    <field name="product_no_variant_attribute_value_ids" column_invisible="1"/>
-                    <field name="technical_price_unit" column_invisible="1"/>
-                    <field name="linked_line_id" column_invisible="1"/>
-                    <field name="combo_item_id" column_invisible="1"/>
-                    <field name="selected_combo_items" column_invisible="1"/>
-                    <field name="virtual_id" column_invisible="1"/>
-                    <field name="linked_virtual_id" column_invisible="1"/>
-                    <field name="collapse_prices" column_invisible="1"/>
-                    <field name="collapse_composition" column_invisible="1"/>
                     <field name="currency_id" column_invisible="True"/>
+                    <field name="company_id" column_invisible="True"/>
+                    <field name="move_id" column_invisible="True"/>
 
-                    <!-- 1. SN -->
+                    <field name="sequence" widget="handle" width="10px"/>
+
                     <field name="sequence_number" string="SN" readonly="1" optional="show" width="10px"/>
 
-                    <!-- Sequence handle -->
-                    <field name="sequence" invisible="combo_item_id" widget="handle" width="10px"/>
+                    <field name="product_code" string="P. Code" optional="show" width="30px" readonly="1"/>
 
-                    <!-- 2. P. Code -->
-                    <field name="product_code" string="P. Code" optional="show" width="30px"/>
-
-                    <!-- 3. Product Template (main product field) -->
-                    <field name="product_template_id"
+                    <field name="product_id"
                            string="Product"
-                           readonly="id and not product_updatable"
-                           required="not display_type and not is_downpayment"
-                           context="{'default_list_price': price_unit, 'default_uom_id': product_uom_id}"
+                           readonly="parent.state != 'draft'"
+                           required="not display_type"
+                           context="{'default_list_price': price_unit}"
                            options="{'show_label_warning': True}"
                            optional="show"
-                           widget="sol_product_many2one"
+                           widget="many2one"
                            placeholder="Type to find a product..."
                            width="120px"/>
 
-                    <!-- Product variant (hidden by default) -->
-                    <field name="product_id"
-                           string="Product Variant"
-                           readonly="not product_updatable"
-                           required="not display_type and not is_downpayment"
-                           force_save="1"
-                           context="{'default_lst_price': price_unit, 'default_uom_id': product_uom_id}"
-                           options="{'show_label_warning': True}"
-                           optional="hide"
-                           widget="sol_product_many2one"/>
-
-                    <!-- Description -->
-                    <field name="name" widget="sol_text" optional="hide"/>
-
-                    <!-- 4. Analytic Distribution -->
                     <field name="analytic_distribution"
                            string="Analytic"
                            widget="analytic_distribution"
-                           options="{'product_field': 'product_id', 'business_domain': 'sale_order', 'amount_field': 'price_subtotal'}"
+                           options="{'product_field': 'product_id', 'business_domain': 'purchase', 'amount_field': 'price_subtotal'}"
                            optional="show"
                            groups="analytic.group_analytic_accounting"
                            width="20px"/>
 
-                    <!-- 5. Quantity -->
-                    <field name="product_uom_qty"
-                           string="Qty"
-                           decoration-info="(not display_type and invoice_status == 'to invoice')"
-                           decoration-bf="(not display_type and invoice_status == 'to invoice')"
-                           readonly="is_downpayment"
-                           width="20px"/>
+                    <field name="quantity" string="Qty" readonly="parent.state != 'draft'" width="20px" optional="show"/>
 
-                    <!-- Forecast Report Button -->
-                    <button string="" name="action_product_forecast_report" type="object" icon="fa-area-chart" invisible="display_type" class="px-4" width="30px"/>
-
-                    <!-- Delivered & Invoiced (hidden by default, shown in sale state) -->
-                    <field name="qty_delivered"
-                           string="Delivered"
-                           decoration-info="(not display_type and invoice_status == 'to invoice')"
-                           decoration-bf="(not display_type and invoice_status == 'to invoice')"
-                           column_invisible="parent.state != 'sale'"
-                           readonly="qty_delivered_method != 'manual' or is_downpayment"
-                           optional="hide"/>
-                    <field name="qty_invoiced"
-                           string="Invoiced"
-                           decoration-info="(not display_type and invoice_status == 'to invoice')"
-                           decoration-bf="(not display_type and invoice_status == 'to invoice')"
-                           column_invisible="parent.state != 'sale'"
-                           optional="hide"/>
-
-                    <!-- 6. Unit -->
                     <field name="product_uom_id"
                            string="Unit"
                            force_save="1"
-                           readonly="product_uom_readonly"
-                           required="not display_type and not is_downpayment"
+                           readonly="parent.state != 'draft'"
+                           required="not display_type"
                            widget="many2one_uom"
                            groups="uom.group_uom"
                            options="{'no_open': True, 'no_create': True}"
-                           width="25px"
+                           width="20px"
                            optional="show"/>
 
-                    <!-- Lead Time (hidden by default) -->
-                    <field name="customer_lead"
-                           string="Lead Time"
-                           optional="hide"
-                           width="80px"
-                           readonly="parent.state not in ['draft', 'sent', 'sale'] or is_downpayment or product_type != 'consu'"/>
+                    <field name="price_unit" string="Price" readonly="parent.state != 'draft'" width="60px" optional="show"/>
 
-                    <!-- 7. Price -->
-                    <field name="price_unit" string="Price" readonly="qty_invoiced &gt; 0" width="60px"/>
-
-                    <!-- 11. Tax -->
                     <field name="tax_ids"
                            string="Tax"
                            widget="many2many_tax_tags"
                            options="{'no_create': True}"
                            context="{'active_test': True}"
-                           readonly="qty_invoiced &gt; 0 or is_downpayment"
+                           readonly="parent.state != 'draft'"
                            optional="show"
                            width="20px"/>
 
-                    <!-- 8. Discount -->
-                    <field name="discount"
-                           string="Disc%"
-                           groups="sale.group_discount_per_so_line"
-                           width="30px"
-                           optional="hide"/>
-                                        <!-- 8. Discount -->
                     <field name="discount_fixed"
                            string="Disc"
-                           groups="sale.group_discount_per_so_line"
+                           readonly="parent.state != 'draft'"
                            width="30px"
-                           optional="show"/>
-
-                    <!-- 10. Untax Amount (after discount) -->
-                    <field name="untaxed_amount_after_discount"
-                           string="Untax Amt"
-                           readonly="1"
                            optional="show"
-                           width="60px"/>
+                           groups="sale.group_discount_per_so_line"/>
 
+                    <field name="discount" string="Disc%" width="30px" optional="hide" groups="sale.group_discount_per_so_line"/>
 
-                    <!-- 12. Tax Value -->
-                    <field name="tax_amount"
-                           string="Tax Value"
-                           readonly="1"
-                           optional="show"
-                           width="60px"/>
+                    <field name="price_subtotal" string="Untax Amt" readonly="1" optional="show" width="60px"/>
 
-                    <!-- 13. Total -->
-                    <field name="total_amount"
-                           string="Total"
-                           readonly="1"
-                           optional="show"
-                           width="60px"/>
+                    <field name="tax_amount" string="Tax Value" readonly="1" optional="show" width="60px"/>
 
-                    <!-- Original amount fields (keep for compatibility) -->
-                    <field name="price_subtotal"
-                           string="Amount"
-                           column_invisible="parent.company_price_include == 'tax_included'"
-                           invisible="is_downpayment"
-                           optional="hide"/>
-                    <field name="price_total"
-                           string="Amount"
-                           column_invisible="parent.company_price_include == 'tax_excluded'"
-                           invisible="is_downpayment"
-                           optional="hide"/>
+                    <field name="price_total" string="Total" readonly="1" optional="show" width="60px"/>
 
-                    <!-- Delivery Warehouse (hidden by default) -->
-                    <field name="warehouse_id" string="Delivery Warehouse" optional="hide"/>
+                    <field name="name" widget="text" optional="hide" width="200px" invisible="1"/>
 
-                    <!-- Additional required fields -->
-                    <field name="company_id" column_invisible="1"/>
-                    <field name="state" column_invisible="1"/>
+                    <field name="account_id" string="Account" readonly="parent.state != 'draft'" required="1" optional="hide" width="80px" invisible="1"/>
+
+                    <field name="warehouse_id" string="Warehouse" optional="hide" width="70px" invisible="1"/>
                 </list>
             </xpath>
         </field>
     </record>
-</odoo><!--<?xml version="1.0" encoding="utf-8"?>-->
+</odoo>
+<!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 <!--    <record id="view_order_form_custom_lines" model="ir.ui.view">-->
 <!--        <field name="name">sale.order.form.custom.lines</field>-->

@@ -14,7 +14,7 @@
                     <field name="po_number"
                         invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
                         widget="many2many_tags"
-                        options="{'no_create': True, 'color_field': 'color'}"
+                        options="{'no_create': True}"
                         readonly="1"
                         string="Related PO(s)"
                         force_save="1"/>
@@ -57,7 +57,6 @@
 
     </data>
 </odoo>
-
 
 
 

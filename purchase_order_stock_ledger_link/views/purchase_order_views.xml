@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit Purchase Order Form View to add stock ledger link -->
+    <record id="view_purchase_order_form_product_ledger_link" model="ir.ui.view">
+        <field name="name">purchase.order.form.product.ledger.link</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Add button in list view after product -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='product_id']" position="after">
+                <button name="action_view_product_stock_ledger"
+                        type="object"
+                        icon="fa-line-chart"
+                        title="View Product Stock Ledger"
+                        string=""
+                        width="40px"
+                        class="btn-link p-0"
+                        invisible="not product_id or display_type in ('line_section', 'line_subsection', 'line_note')"/>
+            </xpath>
+
+            <!-- Add button in form view after product field -->
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="after">
+                <button name="action_view_product_stock_ledger"
+                        type="object"
+                        string="📊 View Stock Ledger"
+                        class="btn-link"
+                        invisible="not product_id"/>
+            </xpath>
+
+            <!-- Add button in kanban view -->
+            <xpath expr="//field[@name='order_line']/kanban//field[@name='product_id']" position="after">
+                <button name="action_view_product_stock_ledger"
+                        type="object"
+                        string="View Stock Ledger"
+                        class="btn-sm btn-secondary mt-1"
+                        invisible="not product_id"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

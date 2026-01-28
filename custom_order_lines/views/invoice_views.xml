@@ -30,10 +30,19 @@
                            string="P. Code"
                            readonly="parent.state != 'draft'"
                            required="not display_type"
-                           context="{'default_list_price': price_unit, 'search_default_code': True}"
-                           options="{'no_open': True, 'no_create': True}"
+                           context="{'default_list_price': price_unit}"
+                           options="{'show_label_warning': True, 'no_create': True}"
                            widget="many2one"
+                           domain="[('default_code', '!=', False)]"
                            width="70px"/>
+
+                    <field name="product_id"
+                           string="Product"
+                           readonly="parent.state != 'draft'"
+                           required="not display_type"
+                           context="{'default_list_price': price_unit}"
+                           options="{'show_label_warning': True}"
+                           widget="many2one"/>
 
                     <field name="analytic_distribution"
                            string="Analytic"

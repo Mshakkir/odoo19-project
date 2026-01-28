@@ -8,7 +8,7 @@
 
             <!-- Add informational section at the top -->
             <xpath expr="//sheet" position="before">
-                <div class="alert alert-info" attrs="{'invisible': [('invoice_status', 'not in', ['to invoice', 'upselling'])]}">
+                <div class="alert alert-info">
                     <strong>💡 Custom Invoice Workflow Active</strong>
                     <p>To create invoices, please use: <strong>Invoicing → Invoices → Create</strong></p>
                     <p>Select this sales order and combine with others if needed. Invoice lines will populate automatically.</p>

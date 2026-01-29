@@ -7,8 +7,9 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
-                <!-- Add AWB field below Payment Terms (client_order_ref is already in standard form) -->
+                <!-- Add client_order_ref and AWB field below Payment Terms -->
                 <xpath expr="//field[@name='payment_term_id']" position="after">
+                    <field name="client_order_ref" placeholder="Enter Customer Reference / PO Number..."/>
                     <field name="awb_number" placeholder="Enter AWB number..."/>
                 </xpath>
             </field>
@@ -43,50 +44,3 @@
         </record>
     </data>
 </odoo>
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-<!--    <data>-->
-<!--        &lt;!&ndash; Inherit Sale Order Form View &ndash;&gt;-->
-<!--        <record id="view_order_form_custom_fields" model="ir.ui.view">-->
-<!--            <field name="name">sale.order.form.custom.fields</field>-->
-<!--            <field name="model">sale.order</field>-->
-<!--            <field name="inherit_id" ref="sale.view_order_form"/>-->
-<!--            <field name="arch" type="xml">-->
-<!--                &lt;!&ndash; Add fields below Payment Terms &ndash;&gt;-->
-<!--                <xpath expr="//field[@name='payment_term_id']" position="after">-->
-<!--                    <field name="ref" placeholder="Enter PO Number..."/>-->
-<!--                    <field name="awb_number" placeholder="Enter AWB number..."/>-->
-<!--                </xpath>-->
-<!--            </field>-->
-<!--        </record>-->
-
-<!--        &lt;!&ndash; Add fields to tree view for quick reference &ndash;&gt;-->
-<!--        <record id="view_order_tree_custom_fields" model="ir.ui.view">-->
-<!--            <field name="name">sale.order.tree.custom.fields</field>-->
-<!--            <field name="model">sale.order</field>-->
-<!--            <field name="inherit_id" ref="sale.view_order_tree"/>-->
-<!--            <field name="arch" type="xml">-->
-<!--                <xpath expr="//field[@name='amount_total']" position="after">-->
-<!--                    <field name="ref" optional="hide"/>-->
-<!--                    <field name="awb_number" optional="hide"/>-->
-<!--                </xpath>-->
-<!--            </field>-->
-<!--        </record>-->
-
-<!--        &lt;!&ndash; Add search filters &ndash;&gt;-->
-<!--        <record id="view_sales_order_filter_custom" model="ir.ui.view">-->
-<!--            <field name="name">sale.order.search.custom.fields</field>-->
-<!--            <field name="model">sale.order</field>-->
-<!--            <field name="inherit_id" ref="sale.view_sales_order_filter"/>-->
-<!--            <field name="arch" type="xml">-->
-<!--                <xpath expr="//search" position="inside">-->
-<!--                    <field name="ref" string="PO Number"-->
-<!--                           filter_domain="[('ref', 'ilike', self)]"/>-->
-<!--                    <field name="awb_number" string="AWB Number"-->
-<!--                           filter_domain="[('awb_number', 'ilike', self)]"/>-->
-<!--                </xpath>-->
-<!--            </field>-->
-<!--        </record>-->
-<!--    </data>-->
-<!--</odoo>-->

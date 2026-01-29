@@ -5,7 +5,7 @@
         <record id="view_picking_form_custom_fields" model="ir.ui.view">
             <field name="name">stock.picking.form.custom.fields</field>
             <field name="model">stock.picking</field>
-            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="inherit_id" client_order_ref="stock.view_picking_form"/>
             <field name="arch" type="xml">
                 <!-- Add fields in the header area, next to scheduled date -->
                 <xpath expr="//field[@name='scheduled_date']" position="after">
@@ -23,7 +23,7 @@
         <record id="view_picking_tree_custom_fields" model="ir.ui.view">
             <field name="name">stock.picking.tree.custom.fields</field>
             <field name="model">stock.picking</field>
-            <field name="inherit_id" ref="stock.vpicktree"/>
+            <field name="inherit_id" client_order_ref="stock.vpicktree"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='name']" position="after">
                     <field name="delivery_note_number" optional="hide"/>
@@ -36,7 +36,7 @@
         <record id="view_picking_search_custom_fields" model="ir.ui.view">
             <field name="name">stock.picking.search.custom.fields</field>
             <field name="model">stock.picking</field>
-            <field name="inherit_id" ref="stock.view_picking_internal_search"/>
+            <field name="inherit_id" client_order_ref="stock.view_picking_internal_search"/>
             <field name="arch" type="xml">
                 <xpath expr="//search" position="inside">
                     <field name="delivery_note_number" string="Delivery Note"

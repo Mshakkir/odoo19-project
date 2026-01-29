@@ -18,7 +18,6 @@
     'depends': ['account'],
     'data': [
         'data/payment_sequence_data.xml',
-        'views/account_journal_views.xml',
     ],
     'installable': True,
     'application': False,

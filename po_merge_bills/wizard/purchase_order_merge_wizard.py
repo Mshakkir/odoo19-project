@@ -119,23 +119,25 @@ class PurchaseOrderMergeWizard(models.TransientModel):
                 if line.product_qty <= 0:
                     continue
 
+                # Calculate quantity to invoice
+                qty_to_invoice = line.product_qty - line.qty_invoiced
+                if qty_to_invoice <= 0:
+                    continue
+
                 # Prepare invoice line values
                 line_vals = {
                     'product_id': line.product_id.id,
                     'name': '[%s] %s' % (purchase_order.name, line.name),
-                    'quantity': line.product_qty - line.qty_invoiced,
-                    'product_uom_id': line.product_uom.id,
+                    'quantity': qty_to_invoice,
+                    'product_uom_id': line.product_uom_id.id,
                     'price_unit': line.price_unit,
                     'tax_ids': [(6, 0, line.taxes_id.ids)],
                     'purchase_line_id': line.id,
-                    'discount': line.discount if hasattr(line, 'discount') else 0.0,
                 }
 
-                # Add analytic account if exists
-                if line.account_analytic_id:
-                    line_vals['analytic_distribution'] = {
-                        str(line.account_analytic_id.id): 100
-                    }
+                # Add analytic distribution if exists (Odoo 19 uses analytic_distribution)
+                if hasattr(line, 'analytic_distribution') and line.analytic_distribution:
+                    line_vals['analytic_distribution'] = line.analytic_distribution
 
                 invoice_lines.append((0, 0, line_vals))
 

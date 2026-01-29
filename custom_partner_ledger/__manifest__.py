@@ -19,6 +19,7 @@
         'reports/report_partner_ledger_template.xml',
         'views/partner_ledger_wizard_view.xml',
         'views/partner_ledger_detail_view.xml',
+        'views/partner_ledger_menu_view.xml',
 
 
     ],

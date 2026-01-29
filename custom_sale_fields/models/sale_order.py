@@ -140,7 +140,7 @@ from odoo import models, fields, api
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    ref = fields.Char(
+    client_order_ref = fields.Char(
         string='PO Number',
         help='PO Number number or code',
         copy=False

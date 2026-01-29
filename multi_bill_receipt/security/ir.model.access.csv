@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_create,perm_read,perm_write,perm_unlink
+access_multi_receipt_wizard_user,multi.receipt.wizard user,model_multi_receipt_wizard,account.group_account_user,1,1,1,0
+access_multi_receipt_invoice_line_user,multi.receipt.invoice.line user,model_multi_receipt_invoice_line,account.group_account_user,1,1,1,0
+access_receipt_list_display_wizard_user,receipt.list.display.wizard user,model_receipt_list_display_wizard,account.group_account_user,1,1,1,0
+access_receipt_list_display_line_user,receipt.list.display.line user,model_receipt_list_display_line,account.group_account_user,1,1,1,0

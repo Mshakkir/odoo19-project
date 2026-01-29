@@ -488,17 +488,21 @@ class MultiPaymentWizard(models.TransientModel):
             total_residual = sum(inv.amount_residual for inv in invoices)
 
             # Get receivable account for the customer
-            receivable_account = self.env['account.account'].search([
+            receivable_accounts = self.env['account.account'].search([
                 ('account_type', '=', 'asset_receivable'),
-                ('company_id', '=', rec.env.company.id)
-            ], limit=1)
+            ])
+
+            # Filter for accounts that belong to current company
+            receivable_account = receivable_accounts.filtered(
+                lambda acc: rec.env.company in acc.company_ids
+            )
 
             # Calculate total credits (payments and credit notes) from journal entries
             # Look for move lines on the receivable account for this partner
             if receivable_account:
                 move_lines = self.env['account.move.line'].search([
                     ('partner_id', '=', rec.partner_id.id),
-                    ('account_id', '=', receivable_account.id),
+                    ('account_id', 'in', receivable_account.ids),
                     ('move_id.state', '=', 'posted'),
                 ])
 

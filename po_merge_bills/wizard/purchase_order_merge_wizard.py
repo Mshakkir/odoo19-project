@@ -131,7 +131,7 @@ class PurchaseOrderMergeWizard(models.TransientModel):
                     'quantity': qty_to_invoice,
                     'product_uom_id': line.product_uom_id.id,
                     'price_unit': line.price_unit,
-                    'tax_ids': [(6, 0, line.tax_id.ids)],
+                    'tax_ids': [(6, 0, line.tax_ids.ids)],
                     'purchase_line_id': line.id,
                 }
 

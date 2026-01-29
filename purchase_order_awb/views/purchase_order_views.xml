@@ -8,6 +8,11 @@
             <field name="inherit_id" ref="purchase.purchase_order_form"/>
             <field name="arch" type="xml">
 
+                <!-- Filter partner_id field to show only vendors/suppliers -->
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="domain">['|', ('supplier_rank', '>', 0), ('is_company', '=', True)]</attribute>
+                </xpath>
+
                 <!-- Add AWB Number field right after date_planned div -->
                 <xpath expr="//div[@name='date_planned_div']" position="after">
                     <label for="awb_number" string="Shipping Ref#"/>
@@ -47,6 +52,14 @@
 
 
 
+
+
+
+
+
+
+
+
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 <!--    <data>-->
@@ -61,6 +74,14 @@
 <!--                <xpath expr="//div[@name='date_planned_div']" position="after">-->
 <!--                    <label for="awb_number" string="Shipping Ref#"/>-->
 <!--                    <field name="awb_number" nolabel="1" placeholder="Enter AWB Number (e.g., 1234567890)" readonly="state in ('cancel', 'purchase')"/>-->
+
+<!--                    &lt;!&ndash; Add Incoterm field &ndash;&gt;-->
+<!--                    <label for="incoterm_id" string="Incoterm"/>-->
+<!--                    <field name="incoterm_id" nolabel="1"/>-->
+
+<!--                    &lt;!&ndash; Add Payment Terms field &ndash;&gt;-->
+<!--                    <label for="payment_term_id" string="Payment Terms"/>-->
+<!--                    <field name="payment_term_id" nolabel="1" readonly="invoice_status == 'invoiced' or locked" options="{'no_create': True}"/>-->
 <!--                </xpath>-->
 
 <!--            </field>-->

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Customer Payment Sequence -->
+    <record id="seq_customer_payment" model="ir.sequence">
+        <field name="name">Customer Payment Receipt - SNB (Custom)</field>
+        <field name="code">account.payment.customer</field>
+        <field name="prefix">PRSNB/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="number_increment">1</field>
+        <field name="number_next">1</field>
+        <field name="implementation">standard</field>
+    </record>
+
+    <!-- Vendor/Supplier Payment Sequence -->
+    <record id="seq_vendor_payment" model="ir.sequence">
+        <field name="name">Vendor Payment - SNB (Custom)</field>
+        <field name="code">account.payment.supplier</field>
+        <field name="prefix">PSNB/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="number_increment">1</field>
+        <field name="number_next">1</field>
+        <field name="implementation">standard</field>
+    </record>
+</odoo>

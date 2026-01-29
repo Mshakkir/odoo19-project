@@ -74,6 +74,7 @@
 
 
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
@@ -171,6 +172,7 @@ class SaleOrderInvoiceWizard(models.TransientModel):
             raise UserError(_('Invoice customer must match sale order customer.'))
 
         # Get invoiceable lines from selected sale orders
+        invoice_lines = []
         for order in self.sale_order_ids:
             # Create invoice lines from sale order lines
             invoiceable_lines = order.order_line.filtered(
@@ -180,13 +182,13 @@ class SaleOrderInvoiceWizard(models.TransientModel):
             for line in invoiceable_lines:
                 # Prepare invoice line values
                 line_vals = line._prepare_invoice_line()
-                line_vals['move_id'] = self.invoice_id.id
+                invoice_lines.append((0, 0, line_vals))
 
-                # Create the invoice line
-                self.env['account.move.line'].create(line_vals)
-
-        # Recompute invoice totals using the correct method
-        self.invoice_id._onchange_invoice_line_ids()
+        # Add all lines to the invoice at once
+        if invoice_lines:
+            self.invoice_id.write({
+                'invoice_line_ids': invoice_lines
+            })
 
         # Return to the invoice
         return {

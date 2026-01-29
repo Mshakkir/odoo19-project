@@ -29,9 +29,10 @@
 # }
 
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 {
     'name': 'Sale Order Batch Invoice from Customer',
-    'version': '19.0.1.1.1',
+    'version': '19.0.1.1.2',
     'category': 'Sales',
     'summary': 'Create invoices from multiple sale orders via customer invoice menu',
     'description': """

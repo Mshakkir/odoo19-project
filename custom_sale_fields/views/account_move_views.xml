@@ -7,15 +7,15 @@
             <field name="model">account.move</field>
             <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
-                <!-- Add custom fields below currency -->
-                <xpath expr="//field[@name='currency_id']" position="after">
-                    <field name="awb_number" placeholder="Enter AWB number..."
+                <!-- Add custom fields in the right column group below currency -->
+                <xpath expr="//group[@name='header_right_group']//field[@name='currency_id']" position="after">
+                    <field name="awb_number"
                            invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
-                    <field name="ref" placeholder="PO Number / Reference..."
+                    <field name="ref"
                            invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
-                    <field name="delivery_note_number" placeholder="Enter delivery note number..."
+                    <field name="delivery_note_number"
                            invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
-                    <field name="invoice_incoterm_id" placeholder="Select Incoterm..."
+                    <field name="invoice_incoterm_id"
                            invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
                 </xpath>
             </field>

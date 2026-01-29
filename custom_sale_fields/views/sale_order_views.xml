@@ -5,11 +5,11 @@
         <record id="view_order_form_custom_fields" model="ir.ui.view">
             <field name="name">sale.order.form.custom.fields</field>
             <field name="model">sale.order</field>
-            <field name="inherit_id" client_order_ref="sale.view_order_form"/>
+            <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
                 <!-- Add fields below Payment Terms -->
                 <xpath expr="//field[@name='payment_term_id']" position="after">
-                    <field name="client_order_ref" placeholder="Enter PO Number..."/>
+                    <field name="ref" placeholder="Enter PO Number..."/>
                     <field name="awb_number" placeholder="Enter AWB number..."/>
                 </xpath>
             </field>
@@ -19,10 +19,10 @@
         <record id="view_order_tree_custom_fields" model="ir.ui.view">
             <field name="name">sale.order.tree.custom.fields</field>
             <field name="model">sale.order</field>
-            <field name="inherit_id" client_order_ref="sale.view_order_tree"/>
+            <field name="inherit_id" ref="sale.view_order_tree"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='amount_total']" position="after">
-                    <field name="client_order_ref" optional="hide"/>
+                    <field name="ref" optional="hide"/>
                     <field name="awb_number" optional="hide"/>
                 </xpath>
             </field>
@@ -32,11 +32,11 @@
         <record id="view_sales_order_filter_custom" model="ir.ui.view">
             <field name="name">sale.order.search.custom.fields</field>
             <field name="model">sale.order</field>
-            <field name="inherit_id" client_order_ref="sale.view_sales_order_filter"/>
+            <field name="inherit_id" ref="sale.view_sales_order_filter"/>
             <field name="arch" type="xml">
                 <xpath expr="//search" position="inside">
-                    <field name="client_order_ref" string="PO Number"
-                           filter_domain="[('client_order_ref', 'ilike', self)]"/>
+                    <field name="ref" string="PO Number"
+                           filter_domain="[('ref', 'ilike', self)]"/>
                     <field name="awb_number" string="AWB Number"
                            filter_domain="[('awb_number', 'ilike', self)]"/>
                 </xpath>

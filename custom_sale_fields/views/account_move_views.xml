@@ -7,13 +7,21 @@
             <field name="model">account.move</field>
             <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
-                <!-- Add custom fields below currency -->
+                <!-- Add custom fields below currency in the invoice header -->
                 <xpath expr="//field[@name='currency_id']" position="after">
+                    <label for="awb_number" string="Shipping Ref #"
+                           invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
                     <field name="awb_number" placeholder="Enter AWB number..."
                            invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
-                    <field name="ref" placeholder="PO Number / Reference..."
+                    <label for="ref" string="PO Number / Reference"
+                           invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
+                    <field name="ref" placeholder="Enter PO Number..."
+                           invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
+                    <label for="delivery_note_number" string="Delivery Note Number"
                            invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
                     <field name="delivery_note_number" placeholder="Enter delivery note number..."
+                           invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
+                    <label for="invoice_incoterm_id" string="Incoterm"
                            invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
                     <field name="invoice_incoterm_id" placeholder="Select Incoterm..."
                            invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>

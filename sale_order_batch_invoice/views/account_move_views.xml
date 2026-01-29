@@ -1,12 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- This adds the action button to the invoice list view -->
-    <!-- No need to inherit the view, just add the action binding -->
+    <!-- Inherit the customer invoice form view to add our action -->
+    <record id="view_move_form_inherit_sale_order_batch" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.sale.order.batch</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <!-- Add button after the customer field in invoice form -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <button name="%(action_sale_order_invoice_wizard)d"
+                        type="action"
+                        string="Load from Sale Orders"
+                        class="btn-link"
+                        invisible="state != 'draft' or move_type != 'out_invoice'"
+                        icon="fa-shopping-cart"
+                        help="Create invoice lines from existing sale orders"/>
+            </xpath>
+        </field>
+    </record>
 
-    <!-- Alternative: Add as a menu item in Invoicing -->
+    <!-- Add as a menu item in Accounting > Customers -->
     <menuitem id="menu_sale_order_batch_invoice"
               name="Create Invoice from Sale Orders"
               parent="account.menu_finance_receivables"
               action="action_sale_order_invoice_wizard"
-              sequence="50"/>
+              sequence="15"/>
 </odoo>
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    &lt;!&ndash; This adds the action button to the invoice list view &ndash;&gt;-->
+<!--    &lt;!&ndash; No need to inherit the view, just add the action binding &ndash;&gt;-->
+
+<!--    &lt;!&ndash; Alternative: Add as a menu item in Invoicing &ndash;&gt;-->
+<!--    <menuitem id="menu_sale_order_batch_invoice"-->
+<!--              name="Create Invoice from Sale Orders"-->
+<!--              parent="account.menu_finance_receivables"-->
+<!--              action="action_sale_order_invoice_wizard"-->
+<!--              sequence="50"/>-->
+<!--</odoo>-->

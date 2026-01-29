@@ -31,7 +31,7 @@
                         <field name="warehouse_id" string="Warehouse" optional="show" groups="stock.group_stock_multi_warehouses" width="120px"/>
 
                         <!-- 5. Customer Reference (Source Document) -->
-                        <field name="ref" string="Customer Reference" optional="show" width="130px"/>
+                        <field name="client_order_ref" string="Customer Reference" optional="show" width="130px"/>
 
                         <!-- 6. Salesperson -->
                         <field name="user_id" string="Salesperson" optional="show" widget="many2one_avatar_user" width="130px"/>

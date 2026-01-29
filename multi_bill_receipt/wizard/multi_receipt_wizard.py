@@ -285,7 +285,7 @@ class MultiReceiptWizard(models.TransientModel):
 
             payment_vals = {
                 'payment_type': 'outbound',
-                'partner_type': 'vendor',
+                'partner_type': 'supplier',
                 'partner_id': self.vendor_id.id,
                 'amount': amount,
                 'currency_id': self.currency_id.id,

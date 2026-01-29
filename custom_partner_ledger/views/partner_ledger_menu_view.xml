@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- Custom Partner Ledger Action -->
+    <record id="action_custom_partner_ledger" model="ir.actions.act_window">
+        <field name="name">Partner Ledger</field>
+        <field name="res_model">account.report.partner.ledger</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="accounting_pdf_reports.account_report_partner_ledger_view"/>
+    </record>
+
     <!-- Add Partner Ledger to top menu bar -->
     <menuitem id="menu_partner_ledger_top"
               name="Partner Ledger"
               parent="account.menu_finance"
-              action="account.action_account_partner_ledger"
+              action="custom_partner_ledger.action_custom_partner_ledger"
               sequence="2"/>
 
 </odoo>

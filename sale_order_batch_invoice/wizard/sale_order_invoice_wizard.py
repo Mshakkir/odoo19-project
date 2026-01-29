@@ -72,6 +72,7 @@
 #
 #         return action
 
+
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
@@ -184,8 +185,8 @@ class SaleOrderInvoiceWizard(models.TransientModel):
                 # Create the invoice line
                 self.env['account.move.line'].create(line_vals)
 
-        # Recompute invoice totals
-        self.invoice_id._recompute_dynamic_lines()
+        # Recompute invoice totals using the correct method
+        self.invoice_id._onchange_invoice_line_ids()
 
         # Return to the invoice
         return {

@@ -18,7 +18,8 @@
                 <field name="ref"/>
                 <field name="debit" sum="Total Debit"/>
                 <field name="credit" sum="Total Credit"/>
-                <field name="balance" sum="Total Balance"/>
+                <field name="balance"/>
+                <field name="final_balance" sum="Final Balance Due"/>
                 <field name="is_opening_balance" column_invisible="1"/>
 
                 <button name="action_view_invoice" type="object"

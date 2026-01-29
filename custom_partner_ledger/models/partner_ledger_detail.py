@@ -1,8 +1,8 @@
-# # -*- coding: utf-8 -*-
-# from odoo import api, fields, controllers, _
+#
+# from odoo import api, fields, models, _
 #
 #
-# class PartnerLedgerDetail(controllers.TransientModel):
+# class PartnerLedgerDetail(models.TransientModel):
 #     _name = 'partner.ledger.detail'
 #     _description = 'Partner Ledger Detail View'
 #     _order = 'partner_id, date, id'
@@ -28,6 +28,50 @@
 #
 #     # For opening balance line
 #     is_opening_balance = fields.Boolean(string='Is Opening Balance', readonly=True)
+#
+#     def action_view_invoice(self):
+#         """
+#         Open the invoice/bill form view
+#         """
+#         self.ensure_one()
+#
+#         if not self.move_id or self.is_opening_balance:
+#             return False
+#
+#         return {
+#             'name': _('Invoice/Bill'),
+#             'type': 'ir.actions.act_window',
+#             'res_model': 'account.move',
+#             'res_id': self.move_id.id,
+#             'view_mode': 'form',
+#             'view_id': False,
+#             'target': 'current',
+#         }
+#
+#     def action_view_journal_entry(self):
+#         """
+#         Open the journal entry form view
+#         """
+#         self.ensure_one()
+#
+#         if not self.move_id or self.is_opening_balance:
+#             return False
+#
+#         # Determine the correct view based on move type
+#         if self.move_id.move_type in ['out_invoice', 'out_refund', 'in_invoice', 'in_refund']:
+#             # For invoices, open in invoice view
+#             return self.action_view_invoice()
+#         else:
+#             # For journal entries, open in journal entry view
+#             return {
+#                 'name': _('Journal Entry'),
+#                 'type': 'ir.actions.act_window',
+#                 'res_model': 'account.move',
+#                 'res_id': self.move_id.id,
+#                 'view_mode': 'form',
+#                 'views': [(False, 'form')],
+#                 'target': 'current',
+#             }
 #
 #     @api.model
 #     def get_partner_ledger_details(self, wizard_data):
@@ -104,6 +148,7 @@
 #             partner_lines = move_lines.filtered(lambda l: l.partner_id == partner)
 #
 #             # Calculate opening balance if date_from is set
+#             opening_balance = 0
 #             if date_from:
 #                 opening_balance = self._calculate_opening_balance(
 #                     partner, date_from, account_ids, move_state, reconciled, journal_ids
@@ -122,7 +167,7 @@
 #                     })
 #
 #             # Add all move lines for this partner
-#             running_balance = opening_balance if date_from else 0
+#             running_balance = opening_balance
 #             for line in partner_lines:
 #                 running_balance += line.debit - line.credit
 #
@@ -181,10 +226,8 @@
 #         total_credit = sum(lines.mapped('credit'))
 #
 #         return total_debit - total_credit
-#
 
 
-# -*- coding: utf-8 -*-
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 
@@ -215,6 +258,39 @@ class PartnerLedgerDetail(models.TransientModel):
 
     # For opening balance line
     is_opening_balance = fields.Boolean(string='Is Opening Balance', readonly=True)
+
+    # NEW FIELD: Show final balance only for the last transaction of each partner
+    final_balance = fields.Monetary(
+        string='Final Balance',
+        readonly=True,
+        currency_field='company_currency_id',
+        compute='_compute_final_balance',
+        store=False
+    )
+
+    @api.depends('partner_id', 'balance')
+    def _compute_final_balance(self):
+        """
+        Compute final balance - show balance only on the last row of each partner
+        """
+        # Group records by partner
+        records_by_partner = {}
+        for record in self:
+            if record.partner_id not in records_by_partner:
+                records_by_partner[record.partner_id] = []
+            records_by_partner[record.partner_id].append(record)
+
+        # For each partner, only the last record should show the final balance
+        for record in self:
+            if record.partner_id in records_by_partner:
+                # Check if this is the last record for this partner
+                last_record = records_by_partner[record.partner_id][-1]
+                if record == last_record:
+                    record.final_balance = record.balance
+                else:
+                    record.final_balance = 0.0
+            else:
+                record.final_balance = 0.0
 
     def action_view_invoice(self):
         """

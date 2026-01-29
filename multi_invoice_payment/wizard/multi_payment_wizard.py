@@ -515,7 +515,8 @@ class MultiPaymentWizard(models.TransientModel):
 
             rec.total_invoiced_amount = total_invoiced
             rec.total_amount_received = total_received
-            rec.total_balance_due = total_residual
+            # Balance Due = Total Invoiced - Total Received (not just invoice residuals)
+            rec.total_balance_due = total_invoiced - total_received
 
     @api.depends('invoice_line_ids.amount_to_pay', 'invoice_line_ids.selected')
     def _compute_total_allocated(self):

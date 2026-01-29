@@ -79,6 +79,11 @@ class AccountMove(models.Model):
         help='Air Waybill Number',
         copy=False
     )
+    client_order_ref = fields.Char(
+        string='PO/Reference #',
+        help='PO/Reference...',
+        copy=False
+    )
 
     def _reverse_moves(self, default_values_list=None, cancel=False):
         """Override to copy custom fields to credit notes"""

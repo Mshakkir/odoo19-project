@@ -68,7 +68,7 @@ class AccountMove(models.Model):
     )  # Relational field
 
 
-    ref = fields.Char(
+    client_order_ref = fields.Char(
         string='PO Number',
         help='PO Number number or code',
         copy=False
@@ -110,6 +110,6 @@ class AccountMove(models.Model):
                 reverse_move.delivery_note_number = move.delivery_note_number
             if move.awb_number:
                 reverse_move.awb_number = move.awb_number
-            if move.ref:
-                reverse_move.ref = move.ref
+            if move.client_order_ref:
+                reverse_move.client_order_ref = move.client_order_ref
         return reverse_moves

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sale_order_invoice_wizard_form" model="ir.ui.view">
+        <field name="name">sale.order.invoice.wizard.form</field>
+        <field name="model">sale.order.invoice.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Create Invoice from Sale Orders">
+                <field name="mode" invisible="1"/>
+                <field name="invoice_id" invisible="1"/>
+                <group>
+                    <field name="partner_id"
+                           placeholder="Select a customer..."
+                           options="{'no_create': True, 'no_create_edit': True}"/>
+                </group>
+                <group string="Uninvoiced Sale Orders" invisible="not partner_id">
+                    <field name="sale_order_ids"
+                           nolabel="1"
+                           widget="many2many"
+                           options="{'no_create': True, 'no_create_edit': True}"
+                           context="{'tree_view_ref': 'sale.view_order_tree'}"/>
+                </group>
+                <footer>
+                    <button string="Add to Invoice"
+                            name="action_create_invoices"
+                            type="object"
+                            class="btn-primary"
+                            invisible="mode != 'add_to_invoice'"
+                            data-hotkey="q"/>
+                    <button string="Create Invoice"
+                            name="action_create_invoices"
+                            type="object"
+                            class="btn-primary"
+                            invisible="mode != 'new_invoice'"
+                            data-hotkey="q"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"
+                            data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_sale_order_invoice_wizard" model="ir.actions.act_window">
+        <field name="name">Create Invoice from Sale Orders</field>
+        <field name="res_model">sale.order.invoice.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_view_types">list</field>
+    </record>
+</odoo>
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <record id="view_sale_order_invoice_wizard_form" model="ir.ui.view">-->
+<!--        <field name="name">sale.order.invoice.wizard.form</field>-->
+<!--        <field name="model">sale.order.invoice.wizard</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <form string="Create Invoice from Sale Orders">-->
+<!--                <group>-->
+<!--                    <field name="partner_id"-->
+<!--                           placeholder="Select a customer..."-->
+<!--                           options="{'no_create': True, 'no_create_edit': True}"/>-->
+<!--                </group>-->
+<!--                <group string="Uninvoiced Sale Orders" invisible="not partner_id">-->
+<!--                    <field name="sale_order_ids"-->
+<!--                           nolabel="1"-->
+<!--                           widget="many2many"-->
+<!--                           options="{'no_create': True, 'no_create_edit': True}"-->
+<!--                           context="{'tree_view_ref': 'sale.view_order_tree'}"/>-->
+<!--                </group>-->
+<!--                <footer>-->
+<!--                    <button string="Create Invoice"-->
+<!--                            name="action_create_invoices"-->
+<!--                            type="object"-->
+<!--                            class="btn-primary"-->
+<!--                            data-hotkey="q"/>-->
+<!--                    <button string="Cancel"-->
+<!--                            class="btn-secondary"-->
+<!--                            special="cancel"-->
+<!--                            data-hotkey="z"/>-->
+<!--                </footer>-->
+<!--            </form>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    <record id="action_sale_order_invoice_wizard" model="ir.actions.act_window">-->
+<!--        <field name="name">Create Invoice from Sale Orders</field>-->
+<!--        <field name="res_model">sale.order.invoice.wizard</field>-->
+<!--        <field name="view_mode">form</field>-->
+<!--        <field name="target">new</field>-->
+<!--        <field name="binding_model_id" ref="account.model_account_move"/>-->
+<!--        <field name="binding_view_types">list</field>-->
+<!--    </record>-->
+<!--</odoo>-->
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <record id="view_sale_order_invoice_wizard_form" model="ir.ui.view">-->
+<!--        <field name="name">sale.order.invoice.wizard.form</field>-->
+<!--        <field name="model">sale.order.invoice.wizard</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <form string="Create Invoice from Sale Orders">-->
+<!--                <group>-->
+<!--                    <field name="partner_id"-->
+<!--                           placeholder="Select a customer..."-->
+<!--                           options="{'no_create': True, 'no_create_edit': True}"/>-->
+<!--                </group>-->
+<!--                <group string="Uninvoiced Sale Orders" invisible="not partner_id">-->
+<!--                    <field name="sale_order_ids"-->
+<!--                           nolabel="1"-->
+<!--                           widget="many2many_tags"-->
+<!--                           options="{'no_create': True, 'no_create_edit': True}">-->
+<!--                        <tree>-->
+<!--                            <field name="name"/>-->
+<!--                            <field name="date_order"/>-->
+<!--                            <field name="amount_total"/>-->
+<!--                            <field name="invoice_status"/>-->
+<!--                        </tree>-->
+<!--                    </field>-->
+<!--                </group>-->
+<!--                <footer>-->
+<!--                    <button string="Create Invoice"-->
+<!--                            name="action_create_invoices"-->
+<!--                            type="object"-->
+<!--                            class="btn-primary"-->
+<!--                            data-hotkey="q"/>-->
+<!--                    <button string="Cancel"-->
+<!--                            class="btn-secondary"-->
+<!--                            special="cancel"-->
+<!--                            data-hotkey="z"/>-->
+<!--                </footer>-->
+<!--            </form>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    <record id="action_sale_order_invoice_wizard" model="ir.actions.act_window">-->
+<!--        <field name="name">Create Invoice from Sale Orders</field>-->
+<!--        <field name="res_model">sale.order.invoice.wizard</field>-->
+<!--        <field name="view_mode">form</field>-->
+<!--        <field name="target">new</field>-->
+<!--        <field name="binding_model_id" ref="account.model_account_move"/>-->
+<!--        <field name="binding_view_types">list</field>-->
+<!--    </record>-->
+<!--</odoo>-->

@@ -7,15 +7,20 @@ _logger = logging.getLogger(__name__)
 class AccountPayment(models.Model):
     _inherit = 'account.payment'
 
-    @api.depends('journal_id', 'payment_type', 'state')
+    @api.depends('journal_id', 'payment_type')
     def _compute_name(self):
         """Override name computation to use bank-specific sequences"""
         for payment in self:
-            # Skip if already has a valid name (not '/' and not empty)
+            # CRITICAL: Skip temporary records (NewId) - these are from onchange
+            if isinstance(payment.id, models.NewId):
+                payment.name = '/'
+                continue
+
+            # Skip if already has a valid name
             if payment.name and payment.name != '/' and payment.name != 'Draft':
                 continue
 
-            # Only assign sequence for payments that need it
+            # Only assign sequence for saved payments
             if not payment.journal_id or not payment.payment_type:
                 payment.name = '/'
                 continue
@@ -44,10 +49,8 @@ class AccountPayment(models.Model):
                 ], limit=1)
 
                 if sequence:
-                    # Only get new number if we don't have one yet
-                    if not payment.name or payment.name == '/' or payment.name == 'Draft':
-                        payment.name = sequence.next_by_id()
-                        _logger.info(f"✅ Assigned {sequence_code}: {payment.name} for payment ID {payment.id}")
+                    payment.name = sequence.next_by_id()
+                    _logger.info(f"✅ Assigned {sequence_code}: {payment.name} for payment ID {payment.id}")
                     continue
 
             # Fallback

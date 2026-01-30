@@ -7,7 +7,7 @@
         <field name="priority" eval="90"/>
         <field name="inherit_id" ref="account.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[@id='customer_invoices_settings']" position="inside">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
                 <h2>Invoice Delivery Automation</h2>
                 <div class="row mt16 o_settings_container">
                     <div class="col-12 col-lg-6 o_setting_box">

@@ -1,4 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--<odoo>-->
+<!--    &lt;!&ndash; Wizard Form View &ndash;&gt;-->
+<!--    <record id="view_sales_register_wizard_form" model="ir.ui.view">-->
+<!--        <field name="name">sales.register.wizard.form</field>-->
+<!--        <field name="model">sales.register.wizard</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <form string="Sales Register Report">-->
+<!--                <sheet>-->
+<!--                    <group>-->
+<!--                        <group>-->
+<!--&lt;!&ndash;                            <field name="date_filter" widget="radio"/>&ndash;&gt;-->
+<!--                            <field name="date_from" required="1" readonly="date_filter != 'custom'"/>-->
+<!--                            <field name="date_to" required="1" readonly="date_filter != 'custom'"/>-->
+<!--                            <field name="company_id" groups="base.group_multi_company"/>-->
+<!--                        </group>-->
+<!--                        <group>-->
+<!--                            <field name="data_source"/>-->
+<!--                            <field name="report_type" widget="radio"/>-->
+<!--                            <field name="group_by" invisible="report_type == 'detailed'"/>-->
+<!--                            <field name="partner_ids" widget="many2many_tags"/>-->
+<!--                        </group>-->
+<!--                    </group>-->
+<!--                </sheet>-->
+<!--                <footer>-->
+<!--                    <button name="action_print_pdf" string="Print PDF" type="object" class="btn-primary"/>-->
+<!--                    <button string="Cancel" class="btn-secondary" special="cancel"/>-->
+<!--                </footer>-->
+<!--            </form>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Wizard Action &ndash;&gt;-->
+<!--    <record id="action_sales_register_wizard" model="ir.actions.act_window">-->
+<!--        <field name="name">Sales Register</field>-->
+<!--        <field name="res_model">sales.register.wizard</field>-->
+<!--        <field name="view_mode">form</field>-->
+<!--        <field name="target">new</field>-->
+<!--        <field name="binding_model_id" ref="sale.model_sale_order"/>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Menu Item &ndash;&gt;-->
+<!--    <menuitem id="menu_sales_register_root"-->
+<!--              name="Sales Register"-->
+<!--              parent="sale.sale_menu_root"-->
+<!--              sequence="99"/>-->
+
+<!--    <menuitem id="menu_sales_register_report"-->
+<!--              name="Generate Register"-->
+<!--              parent="menu_sales_register_root"-->
+<!--              action="action_sales_register_wizard"-->
+<!--              sequence="1"/>-->
+
+<!--</odoo>-->
+
+
+<!--<odoo>-->
+<!--    &lt;!&ndash; Wizard Form View &ndash;&gt;-->
+<!--    <record id="view_sales_register_wizard_form" model="ir.ui.view">-->
+<!--        <field name="name">sales.register.wizard.form</field>-->
+<!--        <field name="model">sales.register.wizard</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <form string="Sales Register Report">-->
+<!--                <sheet>-->
+<!--                    <group>-->
+<!--                        <group>-->
+<!--&lt;!&ndash;                            <field name="date_filter" widget="radio"/>&ndash;&gt;-->
+<!--                            <field name="date_from" required="1" readonly="date_filter != 'custom'"/>-->
+<!--                            <field name="date_to" required="1" readonly="date_filter != 'custom'"/>-->
+<!--                            <field name="company_id" groups="base.group_multi_company"/>-->
+<!--                        </group>-->
+<!--                        <group>-->
+<!--                            <field name="data_source"/>-->
+<!--                            <field name="report_type" widget="radio"/>-->
+<!--                            <field name="group_by" invisible="report_type == 'detailed'"/>-->
+<!--                            <field name="partner_ids" widget="many2many_tags"/>-->
+<!--                        </group>-->
+<!--                    </group>-->
+<!--                </sheet>-->
+<!--                <footer>-->
+<!--                    <button name="action_show_details"-->
+<!--                            string="Show Details"-->
+<!--                            type="object"-->
+<!--                            class="btn-info"/>-->
+<!--                    <button name="action_print_pdf"-->
+<!--                            string="Print PDF"-->
+<!--                            type="object"-->
+<!--                            class="btn-primary"/>-->
+<!--                    <button string="Cancel"-->
+<!--                            class="btn-secondary"-->
+<!--                            special="cancel"/>-->
+<!--                </footer>-->
+<!--            </form>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Wizard Action &ndash;&gt;-->
+<!--    <record id="action_sales_register_wizard" model="ir.actions.act_window">-->
+<!--        <field name="name">Sales Register</field>-->
+<!--        <field name="res_model">sales.register.wizard</field>-->
+<!--        <field name="view_mode">form</field>-->
+<!--        <field name="target">new</field>-->
+<!--        <field name="binding_model_id" ref="sale.model_sale_order"/>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Menu Item &ndash;&gt;-->
+<!--    <menuitem id="menu_sales_register_root"-->
+<!--              name="Sales Register"-->
+<!--              parent="sale.sale_menu_root"-->
+<!--              sequence="99"/>-->
+
+<!--    <menuitem id="menu_sales_register_report"-->
+<!--              name="Generate Register"-->
+<!--              parent="menu_sales_register_root"-->
+<!--              action="action_sales_register_wizard"-->
+<!--              sequence="1"/>-->
+
+<!--</odoo>-->
+
+
 <odoo>
     <!-- Wizard Form View -->
     <record id="view_sales_register_wizard_form" model="ir.ui.view">
@@ -37,14 +156,14 @@
                             string="Show Details"
                             type="object"
                             class="btn-info"/>
-                    <button name="action_print_report"
+                    <button name="action_print_pdf"
                             string="Print PDF"
                             type="object"
                             class="btn-primary"/>
-                    <button name="action_export_excel"
-                            string="Export Excel"
-                            type="object"
-                            class="btn-success"/>
+<!--                    <button name="action_export_excel"-->
+<!--                            string="Export Excel"-->
+<!--                            type="object"-->
+<!--                            class="btn-success"/>-->
                     <button string="Cancel"
                             class="btn-secondary"
                             special="cancel"/>
@@ -75,82 +194,3 @@
               sequence="1"/>
 
 </odoo>
-
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-<!--    &lt;!&ndash; Wizard Form View &ndash;&gt;-->
-<!--    <record id="view_sales_register_wizard_form" model="ir.ui.view">-->
-<!--        <field name="name">sales.register.wizard.form</field>-->
-<!--        <field name="model">sales.register.wizard</field>-->
-<!--        <field name="arch" type="xml">-->
-<!--            <form string="Sales Register Report">-->
-<!--                <sheet>-->
-<!--                    <group>-->
-<!--                        <group string="Date Range">-->
-<!--                            <field name="date_filter" widget="radio"/>-->
-<!--                            <field name="date_from" required="1" readonly="date_filter != 'custom'"/>-->
-<!--                            <field name="date_to" required="1" readonly="date_filter != 'custom'"/>-->
-<!--                            <field name="company_id" groups="base.group_multi_company"/>-->
-<!--                        </group>-->
-<!--                        <group string="Report Options">-->
-<!--                            <field name="data_source"/>-->
-<!--                            <field name="report_type" widget="radio"/>-->
-<!--                            <field name="group_by" invisible="report_type == 'detailed'"/>-->
-<!--                        </group>-->
-<!--                    </group>-->
-<!--                    <group string="Filters">-->
-<!--                        <group>-->
-<!--                            <field name="partner_ids" widget="many2many_tags"-->
-<!--                                   placeholder="All Customers"/>-->
-<!--                        </group>-->
-<!--                        <group>-->
-<!--                            <field name="analytic_account_ids" widget="many2many_tags"-->
-<!--                                   placeholder="All Warehouses"-->
-<!--                                   options="{'no_create': True}"/>-->
-<!--                        </group>-->
-<!--                    </group>-->
-<!--                </sheet>-->
-<!--                <footer>-->
-<!--                    <button name="action_show_details"-->
-<!--                            string="Show Details"-->
-<!--                            type="object"-->
-<!--                            class="btn-info"/>-->
-<!--                    <button name="action_print_pdf"-->
-<!--                            string="Print PDF"-->
-<!--                            type="object"-->
-<!--                            class="btn-primary"/>-->
-<!--&lt;!&ndash;                    <button name="action_export_excel"&ndash;&gt;-->
-<!--&lt;!&ndash;                            string="Export Excel"&ndash;&gt;-->
-<!--&lt;!&ndash;                            type="object"&ndash;&gt;-->
-<!--&lt;!&ndash;                            class="btn-success"/>&ndash;&gt;-->
-<!--                    <button string="Cancel"-->
-<!--                            class="btn-secondary"-->
-<!--                            special="cancel"/>-->
-<!--                </footer>-->
-<!--            </form>-->
-<!--        </field>-->
-<!--    </record>-->
-
-<!--    &lt;!&ndash; Wizard Action &ndash;&gt;-->
-<!--    <record id="action_sales_register_wizard" model="ir.actions.act_window">-->
-<!--        <field name="name">Sales Register</field>-->
-<!--        <field name="res_model">sales.register.wizard</field>-->
-<!--        <field name="view_mode">form</field>-->
-<!--        <field name="target">new</field>-->
-<!--        <field name="binding_model_id" ref="sale.model_sale_order"/>-->
-<!--    </record>-->
-
-<!--    &lt;!&ndash; Menu Item &ndash;&gt;-->
-<!--    <menuitem id="menu_sales_register_root"-->
-<!--              name="Sales Register"-->
-<!--              parent="sale.sale_menu_root"-->
-<!--              sequence="99"/>-->
-
-<!--    <menuitem id="menu_sales_register_report"-->
-<!--              name="Generate Register"-->
-<!--              parent="menu_sales_register_root"-->
-<!--              action="action_sales_register_wizard"-->
-<!--              sequence="1"/>-->
-
-<!--</odoo>-->

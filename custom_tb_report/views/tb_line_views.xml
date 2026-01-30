@@ -1,11 +1,117 @@
+<odoo>
+    <!-- List View with Clickable Account Names -->
+    <record id="view_trial_balance_line_list" model="ir.ui.view">
+        <field name="name">trial.balance.line.list</field>
+        <field name="model">trial.balance.line</field>
+        <field name="arch" type="xml">
+            <list string="Trial Balance Lines"
+                  decoration-bf="is_total == True"
+                  decoration-success="is_total == True"
+                  create="false"
+                  edit="false"
+                  delete="false">
+                <field name="is_total" invisible="1"/>
+
+                <!-- Make account clickable to view partners -->
+                <field name="account_id"
+                       string="Account"
+                       widget="many2one_button"
+                       options="{'no_quick_create': True}"/>
+
+                <field name="opening_balance" sum="Total Opening"/>
+                <field name="debit" sum="Total Debit"/>
+                <field name="credit" sum="Total Credit"/>
+                <field name="ending_balance" sum="Total Ending"/>
+
+                <!-- Action buttons -->
+                <button name="action_view_partners"
+                        type="object"
+                        string="Partners"
+                        icon="fa-users"
+                        attrs="{'invisible': [('is_total', '=', True)]}"
+                        class="btn-sm btn-link"
+                        help="View related customers/vendors"/>
+
+                <button name="action_view_move_lines"
+                        type="object"
+                        string="Entries"
+                        icon="fa-list-ul"
+                        attrs="{'invisible': [('is_total', '=', True)]}"
+                        class="btn-sm btn-link"
+                        help="View journal entries"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View with Action Buttons in Header -->
+    <record id="view_trial_balance_line_form" model="ir.ui.view">
+        <field name="name">trial.balance.line.form</field>
+        <field name="model">trial.balance.line</field>
+        <field name="arch" type="xml">
+            <form string="Trial Balance Line" create="false" edit="false" delete="false">
+                <header>
+                    <button name="action_view_partners"
+                            string="View Customers/Vendors"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-users"
+                            attrs="{'invisible': [('is_total', '=', True)]}"/>
+                    <button name="action_view_move_lines"
+                            string="View Journal Items"
+                            type="object"
+                            class="btn-secondary"
+                            icon="fa-list"
+                            attrs="{'invisible': [('is_total', '=', True)]}"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="account_id" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Balances">
+                            <field name="opening_balance" widget="monetary"/>
+                            <field name="debit" widget="monetary"/>
+                            <field name="credit" widget="monetary"/>
+                            <field name="ending_balance" widget="monetary"/>
+                        </group>
+                        <group string="Information">
+                            <field name="company_currency_id" readonly="1"/>
+                            <field name="is_total" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action definition -->
+    <record id="action_trial_balance_lines" model="ir.actions.act_window">
+        <field name="name">Trial Balance Lines</field>
+        <field name="res_model">trial.balance.line</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_trial_balance_line_list"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No trial balance data found
+            </p>
+            <p>
+                Generate trial balance from the Balance Sheet report wizard.
+            </p>
+        </field>
+    </record>
+</odoo>
+
 <!--<odoo>-->
 <!--    &lt;!&ndash; List View &ndash;&gt;-->
 <!--    <record id="view_trial_balance_line_list" model="ir.ui.view">-->
 <!--        <field name="name">trial.balance.line.list</field>-->
 <!--        <field name="model">trial.balance.line</field>-->
 <!--        <field name="arch" type="xml">-->
-<!--            <list string="Trial Balance Lines">-->
-<!--                <field name="account_id"/>-->
+<!--            <list string="Trial Balance Lines" decoration-bf="is_total == True" decoration-success="is_total == True">-->
+<!--                <field name="is_total" invisible="1"/>-->
+<!--                <field name="account_id" string="Account"/>-->
 <!--                <field name="opening_balance"/>-->
 <!--                <field name="debit"/>-->
 <!--                <field name="credit"/>-->
@@ -26,43 +132,9 @@
 <!--                    <field name="debit"/>-->
 <!--                    <field name="credit"/>-->
 <!--                    <field name="ending_balance"/>-->
+<!--                    <field name="is_total" invisible="1"/>-->
 <!--                </group>-->
 <!--            </form>-->
 <!--        </field>-->
 <!--    </record>-->
 <!--</odoo>-->
-<odoo>
-    <!-- List View -->
-    <record id="view_trial_balance_line_list" model="ir.ui.view">
-        <field name="name">trial.balance.line.list</field>
-        <field name="model">trial.balance.line</field>
-        <field name="arch" type="xml">
-            <list string="Trial Balance Lines" decoration-bf="is_total == True" decoration-success="is_total == True">
-                <field name="is_total" invisible="1"/>
-                <field name="account_id" string="Account"/>
-                <field name="opening_balance"/>
-                <field name="debit"/>
-                <field name="credit"/>
-                <field name="ending_balance"/>
-            </list>
-        </field>
-    </record>
-
-    <!-- Form View -->
-    <record id="view_trial_balance_line_form" model="ir.ui.view">
-        <field name="name">trial.balance.line.form</field>
-        <field name="model">trial.balance.line</field>
-        <field name="arch" type="xml">
-            <form string="Trial Balance Line">
-                <group>
-                    <field name="account_id"/>
-                    <field name="opening_balance"/>
-                    <field name="debit"/>
-                    <field name="credit"/>
-                    <field name="ending_balance"/>
-                    <field name="is_total" invisible="1"/>
-                </group>
-            </form>
-        </field>
-    </record>
-</odoo>

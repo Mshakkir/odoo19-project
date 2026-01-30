@@ -23,6 +23,7 @@
         'views/account_move_views.xml',
         'views/res_config_settings_views.xml',
     ],
+    'post_init_hook': 'post_init_hook',
     'installable': True,
     'application': False,
     'auto_install': False,

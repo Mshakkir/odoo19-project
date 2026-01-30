@@ -30,26 +30,31 @@ class AccountMoveLine(models.Model):
 
             # Skip non-stockable products
             if not line.product_id or line.product_id.type not in ('product', 'consu'):
+                line.warehouse_id = False
                 continue
 
             # Get company's warehouses
-            warehouses = self.env['stock.warehouse'].search([
-                ('company_id', '=', line.company_id.id or self.env.company.id)
-            ])
+            try:
+                warehouses = self.env['stock.warehouse'].search([
+                    ('company_id', '=', line.company_id.id or self.env.company.id)
+                ])
 
-            # Find warehouse with stock
-            for warehouse in warehouses:
-                stock = line.product_id.with_context(
-                    warehouse=warehouse.id
-                ).qty_available
+                # Find warehouse with stock
+                for warehouse in warehouses:
+                    stock = line.product_id.with_context(
+                        warehouse=warehouse.id
+                    ).qty_available
 
-                if stock > 0:
-                    line.warehouse_id = warehouse.id
-                    break
+                    if stock > 0:
+                        line.warehouse_id = warehouse.id
+                        break
 
-            # If no stock found, use default warehouse
-            if not line.warehouse_id and warehouses:
-                line.warehouse_id = warehouses[0]
+                # If no stock found, use default warehouse
+                if not line.warehouse_id and warehouses:
+                    line.warehouse_id = warehouses[0]
+            except Exception as e:
+                _logger.warning(f"Could not compute warehouse for line: {str(e)}")
+                line.warehouse_id = False
 
 
 class AccountMove(models.Model):
@@ -69,9 +74,21 @@ class AccountMove(models.Model):
 
     auto_create_delivery = fields.Boolean(
         string='Auto Create Delivery',
-        default=lambda self: self.env.company.invoice_auto_create_delivery,
+        default=True,
         help='Automatically create delivery order when invoice is posted',
     )
+
+    @api.model
+    def default_get(self, fields_list):
+        """Override to set auto_create_delivery from company settings"""
+        res = super(AccountMove, self).default_get(fields_list)
+        if 'auto_create_delivery' in fields_list:
+            try:
+                # Try to get company setting, fallback to True if field doesn't exist yet
+                res['auto_create_delivery'] = self.env.company.invoice_auto_create_delivery
+            except Exception:
+                res['auto_create_delivery'] = True
+        return res
 
     @api.depends('invoice_line_ids.product_id')
     def _compute_picking_ids(self):
@@ -120,10 +137,14 @@ class AccountMove(models.Model):
                 except Exception as e:
                     _logger.error(f"Error creating delivery for invoice {move.name}: {str(e)}")
                     # Don't fail the invoice posting, just log the error
-                    move.message_post(
-                        body=_("Could not automatically create delivery: %s") % str(e),
-                        message_type='notification',
-                    )
+                    try:
+                        move.message_post(
+                            body=_("Could not automatically create delivery: %s") % str(e),
+                            message_type='notification',
+                        )
+                    except Exception:
+                        # If even message posting fails, just pass
+                        pass
 
         return result
 

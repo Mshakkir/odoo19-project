@@ -1,5 +1,5 @@
 <odoo>
-    <!-- List View with Compact Action Buttons (Odoo 19 Compatible - RECOMMENDED) -->
+    <!-- Main Trial Balance List View -->
     <record id="view_trial_balance_line_list" model="ir.ui.view">
         <field name="name">trial.balance.line.list</field>
         <field name="model">trial.balance.line</field>
@@ -19,17 +19,18 @@
                 <field name="credit" sum="Total Credit"/>
                 <field name="ending_balance" sum="Total Ending"/>
 
-                <!-- Compact Action buttons with icons -->
-                <button name="action_view_partners"
+                <!-- Button to view partner-wise breakdown -->
+                <button name="action_view_partner_balances"
                         type="object"
-                        title="View related customers/vendors"
+                        title="View partner-wise breakdown with balances"
                         icon="fa-users"
                         invisible="is_total == True"
                         class="btn-sm btn-link"/>
 
+                <!-- Button to view all journal entries -->
                 <button name="action_view_move_lines"
                         type="object"
-                        title="View journal entries"
+                        title="View all journal entries"
                         icon="fa-list-ul"
                         invisible="is_total == True"
                         class="btn-sm btn-link"/>
@@ -37,21 +38,21 @@
         </field>
     </record>
 
-    <!-- Form View with Action Buttons in Header (Odoo 19 Compatible) -->
+    <!-- Trial Balance Form View -->
     <record id="view_trial_balance_line_form" model="ir.ui.view">
         <field name="name">trial.balance.line.form</field>
         <field name="model">trial.balance.line</field>
         <field name="arch" type="xml">
             <form string="Trial Balance Line" create="false" edit="false" delete="false">
                 <header>
-                    <button name="action_view_partners"
-                            string="View Customers/Vendors"
+                    <button name="action_view_partner_balances"
+                            string="View Partner Balances"
                             type="object"
                             class="btn-primary"
                             icon="fa-users"
                             invisible="is_total == True"/>
                     <button name="action_view_move_lines"
-                            string="View Journal Items"
+                            string="View All Journal Items"
                             type="object"
                             class="btn-secondary"
                             icon="fa-list"
@@ -80,11 +81,75 @@
         </field>
     </record>
 
-    <!-- Action definition -->
+    <!-- Partner Balance Lines List View -->
+    <record id="view_trial_balance_partner_line_list" model="ir.ui.view">
+        <field name="name">trial.balance.partner.line.list</field>
+        <field name="model">trial.balance.partner.line</field>
+        <field name="arch" type="xml">
+            <list string="Partner Balances"
+                  create="false"
+                  edit="false"
+                  delete="false"
+                  decoration-info="ending_balance &gt; 0"
+                  decoration-danger="ending_balance &lt; 0">
+
+                <field name="partner_id" string="Partner/Vendor"/>
+                <field name="opening_balance" sum="Total Opening"/>
+                <field name="debit" sum="Total Debit"/>
+                <field name="credit" sum="Total Credit"/>
+                <field name="ending_balance" sum="Total Ending"/>
+
+                <!-- Button to drill down to transactions -->
+                <button name="action_view_partner_move_lines"
+                        type="object"
+                        title="View transactions for this partner"
+                        icon="fa-search"
+                        class="btn-sm btn-link"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Partner Balance Lines Form View -->
+    <record id="view_trial_balance_partner_line_form" model="ir.ui.view">
+        <field name="name">trial.balance.partner.line.form</field>
+        <field name="model">trial.balance.partner.line</field>
+        <field name="arch" type="xml">
+            <form string="Partner Balance" create="false" edit="false" delete="false">
+                <header>
+                    <button name="action_view_partner_move_lines"
+                            string="View Transactions"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-search"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="partner_id" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Balances">
+                            <field name="opening_balance" widget="monetary"/>
+                            <field name="debit" widget="monetary"/>
+                            <field name="credit" widget="monetary"/>
+                            <field name="ending_balance" widget="monetary"/>
+                        </group>
+                        <group string="Information">
+                            <field name="company_currency_id" readonly="1"/>
+                            <field name="account_line_id" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action definitions -->
     <record id="action_trial_balance_lines" model="ir.actions.act_window">
         <field name="name">Trial Balance Lines</field>
         <field name="res_model">trial.balance.line</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="view_id" ref="view_trial_balance_line_list"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
@@ -95,8 +160,14 @@
             </p>
         </field>
     </record>
-</odoo>
 
+    <record id="action_trial_balance_partner_lines" model="ir.actions.act_window">
+        <field name="name">Partner Balances</field>
+        <field name="res_model">trial.balance.partner.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_trial_balance_partner_line_list"/>
+    </record>
+</odoo>
 <!--<odoo>-->
 <!--    &lt;!&ndash; List View &ndash;&gt;-->
 <!--    <record id="view_trial_balance_line_list" model="ir.ui.view">-->

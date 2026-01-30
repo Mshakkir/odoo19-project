@@ -7,49 +7,26 @@
         <field name="priority" eval="90"/>
         <field name="inherit_id" ref="account.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[hasclass('settings')]" position="inside">
-                <h2>Invoice Delivery Automation</h2>
-                <div class="row mt16 o_settings_container">
-                    <div class="col-12 col-lg-6 o_setting_box">
-                        <div class="o_setting_left_pane">
-                            <field name="invoice_auto_create_delivery"/>
-                        </div>
-                        <div class="o_setting_right_pane">
-                            <label for="invoice_auto_create_delivery"/>
-                            <div class="text-muted">
-                                Automatically create delivery orders when customer invoice is posted (for invoices without sale orders)
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-lg-6 o_setting_box">
-                        <div class="o_setting_left_pane">
-                            <field name="invoice_auto_validate_delivery"
-                                   invisible="not invoice_auto_create_delivery"/>
-                        </div>
-                        <div class="o_setting_right_pane">
-                            <label for="invoice_auto_validate_delivery"
-                                   invisible="not invoice_auto_create_delivery"/>
-                            <div class="text-muted"
-                                 invisible="not invoice_auto_create_delivery">
-                                Automatically validate delivery orders created from invoices (if stock is available)
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-lg-6 o_setting_box">
-                        <div class="o_setting_left_pane">
-                            <field name="invoice_check_stock_availability"
-                                   invisible="not invoice_auto_create_delivery"/>
-                        </div>
-                        <div class="o_setting_right_pane">
-                            <label for="invoice_check_stock_availability"
-                                   invisible="not invoice_auto_create_delivery"/>
-                            <div class="text-muted"
-                                 invisible="not invoice_auto_create_delivery">
-                                Prevent posting invoice if insufficient stock is available in selected warehouse
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <xpath expr="//app[@name='account']" position="inside">
+                <block title="Invoice Delivery Automation">
+                    <setting id="invoice_auto_create_delivery_setting"
+                             string="Auto Create Delivery from Invoice"
+                             help="Automatically create delivery orders when customer invoice is posted (for invoices without sale orders)">
+                        <field name="invoice_auto_create_delivery"/>
+                    </setting>
+                    <setting id="invoice_auto_validate_delivery_setting"
+                             string="Auto Validate Delivery"
+                             help="Automatically validate delivery orders created from invoices (if stock is available)"
+                             invisible="not invoice_auto_create_delivery">
+                        <field name="invoice_auto_validate_delivery"/>
+                    </setting>
+                    <setting id="invoice_check_stock_availability_setting"
+                             string="Check Stock Availability"
+                             help="Prevent posting invoice if insufficient stock is available in selected warehouse"
+                             invisible="not invoice_auto_create_delivery">
+                        <field name="invoice_check_stock_availability"/>
+                    </setting>
+                </block>
             </xpath>
         </field>
     </record>

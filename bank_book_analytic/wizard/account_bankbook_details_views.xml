@@ -62,7 +62,7 @@
                                 <field name="reference"
                                        string="Reference"
                                        optional="show"
-                                       width="120"/>
+                                       width="150"/>
 
                                 <field name="partner_name"
                                        string="Particulars"

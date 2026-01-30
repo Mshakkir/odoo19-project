@@ -145,6 +145,7 @@ class AccountMove(models.Model):
 
 
 
+# This code is two banks one number order
 
 
 # from odoo import models, api, fields
@@ -234,7 +235,7 @@ class AccountMove(models.Model):
 
 
 
-
+# This code is two bank have two number order
 
 
 # from odoo import models, api, fields

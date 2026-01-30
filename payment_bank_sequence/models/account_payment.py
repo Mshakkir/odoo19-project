@@ -1,4 +1,5 @@
 from odoo import models, api, fields
+from odoo.models import NewId
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -12,7 +13,7 @@ class AccountPayment(models.Model):
         """Override name computation to use bank-specific sequences"""
         for payment in self:
             # CRITICAL: Skip temporary records (NewId) - these are from onchange
-            if isinstance(payment.id, models.NewId):
+            if isinstance(payment.id, NewId):
                 payment.name = '/'
                 continue
 

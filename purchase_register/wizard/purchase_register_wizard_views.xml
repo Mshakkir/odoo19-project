@@ -52,13 +52,13 @@
                 <field name="trade_discount" sum="Total Trade Dis"/>
                 <field name="addin_discount" sum="Total AddIn Dis"/>
                 <field name="addin_cost" sum="Total AddIn Cost"/>
-                <field name="taxes"/>
                 <field name="tax_amount" sum="Total Tax"/>
                 <field name="round_off" sum="Total Round Off"/>
                 <field name="total" sum="Grand Total"/>
                 <field name="paid" sum="Total Paid"/>
                 <field name="balance" sum="Total Balance"/>
                 <field name="currency"/>
+                <field name="taxes"/>
             </list>
         </field>
     </record>

@@ -81,20 +81,18 @@ class AccountPayment(models.Model):
         index='trigram',
     )
 
-    def action_post(self):
-        """Override to sync journal entry name with payment name"""
-        res = super(AccountPayment, self).action_post()
+    def _synchronize_to_moves(self, changed_fields):
+        """Override to sync payment name to journal entry"""
+        res = super(AccountPayment, self)._synchronize_to_moves(changed_fields)
 
-        for payment in self:
-            # Sync the move name with payment name
-            if payment.move_id and payment.name and payment.name != '/':
-                try:
-                    payment.move_id.with_context(skip_invoice_sync=True).write({
-                        'name': payment.name
-                    })
-                    _logger.info(f"✅ Synced move {payment.move_id.id} name to: {payment.name}")
-                except Exception as e:
-                    _logger.warning(f"Could not sync move name: {e}")
+        # Sync the name field to the move
+        if self.move_id and self.name and self.name != '/':
+            try:
+                # Use sudo to bypass access rights and write directly
+                self.move_id.sudo().write({'name': self.name})
+                _logger.info(f"✅ Synced move name to: {self.name}")
+            except Exception as e:
+                _logger.warning(f"Could not sync move name: {e}")
 
         return res
 
@@ -103,34 +101,38 @@ class AccountMove(models.Model):
     _inherit = 'account.move'
 
     def _get_sequence(self):
-        """Override to use payment sequence for payment-related moves"""
+        """Override to prevent auto-sequencing for payment moves"""
         self.ensure_one()
 
-        # Check if this move is related to a payment
-        if self.payment_id:
-            # Return empty to prevent auto-sequencing, we'll use payment's sequence
+        # Check if this move is linked to a payment
+        # Use search instead of direct field access
+        payment = self.env['account.payment'].search([('move_id', '=', self.id)], limit=1)
+
+        if payment:
+            # Return empty sequence to prevent auto-sequencing
+            # The payment name will be synced instead
             return self.env['ir.sequence']
 
         # For non-payment moves, use standard sequence logic
         return super(AccountMove, self)._get_sequence()
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        """Override create to handle payment move names"""
-        moves = super(AccountMove, self).create(vals_list)
+    def _post(self, soft=True):
+        """Override _post to sync payment name after posting"""
+        res = super(AccountMove, self)._post(soft=soft)
 
-        for move in moves:
-            # If this is a payment-related move, sync the name
-            if move.payment_id and move.payment_id.name and move.payment_id.name != '/':
+        for move in self:
+            # Check if this move is linked to a payment
+            payment = self.env['account.payment'].search([('move_id', '=', move.id)], limit=1)
+
+            if payment and payment.name and payment.name != '/':
                 try:
-                    move.with_context(skip_invoice_sync=True).write({
-                        'name': move.payment_id.name
-                    })
-                    _logger.info(f"✅ Set move {move.id} name from payment: {move.payment_id.name}")
+                    # Sync the move name with payment name
+                    move.sudo().write({'name': payment.name})
+                    _logger.info(f"✅ Posted move {move.id} with name: {payment.name}")
                 except Exception as e:
-                    _logger.warning(f"Could not set move name from payment: {e}")
+                    _logger.warning(f"Could not sync move name after post: {e}")
 
-        return moves
+        return res
 
 
 

@@ -2,44 +2,22 @@
 <odoo>
     <data noupdate="1">
 
-        <!-- SNB Bank - Customer Payment Sequence -->
-        <record id="sequence_payment_customer_snb" model="ir.sequence">
-            <field name="name">SNB Customer Payment Receipt</field>
-            <field name="code">account.payment.customer.snb</field>
-            <field name="prefix">PREC/SNB/%(year)s/</field>
+        <!-- Shared Customer Payment Sequence -->
+        <record id="sequence_payment_customer_shared" model="ir.sequence">
+            <field name="name">Customer Payment Receipt (Shared)</field>
+            <field name="code">account.payment.customer.shared</field>
+            <field name="prefix"></field>  <!-- No prefix here, added dynamically -->
             <field name="padding">5</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
             <field name="company_id" eval="False"/>
         </record>
 
-        <!-- RAJHI Bank - Customer Payment Sequence -->
-        <record id="sequence_payment_customer_rajhi" model="ir.sequence">
-            <field name="name">RAJHI Customer Payment Receipt</field>
-            <field name="code">account.payment.customer.rajhi</field>
-            <field name="prefix">PREC/RAJHI/%(year)s/</field>
-            <field name="padding">5</field>
-            <field name="number_next">1</field>
-            <field name="number_increment">1</field>
-            <field name="company_id" eval="False"/>
-        </record>
-
-        <!-- SNB Bank - Vendor Payment Sequence -->
-        <record id="sequence_payment_supplier_snb" model="ir.sequence">
-            <field name="name">SNB Vendor Payment</field>
-            <field name="code">account.payment.supplier.snb</field>
-            <field name="prefix">PAY/SNB/%(year)s/</field>
-            <field name="padding">5</field>
-            <field name="number_next">1</field>
-            <field name="number_increment">1</field>
-            <field name="company_id" eval="False"/>
-        </record>
-
-        <!-- RAJHI Bank - Vendor Payment Sequence -->
-        <record id="sequence_payment_supplier_rajhi" model="ir.sequence">
-            <field name="name">RAJHI Vendor Payment</field>
-            <field name="code">account.payment.supplier.rajhi</field>
-            <field name="prefix">PAY/RAJHI/%(year)s/</field>
+        <!-- Shared Vendor Payment Sequence -->
+        <record id="sequence_payment_supplier_shared" model="ir.sequence">
+            <field name="name">Vendor Payment (Shared)</field>
+            <field name="code">account.payment.supplier.shared</field>
+            <field name="prefix"></field>  <!-- No prefix here, added dynamically -->
             <field name="padding">5</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
@@ -48,3 +26,66 @@
 
     </data>
 </odoo>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <data noupdate="1">-->
+
+<!--        &lt;!&ndash; SNB Bank - Customer Payment Sequence &ndash;&gt;-->
+<!--        <record id="sequence_payment_customer_snb" model="ir.sequence">-->
+<!--            <field name="name">SNB Customer Payment Receipt</field>-->
+<!--            <field name="code">account.payment.customer.snb</field>-->
+<!--            <field name="prefix">PREC/SNB/%(year)s/</field>-->
+<!--            <field name="padding">5</field>-->
+<!--            <field name="number_next">1</field>-->
+<!--            <field name="number_increment">1</field>-->
+<!--            <field name="company_id" eval="False"/>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; RAJHI Bank - Customer Payment Sequence &ndash;&gt;-->
+<!--        <record id="sequence_payment_customer_rajhi" model="ir.sequence">-->
+<!--            <field name="name">RAJHI Customer Payment Receipt</field>-->
+<!--            <field name="code">account.payment.customer.rajhi</field>-->
+<!--            <field name="prefix">PREC/RAJHI/%(year)s/</field>-->
+<!--            <field name="padding">5</field>-->
+<!--            <field name="number_next">1</field>-->
+<!--            <field name="number_increment">1</field>-->
+<!--            <field name="company_id" eval="False"/>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; SNB Bank - Vendor Payment Sequence &ndash;&gt;-->
+<!--        <record id="sequence_payment_supplier_snb" model="ir.sequence">-->
+<!--            <field name="name">SNB Vendor Payment</field>-->
+<!--            <field name="code">account.payment.supplier.snb</field>-->
+<!--            <field name="prefix">PAY/SNB/%(year)s/</field>-->
+<!--            <field name="padding">5</field>-->
+<!--            <field name="number_next">1</field>-->
+<!--            <field name="number_increment">1</field>-->
+<!--            <field name="company_id" eval="False"/>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; RAJHI Bank - Vendor Payment Sequence &ndash;&gt;-->
+<!--        <record id="sequence_payment_supplier_rajhi" model="ir.sequence">-->
+<!--            <field name="name">RAJHI Vendor Payment</field>-->
+<!--            <field name="code">account.payment.supplier.rajhi</field>-->
+<!--            <field name="prefix">PAY/RAJHI/%(year)s/</field>-->
+<!--            <field name="padding">5</field>-->
+<!--            <field name="number_next">1</field>-->
+<!--            <field name="number_increment">1</field>-->
+<!--            <field name="company_id" eval="False"/>-->
+<!--        </record>-->
+
+<!--    </data>-->
+<!--</odoo>-->

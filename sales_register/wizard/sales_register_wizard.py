@@ -756,6 +756,67 @@ class SalesRegisterWizard(models.TransientModel):
 
         return False
 
+    def _get_invoice_rounding_amount(self, invoice):
+        """Get the rounding amount from invoice"""
+        rounding_amount = 0.0
+
+        try:
+            # Method 1: Check for invoice_cash_rounding_id (Odoo standard)
+            if hasattr(invoice, 'invoice_cash_rounding_id') and invoice.invoice_cash_rounding_id:
+                # Look for rounding line in invoice lines
+                rounding_lines = invoice.line_ids.filtered(
+                    lambda l: l.account_id == invoice.invoice_cash_rounding_id.account_id
+                )
+                if rounding_lines:
+                    # Sum the balance of rounding lines (can be positive or negative)
+                    rounding_amount = sum(rounding_lines.mapped('balance'))
+                    _logger.info(
+                        f"Invoice {invoice.name}: Found rounding from invoice_cash_rounding_id: {rounding_amount}")
+                    return rounding_amount
+
+            # Method 2: Check for direct rounding amount fields
+            rounding_field_names = [
+                'amount_rounding',
+                'amount_round',
+                'rounding_amount',
+                'round_off',
+                'rounding',
+                'amount_roundoff',
+                'roundoff_amount',
+            ]
+
+            for field_name in rounding_field_names:
+                if hasattr(invoice, field_name):
+                    field_value = getattr(invoice, field_name, 0)
+                    if field_value and abs(field_value) > 0.001:
+                        _logger.info(f"Invoice {invoice.name}: Found rounding in field '{field_name}': {field_value}")
+                        return field_value
+
+            # Method 3: Look for rounding lines by name
+            rounding_lines = invoice.line_ids.filtered(
+                lambda l: l.name and (
+                        'round' in l.name.lower() or
+                        'rounding' in l.name.lower() or
+                        'cash rounding' in l.name.lower()
+                )
+            )
+            if rounding_lines:
+                rounding_amount = sum(rounding_lines.mapped('balance'))
+                _logger.info(f"Invoice {invoice.name}: Found rounding from line names: {rounding_amount}")
+                return rounding_amount
+
+            # Method 4: Calculate from totals (last resort)
+            calculated_total = invoice.amount_untaxed + invoice.amount_tax
+            calculated_round = invoice.amount_total - calculated_total
+            if abs(calculated_round) > 0.001:
+                _logger.info(f"Invoice {invoice.name}: Calculated rounding from totals: {calculated_round}")
+                return calculated_round
+
+        except Exception as e:
+            _logger.error(f"Error getting rounding amount for invoice {invoice.name}: {str(e)}")
+
+        return rounding_amount
+
     def _get_sale_order_data(self):
         """Fetch sales order data"""
         domain = [
@@ -924,6 +985,9 @@ class SalesRegisterWizard(models.TransientModel):
                 if invoice_paid > invoice.amount_total:
                     invoice_paid = invoice.amount_total
 
+                # Get invoice-level rounding amount
+                invoice_rounding = self._get_invoice_rounding_amount(invoice)
+
                 for line in invoice.invoice_line_ids:
                     if line.display_type in ['line_section', 'line_note']:
                         continue
@@ -950,29 +1014,17 @@ class SalesRegisterWizard(models.TransientModel):
                     if hasattr(invoice, 'additional_discount') and invoice.additional_discount:
                         if invoice.amount_untaxed > 0:
                             addin_discount = (
-                                                         line.price_subtotal / invoice.amount_untaxed) * invoice.additional_discount
+                                                     line.price_subtotal / invoice.amount_untaxed) * invoice.additional_discount
 
                     addin_cost = 0
                     if hasattr(invoice, 'additional_cost') and invoice.additional_cost:
                         if invoice.amount_untaxed > 0:
                             addin_cost = (line.price_subtotal / invoice.amount_untaxed) * invoice.additional_cost
 
-                    # FIXED: Proper round-off calculation
+                    # Distribute rounding proportionally across invoice lines
                     round_off = 0
-                    # Try multiple field names as different Odoo versions/customizations use different names
-                    if invoice.amount_untaxed > 0:
-                        # Check for amount_rounding (common in Odoo)
-                        if hasattr(invoice, 'amount_rounding') and invoice.amount_rounding:
-                            round_off = (line.price_subtotal / invoice.amount_untaxed) * invoice.amount_rounding
-                        # Check for amount_round (your custom field)
-                        elif hasattr(invoice, 'amount_round') and invoice.amount_round:
-                            round_off = (line.price_subtotal / invoice.amount_untaxed) * invoice.amount_round
-                        # Calculate from total if no specific field exists
-                        elif hasattr(invoice, 'amount_total') and hasattr(invoice, 'amount_untaxed') and hasattr(invoice, 'amount_tax'):
-                            # Round off = Total - (Untaxed + Tax)
-                            calculated_round = invoice.amount_total - (invoice.amount_untaxed + invoice.amount_tax)
-                            if abs(calculated_round) > 0.001:  # Only if significant
-                                round_off = (line.price_subtotal / invoice.amount_untaxed) * calculated_round
+                    if invoice_rounding and invoice.amount_untaxed > 0:
+                        round_off = (line.price_subtotal / invoice.amount_untaxed) * invoice_rounding
 
                     line_total = line.price_total
 

@@ -142,7 +142,7 @@ class TrialBalanceLine(models.TransientModel):
             'name': window_title,
             'type': 'ir.actions.act_window',
             'res_model': 'res.partner',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': partner_domain,
             'context': {
                 'default_customer_rank': 1 if 'receivable' in account_type else 0,
@@ -200,7 +200,7 @@ class TrialBalanceLine(models.TransientModel):
             'name': f'Journal Items - {account.display_name}',
             'type': 'ir.actions.act_window',
             'res_model': 'account.move.line',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('id', 'in', move_lines.ids)],
             'target': 'current',
         }

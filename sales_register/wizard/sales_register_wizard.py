@@ -1,4 +1,4 @@
-# from odoo import controllers, fields, api, _
+# from odoo import models, fields, api, _
 # from odoo.exceptions import UserError
 # from datetime import datetime, timedelta
 # import base64
@@ -13,7 +13,7 @@
 #     import xlsxwriter
 #
 #
-# class SalesRegisterWizard(controllers.TransientModel):
+# class SalesRegisterWizard(models.TransientModel):
 #     _name = 'sales.register.wizard'
 #     _description = 'Sales Register Report Wizard'
 #
@@ -33,6 +33,12 @@
 #         domain=[('customer_rank', '>', 0)],
 #         help='Leave empty to include all customers'
 #     )
+#     # ADD THIS NEW FIELD FOR ANALYTIC ACCOUNTS (WAREHOUSES)
+#     analytic_account_ids = fields.Many2many(
+#         'account.analytic.account',
+#         string='Warehouses',
+#         help='Leave empty to include all warehouses'
+#     )
 #     company_id = fields.Many2one(
 #         'res.company',
 #         string='Company',
@@ -47,6 +53,7 @@
 #     group_by = fields.Selection([
 #         ('customer', 'Group by Customer'),
 #         ('date', 'Group by Date'),
+#         ('warehouse', 'Group by Warehouse'),
 #         ('none', 'No Grouping'),
 #     ], string='Group By', default='customer')
 #
@@ -92,6 +99,33 @@
 #         for record in self:
 #             if record.date_from > record.date_to:
 #                 raise UserError(_('From Date must be before To Date'))
+#
+#     def _get_analytic_account_from_line(self, line):
+#         """Helper method to extract analytic account from a line"""
+#         analytic_account = None
+#
+#         # Try analytic_distribution (Odoo 16+)
+#         if hasattr(line, 'analytic_distribution') and line.analytic_distribution:
+#             analytic_ids = [int(k) for k in line.analytic_distribution.keys()]
+#             if analytic_ids:
+#                 analytic_account = self.env['account.analytic.account'].browse(analytic_ids[0])
+#         # Fallback to analytic_account_id (older versions)
+#         elif hasattr(line, 'analytic_account_id') and line.analytic_account_id:
+#             analytic_account = line.analytic_account_id
+#
+#         return analytic_account
+#
+#     def _should_include_line(self, line):
+#         """Check if line should be included based on analytic account filter"""
+#         if not self.analytic_account_ids:
+#             return True
+#
+#         analytic_account = self._get_analytic_account_from_line(line)
+#
+#         if analytic_account and analytic_account.id in self.analytic_account_ids.ids:
+#             return True
+#
+#         return False
 #
 #     def _get_sale_order_data(self):
 #         """Fetch sales order data"""
@@ -140,16 +174,13 @@
 #                             total_paid += payment.amount
 #
 #             for line in so.order_line:
-#                 # Get warehouse
-#                 warehouse_name = ''
-#                 if hasattr(line, 'analytic_distribution') and line.analytic_distribution:
-#                     analytic_ids = [int(k) for k in line.analytic_distribution.keys()]
-#                     if analytic_ids:
-#                         analytic_account = self.env['account.analytic.account'].browse(analytic_ids[0])
-#                         if analytic_account:
-#                             warehouse_name = analytic_account.name
-#                 elif hasattr(line, 'analytic_account_id') and line.analytic_account_id:
-#                     warehouse_name = line.analytic_account_id.name
+#                 # APPLY ANALYTIC ACCOUNT FILTER
+#                 if not self._should_include_line(line):
+#                     continue
+#
+#                 # Get warehouse from analytic account
+#                 analytic_account = self._get_analytic_account_from_line(line)
+#                 warehouse_name = analytic_account.name if analytic_account else ''
 #
 #                 # Get taxes
 #                 taxes = line.tax_id if hasattr(line, 'tax_id') else False
@@ -199,6 +230,7 @@
 #                     'customer_name': so.partner_id.name,
 #                     'customer_vat': so.partner_id.vat or '',
 #                     'warehouse': warehouse_name,
+#                     'analytic_account_id': analytic_account.id if analytic_account else False,
 #                     'product': line.product_id.name or line.name,
 #                     'quantity': line.product_uom_qty,
 #                     'unit_price': line.price_unit,
@@ -271,15 +303,13 @@
 #                     if line.display_type in ['line_section', 'line_note']:
 #                         continue
 #
-#                     warehouse_name = ''
-#                     if hasattr(line, 'analytic_distribution') and line.analytic_distribution:
-#                         analytic_ids = [int(k) for k in line.analytic_distribution.keys()]
-#                         if analytic_ids:
-#                             analytic_account = self.env['account.analytic.account'].browse(analytic_ids[0])
-#                             if analytic_account:
-#                                 warehouse_name = analytic_account.name
-#                     elif hasattr(line, 'analytic_account_id') and line.analytic_account_id:
-#                         warehouse_name = line.analytic_account_id.name
+#                     # APPLY ANALYTIC ACCOUNT FILTER
+#                     if not self._should_include_line(line):
+#                         continue
+#
+#                     # Get warehouse from analytic account
+#                     analytic_account = self._get_analytic_account_from_line(line)
+#                     warehouse_name = analytic_account.name if analytic_account else ''
 #
 #                     taxes = line.tax_ids
 #
@@ -324,6 +354,7 @@
 #                         'customer_name': invoice.partner_id.name,
 #                         'customer_vat': invoice.partner_id.vat or '',
 #                         'warehouse': warehouse_name,
+#                         'analytic_account_id': analytic_account.id if analytic_account else False,
 #                         'product': line.product_id.name or line.name,
 #                         'quantity': line.quantity,
 #                         'unit_price': line.price_unit,
@@ -340,7 +371,7 @@
 #                         'currency': invoice.currency_id.name,
 #                     })
 #         except Exception as e:
-#             pass
+#             _logger.error(f"Error fetching invoice data: {str(e)}")
 #
 #         return invoice_data
 #
@@ -597,7 +628,6 @@
 #             'target': 'current',
 #         }
 
-
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 from datetime import datetime, timedelta
@@ -633,7 +663,6 @@ class SalesRegisterWizard(models.TransientModel):
         domain=[('customer_rank', '>', 0)],
         help='Leave empty to include all customers'
     )
-    # ADD THIS NEW FIELD FOR ANALYTIC ACCOUNTS (WAREHOUSES)
     analytic_account_ids = fields.Many2many(
         'account.analytic.account',
         string='Warehouses',
@@ -726,6 +755,32 @@ class SalesRegisterWizard(models.TransientModel):
             return True
 
         return False
+
+    def _get_invoice_cash_rounding_amount(self, invoice):
+        """
+        Get the actual cash rounding amount from invoice.
+        This handles the invoice_cash_rounding_id field properly.
+        """
+        rounding_amount = 0.0
+
+        # Check if invoice has cash rounding applied
+        if hasattr(invoice, 'invoice_cash_rounding_id') and invoice.invoice_cash_rounding_id:
+            # Look for the rounding line in the invoice lines
+            for line in invoice.line_ids:
+                if line.display_type == 'rounding':
+                    rounding_amount = line.balance
+                    break
+
+            # Alternative: Calculate from amount_total vs computed total
+            if rounding_amount == 0.0:
+                computed_total = invoice.amount_untaxed + invoice.amount_tax
+                rounding_amount = invoice.amount_total - computed_total
+
+        # Fallback to amount_round field if it exists (custom field)
+        elif hasattr(invoice, 'amount_round'):
+            rounding_amount = invoice.amount_round
+
+        return rounding_amount
 
     def _get_sale_order_data(self):
         """Fetch sales order data"""
@@ -850,7 +905,7 @@ class SalesRegisterWizard(models.TransientModel):
         return so_data
 
     def _get_invoice_data(self):
-        """Fetch invoice data (customer invoices)"""
+        """Fetch invoice data (customer invoices) with proper cash rounding handling"""
         invoice_data = []
 
         if 'account.move' not in self.env:
@@ -899,14 +954,20 @@ class SalesRegisterWizard(models.TransientModel):
                 if invoice_paid > invoice.amount_total:
                     invoice_paid = invoice.amount_total
 
-                for line in invoice.invoice_line_ids:
-                    if line.display_type in ['line_section', 'line_note']:
-                        continue
+                # Get the total invoice cash rounding amount
+                invoice_rounding_amount = self._get_invoice_cash_rounding_amount(invoice)
 
-                    # APPLY ANALYTIC ACCOUNT FILTER
-                    if not self._should_include_line(line):
-                        continue
+                # Count the number of invoice lines to distribute rounding
+                invoice_lines = invoice.invoice_line_ids.filtered(
+                    lambda l: l.display_type not in ['line_section', 'line_note']
+                )
 
+                # Filter lines based on analytic account if needed
+                filtered_lines = [line for line in invoice_lines if self._should_include_line(line)]
+
+                total_lines_count = len(filtered_lines)
+
+                for idx, line in enumerate(filtered_lines):
                     # Get warehouse from analytic account
                     analytic_account = self._get_analytic_account_from_line(line)
                     warehouse_name = analytic_account.name if analytic_account else ''
@@ -932,10 +993,16 @@ class SalesRegisterWizard(models.TransientModel):
                         if invoice.amount_untaxed > 0:
                             addin_cost = (line.price_subtotal / invoice.amount_untaxed) * invoice.additional_cost
 
+                    # CORRECTED ROUND-OFF HANDLING:
+                    # Distribute the total invoice rounding amount across lines
+                    # Put all rounding on the last line to avoid rounding issues
                     round_off = 0
-                    if hasattr(invoice, 'amount_round') and invoice.amount_round:
-                        if invoice.amount_untaxed > 0:
-                            round_off = (line.price_subtotal / invoice.amount_untaxed) * invoice.amount_round
+                    if total_lines_count > 0:
+                        if idx == total_lines_count - 1:  # Last line gets all the rounding
+                            round_off = invoice_rounding_amount
+                        # Alternatively, distribute proportionally (uncomment if preferred):
+                        # if invoice.amount_total > 0:
+                        #     round_off = (line.price_total / invoice.amount_total) * invoice_rounding_amount
 
                     line_total = line.price_total
 
@@ -969,6 +1036,7 @@ class SalesRegisterWizard(models.TransientModel):
                         'balance': line_balance,
                         'taxes': ', '.join(taxes.mapped('name')) if taxes else '',
                         'currency': invoice.currency_id.name,
+                        'invoice_id': invoice.id,  # Added for debugging
                     })
         except Exception as e:
             _logger.error(f"Error fetching invoice data: {str(e)}")

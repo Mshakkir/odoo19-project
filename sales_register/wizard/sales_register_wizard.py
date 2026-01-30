@@ -662,7 +662,6 @@ class SalesRegisterWizard(models.TransientModel):
         domain=[('customer_rank', '>', 0)],
         help='Leave empty to include all customers'
     )
-    # ADD THIS NEW FIELD FOR ANALYTIC ACCOUNTS (WAREHOUSES)
     analytic_account_ids = fields.Many2many(
         'account.analytic.account',
         string='Warehouses',
@@ -733,12 +732,10 @@ class SalesRegisterWizard(models.TransientModel):
         """Helper method to extract analytic account from a line"""
         analytic_account = None
 
-        # Try analytic_distribution (Odoo 16+)
         if hasattr(line, 'analytic_distribution') and line.analytic_distribution:
             analytic_ids = [int(k) for k in line.analytic_distribution.keys()]
             if analytic_ids:
                 analytic_account = self.env['account.analytic.account'].browse(analytic_ids[0])
-        # Fallback to analytic_account_id (older versions)
         elif hasattr(line, 'analytic_account_id') and line.analytic_account_id:
             analytic_account = line.analytic_account_id
 
@@ -757,64 +754,107 @@ class SalesRegisterWizard(models.TransientModel):
         return False
 
     def _get_invoice_rounding_amount(self, invoice):
-        """Get the rounding amount from invoice"""
+        """Get the rounding amount from invoice with extensive logging"""
+        _logger.info(f"\n{'=' * 80}")
+        _logger.info(f"ANALYZING INVOICE: {invoice.name}")
+        _logger.info(f"{'=' * 80}")
+
         rounding_amount = 0.0
 
         try:
-            # Method 1: Check for invoice_cash_rounding_id (Odoo standard)
-            if hasattr(invoice, 'invoice_cash_rounding_id') and invoice.invoice_cash_rounding_id:
-                # Look for rounding line in invoice lines
-                rounding_lines = invoice.line_ids.filtered(
-                    lambda l: l.account_id == invoice.invoice_cash_rounding_id.account_id
-                )
-                if rounding_lines:
-                    # Sum the balance of rounding lines (can be positive or negative)
-                    rounding_amount = sum(rounding_lines.mapped('balance'))
-                    _logger.info(
-                        f"Invoice {invoice.name}: Found rounding from invoice_cash_rounding_id: {rounding_amount}")
-                    return rounding_amount
+            # Log basic invoice amounts
+            _logger.info(f"Invoice Amounts:")
+            _logger.info(f"  - amount_untaxed: {invoice.amount_untaxed}")
+            _logger.info(f"  - amount_tax: {invoice.amount_tax}")
+            _logger.info(f"  - amount_total: {invoice.amount_total}")
 
-            # Method 2: Check for direct rounding amount fields
+            # Check for invoice_cash_rounding_id
+            if hasattr(invoice, 'invoice_cash_rounding_id'):
+                _logger.info(f"  - invoice_cash_rounding_id exists: {invoice.invoice_cash_rounding_id}")
+
+                if invoice.invoice_cash_rounding_id:
+                    _logger.info(f"    Cash Rounding Method: {invoice.invoice_cash_rounding_id.name}")
+                    _logger.info(
+                        f"    Rounding Account: {invoice.invoice_cash_rounding_id.account_id.code} - {invoice.invoice_cash_rounding_id.account_id.name}")
+
+                    # Find rounding lines
+                    rounding_lines = invoice.line_ids.filtered(
+                        lambda l: l.account_id == invoice.invoice_cash_rounding_id.account_id
+                    )
+
+                    _logger.info(f"    Found {len(rounding_lines)} rounding line(s)")
+
+                    if rounding_lines:
+                        for line in rounding_lines:
+                            _logger.info(
+                                f"      Line: {line.name}, Balance: {line.balance}, Debit: {line.debit}, Credit: {line.credit}")
+
+                        rounding_amount = sum(rounding_lines.mapped('balance'))
+                        _logger.info(f"    ✓ ROUNDING FOUND via invoice_cash_rounding_id: {rounding_amount}")
+                        return rounding_amount
+                else:
+                    _logger.info(f"    invoice_cash_rounding_id is empty/False")
+            else:
+                _logger.info(f"  - invoice_cash_rounding_id field does NOT exist")
+
+            # Log all invoice line_ids to understand structure
+            _logger.info(f"\nAll Invoice Journal Lines ({len(invoice.line_ids)} total):")
+            for idx, line in enumerate(invoice.line_ids, 1):
+                _logger.info(f"  {idx}. Account: {line.account_id.code} - {line.account_id.name}")
+                _logger.info(
+                    f"     Name: {line.name}, Balance: {line.balance}, Debit: {line.debit}, Credit: {line.credit}")
+
+            # Check for direct rounding fields
+            _logger.info(f"\nChecking direct rounding fields:")
             rounding_field_names = [
-                'amount_rounding',
-                'amount_round',
-                'rounding_amount',
-                'round_off',
-                'rounding',
-                'amount_roundoff',
-                'roundoff_amount',
+                'amount_rounding', 'amount_round', 'rounding_amount',
+                'round_off', 'rounding', 'amount_roundoff', 'roundoff_amount',
             ]
 
             for field_name in rounding_field_names:
                 if hasattr(invoice, field_name):
                     field_value = getattr(invoice, field_name, 0)
+                    _logger.info(f"  - {field_name}: {field_value}")
                     if field_value and abs(field_value) > 0.001:
-                        _logger.info(f"Invoice {invoice.name}: Found rounding in field '{field_name}': {field_value}")
-                        return field_value
+                        rounding_amount = field_value
+                        _logger.info(f"    ✓ ROUNDING FOUND in field '{field_name}': {field_value}")
+                        return rounding_amount
 
-            # Method 3: Look for rounding lines by name
-            rounding_lines = invoice.line_ids.filtered(
-                lambda l: l.name and (
-                        'round' in l.name.lower() or
-                        'rounding' in l.name.lower() or
-                        'cash rounding' in l.name.lower()
+            # Search for rounding lines by name/keyword
+            _logger.info(f"\nSearching for rounding lines by name:")
+            rounding_keywords = ['round', 'rounding', 'cash rounding', 'redondeo']
+
+            for keyword in rounding_keywords:
+                keyword_lines = invoice.line_ids.filtered(
+                    lambda l: l.name and keyword.lower() in l.name.lower()
                 )
-            )
-            if rounding_lines:
-                rounding_amount = sum(rounding_lines.mapped('balance'))
-                _logger.info(f"Invoice {invoice.name}: Found rounding from line names: {rounding_amount}")
-                return rounding_amount
+                if keyword_lines:
+                    _logger.info(f"  Found lines with '{keyword}':")
+                    for line in keyword_lines:
+                        _logger.info(f"    - {line.name}: Balance={line.balance}")
+                    rounding_amount = sum(keyword_lines.mapped('balance'))
+                    _logger.info(f"    ✓ ROUNDING FOUND by keyword '{keyword}': {rounding_amount}")
+                    return rounding_amount
 
-            # Method 4: Calculate from totals (last resort)
+            # Calculate from totals
+            _logger.info(f"\nCalculating from totals:")
             calculated_total = invoice.amount_untaxed + invoice.amount_tax
             calculated_round = invoice.amount_total - calculated_total
+            _logger.info(f"  Calculated total: {calculated_total}")
+            _logger.info(f"  Actual total: {invoice.amount_total}")
+            _logger.info(f"  Difference (rounding): {calculated_round}")
+
             if abs(calculated_round) > 0.001:
-                _logger.info(f"Invoice {invoice.name}: Calculated rounding from totals: {calculated_round}")
-                return calculated_round
+                rounding_amount = calculated_round
+                _logger.info(f"    ✓ ROUNDING FOUND from calculation: {calculated_round}")
+                return rounding_amount
+
+            _logger.info(f"\n✗ NO ROUNDING FOUND for invoice {invoice.name}")
 
         except Exception as e:
-            _logger.error(f"Error getting rounding amount for invoice {invoice.name}: {str(e)}")
+            _logger.error(f"ERROR getting rounding for invoice {invoice.name}: {str(e)}", exc_info=True)
 
+        _logger.info(f"{'=' * 80}\n")
         return rounding_amount
 
     def _get_sale_order_data(self):
@@ -830,6 +870,7 @@ class SalesRegisterWizard(models.TransientModel):
             domain.append(('partner_id', 'in', self.partner_ids.ids))
 
         sale_orders = self.env['sale.order'].search(domain, order='date_order, partner_id')
+        _logger.info(f"\n*** Processing {len(sale_orders)} Sale Orders ***")
 
         so_data = []
         for so in sale_orders:
@@ -864,22 +905,18 @@ class SalesRegisterWizard(models.TransientModel):
                             total_paid += payment.amount
 
             for line in so.order_line:
-                # APPLY ANALYTIC ACCOUNT FILTER
                 if not self._should_include_line(line):
                     continue
 
-                # Get warehouse from analytic account
                 analytic_account = self._get_analytic_account_from_line(line)
                 warehouse_name = analytic_account.name if analytic_account else ''
 
-                # Get taxes
                 taxes = line.tax_id if hasattr(line, 'tax_id') else False
 
                 tax_amount = 0
                 if taxes:
                     tax_amount = sum(line.price_subtotal * (tax.amount / 100) for tax in taxes)
 
-                # Calculate discounts
                 trade_discount = 0
                 if hasattr(line, 'discount') and line.discount > 0:
                     trade_discount = (line.product_uom_qty * line.price_unit * line.discount) / 100
@@ -955,6 +992,7 @@ class SalesRegisterWizard(models.TransientModel):
                 domain.append(('partner_id', 'in', self.partner_ids.ids))
 
             invoices = self.env['account.move'].search(domain, order='invoice_date, partner_id')
+            _logger.info(f"\n*** Processing {len(invoices)} Invoices ***")
 
             for invoice in invoices:
                 invoice_paid = 0
@@ -985,18 +1023,17 @@ class SalesRegisterWizard(models.TransientModel):
                 if invoice_paid > invoice.amount_total:
                     invoice_paid = invoice.amount_total
 
-                # Get invoice-level rounding amount
+                # Get invoice-level rounding amount with detailed logging
                 invoice_rounding = self._get_invoice_rounding_amount(invoice)
+                _logger.info(f"Final rounding amount for {invoice.name}: {invoice_rounding}")
 
                 for line in invoice.invoice_line_ids:
                     if line.display_type in ['line_section', 'line_note']:
                         continue
 
-                    # APPLY ANALYTIC ACCOUNT FILTER
                     if not self._should_include_line(line):
                         continue
 
-                    # Get warehouse from analytic account
                     analytic_account = self._get_analytic_account_from_line(line)
                     warehouse_name = analytic_account.name if analytic_account else ''
 
@@ -1014,17 +1051,19 @@ class SalesRegisterWizard(models.TransientModel):
                     if hasattr(invoice, 'additional_discount') and invoice.additional_discount:
                         if invoice.amount_untaxed > 0:
                             addin_discount = (
-                                                     line.price_subtotal / invoice.amount_untaxed) * invoice.additional_discount
+                                                         line.price_subtotal / invoice.amount_untaxed) * invoice.additional_discount
 
                     addin_cost = 0
                     if hasattr(invoice, 'additional_cost') and invoice.additional_cost:
                         if invoice.amount_untaxed > 0:
                             addin_cost = (line.price_subtotal / invoice.amount_untaxed) * invoice.additional_cost
 
-                    # Distribute rounding proportionally across invoice lines
+                    # Distribute rounding proportionally
                     round_off = 0
                     if invoice_rounding and invoice.amount_untaxed > 0:
                         round_off = (line.price_subtotal / invoice.amount_untaxed) * invoice_rounding
+                        _logger.info(
+                            f"  Line '{line.product_id.name}': subtotal={line.price_subtotal}, round_off={round_off}")
 
                     line_total = line.price_total
 
@@ -1060,7 +1099,7 @@ class SalesRegisterWizard(models.TransientModel):
                         'currency': invoice.currency_id.name,
                     })
         except Exception as e:
-            _logger.error(f"Error fetching invoice data: {str(e)}")
+            _logger.error(f"Error fetching invoice data: {str(e)}", exc_info=True)
 
         return invoice_data
 
@@ -1075,6 +1114,10 @@ class SalesRegisterWizard(models.TransientModel):
             sales_data.extend(self._get_invoice_data())
 
         sales_data.sort(key=lambda x: x['date'])
+
+        _logger.info(f"\n*** FINAL SALES DATA: {len(sales_data)} records ***")
+        for idx, data in enumerate(sales_data, 1):
+            _logger.info(f"{idx}. {data['document_number']} - Round Off: {data.get('round_off', 0)}")
 
         return sales_data
 
@@ -1240,7 +1283,9 @@ class SalesRegisterWizard(models.TransientModel):
 
         # Create detail records
         detail_ids = []
+        _logger.info(f"\n*** Creating detail records ***")
         for data in sales_data:
+            _logger.info(f"Creating detail for {data['document_number']}: round_off={data.get('round_off', 0)}")
             detail = self.env['sales.register.details'].create({
                 'wizard_id': self.id,
                 'date': data.get('date'),
@@ -1265,6 +1310,7 @@ class SalesRegisterWizard(models.TransientModel):
                 'currency': data.get('currency', ''),
             })
             detail_ids.append(detail.id)
+            _logger.info(f"  Created detail ID {detail.id} with round_off={detail.round_off}")
 
         # Return action to open list view
         return {

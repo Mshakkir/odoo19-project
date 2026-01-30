@@ -4,7 +4,7 @@ from odoo import models, fields, api
 class SalesRegisterDetails(models.TransientModel):
     _name = 'sales.register.details'
     _description = 'Sales Register Details View'
-    _inherit = "account.move"
+
 
     wizard_id = fields.Many2one('sales.register.wizard', string='Wizard Reference')
     date = fields.Date(string='Date')

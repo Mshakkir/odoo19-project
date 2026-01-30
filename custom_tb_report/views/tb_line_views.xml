@@ -1,5 +1,5 @@
 <odoo>
-    <!-- List View with Clickable Account Names -->
+    <!-- List View with Compact Action Buttons (Odoo 19 Compatible - RECOMMENDED) -->
     <record id="view_trial_balance_line_list" model="ir.ui.view">
         <field name="name">trial.balance.line.list</field>
         <field name="model">trial.balance.line</field>
@@ -10,40 +10,34 @@
                   create="false"
                   edit="false"
                   delete="false">
-                <field name="is_total" invisible="1"/>
+                <field name="is_total" column_invisible="1"/>
 
-                <!-- Make account clickable to view partners -->
-                <field name="account_id"
-                       string="Account"
-                       widget="many2one_button"
-                       options="{'no_quick_create': True}"/>
+                <field name="account_id" string="Account"/>
 
                 <field name="opening_balance" sum="Total Opening"/>
                 <field name="debit" sum="Total Debit"/>
                 <field name="credit" sum="Total Credit"/>
                 <field name="ending_balance" sum="Total Ending"/>
 
-                <!-- Action buttons -->
+                <!-- Compact Action buttons with icons -->
                 <button name="action_view_partners"
                         type="object"
-                        string="Partners"
+                        title="View related customers/vendors"
                         icon="fa-users"
-                        attrs="{'invisible': [('is_total', '=', True)]}"
-                        class="btn-sm btn-link"
-                        help="View related customers/vendors"/>
+                        invisible="is_total == True"
+                        class="btn-sm btn-link"/>
 
                 <button name="action_view_move_lines"
                         type="object"
-                        string="Entries"
+                        title="View journal entries"
                         icon="fa-list-ul"
-                        attrs="{'invisible': [('is_total', '=', True)]}"
-                        class="btn-sm btn-link"
-                        help="View journal entries"/>
+                        invisible="is_total == True"
+                        class="btn-sm btn-link"/>
             </list>
         </field>
     </record>
 
-    <!-- Form View with Action Buttons in Header -->
+    <!-- Form View with Action Buttons in Header (Odoo 19 Compatible) -->
     <record id="view_trial_balance_line_form" model="ir.ui.view">
         <field name="name">trial.balance.line.form</field>
         <field name="model">trial.balance.line</field>
@@ -55,13 +49,13 @@
                             type="object"
                             class="btn-primary"
                             icon="fa-users"
-                            attrs="{'invisible': [('is_total', '=', True)]}"/>
+                            invisible="is_total == True"/>
                     <button name="action_view_move_lines"
                             string="View Journal Items"
                             type="object"
                             class="btn-secondary"
                             icon="fa-list"
-                            attrs="{'invisible': [('is_total', '=', True)]}"/>
+                            invisible="is_total == True"/>
                 </header>
                 <sheet>
                     <div class="oe_title">

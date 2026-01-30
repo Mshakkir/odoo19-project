@@ -59,7 +59,9 @@ class AccountBankBookDetailsLine(models.TransientModel):
     account_code = fields.Char(string='Account Code', related='account_id.account_code', store=True, readonly=True)
     account_name = fields.Char(string='Account Name', related='account_id.account_name', store=True, readonly=True)
     date = fields.Date(string='Date', readonly=True)
-    reference = fields.Char(string='Reference', readonly=True)
+    # Changed: Now stores payment number instead of move reference
+    payment_number = fields.Char(string='Number', readonly=True)
+    reference = fields.Char(string='Reference', readonly=True)  # Keep this for backward compatibility if needed
     description = fields.Char(string='Description', readonly=True)
     journal_code = fields.Char(string='Journal', readonly=True)
     partner_name = fields.Char(string='Particulars', readonly=True)
@@ -242,8 +244,6 @@ class AccountBankBookDetailsLine(models.TransientModel):
 
 
 
-
-
 # from odoo import fields, models, api
 #
 #
@@ -316,6 +316,61 @@ class AccountBankBookDetailsLine(models.TransientModel):
 #     balance = fields.Float(string='Balance', readonly=True)
 #     analytic_account_names = fields.Char(string='Analytic Accounts', readonly=True)
 #     move_id = fields.Integer(string='Move ID', readonly=True)  # Store the account.move id
+#
+#     def action_view_payment(self):
+#         """Open the related payment"""
+#         self.ensure_one()
+#
+#         if not self.move_id:
+#             return {
+#                 'type': 'ir.actions.client',
+#                 'tag': 'display_notification',
+#                 'params': {
+#                     'title': 'No Payment Found',
+#                     'message': 'No related payment found for this transaction.',
+#                     'type': 'warning',
+#                     'sticky': False,
+#                 }
+#             }
+#
+#         # Get the account move
+#         move = self.env['account.move'].browse(self.move_id)
+#
+#         if not move.exists():
+#             return {
+#                 'type': 'ir.actions.client',
+#                 'tag': 'display_notification',
+#                 'params': {
+#                     'title': 'Payment Not Found',
+#                     'message': 'The related payment no longer exists.',
+#                     'type': 'warning',
+#                     'sticky': False,
+#                 }
+#             }
+#
+#         # Check if this is a payment entry
+#         payment = self.env['account.payment'].search([('move_id', '=', move.id)], limit=1)
+#
+#         if payment:
+#             # Open the payment form
+#             return {
+#                 'name': 'Payment',
+#                 'type': 'ir.actions.act_window',
+#                 'res_model': 'account.payment',
+#                 'res_id': payment.id,
+#                 'view_mode': 'form',
+#                 'target': 'current',
+#             }
+#         else:
+#             # Not a payment - open the journal entry
+#             return {
+#                 'name': 'Journal Entry',
+#                 'type': 'ir.actions.act_window',
+#                 'res_model': 'account.move',
+#                 'res_id': move.id,
+#                 'view_mode': 'form',
+#                 'target': 'current',
+#             }
 #
 #     def action_view_bill(self):
 #         """Open the related bill/invoice"""
@@ -422,4 +477,3 @@ class AccountBankBookDetailsLine(models.TransientModel):
 #             'view_mode': 'form',
 #             'target': 'current',
 #         }
-#

@@ -59,10 +59,11 @@
                                        optional="show"
                                        width="90"/>
 
-                                <field name="reference"
+                                <!-- Changed: Now displays payment_number instead of reference -->
+                                <field name="payment_number"
                                        string="Reference"
                                        optional="show"
-                                       width="120"/>
+                                       width="150"/>
 
                                 <field name="partner_name"
                                        string="Particulars"
@@ -135,6 +136,16 @@
         </field>
     </record>
 </odoo>
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -248,12 +259,19 @@
 
 <!--                                <field name="move_id" column_invisible="1"/>-->
 
+<!--                                <button name="action_view_payment"-->
+<!--                                        type="object"-->
+<!--                                        string="Payment"-->
+<!--                                        class="btn-link"-->
+<!--                                        icon="fa-money"-->
+<!--                                        title="View Payment/Journal Entry"/>-->
+
 <!--                                <button name="action_view_bill"-->
 <!--                                        type="object"-->
 <!--                                        string="Bill"-->
 <!--                                        class="btn-link"-->
 <!--                                        icon="fa-file-text-o"-->
-<!--                                        title="View Related Bill/Payment"/>-->
+<!--                                        title="View Related Bill/Invoice"/>-->
 <!--                            </list>-->
 <!--                        </field>-->
 <!--                    </group>-->

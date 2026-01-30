@@ -20,7 +20,7 @@
                 <field name="addin_discount" sum="Total Additional Discount"/>
                 <field name="addin_cost" sum="Total Additional Cost"/>
                 <field name="tax_amount" sum="Total Tax"/>
-                <field name="invoice_cash_rounding_id" sum="Total Round Off"/>
+                <field name="round_off" sum="Total Round Off"/>
                 <field name="total" sum="Grand Total"/>
                 <field name="paid" sum="Total Paid"/>
                 <field name="balance" sum="Total Balance"/>

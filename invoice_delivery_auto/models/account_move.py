@@ -310,11 +310,11 @@
 #                                                   available
 
 
-
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from collections import defaultdict
 import logging
+import traceback
 
 _logger = logging.getLogger(__name__)
 
@@ -335,34 +335,23 @@ class AccountMoveLine(models.Model):
 
     @api.depends('product_id', 'move_id.move_type')
     def _compute_warehouse_id(self):
-        """Auto-select warehouse with available stock for new lines"""
         for line in self:
-            # Skip if already set or not a customer invoice
             if line.warehouse_id or line.move_id.move_type not in ('out_invoice', 'out_refund'):
                 continue
-
-            # Skip non-stockable products
             if not line.product_id or line.product_id.type not in ('product', 'consu'):
                 line.warehouse_id = False
                 continue
-
-            # Get company's warehouses
             try:
                 warehouses = self.env['stock.warehouse'].search([
                     ('company_id', '=', line.company_id.id or self.env.company.id)
                 ])
-
-                # Find warehouse with stock
                 for warehouse in warehouses:
                     stock = line.product_id.with_context(
                         warehouse=warehouse.id
                     ).qty_available
-
                     if stock > 0:
                         line.warehouse_id = warehouse.id
                         break
-
-                # If no stock found, use default warehouse
                 if not line.warehouse_id and warehouses:
                     line.warehouse_id = warehouses[0]
             except Exception as e:
@@ -394,7 +383,6 @@ class AccountMove(models.Model):
 
     @api.model
     def default_get(self, fields_list):
-        """Override to set auto_create_delivery from company settings"""
         res = super(AccountMove, self).default_get(fields_list)
         if 'auto_create_delivery' in fields_list:
             try:
@@ -404,24 +392,30 @@ class AccountMove(models.Model):
         return res
 
     def _compute_delivery_count(self):
-        """Count related delivery orders directly via search to avoid ORM cache issues"""
         for move in self:
             if move.name:
-                move.delivery_count = self.env['stock.picking'].search_count([
+                count = self.env['stock.picking'].search_count([
                     ('invoice_id', '=', move.id)
                 ])
+                _logger.info(
+                    f"[DEBUG] _compute_delivery_count: invoice={move.name} "
+                    f"id={move.id} count={count}"
+                )
+                move.delivery_count = count
             else:
                 move.delivery_count = 0
 
     def action_view_delivery(self):
-        """View related delivery orders"""
         self.ensure_one()
         action = self.env['ir.actions.act_window']._for_xml_id('stock.action_picking_tree_all')
 
-        # Re-read pickings fresh from DB to avoid cache
         pickings = self.env['stock.picking'].search([
             ('invoice_id', '=', self.id)
         ])
+        _logger.info(
+            f"[DEBUG] action_view_delivery: invoice={self.name} "
+            f"picking_ids={pickings.ids} picking_names={pickings.mapped('name')}"
+        )
 
         if len(pickings) > 1:
             action['domain'] = [('id', 'in', pickings.ids)]
@@ -435,19 +429,26 @@ class AccountMove(models.Model):
         return action
 
     def action_post(self):
-        """Override to create delivery orders for direct invoices"""
         result = super(AccountMove, self).action_post()
 
         for move in self:
-            # Only process customer invoices without sale orders
+            _logger.info(
+                f"[DEBUG] action_post: invoice={move.name} "
+                f"move_type={move.move_type} "
+                f"has_sale_lines={bool(move.invoice_line_ids.mapped('sale_line_ids'))} "
+                f"auto_create={move.auto_create_delivery}"
+            )
+
             if (move.move_type == 'out_invoice'
                     and not move.invoice_line_ids.mapped('sale_line_ids')
                     and move.auto_create_delivery):
-
                 try:
                     move._create_delivery_from_invoice()
                 except Exception as e:
-                    _logger.error(f"Error creating delivery for invoice {move.name}: {str(e)}")
+                    _logger.error(
+                        f"[DEBUG] action_post EXCEPTION for {move.name}: {str(e)}\n"
+                        f"{traceback.format_exc()}"
+                    )
                     try:
                         move.message_post(
                             body=_("Could not automatically create delivery: %s") % str(e),
@@ -459,50 +460,95 @@ class AccountMove(models.Model):
         return result
 
     def _create_delivery_from_invoice(self):
-        """Create delivery orders based on invoice lines grouped by warehouse"""
         self.ensure_one()
+        _logger.info(
+            f"[DEBUG] _create_delivery_from_invoice: START invoice={self.name} "
+            f"line_count={len(self.invoice_line_ids)}"
+        )
 
         if not self.invoice_line_ids:
+            _logger.info(f"[DEBUG] _create_delivery_from_invoice: NO invoice_line_ids, returning")
             return
 
-        # Get stockable product lines grouped by warehouse
         lines_by_warehouse = defaultdict(list)
 
         for line in self.invoice_line_ids:
+            _logger.info(
+                f"[DEBUG] scanning line: product={line.product_id.display_name if line.product_id else None} "
+                f"product_id={line.product_id.id if line.product_id else None} "
+                f"product_type={line.product_id.type if line.product_id else None} "
+                f"quantity={line.quantity} "
+                f"warehouse_id={line.warehouse_id.id if line.warehouse_id else None} "
+                f"warehouse_name={line.warehouse_id.name if line.warehouse_id else None}"
+            )
+
             if line.product_id and line.product_id.type in ('product', 'consu') and line.quantity > 0:
                 warehouse = line.warehouse_id or self._get_default_warehouse()
+                _logger.info(
+                    f"[DEBUG] line ACCEPTED -> warehouse={warehouse.name if warehouse else None} "
+                    f"warehouse_id={warehouse.id if warehouse else None}"
+                )
                 if warehouse:
                     lines_by_warehouse[warehouse].append(line)
+            else:
+                _logger.info(f"[DEBUG] line SKIPPED (not stockable or qty<=0)")
+
+        _logger.info(
+            f"[DEBUG] lines_by_warehouse grouping: "
+            f"{[(wh.name, wh.id, len(lines)) for wh, lines in lines_by_warehouse.items()]}"
+        )
 
         if not lines_by_warehouse:
+            _logger.info(f"[DEBUG] _create_delivery_from_invoice: lines_by_warehouse is empty, returning")
             return
 
-        # Create picking for each warehouse
         pickings = self.env['stock.picking']
 
         for warehouse, lines in lines_by_warehouse.items():
+            _logger.info(
+                f"[DEBUG] creating picking for warehouse={warehouse.name} "
+                f"warehouse_id={warehouse.id} line_count={len(lines)}"
+            )
             picking = self._create_picking_for_warehouse(warehouse, lines)
             if picking:
+                _logger.info(
+                    f"[DEBUG] picking created successfully: name={picking.name} id={picking.id} "
+                    f"state={picking.state} "
+                    f"move_ids={picking.move_ids.ids} "
+                    f"move_count={len(picking.move_ids)}"
+                )
+                for sm in picking.move_ids:
+                    _logger.info(
+                        f"[DEBUG]   stock.move on picking: id={sm.id} product={sm.product_id.display_name} "
+                        f"product_uom_qty={sm.product_uom_qty} state={sm.state}"
+                    )
                 pickings |= picking
+            else:
+                _logger.warning(
+                    f"[DEBUG] _create_picking_for_warehouse returned None for warehouse={warehouse.name}"
+                )
 
         # Auto-validate pickings if configured
         if self.env.company.invoice_auto_validate_delivery and pickings:
             for picking in pickings:
                 try:
                     picking.action_assign()
-
                     for move in picking.move_ids:
                         for move_line in move.move_line_ids:
                             move_line.quantity = move_line.product_uom_qty
-
                     picking.button_validate()
-
                 except Exception as e:
                     _logger.warning(f"Could not auto-validate picking {picking.name}: {str(e)}")
                     picking.message_post(
                         body=_("Could not auto-validate: %s. Please validate manually.") % str(e),
                         message_type='notification',
                     )
+
+        _logger.info(
+            f"[DEBUG] _create_delivery_from_invoice: DONE invoice={self.name} "
+            f"total_pickings_created={len(pickings)} picking_ids={pickings.ids} "
+            f"picking_names={pickings.mapped('name')}"
+        )
 
         if pickings:
             self.message_post(
@@ -511,27 +557,29 @@ class AccountMove(models.Model):
             )
 
     def _create_picking_for_warehouse(self, warehouse, lines):
-        """Create a single picking for a warehouse with given invoice lines.
-           Moves are created inline with the picking to prevent Odoo from
-           wiping them during action_confirm() procurement regeneration.
-        """
         self.ensure_one()
 
-        # Get picking type
         picking_type = warehouse.out_type_id
         if not picking_type:
             raise UserError(_("Warehouse %s has no outgoing operation type configured.") % warehouse.name)
 
-        # Get customer location
         customer_location = self.partner_id.property_stock_customer
         if not customer_location:
             customer_location = self.env.ref('stock.stock_location_customers')
 
-        # Build stock.move lines as (0, 0, vals) commands
+        _logger.info(
+            f"[DEBUG] _create_picking_for_warehouse: warehouse={warehouse.name} "
+            f"picking_type={picking_type.name} picking_type_id={picking_type.id} "
+            f"source_location={warehouse.lot_stock_id.complete_name} "
+            f"dest_location={customer_location.complete_name if customer_location else None} "
+            f"lines_to_process={len(lines)}"
+        )
+
+        # Build move commands
         move_commands = []
         for line in lines:
             if line.product_id and line.product_id.type in ('product', 'consu') and line.quantity > 0:
-                move_commands.append((0, 0, {
+                cmd = {
                     'name': line.name or line.product_id.display_name,
                     'product_id': line.product_id.id,
                     'product_uom_qty': line.quantity,
@@ -542,12 +590,22 @@ class AccountMove(models.Model):
                     'picking_type_id': picking_type.id,
                     'warehouse_id': warehouse.id,
                     'origin': self.name,
-                }))
+                }
+                move_commands.append((0, 0, cmd))
+                _logger.info(
+                    f"[DEBUG]   move_command added: product={line.product_id.display_name} "
+                    f"qty={line.quantity} uom={line.product_uom_id.id}"
+                )
 
         if not move_commands:
+            _logger.warning(f"[DEBUG] _create_picking_for_warehouse: no move_commands built, returning None")
             return None
 
-        # Create picking with moves in a single call
+        _logger.info(
+            f"[DEBUG] _create_picking_for_warehouse: move_commands count={len(move_commands)}, "
+            f"about to create picking with move_ids inline"
+        )
+
         picking_vals = {
             'picking_type_id': picking_type.id,
             'partner_id': self.partner_id.id,
@@ -563,23 +621,43 @@ class AccountMove(models.Model):
 
         picking = self.env['stock.picking'].create(picking_vals)
 
-        # Confirm the picking
+        _logger.info(
+            f"[DEBUG] picking AFTER create BEFORE confirm: "
+            f"id={picking.id} name={picking.name} state={picking.state} "
+            f"move_ids={picking.move_ids.ids} move_count={len(picking.move_ids)}"
+        )
+        for sm in picking.move_ids:
+            _logger.info(
+                f"[DEBUG]   move BEFORE confirm: id={sm.id} product={sm.product_id.display_name} "
+                f"qty={sm.product_uom_qty} state={sm.state}"
+            )
+
+        # Confirm
         picking.action_confirm()
+
+        _logger.info(
+            f"[DEBUG] picking AFTER confirm: "
+            f"id={picking.id} name={picking.name} state={picking.state} "
+            f"move_ids={picking.move_ids.ids} move_count={len(picking.move_ids)}"
+        )
+        for sm in picking.move_ids:
+            _logger.info(
+                f"[DEBUG]   move AFTER confirm: id={sm.id} product={sm.product_id.display_name} "
+                f"qty={sm.product_uom_qty} state={sm.state}"
+            )
+
         return picking
 
     def _get_default_warehouse(self):
-        """Get default warehouse for the company"""
         warehouse = self.env['stock.warehouse'].search([
             ('company_id', '=', self.company_id.id)
         ], limit=1)
         return warehouse
 
     def button_draft(self):
-        """Override to handle delivery cancellation"""
         result = super(AccountMove, self).button_draft()
 
         for move in self:
-            # Cancel related pickings if they exist and are not done
             pickings = move.picking_ids.filtered(lambda p: p.state not in ('done', 'cancel'))
             if pickings:
                 try:
@@ -595,7 +673,6 @@ class AccountMove(models.Model):
 
     @api.constrains('invoice_line_ids')
     def _check_warehouse_stock(self):
-        """Optionally check if sufficient stock is available"""
         if not self.env.company.invoice_check_stock_availability:
             return
 

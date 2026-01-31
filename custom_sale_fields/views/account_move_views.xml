@@ -49,6 +49,11 @@
                            filter_domain="[('awb_number', 'ilike', self)]"/>
                     <field name="delivery_note_number" string="Delivery Note"
                            filter_domain="[('delivery_note_number', 'ilike', self)]"/>
+
+                             <field name="payment_reference" string="payment_reference"
+                           filter_domain="[('payment_reference', 'ilike', self)]"/>
+
+
                     <field name="invoice_incoterm_id" string="Incoterm"/>
                 </xpath>
             </field>

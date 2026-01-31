@@ -309,7 +309,6 @@
 #                                                   line.quantity,
 #                                                   available
 
-
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from collections import defaultdict
@@ -580,7 +579,6 @@ class AccountMove(models.Model):
         for line in lines:
             if line.product_id and line.product_id.type in ('product', 'consu') and line.quantity > 0:
                 cmd = {
-                    'name': line.name or line.product_id.display_name,
                     'product_id': line.product_id.id,
                     'product_uom_qty': line.quantity,
                     'product_uom': line.product_uom_id.id,
@@ -589,7 +587,6 @@ class AccountMove(models.Model):
                     'company_id': self.company_id.id,
                     'picking_type_id': picking_type.id,
                     'warehouse_id': warehouse.id,
-                    'origin': self.name,
                 }
                 move_commands.append((0, 0, cmd))
                 _logger.info(

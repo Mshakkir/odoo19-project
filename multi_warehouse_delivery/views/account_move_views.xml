@@ -15,10 +15,10 @@
 <!--                       options="{'no_create': True, 'no_open': True}"/>-->
 <!--            </xpath>-->
 
-<!--            &lt;!&ndash; Add warehouse field in the mobile kanban view &ndash;&gt;-->
-<!--            <xpath expr="//page[@id='invoice_tab']//field[@name='invoice_line_ids']/kanban//field[@name='product_id']" position="after">-->
-<!--                <field name="warehouse_id"/>-->
-<!--            </xpath>-->
+            <!-- Add warehouse field in the mobile kanban view -->
+            <xpath expr="//page[@id='invoice_tab']//field[@name='invoice_line_ids']/kanban//field[@name='product_id']" position="after">
+                <field name="warehouse_id"/>
+            </xpath>
 
 <!--            &lt;!&ndash; Add warehouse field in the mobile form view &ndash;&gt;-->
 <!--            <xpath expr="//page[@id='invoice_tab']//field[@name='invoice_line_ids']/form//field[@name='product_id']" position="after">-->

@@ -17,6 +17,8 @@
                            invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
                     <field name="invoice_incoterm_id" placeholder="Select Incoterm..."
                            invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
+                            <field name="payment_reference" placeholder="Enter payment reference.."
+                           invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
                 </xpath>
             </field>
         </record>

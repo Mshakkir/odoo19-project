@@ -146,10 +146,10 @@
                             <td>
                                 <!-- Show the new memo_new field if exists, otherwise show old memo -->
                                 Memo:
-                                <t t-if="hasattr(o, 'memo_new') and o.memo_new">
+                                <t t-if="'memo_new' in o._fields and o.memo_new">
                                     <span t-field="o.memo_new"/>
                                 </t>
-                                <t t-else="">
+                                <t t-elif="o.memo">
                                     <span t-field="o.memo"/>
                                 </t>
                             </td>

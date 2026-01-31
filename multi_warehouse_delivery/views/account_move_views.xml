@@ -15,34 +15,6 @@
                        options="{'no_create': True, 'no_open': True}"/>
             </xpath>
 
-            <!-- Add warehouse field in the line form view (popup when editing a line) -->
-            <xpath expr="//page[@id='invoice_tab']//field[@name='invoice_line_ids']/form//field[@name='product_id']" position="after">
-                <field name="warehouse_id"
-                       options="{'no_create': True, 'no_open': True}"/>
-            </xpath>
-
-        </field>
-    </record>
-</odoo>
-
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-<!--    &lt;!&ndash; Add warehouse field to invoice lines in the invoice form &ndash;&gt;-->
-<!--    <record id="view_move_form_inherit_warehouse" model="ir.ui.view">-->
-<!--        <field name="name">account.move.form.inherit.warehouse</field>-->
-<!--        <field name="model">account.move</field>-->
-<!--        <field name="inherit_id" ref="account.view_move_form"/>-->
-<!--        <field name="arch" type="xml">-->
-
-<!--            &lt;!&ndash; Add warehouse field after product_id in invoice lines list &ndash;&gt;-->
-<!--            <xpath expr="//page[@id='invoice_tab']//field[@name='invoice_line_ids']/list/field[@name='product_id']" position="after">-->
-<!--                <field name="warehouse_id"-->
-<!--                       optional="show"-->
-<!--                       widget="many2one"-->
-<!--                       options="{'no_create': True, 'no_open': True}"/>-->
-<!--            </xpath>-->
-
 <!--            &lt;!&ndash; Add warehouse field in the mobile kanban view &ndash;&gt;-->
 <!--            <xpath expr="//page[@id='invoice_tab']//field[@name='invoice_line_ids']/kanban//field[@name='product_id']" position="after">-->
 <!--                <field name="warehouse_id"/>-->
@@ -54,6 +26,6 @@
 <!--                       options="{'no_create': True, 'no_open': True}"/>-->
 <!--            </xpath>-->
 
-<!--        </field>-->
-<!--    </record>-->
-<!--</odoo>-->
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit the account payment register form view -->
+    <record id="view_account_payment_register_form_custom" model="ir.ui.view">
+        <field name="name">account.payment.register.form.custom</field>
+        <field name="model">account.payment.register</field>
+        <field name="inherit_id" ref="account.view_account_payment_register_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Rename the communication field label to "Reference Number" -->
+            <xpath expr="//field[@name='communication']" position="attributes">
+                <attribute name="string">Reference Number</attribute>
+            </xpath>
+
+            <!-- Add new memo field after communication field -->
+            <xpath expr="//field[@name='communication']" position="after">
+                <field name="memo_new"
+                       placeholder="Add additional notes here..."
+                       invisible="not can_edit_wizard or (can_group_payments and not group_payment)"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

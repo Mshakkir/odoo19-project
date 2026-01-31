@@ -79,12 +79,10 @@
 
                                 <!-- Get move lines for this account -->
                                 <t t-set="analytic_ids" t-value="wizard.analytic_account_ids.ids if wizard.analytic_account_ids else []"/>
-                                <t t-set="domain" t-value="[
-                                    ('account_id', '=', line.account_id.id),
-                                    ('move_id.state', '=', 'posted'),
-                                ]"/>
+                                <t t-set="domain" t-value="[('account_id', '=', line.account_id.id), ('move_id.state', '=', 'posted')]"/>
                                 <t t-if="wizard.date_from and wizard.date_to">
-                                    <t t-set="domain" t-value="domain + [('date', '>=', wizard.date_from), ('date', '&lt;=', wizard.date_to)]"/>
+                                    <t t-set="date_domain" t-value="[('date', '&gt;=', wizard.date_from), ('date', '&lt;=', wizard.date_to)]"/>
+                                    <t t-set="domain" t-value="domain + date_domain"/>
                                 </t>
                                 <t t-set="all_move_lines" t-value="env['account.move.line'].search(domain, order='date, move_id')"/>
 
@@ -132,10 +130,10 @@
                                                         </td>
                                                         <td><span t-field="move_line.partner_id.name"/></td>
                                                         <td class="text-end">
-                                                            <span t-if="move_line.debit > 0" t-field="move_line.debit" t-options='{"widget": "monetary", "display_currency": wizard.company_id.currency_id}'/>
+                                                            <span t-if="move_line.debit &gt; 0" t-field="move_line.debit" t-options='{"widget": "monetary", "display_currency": wizard.company_id.currency_id}'/>
                                                         </td>
                                                         <td class="text-end">
-                                                            <span t-if="move_line.credit > 0" t-field="move_line.credit" t-options='{"widget": "monetary", "display_currency": wizard.company_id.currency_id}'/>
+                                                            <span t-if="move_line.credit &gt; 0" t-field="move_line.credit" t-options='{"widget": "monetary", "display_currency": wizard.company_id.currency_id}'/>
                                                         </td>
                                                     </tr>
                                                 </t>
@@ -194,7 +192,7 @@
                             </div>
                         </t>
                     </div>
-                </t t-call="web.external_layout">
+                </t>
             </t>
         </t>
     </template>

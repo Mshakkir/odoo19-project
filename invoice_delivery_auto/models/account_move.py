@@ -309,7 +309,6 @@
 #                                                   line.quantity,
 #                                                   available
 #                                               ))
-
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from collections import defaultdict
@@ -456,15 +455,15 @@ class AccountMove(models.Model):
         """Create delivery orders based on invoice lines grouped by warehouse"""
         self.ensure_one()
 
-        # Skip if invoice has no lines or already has deliveries
-        if not self.invoice_line_ids or self.picking_ids:
+        # Skip if invoice has no lines
+        if not self.invoice_line_ids:
             return
 
         # Get stockable product lines grouped by warehouse
         lines_by_warehouse = defaultdict(list)
 
         for line in self.invoice_line_ids:
-            # Only process stockable products
+            # Only process stockable products with warehouse
             if line.product_id and line.product_id.type in ('product', 'consu') and line.quantity > 0:
                 warehouse = line.warehouse_id or self._get_default_warehouse()
                 if warehouse:
@@ -518,38 +517,42 @@ class AccountMove(models.Model):
         if not picking_type:
             raise UserError(_("Warehouse %s has no outgoing operation type configured.") % warehouse.name)
 
+        # Get customer location
+        customer_location = self.partner_id.property_stock_customer.id
+        if not customer_location:
+            customer_location = self.env.ref('stock.stock_location_customers').id
+
         # Prepare picking values
         picking_vals = {
             'picking_type_id': picking_type.id,
             'partner_id': self.partner_id.id,
             'origin': self.name,
             'location_id': warehouse.lot_stock_id.id,
-            'location_dest_id': self.partner_id.property_stock_customer.id or self.env.ref(
-                'stock.stock_location_customers').id,
+            'location_dest_id': customer_location,
             'company_id': self.company_id.id,
-            'move_type': 'direct',  # Direct delivery
+            'move_type': 'direct',
             'scheduled_date': fields.Datetime.now(),
-            'invoice_id': self.id,  # Link to invoice
+            'invoice_id': self.id,
         }
 
         picking = self.env['stock.picking'].create(picking_vals)
 
         # Create stock moves for each line
         for line in lines:
-            if line.product_id and line.product_id.type in ('product', 'consu'):
+            if line.product_id and line.product_id.type in ('product', 'consu') and line.quantity > 0:
                 move_vals = {
-                    'name': line.product_id.display_name,
+                    'name': line.name or line.product_id.display_name,
                     'product_id': line.product_id.id,
                     'product_uom_qty': line.quantity,
                     'product_uom': line.product_uom_id.id,
                     'picking_id': picking.id,
                     'location_id': warehouse.lot_stock_id.id,
-                    'location_dest_id': picking.location_dest_id.id,
+                    'location_dest_id': customer_location,
                     'company_id': self.company_id.id,
                     'picking_type_id': picking_type.id,
                     'warehouse_id': warehouse.id,
                     'origin': self.name,
-                    'description_picking': line.name,
+                    'state': 'draft',
                 }
 
                 self.env['stock.move'].create(move_vals)

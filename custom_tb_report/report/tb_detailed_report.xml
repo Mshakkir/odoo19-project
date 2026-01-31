@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Report Action -->
+    <record id="action_report_trial_balance_detailed" model="ir.actions.report">
+        <field name="name">Trial Balance - Detailed</field>
+        <field name="model">account.balance.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_tb_report.report_trial_balance_detailed</field>
+        <field name="report_file">custom_tb_report.report_trial_balance_detailed</field>
+        <field name="binding_model_id" ref="model_account_balance_report"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+
+    <!-- Report Template -->
+    <template id="report_trial_balance_detailed">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="wizard">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <!-- Header -->
+                        <div class="text-center mb-4">
+                            <h2>
+                                <span t-field="wizard.company_id.name"/>
+                            </h2>
+                            <h3>Trial Balance - Detailed Report</h3>
+                            <p>
+                                <strong>Period:</strong>
+                                <span t-if="wizard.date_from">
+                                    <span t-field="wizard.date_from"/> to <span t-field="wizard.date_to"/>
+                                </span>
+                                <span t-else="">All Dates</span>
+                            </p>
+                            <p t-if="wizard.analytic_account_ids">
+                                <strong>Analytic Accounts:</strong>
+                                <span t-esc="', '.join(wizard.analytic_account_ids.mapped('name'))"/>
+                            </p>
+                            <p>
+                                <strong>Display Account:</strong> With movements
+                            </p>
+                            <p>
+                                <strong>Target Moves:</strong> All Posted Entries
+                            </p>
+                        </div>
+
+                        <!-- Get trial balance lines -->
+                        <t t-set="tb_lines" t-value="env['trial.balance.line'].search([('wizard_id', '=', wizard.id), ('is_total', '=', False)], order='account_id')"/>
+
+                        <!-- Loop through each account -->
+                        <t t-foreach="tb_lines" t-as="line">
+                            <!-- Account Header -->
+                            <div class="mb-3" style="page-break-inside: avoid;">
+                                <table class="table table-sm table-bordered">
+                                    <thead style="background-color: #f8f9fa;">
+                                        <tr>
+                                            <th width="15%">Code</th>
+                                            <th width="40%">Account</th>
+                                            <th width="15%" class="text-end">Debit</th>
+                                            <th width="15%" class="text-end">Credit</th>
+                                            <th width="15%" class="text-end">Balance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style="font-weight: bold; background-color: #e9ecef;">
+                                            <td><span t-field="line.account_id.code"/></td>
+                                            <td><span t-field="line.account_id.name"/></td>
+                                            <td class="text-end">
+                                                <span t-field="line.debit" t-options='{"widget": "monetary", "display_currency": wizard.company_id.currency_id}'/>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-field="line.credit" t-options='{"widget": "monetary", "display_currency": wizard.company_id.currency_id}'/>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-field="line.ending_balance" t-options='{"widget": "monetary", "display_currency": wizard.company_id.currency_id}'/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- Get move lines for this account -->
+                                <t t-set="analytic_ids" t-value="wizard.analytic_account_ids.ids if wizard.analytic_account_ids else []"/>
+                                <t t-set="domain" t-value="[
+                                    ('account_id', '=', line.account_id.id),
+                                    ('move_id.state', '=', 'posted'),
+                                ]"/>
+                                <t t-if="wizard.date_from and wizard.date_to">
+                                    <t t-set="domain" t-value="domain + [('date', '>=', wizard.date_from), ('date', '&lt;=', wizard.date_to)]"/>
+                                </t>
+                                <t t-set="all_move_lines" t-value="env['account.move.line'].search(domain, order='date, move_id')"/>
+
+                                <!-- Filter by analytic if needed -->
+                                <t t-set="move_lines" t-value="all_move_lines"/>
+                                <t t-if="analytic_ids">
+                                    <t t-set="filtered_lines" t-value="env['account.move.line']"/>
+                                    <t t-foreach="all_move_lines" t-as="ml">
+                                        <t t-if="ml.analytic_distribution">
+                                            <t t-foreach="analytic_ids" t-as="analytic_id">
+                                                <t t-if="str(analytic_id) in ml.analytic_distribution">
+                                                    <t t-set="filtered_lines" t-value="filtered_lines | ml"/>
+                                                    <t t-set="break_loop" t-value="True"/>
+                                                </t>
+                                            </t>
+                                        </t>
+                                    </t>
+                                    <t t-set="move_lines" t-value="filtered_lines"/>
+                                </t>
+
+                                <!-- Transaction Details Table -->
+                                <t t-if="move_lines">
+                                    <div style="margin-left: 20px;">
+                                        <table class="table table-sm table-bordered" style="font-size: 11px;">
+                                            <thead style="background-color: #f0f0f0;">
+                                                <tr>
+                                                    <th width="10%">Date</th>
+                                                    <th width="12%">Journal</th>
+                                                    <th width="28%">Label</th>
+                                                    <th width="20%">Partner</th>
+                                                    <th width="15%" class="text-end">Debit</th>
+                                                    <th width="15%" class="text-end">Credit</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="move_lines" t-as="move_line">
+                                                    <tr>
+                                                        <td><span t-field="move_line.date"/></td>
+                                                        <td><span t-field="move_line.journal_id.code"/></td>
+                                                        <td>
+                                                            <span t-field="move_line.move_id.name"/>
+                                                            <t t-if="move_line.name != '/'">
+                                                                - <span t-field="move_line.name"/>
+                                                            </t>
+                                                        </td>
+                                                        <td><span t-field="move_line.partner_id.name"/></td>
+                                                        <td class="text-end">
+                                                            <span t-if="move_line.debit > 0" t-field="move_line.debit" t-options='{"widget": "monetary", "display_currency": wizard.company_id.currency_id}'/>
+                                                        </td>
+                                                        <td class="text-end">
+                                                            <span t-if="move_line.credit > 0" t-field="move_line.credit" t-options='{"widget": "monetary", "display_currency": wizard.company_id.currency_id}'/>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                                <!-- Subtotal row -->
+                                                <tr style="font-weight: bold; background-color: #f8f9fa;">
+                                                    <td colspan="4" class="text-end">Subtotal:</td>
+                                                    <td class="text-end">
+                                                        <span t-esc="sum(move_lines.mapped('debit'))" t-options='{"widget": "monetary", "display_currency": wizard.company_id.currency_id}'/>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span t-esc="sum(move_lines.mapped('credit'))" t-options='{"widget": "monetary", "display_currency": wizard.company_id.currency_id}'/>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <div style="margin-left: 20px; font-style: italic; color: #6c757d; margin-bottom: 10px;">
+                                        No transactions in the selected period.
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+
+                        <!-- Grand Total -->
+                        <t t-set="total_line" t-value="env['trial.balance.line'].search([('wizard_id', '=', wizard.id), ('is_total', '=', True)], limit=1)"/>
+                        <t t-if="total_line">
+                            <div class="mt-4">
+                                <table class="table table-sm table-bordered">
+                                    <thead style="background-color: #28a745; color: white;">
+                                        <tr>
+                                            <th width="15%">Code</th>
+                                            <th width="40%">Account</th>
+                                            <th width="15%" class="text-end">Debit</th>
+                                            <th width="15%" class="text-end">Credit</th>
+                                            <th width="15%" class="text-end">Balance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style="font-weight: bold; font-size: 14px;">
+                                            <td><span t-field="total_line.account_id.code"/></td>
+                                            <td><span t-field="total_line.account_id.name"/></td>
+                                            <td class="text-end">
+                                                <span t-field="total_line.debit" t-options='{"widget": "monetary", "display_currency": wizard.company_id.currency_id}'/>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-field="total_line.credit" t-options='{"widget": "monetary", "display_currency": wizard.company_id.currency_id}'/>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-field="total_line.ending_balance" t-options='{"widget": "monetary", "display_currency": wizard.company_id.currency_id}'/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+                    </div>
+                </t t-call="web.external_layout">
+            </t>
+        </t>
+    </template>
+</odoo>

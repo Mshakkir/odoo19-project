@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add settings to Accounting configuration -->
+    <record id="res_config_settings_view_form_inherit_invoice_delivery" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.invoice.delivery</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="90"/>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='account']" position="inside">
+                <block title="Invoice Delivery Automation">
+                    <setting id="invoice_auto_create_delivery_setting"
+                             string="Auto Create Delivery from Invoice"
+                             help="Automatically create delivery orders when customer invoice is posted (for invoices without sale orders)">
+                        <field name="invoice_auto_create_delivery"/>
+                    </setting>
+                    <setting id="invoice_auto_validate_delivery_setting"
+                             string="Auto Validate Delivery"
+                             help="Automatically validate delivery orders created from invoices (if stock is available)"
+                             invisible="not invoice_auto_create_delivery">
+                        <field name="invoice_auto_validate_delivery"/>
+                    </setting>
+                    <setting id="invoice_check_stock_availability_setting"
+                             string="Check Stock Availability"
+                             help="Prevent posting invoice if insufficient stock is available in selected warehouse"
+                             invisible="not invoice_auto_create_delivery">
+                        <field name="invoice_check_stock_availability"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    &lt;!&ndash; Add settings to Accounting configuration &ndash;&gt;-->
+<!--    <record id="res_config_settings_view_form_inherit_invoice_delivery" model="ir.ui.view">-->
+<!--        <field name="name">res.config.settings.view.form.inherit.invoice.delivery</field>-->
+<!--        <field name="model">res.config.settings</field>-->
+<!--        <field name="priority" eval="90"/>-->
+<!--        <field name="inherit_id" ref="account.res_config_settings_view_form"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//app[@name='account']" position="inside">-->
+<!--                <block title="Invoice Delivery Automation">-->
+<!--                    <setting id="invoice_auto_create_delivery_setting"-->
+<!--                             string="Auto Create Delivery from Invoice"-->
+<!--                             help="Automatically create delivery orders when customer invoice is posted (for invoices without sale orders)">-->
+<!--                        <field name="invoice_auto_create_delivery"/>-->
+<!--                    </setting>-->
+<!--                    <setting id="invoice_auto_validate_delivery_setting"-->
+<!--                             string="Auto Validate Delivery"-->
+<!--                             help="Automatically validate delivery orders created from invoices (if stock is available)"-->
+<!--                             invisible="not invoice_auto_create_delivery">-->
+<!--                        <field name="invoice_auto_validate_delivery"/>-->
+<!--                    </setting>-->
+<!--                    <setting id="invoice_check_stock_availability_setting"-->
+<!--                             string="Check Stock Availability"-->
+<!--                             help="Prevent posting invoice if insufficient stock is available in selected warehouse"-->
+<!--                             invisible="not invoice_auto_create_delivery">-->
+<!--                        <field name="invoice_check_stock_availability"/>-->
+<!--                    </setting>-->
+<!--                </block>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+<!--</odoo>-->

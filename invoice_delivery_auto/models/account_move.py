@@ -558,7 +558,7 @@ class AccountMove(models.Model):
             'move_type': 'direct',
             'scheduled_date': fields.Datetime.now(),
             'invoice_id': self.id,
-            'move_ids_without_package': move_commands,
+            'move_ids': move_commands,
         }
 
         picking = self.env['stock.picking'].create(picking_vals)

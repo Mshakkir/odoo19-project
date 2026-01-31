@@ -168,10 +168,19 @@
                     <table style="width:100%; border-collapse: collapse; font-size:14px; border: 1px solid #000;">
                         <thead style="background:#f5f5f5;">
                             <tr>
-                                <th style="padding:8px; border:1px solid #000;">INVOICE DATE</th>
-                                <th style="padding:8px; border:1px solid #000;">INVOICE NUMBER</th>
-                                <th style="padding:8px; border:1px solid #000;">REFERENCE</th>
-                                <th style="padding:8px; border:1px solid #000; text-align:right;">AMOUNT</th>
+                                <!-- Show different headers for direct payments vs invoice payments -->
+                                <t t-if="invoices">
+                                    <th style="padding:8px; border:1px solid #000;">INVOICE DATE</th>
+                                    <th style="padding:8px; border:1px solid #000;">INVOICE NUMBER</th>
+                                    <th style="padding:8px; border:1px solid #000;">REFERENCE</th>
+                                    <th style="padding:8px; border:1px solid #000; text-align:right;">AMOUNT</th>
+                                </t>
+                                <t t-else="">
+                                    <th style="padding:8px; border:1px solid #000;">RECEIPT DATE</th>
+                                    <th style="padding:8px; border:1px solid #000;">RECEIPT NUMBER</th>
+                                    <th style="padding:8px; border:1px solid #000;">REFERENCE</th>
+                                    <th style="padding:8px; border:1px solid #000; text-align:right;">AMOUNT</th>
+                                </t>
                             </tr>
                         </thead>
 

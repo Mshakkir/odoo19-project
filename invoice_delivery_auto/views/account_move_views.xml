@@ -43,22 +43,6 @@
         </field>
     </record>
 
-    <!-- Add warehouse field to invoice tree view -->
-    <record id="view_invoice_tree_inherit_warehouse" model="ir.ui.view">
-        <field name="name">account.move.tree.inherit.warehouse</field>
-        <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_invoice_tree"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='state']" position="before">
-                <field name="delivery_count"
-                       string="Deliveries"
-                       optional="hide"
-                       widget="badge"
-                       decoration-info="delivery_count &gt; 0"/>
-            </xpath>
-        </field>
-    </record>
-
 </odoo>
 
 

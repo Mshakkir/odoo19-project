@@ -25,27 +25,25 @@ class AccountMove(models.Model):
         help="Purchase representative from the related purchase order"
     )
 
-    # AWB Number - Air Waybill or shipping reference
-    awb_number = fields.Char(
+    # AWB Number Display - Air Waybill or shipping reference
+    awb_number_display = fields.Char(
         string='AWB Number',
-        compute='_compute_awb_number',
+        compute='_compute_awb_number_display',
         store=True,
         readonly=True,
         help="Air Waybill number from the related stock picking"
     )
 
-    # Goods Receipt Number - Delivery note or GR number
-    goods_receipt_number = fields.Char(
+    # Goods Receipt Number Display - Delivery note or GR number
+    goods_receipt_number_display = fields.Char(
         string='Goods Receipt Number',
-        compute='_compute_goods_receipt_number',
+        compute='_compute_goods_receipt_number_display',
         store=True,
         readonly=True,
         help="Goods receipt number from the related stock picking"
     )
 
     # PO Number Display - computed field for list view
-    # Note: po_number already exists as Many2one in another module
-    # We create a computed Char field for display purposes
     po_number_display = fields.Char(
         string='PO Number',
         compute='_compute_po_number_display',
@@ -91,53 +89,73 @@ class AccountMove(models.Model):
             move.buyer_id = buyer
 
     @api.depends('invoice_origin')
-    def _compute_awb_number(self):
-        """Compute AWB number from stock picking"""
+    def _compute_awb_number_display(self):
+        """Compute AWB number from stock picking or existing awb_number field"""
         for move in self:
             awb = False
 
-            if move.invoice_origin:
-                # Search for stock picking with matching origin
+            # First check if awb_number field exists and has value (from other module)
+            if hasattr(move, 'awb_number') and move.awb_number:
+                # If awb_number is Many2one, get its name
+                if hasattr(move.awb_number, 'name'):
+                    awb = move.awb_number.name
+                else:
+                    awb = str(move.awb_number)
+
+            # If no awb_number, get from stock picking
+            if not awb and move.invoice_origin:
                 pickings = self.env['stock.picking'].search([
                     ('origin', '=', move.invoice_origin)
                 ], limit=1)
 
                 if pickings:
                     # Try to get AWB number from different possible field names
-                    # Adjust field name based on your actual field in stock.picking
                     if hasattr(pickings, 'awb_number'):
-                        awb = pickings.awb_number
+                        if hasattr(pickings.awb_number, 'name'):
+                            awb = pickings.awb_number.name
+                        else:
+                            awb = str(pickings.awb_number) if pickings.awb_number else False
                     elif hasattr(pickings, 'carrier_tracking_ref'):
                         awb = pickings.carrier_tracking_ref
                     elif hasattr(pickings, 'shipping_reference'):
                         awb = pickings.shipping_reference
 
-            move.awb_number = awb
+            move.awb_number_display = awb
 
     @api.depends('invoice_origin')
-    def _compute_goods_receipt_number(self):
-        """Compute goods receipt number from stock picking"""
+    def _compute_goods_receipt_number_display(self):
+        """Compute goods receipt number from stock picking or existing goods_receipt_number field"""
         for move in self:
             gr_number = False
 
-            if move.invoice_origin:
-                # Search for stock picking with matching origin
+            # First check if goods_receipt_number field exists and has value (from other module)
+            if hasattr(move, 'goods_receipt_number') and move.goods_receipt_number:
+                # If goods_receipt_number is Many2one, get its name
+                if hasattr(move.goods_receipt_number, 'name'):
+                    gr_number = move.goods_receipt_number.name
+                else:
+                    gr_number = str(move.goods_receipt_number)
+
+            # If no goods_receipt_number, get from stock picking
+            if not gr_number and move.invoice_origin:
                 pickings = self.env['stock.picking'].search([
                     ('origin', '=', move.invoice_origin)
                 ], limit=1)
 
                 if pickings:
                     # Try to get GR number from different possible field names
-                    # Adjust field name based on your actual field in stock.picking
                     if hasattr(pickings, 'goods_receipt_number'):
-                        gr_number = pickings.goods_receipt_number
+                        if hasattr(pickings.goods_receipt_number, 'name'):
+                            gr_number = pickings.goods_receipt_number.name
+                        else:
+                            gr_number = str(pickings.goods_receipt_number) if pickings.goods_receipt_number else False
                     elif hasattr(pickings, 'delivery_note_number'):
                         gr_number = pickings.delivery_note_number
                     elif hasattr(pickings, 'name'):
                         # Fallback to picking name if no specific GR field
                         gr_number = pickings.name
 
-            move.goods_receipt_number = gr_number
+            move.goods_receipt_number_display = gr_number
 
     @api.depends('line_ids.purchase_line_id.order_id.name', 'po_number')
     def _compute_po_number_display(self):

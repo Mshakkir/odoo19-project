@@ -46,11 +46,11 @@
                     <!-- 10. Buyer - ALWAYS VISIBLE -->
                     <field name="buyer_id" string="Buyer" width="130px"/>
 
-                    <!-- 11. Shipping Reference (AWB Number) -->
-                    <field name="awb_number" string="Shipping Ref #" width="110px"/>
+                    <!-- 11. Shipping Reference (AWB Number) - CHANGED TO awb_number_display -->
+                    <field name="awb_number_display" string="Shipping Ref #" width="110px"/>
 
-                    <!-- 12. Delivery Note Number -->
-                    <field name="goods_receipt_number" string="GR Number#" width="120px"/>
+                    <!-- 12. Delivery Note Number - CHANGED TO goods_receipt_number_display -->
+                    <field name="goods_receipt_number_display" string="GR Number#" width="120px"/>
 
                     <!-- 13. Status -->
                     <field name="state" string="Status" widget="badge"

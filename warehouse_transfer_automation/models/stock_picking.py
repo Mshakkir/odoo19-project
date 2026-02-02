@@ -205,7 +205,6 @@ class StockPicking(models.Model):
 
         StockPicking = self.env['stock.picking'].sudo()
         StockMove = self.env['stock.move'].sudo()
-        StockMoveLine = self.env['stock.move.line'].sudo()
 
         transit_loc = picking.location_dest_id
         source_warehouse = picking.source_warehouse_id
@@ -220,6 +219,7 @@ class StockPicking(models.Model):
             _logger.error('No destination warehouse identified - cannot create receipt')
             return False
 
+        # Find receiving operation type
         receiving_type = self.env['stock.picking.type'].sudo().search([
             ('warehouse_id', '=', dest_warehouse.id),
             ('code', '=', 'internal'),
@@ -253,6 +253,7 @@ class StockPicking(models.Model):
             _logger.error('Could not determine destination location for warehouse: %s', dest_warehouse.name)
             return False
 
+        # Create the receipt picking
         new_picking_vals = {
             'picking_type_id': receiving_type.id,
             'location_id': transit_loc.id,
@@ -264,10 +265,9 @@ class StockPicking(models.Model):
         new_picking = StockPicking.create(new_picking_vals)
         _logger.info('✅ Created receipt picking %s for warehouse %s', new_picking.name, dest_warehouse.name)
 
-        # Create moves for the receipt
+        # Create moves for the receipt based on ACTUAL quantities from source transfer
         for move in picking.move_ids:
-            # CRITICAL: Use the quantity_done (actual validated quantity) from the original move
-            # This is the quantity that was actually sent
+            # CRITICAL: Use quantity_done (actual validated quantity)
             actual_qty = move.quantity_done if move.quantity_done > 0 else move.product_uom_qty
 
             _logger.info('📦 Creating move for product %s with qty %s (validated quantity)',
@@ -275,7 +275,7 @@ class StockPicking(models.Model):
 
             move_vals = {
                 'product_id': move.product_id.id,
-                'product_uom_qty': actual_qty,  # Use the actual validated quantity
+                'product_uom_qty': actual_qty,
                 'product_uom': move.product_uom.id,
                 'picking_id': new_picking.id,
                 'location_id': transit_loc.id,
@@ -288,26 +288,31 @@ class StockPicking(models.Model):
             new_move = StockMove.create(move_vals)
             _logger.info('✅ Created move: %s with qty %s', new_move.id, actual_qty)
 
-        # Confirm the receipt picking
+        # Confirm and assign the receipt picking to make it READY
+        _logger.info('🔄 Confirming receipt picking...')
         new_picking.action_confirm()
-        _logger.info('✅ Confirmed receipt picking: %s', new_picking.name)
+        _logger.info('✅ Receipt picking confirmed: %s (state: %s)', new_picking.name, new_picking.state)
 
-        # CRITICAL FIX: Do NOT manually create stock.move.line records
-        # Odoo's action_confirm() already creates them based on product_uom_qty
-        # Creating additional move lines causes DOUBLE QUANTITY
-
-        # Instead, just assign the picking to make it ready
+        # CRITICAL FIX: Use action_assign() to properly reserve stock and set state to 'assigned' (Ready)
+        # This replaces the manual move line creation which was causing double quantities
+        _logger.info('🔄 Assigning receipt picking...')
         new_picking.action_assign()
-        _logger.info('✅ Receipt picking assigned and ready: %s', new_picking.name)
+        _logger.info('✅ Receipt picking assigned: %s (state: %s)', new_picking.name, new_picking.state)
 
+        # Add message to original picking
         picking.message_post(
             body=_('📦 Receipt transfer %s has been automatically created for %s warehouse.') %
                  (new_picking.name, dest_warehouse.name)
         )
 
+        # Add message to new receipt picking
         new_picking.message_post(
-            body=_('📦 This receipt was automatically created from transfer %s.') % picking.name
+            body=_('📥 This receipt was automatically created from transfer %s. '
+                   'Validate to receive products into your warehouse.') % picking.name
         )
+
+        _logger.info('✅ Receipt %s created and ready (state: %s) for warehouse %s',
+                     new_picking.name, new_picking.state, dest_warehouse.name)
 
         return new_picking
 
@@ -331,10 +336,11 @@ class StockPicking(models.Model):
         source_users = self._get_warehouse_users(source_warehouse)
 
         if not source_users:
-            _logger.error('❌ NO USERS FOUND for %s warehouse - Notifications cannot be sent', source_warehouse.name)
+            _logger.error('❌ NO USERS FOUND for %s warehouse - Notifications cannot be sent',
+                          source_warehouse.name)
             self.message_post(
-                body=_(
-                    '⚠️ Warning: Could not send notification to %s warehouse users. No users found in warehouse group.') % source_warehouse.name,
+                body=_('⚠️ Warning: Could not send notification to %s warehouse users. '
+                       'No users found in warehouse group.') % source_warehouse.name,
                 message_type='comment',
             )
             return
@@ -385,7 +391,7 @@ class StockPicking(models.Model):
         try:
             self._create_activities(self, source_users, message,
                                     _('Action Required: Validate Request %s') % self.name)
-            _logger.info('✅ Activities created')
+            _logger.info('✅ Activities created for source warehouse users')
         except Exception as e:
             _logger.error('❌ Error creating activities: %s', str(e))
             import traceback
@@ -408,15 +414,18 @@ class StockPicking(models.Model):
             return
 
         _logger.info('📢 Starting destination warehouse notification for receipt: %s', receipt_picking.name)
-        _logger.info('   Source: %s, Destination: %s', source_warehouse.name if source_warehouse else 'None',
+        _logger.info('   Source: %s, Destination: %s',
+                     source_warehouse.name if source_warehouse else 'None',
                      dest_warehouse.name)
 
         dest_users = self._get_warehouse_users(dest_warehouse)
 
         if not dest_users:
-            _logger.error('❌ NO USERS FOUND for %s warehouse - Notifications cannot be sent', dest_warehouse.name)
+            _logger.error('❌ NO USERS FOUND for %s warehouse - Notifications cannot be sent',
+                          dest_warehouse.name)
             receipt_picking.message_post(
-                body=_('⚠️ Warning: Could not send notification to %s warehouse users.') % dest_warehouse.name,
+                body=_('⚠️ Warning: Could not send notification to %s warehouse users. '
+                       'No users found in warehouse group.') % dest_warehouse.name,
                 message_type='comment',
             )
             return
@@ -458,7 +467,7 @@ class StockPicking(models.Model):
                 message_type='notification',
                 subtype_xmlid='mail.mt_note',
             )
-            _logger.info('✅ Message posted on receipt')
+            _logger.info('✅ Notification message posted on receipt')
         except Exception as e:
             _logger.error('❌ Error posting message: %s', str(e))
             import traceback
@@ -467,7 +476,7 @@ class StockPicking(models.Model):
         try:
             self._create_activities(receipt_picking, dest_users, message,
                                     _('Action Required: Validate Receipt %s') % receipt_picking.name)
-            _logger.info('✅ Activities created')
+            _logger.info('✅ Activities created for destination warehouse users')
         except Exception as e:
             _logger.error('❌ Error creating activities: %s', str(e))
             import traceback
@@ -484,7 +493,14 @@ class StockPicking(models.Model):
         _logger.info('📋 Creating activities for %d users on picking %s', len(users), picking.name)
 
         if not activity_type:
-            _logger.warning('⚠️ Activity type not found, using default')
+            _logger.warning('⚠️ Activity type "To Do" not found, trying alternative')
+            activity_type = self.env['mail.activity.type'].sudo().search([
+                ('name', '=', 'To Do')
+            ], limit=1)
+
+        if not activity_type:
+            _logger.error('⚠️ Could not find any suitable activity type')
+            return
 
         for user in users:
             try:
@@ -492,13 +508,13 @@ class StockPicking(models.Model):
                 activity = ActivityModel.create({
                     'res_id': picking.id,
                     'res_model_id': self.env['ir.model']._get('stock.picking').id,
-                    'activity_type_id': activity_type.id if activity_type else 1,
+                    'activity_type_id': activity_type.id,
                     'summary': summary,
                     'note': message,
                     'user_id': user.id,
                     'date_deadline': fields.Date.today(),
                 })
-                _logger.info('   ✅ Activity created (ID: %s)', activity.id)
+                _logger.info('   ✅ Activity created (ID: %s) for user %s', activity.id, user.name)
             except Exception as e:
                 _logger.error('❌ Could not create activity for user %s: %s', user.name, str(e))
                 import traceback
@@ -565,7 +581,8 @@ class StockPicking(models.Model):
                     _logger.info('   ✓ User: %s (ID: %s) - Email: %s', user.name, user.id, user.email)
                 return filtered_users
             else:
-                _logger.warning('⚠️ No users found in group %s for warehouse %s', warehouse_group.name, warehouse.name)
+                _logger.warning('⚠️ No users found in group %s for warehouse %s',
+                                warehouse_group.name, warehouse.name)
                 return self.env['res.users'].browse([])
 
         except Exception as e:
@@ -573,9 +590,6 @@ class StockPicking(models.Model):
             import traceback
             _logger.error(traceback.format_exc())
             return self.env['res.users'].browse([])
-
-
-
 
 
 

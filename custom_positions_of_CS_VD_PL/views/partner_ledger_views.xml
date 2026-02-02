@@ -1,31 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Partner Ledger in Sales & Purchase -->
+    <!-- ============================================ -->
+    <!-- SALES MODULE MENUS -->
+    <!-- ============================================ -->
+
+    <!-- Partner Ledger in Sales -->
     <menuitem id="menu_partner_ledger_sales"
               name="Partner Ledger"
               parent="sale.sale_menu_root"
               action="accounting_pdf_reports.action_partner_report_partnerledger"
               sequence="50"/>
 
+    <!-- Customers Parent Menu in Sales -->
+    <menuitem id="menu_customers_sales_parent"
+              name="Customers"
+              parent="sale.sale_menu_root"
+              sequence="51"/>
+
+    <!-- Customer Invoices submenu -->
+    <menuitem id="menu_customer_invoices_sales"
+              name="Customer Invoices"
+              parent="menu_customers_sales_parent"
+              action="account.action_move_out_invoice_type"
+              sequence="1"/>
+
+    <!-- Credit Notes submenu -->
+    <menuitem id="menu_credit_notes_sales"
+              name="Credit Notes"
+              parent="menu_customers_sales_parent"
+              action="account.action_move_out_refund_type"
+              sequence="2"/>
+
+    <!-- Payments submenu -->
+    <menuitem id="menu_payments_sales"
+              name="Payments"
+              parent="menu_customers_sales_parent"
+              action="account.action_account_payments"
+              sequence="15"/>
+
+    <!-- Multi Payments submenu -->
+    <menuitem id="menu_multi_payments_sales"
+              name="Multi Payments"
+              parent="menu_customers_sales_parent"
+              action="account.action_account_payments_payable"
+              sequence="15"/>
+
+    <!-- Products submenu -->
+    <menuitem id="menu_products_sales"
+              name="Products"
+              parent="menu_customers_sales_parent"
+              action="product.product_normal_action_sell"
+              sequence="100"/>
+
+    <!-- Customers List submenu -->
+    <menuitem id="menu_customers_list_sales"
+              name="Customers"
+              parent="menu_customers_sales_parent"
+              action="base.action_partner_customer_form"
+              sequence="110"/>
+
+    <!-- ============================================ -->
+    <!-- PURCHASE MODULE MENUS -->
+    <!-- ============================================ -->
+
+    <!-- Partner Ledger in Purchase -->
     <menuitem id="menu_partner_ledger_purchase"
               name="Partner Ledger"
               parent="purchase.menu_purchase_root"
               action="accounting_pdf_reports.action_partner_report_partnerledger"
               sequence="50"/>
 
-    <!-- Customers in Sales -->
-    <menuitem id="menu_customers_sales"
-              name="Customers"
-              parent="sale.sale_menu_root"
-              action="accounting_pdf_reports.action_customers_receivable"
-              sequence="51"/>
-
-    <!-- Vendors in Purchase -->
-    <menuitem id="menu_vendors_purchase"
+    <!-- Vendors Parent Menu in Purchase -->
+    <menuitem id="menu_vendors_purchase_parent"
               name="Vendors"
               parent="purchase.menu_purchase_root"
-              action="accounting_pdf_reports.action_vendors_payable"
               sequence="51"/>
+
+    <!-- Bills submenu -->
+    <menuitem id="menu_bills_purchase"
+              name="Bills"
+              parent="menu_vendors_purchase_parent"
+              action="account.action_move_in_invoice_type"
+              sequence="1"/>
+
+    <!-- Refunds submenu -->
+    <menuitem id="menu_refunds_purchase"
+              name="Refunds"
+              parent="menu_vendors_purchase_parent"
+              action="account.action_move_in_refund_type"
+              sequence="2"/>
+
+    <!-- Multi Receipts submenu -->
+    <menuitem id="menu_multi_receipts_purchase"
+              name="Multi Receipts"
+              parent="menu_vendors_purchase_parent"
+              action="account.action_account_payments_receivable"
+              sequence="15"/>
+
+    <!-- Payments submenu -->
+    <menuitem id="menu_payments_purchase"
+              name="Payments"
+              parent="menu_vendors_purchase_parent"
+              action="account.action_account_payments"
+              sequence="20"/>
+
+    <!-- Products submenu -->
+    <menuitem id="menu_products_purchase"
+              name="Products"
+              parent="menu_vendors_purchase_parent"
+              action="product.product_normal_action"
+              sequence="100"/>
+
+    <!-- Vendors List submenu -->
+    <menuitem id="menu_vendors_list_purchase"
+              name="Vendors"
+              parent="menu_vendors_purchase_parent"
+              action="base.action_partner_supplier_form"
+              sequence="200"/>
+
 </odoo>
 
 

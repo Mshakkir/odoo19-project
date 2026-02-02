@@ -71,12 +71,18 @@ class StockPicking(models.Model):
 
                 # Identify source warehouse
                 source_wh_key = None
-                if 'MAIN' in source_upper:
-                    source_wh_key = 'main'
-                elif 'DAMMA' in source_upper or 'DAMMAM' in source_upper:
-                    source_wh_key = 'damma'
-                elif 'BALAD' in source_upper or 'BALADIYA' in source_upper:
-                    source_wh_key = 'balad'
+                # if 'MAIN' in source_upper:
+                #     source_wh_key = 'main'
+                # elif 'DAMMA' in source_upper or 'DAMMAM' in source_upper:
+                #     source_wh_key = 'damma'
+                # elif 'BALAD' in source_upper or 'BALADIYA' in source_upper:
+                #     source_wh_key = 'balad'
+                if 'FYH' in source_upper:
+                    source_wh_key = 'fyh'
+                elif 'DMM' in source_upper or 'DAMMAM' in source_upper:
+                    source_wh_key = 'dmm'
+                elif 'BLD' in source_upper or 'BALAD' in source_upper:
+                    source_wh_key = 'bld'
 
                 # Identify destination warehouse
                 dest_wh_key = None
@@ -119,7 +125,8 @@ class StockPicking(models.Model):
                     picking.state in ['assigned', 'confirmed']):
 
                 dest_loc_name = picking.location_dest_id.complete_name or picking.location_dest_id.name
-                if any(wh in dest_loc_name.upper() for wh in ['DAMMA', 'BALAD', 'MAIN']):
+                # if any(wh in dest_loc_name.upper() for wh in ['DAMMA', 'BALAD', 'MAIN']):
+                if any(wh in dest_loc_name.upper() for wh in ['FYH', 'BLD', 'DMM']):
                     pickings_to_automate.append(picking)
                     _logger.info('✅ Picking %s WILL BE automated', picking.name)
                 else:
@@ -534,12 +541,23 @@ class StockPicking(models.Model):
             _logger.info('🔍 Looking for users for warehouse: "%s"', warehouse.name)
             _logger.info('   Warehouse ID: %s', warehouse.id)
 
+            # warehouse_group_mapping = {
+            #     'main': 'warehouse_transfer_automation.group_main_warehouse',
+            #     'dammam': 'warehouse_transfer_automation.group_dammam_warehouse',
+            #     'damma': 'warehouse_transfer_automation.group_dammam_warehouse',
+            #     'baladiya': 'warehouse_transfer_automation.group_baladiya_warehouse',
+            #     'balad': 'warehouse_transfer_automation.group_baladiya_warehouse',
+            # }
+
             warehouse_group_mapping = {
-                'main': 'warehouse_transfer_automation.group_main_warehouse',
-                'dammam': 'warehouse_transfer_automation.group_dammam_warehouse',
-                'damma': 'warehouse_transfer_automation.group_dammam_warehouse',
-                'baladiya': 'warehouse_transfer_automation.group_baladiya_warehouse',
-                'balad': 'warehouse_transfer_automation.group_baladiya_warehouse',
+                'fyh': 'warehouse_transfer_automation.group_fyh_warehouse',
+                'jed-fyh': 'warehouse_transfer_automation.group_fyh_warehouse',
+                'dmm': 'warehouse_transfer_automation.group_dmm_warehouse',
+                'dmmam': 'warehouse_transfer_automation.group_dmm_warehouse',
+                'dmm-wh1': 'warehouse_transfer_automation.group_dmm_warehouse',
+                'bld': 'warehouse_transfer_automation.group_bld_warehouse',
+                'balad': 'warehouse_transfer_automation.group_bld_warehouse',
+                'jed-bld': 'warehouse_transfer_automation.group_bld_warehouse',
             }
 
             group_xmlid = None

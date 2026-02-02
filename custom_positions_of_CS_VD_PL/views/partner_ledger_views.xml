@@ -4,13 +4,13 @@
     <menuitem id="menu_partner_ledger_sales"
               name="Partner Ledger"
               parent="sale.sale_menu_root"
-              action="om_account_accountant.action_partner_ledger_report"
+              action="accounting_pdf_reports.action_partner_report_partnerledger"
               sequence="50"/>
 
     <!-- Add Partner Ledger to Purchase Module -->
     <menuitem id="menu_partner_ledger_purchase"
               name="Partner Ledger"
               parent="purchase.menu_purchase_root"
-              action="om_account_accountant.action_partner_ledger_report"
+              action="accounting_pdf_reports.action_partner_report_partnerledger"
               sequence="50"/>
 </odoo>

@@ -5,12 +5,12 @@
               name="Partner Ledger"
               parent="sale.sale_menu_root"
               action="account_reports.action_account_report_partner_ledger"
-              sequence="50"/>
+              sequence="15"/>
 
     <!-- Add Partner Ledger to Purchase Module -->
     <menuitem id="menu_partner_ledger_purchase"
               name="Partner Ledger"
               parent="purchase.menu_purchase_root"
               action="account_reports.action_account_report_partner_ledger"
-              sequence="50"/>
+              sequence="15"/>
 </odoo>

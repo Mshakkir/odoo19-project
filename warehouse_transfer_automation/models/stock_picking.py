@@ -217,7 +217,7 @@ class StockPicking(models.Model):
         """Auto-create receipt transfer from transit to destination warehouse"""
         StockPicking = self.env['stock.picking'].sudo()
         StockMove = self.env['stock.move'].sudo()
-        StockMoveLine = self.env['stock.move.line'].sudo()
+        # StockMoveLine = self.env['stock.move.line'].sudo()
 
         existing_receipt = StockPicking.search([
             ('origin', '=', picking.name),
@@ -309,26 +309,28 @@ class StockPicking(models.Model):
         new_picking.action_confirm()
         _logger.info('✅ Confirmed receipt picking: %s', new_picking.name)
 
-        for move in new_picking.move_ids:
-            move_line_vals = {
-                'move_id': move.id,
-                'product_id': move.product_id.id,
-                'product_uom_id': move.product_uom.id,
-                'location_id': transit_loc.id,
-                'location_dest_id': dest_location.id,
-                'quantity': move.product_uom_qty,
-                'picking_id': new_picking.id,
-                'company_id': move.company_id.id,
-            }
-            StockMoveLine.create(move_line_vals)
-            _logger.info('✅ Created move line for move %s', move.id)
+        # for move in new_picking.move_ids:
+        #     move_line_vals = {
+        #         'move_id': move.id,
+        #         'product_id': move.product_id.id,
+        #         'product_uom_id': move.product_uom.id,
+        #         'location_id': transit_loc.id,
+        #         'location_dest_id': dest_location.id,
+        #         'quantity': move.product_uom_qty,
+        #         'picking_id': new_picking.id,
+        #         'company_id': move.company_id.id,
+        #     }
+        #     StockMoveLine.create(move_line_vals)
+        #     _logger.info('✅ Created move line for move %s', move.id)
+        #
+        #     move.sudo().write({
+        #         'state': 'assigned',
+        #     })
 
-            move.sudo().write({
-                'state': 'assigned',
-            })
-
-        new_picking.sudo().write({'state': 'assigned'})
-        _logger.info('✅ Receipt picking set to assigned state')
+        # new_picking.sudo().write({'state': 'assigned'})
+        # _logger.info('✅ Receipt picking set to assigned state')
+        new_picking.action_assign()
+        _logger.info('✅ Receipt picking assigned and ready: %s', new_picking.name)
 
         picking.message_post(
             body=_('📦 Receipt transfer %s has been automatically created for %s warehouse.') %

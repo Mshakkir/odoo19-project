@@ -1,6 +1,0 @@
-<odoo>
-    <!-- Override the default Products action to show tree view first -->
-    <record id="product.product_template_action_all" model="ir.actions.act_window">
-        <field name="view_mode">tree,kanban,form</field>
-    </record>
-</odoo>

@@ -1,0 +1,11 @@
+<odoo>
+    <!-- Override product action to show list view by default -->
+    <record id="product.product_template_action" model="ir.actions.act_window">
+        <field name="view_mode">tree,kanban,form</field>
+    </record>
+
+    <!-- Alternative: If the above doesn't work, use this one -->
+    <record id="product.product_template_action_all" model="ir.actions.act_window">
+        <field name="view_mode">tree,kanban,form</field>
+    </record>
+</odoo>

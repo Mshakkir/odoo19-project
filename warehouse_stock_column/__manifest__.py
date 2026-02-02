@@ -18,6 +18,7 @@
     'summary': 'Add warehouse location columns to product list',
     'depends': ['stock'],
     'data': [
+        'views/product_action.xml',
         'views/product_template.xml',
     ],
     'installable': True,

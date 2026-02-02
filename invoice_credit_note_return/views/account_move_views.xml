@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Add Return button to Credit Note form view -->
+        <record id="view_move_form_credit_note_return" model="ir.ui.view">
+            <field name="name">account.move.form.credit.note.return</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <!-- Add Return button in header for credit notes -->
+                <xpath expr="//header" position="inside">
+                    <button name="action_create_return"
+                            string="Create Return"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="move_type != 'out_refund' or state != 'posted'"
+                            groups="stock.group_stock_user"
+                            help="Create a return picking for this credit note"/>
+                    <button name="action_view_returns"
+                            string="View Returns"
+                            type="object"
+                            invisible="move_type != 'out_refund' or return_picking_count == 0"
+                            groups="stock.group_user"/>
+                </xpath>
+
+                <!-- Add smart button for return pickings -->
+                <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                    <button name="action_view_returns"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-truck"
+                            invisible="move_type != 'out_refund' or return_picking_count == 0"
+                            groups="stock.group_stock_user">
+                        <field name="return_picking_count" widget="statinfo" string="Returns"/>
+                    </button>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

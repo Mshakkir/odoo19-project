@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit Stock Picking Form View to add product list link -->
+    <record id="view_picking_form_product_list_link" model="ir.ui.view">
+        <field name="name">stock.picking.form.product.list.link</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Add button in move_ids list view after product_id -->
+            <xpath expr="//field[@name='move_ids']//list//field[@name='product_id']" position="after">
+                <button name="action_view_product_list"
+                        type="object"
+                        icon="fa-list-alt"
+                        title="View Product Details"
+                        string=""
+                        class="btn-link p-0"
+                        invisible="not product_id"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

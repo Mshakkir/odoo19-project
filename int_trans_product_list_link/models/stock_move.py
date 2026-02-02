@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models
 
 
-class SaleOrderLine(models.Model):
-    _inherit = 'sale.order.line'
+class StockMove(models.Model):
+    _inherit = 'stock.move'
 
     def action_view_product_list(self):
         """
@@ -46,4 +46,3 @@ class SaleOrderLine(models.Model):
             },
             'target': 'current',
         }
-

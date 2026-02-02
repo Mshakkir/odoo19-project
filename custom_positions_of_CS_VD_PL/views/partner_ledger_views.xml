@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Replace with the actual External ID you found -->
+    <!-- Add Partner Ledger to Sales Module -->
     <menuitem id="menu_partner_ledger_sales"
               name="Partner Ledger"
               parent="sale.sale_menu_root"
-              action="PUT_THE_EXTERNAL_ID_HERE"
+              action="account_reports.action_account_report_partner_ledger"
               sequence="50"/>
 
+    <!-- Add Partner Ledger to Purchase Module -->
     <menuitem id="menu_partner_ledger_purchase"
               name="Partner Ledger"
               parent="purchase.menu_purchase_root"
-              action="PUT_THE_EXTERNAL_ID_HERE"
+              action="account_reports.action_account_report_partner_ledger"
               sequence="50"/>
 </odoo>

@@ -12,20 +12,6 @@
               parent="purchase.menu_purchase_root"
               action="accounting_pdf_reports.action_partner_report_partnerledger"
               sequence="50"/>
-
-    <!-- Customers in Sales -->
-    <menuitem id="menu_customers_sales"
-              name="Customers"
-              parent="sale.sale_menu_root"
-              action="accounting_pdf_reports.action_customers_receivable"
-              sequence="51"/>
-
-    <!-- Vendors in Purchase -->
-    <menuitem id="menu_vendors_purchase"
-              name="Vendors"
-              parent="purchase.menu_purchase_root"
-              action="accounting_pdf_reports.action_vendors_payable"
-              sequence="51"/>
 </odoo>
 
 

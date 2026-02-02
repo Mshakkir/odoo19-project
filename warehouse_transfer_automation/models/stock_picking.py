@@ -71,21 +71,27 @@ class StockPicking(models.Model):
 
                 # Identify source warehouse
                 source_wh_key = None
-                if 'FYH' in source_upper or 'JED-FYH' in source_upper:
+                # if 'MAIN' in source_upper:
+                #     source_wh_key = 'main'
+                # elif 'DAMMA' in source_upper or 'DAMMAM' in source_upper:
+                #     source_wh_key = 'damma'
+                # elif 'BALAD' in source_upper or 'BALADIYA' in source_upper:
+                #     source_wh_key = 'balad'
+                if 'FYH' in source_upper:
                     source_wh_key = 'fyh'
                 elif 'DMM' in source_upper or 'DAMMAM' in source_upper:
                     source_wh_key = 'dmm'
-                elif 'BLD' in source_upper or 'JED-BLD' in source_upper or 'BALAD' in source_upper:
+                elif 'BLD' in source_upper or 'BALAD' in source_upper:
                     source_wh_key = 'bld'
 
                 # Identify destination warehouse
                 dest_wh_key = None
-                if 'FYH' in dest_upper or 'JED-FYH' in dest_upper:
-                    dest_wh_key = 'fyh'
-                elif 'DMM' in dest_upper or 'DAMMAM' in dest_upper:
-                    dest_wh_key = 'dmm'
-                elif 'BLD' in dest_upper or 'JED-BLD' in dest_upper or 'BALAD' in dest_upper:
-                    dest_wh_key = 'bld'
+                if 'MAIN' in dest_upper:
+                    dest_wh_key = 'main'
+                elif 'DAMMA' in dest_upper or 'DAMMAM' in dest_upper:
+                    dest_wh_key = 'damma'
+                elif 'BALAD' in dest_upper or 'BALADIYA' in dest_upper:
+                    dest_wh_key = 'balad'
 
                 _logger.info('   Source key: %s, Dest key: %s', source_wh_key, dest_wh_key)
 
@@ -119,7 +125,8 @@ class StockPicking(models.Model):
                     picking.state in ['assigned', 'confirmed']):
 
                 dest_loc_name = picking.location_dest_id.complete_name or picking.location_dest_id.name
-                if any(wh in dest_loc_name.upper() for wh in ['FYH', 'DMM', 'BLD', 'JED-FYH', 'JED-BLD']):
+                # if any(wh in dest_loc_name.upper() for wh in ['DAMMA', 'BALAD', 'MAIN']):
+                if any(wh in dest_loc_name.upper() for wh in ['FYH', 'BLD', 'DMM']):
                     pickings_to_automate.append(picking)
                     _logger.info('✅ Picking %s WILL BE automated', picking.name)
                 else:
@@ -171,55 +178,63 @@ class StockPicking(models.Model):
         self._compute_is_inter_warehouse_transfer()
 
         # Log picking details BEFORE confirm
-        _logger.info('📍 Before Confirm - Location Details:')
-        _logger.info('   Source loc: %s (usage: %s)', self.location_id.complete_name, self.location_id.usage)
-        _logger.info('   Dest loc: %s (usage: %s)', self.location_dest_id.complete_name, self.location_dest_id.usage)
-        _logger.info('   Source warehouse: %s', self.source_warehouse_id.name if self.source_warehouse_id else 'None')
-        _logger.info('   Dest warehouse: %s', self.dest_warehouse_id.name if self.dest_warehouse_id else 'None')
-        _logger.info('   is_inter_warehouse_transfer: %s', self.is_inter_warehouse_transfer)
+        for picking in self:
+            _logger.info('   Picking Details BEFORE super().action_confirm():')
+            _logger.info('     - name: %s', picking.name if picking.name else 'NEW')
+            _logger.info('     - location_id: %s', picking.location_id.complete_name if picking.location_id else 'None')
+            _logger.info('     - location_dest_id: %s',
+                         picking.location_dest_id.complete_name if picking.location_dest_id else 'None')
+            _logger.info('     - location_dest usage: %s', picking.location_dest_id.usage)
+            _logger.info('     - is_inter_warehouse_transfer: %s', picking.is_inter_warehouse_transfer)
 
-        # Call parent action_confirm FIRST
         res = super(StockPicking, self).action_confirm()
 
-        _logger.info('📍 After Confirm - State: %s', self.state)
+        _logger.info('   Picking Details AFTER super().action_confirm():')
+        for picking in self:
+            _logger.info('     - name: %s', picking.name if picking.name else 'NEW')
+            _logger.info('     - is_inter_warehouse_transfer: %s', picking.is_inter_warehouse_transfer)
+            _logger.info('     - location_dest usage: %s', picking.location_dest_id.usage)
 
-        # Send notification to SOURCE warehouse ONLY if this is an inter-warehouse transfer
-        # (Source warehouse needs to approve and send products)
-        if self.is_inter_warehouse_transfer and self.source_warehouse_id:
-            _logger.info('🔔 This is an inter-warehouse transfer - sending notification to SOURCE warehouse')
-            self._notify_source_warehouse()
-        else:
-            _logger.info('⚠️ Skipping notification - Not an inter-warehouse transfer or no source warehouse')
+            if picking.is_inter_warehouse_transfer and picking.location_dest_id.usage == 'transit':
+                _logger.info('   ✅ Conditions met - Sending notification to source warehouse')
+                try:
+                    self._notify_source_warehouse(picking)
+                except Exception as e:
+                    _logger.error('❌ Error sending notification to source warehouse: %s', str(e))
+                    import traceback
+                    _logger.error(traceback.format_exc())
+            else:
+                _logger.info('   ⚠️ Notification not sent - conditions not met')
+                _logger.info('       is_inter_warehouse_transfer: %s', picking.is_inter_warehouse_transfer)
+                _logger.info('       location_dest.usage: %s', picking.location_dest_id.usage)
 
         _logger.info('=' * 80)
-        _logger.info('📋 action_confirm COMPLETED for: %s', self.name)
+        _logger.info('📋 action_confirm COMPLETED')
         _logger.info('=' * 80)
-
         return res
 
     def _create_receipt_transfer(self, picking):
-        """Create receipt transfer for destination warehouse"""
-        _logger.info('=' * 80)
-        _logger.info('📦 _create_receipt_transfer called for: %s', picking.name)
-        _logger.info('=' * 80)
-
+        """Auto-create receipt transfer from transit to destination warehouse"""
         StockPicking = self.env['stock.picking'].sudo()
         StockMove = self.env['stock.move'].sudo()
+        StockMoveLine = self.env['stock.move.line'].sudo()
+
+        existing_receipt = StockPicking.search([
+            ('origin', '=', picking.name),
+            ('location_id.usage', '=', 'transit')
+        ], limit=1)
+
+        if existing_receipt:
+            _logger.warning('Receipt already exists for %s: %s', picking.name, existing_receipt.name)
+            return existing_receipt
 
         transit_loc = picking.location_dest_id
-        source_warehouse = picking.source_warehouse_id
         dest_warehouse = picking.dest_warehouse_id
 
-        _logger.info('📦 Creating receipt transfer:')
-        _logger.info('   Transit location: %s (ID: %s)', transit_loc.complete_name, transit_loc.id)
-        _logger.info('   Source warehouse: %s', source_warehouse.name if source_warehouse else 'None')
-        _logger.info('   Dest warehouse: %s', dest_warehouse.name if dest_warehouse else 'None')
-
         if not dest_warehouse:
-            _logger.error('No destination warehouse identified - cannot create receipt')
+            _logger.error('No destination warehouse found for picking: %s', picking.name)
             return False
 
-        # Find receiving operation type
         receiving_type = self.env['stock.picking.type'].sudo().search([
             ('warehouse_id', '=', dest_warehouse.id),
             ('code', '=', 'internal'),
@@ -253,7 +268,6 @@ class StockPicking(models.Model):
             _logger.error('Could not determine destination location for warehouse: %s', dest_warehouse.name)
             return False
 
-        # Create the receipt picking
         new_picking_vals = {
             'picking_type_id': receiving_type.id,
             'location_id': transit_loc.id,
@@ -265,17 +279,21 @@ class StockPicking(models.Model):
         new_picking = StockPicking.create(new_picking_vals)
         _logger.info('✅ Created receipt picking %s for warehouse %s', new_picking.name, dest_warehouse.name)
 
-        # Create moves for the receipt based on ACTUAL quantities from source transfer
         for move in picking.move_ids:
-            # CRITICAL: Use quantity_done (actual validated quantity)
-            actual_qty = move.quantity_done if move.quantity_done > 0 else move.product_uom_qty
+            # CRITICAL FIX: Get the ACTUAL confirmed/done quantity from the original move
+            # The move.product_uom_qty is what was requested/planned
+            # We need to use this exact quantity for the receipt
 
-            _logger.info('📦 Creating move for product %s with qty %s (validated quantity)',
-                         move.product_id.name, actual_qty)
+            # When a picking is confirmed, the product_uom_qty is the quantity that was confirmed
+            # Don't sum move_lines as they may have reserved differently
+            done_qty = move.product_uom_qty
+
+            _logger.info('📦 Creating move for product %s with qty %s (original request qty)',
+                         move.product_id.name, done_qty)
 
             move_vals = {
                 'product_id': move.product_id.id,
-                'product_uom_qty': actual_qty,
+                'product_uom_qty': done_qty,  # Use the exact confirmed quantity
                 'product_uom': move.product_uom.id,
                 'picking_id': new_picking.id,
                 'location_id': transit_loc.id,
@@ -286,61 +304,69 @@ class StockPicking(models.Model):
                 'state': 'draft',
             }
             new_move = StockMove.create(move_vals)
-            _logger.info('✅ Created move: %s with qty %s', new_move.id, actual_qty)
+            _logger.info('✅ Created move: %s with qty %s', new_move.id, done_qty)
 
-        # Confirm and assign the receipt picking to make it READY
-        _logger.info('🔄 Confirming receipt picking...')
         new_picking.action_confirm()
-        _logger.info('✅ Receipt picking confirmed: %s (state: %s)', new_picking.name, new_picking.state)
+        _logger.info('✅ Confirmed receipt picking: %s', new_picking.name)
 
-        # CRITICAL FIX: Use action_assign() to properly reserve stock and set state to 'assigned' (Ready)
-        # This replaces the manual move line creation which was causing double quantities
-        _logger.info('🔄 Assigning receipt picking...')
-        new_picking.action_assign()
-        _logger.info('✅ Receipt picking assigned: %s (state: %s)', new_picking.name, new_picking.state)
+        for move in new_picking.move_ids:
+            move_line_vals = {
+                'move_id': move.id,
+                'product_id': move.product_id.id,
+                'product_uom_id': move.product_uom.id,
+                'location_id': transit_loc.id,
+                'location_dest_id': dest_location.id,
+                'quantity': move.product_uom_qty,
+                'picking_id': new_picking.id,
+                'company_id': move.company_id.id,
+            }
+            StockMoveLine.create(move_line_vals)
+            _logger.info('✅ Created move line for move %s', move.id)
 
-        # Add message to original picking
+            move.sudo().write({
+                'state': 'assigned',
+            })
+
+        new_picking.sudo().write({'state': 'assigned'})
+        _logger.info('✅ Receipt picking set to assigned state')
+
         picking.message_post(
             body=_('📦 Receipt transfer %s has been automatically created for %s warehouse.') %
                  (new_picking.name, dest_warehouse.name)
         )
 
-        # Add message to new receipt picking
         new_picking.message_post(
             body=_('📥 This receipt was automatically created from transfer %s. '
                    'Validate to receive products into your warehouse.') % picking.name
         )
 
-        _logger.info('✅ Receipt %s created and ready (state: %s) for warehouse %s',
-                     new_picking.name, new_picking.state, dest_warehouse.name)
+        _logger.info('✅ Receipt %s created and ready for warehouse %s', new_picking.name, dest_warehouse.name)
 
         return new_picking
 
-    def _notify_source_warehouse(self):
-        """Notify source warehouse users about new stock request"""
+    def _notify_source_warehouse(self, picking):
+        """Send notification to source warehouse users about new request"""
         _logger.info('=' * 80)
-        _logger.info('📢 _notify_source_warehouse called for: %s', self.name)
+        _logger.info('📢 _notify_source_warehouse called for: %s', picking.name)
         _logger.info('=' * 80)
 
-        source_warehouse = self.source_warehouse_id
-        dest_warehouse = self.dest_warehouse_id
+        source_warehouse = picking.source_warehouse_id
+        dest_warehouse = picking.dest_warehouse_id
 
-        if not source_warehouse:
-            _logger.warning('No source warehouse for picking: %s', self.name)
+        if not source_warehouse or not dest_warehouse:
+            _logger.warning('Missing warehouse info for picking: %s', picking.name)
             return
 
-        _logger.info('📢 Starting source warehouse notification for request: %s', self.name)
-        _logger.info('   Source: %s, Destination: %s', source_warehouse.name,
-                     dest_warehouse.name if dest_warehouse else 'None')
+        _logger.info('📢 Starting source warehouse notification for picking: %s', picking.name)
+        _logger.info('   Source: %s, Destination: %s', source_warehouse.name, dest_warehouse.name)
 
         source_users = self._get_warehouse_users(source_warehouse)
 
         if not source_users:
-            _logger.error('❌ NO USERS FOUND for %s warehouse - Notifications cannot be sent',
-                          source_warehouse.name)
-            self.message_post(
+            _logger.error('❌ NO USERS FOUND for %s warehouse - Notifications cannot be sent', source_warehouse.name)
+            picking.message_post(
                 body=_('⚠️ Warning: Could not send notification to %s warehouse users. '
-                       'No users found in warehouse group.') % source_warehouse.name,
+                       'No users assigned to the warehouse group.') % source_warehouse.name,
                 message_type='comment',
             )
             return
@@ -348,7 +374,7 @@ class StockPicking(models.Model):
         _logger.info('✅ Found %d users for %s warehouse', len(source_users), source_warehouse.name)
 
         product_lines = []
-        for move in self.move_ids:
+        for move in picking.move_ids:
             product_lines.append('%s (%s %s)' % (
                 move.product_id.name,
                 move.product_uom_qty,
@@ -357,27 +383,26 @@ class StockPicking(models.Model):
 
         message = _(
             '<p><strong>🔔 New Stock Request</strong></p>'
-            '<p><strong>%s</strong> warehouse has requested stock from your warehouse:</p>'
+            '<p><strong>%s</strong> warehouse has requested products from your warehouse:</p>'
             '<ul>%s</ul>'
-            '<p><strong>Transfer Reference:</strong> <a href="/web#id=%s&model=stock.picking&view_type=form">%s</a></p>'
-            '<p><strong>⚠️ Action Required:</strong> Please review and validate this request to send products.</p>'
+            '<p><strong>Transfer Reference:</strong> %s</p>'
+            '<p><strong>Action Required:</strong> Please review and validate this request.</p>'
         ) % (
-                      dest_warehouse.name if dest_warehouse else 'Requesting Warehouse',
+                      dest_warehouse.name,
                       ''.join(['<li>%s</li>' % line for line in product_lines]),
-                      self.id,
-                      self.name
+                      picking.name
                   )
 
-        _logger.info('✅ Sending request notification to %d %s warehouse users',
+        _logger.info('✅ Sending notification to %d %s warehouse users',
                      len(source_users), source_warehouse.name)
 
         for user in source_users:
             _logger.info('   → Notifying user: %s (ID: %s, Email: %s)', user.name, user.id, user.email)
 
         try:
-            self.message_post(
+            picking.message_post(
                 body=message,
-                subject=_('🔔 New Stock Request - %s') % self.name,
+                subject=_('New Stock Request from %s') % dest_warehouse.name,
                 partner_ids=source_users.mapped('partner_id').ids,
                 message_type='notification',
                 subtype_xmlid='mail.mt_note',
@@ -389,19 +414,19 @@ class StockPicking(models.Model):
             _logger.error(traceback.format_exc())
 
         try:
-            self._create_activities(self, source_users, message,
-                                    _('Action Required: Validate Request %s') % self.name)
-            _logger.info('✅ Activities created for source warehouse users')
+            self._create_activities(picking, source_users, message,
+                                    _('Stock Request: %s') % dest_warehouse.name)
+            _logger.info('✅ Activities created')
         except Exception as e:
             _logger.error('❌ Error creating activities: %s', str(e))
             import traceback
             _logger.error(traceback.format_exc())
 
-        _logger.info('✅ Request notification and activities sent to %s warehouse', source_warehouse.name)
+        _logger.info('✅ Notification and activities sent to %s warehouse users', source_warehouse.name)
         _logger.info('=' * 80)
 
     def _notify_destination_warehouse(self, origin_picking, receipt_picking):
-        """Notify destination warehouse users about approved request"""
+        """Send notification to destination warehouse users about approved request"""
         _logger.info('=' * 80)
         _logger.info('📢 _notify_destination_warehouse called for: %s', receipt_picking.name)
         _logger.info('=' * 80)
@@ -414,18 +439,15 @@ class StockPicking(models.Model):
             return
 
         _logger.info('📢 Starting destination warehouse notification for receipt: %s', receipt_picking.name)
-        _logger.info('   Source: %s, Destination: %s',
-                     source_warehouse.name if source_warehouse else 'None',
+        _logger.info('   Source: %s, Destination: %s', source_warehouse.name if source_warehouse else 'None',
                      dest_warehouse.name)
 
         dest_users = self._get_warehouse_users(dest_warehouse)
 
         if not dest_users:
-            _logger.error('❌ NO USERS FOUND for %s warehouse - Notifications cannot be sent',
-                          dest_warehouse.name)
+            _logger.error('❌ NO USERS FOUND for %s warehouse - Notifications cannot be sent', dest_warehouse.name)
             receipt_picking.message_post(
-                body=_('⚠️ Warning: Could not send notification to %s warehouse users. '
-                       'No users found in warehouse group.') % dest_warehouse.name,
+                body=_('⚠️ Warning: Could not send notification to %s warehouse users.') % dest_warehouse.name,
                 message_type='comment',
             )
             return
@@ -467,7 +489,7 @@ class StockPicking(models.Model):
                 message_type='notification',
                 subtype_xmlid='mail.mt_note',
             )
-            _logger.info('✅ Notification message posted on receipt')
+            _logger.info('✅ Message posted on receipt')
         except Exception as e:
             _logger.error('❌ Error posting message: %s', str(e))
             import traceback
@@ -476,7 +498,7 @@ class StockPicking(models.Model):
         try:
             self._create_activities(receipt_picking, dest_users, message,
                                     _('Action Required: Validate Receipt %s') % receipt_picking.name)
-            _logger.info('✅ Activities created for destination warehouse users')
+            _logger.info('✅ Activities created')
         except Exception as e:
             _logger.error('❌ Error creating activities: %s', str(e))
             import traceback
@@ -493,14 +515,7 @@ class StockPicking(models.Model):
         _logger.info('📋 Creating activities for %d users on picking %s', len(users), picking.name)
 
         if not activity_type:
-            _logger.warning('⚠️ Activity type "To Do" not found, trying alternative')
-            activity_type = self.env['mail.activity.type'].sudo().search([
-                ('name', '=', 'To Do')
-            ], limit=1)
-
-        if not activity_type:
-            _logger.error('⚠️ Could not find any suitable activity type')
-            return
+            _logger.warning('⚠️ Activity type not found, using default')
 
         for user in users:
             try:
@@ -508,13 +523,13 @@ class StockPicking(models.Model):
                 activity = ActivityModel.create({
                     'res_id': picking.id,
                     'res_model_id': self.env['ir.model']._get('stock.picking').id,
-                    'activity_type_id': activity_type.id,
+                    'activity_type_id': activity_type.id if activity_type else 1,
                     'summary': summary,
                     'note': message,
                     'user_id': user.id,
                     'date_deadline': fields.Date.today(),
                 })
-                _logger.info('   ✅ Activity created (ID: %s) for user %s', activity.id, user.name)
+                _logger.info('   ✅ Activity created (ID: %s)', activity.id)
             except Exception as e:
                 _logger.error('❌ Could not create activity for user %s: %s', user.name, str(e))
                 import traceback
@@ -526,15 +541,23 @@ class StockPicking(models.Model):
             _logger.info('🔍 Looking for users for warehouse: "%s"', warehouse.name)
             _logger.info('   Warehouse ID: %s', warehouse.id)
 
+            # warehouse_group_mapping = {
+            #     'main': 'warehouse_transfer_automation.group_main_warehouse',
+            #     'dammam': 'warehouse_transfer_automation.group_dammam_warehouse',
+            #     'damma': 'warehouse_transfer_automation.group_dammam_warehouse',
+            #     'baladiya': 'warehouse_transfer_automation.group_baladiya_warehouse',
+            #     'balad': 'warehouse_transfer_automation.group_baladiya_warehouse',
+            # }
+
             warehouse_group_mapping = {
                 'fyh': 'warehouse_transfer_automation.group_fyh_warehouse',
                 'jed-fyh': 'warehouse_transfer_automation.group_fyh_warehouse',
                 'dmm': 'warehouse_transfer_automation.group_dmm_warehouse',
+                'dmmam': 'warehouse_transfer_automation.group_dmm_warehouse',
                 'dmm-wh1': 'warehouse_transfer_automation.group_dmm_warehouse',
-                'dammam': 'warehouse_transfer_automation.group_dmm_warehouse',
                 'bld': 'warehouse_transfer_automation.group_bld_warehouse',
-                'jed-bld': 'warehouse_transfer_automation.group_bld_warehouse',
                 'balad': 'warehouse_transfer_automation.group_bld_warehouse',
+                'jed-bld': 'warehouse_transfer_automation.group_bld_warehouse',
             }
 
             group_xmlid = None
@@ -581,8 +604,7 @@ class StockPicking(models.Model):
                     _logger.info('   ✓ User: %s (ID: %s) - Email: %s', user.name, user.id, user.email)
                 return filtered_users
             else:
-                _logger.warning('⚠️ No users found in group %s for warehouse %s',
-                                warehouse_group.name, warehouse.name)
+                _logger.warning('⚠️ No users found in group %s for warehouse %s', warehouse_group.name, warehouse.name)
                 return self.env['res.users'].browse([])
 
         except Exception as e:
@@ -590,7 +612,6 @@ class StockPicking(models.Model):
             import traceback
             _logger.error(traceback.format_exc())
             return self.env['res.users'].browse([])
-
 
 
 

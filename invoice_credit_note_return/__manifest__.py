@@ -1,21 +1,25 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Invoice Credit Note Return',
+    'name': 'Invoice Delivery Button',
     'version': '19.0.1.0.0',
     'category': 'Accounting',
-    'summary': 'Add Return button on Credit Notes to process stock returns',
+    'summary': 'Add Delivery smart button on Invoices and Credit Notes',
     'description': """
-        Invoice Credit Note Return
-        ===========================
-        This module adds a 'Return' button on credit note invoices that allows
-        users to easily process stock returns after creating a credit note.
+        Invoice Delivery Button
+        ========================
+        This module adds a 'Delivery' smart button on invoices and credit notes
+        that allows users to easily access related deliveries and manually create
+        returns using Odoo's standard return process.
 
         Features:
         ---------
-        * Adds a 'Return' button at the top of credit note forms
-        * Creates reverse stock transfers for returned products
-        * Links returns with their corresponding credit notes
-        * Works with Odoo Mates third-party accounting module
+        * Adds a 'Delivery' smart button on invoices and credit notes
+        * Shows count of related deliveries
+        * Click to view and access the delivery orders
+        * Works with direct invoices (when delivery is auto-created)
+        * Works with sale order invoices
+        * User can manually create returns using Odoo's return button
+        * Works seamlessly with Odoo Mates third-party accounting module
     """,
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',
@@ -23,7 +27,6 @@
     'depends': [
         'account',
         'stock',
-        'sale_stock',
     ],
     'data': [
         'views/account_move_views.xml',

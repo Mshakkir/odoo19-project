@@ -1,37 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Add Return button to Credit Note form view -->
-        <record id="view_move_form_credit_note_return" model="ir.ui.view">
-            <field name="name">account.move.form.credit.note.return</field>
+        <!-- Add Delivery button to Invoice and Credit Note form view -->
+        <record id="view_move_form_delivery_button" model="ir.ui.view">
+            <field name="name">account.move.form.delivery.button</field>
             <field name="model">account.move</field>
             <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
-                <!-- Add Return button in header for credit notes -->
+                <!-- Add Delivery button in header -->
                 <xpath expr="//header" position="inside">
-                    <button name="action_create_return"
-                            string="Create Return"
+                    <button name="action_view_delivery"
+                            string="Return"
                             type="object"
                             class="oe_highlight"
-                            invisible="move_type != 'out_refund' or state != 'posted'"
+                            invisible="move_type != 'out_refund' or state != 'posted' or delivery_count == 0"
                             groups="stock.group_stock_user"
-                            help="Create a return picking for this credit note"/>
-                    <button name="action_view_returns"
-                            string="View Returns"
-                            type="object"
-                            invisible="move_type != 'out_refund' or return_picking_count == 0"
-                            groups="stock.group_user"/>
+                            help="Open the original delivery to process return"/>
                 </xpath>
 
-                <!-- Add smart button for return pickings -->
+                <!-- Add smart button for deliveries -->
                 <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
-                    <button name="action_view_returns"
+                    <button name="action_view_delivery"
                             type="object"
                             class="oe_stat_button"
                             icon="fa-truck"
-                            invisible="move_type != 'out_refund' or return_picking_count == 0"
+                            invisible="delivery_count == 0 or move_type not in ['out_invoice', 'out_refund']"
                             groups="stock.group_stock_user">
-                        <field name="return_picking_count" widget="statinfo" string="Returns"/>
+                        <field name="delivery_count" widget="statinfo" string="Delivery"/>
                     </button>
                 </xpath>
             </field>

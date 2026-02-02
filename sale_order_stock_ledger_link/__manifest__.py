@@ -1,31 +1,28 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Sales Order to Product Stock Ledger Link',
+    'name': 'Sales Order to Product List Link',
     'version': '19.0.1.0.2',
     'category': 'Sales',
-    'summary': 'Link Sales Order lines to Product Stock Ledger with one click',
+    'summary': 'Link Sales Order lines to Product List with one click',
     'description': """
-        Sales Order to Product Stock Ledger Link
-        =========================================
-        This module integrates with the Product Stock Ledger (Custom) module
-        to provide one-click access from Sales Order lines to detailed stock ledger.
+        Sales Order to Product List Link
+        =================================
+        This module provides one-click access from Sales Order lines to product list view.
 
         Features:
         ---------
-        * Click 📊 icon next to products in Sales Order lines
-        * Click 📊 icon next to products in Customer Invoices/Vendor Bills
-        * Automatically generates and displays stock ledger for that product
-        * Shows receipts, deliveries, rates, balance, and invoice status
-        * Seamlessly integrates with your custom stock ledger module
+        * Click 📋 icon next to products in Sales Order lines
+        * Click 📋 icon next to products in Customer Invoices/Vendor Bills
+        * Automatically opens product form/list view for that product
+        * Quick access to product details from sales orders and invoices
     """,
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',
     'license': 'LGPL-3',
     'depends': [
         'sale',
-        'stock',
         'account',
-        'product_stock_ledger',  # Your custom stock ledger module
+        'product',
     ],
     'data': [
         'views/sale_order_views.xml',

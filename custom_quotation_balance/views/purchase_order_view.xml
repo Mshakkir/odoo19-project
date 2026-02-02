@@ -41,7 +41,7 @@
 
                     <!-- Total Credits -->
                     <div style="margin-bottom: 5px;">
-                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">AMT Received = </span>
+                        <span style="color: #6c757d; font-size: 13px; margin-right: 5px;">AMT Paid = </span>
                         <button name="action_view_vendor_credits"
                                 type="object"
                                 class="btn btn-link p-0"

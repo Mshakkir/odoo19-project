@@ -9,7 +9,7 @@
             <t t-set="o" t-value="o.with_context(lang=lang)"/>
             <t t-set="values" t-value="o._get_payment_receipt_report_values()"/>
 
-            <head>-->
+            <head>
                 <meta charset="UTF-8"/>
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
                 <style type="text/css">
@@ -57,7 +57,6 @@
 
                     .signature-field {
                         margin-bottom: 30px;
-                        border-bottom: 1px solid #333;
                         padding-bottom: 5px;
                     }
                 </style>
@@ -125,13 +124,10 @@
 
                     <!-- ===== TITLE - Different for Customer vs Vendor ===== -->
                     <div style="text-align: center; margin-top: 5px; margin-bottom: 5px;">
-                        <h3 style="margin: 0; padding: 5px 0; font-size: 16px; text-decoration: underline;">
-                           <strong>
-                               <t t-if="o.payment_type == 'inbound'">
+                        <h3 style="margin: 0; padding: 5px 0; font-size: 16px; text-decoration: underline; font-weight: bold;">
+                            <t t-if="o.payment_type == 'inbound'">
                                 Receipt Voucher
                             </t>
-                           </strong>
-                            <strong></strong>
                             <t t-if="o.payment_type == 'outbound'">
                                 Payment Voucher
                             </t>
@@ -167,9 +163,7 @@
 
                     <!-- Amount -->
                     <div style="margin-bottom: 10px;">
-                        Amount :
-                            <span t-field="o.amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-
+                        Amount : <t t-esc="'{:,.2f}'.format(o.amount)"/> <t t-esc="o.currency_id.name"/>
                     </div>
 
                     <!-- Amount in Words -->
@@ -178,7 +172,7 @@
                         <span t-esc="amount_words"/> only.
                     </div>
 
-                    <!-- ===== PAYMENT DETAILS TABLE - ONLY FOR CUSTOMER RECEIPTS ===== &ndash;&gt;-->
+                    <!-- ===== PAYMENT DETAILS TABLE - ONLY FOR CUSTOMER RECEIPTS ===== -->
                     <t t-if="o.payment_type == 'inbound'">
                         <div style="margin-top:20px; margin-bottom:20px;">
                             <h4 style="margin-bottom:10px;">
@@ -278,8 +272,8 @@
 
                     <!-- Remark Section -->
                     <div style="margin-bottom: 20px; margin-top: 20px;">
-                        <strong>Remark :</strong>
-                        <div style="min-height: 30px; margin-top: 5px; border-bottom: 1px solid #ccc;">
+                        Remark :
+                        <div style="min-height: 30px; margin-top: 5px;">
                             <span t-if="o.memo" t-field="o.memo"/>
                         </div>
                     </div>
@@ -288,24 +282,24 @@
                     <table style="width: 100%; margin-top: 25px;">
                         <tr>
                             <td style="width: 33%; vertical-align: bottom; padding-bottom: 10px;">
-                                <div style="border-bottom: 1px solid #000; padding-bottom: 40px; margin-bottom: 5px;"></div>
-                                <strong>Checked By :</strong>
+                                <div style="padding-bottom: 40px; margin-bottom: 5px;"></div>
+                                Checked By :
                             </td>
                             <td style="width: 34%; vertical-align: bottom; padding-bottom: 10px; text-align: center;">
-                                <div style="border-bottom: 1px solid #000; padding-bottom: 40px; margin-bottom: 5px;"></div>
-                                <strong>Verified By :</strong>
+                                <div style="padding-bottom: 40px; margin-bottom: 5px;"></div>
+                                Verified By :
                             </td>
                             <td style="width: 33%; vertical-align: bottom; padding-bottom: 10px; text-align: right;">
-                                <div style="border-bottom: 1px solid #000; padding-bottom: 40px; margin-bottom: 5px;"></div>
-                                <strong>Authorised Signatory :</strong>
+                                <div style="padding-bottom: 40px; margin-bottom: 5px;"></div>
+                                Authorised Signatory :
                             </td>
                         </tr>
                     </table>
 
                 </div>
 
-<!--                 ===== FOOTER BOX WITH BRANCH DETAILS =====-->
-                                <div class="footer" style="margin-top: 30px; page-break-inside: avoid;">
+                <!-- ===== FOOTER BOX WITH BRANCH DETAILS ===== -->
+                <div class="footer" style="margin-top: 30px; page-break-inside: avoid;">
                     <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                         <tr>
 

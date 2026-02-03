@@ -186,7 +186,7 @@
 
     <!-- Action to Open Wizard -->
     <record id="action_multi_receipt_wizard" model="ir.actions.act_window">
-        <field name="name">Against Receipt</field>
+        <field name="name">Against Payments</field>
         <field name="res_model">multi.receipt.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
@@ -194,21 +194,21 @@
 
     <!-- Main Menu Item in Accounting Top Bar -->
     <menuitem id="menu_multi_receipt_wizard"
-              name="Against Receipt"
+              name="Against Payments"
               parent="account.menu_finance"
               action="action_multi_receipt_wizard"
               sequence="11"/>
 
-    <!-- Alternative Menu in Accounting Payables -->
-    <menuitem id="menu_multi_receipt_root"
-              name="Multi Receipts"
-              parent="account.menu_finance_payables"
-              sequence="15"/>
+<!--    &lt;!&ndash; Alternative Menu in Accounting Payables &ndash;&gt;-->
+<!--    <menuitem id="menu_multi_receipt_root"-->
+<!--              name="Multi Receipts"-->
+<!--              parent="account.menu_finance_payables"-->
+<!--              sequence="15"/>-->
 
-    <menuitem id="menu_multi_receipt_register"
-              name="Register Against Receipt"
-              parent="menu_multi_receipt_root"
-              action="action_multi_receipt_wizard"
-              sequence="1"/>
+<!--    <menuitem id="menu_multi_receipt_register"-->
+<!--              name="Register Against Receipt"-->
+<!--              parent="menu_multi_receipt_root"-->
+<!--              action="action_multi_receipt_wizard"-->
+<!--              sequence="1"/>-->
 
 </odoo>

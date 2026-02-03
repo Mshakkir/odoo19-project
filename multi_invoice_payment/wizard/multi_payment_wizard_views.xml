@@ -221,7 +221,7 @@
 
     <!-- Action to Open Wizard -->
     <record id="action_multi_payment_wizard" model="ir.actions.act_window">
-        <field name="name">Against Payment</field>
+        <field name="name">Against Receipts</field>
         <field name="res_model">multi.payment.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
@@ -229,7 +229,7 @@
 
     <!-- Main Menu Item in Accounting Top Bar -->
     <menuitem id="menu_multi_payment_wizard"
-              name="Against Payment"
+              name="Against Receipts"
               parent="account.menu_finance"
               action="action_multi_payment_wizard"
               sequence="10"/>
@@ -241,7 +241,7 @@
               sequence="15"/>
 
     <menuitem id="menu_multi_payment_register"
-              name="Register Against Payment"
+              name="Register Against receipts"
               parent="menu_multi_payment_root"
               action="action_multi_payment_wizard"
               sequence="1"/>

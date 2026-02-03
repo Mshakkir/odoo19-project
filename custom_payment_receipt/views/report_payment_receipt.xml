@@ -124,7 +124,7 @@
 
                     <!-- ===== TITLE - Different for Customer vs Vendor ===== -->
                     <div style="text-align: center; margin-top: 5px; margin-bottom: 5px;">
-                        <h3 style="margin: 0; padding: 5px 0; font-size: 20px; text-decoration: underline; font-weight: bold;">
+                        <h3 style="margin: 0; padding: 5px 0; font-size: 20px; font-weight: bold;">
                             <t t-if="o.payment_type == 'inbound'">
                                 Receipt Voucher
                             </t>
@@ -182,7 +182,7 @@
                             <t t-set="invoices" t-value="o.reconciled_invoice_ids or o.reconciled_bill_ids"/>
 
                             <table style="width:100%; border-collapse: collapse; font-size:14px; border: 1px solid #000;">
-                                <thead style="background:#f5f5f5;">
+                                <thead style="background:#FFFFFF;">
                                     <tr>
                                         <th style="padding:8px; border:1px solid #000;">INVOICE DATE</th>
                                         <th style="padding:8px; border:1px solid #000;">INVOICE NUMBER</th>
@@ -198,7 +198,7 @@
                                             <t t-if="inv.move_type != 'entry'">
 
                                                 <!-- INVOICE/BILL HEADER ROW -->
-                                                <tr style="background:#fafafa;">
+                                                <tr style="background:#FFFFFF;">
                                                     <td style="padding:8px; border:1px solid #000;">
                                                         <span t-field="inv.invoice_date"/>
                                                     </td>
@@ -351,7 +351,7 @@
                             <td style="width:33%; padding:4px;border-right: 1px solid black;">
                                 <strong>Jeddah:</strong>
                                 Jeddah, 7655 Al Fayha
-                                Al Fayha Dist. JEDDAH 22244-3108
+                                Al Fayha Dist. Jeddah 22244-3108
                                 Saudi Arabia
                                 <br/>
                                 Tel:
@@ -363,6 +363,7 @@
                                 <strong>Baladiya:</strong>
                                 Sookul Anwar, Al Baladeah, Aziziyah,
                                 Jeddah 31303
+                                Saudi Arabia
                                 <br/>
                                 Tel: 0535081008
                                 <br/>

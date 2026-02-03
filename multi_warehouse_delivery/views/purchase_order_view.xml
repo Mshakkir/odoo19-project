@@ -10,7 +10,8 @@
             <!-- Add warehouse field to the list view of order lines -->
             <xpath expr="//field[@name='order_line']//field[@name='product_qty']" position="after">
                 <field name="warehouse_id"
-                       optional="show"
+                       optional="hide"
+                       width="80px"
                        readonly="0"
                        force_save="1"
                        widget="many2one"

@@ -37,7 +37,8 @@
             <!-- Add warehouse field to the list view of order lines -->
             <xpath expr="//field[@name='order_line']/list/field[@name='customer_lead']" position="after">
                 <field name="warehouse_id"
-                       optional="show"
+                       optional="hide"
+                       width="80px"
                        readonly="0"
                        force_save="1"
                        widget="many2one"
@@ -45,11 +46,11 @@
             </xpath>
 
             <!-- Add warehouse field to the form view of order lines (popup) -->
-            <xpath expr="//field[@name='order_line']/form//field[@name='customer_lead']" position="after">
-                <field name="warehouse_id"
-                       readonly="0"
-                       options="{'no_create': True, 'no_open': True}"/>
-            </xpath>
+<!--            <xpath expr="//field[@name='order_line']/form//field[@name='customer_lead']" position="after">-->
+<!--                <field name="warehouse_id"-->
+<!--                       readonly="0"-->
+<!--                       options="{'no_create': True, 'no_open': True}"/>-->
+<!--            </xpath>-->
 
         </field>
     </record>

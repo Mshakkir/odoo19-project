@@ -227,51 +227,44 @@
 
                 </div>
 
-                <!-- ===== FOOTER BOX WITH BRANCH DETAILS ===== -->
-                <div class="footer-box">
-                    <table style="width: 100%; border-collapse: collapse;">
+                 ===== FOOTER BOX WITH BRANCH DETAILS =====
+                                <div class="footer" style="margin-top: 30px; page-break-inside: avoid;">
+                    <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                         <tr>
-                            <!-- Left: Al Souq Branch -->
-                            <td style="width: 33%; padding: 8px; border-right: 1px solid #000; vertical-align: top;">
-                                <div style="font-weight: bold; margin-bottom: 3px;">حي السوق - شارع سعد العتيبي - رقم المبنى ٨٥١٥</div>
-                                <div>الدمام ٣٢٢٤٢ - ٢٥٤٥ - المملكة العربية السعودية</div>
-                                <div style="margin-top: 3px;">هاتف : ٠١٣٠٨٢٣٠٠٨ - ٠٥٣٥٠٨١٠٠٨</div>
-                                <div style="margin-top: 8px; font-weight: bold;">District Al Souq, Street Sa'ad Al Kanadi, Building No. 8515</div>
-                                <div>Dammam 32242-2545, Saudi Arabia</div>
-                                <div style="margin-top: 3px;">Tel : 0535081008</div>
-                                <div style="margin-top: 3px;">Email: ssaoe-dammam@gmail.com - opendmm@ssaoe.com</div>
+
+
+                            <td style="width:33%; padding:4px;border-right: 1px solid black;">
+                                <strong>Jeddah:</strong>
+                                Jeddah, 7655 Al Fayha
+                                Al Fayha Dist. JEDDAH 22244-3108
+                                Saudi Arabia
+                                <br/>
+                                Tel:
+                                <br/>
+                                Email:
                             </td>
 
-                            <!-- Center: Baladiya Branch -->
-                            <td style="width: 34%; padding: 8px; border-right: 1px solid #000; vertical-align: top;">
-                                <div style="font-weight: bold; margin-bottom: 3px;">شارع الأنوار - رقم محل ١٢ - شارع البلدية</div>
-                                <div>حي البلدية والعزيزية - جدة ٢٣٣٢٤ - المملكة العربية السعودية</div>
-                                <div style="margin-top: 3px;">هاتف : ٠٥٣٦١٢٢٨٣٣</div>
-                                <div style="margin-top: 8px; font-weight: bold;">Al Anwar Centre, Showroom No. 12,</div>
-                                <div>Baladiya Street, Jeddah 23334, Saudi Arabia</div>
-                                <div style="margin-top: 3px;">Tel : 0536122833</div>
-                                <div style="margin-top: 3px;">Email: ssaoe-jeddah@gmail.com</div>
+                            <td style="width:33%; padding:4px;">
+                                <strong>Baladiya:</strong>
+                                Sookul Anwar, Al Baladeah, Aziziyah,
+                                Jeddah 31303
+                                Tel: 0535081008
+                                <br/>
+                                Email: ssaoe.dammam@gmail.com
                             </td>
 
-                            <!-- Right: Chamber Membership -->
-                            <td style="width: 33%; padding: 8px; vertical-align: top;">
-                                <div style="font-weight: bold; margin-bottom: 3px;">الدمام ٣٢٢٤٢</div>
-                                <div>جدة ٧٦٥٥ - ٢٢٢٤٤ - ٣١٠٨ - المملكة العربية السعودية</div>
-                                <div style="margin-top: 8px; font-weight: bold;">Chamber Membership No : 160264 - Al Fayha 7655</div>
-                                <div>Jeddah 22244-3108, Saudi Arabia</div>
-                                <div style="margin-top: 3px;">Tel : 0122345523</div>
-                                <div style="margin-top: 3px;">Email: ssaoe-jeddah@gmail.com</div>
+                            <td style="width:33%; padding:4px;border-left: 1px solid black;">
+                                <strong>Dammam:</strong>
+                                8515, Qutaibah bin Muslim ST,
+                                Al Souq, Dammam 4525-32242
+                                Saudi Arabia
+                                <br/>
+                                Tel/Mobile: 0535081008
+                                <br/>
+                                Email: ssaoe.dammam@gmail.com
                             </td>
                         </tr>
                     </table>
-
-                    <!-- Bank Details Bar -->
-                    <div style="background: #000; color: #fff; padding: 5px 10px; font-size: 9px; text-align: center;">
-                        <strong>Bank Details :</strong>
-                        Alrajhi Bank Beneficiary Name : Sameer Sharaf Al-Otaibi Trading Co.
-                        <span style="margin: 0 20px;">IBAN : SA7880000121360801014917</span>
-                        <span style="direction: rtl; font-family: 'Noto Naskh Arabic', sans-serif;" class="ar">التفاصيل المصرفية</span>
-                    </div>
                 </div>
 
             </div>

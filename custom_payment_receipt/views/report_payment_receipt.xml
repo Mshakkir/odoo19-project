@@ -284,7 +284,12 @@
                     <!-- Remark Section -->
                     <div style="margin-bottom: 20px; margin-top: 20px;">
                         Remark :
-                        <span t-field="o.memo"/>
+                        <t t-if="'memo_new' in o._fields and o.memo_new">
+                            <span t-field="o.memo_new"/>
+                        </t>
+                        <t t-elif="o.memo">
+                            <span t-field="o.memo"/>
+                        </t>
                     </div>
 
                     <!-- Signature Section -->

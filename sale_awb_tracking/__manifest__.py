@@ -15,8 +15,7 @@
     'author': 'Your Name',
     'depends': [
         'sale_management',
-        'account',
-        'stock_picking',       # ← added, required for stock.picking
+        'account',       # ← added, required for stock.picking
     ],
     'data': [
         'security/ir.model.access.csv',

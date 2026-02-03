@@ -126,9 +126,12 @@
                     <!-- ===== TITLE - Different for Customer vs Vendor ===== -->
                     <div style="text-align: center; margin-top: 5px; margin-bottom: 5px;">
                         <h3 style="margin: 0; padding: 5px 0; font-size: 16px; text-decoration: underline;">
-                            <t t-if="o.payment_type == 'inbound'">
+                           <strong>
+                               <t t-if="o.payment_type == 'inbound'">
                                 Receipt Voucher
                             </t>
+                           </strong>
+                            <strong></strong>
                             <t t-if="o.payment_type == 'outbound'">
                                 Payment Voucher
                             </t>

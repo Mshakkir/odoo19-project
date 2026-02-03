@@ -1,50 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="0">
-        <!-- ========================================== -->
-        <!-- STOCK PICKING TYPE DASHBOARD FILTERS -->
-        <!-- ========================================== -->
 
-        <!-- FYH Warehouse: See only FYH operation types in dashboard -->
-        <record id="stock_picking_type_fyh_warehouse_rule" model="ir.rule">
-            <field name="name">FYH Warehouse: See only FYH operations in dashboard</field>
+        <!-- ============================================ -->
+        <!-- WAREHOUSE-SPECIFIC OPERATION TYPE ACCESS    -->
+        <!-- global=False means these rules work with OR logic -->
+        <!-- ============================================ -->
+
+        <!-- FYH: FULL ACCESS to FYH operation types only -->
+        <record id="picking_type_fyh_full_access" model="ir.rule">
+            <field name="name">FYH Users - Full Access to FYH Operations Only</field>
             <field name="model_id" ref="stock.model_stock_picking_type"/>
             <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_fyh_warehouse'))]"/>
-            <field name="domain_force">[
-                ('warehouse_id.name', 'in', ['JED-Fyh', 'FYH'])
-            ]</field>
+            <field name="domain_force">[('warehouse_id.name', 'in', ['JED-Fyh', 'FYH'])]</field>
+            <field name="global" eval="False"/>
             <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="False"/>
-            <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
         </record>
 
-        <!-- DMM Warehouse: See only DMM operation types in dashboard -->
-        <record id="stock_picking_type_dmm_warehouse_rule" model="ir.rule">
-            <field name="name">DMM Warehouse: See only DMM operations in dashboard</field>
+        <!-- DMM: FULL ACCESS to DMM operation types only -->
+        <record id="picking_type_dmm_full_access" model="ir.rule">
+            <field name="name">DMM Users - Full Access to DMM Operations Only</field>
             <field name="model_id" ref="stock.model_stock_picking_type"/>
             <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_dmm_warehouse'))]"/>
-            <field name="domain_force">[
-                ('warehouse_id.name', 'in', ['DMM-Wh1', 'DMM', 'DAMMAM'])
-            ]</field>
+            <field name="domain_force">[('warehouse_id.name', 'in', ['DMM-Wh1', 'DMM', 'DAMMAM'])]</field>
+            <field name="global" eval="False"/>
             <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="False"/>
-            <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
         </record>
 
-        <!-- BLD Warehouse: See only BLD operation types in dashboard -->
-        <record id="stock_picking_type_bld_warehouse_rule" model="ir.rule">
-            <field name="name">BLD Warehouse: See only BLD operations in dashboard</field>
+        <!-- BLD: FULL ACCESS to BLD operation types only -->
+        <record id="picking_type_bld_full_access" model="ir.rule">
+            <field name="name">BLD Users - Full Access to BLD Operations Only</field>
             <field name="model_id" ref="stock.model_stock_picking_type"/>
             <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_bld_warehouse'))]"/>
-            <field name="domain_force">[
-                ('warehouse_id.name', 'in', ['JED-Bld', 'BLD', 'BALADIYA', 'BALAD'])
-            ]</field>
+            <field name="domain_force">[('warehouse_id.name', 'in', ['JED-Bld', 'BLD', 'BALADIYA'])]</field>
+            <field name="global" eval="False"/>
             <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="False"/>
-            <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
         </record>
 
     </data>

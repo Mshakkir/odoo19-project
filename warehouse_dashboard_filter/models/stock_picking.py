@@ -44,7 +44,7 @@ class StockPicking(models.Model):
                     domain = warehouse_domain
 
         return super(StockPicking, self).search(
-            domain=domain,
+            domain,
             offset=offset,
             limit=limit,
             order=order,

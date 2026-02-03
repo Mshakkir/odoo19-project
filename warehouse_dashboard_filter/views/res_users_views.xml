@@ -11,12 +11,7 @@
                     <page name="warehouse_access" string="Warehouse Access">
                         <group>
                             <group>
-                                <field name="allowed_warehouse_ids" widget="many2many_tags">
-                                    <tree>
-                                        <field name="name"/>
-                                        <field name="code"/>
-                                    </tree>
-                                </field>
+                                <field name="allowed_warehouse_ids" widget="many2many_tags"/>
                             </group>
                         </group>
                         <div class="alert alert-info" role="alert">

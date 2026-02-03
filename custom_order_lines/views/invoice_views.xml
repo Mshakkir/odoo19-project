@@ -104,6 +104,7 @@
                            string="Account"
                            readonly="parent.state != 'draft'"
                            domain="[]"
+                           widt="80px"
                            optional="hide"/>
 
 <!--                    <field name="warehouse_id" string="Warehouse" optional="hide" invisible="1"/> -->

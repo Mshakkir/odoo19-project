@@ -34,7 +34,8 @@
             <!-- Add warehouse_id after product_id (visible, this is your intended one) -->
             <xpath expr="//field[@name='invoice_line_ids']//field[@name='price_total']" position="after">
                 <field name="warehouse_id"
-                       optional="show"
+                       optional="hide"
+                       width="60px"
                        column_invisible="parent.move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund')"
                        options="{'no_create': True, 'no_open': True}"/>
             </xpath>

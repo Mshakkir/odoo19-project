@@ -2,44 +2,41 @@
 <odoo>
     <data noupdate="0">
 
-        <!-- ============================================ -->
-        <!-- WAREHOUSE-SPECIFIC OPERATION TYPE ACCESS    -->
-        <!-- global=False means these rules work with OR logic -->
-        <!-- ============================================ -->
+        <!-- ================================================================ -->
+        <!-- OPERATION TYPE (stock.picking.type) DASHBOARD FILTERING RULES   -->
+        <!-- Each warehouse user sees ONLY their warehouse's operation types -->
+        <!-- ================================================================ -->
 
-        <!-- FYH: FULL ACCESS to FYH operation types only -->
-        <record id="picking_type_fyh_full_access" model="ir.rule">
-            <field name="name">FYH Users - Full Access to FYH Operations Only</field>
+        <!-- FYH Warehouse Users: See ONLY JED-Fyh operation types -->
+        <record id="picking_type_fyh_users_only" model="ir.rule">
+            <field name="name">FYH Users See Only JED-Fyh Operations</field>
             <field name="model_id" ref="stock.model_stock_picking_type"/>
+            <field name="domain_force">[('warehouse_id.name', '=', 'JED-Fyh')]</field>
             <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_fyh_warehouse'))]"/>
-            <field name="domain_force">[('warehouse_id.name', 'in', ['JED-Fyh', 'FYH'])]</field>
-            <field name="global" eval="False"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
         </record>
 
-        <!-- DMM: FULL ACCESS to DMM operation types only -->
-        <record id="picking_type_dmm_full_access" model="ir.rule">
-            <field name="name">DMM Users - Full Access to DMM Operations Only</field>
+        <!-- DMM Warehouse Users: See ONLY DMM-Wh1 operation types -->
+        <record id="picking_type_dmm_users_only" model="ir.rule">
+            <field name="name">DMM Users See Only DMM-Wh1 Operations</field>
             <field name="model_id" ref="stock.model_stock_picking_type"/>
+            <field name="domain_force">[('warehouse_id.name', '=', 'DMM-Wh1')]</field>
             <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_dmm_warehouse'))]"/>
-            <field name="domain_force">[('warehouse_id.name', 'in', ['DMM-Wh1', 'DMM', 'DAMMAM'])]</field>
-            <field name="global" eval="False"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
         </record>
 
-        <!-- BLD: FULL ACCESS to BLD operation types only -->
-        <record id="picking_type_bld_full_access" model="ir.rule">
-            <field name="name">BLD Users - Full Access to BLD Operations Only</field>
+        <!-- BLD Warehouse Users: See ONLY JED-Bld operation types -->
+        <record id="picking_type_bld_users_only" model="ir.rule">
+            <field name="name">BLD Users See Only JED-Bld Operations</field>
             <field name="model_id" ref="stock.model_stock_picking_type"/>
+            <field name="domain_force">[('warehouse_id.name', '=', 'JED-Bld')]</field>
             <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_bld_warehouse'))]"/>
-            <field name="domain_force">[('warehouse_id.name', 'in', ['JED-Bld', 'BLD', 'BALADIYA'])]</field>
-            <field name="global" eval="False"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>

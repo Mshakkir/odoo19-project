@@ -31,13 +31,17 @@
                 </button>
             </xpath>
 
-            <!-- Add warehouse field in invoice line tree view -->
+            <!-- Add warehouse_id after product_id and make it visible -->
             <xpath expr="//field[@name='invoice_line_ids']//field[@name='product_id']" position="after">
                 <field name="warehouse_id"
                        optional="show"
-                       widget="many2one"
                        column_invisible="parent.move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund')"
                        options="{'no_create': True, 'no_open': True}"/>
+            </xpath>
+
+            <!-- Force hide the duplicate native warehouse_id that appears at the end -->
+            <xpath expr="//field[@name='invoice_line_ids']//list[@name='journal_items']" position="inside">
+                <field name="warehouse_id" column_invisible="True" force_save="1"/>
             </xpath>
 
             <!-- Add auto create delivery/receipt checkbox -->
@@ -60,16 +64,17 @@
 
 
 
+
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
-<!--    &lt;!&ndash; Add warehouse field and delivery smart button to invoice form &ndash;&gt;-->
-<!--    <record id="view_move_form_inherit_invoice_delivery" model="ir.ui.view">-->
-<!--        <field name="name">account.move.form.inherit.invoice.delivery</field>-->
+<!--    &lt;!&ndash; Add warehouse field and delivery/receipt smart buttons to invoice form &ndash;&gt;-->
+<!--    <record id="view_move_form_inherit_invoice_stock_automation" model="ir.ui.view">-->
+<!--        <field name="name">account.move.form.inherit.stock.automation</field>-->
 <!--        <field name="model">account.move</field>-->
 <!--        <field name="inherit_id" ref="account.view_move_form"/>-->
 <!--        <field name="arch" type="xml">-->
 
-<!--            &lt;!&ndash; Add delivery smart button &ndash;&gt;-->
+<!--            &lt;!&ndash; Add delivery smart button (Customer Invoices) &ndash;&gt;-->
 <!--            <xpath expr="//div[@name='button_box']" position="inside">-->
 <!--                <button name="action_view_delivery"-->
 <!--                        type="object"-->
@@ -81,25 +86,38 @@
 <!--                </button>-->
 <!--            </xpath>-->
 
+<!--            &lt;!&ndash; Add receipt smart button (Vendor Bills) &ndash;&gt;-->
+<!--            <xpath expr="//div[@name='button_box']" position="inside">-->
+<!--                <button name="action_view_receipt"-->
+<!--                        type="object"-->
+<!--                        class="oe_stat_button"-->
+<!--                        icon="fa-download"-->
+<!--                        invisible="receipt_count == 0 or move_type not in ('in_invoice', 'in_refund')"-->
+<!--                        context="{'default_partner_id': partner_id}">-->
+<!--                    <field name="receipt_count" widget="statinfo" string="Receipt"/>-->
+<!--                </button>-->
+<!--            </xpath>-->
+
 <!--            &lt;!&ndash; Add warehouse field in invoice line tree view &ndash;&gt;-->
 <!--            <xpath expr="//field[@name='invoice_line_ids']//field[@name='product_id']" position="after">-->
 <!--                <field name="warehouse_id"-->
 <!--                       optional="show"-->
 <!--                       widget="many2one"-->
-<!--                       column_invisible="parent.move_type not in ('out_invoice', 'out_refund')"-->
+<!--                       column_invisible="parent.move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund')"-->
 <!--                       options="{'no_create': True, 'no_open': True}"/>-->
 <!--            </xpath>-->
 
-<!--            &lt;!&ndash; Add auto create delivery checkbox &ndash;&gt;-->
+<!--            &lt;!&ndash; Add auto create delivery/receipt checkbox &ndash;&gt;-->
 <!--            <xpath expr="//field[@name='invoice_date']" position="after">-->
 <!--                <field name="auto_create_delivery"-->
-<!--                       invisible="move_type not in ('out_invoice', 'out_refund') or state != 'draft'"/>-->
+<!--                       invisible="move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund') or state != 'draft'"/>-->
 <!--            </xpath>-->
 
-<!--            &lt;!&ndash; Add picking_ids field (invisible, used for smart button) &ndash;&gt;-->
+<!--            &lt;!&ndash; Add picking_ids and count fields (invisible, used for smart buttons) &ndash;&gt;-->
 <!--            <xpath expr="//field[@name='invoice_date']" position="before">-->
 <!--                <field name="picking_ids" invisible="1"/>-->
 <!--                <field name="delivery_count" invisible="1"/>-->
+<!--                <field name="receipt_count" invisible="1"/>-->
 <!--            </xpath>-->
 
 <!--        </field>-->

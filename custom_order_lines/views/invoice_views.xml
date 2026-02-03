@@ -89,7 +89,7 @@
 
                     <field name="name" widget="text" optional="hide" invisible="1"/>
                     <field name="account_id" string="Account" readonly="parent.state != 'draft'" required="1" optional="hide" invisible="1"/>
-                    <field name="warehouse_id" string="Warehouse" optional="hide" invisible="1"/>
+<!--                    <field name="warehouse_id" string="Warehouse" optional="hide" invisible="1"/>-->
                 </list>
             </xpath>
         </field>

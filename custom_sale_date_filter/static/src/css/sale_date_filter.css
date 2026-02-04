@@ -3,7 +3,7 @@
 }
 
 .sale_date_filter_container {
-    padding: 10px 16px;
+    padding: 14px 20px;
     background-color: #f8f9fa;
     border-bottom: 2px solid #e9ecef;
     margin: 0;
@@ -13,7 +13,7 @@
 .date_filter_wrapper {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     flex-wrap: nowrap;
 }
 
@@ -24,29 +24,32 @@
     flex-shrink: 0;
 }
 
+/* ── was 100–120 px, now 150–180 px ── */
 .filter_group_small {
-    min-width: 100px;
-    max-width: 120px;
-}
-
-.filter_group.date_group {
-    min-width: 200px;
-}
-
-.filter_group.date_group_small {
-    min-width: 160px;
+    min-width: 150px;
     max-width: 180px;
 }
 
+.filter_group.date_group {
+    min-width: 260px;
+}
+
+/* ── was 160–180 px, now 230–260 px ── */
+.filter_group.date_group_small {
+    min-width: 230px;
+    max-width: 260px;
+}
+
 .filter_group.autocomplete_group {
-    min-width: 140px;
+    min-width: 180px;
     flex: 1;
     position: relative;
 }
 
+/* ── was 100–120 px, now 150–180 px ── */
 .filter_group.autocomplete_group_small {
-    min-width: 100px;
-    max-width: 120px;
+    min-width: 150px;
+    max-width: 180px;
     position: relative;
 }
 
@@ -65,8 +68,8 @@
 }
 
 .date_input {
-    width: 110px;
-    padding: 5px 8px;
+    width: 130px;
+    padding: 7px 10px;
     border: 1px solid #ced4da;
     border-radius: 4px;
     font-size: 13px;
@@ -74,12 +77,13 @@
     background-color: #ffffff;
 }
 
+/* ── was 75 px / 4-6 px / 12 px, now 110 px / 7-10 px / 13 px ── */
 .date_input_small {
-    width: 75px;
-    padding: 4px 6px;
+    width: 110px;
+    padding: 7px 10px;
     border: 1px solid #ced4da;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 13px;
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     background-color: #ffffff;
 }
@@ -92,16 +96,16 @@
 }
 
 .date_separator {
-    font-size: 14px;
+    font-size: 16px;
     color: #6c757d;
     font-weight: bold;
 }
 
-/* Normal select dropdown for warehouse */
+/* ── Normal select dropdown for warehouse ── */
 .filter_select {
     width: 100%;
-    min-width: 140px;
-    padding: 5px 8px;
+    min-width: 160px;
+    padding: 7px 10px;
     border: 1px solid #ced4da;
     border-radius: 4px;
     font-size: 13px;
@@ -110,12 +114,13 @@
     cursor: pointer;
 }
 
+/* ── was 100 % / 4-6 px / 12 px, now 100 % / 7-10 px / 13 px ── */
 .filter_select_small {
     width: 100%;
-    padding: 4px 6px;
+    padding: 7px 10px;
     border: 1px solid #ced4da;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 13px;
     background-color: #ffffff;
     transition: border-color 0.15s ease-in-out;
     cursor: pointer;
@@ -128,11 +133,11 @@
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }
 
-/* Regular input for document number and amount */
+/* ── Regular input for document number and amount ── */
 .filter_input {
     width: 100%;
-    min-width: 140px;
-    padding: 5px 8px;
+    min-width: 160px;
+    padding: 7px 10px;
     border: 1px solid #ced4da;
     border-radius: 4px;
     font-size: 13px;
@@ -140,12 +145,13 @@
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
+/* ── was 100 % / 4-6 px / 12 px, now 100 % / 7-10 px / 13 px ── */
 .filter_input_small {
     width: 100%;
-    padding: 4px 6px;
+    padding: 7px 10px;
     border: 1px solid #ced4da;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 13px;
     background-color: #ffffff;
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
@@ -157,7 +163,7 @@
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }
 
-/* Autocomplete styling for customer and salesperson */
+/* ── Autocomplete styling for customer and salesperson ── */
 .autocomplete_wrapper {
     position: relative;
     width: 100%;
@@ -165,7 +171,7 @@
 
 .autocomplete_input {
     width: 100%;
-    padding: 5px 8px;
+    padding: 7px 10px;
     border: 1px solid #ced4da;
     border-radius: 4px;
     font-size: 13px;
@@ -173,12 +179,13 @@
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
+/* ── was 100 % / 4-6 px / 12 px, now 100 % / 7-10 px / 13 px ── */
 .autocomplete_input_small {
     width: 100%;
-    padding: 4px 6px;
+    padding: 7px 10px;
     border: 1px solid #ced4da;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 13px;
     background-color: #ffffff;
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
@@ -238,13 +245,13 @@
 
 .filter_actions {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     margin-left: auto;
     flex-shrink: 0;
 }
 
 .apply_filter_btn {
-    padding: 5px 20px;
+    padding: 7px 28px;
     font-size: 13px;
     font-weight: 500;
     white-space: nowrap;
@@ -258,7 +265,7 @@
 }
 
 .clear_filter_btn {
-    padding: 5px 18px;
+    padding: 7px 22px;
     font-size: 13px;
     font-weight: 500;
     white-space: nowrap;
@@ -269,30 +276,65 @@
     margin-top: 0 !important;
 }
 
-/* Responsive design for medium screens */
+/* ── Responsive: medium screens ── */
 @media (max-width: 1400px) {
+    .filter_group_small {
+        min-width: 130px;
+        max-width: 160px;
+    }
+
+    .filter_group.date_group_small {
+        min-width: 210px;
+        max-width: 240px;
+    }
+
+    .filter_group.autocomplete_group_small {
+        min-width: 130px;
+        max-width: 160px;
+    }
+
+    .date_input_small {
+        width: 95px;
+    }
+
     .filter_group.date_group {
-        min-width: 180px;
+        min-width: 220px;
     }
 
     .date_input {
-        width: 100px;
+        width: 110px;
     }
 
     .filter_group.autocomplete_group {
-        min-width: 130px;
+        min-width: 150px;
     }
 
     .filter_select,
     .filter_input {
-        min-width: 130px;
+        min-width: 140px;
     }
 }
 
-/* Responsive design for smaller screens - stack in 2 rows */
+/* ── Responsive: smaller screens – wrap into 2 rows ── */
 @media (max-width: 1200px) {
     .date_filter_wrapper {
         flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .filter_group_small {
+        min-width: 120px;
+        max-width: 150px;
+    }
+
+    .filter_group.date_group_small {
+        min-width: 200px;
+        max-width: 230px;
+    }
+
+    .filter_group.autocomplete_group_small {
+        min-width: 120px;
+        max-width: 150px;
     }
 
     .filter_group.date_group {
@@ -300,7 +342,7 @@
     }
 
     .filter_group.autocomplete_group {
-        flex: 1 1 140px;
+        flex: 1 1 150px;
     }
 
     .filter_actions {
@@ -309,10 +351,10 @@
     }
 }
 
-/* Mobile responsive */
+/* ── Mobile responsive ── */
 @media (max-width: 768px) {
     .sale_date_filter_container {
-        padding: 10px 12px;
+        padding: 12px 14px;
     }
 
     .date_filter_wrapper {
@@ -327,6 +369,13 @@
         width: 100%;
     }
 
+    .filter_group_small,
+    .filter_group.date_group_small,
+    .filter_group.autocomplete_group_small {
+        min-width: 100%;
+        max-width: 100%;
+    }
+
     .filter_group.date_group,
     .filter_group.autocomplete_group {
         min-width: 100%;
@@ -336,7 +385,8 @@
         width: 100%;
     }
 
-    .date_input {
+    .date_input,
+    .date_input_small {
         flex: 1;
         width: auto;
     }
@@ -356,7 +406,9 @@
     }
 
     .filter_select,
-    .filter_input {
+    .filter_select_small,
+    .filter_input,
+    .filter_input_small {
         width: 100%;
     }
 }

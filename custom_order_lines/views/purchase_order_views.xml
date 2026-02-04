@@ -107,7 +107,7 @@
                            readonly="1"
                            width="110px"/>
 
-                    <field name="warehouse_id" string="Warehouse" optional="hide" invisible="1"/>
+<!--                    <field name="warehouse_id" string="Warehouse" optional="hide" invisible="1"/>-->
                     <field name="date_planned" string="Expected Arrival" optional="hide" invisible="1"/>
                     <field name="propagate_cancel" string="Propagate Cancellation" optional="hide" invisible="1"/>
                     <field name="name" widget="text" optional="hide" invisible="1"/>

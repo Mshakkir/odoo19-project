@@ -84,40 +84,67 @@
 
         <!-- ========================================== -->
         <!-- OPERATION TYPE (PICKING TYPE) ACCESS RULES -->
-        <!-- WAREHOUSE-SPECIFIC: Each user sees ONLY their warehouse's operation types -->
+        <!-- TWO-TIER APPROACH: -->
+        <!-- 1. Dashboard shows only own warehouse (write/create/delete) -->
+        <!-- 2. But can READ all operation types (for inter-warehouse transfers) -->
         <!-- ========================================== -->
 
-        <!-- FYH Users: See ONLY JED-Fyh operation types -->
-        <record id="stock_picking_type_fyh_only" model="ir.rule">
-            <field name="name">FYH Users: See ONLY JED-Fyh operation types</field>
+        <!-- ============================================ -->
+        <!-- TIER 1: READ-ONLY ACCESS TO ALL OPERATION TYPES -->
+        <!-- This allows users to validate transfers from other warehouses -->
+        <!-- ============================================ -->
+
+        <record id="stock_picking_type_all_read_only" model="ir.rule">
+            <field name="name">All Users: Can READ all operation types (for inter-warehouse transfers)</field>
+            <field name="model_id" ref="stock.model_stock_picking_type"/>
+            <field name="groups" eval="[
+                (4, ref('warehouse_transfer_automation.group_fyh_warehouse')),
+                (4, ref('warehouse_transfer_automation.group_dmm_warehouse')),
+                (4, ref('warehouse_transfer_automation.group_bld_warehouse'))
+            ]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- TIER 2: FULL ACCESS TO OWN WAREHOUSE ONLY -->
+        <!-- This restricts write/create/delete to own warehouse -->
+        <!-- ============================================ -->
+
+        <!-- FYH Users: Full access ONLY to JED-Fyh operation types -->
+        <record id="stock_picking_type_fyh_full_access" model="ir.rule">
+            <field name="name">FYH Users: Full access ONLY to JED-Fyh operation types</field>
             <field name="model_id" ref="stock.model_stock_picking_type"/>
             <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_fyh_warehouse'))]"/>
             <field name="domain_force">[('warehouse_id.name', '=', 'JED-Fyh')]</field>
-            <field name="perm_read" eval="True"/>
+            <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
         </record>
 
-        <!-- DMM Users: See ONLY DMM-Wh1 operation types -->
-        <record id="stock_picking_type_dmm_only" model="ir.rule">
-            <field name="name">DMM Users: See ONLY DMM-Wh1 operation types</field>
+        <!-- DMM Users: Full access ONLY to DMM-Wh1 operation types -->
+        <record id="stock_picking_type_dmm_full_access" model="ir.rule">
+            <field name="name">DMM Users: Full access ONLY to DMM-Wh1 operation types</field>
             <field name="model_id" ref="stock.model_stock_picking_type"/>
             <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_dmm_warehouse'))]"/>
             <field name="domain_force">[('warehouse_id.name', '=', 'DMM-Wh1')]</field>
-            <field name="perm_read" eval="True"/>
+            <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
         </record>
 
-        <!-- BLD Users: See ONLY JED-Bld operation types -->
-        <record id="stock_picking_type_bld_only" model="ir.rule">
-            <field name="name">BLD Users: See ONLY JED-Bld operation types</field>
+        <!-- BLD Users: Full access ONLY to JED-Bld operation types -->
+        <record id="stock_picking_type_bld_full_access" model="ir.rule">
+            <field name="name">BLD Users: Full access ONLY to JED-Bld operation types</field>
             <field name="model_id" ref="stock.model_stock_picking_type"/>
             <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_bld_warehouse'))]"/>
             <field name="domain_force">[('warehouse_id.name', '=', 'JED-Bld')]</field>
-            <field name="perm_read" eval="True"/>
+            <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>

@@ -12,16 +12,3 @@
 
 </odoo>
 
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-
-<!--    &lt;!&ndash; Sequence for Bank Statement &ndash;&gt;-->
-<!--    <record id="seq_bank_statement" model="ir.sequence">-->
-<!--        <field name="name">Bank Statement Reconciliation</field>-->
-<!--        <field name="code">bank.statement</field>-->
-<!--        <field name="prefix">BRS/</field>-->
-<!--        <field name="padding">5</field>-->
-<!--        <field name="company_id" eval="False"/>-->
-<!--    </record>-->
-
-<!--</odoo>-->

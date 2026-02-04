@@ -58,36 +58,3 @@
 
 </odoo>
 
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-<!--    &lt;!&ndash; Add warehouse field to invoice lines in the invoice form &ndash;&gt;-->
-<!--    <record id="view_move_form_inherit_warehouse" model="ir.ui.view">-->
-<!--        <field name="name">account.move.form.inherit.warehouse</field>-->
-<!--        <field name="model">account.move</field>-->
-<!--        <field name="inherit_id" ref="account.view_move_form"/>-->
-<!--        <field name="arch" type="xml">-->
-
-<!--&lt;!&ndash;            &lt;!&ndash; Add warehouse field after product_id in invoice lines list &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;            <xpath expr="//page[@id='invoice_tab']//field[@name='invoice_line_ids']/list/field[@name='product_id']" position="after">&ndash;&gt;-->
-<!--&lt;!&ndash;                <field name="warehouse_id"&ndash;&gt;-->
-<!--&lt;!&ndash;                       optional="show"&ndash;&gt;-->
-<!--&lt;!&ndash;                       widget="many2one"&ndash;&gt;-->
-<!--&lt;!&ndash;                       options="{'no_create': True, 'no_open': True}"/>&ndash;&gt;-->
-<!--&lt;!&ndash;            </xpath>&ndash;&gt;-->
-
-<!--            &lt;!&ndash; Add warehouse field in the mobile kanban view &ndash;&gt;-->
-<!--            <xpath expr="//page[@id='invoice_tab']//field[@name='invoice_line_ids']/kanban//field[@name='product_id']" position="after">-->
-<!--                <field name="warehouse_id"-->
-<!--                optional="hide"/>-->
-<!--            </xpath>-->
-
-<!--&lt;!&ndash;            &lt;!&ndash; Add warehouse field in the mobile form view &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;            <xpath expr="//page[@id='invoice_tab']//field[@name='invoice_line_ids']/form//field[@name='product_id']" position="after">&ndash;&gt;-->
-<!--&lt;!&ndash;                <field name="warehouse_id"&ndash;&gt;-->
-<!--&lt;!&ndash;                       options="{'no_create': True, 'no_open': True}"/>&ndash;&gt;-->
-<!--&lt;!&ndash;            </xpath>&ndash;&gt;-->
-
-<!--        </field>-->
-<!--    </record>-->
-<!--</odoo>-->

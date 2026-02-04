@@ -53,7 +53,7 @@ class StockPickingType(models.Model):
         return super(StockPickingType, self).search_read(domain, fields, offset, limit, order)
 
     @api.model
-    def search(self, args, offset=0, limit=None, order=None, count=False):
+    def search(self, args, offset=0, limit=None, order=None, **kwargs):
         """
         Override search to filter operation types by warehouse in list views.
 
@@ -69,7 +69,7 @@ class StockPickingType(models.Model):
 
         # Skip filtering for admin users
         if user.has_group('base.group_system'):
-            return super(StockPickingType, self).search(args, offset, limit, order, count)
+            return super(StockPickingType, self).search(args, offset=offset, limit=limit, order=order, **kwargs)
 
         # Apply warehouse-specific filter
         warehouse_domain = None
@@ -90,4 +90,4 @@ class StockPickingType(models.Model):
             else:
                 args = warehouse_domain
 
-        return super(StockPickingType, self).search(args, offset, limit, order, count)
+        return super(StockPickingType, self).search(args, offset=offset, limit=limit, order=order, **kwargs)

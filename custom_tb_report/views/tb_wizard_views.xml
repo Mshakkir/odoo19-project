@@ -1,18 +1,3 @@
-<!--<odoo>-->
-<!--    <record id="view_trial_balance_wizard_form_inherit" model="ir.ui.view">-->
-<!--        <field name="name">trial.balance.wizard.form.inherit</field>-->
-<!--        <field name="model">account.balance.report</field>-->
-<!--        <field name="inherit_id" ref="accounting_pdf_reports.account_report_balance_view"/>-->
-<!--        <field name="arch" type="xml">-->
-<!--            <xpath expr="//footer" position="inside">-->
-<!--                <button name="open_trial_balance"-->
-<!--                        string="Open Trial Balance Lines"-->
-<!--                        type="object"-->
-<!--                        class="btn-primary"/>-->
-<!--            </xpath>-->
-<!--        </field>-->
-<!--    </record>-->
-<!--</odoo>-->
 <odoo>
     <record id="view_trial_balance_wizard_form_inherit" model="ir.ui.view">
         <field name="name">trial.balance.wizard.form.inherit</field>

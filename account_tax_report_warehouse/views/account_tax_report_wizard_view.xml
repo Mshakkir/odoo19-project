@@ -30,15 +30,4 @@
 </odoo>
 
 
-        <!--<odoo>-->
-        <!--    <record id="view_account_tax_report_wizard_inherit" model="ir.ui.view">-->
-        <!--        <field name="name">account.tax.report.wizard.inherit.analytic</field>-->
-        <!--        <field name="model">account.tax.report.wizard</field>-->
-        <!--        <field name="inherit_id" ref="accounting_pdf_reports.accounting_tax_report_view"/>-->
-        <!--        <field name="arch" type="xml">-->
-        <!--            <field name="date_to" position="after">-->
-        <!--                <field name="analytic_account_ids" widget="many2many_tags"/>-->
-        <!--            </field>-->
-        <!--        </field>-->
-        <!--    </record>-->
-        <!--</odoo>-->
+

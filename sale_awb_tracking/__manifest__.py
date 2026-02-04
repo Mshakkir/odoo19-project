@@ -19,8 +19,8 @@
     ],
     'data': [
         'security/ir.model.access.csv',
-        'views/sale_order_views.xml',      # ← was missing entirely
-        'views/account_move_views.xml',    # ← was commented out
+        # 'views/sale_order_views.xml',      # ← was missing entirely
+        # 'views/account_move_views.xml',    # ← was commented out
         'views/stock_picking_view.xml',
     ],                                     # ← 'views/templates.xml' removed
     'installable': True,

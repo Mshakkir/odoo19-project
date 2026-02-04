@@ -23,6 +23,10 @@
                         string="Show Details"
                         type="object"
                         class="btn-secondary"/>
+                <button name="export_tax_report_excel"
+                        string="Export Excel"
+                        type="object"
+                        class="btn-secondary"/>
             </xpath>
 
         </field>

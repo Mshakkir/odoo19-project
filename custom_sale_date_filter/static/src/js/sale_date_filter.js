@@ -173,11 +173,17 @@ patch(ListController.prototype, {
                             </div>
                         </div>
 
-                        <div class="filter_group filter_group_small">
-                            <select class="form-select filter_select_small filter_warehouse">
-                                <option value="">Warehouse</option>
-                                ${warehouseOptions}
-                            </select>
+//                        <div class="filter_group filter_group_small">
+//                            <select class="form-select filter_select_small filter_warehouse">
+//                                <option value="">Warehouse</option>
+//                                ${warehouseOptions}
+//                            </select>
+//                        </div>
+                        <div class="filter_group filter_group_small autocomplete_group_small">
+                            <div class="autocomplete_wrapper">
+                                <input type="text" class="form-control autocomplete_input_small filter_analytic_input" placeholder="Warehouse" />
+                                <div class="autocomplete_dropdown filter_analytic_dropdown"></div>
+                            </div>
                         </div>
 
                         <div class="filter_group filter_group_small">
@@ -203,12 +209,7 @@ patch(ListController.prototype, {
                             <input type="text" class="form-control filter_input_small filter_delivery_note" placeholder="Delivery Note" />
                         </div>
 
-                        <div class="filter_group filter_group_small autocomplete_group_small">
-                            <div class="autocomplete_wrapper">
-                                <input type="text" class="form-control autocomplete_input_small filter_analytic_input" placeholder="Analytic Account" />
-                                <div class="autocomplete_dropdown filter_analytic_dropdown"></div>
-                            </div>
-                        </div>
+
 
                         <div class="filter_actions">
                             <button class="btn btn-primary apply_filter_btn">Apply</button>

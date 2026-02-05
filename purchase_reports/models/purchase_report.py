@@ -77,7 +77,7 @@ class PurchaseReport(models.Model):
                     spt.warehouse_id as warehouse_id,
                     sw.name as warehouse_name,
                     po.user_id as user_id,
-                    ru.name as user_name,
+                    rpu.name as user_name,
                     pol.product_qty as product_qty,
                     pol.qty_received as qty_received,
                     pol.qty_invoiced as qty_invoiced,
@@ -97,6 +97,7 @@ class PurchaseReport(models.Model):
                     LEFT JOIN stock_picking_type spt ON po.picking_type_id = spt.id
                     LEFT JOIN stock_warehouse sw ON spt.warehouse_id = sw.id
                     LEFT JOIN res_users ru ON po.user_id = ru.id
+                    LEFT JOIN res_partner rpu ON ru.partner_id = rpu.id
             )
         """ % self._table)
 

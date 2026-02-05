@@ -1,942 +1,3 @@
-///** @odoo-module **/
-//
-//import { patch } from "@web/core/utils/patch";
-//import { ListController } from "@web/views/list/list_controller";
-//import { useService } from "@web/core/utils/hooks";
-//import { onMounted, onWillUnmount } from "@odoo/owl";
-//
-//patch(ListController.prototype, {
-//    setup() {
-//        super.setup(...arguments);
-//
-//        this.notification = useService("notification");
-//        this.actionService = useService("action");
-//        this.orm = useService("orm");
-//
-//        this._filterInjected = false;
-//        this._filterData = {
-//            warehouses: [],
-//            customers: [],
-//            salespersons: []
-//        };
-//        this._listeners = [];
-//
-//        onMounted(async () => {
-//            if (this.shouldShowFilter()) {
-//                try {
-//                    await this.loadFilterData();
-//                    // Keep trying to inject until successful
-//                    let attempts = 0;
-//                    const tryInject = setInterval(async () => {
-//                        if (this.injectDateFilter()) {
-//                            clearInterval(tryInject);
-//                        }
-//                        attempts++;
-//                        if (attempts > 20) clearInterval(tryInject); // Stop after 20 attempts (10 seconds)
-//                    }, 500);
-//                } catch (error) {
-//                    console.error('Filter initialization error:', error);
-//                }
-//            }
-//        });
-//
-//        onWillUnmount(() => {
-//            this.cleanupFilter();
-//        });
-//    },
-//
-//    shouldShowFilter() {
-//        const resModel = this.props.resModel;
-//        const context = this.props.context || {};
-//        const domain = this.props.domain || [];
-//
-//        // Check if it's a sale order
-//        if (resModel === 'sale.order') {
-//            return true;
-//        }
-//
-//        // Check if it's a sale invoice (account.move with move_type 'out_invoice')
-//        if (resModel === 'account.move') {
-//            // Check if domain contains out_invoice filter
-//            const hasOutInvoiceFilter = domain.some(condition =>
-//                Array.isArray(condition) &&
-//                condition[0] === 'move_type' &&
-//                condition[2] === 'out_invoice'
-//            );
-//
-//            // Check context for type indicator
-//            const isOutInvoiceFromContext = context.default_move_type === 'out_invoice' ||
-//                                           context.type === 'out_invoice';
-//
-//            // If either check passes, it's a sales invoice
-//            return hasOutInvoiceFilter || isOutInvoiceFromContext;
-//        }
-//
-//        return false;
-//    },
-//
-//    cleanupFilter() {
-//        // Remove all event listeners
-//        this._listeners.forEach(({ element, event, handler }) => {
-//            try {
-//                if (element) {
-//                    element.removeEventListener(event, handler);
-//                }
-//            } catch (e) {
-//                // Ignore errors during cleanup
-//            }
-//        });
-//        this._listeners = [];
-//    },
-//
-//    addEventListener(element, event, handler) {
-//        if (element) {
-//            element.addEventListener(event, handler);
-//            this._listeners.push({ element, event, handler });
-//        }
-//    },
-//
-//    async loadFilterData() {
-//        try {
-//            const [warehouses, customers, salespersons] = await Promise.all([
-//                this.orm.searchRead('stock.warehouse', [], ['id', 'name'], { limit: 100 }).catch(() => []),
-//                this.orm.searchRead('res.partner', [['customer_rank', '>', 0]], ['id', 'name'],
-//                    { limit: 500, order: 'name' }).catch(() => []),
-//                this.orm.searchRead('res.users', [], ['id', 'name'], { limit: 100, order: 'name' }).catch(() => [])
-//            ]);
-//
-//            this._filterData = {
-//                warehouses: warehouses || [],
-//                customers: customers || [],
-//                salespersons: salespersons || []
-//            };
-//        } catch (error) {
-//            console.error('Error loading filter data:', error);
-//            this.notification.add("Error loading filter options", { type: "danger" });
-//        }
-//    },
-//
-//    injectDateFilter() {
-//        if (this._filterInjected) {
-//            return true; // Already injected
-//        }
-//
-//        const listTable = document.querySelector('.o_list_table');
-//        if (!listTable) {
-//            return false; // List table not ready yet
-//        }
-//
-//        // Check if filter already exists
-//        const existingFilter = document.querySelector('.sale_date_filter_wrapper_main');
-//        if (existingFilter) {
-//            return true; // Already exists
-//        }
-//
-//        try {
-//            const isSaleOrder = this.props.resModel === 'sale.order';
-//            const isInvoice = this.props.resModel === 'account.move';
-//
-//            const today = new Date();
-//            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-//            const dateFrom = firstDay.toISOString().split('T')[0];
-//            const dateTo = today.toISOString().split('T')[0];
-//
-//            const warehouseOptions = this._filterData.warehouses
-//                .map(w => `<option value="${w.id}">${w.name}</option>`)
-//                .join('');
-//
-//            const filterHTML = `
-//                <div class="sale_date_filter_container">
-//                    <div class="date_filter_wrapper">
-//                        <div class="filter_group filter_group_small date_group_small">
-//                            <div class="date_input_group">
-//                                <input type="date" class="form-control date_input_small filter_date_from" value="${dateFrom}" />
-//                                <span class="date_separator">→</span>
-//                                <input type="date" class="form-control date_input_small filter_date_to" value="${dateTo}" />
-//                            </div>
-//                        </div>
-//
-//                        <div class="filter_group filter_group_small">
-//                            <input type="text" class="form-control filter_input_small filter_doc_number"
-//                                placeholder="${isSaleOrder ? 'Sale Order' : 'Invoice'}" />
-//                        </div>
-//
-//                        <div class="filter_group filter_group_small autocomplete_group_small">
-//                            <div class="autocomplete_wrapper">
-//                                <input type="text" class="form-control autocomplete_input_small filter_customer_input" placeholder="Customer" />
-//                                <div class="autocomplete_dropdown filter_customer_dropdown"></div>
-//                            </div>
-//                        </div>
-//
-//                        <div class="filter_group filter_group_small">
-//                            <select class="form-select filter_select_small filter_warehouse">
-//                                <option value="">Warehouse</option>
-//                                ${warehouseOptions}
-//                            </select>
-//                        </div>
-//
-//                        <div class="filter_group filter_group_small">
-//                            <input type="text" class="form-control filter_input_small filter_customer_ref" placeholder="Customer Ref" />
-//                        </div>
-//
-//                        <div class="filter_group filter_group_small autocomplete_group_small">
-//                            <div class="autocomplete_wrapper">
-//                                <input type="text" class="form-control autocomplete_input_small filter_salesperson_input" placeholder="Sales Rep" />
-//                                <div class="autocomplete_dropdown filter_salesperson_dropdown"></div>
-//                            </div>
-//                        </div>
-//
-//                        <div class="filter_group filter_group_small">
-//                            <input type="number" class="form-control filter_input_small filter_total_amount" placeholder="Total Amount" step="0.01" min="0" />
-//                        </div>
-//
-//                        <div class="filter_group filter_group_small">
-//                            <input type="text" class="form-control filter_input_small filter_awb_number" placeholder="Shipping Rep" />
-//                        </div>
-//
-//                        <div class="filter_actions">
-//                            <button class="btn btn-primary apply_filter_btn filter_apply">Apply</button>
-//                            <button class="btn btn-secondary clear_filter_btn filter_clear">Clear</button>
-//                        </div>
-//                    </div>
-//                </div>
-//            `;
-//
-//            const filterDiv = document.createElement('div');
-//            filterDiv.className = 'sale_date_filter_wrapper_main';
-//            filterDiv.innerHTML = filterHTML;
-//
-//            listTable.parentElement.insertBefore(filterDiv, listTable);
-//
-//            // Setup event listeners using class selectors (more reliable)
-//            this.setupFilterLogic(isSaleOrder, isInvoice);
-//
-//            this._filterInjected = true;
-//            return true;
-//        } catch (error) {
-//            console.error('Error injecting filter:', error);
-//            return false;
-//        }
-//    },
-//
-//    setupFilterLogic(isSaleOrder, isInvoice) {
-//        // Get elements using class selectors
-//        const dateFromInput = document.querySelector('.filter_date_from');
-//        const dateToInput = document.querySelector('.filter_date_to');
-//        const warehouseSelect = document.querySelector('.filter_warehouse');
-//        const customerInput = document.querySelector('.filter_customer_input');
-//        const customerDropdown = document.querySelector('.filter_customer_dropdown');
-//        const salespersonInput = document.querySelector('.filter_salesperson_input');
-//        const salespersonDropdown = document.querySelector('.filter_salesperson_dropdown');
-//        const documentNumberInput = document.querySelector('.filter_doc_number');
-//        const totalAmountInput = document.querySelector('.filter_total_amount');
-//        const customerRefInput = document.querySelector('.filter_customer_ref');
-//        const awbNumberInput = document.querySelector('.filter_awb_number');
-//        const applyBtn = document.querySelector('.filter_apply');
-//        const clearBtn = document.querySelector('.filter_clear');
-//
-//        if (!dateFromInput || !dateToInput || !applyBtn || !clearBtn) {
-//            console.error('Critical filter elements not found');
-//            return;
-//        }
-//
-//        // Customer autocomplete
-//        let customerSelectedId = null;
-//        this.addEventListener(customerInput, 'focus', () => {
-//            this.showCustomerDropdown(customerInput, customerDropdown, '');
-//        });
-//
-//        this.addEventListener(customerInput, 'input', (e) => {
-//            customerSelectedId = null;
-//            this.showCustomerDropdown(customerInput, customerDropdown, e.target.value);
-//        });
-//
-//        this.addEventListener(customerDropdown, 'click', (e) => {
-//            const item = e.target.closest('.autocomplete_item');
-//            if (item) {
-//                customerInput.value = item.textContent;
-//                customerSelectedId = item.getAttribute('data-id');
-//                customerDropdown.classList.remove('show');
-//            }
-//        });
-//
-//        // Salesperson autocomplete
-//        let salespersonSelectedId = null;
-//        this.addEventListener(salespersonInput, 'focus', () => {
-//            this.showSalespersonDropdown(salespersonInput, salespersonDropdown, '');
-//        });
-//
-//        this.addEventListener(salespersonInput, 'input', (e) => {
-//            salespersonSelectedId = null;
-//            this.showSalespersonDropdown(salespersonInput, salespersonDropdown, e.target.value);
-//        });
-//
-//        this.addEventListener(salespersonDropdown, 'click', (e) => {
-//            const item = e.target.closest('.autocomplete_item');
-//            if (item) {
-//                salespersonInput.value = item.textContent;
-//                salespersonSelectedId = item.getAttribute('data-id');
-//                salespersonDropdown.classList.remove('show');
-//            }
-//        });
-//
-//        // Apply filters
-//        const applyFilters = () => {
-//            const dateFrom = dateFromInput.value;
-//            const dateTo = dateToInput.value;
-//
-//            if (!dateFrom || !dateTo) {
-//                this.notification.add("Please select both dates", { type: "warning" });
-//                return;
-//            }
-//
-//            if (dateFrom > dateTo) {
-//                this.notification.add("Start date must be before end date", { type: "warning" });
-//                return;
-//            }
-//
-//            let domain = [];
-//            let resModel = '';
-//            let views = [];
-//
-//            if (isSaleOrder) {
-//                domain = [
-//                    ['date_order', '>=', dateFrom + ' 00:00:00'],
-//                    ['date_order', '<=', dateTo + ' 23:59:59']
-//                ];
-//                resModel = 'sale.order';
-//                views = [[false, 'list'], [false, 'form']];
-//            } else if (isInvoice) {
-//                domain = [
-//                    ['invoice_date', '>=', dateFrom],
-//                    ['invoice_date', '<=', dateTo],
-//                    ['move_type', '=', 'out_invoice'],
-//                    ['state', '!=', 'cancel']
-//                ];
-//                resModel = 'account.move';
-//                views = [[false, 'list'], [false, 'form']];
-//            }
-//
-//            // Add optional filters
-//            if (warehouseSelect && warehouseSelect.value) {
-//                const whId = parseInt(warehouseSelect.value);
-//                if (isSaleOrder) {
-//                    domain.push(['warehouse_id', '=', whId]);
-//                }
-//            }
-//
-//            if (customerSelectedId) {
-//                domain.push(['partner_id', '=', parseInt(customerSelectedId)]);
-//            }
-//
-//            if (salespersonSelectedId) {
-//                const userId = parseInt(salespersonSelectedId);
-//                if (isSaleOrder) {
-//                    domain.push(['user_id', '=', userId]);
-//                }
-//            }
-//
-//            if (documentNumberInput && documentNumberInput.value.trim()) {
-//                domain.push(['name', 'ilike', documentNumberInput.value.trim()]);
-//            }
-//
-//            if (totalAmountInput && totalAmountInput.value) {
-//                const amount = parseFloat(totalAmountInput.value);
-//                if (amount > 0) {
-//                    domain.push(['amount_total', '=', amount]);
-//                }
-//            }
-//
-//            if (customerRefInput && customerRefInput.value.trim()) {
-//                domain.push(['ref', 'ilike', customerRefInput.value.trim()]);
-//            }
-//
-//            if (awbNumberInput && awbNumberInput.value.trim()) {
-//                domain.push(['awb_number', 'ilike', awbNumberInput.value.trim()]);
-//            }
-//
-//            this.actionService.doAction({
-//                type: 'ir.actions.act_window',
-//                name: isSaleOrder ? 'Sale Orders' : 'Invoices',
-//                res_model: resModel,
-//                views: views,
-//                domain: domain,
-//                target: 'current',
-//            });
-//
-//            this.notification.add("Filters applied successfully", { type: "success" });
-//        };
-//
-//        // Clear filters
-//        const clearFilters = () => {
-//            const today = new Date();
-//            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-//
-//            dateFromInput.value = firstDay.toISOString().split('T')[0];
-//            dateToInput.value = today.toISOString().split('T')[0];
-//
-//            if (warehouseSelect) warehouseSelect.value = '';
-//            if (customerInput) customerInput.value = '';
-//            if (salespersonInput) salespersonInput.value = '';
-//            if (documentNumberInput) documentNumberInput.value = '';
-//            if (totalAmountInput) totalAmountInput.value = '';
-//            if (customerRefInput) customerRefInput.value = '';
-//            if (awbNumberInput) awbNumberInput.value = '';
-//
-//            customerSelectedId = null;
-//            salespersonSelectedId = null;
-//
-//            let domain = [];
-//            if (isInvoice) {
-//                domain = [['move_type', '=', 'out_invoice']];
-//            }
-//
-//            this.actionService.doAction({
-//                type: 'ir.actions.act_window',
-//                name: isSaleOrder ? 'Sale Orders' : 'Invoices',
-//                res_model: isSaleOrder ? 'sale.order' : 'account.move',
-//                views: [[false, 'list'], [false, 'form']],
-//                domain: domain,
-//                target: 'current',
-//            });
-//
-//            this.notification.add("Filters cleared", { type: "info" });
-//        };
-//
-//        this.addEventListener(applyBtn, 'click', applyFilters);
-//        this.addEventListener(clearBtn, 'click', clearFilters);
-//
-//        // Enter key
-//        [dateFromInput, dateToInput, warehouseSelect, documentNumberInput, totalAmountInput, customerRefInput, awbNumberInput]
-//            .forEach(el => {
-//                if (el) {
-//                    this.addEventListener(el, 'keydown', (e) => {
-//                        if (e.key === 'Enter') {
-//                            e.preventDefault();
-//                            applyFilters();
-//                        }
-//                    });
-//                }
-//            });
-//
-//        // Escape key
-//        this.addEventListener(document, 'keydown', (e) => {
-//            if (e.key === 'Escape') {
-//                clearFilters();
-//            }
-//        });
-//    },
-//
-//    showCustomerDropdown(input, dropdown, searchTerm) {
-//        const lowerSearch = searchTerm.toLowerCase();
-//        const filtered = this._filterData.customers.filter(c =>
-//            c.name.toLowerCase().includes(lowerSearch)
-//        );
-//
-//        if (filtered.length === 0) {
-//            dropdown.innerHTML = '<div class="autocomplete_item no_results">No customers found</div>';
-//        } else {
-//            dropdown.innerHTML = filtered.map(c =>
-//                `<div class="autocomplete_item" data-id="${c.id}">${c.name}</div>`
-//            ).join('');
-//        }
-//
-//        dropdown.classList.add('show');
-//    },
-//
-//    showSalespersonDropdown(input, dropdown, searchTerm) {
-//        const lowerSearch = searchTerm.toLowerCase();
-//        const filtered = this._filterData.salespersons.filter(s =>
-//            s.name.toLowerCase().includes(lowerSearch)
-//        );
-//
-//        if (filtered.length === 0) {
-//            dropdown.innerHTML = '<div class="autocomplete_item no_results">No salespersons found</div>';
-//        } else {
-//            dropdown.innerHTML = filtered.map(s =>
-//                `<div class="autocomplete_item" data-id="${s.id}">${s.name}</div>`
-//            ).join('');
-//        }
-//
-//        dropdown.classList.add('show');
-//    },
-//});
-
-
-/** @odoo-module **/
-//
-//import { patch } from "@web/core/utils/patch";
-//import { ListController } from "@web/views/list/list_controller";
-//import { useService } from "@web/core/utils/hooks";
-//import { onMounted, onWillUnmount } from "@odoo/owl";
-//
-//patch(ListController.prototype, {
-//    setup() {
-//        super.setup(...arguments);
-//
-//        this.notification = useService("notification");
-//        this.actionService = useService("action");
-//        this.orm = useService("orm");
-//
-//        this._filterInjected = false;
-//        this._filterData = {
-//            warehouses: [],
-//            customers: [],
-//            salespersons: []
-//        };
-//        this._listeners = [];
-//
-//        onMounted(async () => {
-//            if (this.shouldShowFilter()) {
-//                try {
-//                    await this.loadFilterData();
-//                    // Keep trying to inject until successful
-//                    let attempts = 0;
-//                    const tryInject = setInterval(async () => {
-//                        if (this.injectDateFilter()) {
-//                            clearInterval(tryInject);
-//                        }
-//                        attempts++;
-//                        if (attempts > 20) clearInterval(tryInject); // Stop after 20 attempts (10 seconds)
-//                    }, 500);
-//                } catch (error) {
-//                    console.error('Filter initialization error:', error);
-//                }
-//            }
-//        });
-//
-//        onWillUnmount(() => {
-//            this.cleanupFilter();
-//        });
-//    },
-//
-//    shouldShowFilter() {
-//        const resModel = this.props.resModel;
-//        const context = this.props.context || {};
-//        const domain = this.props.domain || [];
-//
-//        // Check if it's a sale order
-//        if (resModel === 'sale.order') {
-//            return true;
-//        }
-//
-//        // Check if it's a sale invoice (account.move with move_type 'out_invoice')
-//        if (resModel === 'account.move') {
-//            // Check if domain contains out_invoice filter
-//            const hasOutInvoiceFilter = domain.some(condition =>
-//                Array.isArray(condition) &&
-//                condition[0] === 'move_type' &&
-//                condition[2] === 'out_invoice'
-//            );
-//
-//            // Check context for type indicator
-//            const isOutInvoiceFromContext = context.default_move_type === 'out_invoice' ||
-//                                           context.type === 'out_invoice';
-//
-//            // If either check passes, it's a sales invoice
-//            return hasOutInvoiceFilter || isOutInvoiceFromContext;
-//        }
-//
-//        return false;
-//    },
-//
-//    cleanupFilter() {
-//        // Remove all event listeners
-//        this._listeners.forEach(({ element, event, handler }) => {
-//            try {
-//                if (element) {
-//                    element.removeEventListener(event, handler);
-//                }
-//            } catch (e) {
-//                // Ignore errors during cleanup
-//            }
-//        });
-//        this._listeners = [];
-//    },
-//
-//    addEventListener(element, event, handler) {
-//        if (element) {
-//            element.addEventListener(event, handler);
-//            this._listeners.push({ element, event, handler });
-//        }
-//    },
-//
-//    async loadFilterData() {
-//        try {
-//            const [warehouses, customers, salespersons] = await Promise.all([
-//                this.orm.searchRead('stock.warehouse', [], ['id', 'name'], { limit: 100 }).catch(() => []),
-//                this.orm.searchRead('res.partner', [['customer_rank', '>', 0]], ['id', 'name'],
-//                    { limit: 500, order: 'name' }).catch(() => []),
-//                this.orm.searchRead('res.users', [], ['id', 'name'], { limit: 100, order: 'name' }).catch(() => [])
-//            ]);
-//
-//            this._filterData = {
-//                warehouses: warehouses || [],
-//                customers: customers || [],
-//                salespersons: salespersons || []
-//            };
-//        } catch (error) {
-//            console.error('Error loading filter data:', error);
-//            this.notification.add("Error loading filter options", { type: "danger" });
-//        }
-//    },
-//
-//    injectDateFilter() {
-//        if (this._filterInjected) {
-//            return true; // Already injected
-//        }
-//
-//        const listTable = document.querySelector('.o_list_table');
-//        if (!listTable) {
-//            return false; // List table not ready yet
-//        }
-//
-//        // Check if filter already exists
-//        const existingFilter = document.querySelector('.sale_date_filter_wrapper_main');
-//        if (existingFilter) {
-//            return true; // Already exists
-//        }
-//
-//        try {
-//            const isSaleOrder = this.props.resModel === 'sale.order';
-//            const isInvoice = this.props.resModel === 'account.move';
-//
-//            const today = new Date();
-//            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-//            const dateFrom = firstDay.toISOString().split('T')[0];
-//            const dateTo = today.toISOString().split('T')[0];
-//
-//            const warehouseOptions = this._filterData.warehouses
-//                .map(w => `<option value="${w.id}">${w.name}</option>`)
-//                .join('');
-//
-//            const filterHTML = `
-//                <div class="sale_date_filter_container">
-//                    <div class="date_filter_wrapper">
-//                        <div class="filter_group filter_group_small date_group_small">
-//                            <div class="date_input_group">
-//                                <input type="date" class="form-control date_input_small filter_date_from" value="${dateFrom}" />
-//                                <span class="date_separator">→</span>
-//                                <input type="date" class="form-control date_input_small filter_date_to" value="${dateTo}" />
-//                            </div>
-//                        </div>
-//
-//                        <div class="filter_group filter_group_small">
-//                            <input type="text" class="form-control filter_input_small filter_doc_number"
-//                                placeholder="${isSaleOrder ? 'Sale Order' : 'Invoice'}" />
-//                        </div>
-//
-//                        <div class="filter_group filter_group_small autocomplete_group_small">
-//                            <div class="autocomplete_wrapper">
-//                                <input type="text" class="form-control autocomplete_input_small filter_customer_input" placeholder="Customer" />
-//                                <div class="autocomplete_dropdown filter_customer_dropdown"></div>
-//                            </div>
-//                        </div>
-//
-//                        <div class="filter_group filter_group_small">
-//                            <select class="form-select filter_select_small filter_warehouse">
-//                                <option value="">Warehouse</option>
-//                                ${warehouseOptions}
-//                            </select>
-//                        </div>
-//
-//                        <div class="filter_group filter_group_small">
-//                            <input type="text" class="form-control filter_input_small filter_customer_ref" placeholder="Customer Ref" />
-//                        </div>
-//
-//                        <div class="filter_group filter_group_small autocomplete_group_small">
-//                            <div class="autocomplete_wrapper">
-//                                <input type="text" class="form-control autocomplete_input_small filter_salesperson_input" placeholder="Sales Rep" />
-//                                <div class="autocomplete_dropdown filter_salesperson_dropdown"></div>
-//                            </div>
-//                        </div>
-//
-//                        <div class="filter_group filter_group_small">
-//                            <input type="number" class="form-control filter_input_small filter_total_amount" placeholder="Total Amount" step="0.01" min="0" />
-//                        </div>
-//
-//                        <div class="filter_group filter_group_small">
-//                            <input type="text" class="form-control filter_input_small filter_awb_number" placeholder="Shipping Rep" />
-//                        </div>
-//
-//                        <div class="filter_group filter_group_small">
-//                            <input type="text" class="form-control filter_input_small filter_delivery_note" placeholder="Delivery Note" />
-//                        </div>
-//
-//                        <div class="filter_actions">
-//                            <button class="btn btn-primary apply_filter_btn filter_apply">Apply</button>
-//                            <button class="btn btn-secondary clear_filter_btn filter_clear">Clear</button>
-//                        </div>
-//                    </div>
-//                </div>
-//            `;
-//
-//            const filterDiv = document.createElement('div');
-//            filterDiv.className = 'sale_date_filter_wrapper_main';
-//            filterDiv.innerHTML = filterHTML;
-//
-//            listTable.parentElement.insertBefore(filterDiv, listTable);
-//
-//            // Setup event listeners using class selectors (more reliable)
-//            this.setupFilterLogic(isSaleOrder, isInvoice);
-//
-//            this._filterInjected = true;
-//            return true;
-//        } catch (error) {
-//            console.error('Error injecting filter:', error);
-//            return false;
-//        }
-//    },
-//
-//    setupFilterLogic(isSaleOrder, isInvoice) {
-//        // Get elements using class selectors
-//        const dateFromInput = document.querySelector('.filter_date_from');
-//        const dateToInput = document.querySelector('.filter_date_to');
-//        const warehouseSelect = document.querySelector('.filter_warehouse');
-//        const customerInput = document.querySelector('.filter_customer_input');
-//        const customerDropdown = document.querySelector('.filter_customer_dropdown');
-//        const salespersonInput = document.querySelector('.filter_salesperson_input');
-//        const salespersonDropdown = document.querySelector('.filter_salesperson_dropdown');
-//        const documentNumberInput = document.querySelector('.filter_doc_number');
-//        const totalAmountInput = document.querySelector('.filter_total_amount');
-//        const customerRefInput = document.querySelector('.filter_customer_ref');
-//        const awbNumberInput = document.querySelector('.filter_awb_number');
-//        const deliveryNoteInput = document.querySelector('.filter_delivery_note');
-//        const applyBtn = document.querySelector('.filter_apply');
-//        const clearBtn = document.querySelector('.filter_clear');
-//
-//        if (!dateFromInput || !dateToInput || !applyBtn || !clearBtn) {
-//            console.error('Critical filter elements not found');
-//            return;
-//        }
-//
-//        // Customer autocomplete
-//        let customerSelectedId = null;
-//        this.addEventListener(customerInput, 'focus', () => {
-//            this.showCustomerDropdown(customerInput, customerDropdown, '');
-//        });
-//
-//        this.addEventListener(customerInput, 'input', (e) => {
-//            customerSelectedId = null;
-//            this.showCustomerDropdown(customerInput, customerDropdown, e.target.value);
-//        });
-//
-//        this.addEventListener(customerDropdown, 'click', (e) => {
-//            const item = e.target.closest('.autocomplete_item');
-//            if (item) {
-//                customerInput.value = item.textContent;
-//                customerSelectedId = item.getAttribute('data-id');
-//                customerDropdown.classList.remove('show');
-//            }
-//        });
-//
-//        // Salesperson autocomplete
-//        let salespersonSelectedId = null;
-//        this.addEventListener(salespersonInput, 'focus', () => {
-//            this.showSalespersonDropdown(salespersonInput, salespersonDropdown, '');
-//        });
-//
-//        this.addEventListener(salespersonInput, 'input', (e) => {
-//            salespersonSelectedId = null;
-//            this.showSalespersonDropdown(salespersonInput, salespersonDropdown, e.target.value);
-//        });
-//
-//        this.addEventListener(salespersonDropdown, 'click', (e) => {
-//            const item = e.target.closest('.autocomplete_item');
-//            if (item) {
-//                salespersonInput.value = item.textContent;
-//                salespersonSelectedId = item.getAttribute('data-id');
-//                salespersonDropdown.classList.remove('show');
-//            }
-//        });
-//
-//        // Apply filters
-//        const applyFilters = () => {
-//            const dateFrom = dateFromInput.value;
-//            const dateTo = dateToInput.value;
-//
-//            if (!dateFrom || !dateTo) {
-//                this.notification.add("Please select both dates", { type: "warning" });
-//                return;
-//            }
-//
-//            if (dateFrom > dateTo) {
-//                this.notification.add("Start date must be before end date", { type: "warning" });
-//                return;
-//            }
-//
-//            let domain = [];
-//            let resModel = '';
-//            let views = [];
-//
-//            if (isSaleOrder) {
-//                domain = [
-//                    ['date_order', '>=', dateFrom + ' 00:00:00'],
-//                    ['date_order', '<=', dateTo + ' 23:59:59']
-//                ];
-//                resModel = 'sale.order';
-//                views = [[false, 'list'], [false, 'form']];
-//            } else if (isInvoice) {
-//                domain = [
-//                    ['invoice_date', '>=', dateFrom],
-//                    ['invoice_date', '<=', dateTo],
-//                    ['move_type', '=', 'out_invoice'],
-//                    ['state', '!=', 'cancel']
-//                ];
-//                resModel = 'account.move';
-//                views = [[false, 'list'], [false, 'form']];
-//            }
-//
-//            // Add optional filters
-//            if (warehouseSelect && warehouseSelect.value) {
-//                const whId = parseInt(warehouseSelect.value);
-//                if (isSaleOrder) {
-//                    domain.push(['warehouse_id', '=', whId]);
-//                }
-//            }
-//
-//            if (customerSelectedId) {
-//                domain.push(['partner_id', '=', parseInt(customerSelectedId)]);
-//            }
-//
-//            if (salespersonSelectedId) {
-//                const userId = parseInt(salespersonSelectedId);
-//                if (isSaleOrder) {
-//                    domain.push(['user_id', '=', userId]);
-//                }
-//            }
-//
-//            if (documentNumberInput && documentNumberInput.value.trim()) {
-//                domain.push(['name', 'ilike', documentNumberInput.value.trim()]);
-//            }
-//
-//            if (totalAmountInput && totalAmountInput.value) {
-//                const amount = parseFloat(totalAmountInput.value);
-//                if (amount > 0) {
-//                    domain.push(['amount_total', '=', amount]);
-//                }
-//            }
-//
-//            if (customerRefInput && customerRefInput.value.trim()) {
-//                domain.push(['ref', 'ilike', customerRefInput.value.trim()]);
-//            }
-//
-//            if (awbNumberInput && awbNumberInput.value.trim()) {
-//                domain.push(['awb_number', 'ilike', awbNumberInput.value.trim()]);
-//            }
-//
-//            if (deliveryNoteInput && deliveryNoteInput.value.trim()) {
-//                domain.push(['picking_ids.name', 'ilike', deliveryNoteInput.value.trim()]);
-//            }
-//
-//            this.actionService.doAction({
-//                type: 'ir.actions.act_window',
-//                name: isSaleOrder ? 'Sale Orders' : 'Invoices',
-//                res_model: resModel,
-//                views: views,
-//                domain: domain,
-//                target: 'current',
-//            });
-//
-//            this.notification.add("Filters applied successfully", { type: "success" });
-//        };
-//
-//        // Clear filters
-//        const clearFilters = () => {
-//            const today = new Date();
-//            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-//
-//            dateFromInput.value = firstDay.toISOString().split('T')[0];
-//            dateToInput.value = today.toISOString().split('T')[0];
-//
-//            if (warehouseSelect) warehouseSelect.value = '';
-//            if (customerInput) customerInput.value = '';
-//            if (salespersonInput) salespersonInput.value = '';
-//            if (documentNumberInput) documentNumberInput.value = '';
-//            if (totalAmountInput) totalAmountInput.value = '';
-//            if (customerRefInput) customerRefInput.value = '';
-//            if (awbNumberInput) awbNumberInput.value = '';
-//            if (deliveryNoteInput) deliveryNoteInput.value = '';
-//
-//            customerSelectedId = null;
-//            salespersonSelectedId = null;
-//
-//            let domain = [];
-//            if (isInvoice) {
-//                domain = [['move_type', '=', 'out_invoice']];
-//            }
-//
-//            this.actionService.doAction({
-//                type: 'ir.actions.act_window',
-//                name: isSaleOrder ? 'Sale Orders' : 'Invoices',
-//                res_model: isSaleOrder ? 'sale.order' : 'account.move',
-//                views: [[false, 'list'], [false, 'form']],
-//                domain: domain,
-//                target: 'current',
-//            });
-//
-//            this.notification.add("Filters cleared", { type: "info" });
-//        };
-//
-//        this.addEventListener(applyBtn, 'click', applyFilters);
-//        this.addEventListener(clearBtn, 'click', clearFilters);
-//
-//        // Enter key
-//        [dateFromInput, dateToInput, warehouseSelect, documentNumberInput, totalAmountInput, customerRefInput, awbNumberInput, deliveryNoteInput]
-//            .forEach(el => {
-//                if (el) {
-//                    this.addEventListener(el, 'keydown', (e) => {
-//                        if (e.key === 'Enter') {
-//                            e.preventDefault();
-//                            applyFilters();
-//                        }
-//                    });
-//                }
-//            });
-//
-//        // Escape key
-//        this.addEventListener(document, 'keydown', (e) => {
-//            if (e.key === 'Escape') {
-//                clearFilters();
-//            }
-//        });
-//    },
-//
-//    showCustomerDropdown(input, dropdown, searchTerm) {
-//        const lowerSearch = searchTerm.toLowerCase();
-//        const filtered = this._filterData.customers.filter(c =>
-//            c.name.toLowerCase().includes(lowerSearch)
-//        );
-//
-//        if (filtered.length === 0) {
-//            dropdown.innerHTML = '<div class="autocomplete_item no_results">No customers found</div>';
-//        } else {
-//            dropdown.innerHTML = filtered.map(c =>
-//                `<div class="autocomplete_item" data-id="${c.id}">${c.name}</div>`
-//            ).join('');
-//        }
-//
-//        dropdown.classList.add('show');
-//    },
-//
-//    showSalespersonDropdown(input, dropdown, searchTerm) {
-//        const lowerSearch = searchTerm.toLowerCase();
-//        const filtered = this._filterData.salespersons.filter(s =>
-//            s.name.toLowerCase().includes(lowerSearch)
-//        );
-//
-//        if (filtered.length === 0) {
-//            dropdown.innerHTML = '<div class="autocomplete_item no_results">No salespersons found</div>';
-//        } else {
-//            dropdown.innerHTML = filtered.map(s =>
-//                `<div class="autocomplete_item" data-id="${s.id}">${s.name}</div>`
-//            ).join('');
-//        }
-//
-//        dropdown.classList.add('show');
-//    },
-//});
-
 /** @odoo-module **/
 
 import { patch } from "@web/core/utils/patch";
@@ -956,7 +17,8 @@ patch(ListController.prototype, {
         this._filterData = {
             warehouses: [],
             customers: [],
-            salespersons: []
+            salespersons: [],
+            analyticAccounts: []  // Added analytic accounts
         };
         this._listeners = [];
 
@@ -964,13 +26,14 @@ patch(ListController.prototype, {
             if (this.shouldShowFilter()) {
                 try {
                     await this.loadFilterData();
+                    // Keep trying to inject until successful
                     let attempts = 0;
                     const tryInject = setInterval(async () => {
                         if (this.injectDateFilter()) {
                             clearInterval(tryInject);
                         }
                         attempts++;
-                        if (attempts > 20) clearInterval(tryInject);
+                        if (attempts > 20) clearInterval(tryInject); // Stop after 20 attempts (10 seconds)
                     }, 500);
                 } catch (error) {
                     console.error('Filter initialization error:', error);
@@ -988,20 +51,25 @@ patch(ListController.prototype, {
         const context = this.props.context || {};
         const domain = this.props.domain || [];
 
+        // Check if it's a sale order
         if (resModel === 'sale.order') {
             return true;
         }
 
+        // Check if it's a sale invoice (account.move with move_type 'out_invoice')
         if (resModel === 'account.move') {
+            // Check if domain contains out_invoice filter
             const hasOutInvoiceFilter = domain.some(condition =>
                 Array.isArray(condition) &&
                 condition[0] === 'move_type' &&
                 condition[2] === 'out_invoice'
             );
 
+            // Check context for type indicator
             const isOutInvoiceFromContext = context.default_move_type === 'out_invoice' ||
                                            context.type === 'out_invoice';
 
+            // If either check passes, it's a sales invoice
             return hasOutInvoiceFilter || isOutInvoiceFromContext;
         }
 
@@ -1009,6 +77,7 @@ patch(ListController.prototype, {
     },
 
     cleanupFilter() {
+        // Remove all event listeners
         this._listeners.forEach(({ element, event, handler }) => {
             try {
                 if (element) {
@@ -1030,17 +99,21 @@ patch(ListController.prototype, {
 
     async loadFilterData() {
         try {
-            const [warehouses, customers, salespersons] = await Promise.all([
+            const [warehouses, customers, salespersons, analyticAccounts] = await Promise.all([
                 this.orm.searchRead('stock.warehouse', [], ['id', 'name'], { limit: 100 }).catch(() => []),
                 this.orm.searchRead('res.partner', [['customer_rank', '>', 0]], ['id', 'name'],
                     { limit: 500, order: 'name' }).catch(() => []),
-                this.orm.searchRead('res.users', [], ['id', 'name'], { limit: 100, order: 'name' }).catch(() => [])
+                this.orm.searchRead('res.users', [], ['id', 'name'], { limit: 100, order: 'name' }).catch(() => []),
+                // Load analytic accounts
+                this.orm.searchRead('account.analytic.account', [], ['id', 'name'],
+                    { limit: 500, order: 'name' }).catch(() => [])
             ]);
 
             this._filterData = {
                 warehouses: warehouses || [],
                 customers: customers || [],
-                salespersons: salespersons || []
+                salespersons: salespersons || [],
+                analyticAccounts: analyticAccounts || []
             };
         } catch (error) {
             console.error('Error loading filter data:', error);
@@ -1048,50 +121,20 @@ patch(ListController.prototype, {
         }
     },
 
-    // ---------------------------------------------------------------
-    // FIX #2 & #3 — Capture the REAL view IDs from the current action
-    // so that doAction reuses the original list view (all columns).
-    // ---------------------------------------------------------------
-    _getCurrentActionViews() {
-        try {
-            const controller = this.actionService.currentController;
-            if (controller && controller.action && controller.action.views) {
-                return controller.action.views;   // e.g. [[123, 'list'], [456, 'form']]
-            }
-        } catch (e) {
-            // fall through
-        }
-        // Fallback: generic views (will still lose columns, but avoids crash)
-        return [[false, 'list'], [false, 'form']];
-    },
-
-    // Also grab the current action's context so filters like
-    // default_move_type survive the doAction reload.
-    _getCurrentActionContext() {
-        try {
-            const controller = this.actionService.currentController;
-            if (controller && controller.action && controller.action.context) {
-                return controller.action.context;
-            }
-        } catch (e) {
-            // fall through
-        }
-        return {};
-    },
-
     injectDateFilter() {
         if (this._filterInjected) {
-            return true;
+            return true; // Already injected
         }
 
         const listTable = document.querySelector('.o_list_table');
         if (!listTable) {
-            return false;
+            return false; // List table not ready yet
         }
 
+        // Check if filter already exists
         const existingFilter = document.querySelector('.sale_date_filter_wrapper_main');
         if (existingFilter) {
-            return true;
+            return true; // Already exists
         }
 
         try {
@@ -1143,40 +186,47 @@ patch(ListController.prototype, {
 
                         <div class="filter_group filter_group_small autocomplete_group_small">
                             <div class="autocomplete_wrapper">
-                                <input type="text" class="form-control autocomplete_input_small filter_salesperson_input" placeholder="Sales Rep" />
+                                <input type="text" class="form-control autocomplete_input_small filter_salesperson_input" placeholder="Salesperson" />
                                 <div class="autocomplete_dropdown filter_salesperson_dropdown"></div>
                             </div>
                         </div>
 
                         <div class="filter_group filter_group_small">
-                            <input type="number" class="form-control filter_input_small filter_total_amount" placeholder="Total Amount" step="0.01" min="0" />
+                            <input type="text" class="form-control filter_input_small filter_total_amount" placeholder="Total Amount" />
                         </div>
 
                         <div class="filter_group filter_group_small">
-                            <input type="text" class="form-control filter_input_small filter_awb_number" placeholder="Shipping Rep" />
+                            <input type="text" class="form-control filter_input_small filter_awb_number" placeholder="AWB No" />
                         </div>
 
                         <div class="filter_group filter_group_small">
                             <input type="text" class="form-control filter_input_small filter_delivery_note" placeholder="Delivery Note" />
                         </div>
 
+                        <div class="filter_group filter_group_small autocomplete_group_small">
+                            <div class="autocomplete_wrapper">
+                                <input type="text" class="form-control autocomplete_input_small filter_analytic_input" placeholder="Analytic Account" />
+                                <div class="autocomplete_dropdown filter_analytic_dropdown"></div>
+                            </div>
+                        </div>
+
                         <div class="filter_actions">
-                            <button class="btn btn-primary apply_filter_btn filter_apply">Apply</button>
-                            <button class="btn btn-secondary clear_filter_btn filter_clear">Clear</button>
+                            <button class="btn btn-primary apply_filter_btn">Apply</button>
+                            <button class="btn btn-secondary clear_filter_btn">Clear</button>
                         </div>
                     </div>
                 </div>
             `;
 
-            const filterDiv = document.createElement('div');
-            filterDiv.className = 'sale_date_filter_wrapper_main';
-            filterDiv.innerHTML = filterHTML;
+            const wrapperDiv = document.createElement('div');
+            wrapperDiv.className = 'sale_date_filter_wrapper_main';
+            wrapperDiv.innerHTML = filterHTML;
 
-            listTable.parentElement.insertBefore(filterDiv, listTable);
-
-            this.setupFilterLogic(isSaleOrder, isInvoice);
+            listTable.parentNode.insertBefore(wrapperDiv, listTable);
 
             this._filterInjected = true;
+            this.attachFilterListeners();
+
             return true;
         } catch (error) {
             console.error('Error injecting filter:', error);
@@ -1184,181 +234,351 @@ patch(ListController.prototype, {
         }
     },
 
-    setupFilterLogic(isSaleOrder, isInvoice) {
+    _getCurrentActionViews() {
+        try {
+            const action = this.env?.config?.actionId
+                ? this.actionService.currentController?.action
+                : null;
+            if (action && action.views) {
+                return action.views;
+            }
+        } catch (e) {
+            // ignore
+        }
+        // Fallback
+        return this.props.resModel === 'sale.order'
+            ? [[false, 'list'], [false, 'form']]
+            : [[false, 'list'], [false, 'form']];
+    },
+
+    _getCurrentActionContext() {
+        try {
+            const action = this.env?.config?.actionId
+                ? this.actionService.currentController?.action
+                : null;
+            if (action && action.context) {
+                return action.context;
+            }
+        } catch (e) {
+            // ignore
+        }
+        // Fallback
+        return this.props.context || {};
+    },
+
+    attachFilterListeners() {
         const dateFromInput = document.querySelector('.filter_date_from');
         const dateToInput = document.querySelector('.filter_date_to');
         const warehouseSelect = document.querySelector('.filter_warehouse');
-        const customerInput = document.querySelector('.filter_customer_input');
-        const customerDropdown = document.querySelector('.filter_customer_dropdown');
-        const salespersonInput = document.querySelector('.filter_salesperson_input');
-        const salespersonDropdown = document.querySelector('.filter_salesperson_dropdown');
         const documentNumberInput = document.querySelector('.filter_doc_number');
         const totalAmountInput = document.querySelector('.filter_total_amount');
         const customerRefInput = document.querySelector('.filter_customer_ref');
         const awbNumberInput = document.querySelector('.filter_awb_number');
         const deliveryNoteInput = document.querySelector('.filter_delivery_note');
-        const applyBtn = document.querySelector('.filter_apply');
-        const clearBtn = document.querySelector('.filter_clear');
 
-        if (!dateFromInput || !dateToInput || !applyBtn || !clearBtn) {
-            console.error('Critical filter elements not found');
-            return;
+        const customerInput = document.querySelector('.filter_customer_input');
+        const customerDropdown = document.querySelector('.filter_customer_dropdown');
+
+        const salespersonInput = document.querySelector('.filter_salesperson_input');
+        const salespersonDropdown = document.querySelector('.filter_salesperson_dropdown');
+
+        // Analytic account elements
+        const analyticInput = document.querySelector('.filter_analytic_input');
+        const analyticDropdown = document.querySelector('.filter_analytic_dropdown');
+
+        const applyBtn = document.querySelector('.apply_filter_btn');
+        const clearBtn = document.querySelector('.clear_filter_btn');
+
+        let customerSelectedId = null;
+        let salespersonSelectedId = null;
+        let analyticSelectedId = null;  // Track selected analytic account
+
+        // Customer autocomplete
+        if (customerInput && customerDropdown) {
+            this.addEventListener(customerInput, 'input', (e) => {
+                const searchTerm = e.target.value.trim();
+                if (searchTerm.length > 0) {
+                    this.showCustomerDropdown(customerInput, customerDropdown, searchTerm);
+                } else {
+                    customerDropdown.classList.remove('show');
+                    customerSelectedId = null;
+                }
+            });
+
+            this.addEventListener(customerInput, 'focus', (e) => {
+                const searchTerm = e.target.value.trim();
+                if (searchTerm.length > 0) {
+                    this.showCustomerDropdown(customerInput, customerDropdown, searchTerm);
+                }
+            });
+
+            this.addEventListener(customerDropdown, 'click', (e) => {
+                const item = e.target.closest('.autocomplete_item');
+                if (item && !item.classList.contains('no_results')) {
+                    customerSelectedId = parseInt(item.dataset.id);
+                    customerInput.value = item.textContent;
+                    customerDropdown.classList.remove('show');
+                }
+            });
+
+            this.addEventListener(document, 'click', (e) => {
+                if (!customerInput.contains(e.target) && !customerDropdown.contains(e.target)) {
+                    customerDropdown.classList.remove('show');
+                }
+            });
         }
 
-        // --- Customer autocomplete ---
-        let customerSelectedId = null;
-        this.addEventListener(customerInput, 'focus', () => {
-            this.showCustomerDropdown(customerInput, customerDropdown, '');
-        });
+        // Salesperson autocomplete
+        if (salespersonInput && salespersonDropdown) {
+            this.addEventListener(salespersonInput, 'input', (e) => {
+                const searchTerm = e.target.value.trim();
+                if (searchTerm.length > 0) {
+                    this.showSalespersonDropdown(salespersonInput, salespersonDropdown, searchTerm);
+                } else {
+                    salespersonDropdown.classList.remove('show');
+                    salespersonSelectedId = null;
+                }
+            });
 
-        this.addEventListener(customerInput, 'input', (e) => {
-            customerSelectedId = null;
-            this.showCustomerDropdown(customerInput, customerDropdown, e.target.value);
-        });
+            this.addEventListener(salespersonInput, 'focus', (e) => {
+                const searchTerm = e.target.value.trim();
+                if (searchTerm.length > 0) {
+                    this.showSalespersonDropdown(salespersonInput, salespersonDropdown, searchTerm);
+                }
+            });
 
-        this.addEventListener(customerDropdown, 'click', (e) => {
-            const item = e.target.closest('.autocomplete_item');
-            if (item) {
-                customerInput.value = item.textContent;
-                customerSelectedId = item.getAttribute('data-id');
-                customerDropdown.classList.remove('show');
-            }
-        });
+            this.addEventListener(salespersonDropdown, 'click', (e) => {
+                const item = e.target.closest('.autocomplete_item');
+                if (item && !item.classList.contains('no_results')) {
+                    salespersonSelectedId = parseInt(item.dataset.id);
+                    salespersonInput.value = item.textContent;
+                    salespersonDropdown.classList.remove('show');
+                }
+            });
 
-        // --- Salesperson autocomplete ---
-        let salespersonSelectedId = null;
-        this.addEventListener(salespersonInput, 'focus', () => {
-            this.showSalespersonDropdown(salespersonInput, salespersonDropdown, '');
-        });
+            this.addEventListener(document, 'click', (e) => {
+                if (!salespersonInput.contains(e.target) && !salespersonDropdown.contains(e.target)) {
+                    salespersonDropdown.classList.remove('show');
+                }
+            });
+        }
 
-        this.addEventListener(salespersonInput, 'input', (e) => {
-            salespersonSelectedId = null;
-            this.showSalespersonDropdown(salespersonInput, salespersonDropdown, e.target.value);
-        });
+        // Analytic account autocomplete
+        if (analyticInput && analyticDropdown) {
+            this.addEventListener(analyticInput, 'input', (e) => {
+                const searchTerm = e.target.value.trim();
+                if (searchTerm.length > 0) {
+                    this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm);
+                } else {
+                    analyticDropdown.classList.remove('show');
+                    analyticSelectedId = null;
+                }
+            });
 
-        this.addEventListener(salespersonDropdown, 'click', (e) => {
-            const item = e.target.closest('.autocomplete_item');
-            if (item) {
-                salespersonInput.value = item.textContent;
-                salespersonSelectedId = item.getAttribute('data-id');
-                salespersonDropdown.classList.remove('show');
-            }
-        });
+            this.addEventListener(analyticInput, 'focus', (e) => {
+                const searchTerm = e.target.value.trim();
+                if (searchTerm.length > 0) {
+                    this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm);
+                }
+            });
+
+            this.addEventListener(analyticDropdown, 'click', (e) => {
+                const item = e.target.closest('.autocomplete_item');
+                if (item && !item.classList.contains('no_results')) {
+                    analyticSelectedId = parseInt(item.dataset.id);
+                    analyticInput.value = item.textContent;
+                    analyticDropdown.classList.remove('show');
+                }
+            });
+
+            this.addEventListener(document, 'click', (e) => {
+                if (!analyticInput.contains(e.target) && !analyticDropdown.contains(e.target)) {
+                    analyticDropdown.classList.remove('show');
+                }
+            });
+        }
 
         // --- Apply filters ---
         const applyFilters = async () => {
-            const dateFrom = dateFromInput.value;
-            const dateTo = dateToInput.value;
+            const dateFrom = dateFromInput?.value;
+            const dateTo = dateToInput?.value;
+            const warehouse = warehouseSelect?.value;
+            const documentNumber = documentNumberInput?.value.trim();
+            const totalAmount = totalAmountInput?.value.trim();
+            const customerRef = customerRefInput?.value.trim();
+            const awbNumber = awbNumberInput?.value.trim();
+            const deliveryNote = deliveryNoteInput?.value.trim();
 
-            if (!dateFrom || !dateTo) {
-                this.notification.add("Please select both dates", { type: "warning" });
-                return;
-            }
-
-            if (dateFrom > dateTo) {
-                this.notification.add("Start date must be before end date", { type: "warning" });
-                return;
-            }
+            const isSaleOrder = this.props.resModel === 'sale.order';
+            const isInvoice = this.props.resModel === 'account.move';
+            const resModel = this.props.resModel;
 
             let domain = [];
-            let resModel = '';
-
-            if (isSaleOrder) {
-                domain = [
-                    ['date_order', '>=', dateFrom + ' 00:00:00'],
-                    ['date_order', '<=', dateTo + ' 23:59:59']
-                ];
-                resModel = 'sale.order';
-            } else if (isInvoice) {
-                domain = [
-                    ['invoice_date', '>=', dateFrom],
-                    ['invoice_date', '<=', dateTo],
-                    ['move_type', '=', 'out_invoice'],
-                    ['state', '!=', 'cancel']
-                ];
-                resModel = 'account.move';
+            if (isInvoice) {
+                domain.push(['move_type', '=', 'out_invoice']);
             }
 
-            // --- Warehouse ---
-            if (warehouseSelect && warehouseSelect.value) {
-                const whId = parseInt(warehouseSelect.value);
-                if (isSaleOrder) {
-                    domain.push(['warehouse_id', '=', whId]);
-                }
-                // For invoices, warehouse is not a direct field — skip or extend as needed.
-            }
-
-            // --- Customer ---
-            if (customerSelectedId) {
-                domain.push(['partner_id', '=', parseInt(customerSelectedId)]);
-            }
-
-            // --- Salesperson ---
-            if (salespersonSelectedId) {
-                const userId = parseInt(salespersonSelectedId);
-                if (isSaleOrder) {
-                    domain.push(['user_id', '=', userId]);
-                } else if (isInvoice) {
-                    // account.move uses invoice_user_id for the salesperson
-                    domain.push(['invoice_user_id', '=', userId]);
+            // Date range filter
+            if (dateFrom || dateTo) {
+                const dateField = isSaleOrder ? 'date_order' : 'invoice_date';
+                if (dateFrom && dateTo) {
+                    domain.push([dateField, '>=', dateFrom + ' 00:00:00']);
+                    domain.push([dateField, '<=', dateTo + ' 23:59:59']);
+                } else if (dateFrom) {
+                    domain.push([dateField, '>=', dateFrom + ' 00:00:00']);
+                } else if (dateTo) {
+                    domain.push([dateField, '<=', dateTo + ' 23:59:59']);
                 }
             }
 
-            // --- Document number ---
-            if (documentNumberInput && documentNumberInput.value.trim()) {
-                domain.push(['name', 'ilike', documentNumberInput.value.trim()]);
-            }
-
-            // --- Total amount ---
-            if (totalAmountInput && totalAmountInput.value) {
-                const amount = parseFloat(totalAmountInput.value);
-                if (amount > 0) {
-                    domain.push(['amount_total', '=', amount]);
-                }
-            }
-
-            // --- Customer reference ---
-            if (customerRefInput && customerRefInput.value.trim()) {
+            // Warehouse filter
+            if (warehouse) {
                 if (isSaleOrder) {
-                    // sale.order uses client_order_ref
-                    domain.push(['client_order_ref', 'ilike', customerRefInput.value.trim()]);
-                } else if (isInvoice) {
-                    // account.move uses ref
-                    domain.push(['ref', 'ilike', customerRefInput.value.trim()]);
-                }
-            }
-
-            // --- AWB / Shipping reference ---
-            if (awbNumberInput && awbNumberInput.value.trim()) {
-                domain.push(['awb_number', 'ilike', awbNumberInput.value.trim()]);
-            }
-
-            // ---------------------------------------------------------------
-            // FIX #1 — Delivery Note filter
-            //
-            // sale.order  →  has picking_ids directly, so picking_ids.name works.
-            // account.move → does NOT have picking_ids.  We do a pre-search on
-            //                stock.picking to find matching picking IDs, then
-            //                resolve them to invoice IDs via sale_id.invoice_ids
-            //                and filter account.move by those IDs.
-            // ---------------------------------------------------------------
-            if (deliveryNoteInput && deliveryNoteInput.value.trim()) {
-                const deliverySearch = deliveryNoteInput.value.trim();
-
-                if (isSaleOrder) {
-                    // Direct traversal works on sale.order
-                    domain.push(['picking_ids.name', 'ilike', deliverySearch]);
-                } else if (isInvoice) {
+                    domain.push(['warehouse_id', '=', parseInt(warehouse)]);
+                } else {
+                    // For invoices, search via sale orders
                     try {
-                        // Step 1: find stock.picking records matching the delivery note name
-                        const pickings = await this.orm.searchRead(
-                            'stock.picking',
-                            [['name', 'ilike', deliverySearch]],
-                            ['id', 'sale_id'],
-                            { limit: 200 }
+                        const saleOrders = await this.orm.searchRead(
+                            'sale.order',
+                            [['warehouse_id', '=', parseInt(warehouse)]],
+                            ['name'],
+                            { limit: 500 }
                         );
 
-                        // Step 2: collect the sale order IDs linked to those pickings
+                        if (saleOrders.length > 0) {
+                            const soNames = saleOrders.map(so => so.name);
+                            domain.push(['invoice_origin', 'in', soNames]);
+                        } else {
+                            domain.push(['id', '=', -1]);
+                        }
+                    } catch (error) {
+                        console.error('Warehouse filter error:', error);
+                        this.notification.add("Error applying warehouse filter", { type: "danger" });
+                        return;
+                    }
+                }
+            }
+
+            // Customer filter
+            if (customerSelectedId) {
+                domain.push(['partner_id', '=', customerSelectedId]);
+            }
+
+            // Salesperson filter
+            if (salespersonSelectedId) {
+                domain.push(['user_id', '=', salespersonSelectedId]);
+            }
+
+            // Analytic account filter
+            if (analyticSelectedId) {
+                if (isSaleOrder) {
+                    // For sale orders, check order lines
+                    try {
+                        const saleLines = await this.orm.searchRead(
+                            'sale.order.line',
+                            [['analytic_distribution', '!=', false]],
+                            ['order_id', 'analytic_distribution'],
+                            { limit: 5000 }
+                        );
+
+                        const matchingSaleIds = [];
+                        for (const line of saleLines) {
+                            if (line.analytic_distribution) {
+                                // analytic_distribution is stored as JSON object like {"1": 100}
+                                const distribution = typeof line.analytic_distribution === 'string'
+                                    ? JSON.parse(line.analytic_distribution)
+                                    : line.analytic_distribution;
+
+                                if (distribution[analyticSelectedId.toString()]) {
+                                    matchingSaleIds.push(line.order_id[0]);
+                                }
+                            }
+                        }
+
+                        if (matchingSaleIds.length > 0) {
+                            const uniqueSaleIds = [...new Set(matchingSaleIds)];
+                            domain.push(['id', 'in', uniqueSaleIds]);
+                        } else {
+                            domain.push(['id', '=', -1]);
+                        }
+                    } catch (error) {
+                        console.error('Analytic account filter error:', error);
+                        this.notification.add("Error applying analytic account filter", { type: "danger" });
+                        return;
+                    }
+                } else {
+                    // For invoices, check invoice lines
+                    try {
+                        const invoiceLines = await this.orm.searchRead(
+                            'account.move.line',
+                            [
+                                ['move_id.move_type', '=', 'out_invoice'],
+                                ['analytic_distribution', '!=', false]
+                            ],
+                            ['move_id', 'analytic_distribution'],
+                            { limit: 5000 }
+                        );
+
+                        const matchingInvoiceIds = [];
+                        for (const line of invoiceLines) {
+                            if (line.analytic_distribution) {
+                                const distribution = typeof line.analytic_distribution === 'string'
+                                    ? JSON.parse(line.analytic_distribution)
+                                    : line.analytic_distribution;
+
+                                if (distribution[analyticSelectedId.toString()]) {
+                                    matchingInvoiceIds.push(line.move_id[0]);
+                                }
+                            }
+                        }
+
+                        if (matchingInvoiceIds.length > 0) {
+                            const uniqueInvoiceIds = [...new Set(matchingInvoiceIds)];
+                            domain.push(['id', 'in', uniqueInvoiceIds]);
+                        } else {
+                            domain.push(['id', '=', -1]);
+                        }
+                    } catch (error) {
+                        console.error('Analytic account filter error:', error);
+                        this.notification.add("Error applying analytic account filter", { type: "danger" });
+                        return;
+                    }
+                }
+            }
+
+            // Document number filter
+            if (documentNumber) {
+                domain.push(['name', 'ilike', documentNumber]);
+            }
+
+            // Total amount filter
+            if (totalAmount) {
+                const amount = parseFloat(totalAmount);
+                if (!isNaN(amount)) {
+                    const amountField = isSaleOrder ? 'amount_total' : 'amount_total';
+                    domain.push([amountField, '=', amount]);
+                }
+            }
+
+            // Customer reference filter
+            if (customerRef) {
+                domain.push(['client_order_ref', 'ilike', customerRef]);
+            }
+
+            // AWB number filter
+            if (awbNumber) {
+                if (isSaleOrder) {
+                    try {
+                        const pickings = await this.orm.searchRead(
+                            'stock.picking',
+                            [
+                                ['carrier_tracking_ref', 'ilike', awbNumber],
+                                ['state', '=', 'done']
+                            ],
+                            ['sale_id'],
+                            { limit: 500 }
+                        );
+
                         const saleIds = [...new Set(
                             pickings
                                 .filter(p => p.sale_id)
@@ -1366,7 +586,102 @@ patch(ListController.prototype, {
                         )];
 
                         if (saleIds.length > 0) {
-                            // Step 3: find invoices that originated from those sale orders
+                            domain.push(['id', 'in', saleIds]);
+                        } else {
+                            domain.push(['id', '=', -1]);
+                        }
+                    } catch (error) {
+                        console.error('AWB number filter error:', error);
+                        this.notification.add("Error applying AWB filter", { type: "danger" });
+                        return;
+                    }
+                } else {
+                    try {
+                        const pickings = await this.orm.searchRead(
+                            'stock.picking',
+                            [
+                                ['carrier_tracking_ref', 'ilike', awbNumber],
+                                ['state', '=', 'done']
+                            ],
+                            ['sale_id'],
+                            { limit: 500 }
+                        );
+
+                        const saleIds = [...new Set(
+                            pickings
+                                .filter(p => p.sale_id)
+                                .map(p => p.sale_id[0])
+                        )];
+
+                        if (saleIds.length > 0) {
+                            const saleOrders = await this.orm.searchRead(
+                                'sale.order',
+                                [['id', 'in', saleIds]],
+                                ['name'],
+                                { limit: 200 }
+                            );
+                            const soNames = saleOrders.map(so => so.name);
+                            domain.push(['invoice_origin', 'in', soNames]);
+                        } else {
+                            domain.push(['id', '=', -1]);
+                        }
+                    } catch (error) {
+                        console.error('AWB number invoice filter error:', error);
+                        this.notification.add("Error applying AWB filter", { type: "danger" });
+                        return;
+                    }
+                }
+            }
+
+            // Delivery note filter
+            if (deliveryNote) {
+                if (isSaleOrder) {
+                    try {
+                        const pickings = await this.orm.searchRead(
+                            'stock.picking',
+                            [
+                                ['name', 'ilike', deliveryNote],
+                                ['state', '=', 'done']
+                            ],
+                            ['sale_id'],
+                            { limit: 500 }
+                        );
+
+                        const saleIds = [...new Set(
+                            pickings
+                                .filter(p => p.sale_id)
+                                .map(p => p.sale_id[0])
+                        )];
+
+                        if (saleIds.length > 0) {
+                            domain.push(['id', 'in', saleIds]);
+                        } else {
+                            domain.push(['id', '=', -1]);
+                        }
+                    } catch (error) {
+                        console.error('Delivery Note filter error:', error);
+                        this.notification.add("Error searching delivery notes", { type: "danger" });
+                        return;
+                    }
+                } else {
+                    try {
+                        const pickings = await this.orm.searchRead(
+                            'stock.picking',
+                            [
+                                ['name', 'ilike', deliveryNote],
+                                ['state', '=', 'done']
+                            ],
+                            ['sale_id'],
+                            { limit: 500 }
+                        );
+
+                        const saleIds = [...new Set(
+                            pickings
+                                .filter(p => p.sale_id)
+                                .map(p => p.sale_id[0])
+                        )];
+
+                        if (saleIds.length > 0) {
                             const invoices = await this.orm.searchRead(
                                 'account.move',
                                 [
@@ -1377,8 +692,6 @@ patch(ListController.prototype, {
                                 { limit: 500 }
                             );
 
-                            // Fallback: also try matching invoice_origin directly with
-                            // the sale order names (invoice_origin stores the SO reference string)
                             const saleOrders = await this.orm.searchRead(
                                 'sale.order',
                                 [['id', 'in', saleIds]],
@@ -1397,7 +710,6 @@ patch(ListController.prototype, {
                                 { limit: 500 }
                             );
 
-                            // Merge both result sets
                             const allInvoiceIds = [...new Set([
                                 ...invoices.map(i => i.id),
                                 ...invoicesByOrigin.map(i => i.id)
@@ -1406,25 +718,19 @@ patch(ListController.prototype, {
                             if (allInvoiceIds.length > 0) {
                                 domain.push(['id', 'in', allInvoiceIds]);
                             } else {
-                                // No matching invoices — force empty result
                                 domain.push(['id', '=', -1]);
                             }
                         } else {
-                            // No sale orders found from those pickings — force empty result
                             domain.push(['id', '=', -1]);
                         }
                     } catch (error) {
                         console.error('Delivery Note pre-search error:', error);
                         this.notification.add("Error searching delivery notes", { type: "danger" });
-                        return;  // abort apply on error
+                        return;
                     }
                 }
             }
 
-            // ---------------------------------------------------------------
-            // FIX #2 & #3 — Use the CURRENT action's real view IDs and context
-            // so doAction reloads the exact same list view (all columns intact).
-            // ---------------------------------------------------------------
             const currentViews   = this._getCurrentActionViews();
             const currentContext = this._getCurrentActionContext();
 
@@ -1452,6 +758,7 @@ patch(ListController.prototype, {
             if (warehouseSelect) warehouseSelect.value = '';
             if (customerInput) customerInput.value = '';
             if (salespersonInput) salespersonInput.value = '';
+            if (analyticInput) analyticInput.value = '';
             if (documentNumberInput) documentNumberInput.value = '';
             if (totalAmountInput) totalAmountInput.value = '';
             if (customerRefInput) customerRefInput.value = '';
@@ -1460,6 +767,7 @@ patch(ListController.prototype, {
 
             customerSelectedId = null;
             salespersonSelectedId = null;
+            analyticSelectedId = null;
 
             let domain = [];
             if (isInvoice) {
@@ -1535,6 +843,23 @@ patch(ListController.prototype, {
         } else {
             dropdown.innerHTML = filtered.map(s =>
                 `<div class="autocomplete_item" data-id="${s.id}">${s.name}</div>`
+            ).join('');
+        }
+
+        dropdown.classList.add('show');
+    },
+
+    showAnalyticDropdown(input, dropdown, searchTerm) {
+        const lowerSearch = searchTerm.toLowerCase();
+        const filtered = this._filterData.analyticAccounts.filter(a =>
+            a.name.toLowerCase().includes(lowerSearch)
+        );
+
+        if (filtered.length === 0) {
+            dropdown.innerHTML = '<div class="autocomplete_item no_results">No analytic accounts found</div>';
+        } else {
+            dropdown.innerHTML = filtered.map(a =>
+                `<div class="autocomplete_item" data-id="${a.id}">${a.name}</div>`
             ).join('');
         }
 

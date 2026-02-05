@@ -17,7 +17,7 @@
         - Delivery note filter
         Built with OWL JS for Odoo 19 CE.
     """,
-    'depends': ['purchase', 'account', 'web', 'stock'],
+    'depends': ['purchase', 'account', 'web', 'stock','analytic'],
     'data': [],
     'assets': {
         'web.assets_backend': [

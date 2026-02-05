@@ -104,8 +104,8 @@ patch(ListController.prototype, {
                 this.orm.searchRead('res.partner', [['customer_rank', '>', 0]], ['id', 'name'],
                     { limit: 500, order: 'name' }).catch(() => []),
                 this.orm.searchRead('res.users', [], ['id', 'name'], { limit: 100, order: 'name' }).catch(() => []),
-                // Load analytic accounts
-                this.orm.searchRead('account.analytic.account', [], ['id', 'name'],
+                // Load analytic accounts with reference for better display
+                this.orm.searchRead('account.analytic.account', [], ['id', 'name', 'code'],
                     { limit: 500, order: 'name' }).catch(() => [])
             ]);
 
@@ -236,16 +236,21 @@ patch(ListController.prototype, {
 
     _getCurrentActionViews() {
         try {
-            const action = this.env?.config?.actionId
-                ? this.actionService.currentController?.action
-                : null;
-            if (action && action.views) {
+            // Try to get current action's views to preserve column configuration
+            const action = this.actionService?.currentController?.action;
+            if (action && action.views && action.views.length > 0) {
                 return action.views;
             }
         } catch (e) {
-            // ignore
+            console.debug('Could not get current action views:', e);
         }
-        // Fallback
+
+        // Fallback: use the views from props or model-specific defaults
+        if (this.props.views && this.props.views.length > 0) {
+            return this.props.views;
+        }
+
+        // Last resort fallback
         return this.props.resModel === 'sale.order'
             ? [[false, 'list'], [false, 'form']]
             : [[false, 'list'], [false, 'form']];
@@ -253,17 +258,41 @@ patch(ListController.prototype, {
 
     _getCurrentActionContext() {
         try {
-            const action = this.env?.config?.actionId
-                ? this.actionService.currentController?.action
-                : null;
+            // Get current action context to preserve settings
+            const action = this.actionService?.currentController?.action;
             if (action && action.context) {
-                return action.context;
+                return { ...action.context };
             }
         } catch (e) {
-            // ignore
+            console.debug('Could not get current action context:', e);
         }
-        // Fallback
-        return this.props.context || {};
+
+        // Fallback to props context
+        return { ...(this.props.context || {}) };
+    },
+
+    _getActionConfig() {
+        // Helper to get complete action configuration
+        try {
+            const action = this.actionService?.currentController?.action;
+            if (action) {
+                return {
+                    views: action.views || this._getCurrentActionViews(),
+                    context: action.context || this._getCurrentActionContext(),
+                    viewId: action.view_id || false,
+                    searchViewId: action.search_view_id || false,
+                };
+            }
+        } catch (e) {
+            console.debug('Could not get action config:', e);
+        }
+
+        return {
+            views: this._getCurrentActionViews(),
+            context: this._getCurrentActionContext(),
+            viewId: false,
+            searchViewId: false,
+        };
     },
 
     attachFilterListeners() {
@@ -731,16 +760,17 @@ patch(ListController.prototype, {
                 }
             }
 
-            const currentViews   = this._getCurrentActionViews();
-            const currentContext = this._getCurrentActionContext();
+            const actionConfig = this._getActionConfig();
 
             this.actionService.doAction({
                 type: 'ir.actions.act_window',
                 name: isSaleOrder ? 'Sale Orders' : 'Invoices',
                 res_model: resModel,
-                views: currentViews,
+                views: actionConfig.views,
+                view_id: actionConfig.viewId,
+                search_view_id: actionConfig.searchViewId,
                 domain: domain,
-                context: currentContext,
+                context: actionConfig.context,
                 target: 'current',
             });
 
@@ -774,16 +804,17 @@ patch(ListController.prototype, {
                 domain = [['move_type', '=', 'out_invoice']];
             }
 
-            const currentViews   = this._getCurrentActionViews();
-            const currentContext = this._getCurrentActionContext();
+            const actionConfig = this._getActionConfig();
 
             this.actionService.doAction({
                 type: 'ir.actions.act_window',
                 name: isSaleOrder ? 'Sale Orders' : 'Invoices',
                 res_model: isSaleOrder ? 'sale.order' : 'account.move',
-                views: currentViews,
+                views: actionConfig.views,
+                view_id: actionConfig.viewId,
+                search_view_id: actionConfig.searchViewId,
                 domain: domain,
-                context: currentContext,
+                context: actionConfig.context,
                 target: 'current',
             });
 
@@ -851,16 +882,20 @@ patch(ListController.prototype, {
 
     showAnalyticDropdown(input, dropdown, searchTerm) {
         const lowerSearch = searchTerm.toLowerCase();
-        const filtered = this._filterData.analyticAccounts.filter(a =>
-            a.name.toLowerCase().includes(lowerSearch)
-        );
+        const filtered = this._filterData.analyticAccounts.filter(a => {
+            const nameMatch = a.name.toLowerCase().includes(lowerSearch);
+            const codeMatch = a.code && a.code.toLowerCase().includes(lowerSearch);
+            return nameMatch || codeMatch;
+        });
 
         if (filtered.length === 0) {
             dropdown.innerHTML = '<div class="autocomplete_item no_results">No analytic accounts found</div>';
         } else {
-            dropdown.innerHTML = filtered.map(a =>
-                `<div class="autocomplete_item" data-id="${a.id}">${a.name}</div>`
-            ).join('');
+            dropdown.innerHTML = filtered.map(a => {
+                // Display format: "CODE - Name" or just "Name" if no code
+                const displayText = a.code ? `${a.code} - ${a.name}` : a.name;
+                return `<div class="autocomplete_item" data-id="${a.id}" data-code="${a.code || ''}" data-name="${a.name}">${displayText}</div>`;
+            }).join('');
         }
 
         dropdown.classList.add('show');

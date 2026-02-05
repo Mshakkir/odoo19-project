@@ -785,220 +785,100 @@
 
 import { patch } from "@web/core/utils/patch";
 import { ListController } from "@web/views/list/list_controller";
-import { useService } from "@web/core/utils/hooks";
 import { onMounted, onWillUnmount } from "@odoo/owl";
 
 patch(ListController.prototype, {
     setup() {
         super.setup(...arguments);
 
-        this.notification = useService("notification");
-        this.actionService = useService("action");
-        this.orm = useService("orm");
-
+        this._listeners = [];
         this._filterInjected = false;
-        this._filterData = {
-            warehouses: [],
-            customers: [],
-            salespersons: [],
-            analyticAccounts: [],
-        };
-        this._listeners = [];
 
-        onMounted(async () => {
-            if (this.shouldShowFilter()) {
-                await this.loadFilterData();
-                const timer = setInterval(() => {
-                    if (this.injectDateFilter()) clearInterval(timer);
-                }, 400);
-            }
+        onMounted(() => {
+            this.injectAnalyticFilter();
         });
 
-        onWillUnmount(() => this.cleanupFilter());
-    },
-
-    /* --------------------------------------------------------- */
-    /* FILTER VISIBILITY */
-    /* --------------------------------------------------------- */
-    shouldShowFilter() {
-        const resModel = this.props.resModel;
-        const ctx = this.props.context || {};
-
-        if (['sale.order', 'purchase.order'].includes(resModel)) return true;
-
-        if (resModel === 'account.move') {
-            const type = ctx.default_move_type || ctx.type;
-            return ['out_invoice', 'in_invoice'].includes(type);
-        }
-        return false;
-    },
-
-    cleanupFilter() {
-        this._listeners.forEach(l => {
-            try { l.element.removeEventListener(l.event, l.handler); } catch {}
+        onWillUnmount(() => {
+            this._listeners.forEach(({ el, ev, fn }) =>
+                el.removeEventListener(ev, fn)
+            );
         });
-        this._listeners = [];
     },
 
-    addEventListener(el, event, handler) {
+    addListener(el, ev, fn) {
         if (el) {
-            el.addEventListener(event, handler);
-            this._listeners.push({ element: el, event, handler });
+            el.addEventListener(ev, fn);
+            this._listeners.push({ el, ev, fn });
         }
     },
 
-    /* --------------------------------------------------------- */
-    /* LOAD MASTER DATA */
-    /* --------------------------------------------------------- */
-    async loadFilterData() {
-        const [warehouses, customers, salespersons, analyticAccounts] =
-            await Promise.all([
-                this.orm.searchRead('stock.warehouse', [], ['id', 'name']),
-                this.orm.searchRead('res.partner', [['customer_rank', '>', 0]], ['id', 'name']),
-                this.orm.searchRead('res.users', [], ['id', 'name']),
-                this.orm.searchRead('account.analytic.account', [], ['id', 'name', 'code']),
-            ]);
+    injectAnalyticFilter() {
+        if (this._filterInjected) return;
 
-        this._filterData = { warehouses, customers, salespersons, analyticAccounts };
-    },
+        const controlPanel = document.querySelector(".o_control_panel");
+        if (!controlPanel) return;
 
-    /* --------------------------------------------------------- */
-    /* UI INJECTION */
-    /* --------------------------------------------------------- */
-    injectDateFilter() {
-        if (this._filterInjected) return true;
+        const wrapper = document.createElement("div");
+        wrapper.className = "o_analytic_filter";
+        wrapper.style.marginLeft = "8px";
 
-        const table = document.querySelector('.o_list_table');
-        if (!table) return false;
+        wrapper.innerHTML = `
+            <input type="number"
+                   class="o_input o_analytic_input"
+                   placeholder="Analytic ID"
+                   style="width:140px"/>
+            <button class="btn btn-primary btn-sm o_apply_analytic">
+                Apply
+            </button>
+            <button class="btn btn-secondary btn-sm o_clear_analytic">
+                Clear
+            </button>
+        `;
 
-        const html = `
-        <div class="sale_date_filter_wrapper_main">
-            <input type="text" class="filter_analytic_input" placeholder="Analytic Account"/>
-            <div class="autocomplete_dropdown filter_analytic_dropdown"></div>
-            <button class="btn btn-primary apply_filter_btn">Apply</button>
-            <button class="btn btn-secondary clear_filter_btn">Clear</button>
-        </div>`;
+        controlPanel.appendChild(wrapper);
 
-        const div = document.createElement('div');
-        div.innerHTML = html;
-        table.parentNode.insertBefore(div, table);
+        const input = wrapper.querySelector(".o_analytic_input");
+        const applyBtn = wrapper.querySelector(".o_apply_analytic");
+        const clearBtn = wrapper.querySelector(".o_clear_analytic");
+
+        /* APPLY */
+        this.addListener(applyBtn, "click", () => {
+            const analyticId = parseInt(input.value);
+            if (!analyticId) return;
+
+            const searchModel = this.env.searchModel;
+            const domain = [];
+
+            // Account Move (Invoices / Bills)
+            if (this.props.resModel === "account.move") {
+                domain.push([
+                    "line_ids.analytic_distribution",
+                    "ilike",
+                    `"${analyticId}"`
+                ]);
+            } else {
+                // Sale / Purchase Orders
+                domain.push([
+                    "analytic_account_id",
+                    "=",
+                    analyticId
+                ]);
+            }
+
+            searchModel.setDomainParts({
+                analytic_filter: domain,
+            });
+        });
+
+        /* CLEAR */
+        this.addListener(clearBtn, "click", () => {
+            input.value = "";
+            this.env.searchModel.setDomainParts({
+                analytic_filter: [],
+            });
+        });
 
         this._filterInjected = true;
-        this.attachFilterListeners();
-        return true;
-    },
-
-    /* --------------------------------------------------------- */
-    /* FILTER LOGIC */
-    /* --------------------------------------------------------- */
-    attachFilterListeners() {
-        const resModel = this.props.resModel;
-        const ctx = this.props.context || {};
-
-        const isSale = resModel === 'sale.order';
-        const isPurchase = resModel === 'purchase.order';
-        const isInvoice = resModel === 'account.move';
-        const isCustomerInvoice = isInvoice && ctx.default_move_type === 'out_invoice';
-        const isVendorBill = isInvoice && ctx.default_move_type === 'in_invoice';
-
-        const analyticInput = document.querySelector('.filter_analytic_input');
-        const analyticDropdown = document.querySelector('.filter_analytic_dropdown');
-        const applyBtn = document.querySelector('.apply_filter_btn');
-        const clearBtn = document.querySelector('.clear_filter_btn');
-
-        let analyticId = null;
-
-        this.addEventListener(analyticInput, 'input', e => {
-            const term = e.target.value.toLowerCase();
-            const rows = this._filterData.analyticAccounts.filter(a =>
-                a.name.toLowerCase().includes(term) ||
-                (a.code && a.code.toLowerCase().includes(term))
-            );
-
-            analyticDropdown.innerHTML = rows.length
-                ? rows.map(a =>
-                    `<div class="autocomplete_item" data-id="${a.id}">
-                        ${a.code ? a.code + ' - ' : ''}${a.name}
-                     </div>`).join('')
-                : `<div class="autocomplete_item no_results">No results</div>`;
-
-            analyticDropdown.classList.add('show');
-        });
-
-        this.addEventListener(analyticDropdown, 'click', e => {
-            const item = e.target.closest('.autocomplete_item');
-            if (!item || item.classList.contains('no_results')) return;
-            analyticId = parseInt(item.dataset.id);
-            analyticInput.value = item.textContent;
-            analyticDropdown.classList.remove('show');
-        });
-
-        /* ---------------- APPLY FILTER ---------------- */
-        this.addEventListener(applyBtn, 'click', async () => {
-            let domain = [];
-
-            if (isCustomerInvoice) domain.push(['move_type', '=', 'out_invoice']);
-            if (isVendorBill) domain.push(['move_type', '=', 'in_invoice']);
-
-            if (analyticId) {
-                const applyAnalytic = async (lineModel, moveField) => {
-                    const lines = await this.orm.searchRead(
-                        lineModel,
-                        [['analytic_distribution', '!=', false]],
-                        [moveField, 'analytic_distribution'],
-                        { limit: 5000 }
-                    );
-
-                    const ids = [];
-                    for (const l of lines) {
-                        const dist = typeof l.analytic_distribution === 'string'
-                            ? JSON.parse(l.analytic_distribution)
-                            : l.analytic_distribution;
-
-                        if (dist?.[analyticId]) {
-                            ids.push(l[moveField][0]);
-                        }
-                    }
-                    domain.push(ids.length ? ['id', 'in', [...new Set(ids)]] : ['id', '=', -1]);
-                };
-
-                if (isSale) await applyAnalytic('sale.order.line', 'order_id');
-                else if (isPurchase) await applyAnalytic('purchase.order.line', 'order_id');
-                else if (isCustomerInvoice) await applyAnalytic('account.move.line', 'move_id');
-                else if (isVendorBill) await applyAnalytic('account.move.line', 'move_id');
-            }
-
-            this.actionService.doAction({
-                type: 'ir.actions.act_window',
-                res_model: resModel,
-                views: [[false, 'list'], [false, 'form']],
-                domain,
-                context: ctx,
-                target: 'current',
-            });
-
-            this.notification.add("Filter applied", { type: "success" });
-        });
-
-        /* ---------------- CLEAR FILTER ---------------- */
-        this.addEventListener(clearBtn, 'click', () => {
-            analyticInput.value = '';
-            analyticId = null;
-
-            const domain = isCustomerInvoice
-                ? [['move_type', '=', 'out_invoice']]
-                : isVendorBill
-                ? [['move_type', '=', 'in_invoice']]
-                : [];
-
-            this.actionService.doAction({
-                type: 'ir.actions.act_window',
-                res_model: resModel,
-                views: [[false, 'list'], [false, 'form']],
-                domain,
-                context: ctx,
-                target: 'current',
-            });
-        });
     },
 });
+

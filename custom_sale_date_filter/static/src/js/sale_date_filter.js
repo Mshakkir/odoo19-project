@@ -620,7 +620,7 @@ patch(ListController.prototype, {
 
         this._filterInjected = false;
         this._filterData = {
-            analyticAccounts: [],  // Changed from warehouses to analyticAccounts
+            analyticAccounts: [],
             customers: [],
             salespersons: []
         };
@@ -630,7 +630,6 @@ patch(ListController.prototype, {
             if (this.shouldShowFilter()) {
                 try {
                     await this.loadFilterData();
-                    // Keep trying to inject until successful
                     let attempts = 0;
                     const tryInject = setInterval(async () => {
                         if (this.injectDateFilter()) {
@@ -682,7 +681,7 @@ patch(ListController.prototype, {
                     element.removeEventListener(event, handler);
                 }
             } catch (e) {
-                // Ignore errors during cleanup
+                // Ignore cleanup errors
             }
         });
         this._listeners = [];
@@ -697,36 +696,45 @@ patch(ListController.prototype, {
 
     async loadFilterData() {
         try {
-            // Changed: Load analytic accounts instead of warehouses
             const [analyticAccounts, customers, salespersons] = await Promise.all([
                 this.orm.searchRead(
                     'account.analytic.account',
                     [],
                     ['id', 'name'],
                     { limit: 100, order: 'name' }
-                ).catch(() => []),
+                ).catch(err => {
+                    console.error('Error loading analytic accounts:', err);
+                    return [];
+                }),
                 this.orm.searchRead(
                     'res.partner',
                     [['customer_rank', '>', 0]],
                     ['id', 'name'],
                     { limit: 500, order: 'name' }
-                ).catch(() => []),
+                ).catch(err => {
+                    console.error('Error loading customers:', err);
+                    return [];
+                }),
                 this.orm.searchRead(
                     'res.users',
                     [],
                     ['id', 'name'],
                     { limit: 100, order: 'name' }
-                ).catch(() => [])
+                ).catch(err => {
+                    console.error('Error loading salespersons:', err);
+                    return [];
+                })
             ]);
 
             this._filterData = {
-                analyticAccounts: analyticAccounts || [],  // Changed from warehouses
+                analyticAccounts: analyticAccounts || [],
                 customers: customers || [],
                 salespersons: salespersons || []
             };
+
+            console.log('Filter data loaded:', this._filterData);
         } catch (error) {
             console.error('Error loading filter data:', error);
-            this.notification.add("Error loading filter options", { type: "danger" });
         }
     },
 
@@ -754,7 +762,6 @@ patch(ListController.prototype, {
             const dateFrom = firstDay.toISOString().split('T')[0];
             const dateTo = today.toISOString().split('T')[0];
 
-            // Changed: Generate analytic account options instead of warehouse
             const analyticAccountOptions = this._filterData.analyticAccounts
                 .map(a => `<option value="${a.id}">${a.name}</option>`)
                 .join('');
@@ -829,6 +836,7 @@ patch(ListController.prototype, {
 
             this._filterInjected = true;
             this.attachFilterEvents();
+            console.log('Filter injected successfully');
             return true;
         } catch (error) {
             console.error('Filter injection error:', error);
@@ -869,7 +877,7 @@ patch(ListController.prototype, {
     attachFilterEvents() {
         const dateFromInput = document.querySelector('.filter_date_from');
         const dateToInput = document.querySelector('.filter_date_to');
-        const analyticAccountSelect = document.querySelector('.filter_analytic_account');  // Changed
+        const analyticAccountSelect = document.querySelector('.filter_analytic_account');
         const customerInput = document.querySelector('.filter_customer_input');
         const customerDropdown = document.querySelector('.filter_customer_dropdown');
         const salespersonInput = document.querySelector('.filter_salesperson_input');
@@ -946,194 +954,209 @@ patch(ListController.prototype, {
 
         // Apply filters
         const applyFilters = async () => {
-            const isSaleOrder = this.props.resModel === 'sale.order';
-            const isInvoice = this.props.resModel === 'account.move';
-            const resModel = this.props.resModel;
+            try {
+                const isSaleOrder = this.props.resModel === 'sale.order';
+                const isInvoice = this.props.resModel === 'account.move';
+                const resModel = this.props.resModel;
 
-            let domain = [];
+                let domain = [];
 
-            if (isInvoice) {
-                domain.push(['move_type', '=', 'out_invoice']);
-            }
-
-            // Date filter
-            const dateFrom = dateFromInput?.value;
-            const dateTo = dateToInput?.value;
-            if (dateFrom && dateTo) {
-                const dateField = isSaleOrder ? 'date_order' : 'invoice_date';
-                domain.push([dateField, '>=', dateFrom]);
-                domain.push([dateField, '<=', dateTo]);
-            }
-
-            // Document number filter
-            const docNumber = documentNumberInput?.value?.trim();
-            if (docNumber) {
-                domain.push(['name', 'ilike', docNumber]);
-            }
-
-            // Customer filter
-            if (customerSelectedId) {
-                domain.push(['partner_id', '=', customerSelectedId]);
-            }
-
-            // CHANGED: Analytic Account filter
-            const analyticAccountId = analyticAccountSelect?.value;
-            if (analyticAccountId) {
-                if (isSaleOrder) {
-                    // For sale orders: filter by analytic_account_id on order lines
-                    const saleOrders = await this.orm.searchRead(
-                        'sale.order.line',
-                        [['analytic_distribution', '!=', false]],
-                        ['order_id', 'analytic_distribution'],
-                        { limit: 1000 }
-                    );
-
-                    const matchingOrderIds = [];
-                    for (const line of saleOrders) {
-                        if (line.analytic_distribution) {
-                            const analyticIds = Object.keys(line.analytic_distribution).map(id => parseInt(id));
-                            if (analyticIds.includes(parseInt(analyticAccountId))) {
-                                matchingOrderIds.push(line.order_id[0]);
-                            }
-                        }
-                    }
-
-                    if (matchingOrderIds.length > 0) {
-                        domain.push(['id', 'in', [...new Set(matchingOrderIds)]]);
-                    } else {
-                        domain.push(['id', '=', -1]);
-                    }
-                } else if (isInvoice) {
-                    // For invoices: filter by analytic_account_id computed field
-                    domain.push(['analytic_account_id', '=', parseInt(analyticAccountId)]);
+                if (isInvoice) {
+                    domain.push(['move_type', '=', 'out_invoice']);
                 }
-            }
 
-            // Customer reference filter
-            const customerRef = customerRefInput?.value?.trim();
-            if (customerRef) {
-                domain.push(['client_order_ref', 'ilike', customerRef]);
-            }
+                // Date filter
+                const dateFrom = dateFromInput?.value;
+                const dateTo = dateToInput?.value;
+                if (dateFrom && dateTo) {
+                    const dateField = isSaleOrder ? 'date_order' : 'invoice_date';
+                    domain.push([dateField, '>=', dateFrom]);
+                    domain.push([dateField, '<=', dateTo]);
+                }
 
-            // Salesperson filter
-            if (salespersonSelectedId) {
-                const userField = isSaleOrder ? 'user_id' : 'invoice_user_id';
-                domain.push([userField, '=', salespersonSelectedId]);
-            }
+                // Document number filter
+                const docNumber = documentNumberInput?.value?.trim();
+                if (docNumber) {
+                    domain.push(['name', 'ilike', docNumber]);
+                }
 
-            // AWB/Shipping reference filter
-            const awbNumber = awbNumberInput?.value?.trim();
-            if (awbNumber) {
-                domain.push(['awb_number', 'ilike', awbNumber]);
-            }
+                // Customer filter
+                if (customerSelectedId) {
+                    domain.push(['partner_id', '=', customerSelectedId]);
+                }
 
-            // Delivery note filter
-            const deliveryNote = deliveryNoteInput?.value?.trim();
-            if (deliveryNote) {
-                if (isSaleOrder) {
-                    try {
-                        const pickings = await this.orm.searchRead(
-                            'stock.picking',
-                            [['origin', 'ilike', deliveryNote]],
-                            ['sale_id'],
-                            { limit: 200 }
-                        );
+                // Analytic Account filter
+                const analyticAccountId = analyticAccountSelect?.value;
+                if (analyticAccountId) {
+                    const analyticId = parseInt(analyticAccountId);
 
-                        const saleIds = [...new Set(
-                            pickings
-                                .filter(p => p.sale_id)
-                                .map(p => p.sale_id[0])
-                        )];
-
-                        if (saleIds.length > 0) {
-                            domain.push(['id', 'in', saleIds]);
-                        } else {
-                            domain.push(['id', '=', -1]);
-                        }
-                    } catch (error) {
-                        console.error('Delivery Note search error:', error);
-                        this.notification.add("Error searching delivery notes", { type: "danger" });
-                        return;
-                    }
-                } else if (isInvoice) {
-                    try {
-                        const pickings = await this.orm.searchRead(
-                            'stock.picking',
-                            [['origin', 'ilike', deliveryNote]],
-                            ['sale_id'],
-                            { limit: 200 }
-                        );
-
-                        const saleIds = [...new Set(
-                            pickings
-                                .filter(p => p.sale_id)
-                                .map(p => p.sale_id[0])
-                        )];
-
-                        if (saleIds.length > 0) {
-                            const invoices = await this.orm.searchRead(
-                                'account.move',
-                                [
-                                    ['move_type', '=', 'out_invoice'],
-                                    ['invoice_origin', 'in', saleIds.map(String)]
-                                ],
-                                ['id'],
-                                { limit: 500 }
+                    if (isSaleOrder) {
+                        // For sale orders - search through order lines
+                        try {
+                            const orderLines = await this.orm.searchRead(
+                                'sale.order.line',
+                                [['analytic_distribution', '!=', false]],
+                                ['order_id', 'analytic_distribution'],
+                                { limit: 2000 }
                             );
 
-                            const saleOrders = await this.orm.searchRead(
-                                'sale.order',
-                                [['id', 'in', saleIds]],
-                                ['name'],
-                                { limit: 200 }
-                            );
-                            const soNames = saleOrders.map(so => so.name);
+                            const matchingOrderIds = new Set();
 
-                            const invoicesByOrigin = await this.orm.searchRead(
-                                'account.move',
-                                [
-                                    ['move_type', '=', 'out_invoice'],
-                                    ['invoice_origin', 'in', soNames]
-                                ],
-                                ['id'],
-                                { limit: 500 }
-                            );
+                            for (const line of orderLines) {
+                                if (line.analytic_distribution) {
+                                    const analyticIds = Object.keys(line.analytic_distribution).map(id => parseInt(id));
+                                    if (analyticIds.includes(analyticId)) {
+                                        if (line.order_id && line.order_id[0]) {
+                                            matchingOrderIds.add(line.order_id[0]);
+                                        }
+                                    }
+                                }
+                            }
 
-                            const allInvoiceIds = [...new Set([
-                                ...invoices.map(i => i.id),
-                                ...invoicesByOrigin.map(i => i.id)
-                            ])];
-
-                            if (allInvoiceIds.length > 0) {
-                                domain.push(['id', 'in', allInvoiceIds]);
+                            if (matchingOrderIds.size > 0) {
+                                domain.push(['id', 'in', Array.from(matchingOrderIds)]);
                             } else {
                                 domain.push(['id', '=', -1]);
                             }
-                        } else {
-                            domain.push(['id', '=', -1]);
+                        } catch (error) {
+                            console.error('Error filtering sale orders by analytic account:', error);
+                            this.notification.add("Error filtering by analytic account", { type: "warning" });
                         }
-                    } catch (error) {
-                        console.error('Delivery Note pre-search error:', error);
-                        this.notification.add("Error searching delivery notes", { type: "danger" });
-                        return;
+                    } else if (isInvoice) {
+                        // For invoices - use the computed field
+                        domain.push(['analytic_account_id', '=', analyticId]);
                     }
                 }
+
+                // Customer reference filter
+                const customerRef = customerRefInput?.value?.trim();
+                if (customerRef) {
+                    domain.push(['client_order_ref', 'ilike', customerRef]);
+                }
+
+                // Salesperson filter
+                if (salespersonSelectedId) {
+                    const userField = isSaleOrder ? 'user_id' : 'invoice_user_id';
+                    domain.push([userField, '=', salespersonSelectedId]);
+                }
+
+                // AWB/Shipping reference filter
+                const awbNumber = awbNumberInput?.value?.trim();
+                if (awbNumber) {
+                    domain.push(['awb_number', 'ilike', awbNumber]);
+                }
+
+                // Delivery note filter
+                const deliveryNote = deliveryNoteInput?.value?.trim();
+                if (deliveryNote) {
+                    if (isSaleOrder) {
+                        try {
+                            const pickings = await this.orm.searchRead(
+                                'stock.picking',
+                                [['origin', 'ilike', deliveryNote]],
+                                ['sale_id'],
+                                { limit: 200 }
+                            );
+
+                            const saleIds = [...new Set(
+                                pickings
+                                    .filter(p => p.sale_id)
+                                    .map(p => p.sale_id[0])
+                            )];
+
+                            if (saleIds.length > 0) {
+                                domain.push(['id', 'in', saleIds]);
+                            } else {
+                                domain.push(['id', '=', -1]);
+                            }
+                        } catch (error) {
+                            console.error('Delivery Note search error:', error);
+                            this.notification.add("Error searching delivery notes", { type: "danger" });
+                            return;
+                        }
+                    } else if (isInvoice) {
+                        try {
+                            const pickings = await this.orm.searchRead(
+                                'stock.picking',
+                                [['origin', 'ilike', deliveryNote]],
+                                ['sale_id'],
+                                { limit: 200 }
+                            );
+
+                            const saleIds = [...new Set(
+                                pickings
+                                    .filter(p => p.sale_id)
+                                    .map(p => p.sale_id[0])
+                            )];
+
+                            if (saleIds.length > 0) {
+                                const invoices = await this.orm.searchRead(
+                                    'account.move',
+                                    [
+                                        ['move_type', '=', 'out_invoice'],
+                                        ['invoice_origin', 'in', saleIds.map(String)]
+                                    ],
+                                    ['id'],
+                                    { limit: 500 }
+                                );
+
+                                const saleOrders = await this.orm.searchRead(
+                                    'sale.order',
+                                    [['id', 'in', saleIds]],
+                                    ['name'],
+                                    { limit: 200 }
+                                );
+                                const soNames = saleOrders.map(so => so.name);
+
+                                const invoicesByOrigin = await this.orm.searchRead(
+                                    'account.move',
+                                    [
+                                        ['move_type', '=', 'out_invoice'],
+                                        ['invoice_origin', 'in', soNames]
+                                    ],
+                                    ['id'],
+                                    { limit: 500 }
+                                );
+
+                                const allInvoiceIds = [...new Set([
+                                    ...invoices.map(i => i.id),
+                                    ...invoicesByOrigin.map(i => i.id)
+                                ])];
+
+                                if (allInvoiceIds.length > 0) {
+                                    domain.push(['id', 'in', allInvoiceIds]);
+                                } else {
+                                    domain.push(['id', '=', -1]);
+                                }
+                            } else {
+                                domain.push(['id', '=', -1]);
+                            }
+                        } catch (error) {
+                            console.error('Delivery Note pre-search error:', error);
+                            this.notification.add("Error searching delivery notes", { type: "danger" });
+                            return;
+                        }
+                    }
+                }
+
+                const currentViews = this._getCurrentActionViews();
+                const currentContext = this._getCurrentActionContext();
+
+                this.actionService.doAction({
+                    type: 'ir.actions.act_window',
+                    name: isSaleOrder ? 'Sale Orders' : 'Invoices',
+                    res_model: resModel,
+                    views: currentViews,
+                    domain: domain,
+                    context: currentContext,
+                    target: 'current',
+                });
+
+                this.notification.add("Filters applied successfully", { type: "success" });
+            } catch (error) {
+                console.error('Error applying filters:', error);
+                this.notification.add("Error applying filters", { type: "danger" });
             }
-
-            const currentViews = this._getCurrentActionViews();
-            const currentContext = this._getCurrentActionContext();
-
-            this.actionService.doAction({
-                type: 'ir.actions.act_window',
-                name: isSaleOrder ? 'Sale Orders' : 'Invoices',
-                res_model: resModel,
-                views: currentViews,
-                domain: domain,
-                context: currentContext,
-                target: 'current',
-            });
-
-            this.notification.add("Filters applied successfully", { type: "success" });
         };
 
         // Clear filters
@@ -1144,7 +1167,7 @@ patch(ListController.prototype, {
             dateFromInput.value = firstDay.toISOString().split('T')[0];
             dateToInput.value = today.toISOString().split('T')[0];
 
-            if (analyticAccountSelect) analyticAccountSelect.value = '';  // Changed
+            if (analyticAccountSelect) analyticAccountSelect.value = '';
             if (customerInput) customerInput.value = '';
             if (salespersonInput) salespersonInput.value = '';
             if (documentNumberInput) documentNumberInput.value = '';

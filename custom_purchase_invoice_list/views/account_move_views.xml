@@ -26,7 +26,7 @@
                     <field name="partner_id" string="Vendor" width="155px"/>
 
                     <!-- 4. Warehouse -->
-                    <field name="warehouse_id" string="Warehouse" width="120px"/>
+                    <field name="analytic_account_id" string="Warehouse" width="120px"/>
 
                     <!-- 5. Source Document -->
                     <field name="invoice_origin" string="Source Doc." width="110px"/>

@@ -81,7 +81,7 @@ class PurchaseReport(models.Model):
                     pol.product_qty as product_qty,
                     pol.qty_received as qty_received,
                     pol.qty_invoiced as qty_invoiced,
-                    pol.product_uom as product_uom,
+                    pol.product_uom_id as product_uom,
                     pol.price_unit as price_unit,
                     pol.price_subtotal as price_subtotal,
                     pol.price_total as price_total,

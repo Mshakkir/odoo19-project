@@ -26,7 +26,8 @@
                     <field name="partner_id" string="Customer" width="160px"/>
 
                     <!-- 4. Warehouse (NEW - after customer) -->
-                    <field name="warehouse_id" string="Warehouse" width="120px"/>
+                    <field name="analytic_distribution" string="Warehouse" widget="analytic_distribution"
+                           width="150px"/>
 
                     <!-- 5. Source Document (like Sales Order) -->
                     <field name="invoice_origin" string="Source Document" width="110px"/>
@@ -68,7 +69,8 @@
                     <!-- ADDITIONAL OPTIONAL FIELDS (Hidden by default) -->
 
                     <!-- 15. Tax Excluded Amount -->
-                    <field name="amount_untaxed" string="Tax Excluded" sum="Total Untaxed" optional="hide" width="120px"/>
+                    <field name="amount_untaxed" string="Tax Excluded" sum="Total Untaxed" optional="hide"
+                           width="120px"/>
 
                     <!-- 16. Tax -->
                     <field name="amount_tax" string="Tax" sum="Total Tax" optional="hide" width="100px"/>
@@ -86,7 +88,8 @@
                     <field name="currency_id" string="Currency" optional="hide" width="80px"/>
 
                     <!-- 21. Company -->
-                    <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide" width="120px"/>
+                    <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide"
+                           width="120px"/>
 
                     <!-- 22. Fiscal Position -->
                     <field name="fiscal_position_id" string="Fiscal Position" optional="hide" width="130px"/>
@@ -110,7 +113,8 @@
                     <field name="auto_post" string="Auto Post" optional="hide" width="90px"/>
 
                     <!-- 29. Activity -->
-                    <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide" width="100px"/>
+                    <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide"
+                           width="100px"/>
 
                     <!-- 30. Activity State -->
                     <field name="activity_state" string="Activity State" optional="hide" widget="badge"
@@ -138,7 +142,8 @@
                     <field name="team_id" string="Sales Team" optional="hide" width="120px"/>
 
                     <!-- 37. Campaign (if marketing installed) -->
-                    <field name="campaign_id" string="Campaign" optional="hide" groups="base.group_no_one" width="120px"/>
+                    <field name="campaign_id" string="Campaign" optional="hide" groups="base.group_no_one"
+                           width="120px"/>
 
                     <!-- 38. Medium -->
                     <field name="medium_id" string="Medium" optional="hide" groups="base.group_no_one" width="100px"/>
@@ -155,7 +160,8 @@
 
         <!-- Override the default SALES invoice action to use custom view -->
         <record id="account.action_move_out_invoice_type" model="ir.actions.act_window">
-            <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('view_move_list_invoice_custom')})]"/>
+            <field name="view_ids"
+                   eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('view_move_list_invoice_custom')})]"/>
         </record>
 
     </data>

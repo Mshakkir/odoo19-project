@@ -15,7 +15,7 @@ patch(ListController.prototype, {
 
         this._filterInjected = false;
         this._filterData = {
-            warehouses: [],
+//            warehouses: [],
             customers: [],
             salespersons: [],
             analyticAccounts: []  // Added analytic accounts

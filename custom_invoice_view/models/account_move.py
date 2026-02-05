@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
 
@@ -13,14 +14,6 @@ class AccountMove(models.Model):
         readonly=False,  # Allow manual editing
         precompute=True,
         tracking=True
-    )
-
-    # Computed field to show analytic account from first invoice line
-    analytic_account_id = fields.Many2one(
-        'account.analytic.account',
-        string='Analytic Account',
-        compute='_compute_analytic_account_id',
-        store=True
     )
 
     @api.depends('invoice_origin', 'line_ids.sale_line_ids.order_id.warehouse_id')
@@ -52,20 +45,3 @@ class AccountMove(models.Model):
                 ], limit=1)
 
             move.warehouse_id = warehouse
-
-    @api.depends('line_ids.analytic_distribution')
-    def _compute_analytic_account_id(self):
-        """Get analytic account from first invoice line with analytic distribution"""
-        for move in self:
-            analytic_account = False
-            # Look through invoice lines to find first one with analytic distribution
-            for line in move.line_ids:
-                if line.analytic_distribution and line.product_id:
-                    # analytic_distribution is a dict like {'1': 100} where key is account_id
-                    # Get the first analytic account ID from the distribution
-                    account_ids = list(line.analytic_distribution.keys())
-                    if account_ids:
-                        analytic_account = self.env['account.analytic.account'].browse(int(account_ids[0]))
-                        break
-
-            move.analytic_account_id = analytic_account

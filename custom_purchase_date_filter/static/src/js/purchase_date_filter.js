@@ -920,7 +920,7 @@ patch(ListController.prototype, {
             const analyticAccounts = await this.orm.searchRead(
                 'account.analytic.account',
                 [],
-                ['id', 'name'],
+                ['id', 'name', 'code'],
                 { limit: 500, order: 'name' }
             );
 
@@ -1293,7 +1293,8 @@ patch(ListController.prototype, {
                 }
 
                 const filtered = analyticList.filter(a =>
-                    a.name.toLowerCase().includes(searchValue)
+                    a.name.toLowerCase().includes(searchValue) ||
+                    (a.code && a.code.toLowerCase().includes(searchValue))
                 ).slice(0, 50);
 
                 if (filtered.length === 0) {
@@ -1302,9 +1303,10 @@ patch(ListController.prototype, {
                     return;
                 }
 
-                analyticDropdown.innerHTML = filtered.map(a =>
-                    `<div class="autocomplete_item" data-id="${a.id}">${a.name}</div>`
-                ).join('');
+                analyticDropdown.innerHTML = filtered.map(a => {
+                    const displayName = a.code ? `${a.code} - ${a.name}` : a.name;
+                    return `<div class="autocomplete_item" data-id="${a.id}">${displayName}</div>`;
+                }).join('');
                 analyticDropdown.classList.add('show');
             });
 
@@ -1396,21 +1398,35 @@ patch(ListController.prototype, {
                 // Purchase rep/buyer filter
                 if (repValue.value) {
                     if (viewType === 'bill') {
-                        // Use buyer_id for bills
-                        domain.push(['buyer_id', '=', parseInt(repValue.value)]);
+                        // Use buyer_id for bills (if available) or invoice_user_id
+                        domain.push('|');
+                        domain.push(['invoice_user_id', '=', parseInt(repValue.value)]);
+                        domain.push(['user_id', '=', parseInt(repValue.value)]);
                     } else {
                         domain.push(['user_id', '=', parseInt(repValue.value)]);
                     }
                 }
 
-                // Analytic Account filter
+                // Analytic Account filter - Using the correct field path
                 if (analyticValue.value) {
+                    const analyticId = parseInt(analyticValue.value);
+
                     if (viewType === 'bill') {
-                        // For bills, search in line_ids analytic distribution
-                        domain.push(['line_ids.analytic_distribution', 'ilike', analyticValue.value]);
+                        // For bills in Odoo 19, analytic_distribution is stored as JSON
+                        // Format: {"account_id": percentage}
+                        // We search for the ID in the JSON string
+                        domain.push('|');
+                        domain.push('|');
+                        domain.push(['line_ids.analytic_distribution', 'ilike', `"${analyticId}"`]);
+                        domain.push(['invoice_line_ids.analytic_distribution', 'ilike', `"${analyticId}"`]);
+                        // Also try the old field name if it exists
+                        domain.push(['line_ids.analytic_account_id', '=', analyticId]);
                     } else {
-                        // For purchase orders, search in order_line analytic distribution
-                        domain.push(['order_line.analytic_distribution', 'ilike', analyticValue.value]);
+                        // For purchase orders
+                        domain.push('|');
+                        domain.push(['order_line.analytic_distribution', 'ilike', `"${analyticId}"`]);
+                        // Also try the old field name if it exists
+                        domain.push(['order_line.account_analytic_id', '=', analyticId]);
                     }
                 }
 
@@ -1476,6 +1492,8 @@ patch(ListController.prototype, {
                         domain.push(['payment_state', '=', paymentStatusSelect.value]);
                     }
                 }
+
+                console.log('Applying domain:', JSON.stringify(domain, null, 2));
 
                 // Check if model and controller still exist before reloading
                 if (this.model && this.model.load) {

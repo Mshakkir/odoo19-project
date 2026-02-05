@@ -788,9 +788,9 @@ import { patch } from "@web/core/utils/patch";
 import { useService } from "@web/core/utils/hooks";
 import { ListController } from "@web/views/list/list_controller";
 
-/* ------------------------------------------------------------
+/* ============================================================
    PATCH LIST CONTROLLER
--------------------------------------------------------------*/
+============================================================ */
 patch(ListController.prototype, {
     setup() {
         super.setup(...arguments);
@@ -802,45 +802,47 @@ patch(ListController.prototype, {
         this._purchaseFilterData = {
             warehouses: [],
             vendors: [],
-            purchaseReps: [],
-            analyticAccounts: [],   // ✅ ANALYTIC
+            users: [],
+            analyticAccounts: [],
         };
 
         onMounted(() => {
-            if (this.shouldShowPurchaseFilter()) {
-                setTimeout(() => this.loadPurchaseFilterData(), 150);
+            if (this.shouldShowFilter()) {
+                setTimeout(() => this.loadFilterData(), 150);
             }
         });
 
         onWillUnmount(() => {
-            this.cleanupPurchaseFilter();
+            this.cleanupFilter();
         });
     },
 
-    /* ------------------------------------------------------------
-       CHECK WHERE TO SHOW FILTER
-    -------------------------------------------------------------*/
-    shouldShowPurchaseFilter() {
-        const resModel = this.props.resModel;
-        if (resModel === "purchase.order") return true;
-        if (resModel === "account.move") return true;
-        return false;
+    /* ============================================================
+       WHERE TO SHOW FILTER
+    ============================================================ */
+    shouldShowFilter() {
+        return (
+            this.props.resModel === "purchase.order" ||
+            this.props.resModel === "account.move"
+        );
     },
 
-    cleanupPurchaseFilter() {
+    cleanupFilter() {
         if (this._purchaseFilterElement) {
             this._purchaseFilterElement.remove();
             this._purchaseFilterElement = null;
         }
     },
 
-    /* ------------------------------------------------------------
+    /* ============================================================
        LOAD DATA
-    -------------------------------------------------------------*/
-    async loadPurchaseFilterData() {
+    ============================================================ */
+    async loadFilterData() {
         try {
             const warehouses = await this.orm.searchRead(
-                "stock.warehouse", [], ["id", "name"]
+                "stock.warehouse",
+                [],
+                ["id", "name"]
             );
 
             const vendors = await this.orm.searchRead(
@@ -850,8 +852,11 @@ patch(ListController.prototype, {
                 { order: "name" }
             );
 
-            const reps = await this.orm.searchRead(
-                "res.users", [], ["id", "name"], { order: "name" }
+            const users = await this.orm.searchRead(
+                "res.users",
+                [],
+                ["id", "name"],
+                { order: "name" }
             );
 
             const analytics = await this.orm.searchRead(
@@ -864,30 +869,29 @@ patch(ListController.prototype, {
             this._purchaseFilterData = {
                 warehouses,
                 vendors,
-                purchaseReps: reps,
+                users,
                 analyticAccounts: analytics,
             };
 
-            this.injectPurchaseFilter();
+            this.injectFilter();
         } catch (err) {
             console.error(err);
             this.notification.add("Failed to load filter data", { type: "danger" });
         }
     },
 
-    /* ------------------------------------------------------------
+    /* ============================================================
        VIEW TYPE
-    -------------------------------------------------------------*/
+    ============================================================ */
     getViewType() {
-        if (this.props.resModel === "account.move") return "bill";
-        return "purchase";
+        return this.props.resModel === "account.move" ? "bill" : "purchase";
     },
 
-    /* ------------------------------------------------------------
+    /* ============================================================
        UI INJECTION
-    -------------------------------------------------------------*/
-    injectPurchaseFilter() {
-        this.cleanupPurchaseFilter();
+    ============================================================ */
+    injectFilter() {
+        this.cleanupFilter();
 
         const table = document.querySelector(".o_list_table");
         if (!table) return;
@@ -897,7 +901,7 @@ patch(ListController.prototype, {
         const toId = `to_${ts}`;
         const vendorId = `vendor_${ts}`;
         const warehouseId = `warehouse_${ts}`;
-        const repId = `rep_${ts}`;
+        const userId = `user_${ts}`;
         const analyticId = `analytic_${ts}`;
         const applyId = `apply_${ts}`;
         const clearId = `clear_${ts}`;
@@ -905,14 +909,21 @@ patch(ListController.prototype, {
         const today = new Date().toISOString().split("T")[0];
 
         const warehouseOpts = this._purchaseFilterData.warehouses
-            .map(w => `<option value="${w.id}">${w.name}</option>`).join("");
+            .map(w => `<option value="${w.id}">${w.name}</option>`)
+            .join("");
+
+        const userOpts = this._purchaseFilterData.users
+            .map(u => `<option value="${u.id}">${u.name}</option>`)
+            .join("");
 
         const analyticOpts = this._purchaseFilterData.analyticAccounts
-            .map(a => `<option value="${a.id}">${a.name}</option>`).join("");
+            .map(a => `<option value="${a.id}">${a.name}</option>`)
+            .join("");
 
         const html = `
         <div class="purchase_date_filter_wrapper_main">
             <div class="date_filter_wrapper">
+
                 <div class="filter_group">
                     <label>From</label>
                     <input type="date" id="${fromId}" value="${today}" class="form-control"/>
@@ -925,7 +936,7 @@ patch(ListController.prototype, {
 
                 <div class="filter_group">
                     <label>Vendor</label>
-                    <input type="text" id="${vendorId}" class="form-control"/>
+                    <input type="text" id="${vendorId}" class="form-control" placeholder="Vendor"/>
                 </div>
 
                 <div class="filter_group">
@@ -937,11 +948,10 @@ patch(ListController.prototype, {
                 </div>
 
                 <div class="filter_group">
-                    <label>Purchase Rep</label>
-                    <select id="${repId}" class="form-select">
+                    <label>Responsible</label>
+                    <select id="${userId}" class="form-select">
                         <option value="">All</option>
-                        ${this._purchaseFilterData.purchaseReps
-                            .map(r => `<option value="${r.id}">${r.name}</option>`).join("")}
+                        ${userOpts}
                     </select>
                 </div>
 
@@ -962,31 +972,37 @@ patch(ListController.prototype, {
         </div>
         `;
 
-        const div = document.createElement("div");
-        div.innerHTML = html;
-        table.parentElement.insertBefore(div, table);
-        this._purchaseFilterElement = div;
+        const container = document.createElement("div");
+        container.innerHTML = html;
+        table.parentElement.insertBefore(container, table);
+        this._purchaseFilterElement = container;
 
         this.attachEvents({
-            fromId, toId, vendorId, warehouseId, repId,
-            analyticId, applyId, clearId,
+            fromId,
+            toId,
+            vendorId,
+            warehouseId,
+            userId,
+            analyticId,
+            applyId,
+            clearId,
         });
     },
 
-    /* ------------------------------------------------------------
-       EVENTS & DOMAIN
-    -------------------------------------------------------------*/
+    /* ============================================================
+       EVENTS & DOMAIN LOGIC
+    ============================================================ */
     attachEvents(ids) {
         const viewType = this.getViewType();
 
-        const apply = () => {
+        const applyFilter = () => {
             const domain = [];
 
             const from = document.getElementById(ids.fromId).value;
             const to = document.getElementById(ids.toId).value;
             const vendor = document.getElementById(ids.vendorId).value;
             const warehouse = document.getElementById(ids.warehouseId).value;
-            const rep = document.getElementById(ids.repId).value;
+            const user = document.getElementById(ids.userId).value;
             const analytic = document.getElementById(ids.analyticId).value;
 
             if (viewType === "bill") {
@@ -1000,26 +1016,38 @@ patch(ListController.prototype, {
 
             if (vendor) domain.push(["partner_id.name", "ilike", vendor]);
             if (warehouse) domain.push(["picking_type_id.warehouse_id", "=", parseInt(warehouse)]);
-            if (rep) domain.push(["user_id", "=", parseInt(rep)]);
+            if (user) domain.push(["user_id", "=", parseInt(user)]);
 
-            // ✅ ANALYTIC DOMAIN
+            /* ✅ CORRECT ANALYTIC FILTER (ODOO 19) */
             if (analytic) {
+                const analyticIdVal = parseInt(analytic);
+
                 if (viewType === "bill") {
-                    domain.push(["line_ids.analytic_account_id", "=", parseInt(analytic)]);
+                    domain.push([
+                        "line_ids.analytic_distribution",
+                        "ilike",
+                        `"${analyticIdVal}"`
+                    ]);
                 } else {
-                    domain.push(["analytic_account_id", "=", parseInt(analytic)]);
+                    domain.push([
+                        "analytic_account_id",
+                        "=",
+                        analyticIdVal
+                    ]);
                 }
             }
 
             this.model.load({ domain });
-            this.notification.add("Filters applied", { type: "success" });
+            this.notification.add("Filters applied successfully", { type: "success" });
         };
 
-        const clear = () => {
+        const clearFilter = () => {
             this.model.load({ domain: [] });
+            this.notification.add("Filters cleared", { type: "info" });
         };
 
-        document.getElementById(ids.applyId).onclick = apply;
-        document.getElementById(ids.clearId).onclick = clear;
+        document.getElementById(ids.applyId).onclick = applyFilter;
+        document.getElementById(ids.clearId).onclick = clearFilter;
     },
 });
+

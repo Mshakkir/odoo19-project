@@ -65,13 +65,25 @@
                 <field name="category_name" string="Category"/>
                 <field name="warehouse_name" string="Warehouse"/>
                 <field name="user_name" string="Purchase Rep"/>
+                <field name="order_date"/>
 
                 <filter string="RFQ" name="rfq" domain="[('state', '=', 'draft')]"/>
                 <filter string="Purchase Orders" name="purchase" domain="[('state', 'in', ['purchase', 'done'])]"/>
                 <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
 
                 <separator/>
-                <filter string="Order Date" name="filter_order_date" date="order_date"/>
+                <filter string="Today" name="filter_today"
+                        domain="[('order_date', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00')),
+                                 ('order_date', '&lt;=', context_today().strftime('%Y-%m-%d 23:59:59'))]"/>
+                <filter string="This Week" name="filter_week"
+                        domain="[('order_date', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d 00:00:00')),
+                                 ('order_date', '&lt;=', (context_today() + datetime.timedelta(days=6-context_today().weekday())).strftime('%Y-%m-%d 23:59:59'))]"/>
+                <filter string="This Month" name="filter_month"
+                        domain="[('order_date', '&gt;=', context_today().strftime('%Y-%m-01 00:00:00')),
+                                 ('order_date', '&lt;=', (context_today() + relativedelta(day=31)).strftime('%Y-%m-%d 23:59:59'))]"/>
+                <filter string="This Year" name="filter_year"
+                        domain="[('order_date', '&gt;=', context_today().strftime('%Y-01-01 00:00:00')),
+                                 ('order_date', '&lt;=', context_today().strftime('%Y-12-31 23:59:59'))]"/>
 
                 <separator/>
                 <group expand="0" string="Group By">
@@ -83,7 +95,8 @@
                     <filter string="Purchase Rep" name="group_by_user" context="{'group_by': 'user_name'}"/>
                     <filter string="Status" name="group_by_state" context="{'group_by': 'state'}"/>
                     <separator/>
-                    <filter string="Order Date" name="group_by_order_date" context="{'group_by': 'order_date:month'}"/>
+                    <filter string="Order Date (Month)" name="group_by_order_date" context="{'group_by': 'order_date:month'}"/>
+                    <filter string="Order Date (Year)" name="group_by_order_year" context="{'group_by': 'order_date:year'}"/>
                 </group>
             </search>
         </field>

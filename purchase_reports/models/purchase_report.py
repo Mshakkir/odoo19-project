@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api, tools,UserError
+from odoo import models, fields, api, tools
+from odoo.exceptions import UserError
 
 
 class PurchaseReport(models.Model):

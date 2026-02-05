@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Main Purchase Reports Menu -->
+    <menuitem id="menu_purchase_reports_main"
+              name="Purchase Reports"
+              parent="purchase.menu_purchase_root"
+              sequence="99"/>
+
+    <!-- By Vouchers -->
+    <menuitem id="menu_purchase_report_by_vouchers"
+              name="By Vouchers"
+              parent="menu_purchase_reports_main"
+              action="action_purchase_report_by_vouchers_wizard"
+              sequence="1"/>
+
+    <!-- By Product Category -->
+    <menuitem id="menu_purchase_report_by_category"
+              name="By Product Category"
+              parent="menu_purchase_reports_main"
+              action="action_purchase_report_by_category_wizard"
+              sequence="2"/>
+
+    <!-- By Product -->
+    <menuitem id="menu_purchase_report_by_product"
+              name="By Product"
+              parent="menu_purchase_reports_main"
+              action="action_purchase_report_by_product_wizard"
+              sequence="3"/>
+
+    <!-- By Product Group -->
+    <menuitem id="menu_purchase_report_by_product_group"
+              name="By Product Group"
+              parent="menu_purchase_reports_main"
+              action="action_purchase_report_by_product_group_wizard"
+              sequence="4"/>
+
+    <!-- By Party -->
+    <menuitem id="menu_purchase_report_by_party"
+              name="By Party"
+              parent="menu_purchase_reports_main"
+              action="action_purchase_report_by_party_wizard"
+              sequence="5"/>
+
+    <!-- By Party Group -->
+    <menuitem id="menu_purchase_report_by_party_group"
+              name="By Party Group"
+              parent="menu_purchase_reports_main"
+              action="action_purchase_report_by_party_group_wizard"
+              sequence="6"/>
+
+    <!-- By Warehouse -->
+    <menuitem id="menu_purchase_report_by_warehouse"
+              name="By Warehouse"
+              parent="menu_purchase_reports_main"
+              action="action_purchase_report_by_warehouse_wizard"
+              sequence="7"/>
+
+    <!-- By SalesMan -->
+    <menuitem id="menu_purchase_report_by_salesman"
+              name="By SalesMan"
+              parent="menu_purchase_reports_main"
+              action="action_purchase_report_by_salesman_wizard"
+              sequence="8"/>
+</odoo>

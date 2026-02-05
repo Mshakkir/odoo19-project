@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- PDF Report Template -->
+    <template id="report_purchase_report_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Purchase Report</h2>
+
+                        <div class="row mt-4 mb-4">
+                            <div class="col-12">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Order</th>
+                                            <th>Vendor</th>
+                                            <th>Product</th>
+                                            <th>Category</th>
+                                            <th class="text-right">Quantity</th>
+                                            <th class="text-right">Unit Price</th>
+                                            <th class="text-right">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="total_amount" t-value="0"/>
+                                        <t t-set="total_qty" t-value="0"/>
+                                        <t t-foreach="docs" t-as="line">
+                                            <tr>
+                                                <td>
+                                                    <span t-field="line.order_date"/>
+                                                </td>
+                                                <td>
+                                                    <span t-field="line.order_name"/>
+                                                </td>
+                                                <td>
+                                                    <span t-field="line.partner_name"/>
+                                                </td>
+                                                <td>
+                                                    <span t-field="line.product_name"/>
+                                                </td>
+                                                <td>
+                                                    <span t-field="line.category_name"/>
+                                                </td>
+                                                <td class="text-right">
+                                                    <span t-field="line.product_qty"/>
+                                                    <span t-field="line.product_uom" groups="uom.group_uom"/>
+                                                </td>
+                                                <td class="text-right">
+                                                    <span t-field="line.price_unit"/>
+                                                </td>
+                                                <td class="text-right">
+                                                    <span t-field="line.price_total"/>
+                                                </td>
+                                            </tr>
+                                            <t t-set="total_amount" t-value="total_amount + line.price_total"/>
+                                            <t t-set="total_qty" t-value="total_qty + line.product_qty"/>
+                                        </t>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="5" class="text-right"><strong>Total:</strong></td>
+                                            <td class="text-right"><strong t-esc="total_qty"/></td>
+                                            <td></td>
+                                            <td class="text-right"><strong t-esc="total_amount" t-options="{'widget': 'monetary', 'display_currency': docs[0].currency_id}"/></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

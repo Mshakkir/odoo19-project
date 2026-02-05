@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_purchase_report_view_user,purchase.report.view.user,model_purchase_report_view,purchase.group_purchase_user,1,0,0,0
+access_purchase_report_view_manager,purchase.report.view.manager,model_purchase_report_view,purchase.group_purchase_manager,1,1,1,1
+access_purchase_report_by_vouchers_wizard,purchase.report.by.vouchers.wizard,model_purchase_report_by_vouchers_wizard,purchase.group_purchase_user,1,1,1,1
+access_purchase_report_by_product_wizard,purchase.report.by.product.wizard,model_purchase_report_by_product_wizard,purchase.group_purchase_user,1,1,1,1
+access_purchase_report_by_category_wizard,purchase.report.by.category.wizard,model_purchase_report_by_category_wizard,purchase.group_purchase_user,1,1,1,1
+access_purchase_report_by_product_group_wizard,purchase.report.by.product.group.wizard,model_purchase_report_by_product_group_wizard,purchase.group_purchase_user,1,1,1,1
+access_purchase_report_by_party_wizard,purchase.report.by.party.wizard,model_purchase_report_by_party_wizard,purchase.group_purchase_user,1,1,1,1
+access_purchase_report_by_party_group_wizard,purchase.report.by.party.group.wizard,model_purchase_report_by_party_group_wizard,purchase.group_purchase_user,1,1,1,1
+access_purchase_report_by_warehouse_wizard,purchase.report.by.warehouse.wizard,model_purchase_report_by_warehouse_wizard,purchase.group_purchase_user,1,1,1,1
+access_purchase_report_by_salesman_wizard,purchase.report.by.salesman.wizard,model_purchase_report_by_salesman_wizard,purchase.group_purchase_user,1,1,1,1

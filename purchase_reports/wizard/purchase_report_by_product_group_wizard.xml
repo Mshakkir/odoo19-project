@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Purchase Report By Product Group Wizard Form -->
+    <record id="view_purchase_report_by_product_group_wizard_form" model="ir.ui.view">
+        <field name="name">purchase.report.by.product.group.wizard.form</field>
+        <field name="model">purchase.report.by.product.group.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Purchase Report - By Product Group">
+                <group>
+                    <group>
+                        <field name="date_from" required="1"/>
+                        <field name="date_to" required="1"/>
+                        <field name="categ_ids" widget="many2many_tags"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
+                    <group>
+                        <field name="partner_ids" widget="many2many_tags"/>
+                        <field name="warehouse_ids" widget="many2many_tags"/>
+                        <field name="state"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_generate_report" string="Generate Report" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Purchase Report By Product Group Wizard Action -->
+    <record id="action_purchase_report_by_product_group_wizard" model="ir.actions.act_window">
+        <field name="name">Purchase Report - By Product Group</field>
+        <field name="res_model">purchase.report.by.product.group.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

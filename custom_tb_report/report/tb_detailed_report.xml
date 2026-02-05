@@ -21,7 +21,7 @@
                         <!-- Header -->
                         <div class="text-center mb-4">
                             <h2>
-                                <span t-field="wizard.company_id.name"/>
+<!--                                <span t-field="wizard.company_id.name"/>-->
                             </h2>
                             <h3>Trial Balance - Detailed Report</h3>
                             <p>

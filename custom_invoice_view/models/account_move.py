@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
 
@@ -6,42 +5,34 @@ from odoo import models, fields, api
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    warehouse_id = fields.Many2one(
-        'stock.warehouse',
+    analytic_account_id = fields.Many2one(
+        'account.analytic.account',
         string='Warehouse',
-        compute='_compute_warehouse_id',
+        compute='_compute_analytic_account_id',
         store=True,
-        readonly=False,  # Allow manual editing
-        precompute=True,
-        tracking=True
     )
 
-    @api.depends('invoice_origin', 'line_ids.sale_line_ids.order_id.warehouse_id')
-    def _compute_warehouse_id(self):
+    @api.depends('invoice_line_ids', 'invoice_line_ids.analytic_distribution')
+    def _compute_analytic_account_id(self):
+        """
+        Compute the analytic account from invoice lines.
+        Takes the first analytic account found in the product invoice lines.
+        """
         for move in self:
-            # Skip if warehouse is already manually set
-            if move.warehouse_id:
-                continue
+            analytic_account_id = False
 
-            warehouse = False
-            # Try to get warehouse from sale order via invoice_origin
-            if move.invoice_origin:
-                sale_order = self.env['sale.order'].search([
-                    ('name', '=', move.invoice_origin)
-                ], limit=1)
-                if sale_order:
-                    warehouse = sale_order.warehouse_id
+            # Check invoice_line_ids (only for invoices)
+            if move.invoice_line_ids:
+                for line in move.invoice_line_ids:
+                    if line.analytic_distribution:
+                        # analytic_distribution format: {"account_id": percentage}
+                        # Example: {"5": 100} means 100% to account ID 5
+                        account_ids = list(line.analytic_distribution.keys())
+                        if account_ids:
+                            try:
+                                analytic_account_id = int(account_ids[0])
+                                break  # Take first found
+                            except (ValueError, TypeError):
+                                continue
 
-            # If not found, try through invoice lines
-            if not warehouse and move.line_ids:
-                sale_lines = move.line_ids.mapped('sale_line_ids')
-                if sale_lines:
-                    warehouse = sale_lines[0].order_id.warehouse_id
-
-            # If still no warehouse, set default warehouse
-            if not warehouse:
-                warehouse = self.env['stock.warehouse'].search([
-                    ('company_id', '=', move.company_id.id)
-                ], limit=1)
-
-            move.warehouse_id = warehouse
+            move.analytic_account_id = analytic_account_id if analytic_account_id else False

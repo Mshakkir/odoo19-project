@@ -5,7 +5,7 @@
         <field name="name">purchase.report.view.tree</field>
         <field name="model">purchase.report.view</field>
         <field name="arch" type="xml">
-            <tree string="Purchase Report" create="false" edit="false" delete="false">
+            <list string="Purchase Report" create="false" edit="false" delete="false">
                 <field name="order_date"/>
                 <field name="order_name"/>
                 <field name="partner_name"/>
@@ -23,7 +23,7 @@
                 <field name="price_total" sum="Total"/>
                 <field name="state"/>
                 <field name="currency_id" column_invisible="1"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -93,7 +93,7 @@
     <record id="action_purchase_report_view" model="ir.actions.act_window">
         <field name="name">Purchase Report</field>
         <field name="res_model">purchase.report.view</field>
-        <field name="view_mode">tree,pivot,graph</field>
+        <field name="view_mode">list,pivot,graph</field>
         <field name="search_view_id" ref="view_purchase_report_search"/>
         <field name="context">{}</field>
         <field name="help" type="html">

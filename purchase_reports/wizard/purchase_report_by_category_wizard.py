@@ -54,7 +54,7 @@ class PurchaseReportByCategoryWizard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Purchase Report - By Product Category',
             'res_model': 'purchase.report.view',
-            'view_mode': 'tree,pivot,graph',
+            'view_mode': 'list,pivot,graph',
             'domain': domain,
             'target': 'current',
             'context': {

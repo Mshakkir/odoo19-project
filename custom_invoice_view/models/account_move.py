@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
 
@@ -39,4 +38,3 @@ class AccountMove(models.Model):
                         analytic_account = self.env['account.analytic.account'].browse(analytic_ids[0])
 
             move.analytic_account_id = analytic_account
-

@@ -10,116 +10,92 @@
             <t t-set="values" t-value="o._get_payment_receipt_report_values()"/>
 
             <head>
-                <meta charset="UTF-8"/>
-                <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-                <style type="text/css">
-                    /* Import Google Noto Arabic Font */
-                    @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&amp;display=swap');
+                        <meta charset="UTF-8"/>
+                        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+                        <style type="text/css">
+                            @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&amp;display=swap');
 
-                    @page {
-                    margin: 20mm;
-                    }
+                            @page {
+                            margin: 20mm;
+                            }
 
-                    body {
-                    font-family: 'DejaVu Sans', Arial, sans-serif;
-                    }
+                            body {
+                            font-family: 'DejaVu Sans', Arial, sans-serif;
+                            }
 
-                    .ar {
-                    font-family: 'Noto Naskh Arabic', 'DejaVu Sans', Arial, sans-serif !important;
-                    direction: rtl;
-                    unicode-bidi: bidi-override;
-                    font-weight: 700;
-                    display: inline-block;
-                    }
+                            @media screen {
+                            .header, .footer {
+                            display: none !important;
+                            }
+                            }
 
-                    /* Remove extra space/characters before currency symbols */
-                    span[data-oe-type="monetary"]::before {
-                    content: '' !important;
-                    }
+                            .ar {
+                            font-family: 'Noto Naskh Arabic', 'DejaVu Sans', Arial, sans-serif !important;
+                            direction: rtl;
+                            unicode-bidi: bidi-override;
+                            font-weight: 700;
+                            display: inline-block;
+                            }
 
-                    .oe_currency_value {
-                    white-space: normal !important;
-                    }
+                            table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            }
 
-                    table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    }
+                            * {
+                            box-sizing: border-box;
+                            }
+                        </style>
+                    </head>
 
-                    * {
-                    box-sizing: border-box;
-                    }
+                    <div class="page">
+                        <div class="header"
+                             style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
+                            <table style="width: 100%; border-collapse: collapse;border:none; border: 2px solid white;">
+                                <tr>
+                                    <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border:none;padding-left:0px;">
+                                        <div style="color: #8B1538; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                                            SAMEER SHARAF AL OTAIBI TRADING COMPANY
+                                        </div>
+                                    </td>
+                                    <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border:none;padding-right:0px;">
+                                        <div style="color: #8B1538; font-size: 17px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;"
+                                             class="ar">
+                                            شركة سمير شرف العتيبي التجارية
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
 
-                    .signature-section {
-                    margin-top: 40px;
-                    page-break-inside: avoid;
-                    }
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: top; border-top: 2px solid white;border-right: 0px solid white; border-bottom: 1px solid white;border-left: 1px solid white;padding-top:0px;padding-left:0px;">
+                                        <div style="line-height: 1.3; font-weight: 500;padding-left:0px;padding-top:0px;margin-top:0px;">
+                                            C.R. 4030216154
+                                            <br/>
+                                            VAT Regd: 311299944700003
+                                        </div>
+                                    </td>
+                                    <td style="width: 34%; text-align: center; vertical-align: top; padding: 5px 10px; border-top: 2px solid white;border-right: 0px solid white; border-bottom: 1px solid white;border-left: 1px solid white;">
+                                        <t t-if="o.company_id.logo">
+                                            <img t-att-src="image_data_uri(o.company_id.logo)"
+                                                 style="max-height: 140px; max-width: 100%; object-fit: contain; display: block; margin: -23px auto;padding-top:8px;padding-top:5px;"/>
+                                        </t>
+                                    </td>
+                                    <td style="width: 33%; text-align: right; font-size: 15px; color: #333; vertical-align: top; direction: rtl; padding: 0px 10px 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 1px solid white; border-left: 1px solid white;">
+                                        <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight:900; padding-right:0px; margin-top:0px; text-align: right; direction: rtl;"
+                                             class="ar">
+                                            س.ت: ٤٠٣٠٢١٦١٥٤
+                                            <br/>
+                                            الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
+                                            <br/>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
 
-                    .signature-field {
-                    margin-bottom: 30px;
-                    padding-bottom: 5px;
-                    }
-                </style>
-            </head>
 
-            <div class="page">
-
-                <!-- ===== CUSTOM HEADER ===== -->
-                <div class="header"
-                     style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 15px;">
-
-                    <!-- Company Names in One Row -->
-                    <table style="width: 100%; border-collapse: collapse;border:none">
-                        <tr>
-                            <td style="width: 50%; padding: 10px 20px; text-align: left; vertical-align: middle; border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white;padding-left:0px;">
-                                <div style="color: #8B1538; font-size: 16px; font-weight: bold; text-transform: uppercase;">
-                                    SAMEER SHARAF AL OTAIBI TRADING COMPANY
-                                </div>
-                            </td>
-                            <td style="width: 50%; padding: 10px 20px; text-align: right; vertical-align: middle; border-bottom: 0px solid white;border-top: 0px solid white;border-right: 0px solid white;border-left: 0px solid white;padding-right:0px;">
-                                <div style="color: #8B1538; font-size: 17px; font-weight: 900; direction: rtl; font-family: 'Tajawal', sans-serif;"
-                                     class="ar">
-                                    شركة سمير شرف العتيبي التجارية
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-
-                    <!-- Details and Logo Row -->
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <!-- Left Column: English Info -->
-                            <td style="width: 33%; text-align: left; font-size: 16px; color: #333; vertical-align: top;
-                                border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;padding-top:0px;padding-left:0px;">
-                                <div style="line-height: 1.3; font-weight: 500;padding-left:0px;padding-top:0px;margin-top:0px;">
-                                    C.R. 4030216154
-                                    <br/>
-                                    VAT Regd: 311299944700003
-                                </div>
-                            </td>
-
-                            <!-- Center Column: Company Logo -->
-                            <td style="width: 34%; text-align: center; vertical-align: top;
-                                padding: 5px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">
-                                <t t-if="o.company_id.logo">
-                                    <img t-att-src="image_data_uri(o.company_id.logo)"
-                                         style="max-height: 140px; max-width: 100%; object-fit: contain; display: block; margin: -23px auto;padding-top:8px;padding-top:5px;"/>
-                                </t>
-                            </td>
-
-                            <!-- Right Column: Arabic Info -->
-                            <td style="width: 33%; text-align: right; font-size: 15px; color: #333; vertical-align: top;
-                                direction: rtl; padding: 0px 10px 6px 10px; border-top: 1px solid white;border-right: 0px solid white; border-bottom: 2px solid #8B1538;border-left: 1px solid white;">
-                                <div style="line-height: 1.3; font-family: 'Tajawal', sans-serif; font-weight:900; padding-right:0px; margin-top:0px; text-align: right; direction: rtl;"
-                                     class="ar">
-                                    س.ت: ٤٠٣٠٢١٦١٥٤
-                                    <br/>
-                                    الرقم الضريبي: ٣١١٢٩٩٩٤٤٧٠٠٠٠٣
-                                    <br/>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
 
 
                     <!-- ===== TITLE - Different for Customer vs Vendor ===== -->
@@ -418,8 +394,6 @@
                         </tr>
                     </table>
                 </div>
-
-            </div>
         </xpath>
 
     </template>

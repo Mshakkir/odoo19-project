@@ -163,7 +163,7 @@
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }
 
-/* ── Autocomplete styling for customer and salesperson ── */
+/* ── Autocomplete styling for customer, salesperson, and analytic account ── */
 .autocomplete_wrapper {
     position: relative;
     width: 100%;
@@ -171,23 +171,31 @@
 
 .autocomplete_input {
     width: 100%;
-    padding: 7px 10px;
+    padding: 7px 30px 7px 10px;  /* Added right padding for dropdown icon */
     border: 1px solid #ced4da;
     border-radius: 4px;
     font-size: 13px;
     background-color: #ffffff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23495057' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    cursor: pointer;
 }
 
 /* ── was 100 % / 4-6 px / 12 px, now 100 % / 7-10 px / 13 px ── */
 .autocomplete_input_small {
     width: 100%;
-    padding: 7px 10px;
+    padding: 7px 30px 7px 10px;  /* Added right padding for dropdown icon */
     border: 1px solid #ced4da;
     border-radius: 4px;
     font-size: 13px;
     background-color: #ffffff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23495057' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    cursor: pointer;
 }
 
 .autocomplete_input:focus,
@@ -195,6 +203,7 @@
     border-color: #80bdff;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230d6efd' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
 }
 
 .autocomplete_dropdown {
@@ -211,6 +220,7 @@
     z-index: 1000;
     display: none;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-top: 1px;
 }
 
 .autocomplete_dropdown.show {

@@ -26,7 +26,7 @@
                     <field name="partner_id" string="Customer" width="160px"/>
 
                     <!-- 4. Warehouse (NEW - after customer) -->
-                    <field name="analytic_distribution" string="Warehouse" widget="analytic_distribution"
+                    <field name="analytic_account_id" string="Warehouse" widget="analytic_distribution"
                            width="150px"/>
 
                     <!-- 5. Source Document (like Sales Order) -->

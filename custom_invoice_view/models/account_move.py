@@ -7,34 +7,32 @@ class AccountMove(models.Model):
 
     analytic_account_id = fields.Many2one(
         'account.analytic.account',
-        string='Analytic Account',
+        string='Warehouse',
         compute='_compute_analytic_account_id',
         store=True,
-        readonly=True,
     )
 
-    @api.depends('line_ids.analytic_distribution')
+    @api.depends('invoice_line_ids', 'invoice_line_ids.analytic_distribution')
     def _compute_analytic_account_id(self):
         """
         Compute the analytic account from invoice lines.
-        Takes the first analytic account found in the invoice lines.
+        Takes the first analytic account found in the product invoice lines.
         """
         for move in self:
-            analytic_account = False
+            analytic_account_id = False
 
-            # Get invoice lines (exclude lines with display_type)
-            invoice_lines = move.line_ids.filtered(
-                lambda l: not l.display_type and l.analytic_distribution
-            )
+            # Check invoice_line_ids (only for invoices)
+            if move.invoice_line_ids:
+                for line in move.invoice_line_ids:
+                    if line.analytic_distribution:
+                        # analytic_distribution format: {"account_id": percentage}
+                        # Example: {"5": 100} means 100% to account ID 5
+                        account_ids = list(line.analytic_distribution.keys())
+                        if account_ids:
+                            try:
+                                analytic_account_id = int(account_ids[0])
+                                break  # Take first found
+                            except (ValueError, TypeError):
+                                continue
 
-            if invoice_lines:
-                # Get the first line's analytic distribution
-                first_line = invoice_lines[0]
-                if first_line.analytic_distribution:
-                    # analytic_distribution is a JSON field like: {"1": 100}
-                    # where keys are analytic_account_id
-                    analytic_ids = [int(key) for key in first_line.analytic_distribution.keys()]
-                    if analytic_ids:
-                        analytic_account = self.env['account.analytic.account'].browse(analytic_ids[0])
-
-            move.analytic_account_id = analytic_account
+            move.analytic_account_id = analytic_account_id if analytic_account_id else False

@@ -23,21 +23,18 @@ class AccountMove(models.Model):
 
         if report_type == 'product' and record_id:
             # Get invoice lines with specific product
-            invoice_lines = self.env['account.move.line'].search([
+            line_domain = [
                 ('product_id', '=', record_id),
                 ('move_id.move_type', '=', 'out_invoice'),
                 ('move_id.state', '=', 'posted'),
                 ('display_type', '=', False)  # Exclude section and note lines
-            ])
+            ]
             if date_from:
-                invoice_lines = invoice_lines.filtered(
-                    lambda l: l.move_id.invoice_date and l.move_id.invoice_date >= fields.Date.from_string(date_from)
-                )
+                line_domain.append(('move_id.invoice_date', '>=', date_from))
             if date_to:
-                invoice_lines = invoice_lines.filtered(
-                    lambda l: l.move_id.invoice_date and l.move_id.invoice_date <= fields.Date.from_string(date_to)
-                )
+                line_domain.append(('move_id.invoice_date', '<=', date_to))
 
+            invoice_lines = self.env['account.move.line'].search(line_domain)
             invoices = invoice_lines.mapped('move_id')
 
         elif report_type == 'category' and record_id:
@@ -45,21 +42,18 @@ class AccountMove(models.Model):
             products = self.env['product.product'].search([
                 ('categ_id', '=', record_id)
             ])
-            invoice_lines = self.env['account.move.line'].search([
+            line_domain = [
                 ('product_id', 'in', products.ids),
                 ('move_id.move_type', '=', 'out_invoice'),
                 ('move_id.state', '=', 'posted'),
                 ('display_type', '=', False)
-            ])
+            ]
             if date_from:
-                invoice_lines = invoice_lines.filtered(
-                    lambda l: l.move_id.invoice_date and l.move_id.invoice_date >= fields.Date.from_string(date_from)
-                )
+                line_domain.append(('move_id.invoice_date', '>=', date_from))
             if date_to:
-                invoice_lines = invoice_lines.filtered(
-                    lambda l: l.move_id.invoice_date and l.move_id.invoice_date <= fields.Date.from_string(date_to)
-                )
+                line_domain.append(('move_id.invoice_date', '<=', date_to))
 
+            invoice_lines = self.env['account.move.line'].search(line_domain)
             invoices = invoice_lines.mapped('move_id')
 
         elif report_type == 'partner' and record_id:
@@ -69,24 +63,17 @@ class AccountMove(models.Model):
         elif report_type == 'warehouse' and record_id:
             # For invoices, we can check the warehouse from picking or use a custom field
             # Here we'll search for invoices related to stock pickings from that warehouse
-            pickings = self.env['stock.picking'].search([
-                ('picking_type_id.warehouse_id', '=', record_id)
-            ])
-            # Get invoices related to these pickings through sale orders
-            invoice_lines = self.env['account.move.line'].search([
+            line_domain = [
                 ('move_id.move_type', '=', 'out_invoice'),
                 ('move_id.state', '=', 'posted'),
                 ('display_type', '=', False)
-            ])
+            ]
             if date_from:
-                invoice_lines = invoice_lines.filtered(
-                    lambda l: l.move_id.invoice_date and l.move_id.invoice_date >= fields.Date.from_string(date_from)
-                )
+                line_domain.append(('move_id.invoice_date', '>=', date_from))
             if date_to:
-                invoice_lines = invoice_lines.filtered(
-                    lambda l: l.move_id.invoice_date and l.move_id.invoice_date <= fields.Date.from_string(date_to)
-                )
+                line_domain.append(('move_id.invoice_date', '<=', date_to))
 
+            invoice_lines = self.env['account.move.line'].search(line_domain)
             # Filter by warehouse if there's a link, otherwise get all
             # This is a simplified approach - you may need to customize based on your workflow
             invoices = invoice_lines.mapped('move_id')

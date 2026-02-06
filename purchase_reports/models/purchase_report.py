@@ -24,6 +24,9 @@ class PurchaseReport(models.Model):
     categ_id = fields.Many2one('product.category', string='Category', readonly=True)
     category_name = fields.Char('Category', readonly=True)
 
+    # Analytic Fields
+    analytic_distribution = fields.Json('Analytic', readonly=True)
+
     # Quantities and Amounts
     quantity = fields.Float('Qty', readonly=True)
     product_uom = fields.Many2one('uom.uom', string='Unit', readonly=True)
@@ -52,6 +55,7 @@ class PurchaseReport(models.Model):
                     pt.name as product_name,
                     pt.categ_id as categ_id,
                     pc.complete_name as category_name,
+                    aml.analytic_distribution as analytic_distribution,
                     aml.quantity as quantity,
                     aml.product_uom_id as product_uom,
                     pu.name as uom_name,

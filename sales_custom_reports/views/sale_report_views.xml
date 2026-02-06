@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add menu items under Sales > Reporting -->
+    <!-- Add menu items under Invoicing > Reporting -->
     <menuitem id="menu_sale_custom_reports"
-              name="Sales Reports"
-              parent="sale.sale_menu_root"
+              name="Sales Invoice Reports"
+              parent="account.menu_finance_reports"
               sequence="50"/>
 
     <menuitem id="menu_sale_report_by_product"

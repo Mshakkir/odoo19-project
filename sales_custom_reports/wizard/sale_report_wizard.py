@@ -5,7 +5,7 @@ from odoo.exceptions import UserError
 
 class SaleReportWizard(models.TransientModel):
     _name = 'sale.report.wizard'
-    _description = 'Sale Report Wizard'
+    _description = 'Sale Invoice Report Wizard'
 
     report_type = fields.Selection([
         ('product', 'Product'),
@@ -34,7 +34,7 @@ class SaleReportWizard(models.TransientModel):
         self.salesman_id = False
 
     def action_generate_report(self):
-        """Generate the sales report based on selected criteria"""
+        """Generate the sales invoice report based on selected criteria"""
         self.ensure_one()
 
         # Validate that the appropriate field is filled
@@ -62,16 +62,16 @@ class SaleReportWizard(models.TransientModel):
         elif self.report_type == 'salesman':
             record_id = self.salesman_id.id
 
-        # Get sales data
-        orders = self.env['sale.order'].get_sales_report_data(
+        # Get sales invoice data
+        invoices = self.env['account.move'].get_sales_report_data(
             self.report_type,
             record_id,
             self.date_from,
             self.date_to
         )
 
-        if not orders:
-            raise UserError('No sales orders found for the selected criteria.')
+        if not invoices:
+            raise UserError('No sales invoices found for the selected criteria.')
 
         # Prepare data for the report
         data = {
@@ -79,17 +79,18 @@ class SaleReportWizard(models.TransientModel):
             'record_id': record_id,
             'date_from': self.date_from,
             'date_to': self.date_to,
-            'order_ids': orders.ids,
+            'invoice_ids': invoices.ids,
         }
 
-        # Return action to open tree view with the filtered orders
+        # Return action to open tree view with the filtered invoices
         return {
             'name': self._get_report_title(),
             'type': 'ir.actions.act_window',
-            'res_model': 'sale.order',
+            'res_model': 'account.move',
             'view_mode': 'tree,form',
-            'domain': [('id', 'in', orders.ids)],
+            'domain': [('id', 'in', invoices.ids)],
             'context': {
+                'default_move_type': 'out_invoice',
                 'search_default_group_by_partner': 1 if self.report_type != 'partner' else 0,
             },
             'target': 'current',
@@ -124,21 +125,21 @@ class SaleReportWizard(models.TransientModel):
         elif self.report_type == 'salesman':
             record_id = self.salesman_id.id
 
-        # Get sales data
-        orders = self.env['sale.order'].get_sales_report_data(
+        # Get sales invoice data
+        invoices = self.env['account.move'].get_sales_report_data(
             self.report_type,
             record_id,
             self.date_from,
             self.date_to
         )
 
-        if not orders:
-            raise UserError('No sales orders found for the selected criteria.')
+        if not invoices:
+            raise UserError('No sales invoices found for the selected criteria.')
 
         # Prepare report data
         data = {
             'wizard_id': self.id,
-            'order_ids': orders.ids,
+            'invoice_ids': invoices.ids,
         }
 
         return self.env.ref('sales_custom_reports.action_report_sales_custom').report_action(self, data=data)
@@ -146,13 +147,13 @@ class SaleReportWizard(models.TransientModel):
     def _get_report_title(self):
         """Get report title based on report type and selected record"""
         if self.report_type == 'product':
-            return f'Sales Report - {self.product_id.name}'
+            return f'Sales Invoice Report - {self.product_id.name}'
         elif self.report_type == 'category':
-            return f'Sales Report - {self.category_id.name}'
+            return f'Sales Invoice Report - {self.category_id.name}'
         elif self.report_type == 'partner':
-            return f'Sales Report - {self.partner_id.name}'
+            return f'Sales Invoice Report - {self.partner_id.name}'
         elif self.report_type == 'warehouse':
-            return f'Sales Report - {self.warehouse_id.name}'
+            return f'Sales Invoice Report - {self.warehouse_id.name}'
         elif self.report_type == 'salesman':
-            return f'Sales Report - {self.salesman_id.name}'
-        return 'Sales Report'
+            return f'Sales Invoice Report - {self.salesman_id.name}'
+        return 'Sales Invoice Report'

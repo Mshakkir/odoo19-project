@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Main Menu: Purchase Reports -->
+    <menuitem id="menu_purchase_reports"
+              name="Purchase Reports"
+              parent="purchase.menu_purchase_root"
+              sequence="99"/>
+
+    <!-- Submenu: By Products -->
+    <menuitem id="menu_purchase_report_by_products"
+              name="By Products"
+              parent="menu_purchase_reports"
+              action="action_purchase_product_report_wizard"
+              sequence="1"/>
+</odoo>

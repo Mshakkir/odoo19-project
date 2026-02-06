@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Report List View -->
+    <record id="view_purchase_product_report_list" model="ir.ui.view">
+        <field name="name">purchase.product.report.list</field>
+        <field name="model">purchase.product.report</field>
+        <field name="arch" type="xml">
+            <list string="Purchase Product Report" create="false" edit="false" delete="false">
+                <field name="invoice_date"/>
+                <field name="invoice_number"/>
+                <field name="product_id"/>
+                <field name="quantity"/>
+                <field name="uom_id"/>
+                <field name="price_unit"/>
+                <field name="price_total"/>
+            </list>
+        </field>
+    </record>
+</odoo>

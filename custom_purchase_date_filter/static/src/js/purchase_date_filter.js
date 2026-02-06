@@ -1302,12 +1302,14 @@ patch(ListController.prototype, {
             });
 
             analyticDropdown.addEventListener('click', (e) => {
+                console.log('[DEBUG] Analytic dropdown clicked');
                 if (e.target.classList.contains('autocomplete_item') &&
                     !e.target.classList.contains('no_results')) {
                     const id = e.target.dataset.id;
                     const name = e.target.dataset.name;
                     const code = e.target.dataset.code;
                     const displayText = code ? `${code} - ${name}` : name;
+                    console.log('[DEBUG] Selected analytic account:', { id, name, code, displayText });
                     analyticInput.value = displayText;
                     analyticValue.value = id;
                     analyticDropdown.classList.remove('show');
@@ -1356,13 +1358,19 @@ patch(ListController.prototype, {
                 domain.push(['user_id', '=', parseInt(repValue.value)]);
             }
 
-            // Analytic Account filter
+            // Analytic Account filter - FIXED VERSION
             if (analyticValue && analyticValue.value) {
+                const analyticId = parseInt(analyticValue.value);
+                console.log('[DEBUG] Applying analytic filter with ID:', analyticId);
+
                 if (isBill) {
-                    domain.push(['line_ids.analytic_distribution', '!=', false]);
-                    domain.push(['line_ids.analytic_distribution', 'ilike', analyticValue.value]);
+                    // For bills - search in analytic_distribution JSON field
+                    // The analytic_distribution field stores data as {"analytic_account_id": percentage}
+                    // We need to search for the ID as a key in the JSON
+                    domain.push(['invoice_line_ids.analytic_distribution', 'ilike', `"${analyticId}"`]);
                 } else {
-                    domain.push(['order_line.account_analytic_id', '=', parseInt(analyticValue.value)]);
+                    // For purchase orders - direct relation
+                    domain.push(['order_line.account_analytic_id', '=', analyticId]);
                 }
             }
 
@@ -1411,6 +1419,8 @@ patch(ListController.prototype, {
             if (isBill) {
                 domain.push(['move_type', '=', 'in_invoice']);
             }
+
+            console.log('[DEBUG] Final domain:', domain);
 
             const actionConfig = this._getActionConfig();
 
@@ -1604,7 +1614,6 @@ patch(ListController.prototype, {
     showAnalyticDropdown(input, dropdown, searchTerm) {
         console.log('[DEBUG] showAnalyticDropdown called');
         console.log('[DEBUG] searchTerm:', searchTerm);
-        console.log('[DEBUG] Full _purchaseFilterData:', this._purchaseFilterData);
         console.log('[DEBUG] analyticAccounts data:', this._purchaseFilterData?.analyticAccounts);
 
         // Ensure searchTerm is a string

@@ -61,6 +61,7 @@ class PurchaseProductReportWizard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'res_model': 'purchase.product.report',
             'view_mode': 'list',
+            'view_id': self.env.ref('purchase_product_report.view_purchase_product_report_list').id,
             'target': 'current',
             'domain': [],
         }

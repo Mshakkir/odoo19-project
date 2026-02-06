@@ -1831,17 +1831,28 @@ patch(ListController.prototype, {
     },
 
     showAnalyticDropdown(dropdown, searchTerm) {
+        console.log('[DEBUG] showAnalyticDropdown called with:', { searchTerm, type: typeof searchTerm });
+
+        // Critical: Handle undefined/null searchTerm
+        if (searchTerm === undefined || searchTerm === null) {
+            searchTerm = '';
+        }
+
+        // Ensure searchTerm is a string
+        searchTerm = String(searchTerm);
         const lowerSearch = searchTerm.toLowerCase();
 
         let filtered;
         if (searchTerm === '') {
             filtered = this._purchaseFilterData.analyticAccounts;
+            console.log('[DEBUG] Showing all accounts:', filtered.length);
         } else {
             filtered = this._purchaseFilterData.analyticAccounts.filter(a => {
                 const nameMatch = a.name && a.name.toLowerCase().includes(lowerSearch);
                 const codeMatch = a.code && a.code.toLowerCase().includes(lowerSearch);
                 return nameMatch || codeMatch;
             });
+            console.log('[DEBUG] Filtered to:', filtered.length, 'accounts');
         }
 
         if (filtered.length === 0) {
@@ -1854,5 +1865,6 @@ patch(ListController.prototype, {
         }
 
         dropdown.classList.add('show');
+        console.log('[DEBUG] Dropdown shown');
     },
 });

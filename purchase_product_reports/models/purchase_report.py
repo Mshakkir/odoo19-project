@@ -1,4 +1,4 @@
-from odoo import models, fields, tools, api
+from odoo import models, fields, tools
 from odoo.exceptions import UserError
 
 
@@ -23,9 +23,6 @@ class PurchaseReport(models.Model):
     product_code = fields.Char('Product Code', readonly=True)
     categ_id = fields.Many2one('product.category', string='Category', readonly=True)
     category_name = fields.Char('Category', readonly=True)
-
-    # Analytic Fields
-    analytic_account_ids = fields.Char('Analytic Account', readonly=True)
 
     # Quantities and Amounts
     quantity = fields.Float('Qty', readonly=True)
@@ -55,11 +52,6 @@ class PurchaseReport(models.Model):
                     pt.name as product_name,
                     pt.categ_id as categ_id,
                     pc.complete_name as category_name,
-                    (SELECT string_agg(aa.name, ', ')
-                     FROM jsonb_each_text(COALESCE(aml.analytic_distribution, '{}'::jsonb)) AS dist(account_id, percentage)
-                     LEFT JOIN account_analytic_account aa ON aa.id = dist.account_id::integer
-                     WHERE aa.name IS NOT NULL
-                    ) as analytic_account_ids,
                     aml.quantity as quantity,
                     aml.product_uom_id as product_uom,
                     pu.name as uom_name,

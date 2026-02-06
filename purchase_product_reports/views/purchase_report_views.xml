@@ -10,7 +10,6 @@
                 <field name="invoice_name"/>
                 <field name="product_code"/>
                 <field name="product_name"/>
-                <field name="analytic_account_ids"/>
                 <field name="quantity" sum="Total Qty"/>
                 <field name="uom_name"/>
                 <field name="price_unit"/>

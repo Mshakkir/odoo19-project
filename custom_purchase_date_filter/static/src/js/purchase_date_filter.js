@@ -1359,20 +1359,20 @@ patch(ListController.prototype, {
             analyticInput.addEventListener('input', (e) => {
                 const searchTerm = e.target.value.trim();
                 if (searchTerm.length > 0) {
-                    this.showAnalyticDropdown(analyticDropdown, searchTerm);
+                    this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm);
                 } else {
-                    this.showAnalyticDropdown(analyticDropdown, '');
+                    this.showAnalyticDropdown(analyticInput, analyticDropdown, '');
                 }
             });
 
-            analyticInput.addEventListener('focus', () => {
-                const searchTerm = analyticInput.value.trim();
-                this.showAnalyticDropdown(analyticDropdown, searchTerm || '');
+            analyticInput.addEventListener('focus', (e) => {
+                const searchTerm = e.target.value.trim();
+                this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm || '');
             });
 
-            analyticInput.addEventListener('click', () => {
-                const searchTerm = analyticInput.value.trim();
-                this.showAnalyticDropdown(analyticDropdown, searchTerm || '');
+            analyticInput.addEventListener('click', (e) => {
+                const searchTerm = e.target.value.trim();
+                this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm || '');
             });
 
             analyticDropdown.addEventListener('click', (e) => {
@@ -1830,7 +1830,7 @@ patch(ListController.prototype, {
         dropdown.classList.add('show');
     },
 
-    showAnalyticDropdown(dropdown, searchTerm) {
+    showAnalyticDropdown(input, dropdown, searchTerm) {
         console.log('[DEBUG] showAnalyticDropdown called with:', { searchTerm, type: typeof searchTerm });
 
         // Critical: Handle undefined/null searchTerm
@@ -1838,8 +1838,6 @@ patch(ListController.prototype, {
             searchTerm = '';
         }
 
-        // Ensure searchTerm is a string
-        searchTerm = String(searchTerm);
         const lowerSearch = searchTerm.toLowerCase();
 
         let filtered;

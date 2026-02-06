@@ -55,12 +55,12 @@ class PurchaseProductReportWizard(models.TransientModel):
                     'price_subtotal': line.price_subtotal,
                 })
 
-        # Return action to open tree view
+        # Return action to open list view
         return {
             'name': 'Purchase Product Report',
             'type': 'ir.actions.act_window',
             'res_model': 'purchase.product.report',
-            'view_mode': 'tree',
+            'view_mode': 'list',
             'target': 'current',
             'domain': [],
         }

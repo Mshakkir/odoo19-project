@@ -797,7 +797,6 @@ patch(ListController.prototype, {
         this.orm = useService("orm");
         this._purchaseFilterElement = null;
         this._purchaseFilterData = {
-            warehouses: [],
             vendors: [],
             purchaseReps: [],
             analyticAccounts: []
@@ -859,13 +858,6 @@ patch(ListController.prototype, {
         try {
             console.log('[PURCHASE FILTER] Loading filter data...');
 
-            // Load warehouses
-            const warehouses = await this.orm.searchRead(
-                'stock.warehouse',
-                [],
-                ['id', 'name'],
-                { limit: 100 }
-            );
 
             // Load vendors
             const vendors = await this.orm.searchRead(
@@ -894,12 +886,7 @@ patch(ListController.prototype, {
             console.log('[PURCHASE FILTER] Analytic accounts loaded:', analyticAccounts.length);
             console.log('[PURCHASE FILTER] Purchase reps loaded:', purchaseReps.length);
 
-            this._purchaseFilterData = {
-                warehouses: warehouses,
-                vendors: vendors,
-                purchaseReps: purchaseReps,
-                analyticAccounts: analyticAccounts
-            };
+
 
             this.injectPurchaseDateFilter();
         } catch (error) {
@@ -941,7 +928,6 @@ patch(ListController.prototype, {
         // Field IDs
         const fromId = `purchase_date_from_${timestamp}`;
         const toId = `purchase_date_to_${timestamp}`;
-        const warehouseId = `purchase_warehouse_${timestamp}`;
         const vendorId = `purchase_vendor_${timestamp}`;
         const repId = `purchase_rep_${timestamp}`;
         const analyticId = `purchase_analytic_${timestamp}`;
@@ -964,10 +950,7 @@ patch(ListController.prototype, {
         const isBill = viewType === 'bill';
         const dateLabel = isBill ? 'Bill Date' : 'Order Date';
 
-        // Build warehouse options
-        const warehouseOptions = this._purchaseFilterData.warehouses.map(w =>
-            `<option value="${w.id}">${w.name}</option>`
-        ).join('');
+
 
         // Build analytic dropdown options
         const analyticOptions = this._purchaseFilterData.analyticAccounts.map(a => {
@@ -989,13 +972,7 @@ patch(ListController.prototype, {
                             </div>
                         </div>
 
-                        <!-- Warehouse -->
-                        <div class="filter_group">
-                            <select id="${warehouseId}" class="filter_select">
-                                <option value="">All Warehouses</option>
-                                ${warehouseOptions}
-                            </select>
-                        </div>
+
 
                         <!-- Vendor (Autocomplete) -->
                         <div class="filter_group autocomplete_group">
@@ -1003,15 +980,6 @@ patch(ListController.prototype, {
                                 <input type="text" id="${vendorId}" class="autocomplete_input" placeholder="All Vendors" autocomplete="off"/>
                                 <input type="hidden" id="${vendorId}_value"/>
                                 <div id="${vendorId}_dropdown" class="autocomplete_dropdown"></div>
-                            </div>
-                        </div>
-
-                        <!-- Purchase Rep (Autocomplete) -->
-                        <div class="filter_group autocomplete_group">
-                            <div class="autocomplete_wrapper">
-                                <input type="text" id="${repId}" class="autocomplete_input" placeholder="All Buyers" autocomplete="off"/>
-                                <input type="hidden" id="${repId}_value"/>
-                                <div id="${repId}_dropdown" class="autocomplete_dropdown"></div>
                             </div>
                         </div>
 
@@ -1023,14 +991,42 @@ patch(ListController.prototype, {
                             </select>
                         </div>
 
-                        <!-- Reference Fields -->
+                        ${isBill ? `
+                        <!-- Source Document -->
+                        <div class="filter_group">
+                            <input type="text" id="${sourceDocId}" class="filter_input" placeholder="Source Document"/>
+                        </div>
+
+
+                                  <!-- Reference Fields -->
                         <div class="filter_group">
                             <input type="text" id="${orderRefId}" class="filter_input" placeholder="${isBill ? 'Bill' : 'Order'} Reference"/>
                         </div>
 
-                        <div class="filter_group">
+
+                                <div class="filter_group">
                             <input type="text" id="${vendorRefId}" class="filter_input" placeholder="Vendor Reference"/>
                         </div>
+
+                        <!-- Purchase Rep (Autocomplete) -->
+                        <div class="filter_group autocomplete_group">
+                            <div class="autocomplete_wrapper">
+                                <input type="text" id="${repId}" class="autocomplete_input" placeholder="All Buyers" autocomplete="off"/>
+                                <input type="hidden" id="${repId}_value"/>
+                                <div id="${repId}_dropdown" class="autocomplete_dropdown"></div>
+                            </div>
+                        </div>
+
+
+                    <!-- Amount Filter -->
+                        <div class="filter_group amount_group">
+                            <div class="amount_input_group">
+                                <input type="number" id="${amountId}" class="amount_input" placeholder="Min Amount" step="0.01"/>
+                            </div>
+                        </div>
+
+
+
 
                         ${!isBill ? `
                         <div class="filter_group">
@@ -1038,18 +1034,9 @@ patch(ListController.prototype, {
                         </div>
                         ` : ''}
 
-                        <!-- Amount Filter -->
-                        <div class="filter_group amount_group">
-                            <div class="amount_input_group">
-                                <input type="number" id="${amountId}" class="amount_input" placeholder="Min Amount" step="0.01"/>
-                            </div>
-                        </div>
 
-                        ${isBill ? `
-                        <!-- Source Document -->
-                        <div class="filter_group">
-                            <input type="text" id="${sourceDocId}" class="filter_input" placeholder="Source Document"/>
-                        </div>
+
+
 
                         <!-- Billing Status -->
                         <div class="filter_group">

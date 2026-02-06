@@ -1233,11 +1233,12 @@ patch(ListController.prototype, {
                 }
             });
 
-            document.addEventListener('click', (e) => {
-                if (!vendorInput.contains(e.target) && !vendorDropdown.contains(e.target)) {
-                    vendorDropdown.classList.remove('show');
-                }
-            });
+               document.addEventListener('click', () => {
+    document
+        .querySelectorAll('.purchase_date_filter_container .autocomplete_dropdown.show')
+        .forEach(el => el.classList.remove('show'));
+});
+
         }
 
         // Purchase Rep autocomplete
@@ -1279,47 +1280,45 @@ patch(ListController.prototype, {
             });
         }
 
-        // Analytic Account autocomplete
-        if (analyticInput && analyticDropdown) {
-            console.log('[DEBUG] Setting up analytic account listeners');
+                if (analyticInput && analyticDropdown) {
+    console.log('[DEBUG] Setting up analytic account listeners');
 
-            analyticInput.addEventListener('input', (e) => {
-                console.log('[DEBUG] Analytic input event triggered');
-                const searchTerm = e.target.value.trim();
-                this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm);
-            });
+    const stop = (e) => e.stopPropagation();
 
-            analyticInput.addEventListener('focus', (e) => {
-                console.log('[DEBUG] Analytic focus event triggered');
-                const searchTerm = e.target.value.trim();
-                this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm || '');
-            });
+    analyticInput.addEventListener('click', (e) => {
+        stop(e);
+        const searchTerm = e.target.value.trim();
+        this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm || '');
+    });
 
-            analyticInput.addEventListener('click', (e) => {
-                console.log('[DEBUG] Analytic click event triggered');
-                const searchTerm = e.target.value.trim();
-                this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm || '');
-            });
+    analyticInput.addEventListener('focus', (e) => {
+        stop(e);
+        const searchTerm = e.target.value.trim();
+        this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm || '');
+    });
 
-            analyticDropdown.addEventListener('click', (e) => {
-                if (e.target.classList.contains('autocomplete_item') &&
-                    !e.target.classList.contains('no_results')) {
-                    const id = e.target.dataset.id;
-                    const name = e.target.dataset.name;
-                    const code = e.target.dataset.code;
-                    const displayText = code ? `${code} - ${name}` : name;
-                    analyticInput.value = displayText;
-                    analyticValue.value = id;
-                    analyticDropdown.classList.remove('show');
-                }
-            });
+    analyticInput.addEventListener('input', (e) => {
+        stop(e);
+        const searchTerm = e.target.value.trim();
+        this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm);
+    });
 
-            document.addEventListener('click', (e) => {
-                if (!analyticInput.contains(e.target) && !analyticDropdown.contains(e.target)) {
-                    analyticDropdown.classList.remove('show');
-                }
-            });
+    analyticDropdown.addEventListener('click', (e) => {
+        stop(e);
+        if (e.target.classList.contains('autocomplete_item') &&
+            !e.target.classList.contains('no_results')) {
+
+            const id = e.target.dataset.id;
+            const name = e.target.dataset.name;
+            const code = e.target.dataset.code;
+
+            analyticInput.value = code ? `${code} - ${name}` : name;
+            analyticValue.value = id;
+            analyticDropdown.classList.remove('show');
         }
+    });
+}
+
 
         // Apply filters
         const applyFilters = () => {

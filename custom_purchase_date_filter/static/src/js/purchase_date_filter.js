@@ -1199,7 +1199,7 @@ patch(ListController.prototype, {
 
             // Purchase Rep/Buyer - FIXED: Different field for Bills vs Purchase Orders
             if (repValue?.value) {
-                const userField = isBill ? 'invoice_user_id' : 'user_id';
+                const userField = isBill ? 'buyer_id' : 'user_id';
                 domain.push([userField, '=', parseInt(repValue.value)]);
                 console.log('[PURCHASE FILTER] Buyer filter applied:', userField, '=', repValue.value);
             }

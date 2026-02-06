@@ -12,4 +12,4 @@ class PurchaseProductReport(models.TransientModel):
     quantity = fields.Float(string='Quantity', readonly=True)
     uom_id = fields.Many2one('uom.uom', string='Unit', readonly=True)
     price_unit = fields.Float(string='Rate', readonly=True)
-    price_subtotal = fields.Float(string='Net Total', readonly=True)
+    price_total = fields.Float(string='Net Total', readonly=True)

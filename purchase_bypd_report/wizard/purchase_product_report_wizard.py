@@ -52,7 +52,7 @@ class PurchaseProductReportWizard(models.TransientModel):
                     'quantity': line.quantity,
                     'uom_id': line.product_uom_id.id,
                     'price_unit': line.price_unit,
-                    'price_subtotal': line.price_subtotal,
+                    'price_total': line.price_total,
                 })
 
         # Return action to open list view

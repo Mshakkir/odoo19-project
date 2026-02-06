@@ -1,5 +1,4 @@
 from odoo import models, fields, tools
-from odoo.exceptions import UserError
 
 
 class PurchaseReport(models.Model):

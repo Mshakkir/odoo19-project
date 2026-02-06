@@ -24,8 +24,8 @@ class PurchaseReportByProductWizard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': 'Purchase Invoice Report - By Product',
             'res_model': 'purchase.report.view',
-            'view_mode': 'tree',
-            'views': [(False, 'tree')],
+            'view_mode': 'list',
             'domain': domain,
             'target': 'current',
+            'context': self.env.context,
         }

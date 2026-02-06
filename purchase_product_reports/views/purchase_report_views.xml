@@ -1,27 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Tree View -->
-    <record id="view_purchase_report_tree" model="ir.ui.view">
-        <field name="name">purchase.report.view.tree</field>
+    <record id="view_purchase_report_list" model="ir.ui.view">
+        <field name="name">purchase.report.view.list</field>
         <field name="model">purchase.report.view</field>
         <field name="arch" type="xml">
-            <tree string="Purchase Invoice Report" create="0" edit="0" delete="0">
+            <list string="Purchase Invoice Report">
                 <field name="invoice_date"/>
                 <field name="invoice_name"/>
                 <field name="product_code"/>
                 <field name="product_name"/>
-                <field name="quantity" sum="Total Qty"/>
+                <field name="quantity"/>
                 <field name="uom_name"/>
                 <field name="price_unit"/>
-                <field name="price_total" sum="Grand Total"/>
-            </tree>
+                <field name="price_total"/>
+            </list>
         </field>
-    </record>
-
-    <!-- Action -->
-    <record id="action_purchase_report_view" model="ir.actions.act_window">
-        <field name="name">Purchase Invoice Report</field>
-        <field name="res_model">purchase.report.view</field>
-        <field name="view_mode">tree</field>
     </record>
 </odoo>

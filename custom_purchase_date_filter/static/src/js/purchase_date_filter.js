@@ -1057,8 +1057,8 @@ patch(ListController.prototype, {
             filtered = this._purchaseFilterData.analyticAccounts;
         } else {
             filtered = this._purchaseFilterData.analyticAccounts.filter(a => {
-                const nameMatch = a.name ? a.name.toLowerCase().includes(lowerSearch) : false;
-                const codeMatch = a.code ? a.code.toLowerCase().includes(lowerSearch) : false;
+                const nameMatch = (a.name && typeof a.name === 'string') ? a.name.toLowerCase().includes(lowerSearch) : false;
+                const codeMatch = (a.code && typeof a.code === 'string') ? a.code.toLowerCase().includes(lowerSearch) : false;
                 return nameMatch || codeMatch;
             });
         }
@@ -1067,7 +1067,7 @@ patch(ListController.prototype, {
             dropdown.innerHTML = '<div class="autocomplete_item no_results">No analytic accounts found</div>';
         } else {
             dropdown.innerHTML = filtered.map(a => {
-                const displayText = a.code ? `${a.code} - ${a.name}` : a.name;
+                const displayText = a.code ? `${a.code} - ${a.name || ''}` : (a.name || 'Unnamed');
                 return `<div class="autocomplete_item" data-id="${a.id}" data-code="${a.code || ''}" data-name="${a.name || ''}">${displayText}</div>`;
             }).join('');
         }

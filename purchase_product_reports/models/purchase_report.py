@@ -26,6 +26,7 @@ class PurchaseReport(models.Model):
 
     # Analytic Fields
     analytic_distribution = fields.Json('Analytic', readonly=True)
+    analytic_precision = fields.Integer('Analytic Precision', readonly=True, default=2)
 
     # Quantities and Amounts
     quantity = fields.Float('Qty', readonly=True)
@@ -56,6 +57,7 @@ class PurchaseReport(models.Model):
                     pt.categ_id as categ_id,
                     pc.complete_name as category_name,
                     aml.analytic_distribution as analytic_distribution,
+                    2 as analytic_precision,
                     aml.quantity as quantity,
                     aml.product_uom_id as product_uom,
                     pu.name as uom_name,

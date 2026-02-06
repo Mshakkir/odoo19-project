@@ -862,7 +862,7 @@ patch(ListController.prototype, {
 
     async loadPurchaseFilterData() {
         try {
-            console.log('[DEBUG] Loading filter data...');
+            console.log('[PURCHASE FILTER] Loading filter data...');
 
             // Load warehouses, vendors, purchase reps, and analytic accounts
             const [warehouses, vendors, purchaseReps, analyticAccounts] = await Promise.all([
@@ -874,7 +874,12 @@ patch(ListController.prototype, {
                     { limit: 500, order: 'name' })
             ]);
 
-            console.log('[DEBUG] Analytic accounts loaded:', analyticAccounts);
+            console.log('[PURCHASE FILTER] ✓ Analytic accounts loaded:', analyticAccounts);
+            console.log('[PURCHASE FILTER] ✓ Total analytic accounts:', analyticAccounts.length);
+
+            if (analyticAccounts && analyticAccounts.length > 0) {
+                console.log('[PURCHASE FILTER] ✓ Sample analytic account:', analyticAccounts[0]);
+            }
 
             this._purchaseFilterData = {
                 warehouses: warehouses || [],
@@ -883,11 +888,11 @@ patch(ListController.prototype, {
                 analyticAccounts: analyticAccounts || []
             };
 
-            console.log('[DEBUG] Filter data initialized:', this._purchaseFilterData);
+            console.log('[PURCHASE FILTER] ✓ Filter data initialized:', this._purchaseFilterData);
 
             this.injectPurchaseDateFilter();
         } catch (error) {
-            console.error('Error loading purchase filter data:', error);
+            console.error('[PURCHASE FILTER] ✗ Error loading filter data:', error);
             this.notification.add("Error loading filter options", { type: "danger" });
         }
     },
@@ -1157,6 +1162,8 @@ patch(ListController.prototype, {
         const tableParent = listTable.parentNode;
         tableParent.insertBefore(this._purchaseFilterElement, listTable);
 
+        console.log('[PURCHASE FILTER] ✓ Filter HTML injected into DOM');
+
         this.attachPurchaseFilterListeners(fromId, toId, warehouseId, vendorId, repId, analyticId,
             orderRefId, vendorRefId, shippingRefId, amountId, sourceDocId, goodsReceiptId,
             billingStatusId, paymentStatusId, applyId, clearId);
@@ -1194,12 +1201,12 @@ patch(ListController.prototype, {
         const applyBtn = document.getElementById(applyId);
         const clearBtn = document.getElementById(clearId);
 
-        console.log('[DEBUG] Analytic elements:', {
-            input: analyticInput,
-            value: analyticValue,
-            dropdown: analyticDropdown,
-            data: this._purchaseFilterData.analyticAccounts
-        });
+        console.log('[PURCHASE FILTER] Analytic Account Elements Check:');
+        console.log('  - Input element:', analyticInput);
+        console.log('  - Value element:', analyticValue);
+        console.log('  - Dropdown element:', analyticDropdown);
+        console.log('  - Analytic accounts data:', this._purchaseFilterData.analyticAccounts);
+        console.log('  - Analytic accounts count:', this._purchaseFilterData.analyticAccounts?.length || 0);
 
         // Vendor autocomplete
         if (vendorInput && vendorDropdown) {
@@ -1279,37 +1286,37 @@ patch(ListController.prototype, {
             });
         }
 
-        // Analytic Account autocomplete
+        // Analytic Account autocomplete - ENHANCED DEBUG VERSION
         if (analyticInput && analyticDropdown) {
-            console.log('[DEBUG] Setting up analytic account listeners');
+            console.log('[ANALYTIC] ✓ Setting up analytic account listeners');
 
             analyticInput.addEventListener('input', (e) => {
-                console.log('[DEBUG] Analytic input event triggered');
+                console.log('[ANALYTIC] → Input event triggered, value:', e.target.value);
                 const searchTerm = e.target.value.trim();
                 this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm);
             });
 
             analyticInput.addEventListener('focus', (e) => {
-                console.log('[DEBUG] Analytic focus event triggered');
+                console.log('[ANALYTIC] → Focus event triggered');
                 const searchTerm = e.target.value.trim();
                 this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm || '');
             });
 
             analyticInput.addEventListener('click', (e) => {
-                console.log('[DEBUG] Analytic click event triggered');
+                console.log('[ANALYTIC] → Click event triggered');
                 const searchTerm = e.target.value.trim();
                 this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm || '');
             });
 
             analyticDropdown.addEventListener('click', (e) => {
-                console.log('[DEBUG] Analytic dropdown clicked');
+                console.log('[ANALYTIC] → Dropdown clicked, target:', e.target);
                 if (e.target.classList.contains('autocomplete_item') &&
                     !e.target.classList.contains('no_results')) {
                     const id = e.target.dataset.id;
                     const name = e.target.dataset.name;
                     const code = e.target.dataset.code;
                     const displayText = code ? `${code} - ${name}` : name;
-                    console.log('[DEBUG] Selected analytic account:', { id, name, code, displayText });
+                    console.log('[ANALYTIC] → Selected:', { id, name, code, displayText });
                     analyticInput.value = displayText;
                     analyticValue.value = id;
                     analyticDropdown.classList.remove('show');
@@ -1321,6 +1328,12 @@ patch(ListController.prototype, {
                     analyticDropdown.classList.remove('show');
                 }
             });
+
+            console.log('[ANALYTIC] ✓ All listeners attached successfully');
+        } else {
+            console.error('[ANALYTIC] ✗ FAILED to find analytic elements!');
+            console.error('  - analyticInput:', analyticInput);
+            console.error('  - analyticDropdown:', analyticDropdown);
         }
 
         // Apply filters
@@ -1358,15 +1371,13 @@ patch(ListController.prototype, {
                 domain.push(['user_id', '=', parseInt(repValue.value)]);
             }
 
-            // Analytic Account filter - FIXED VERSION
+            // Analytic Account filter
             if (analyticValue && analyticValue.value) {
                 const analyticId = parseInt(analyticValue.value);
-                console.log('[DEBUG] Applying analytic filter with ID:', analyticId);
+                console.log('[ANALYTIC] Applying filter with ID:', analyticId);
 
                 if (isBill) {
                     // For bills - search in analytic_distribution JSON field
-                    // The analytic_distribution field stores data as {"analytic_account_id": percentage}
-                    // We need to search for the ID as a key in the JSON
                     domain.push(['invoice_line_ids.analytic_distribution', 'ilike', `"${analyticId}"`]);
                 } else {
                     // For purchase orders - direct relation
@@ -1420,7 +1431,7 @@ patch(ListController.prototype, {
                 domain.push(['move_type', '=', 'in_invoice']);
             }
 
-            console.log('[DEBUG] Final domain:', domain);
+            console.log('[PURCHASE FILTER] Applying domain:', domain);
 
             const actionConfig = this._getActionConfig();
 
@@ -1612,9 +1623,11 @@ patch(ListController.prototype, {
     },
 
     showAnalyticDropdown(input, dropdown, searchTerm) {
-        console.log('[DEBUG] showAnalyticDropdown called');
-        console.log('[DEBUG] searchTerm:', searchTerm);
-        console.log('[DEBUG] analyticAccounts data:', this._purchaseFilterData?.analyticAccounts);
+        console.log('[ANALYTIC DROPDOWN] ========== START ==========');
+        console.log('[ANALYTIC DROPDOWN] searchTerm:', searchTerm);
+        console.log('[ANALYTIC DROPDOWN] dropdown element:', dropdown);
+        console.log('[ANALYTIC DROPDOWN] dropdown ID:', dropdown?.id);
+        console.log('[ANALYTIC DROPDOWN] dropdown className:', dropdown?.className);
 
         // Ensure searchTerm is a string
         searchTerm = (searchTerm || '').toString();
@@ -1622,21 +1635,23 @@ patch(ListController.prototype, {
 
         // Ensure analyticAccounts is an array - check if data exists
         if (!this._purchaseFilterData || !this._purchaseFilterData.analyticAccounts) {
-            console.error('[ERROR] analyticAccounts data not loaded!');
+            console.error('[ANALYTIC DROPDOWN] ✗ No analytic accounts data!');
             dropdown.innerHTML = '<div class="autocomplete_item no_results">Loading analytic accounts...</div>';
             dropdown.classList.add('show');
+            console.log('[ANALYTIC DROPDOWN] ========== END (NO DATA) ==========');
             return;
         }
 
         const analyticAccounts = this._purchaseFilterData.analyticAccounts;
 
-        console.log('[DEBUG] analyticAccounts array:', analyticAccounts);
-        console.log('[DEBUG] analyticAccounts length:', analyticAccounts.length);
+        console.log('[ANALYTIC DROPDOWN] ✓ Analytic accounts:', analyticAccounts);
+        console.log('[ANALYTIC DROPDOWN] ✓ Count:', analyticAccounts.length);
 
         let filtered;
         if (searchTerm === '') {
             // Show all analytic accounts
             filtered = analyticAccounts;
+            console.log('[ANALYTIC DROPDOWN] Showing all accounts');
         } else {
             // Filter by name or code
             filtered = analyticAccounts.filter(a => {
@@ -1645,24 +1660,32 @@ patch(ListController.prototype, {
                 const codeMatch = a.code ? a.code.toLowerCase().includes(lowerSearch) : false;
                 return nameMatch || codeMatch;
             });
+            console.log('[ANALYTIC DROPDOWN] Filtered to', filtered.length, 'accounts');
         }
-
-        console.log('[DEBUG] Filtered accounts:', filtered);
-        console.log('[DEBUG] Filtered accounts length:', filtered.length);
 
         if (!filtered || filtered.length === 0) {
             dropdown.innerHTML = '<div class="autocomplete_item no_results">No analytic accounts found</div>';
+            console.log('[ANALYTIC DROPDOWN] No results - showing message');
         } else {
-            dropdown.innerHTML = filtered.map(a => {
+            const html = filtered.map(a => {
                 if (!a) return '';
-                // Display: "CODE - Name" or just "Name"
                 const displayText = a.code ? `${a.code} - ${a.name}` : (a.name || '');
                 return `<div class="autocomplete_item" data-id="${a.id}" data-code="${a.code || ''}" data-name="${a.name || ''}">${displayText}</div>`;
             }).join('');
+
+            dropdown.innerHTML = html;
+            console.log('[ANALYTIC DROPDOWN] ✓ Generated HTML length:', html.length);
+            console.log('[ANALYTIC DROPDOWN] ✓ Sample HTML:', html.substring(0, 200));
         }
 
-        console.log('[DEBUG] Dropdown HTML:', dropdown.innerHTML);
+        console.log('[ANALYTIC DROPDOWN] Setting innerHTML complete');
+        console.log('[ANALYTIC DROPDOWN] Dropdown innerHTML length:', dropdown.innerHTML.length);
+        console.log('[ANALYTIC DROPDOWN] Adding "show" class...');
         dropdown.classList.add('show');
-        console.log('[DEBUG] Dropdown classes:', dropdown.classList);
+        console.log('[ANALYTIC DROPDOWN] Classes after add:', dropdown.className);
+        console.log('[ANALYTIC DROPDOWN] Computed display:', window.getComputedStyle(dropdown).display);
+        console.log('[ANALYTIC DROPDOWN] Computed visibility:', window.getComputedStyle(dropdown).visibility);
+        console.log('[ANALYTIC DROPDOWN] Computed z-index:', window.getComputedStyle(dropdown).zIndex);
+        console.log('[ANALYTIC DROPDOWN] ========== END ==========');
     },
 });

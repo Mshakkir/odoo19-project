@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_purchase_report_list" model="ir.ui.view">
+        <field name="name">purchase.report.view.list</field>
+        <field name="model">purchase.report.view</field>
+        <field name="arch" type="xml">
+            <list string="Purchase Report">
+                <field name="order_date"/>
+                <field name="order_name"/>
+                <field name="partner_name"/>
+                <field name="product_name"/>
+                <field name="product_qty"/>
+                <field name="price_total"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+</odoo>

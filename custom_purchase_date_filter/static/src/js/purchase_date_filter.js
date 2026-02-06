@@ -1788,7 +1788,7 @@ patch(ListController.prototype, {
             filtered = this._purchaseFilterData.vendors;
         } else {
             filtered = this._purchaseFilterData.vendors.filter(v =>
-                v.name.toLowerCase().includes(lowerSearch)
+                v.name ? v.name.toLowerCase().includes(lowerSearch) : false
             );
         }
 
@@ -1796,7 +1796,7 @@ patch(ListController.prototype, {
             dropdown.innerHTML = '<div class="autocomplete_item no_results">No vendors found</div>';
         } else {
             dropdown.innerHTML = filtered.map(v =>
-                `<div class="autocomplete_item" data-id="${v.id}">${v.name}</div>`
+                `<div class="autocomplete_item" data-id="${v.id}">${v.name || ''}</div>`
             ).join('');
         }
 
@@ -1811,7 +1811,7 @@ patch(ListController.prototype, {
             filtered = this._purchaseFilterData.purchaseReps;
         } else {
             filtered = this._purchaseFilterData.purchaseReps.filter(r =>
-                r.name.toLowerCase().includes(lowerSearch)
+                r.name ? r.name.toLowerCase().includes(lowerSearch) : false
             );
         }
 
@@ -1819,7 +1819,7 @@ patch(ListController.prototype, {
             dropdown.innerHTML = '<div class="autocomplete_item no_results">No users found</div>';
         } else {
             dropdown.innerHTML = filtered.map(r =>
-                `<div class="autocomplete_item" data-id="${r.id}">${r.name}</div>`
+                `<div class="autocomplete_item" data-id="${r.id}">${r.name || ''}</div>`
             ).join('');
         }
 
@@ -1834,8 +1834,8 @@ patch(ListController.prototype, {
             filtered = this._purchaseFilterData.analyticAccounts;
         } else {
             filtered = this._purchaseFilterData.analyticAccounts.filter(a => {
-                const nameMatch = a.name.toLowerCase().includes(lowerSearch);
-                const codeMatch = a.code && a.code.toLowerCase().includes(lowerSearch);
+                const nameMatch = a.name ? a.name.toLowerCase().includes(lowerSearch) : false;
+                const codeMatch = a.code ? a.code.toLowerCase().includes(lowerSearch) : false;
                 return nameMatch || codeMatch;
             });
         }
@@ -1845,7 +1845,7 @@ patch(ListController.prototype, {
         } else {
             dropdown.innerHTML = filtered.map(a => {
                 const displayText = a.code ? `${a.code} - ${a.name}` : a.name;
-                return `<div class="autocomplete_item" data-id="${a.id}" data-code="${a.code || ''}" data-name="${a.name}">${displayText}</div>`;
+                return `<div class="autocomplete_item" data-id="${a.id}" data-code="${a.code || ''}" data-name="${a.name || ''}">${displayText}</div>`;
             }).join('');
         }
 

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
+from datetime import datetime
 
 
 class AccountMove(models.Model):
@@ -10,34 +11,26 @@ class AccountMove(models.Model):
         """
         Get sales invoice report data based on report type
         """
-        # Base domain for customer invoices that are posted
-        domain = [
-            ('move_type', '=', 'out_invoice'),
-            ('state', '=', 'posted')
-        ]
-
-        if date_from:
-            domain.append(('invoice_date', '>=', date_from))
-        if date_to:
-            domain.append(('invoice_date', '<=', date_to))
+        # Convert string dates to date objects if needed
+        if date_from and isinstance(date_from, str):
+            date_from = fields.Date.from_string(date_from)
+        if date_to and isinstance(date_to, str):
+            date_to = fields.Date.from_string(date_to)
 
         if report_type == 'product' and record_id:
             # Get invoice lines with specific product
-            invoice_lines = self.env['account.move.line'].search([
+            line_domain = [
                 ('product_id', '=', record_id),
                 ('move_id.move_type', '=', 'out_invoice'),
                 ('move_id.state', '=', 'posted'),
-                ('display_type', '=', False)  # Exclude section and note lines
-            ])
+                ('display_type', 'in', [False, 'product'])  # Include product lines
+            ]
             if date_from:
-                invoice_lines = invoice_lines.filtered(
-                    lambda l: l.move_id.invoice_date and l.move_id.invoice_date >= fields.Date.from_string(date_from)
-                )
+                line_domain.append(('move_id.invoice_date', '>=', date_from))
             if date_to:
-                invoice_lines = invoice_lines.filtered(
-                    lambda l: l.move_id.invoice_date and l.move_id.invoice_date <= fields.Date.from_string(date_to)
-                )
+                line_domain.append(('move_id.invoice_date', '<=', date_to))
 
+            invoice_lines = self.env['account.move.line'].search(line_domain)
             invoices = invoice_lines.mapped('move_id')
 
         elif report_type == 'category' and record_id:
@@ -45,54 +38,56 @@ class AccountMove(models.Model):
             products = self.env['product.product'].search([
                 ('categ_id', '=', record_id)
             ])
-            invoice_lines = self.env['account.move.line'].search([
+            line_domain = [
                 ('product_id', 'in', products.ids),
                 ('move_id.move_type', '=', 'out_invoice'),
                 ('move_id.state', '=', 'posted'),
-                ('display_type', '=', False)
-            ])
+                ('display_type', 'in', [False, 'product'])
+            ]
             if date_from:
-                invoice_lines = invoice_lines.filtered(
-                    lambda l: l.move_id.invoice_date and l.move_id.invoice_date >= fields.Date.from_string(date_from)
-                )
+                line_domain.append(('move_id.invoice_date', '>=', date_from))
             if date_to:
-                invoice_lines = invoice_lines.filtered(
-                    lambda l: l.move_id.invoice_date and l.move_id.invoice_date <= fields.Date.from_string(date_to)
-                )
+                line_domain.append(('move_id.invoice_date', '<=', date_to))
 
+            invoice_lines = self.env['account.move.line'].search(line_domain)
             invoices = invoice_lines.mapped('move_id')
 
         elif report_type == 'partner' and record_id:
-            domain.append(('partner_id', '=', record_id))
+            domain = [
+                ('move_type', '=', 'out_invoice'),
+                ('state', '=', 'posted'),
+                ('partner_id', '=', record_id)
+            ]
+            if date_from:
+                domain.append(('invoice_date', '>=', date_from))
+            if date_to:
+                domain.append(('invoice_date', '<=', date_to))
             invoices = self.search(domain)
 
         elif report_type == 'warehouse' and record_id:
-            # For invoices, we can check the warehouse from picking or use a custom field
-            # Here we'll search for invoices related to stock pickings from that warehouse
-            pickings = self.env['stock.picking'].search([
-                ('picking_type_id.warehouse_id', '=', record_id)
-            ])
-            # Get invoices related to these pickings through sale orders
-            invoice_lines = self.env['account.move.line'].search([
+            line_domain = [
                 ('move_id.move_type', '=', 'out_invoice'),
                 ('move_id.state', '=', 'posted'),
-                ('display_type', '=', False)
-            ])
+                ('display_type', 'in', [False, 'product'])
+            ]
             if date_from:
-                invoice_lines = invoice_lines.filtered(
-                    lambda l: l.move_id.invoice_date and l.move_id.invoice_date >= fields.Date.from_string(date_from)
-                )
+                line_domain.append(('move_id.invoice_date', '>=', date_from))
             if date_to:
-                invoice_lines = invoice_lines.filtered(
-                    lambda l: l.move_id.invoice_date and l.move_id.invoice_date <= fields.Date.from_string(date_to)
-                )
+                line_domain.append(('move_id.invoice_date', '<=', date_to))
 
-            # Filter by warehouse if there's a link, otherwise get all
-            # This is a simplified approach - you may need to customize based on your workflow
+            invoice_lines = self.env['account.move.line'].search(line_domain)
             invoices = invoice_lines.mapped('move_id')
 
         elif report_type == 'salesman' and record_id:
-            domain.append(('invoice_user_id', '=', record_id))
+            domain = [
+                ('move_type', '=', 'out_invoice'),
+                ('state', '=', 'posted'),
+                ('invoice_user_id', '=', record_id)
+            ]
+            if date_from:
+                domain.append(('invoice_date', '>=', date_from))
+            if date_to:
+                domain.append(('invoice_date', '<=', date_to))
             invoices = self.search(domain)
         else:
             invoices = self.browse()

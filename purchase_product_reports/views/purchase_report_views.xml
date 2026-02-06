@@ -4,15 +4,12 @@
         <field name="name">purchase.report.view.list</field>
         <field name="model">purchase.report.view</field>
         <field name="arch" type="xml">
-            <list string="Purchase Invoice Report">
+            <list>
                 <field name="invoice_date"/>
                 <field name="invoice_name"/>
                 <field name="partner_name"/>
                 <field name="product_name"/>
                 <field name="quantity"/>
-                <field name="uom_name"/>
-                <field name="price_unit"/>
-                <field name="price_subtotal"/>
                 <field name="price_total"/>
             </list>
         </field>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Report Tree View -->
+    <record id="view_purchase_product_report_tree" model="ir.ui.view">
+        <field name="name">purchase.product.report.tree</field>
+        <field name="model">purchase.product.report</field>
+        <field name="arch" type="xml">
+            <tree string="Purchase Product Report" create="false" edit="false" delete="false">
+                <field name="invoice_date"/>
+                <field name="invoice_number"/>
+                <field name="product_id"/>
+                <field name="quantity"/>
+                <field name="uom_id"/>
+                <field name="price_unit"/>
+                <field name="price_subtotal"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Report Search View -->
+    <record id="view_purchase_product_report_search" model="ir.ui.view">
+        <field name="name">purchase.product.report.search</field>
+        <field name="model">purchase.product.report</field>
+        <field name="arch" type="xml">
+            <search string="Search Purchase Product Report">
+                <field name="invoice_number"/>
+                <field name="product_id"/>
+                <field name="invoice_date"/>
+                <group expand="0" string="Group By">
+                    <filter string="Product" name="group_product" context="{'group_by':'product_id'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by':'invoice_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>

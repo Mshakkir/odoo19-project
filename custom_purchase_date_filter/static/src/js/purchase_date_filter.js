@@ -1831,19 +1831,26 @@ patch(ListController.prototype, {
     },
 
     showAnalyticDropdown(input, dropdown, searchTerm) {
-       const lowerSearch = searchTerm.toLowerCase();
+        console.log('[DEBUG] showAnalyticDropdown called with:', { searchTerm, type: typeof searchTerm });
+
+        // Critical: Handle undefined/null searchTerm
+        if (searchTerm === undefined || searchTerm === null) {
+            searchTerm = '';
+        }
+
+        const lowerSearch = searchTerm.toLowerCase();
 
         let filtered;
         if (searchTerm === '') {
-            // Show all analytic accounts when no search term
-            filtered = this._filterData.analyticAccounts;
+            filtered = this._purchaseFilterData.analyticAccounts;
+            console.log('[DEBUG] Showing all accounts:', filtered.length);
         } else {
-            // Filter by search term
-            filtered = this._filterData.analyticAccounts.filter(a => {
-                const nameMatch = a.name.toLowerCase().includes(lowerSearch);
+            filtered = this._purchaseFilterData.analyticAccounts.filter(a => {
+                const nameMatch = a.name && a.name.toLowerCase().includes(lowerSearch);
                 const codeMatch = a.code && a.code.toLowerCase().includes(lowerSearch);
                 return nameMatch || codeMatch;
             });
+            console.log('[DEBUG] Filtered to:', filtered.length, 'accounts');
         }
 
         if (filtered.length === 0) {

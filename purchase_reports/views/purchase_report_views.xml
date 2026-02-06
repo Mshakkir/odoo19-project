@@ -4,15 +4,49 @@
         <field name="name">purchase.report.view.list</field>
         <field name="model">purchase.report.view</field>
         <field name="arch" type="xml">
-            <list string="Purchase Report">
-                <field name="order_date"/>
-                <field name="order_name"/>
-                <field name="partner_name"/>
-                <field name="product_name"/>
-                <field name="product_qty"/>
-                <field name="price_total"/>
-                <field name="state"/>
+            <list string="Purchase Invoice Report" create="false" edit="false" delete="false">
+                <field name="invoice_date" string="Date"/>
+                <field name="invoice_name" string="Vno"/>
+                <field name="product_name" string="Product"/>
+                <field name="quantity" string="Qty" sum="Total Qty"/>
+                <field name="uom_name" string="Unit"/>
+                <field name="price_unit" string="Rate"/>
+                <field name="price_subtotal" string="Untaxed" sum="Total"/>
+                <field name="price_total" string="Net Total" sum="Grand Total"/>
+                <field name="partner_name" string="Vendor"/>
+                <field name="category_name" string="Category"/>
             </list>
+        </field>
+    </record>
+
+    <record id="view_purchase_report_pivot" model="ir.ui.view">
+        <field name="name">purchase.report.view.pivot</field>
+        <field name="model">purchase.report.view</field>
+        <field name="arch" type="xml">
+            <pivot string="Purchase Invoice Analysis">
+                <field name="product_name" type="row"/>
+                <field name="quantity" type="measure"/>
+                <field name="price_total" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_purchase_report_search" model="ir.ui.view">
+        <field name="name">purchase.report.view.search</field>
+        <field name="model">purchase.report.view</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="invoice_name" string="Invoice"/>
+                <field name="partner_name" string="Vendor"/>
+                <field name="product_name" string="Product"/>
+                <field name="category_name" string="Category"/>
+                <group string="Group By">
+                    <filter string="Vendor" name="group_partner" context="{'group_by':'partner_name'}"/>
+                    <filter string="Product" name="group_product" context="{'group_by':'product_name'}"/>
+                    <filter string="Category" name="group_category" context="{'group_by':'category_name'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by':'invoice_date:month'}"/>
+                </group>
+            </search>
         </field>
     </record>
 </odoo>

@@ -4,21 +4,28 @@
         <field name="name">purchase.report.by.product.wizard.form</field>
         <field name="model">purchase.report.by.product.wizard</field>
         <field name="arch" type="xml">
-            <form string="Purchase Report">
+            <form string="Purchase Invoice Product Report">
                 <group>
-                    <field name="date_from"/>
-                    <field name="date_to"/>
+                    <group>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                    <group>
+                        <field name="product_ids" widget="many2many_tags"/>
+                        <field name="partner_ids" widget="many2many_tags"/>
+                        <field name="categ_ids" widget="many2many_tags"/>
+                    </group>
                 </group>
                 <footer>
-                    <button name="action_generate_report" string="Generate Report" type="object" class="btn-primary"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button name="action_generate_report" string="Show Report" type="object" class="btn-primary"/>
+                    <button string="Exit" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
         </field>
     </record>
 
     <record id="action_purchase_report_by_product_wizard" model="ir.actions.act_window">
-        <field name="name">Purchase Report</field>
+        <field name="name">Purchase Invoice Product Report</field>
         <field name="res_model">purchase.report.by.product.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>

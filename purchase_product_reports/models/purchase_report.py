@@ -55,13 +55,11 @@ class PurchaseReport(models.Model):
                     pt.name as product_name,
                     pt.categ_id as categ_id,
                     pc.complete_name as category_name,
-                    CASE 
-                        WHEN aml.analytic_distribution IS NOT NULL THEN
-                            (SELECT string_agg(aa.name, ', ')
-                             FROM jsonb_object_keys(aml.analytic_distribution) AS account_id
-                             LEFT JOIN account_analytic_account aa ON aa.id::text = account_id)
-                        ELSE NULL
-                    END as analytic_account_ids,
+                    (SELECT string_agg(aa.name, ', ')
+                     FROM jsonb_each_text(COALESCE(aml.analytic_distribution, '{}'::jsonb)) AS dist(account_id, percentage)
+                     LEFT JOIN account_analytic_account aa ON aa.id = dist.account_id::integer
+                     WHERE aa.name IS NOT NULL
+                    ) as analytic_account_ids,
                     aml.quantity as quantity,
                     aml.product_uom_id as product_uom,
                     pu.name as uom_name,

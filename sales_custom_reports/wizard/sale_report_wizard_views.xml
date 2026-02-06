@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sale Report Wizard Form View -->
+    <record id="view_sale_report_wizard_form" model="ir.ui.view">
+        <field name="name">sale.report.wizard.form</field>
+        <field name="model">sale.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Sales Report">
+                <group>
+                    <group>
+                        <field name="report_type" invisible="1"/>
+                        <field name="product_id"
+                               invisible="report_type != 'product'"
+                               required="report_type == 'product'"
+                               options="{'no_create': True}"/>
+                        <field name="category_id"
+                               invisible="report_type != 'category'"
+                               required="report_type == 'category'"
+                               options="{'no_create': True}"/>
+                        <field name="partner_id"
+                               invisible="report_type != 'partner'"
+                               required="report_type == 'partner'"
+                               options="{'no_create': True}"/>
+                        <field name="warehouse_id"
+                               invisible="report_type != 'warehouse'"
+                               required="report_type == 'warehouse'"
+                               options="{'no_create': True}"/>
+                        <field name="salesman_id"
+                               invisible="report_type != 'salesman'"
+                               required="report_type == 'salesman'"
+                               options="{'no_create': True}"/>
+                    </group>
+                    <group>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="View Report" name="action_generate_report" type="object" class="btn-primary"/>
+                    <button string="Print PDF" name="action_print_report" type="object" class="btn-secondary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Actions for each report type -->
+    <record id="action_sale_report_by_product" model="ir.actions.act_window">
+        <field name="name">Report by Product</field>
+        <field name="res_model">sale.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_report_type': 'product'}</field>
+    </record>
+
+    <record id="action_sale_report_by_category" model="ir.actions.act_window">
+        <field name="name">Report by Product Category</field>
+        <field name="res_model">sale.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_report_type': 'category'}</field>
+    </record>
+
+    <record id="action_sale_report_by_partner" model="ir.actions.act_window">
+        <field name="name">Report by Partner</field>
+        <field name="res_model">sale.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_report_type': 'partner'}</field>
+    </record>
+
+    <record id="action_sale_report_by_warehouse" model="ir.actions.act_window">
+        <field name="name">Report by Warehouse</field>
+        <field name="res_model">sale.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_report_type': 'warehouse'}</field>
+    </record>
+
+    <record id="action_sale_report_by_salesman" model="ir.actions.act_window">
+        <field name="name">Report by Salesman</field>
+        <field name="res_model">sale.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_report_type': 'salesman'}</field>
+    </record>
+
+</odoo>

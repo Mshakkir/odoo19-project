@@ -780,14 +780,12 @@
 //        });
 //    },
 //});
-
 /** @odoo-module **/
 
-import { Component, useState, onMounted, onWillUnmount } from "@odoo/owl";
-import { registry } from "@web/core/registry";
-import { useService } from "@web/core/utils/hooks";
 import { patch } from "@web/core/utils/patch";
 import { ListController } from "@web/views/list/list_controller";
+import { useService } from "@web/core/utils/hooks";
+import { onMounted, onWillUnmount } from "@odoo/owl";
 
 // Patch ListController to inject date filter for Purchase Orders, RFQs and Bills
 patch(ListController.prototype, {
@@ -819,12 +817,10 @@ patch(ListController.prototype, {
     shouldShowPurchaseFilter() {
         const resModel = this.props.resModel;
 
-        // Check if it's Purchase Orders or RFQs
         if (resModel === 'purchase.order') {
             return true;
         }
 
-        // Check if it's Vendor Bills (account.move with in_invoice)
         if (resModel === 'account.move') {
             const action = this.env.config;
 
@@ -843,8 +839,7 @@ patch(ListController.prototype, {
 
             if (this.props.domain) {
                 const domainStr = JSON.stringify(this.props.domain);
-                if (domainStr.includes('move_type') &&
-                    domainStr.includes('in_invoice')) {
+                if (domainStr.includes('move_type') && domainStr.includes('in_invoice')) {
                     return true;
                 }
             }
@@ -864,26 +859,47 @@ patch(ListController.prototype, {
         try {
             console.log('[PURCHASE FILTER] Loading filter data...');
 
-            // Load warehouses, vendors, purchase reps, and analytic accounts
-            const [warehouses, vendors, purchaseReps, analyticAccounts] = await Promise.all([
-                this.orm.searchRead('stock.warehouse', [], ['id', 'name'], { limit: 100 }),
-                this.orm.searchRead('res.partner', [['supplier_rank', '>', 0]], ['id', 'name'],
-                    { limit: 500, order: 'name' }),
-                this.orm.searchRead('res.users', [], ['id', 'name'], { limit: 100, order: 'name' }),
-                this.orm.searchRead('account.analytic.account', [], ['id', 'name', 'code'],
-                    { limit: 500, order: 'name' })
-            ]);
+            // Load warehouses
+            const warehouses = await this.orm.searchRead(
+                'stock.warehouse',
+                [],
+                ['id', 'name'],
+                { limit: 100 }
+            );
 
-            console.log('[PURCHASE FILTER] ✓ Analytic accounts loaded:', analyticAccounts);
+            // Load vendors
+            const vendors = await this.orm.searchRead(
+                'res.partner',
+                [['supplier_rank', '>', 0]],
+                ['id', 'name'],
+                { limit: 500, order: 'name' }
+            );
+
+            // Load purchase representatives
+            const purchaseReps = await this.orm.searchRead(
+                'res.users',
+                [],
+                ['id', 'name'],
+                { limit: 100, order: 'name' }
+            );
+
+            // Load analytic accounts
+            const analyticAccounts = await this.orm.searchRead(
+                'account.analytic.account',
+                [],
+                ['id', 'name', 'code'],
+                { limit: 500, order: 'name' }
+            );
+
+            console.log('[PURCHASE FILTER] Analytic accounts loaded:', analyticAccounts.length);
+            console.log('[PURCHASE FILTER] Purchase reps loaded:', purchaseReps.length);
 
             this._purchaseFilterData = {
-                warehouses: warehouses || [],
-                vendors: vendors || [],
-                purchaseReps: purchaseReps || [],
-                analyticAccounts: analyticAccounts || []
+                warehouses: warehouses,
+                vendors: vendors,
+                purchaseReps: purchaseReps,
+                analyticAccounts: analyticAccounts
             };
-
-            console.log('[PURCHASE FILTER] ✓ Filter data initialized');
 
             this.injectPurchaseDateFilter();
         } catch (error) {
@@ -894,24 +910,10 @@ patch(ListController.prototype, {
 
     getViewType() {
         const resModel = this.props.resModel;
-        const action = this.env.config;
 
-        // Check RFQ
         if (resModel === 'purchase.order') {
-            if (action.xmlId === 'purchase.purchase_rfq') {
-                return 'rfq';
-            }
-
-            if (this.props.domain) {
-                const domainStr = JSON.stringify(this.props.domain);
-                if (domainStr.includes('draft') || domainStr.includes('sent')) {
-                    return 'rfq';
-                }
-            }
-
             return 'purchase_order';
         }
-
         if (resModel === 'account.move') {
             return 'bill';
         }
@@ -956,16 +958,24 @@ patch(ListController.prototype, {
 
         const today = new Date();
         const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-        const dateFrom = firstDay.toISOString().split('T')[0];
-        const dateTo = today.toISOString().split('T')[0];
+        const defaultFrom = firstDay.toISOString().split('T')[0];
+        const defaultTo = today.toISOString().split('T')[0];
 
-        const isPurchaseOrder = viewType === 'purchase_order';
-        const isRFQ = viewType === 'rfq';
         const isBill = viewType === 'bill';
-
         const dateLabel = isBill ? 'Bill Date' : 'Order Date';
 
-        let filterHTML = `
+        // Build warehouse options
+        const warehouseOptions = this._purchaseFilterData.warehouses.map(w =>
+            `<option value="${w.id}">${w.name}</option>`
+        ).join('');
+
+        // Build analytic dropdown options
+        const analyticOptions = this._purchaseFilterData.analyticAccounts.map(a => {
+            const displayText = a.code ? `${a.code} - ${a.name}` : a.name;
+            return `<option value="${a.id}">${displayText}</option>`;
+        }).join('');
+
+        const filterHTML = `
             <div class="purchase_date_filter_wrapper_main">
                 <div class="purchase_date_filter_container">
                     <div class="date_filter_wrapper">
@@ -973,160 +983,78 @@ patch(ListController.prototype, {
                         <div class="filter_group date_group">
                             <label class="filter_label">${dateLabel}:</label>
                             <div class="date_input_group">
-                                <input type="date" id="${fromId}" class="date_input" value="${dateFrom}" />
+                                <input type="date" id="${fromId}" class="date_input" value="${defaultFrom}" placeholder="From"/>
                                 <span class="date_separator">-</span>
-                                <input type="date" id="${toId}" class="date_input" value="${dateTo}" />
+                                <input type="date" id="${toId}" class="date_input" value="${defaultTo}" placeholder="To"/>
                             </div>
                         </div>
-        `;
 
-        // Warehouse filter (for Purchase Orders and RFQs only)
-        if (isPurchaseOrder || isRFQ) {
-            filterHTML += `
                         <!-- Warehouse -->
                         <div class="filter_group">
                             <select id="${warehouseId}" class="filter_select">
-                                <option value="">Warehouse</option>
-                                ${this._purchaseFilterData.warehouses.map(w =>
-                                    `<option value="${w.id}">${w.name}</option>`
-                                ).join('')}
+                                <option value="">All Warehouses</option>
+                                ${warehouseOptions}
                             </select>
                         </div>
-            `;
-        }
 
-        // Vendor autocomplete
-        filterHTML += `
-                        <!-- Vendor -->
+                        <!-- Vendor (Autocomplete) -->
                         <div class="filter_group autocomplete_group">
                             <div class="autocomplete_wrapper">
-                                <input
-                                    type="text"
-                                    class="form-control autocomplete_input"
-                                    id="${vendorId}_input"
-                                    placeholder="Vendor"
-                                    autocomplete="off"
-                                />
-                                <input type="hidden" id="${vendorId}_value" />
-                                <div class="autocomplete_dropdown" id="${vendorId}_dropdown"></div>
+                                <input type="text" id="${vendorId}" class="autocomplete_input" placeholder="All Vendors" autocomplete="off"/>
+                                <input type="hidden" id="${vendorId}_value"/>
+                                <div id="${vendorId}_dropdown" class="autocomplete_dropdown"></div>
                             </div>
                         </div>
-        `;
 
-        // Purchase Rep autocomplete
-        filterHTML += `
-                        <!-- Purchase Representative -->
+                        <!-- Purchase Rep (Autocomplete) -->
                         <div class="filter_group autocomplete_group">
                             <div class="autocomplete_wrapper">
-                                <input
-                                    type="text"
-                                    class="form-control autocomplete_input"
-                                    id="${repId}_input"
-                                    placeholder="Purchase Rep"
-                                    autocomplete="off"
-                                />
-                                <input type="hidden" id="${repId}_value" />
-                                <div class="autocomplete_dropdown" id="${repId}_dropdown"></div>
+                                <input type="text" id="${repId}" class="autocomplete_input" placeholder="All Buyers" autocomplete="off"/>
+                                <input type="hidden" id="${repId}_value"/>
+                                <div id="${repId}_dropdown" class="autocomplete_dropdown"></div>
                             </div>
                         </div>
-        `;
 
-        // Analytic Account autocomplete
-        filterHTML += `
-                        <!-- Analytic Account -->
-                        <div class="filter_group autocomplete_group">
-                            <div class="autocomplete_wrapper">
-                                <input
-                                    type="text"
-                                    class="form-control autocomplete_input"
-                                    id="${analyticId}_input"
-                                    placeholder="Analytic Account"
-                                    autocomplete="off"
-                                />
-                                <input type="hidden" id="${analyticId}_value" />
-                                <div class="autocomplete_dropdown" id="${analyticId}_dropdown"></div>
-                            </div>
-                        </div>
-        `;
-
-        // Order Reference filter
-        filterHTML += `
-                        <!-- Order Reference -->
+                        <!-- Analytic Account (Dropdown Select) -->
                         <div class="filter_group">
-                            <input type="text" id="${orderRefId}" class="filter_input" placeholder="Order Ref" />
+                            <select id="${analyticId}" class="filter_select">
+                                <option value="">All Analytics</option>
+                                ${analyticOptions}
+                            </select>
                         </div>
-        `;
 
-        // Vendor Reference filter
-        filterHTML += `
-                        <!-- Vendor Reference -->
+                        <!-- Reference Fields -->
                         <div class="filter_group">
-                            <input type="text" id="${vendorRefId}" class="filter_input" placeholder="Vendor Ref" />
+                            <input type="text" id="${orderRefId}" class="filter_input" placeholder="${isBill ? 'Bill' : 'Order'} Reference"/>
                         </div>
-        `;
 
-        // Shipping Reference filter (for Purchase Orders and RFQs)
-        if (isPurchaseOrder || isRFQ) {
-            filterHTML += `
-                        <!-- Shipping Reference -->
                         <div class="filter_group">
-                            <input type="text" id="${shippingRefId}" class="filter_input" placeholder="Shipping Ref" />
+                            <input type="text" id="${vendorRefId}" class="filter_input" placeholder="Vendor Reference"/>
                         </div>
-            `;
-        }
 
-        // Amount filter
-        filterHTML += `
-                        <!-- Amount -->
+                        ${!isBill ? `
+                        <div class="filter_group">
+                            <input type="text" id="${shippingRefId}" class="filter_input" placeholder="Shipping Reference"/>
+                        </div>
+                        ` : ''}
+
+                        <!-- Amount Filter -->
                         <div class="filter_group amount_group">
                             <div class="amount_input_group">
-                                <input type="number" id="${amountId}" class="amount_input" placeholder="Amount" step="0.01" />
+                                <input type="number" id="${amountId}" class="amount_input" placeholder="Min Amount" step="0.01"/>
                             </div>
                         </div>
-        `;
 
-        // Source Document filter (for Bills)
-        if (isBill) {
-            filterHTML += `
+                        ${isBill ? `
                         <!-- Source Document -->
                         <div class="filter_group">
-                            <input type="text" id="${sourceDocId}" class="filter_input" placeholder="Source Doc" />
+                            <input type="text" id="${sourceDocId}" class="filter_input" placeholder="Source Document"/>
                         </div>
-            `;
-        }
 
-        // Goods Receipt filter (for Bills)
-        if (isBill) {
-            filterHTML += `
-                        <!-- Delivery Note -->
-                        <div class="filter_group">
-                            <input type="text" id="${goodsReceiptId}" class="filter_input" placeholder="Delivery Note" />
-                        </div>
-            `;
-        }
-
-        // Billing Status filter (for Bills)
-        if (isBill) {
-            filterHTML += `
                         <!-- Billing Status -->
                         <div class="filter_group">
                             <select id="${billingStatusId}" class="filter_select">
-                                <option value="">Billing Status</option>
-                                <option value="not_invoiced">Nothing to Bill</option>
-                                <option value="to invoice">To Invoice</option>
-                                <option value="invoiced">Fully Invoiced</option>
-                            </select>
-                        </div>
-            `;
-        }
-
-        // Payment Status filter (for Bills)
-        if (isBill) {
-            filterHTML += `
-                        <!-- Payment Status -->
-                        <div class="filter_group">
-                            <select id="${paymentStatusId}" class="filter_select">
-                                <option value="">Payment Status</option>
+                                <option value="">All Billing Status</option>
                                 <option value="not_paid">Not Paid</option>
                                 <option value="in_payment">In Payment</option>
                                 <option value="paid">Paid</option>
@@ -1135,53 +1063,53 @@ patch(ListController.prototype, {
                                 <option value="invoicing_legacy">Invoicing App Legacy</option>
                             </select>
                         </div>
-            `;
-        }
 
-        // Action buttons
-        filterHTML += `
-                        <!-- Actions -->
+                        <!-- Payment Status -->
+                        <div class="filter_group">
+                            <select id="${paymentStatusId}" class="filter_select">
+                                <option value="">All Payment Status</option>
+                                <option value="not_paid">Not Paid</option>
+                                <option value="in_payment">In Payment</option>
+                                <option value="paid">Paid</option>
+                                <option value="partial">Partially Paid</option>
+                                <option value="reversed">Reversed</option>
+                                <option value="invoicing_legacy">Invoicing App Legacy</option>
+                            </select>
+                        </div>
+                        ` : `
+                        <!-- Goods Receipt Note -->
+                        <div class="filter_group">
+                            <input type="text" id="${goodsReceiptId}" class="filter_input" placeholder="Delivery Note"/>
+                        </div>
+                        `}
+
+                        <!-- Action Buttons -->
                         <div class="filter_actions">
-                            <button id="${applyId}" class="btn btn-primary apply_filter_btn">Apply</button>
-                            <button id="${clearId}" class="btn btn-secondary clear_filter_btn">Clear</button>
+                            <button id="${applyId}" class="apply_filter_btn">Apply</button>
+                            <button id="${clearId}" class="clear_filter_btn">Clear</button>
                         </div>
                     </div>
                 </div>
             </div>
         `;
 
-        const wrapperDiv = document.createElement('div');
-        wrapperDiv.innerHTML = filterHTML;
-        this._purchaseFilterElement = wrapperDiv.firstElementChild;
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = filterHTML;
+        this._purchaseFilterElement = wrapper.firstElementChild;
 
-        const tableParent = listTable.parentNode;
-        tableParent.insertBefore(this._purchaseFilterElement, listTable);
+        listTable.parentNode.insertBefore(this._purchaseFilterElement, listTable);
 
-        this.attachPurchaseFilterListeners(fromId, toId, warehouseId, vendorId, repId, analyticId,
-            orderRefId, vendorRefId, shippingRefId, amountId, sourceDocId, goodsReceiptId,
-            billingStatusId, paymentStatusId, applyId, clearId);
-    },
-
-    attachPurchaseFilterListeners(fromId, toId, warehouseId, vendorId, repId, analyticId,
-        orderRefId, vendorRefId, shippingRefId, amountId, sourceDocId, goodsReceiptId,
-        billingStatusId, paymentStatusId, applyId, clearId) {
-
+        // Get DOM elements
         const fromInput = document.getElementById(fromId);
         const toInput = document.getElementById(toId);
         const warehouseSelect = document.getElementById(warehouseId);
-
-        const vendorInput = document.getElementById(`${vendorId}_input`);
+        const vendorInput = document.getElementById(vendorId);
         const vendorValue = document.getElementById(`${vendorId}_value`);
         const vendorDropdown = document.getElementById(`${vendorId}_dropdown`);
-
-        const repInput = document.getElementById(`${repId}_input`);
+        const repInput = document.getElementById(repId);
         const repValue = document.getElementById(`${repId}_value`);
         const repDropdown = document.getElementById(`${repId}_dropdown`);
-
-        const analyticInput = document.getElementById(`${analyticId}_input`);
-        const analyticValue = document.getElementById(`${analyticId}_value`);
-        const analyticDropdown = document.getElementById(`${analyticId}_dropdown`);
-
+        const analyticSelect = document.getElementById(analyticId);
         const orderRefInput = document.getElementById(orderRefId);
         const vendorRefInput = document.getElementById(vendorRefId);
         const shippingRefInput = document.getElementById(shippingRefId);
@@ -1190,40 +1118,24 @@ patch(ListController.prototype, {
         const goodsReceiptInput = document.getElementById(goodsReceiptId);
         const billingStatusSelect = document.getElementById(billingStatusId);
         const paymentStatusSelect = document.getElementById(paymentStatusId);
-
         const applyBtn = document.getElementById(applyId);
         const clearBtn = document.getElementById(clearId);
 
-        console.log('[PURCHASE FILTER] Setting up event listeners');
-
         // Vendor autocomplete
         if (vendorInput && vendorDropdown) {
-            vendorInput.addEventListener('input', (e) => {
-                const searchTerm = e.target.value.trim();
-                if (searchTerm.length > 0) {
-                    this.showVendorDropdown(vendorDropdown, searchTerm);
-                } else {
-                    this.showVendorDropdown(vendorDropdown, '');
-                }
+            vendorInput.addEventListener('focus', () => {
+                this.showVendorDropdown(vendorDropdown, vendorInput.value);
             });
 
-            vendorInput.addEventListener('focus', (e) => {
-                const searchTerm = e.target.value.trim();
-                this.showVendorDropdown(vendorDropdown, searchTerm || '');
-            });
-
-            vendorInput.addEventListener('click', (e) => {
-                const searchTerm = e.target.value.trim();
-                this.showVendorDropdown(vendorDropdown, searchTerm || '');
+            vendorInput.addEventListener('input', () => {
+                vendorValue.value = '';
+                this.showVendorDropdown(vendorDropdown, vendorInput.value);
             });
 
             vendorDropdown.addEventListener('click', (e) => {
-                if (e.target.classList.contains('autocomplete_item') &&
-                    !e.target.classList.contains('no_results')) {
-                    const id = e.target.dataset.id;
-                    const name = e.target.textContent;
-                    vendorInput.value = name;
-                    vendorValue.value = id;
+                if (e.target.classList.contains('autocomplete_item') && e.target.dataset.id) {
+                    vendorValue.value = e.target.dataset.id;
+                    vendorInput.value = e.target.textContent;
                     vendorDropdown.classList.remove('show');
                 }
             });
@@ -1235,34 +1147,21 @@ patch(ListController.prototype, {
             });
         }
 
-        // Purchase Rep autocomplete
+        // Purchase rep autocomplete
         if (repInput && repDropdown) {
-            repInput.addEventListener('input', (e) => {
-                const searchTerm = e.target.value.trim();
-                if (searchTerm.length > 0) {
-                    this.showPurchaseRepDropdown(repDropdown, searchTerm);
-                } else {
-                    this.showPurchaseRepDropdown(repDropdown, '');
-                }
+            repInput.addEventListener('focus', () => {
+                this.showPurchaseRepDropdown(repDropdown, repInput.value);
             });
 
-            repInput.addEventListener('focus', (e) => {
-                const searchTerm = e.target.value.trim();
-                this.showPurchaseRepDropdown(repDropdown, searchTerm || '');
-            });
-
-            repInput.addEventListener('click', (e) => {
-                const searchTerm = e.target.value.trim();
-                this.showPurchaseRepDropdown(repDropdown, searchTerm || '');
+            repInput.addEventListener('input', () => {
+                repValue.value = '';
+                this.showPurchaseRepDropdown(repDropdown, repInput.value);
             });
 
             repDropdown.addEventListener('click', (e) => {
-                if (e.target.classList.contains('autocomplete_item') &&
-                    !e.target.classList.contains('no_results')) {
-                    const id = e.target.dataset.id;
-                    const name = e.target.textContent;
-                    repInput.value = name;
-                    repValue.value = id;
+                if (e.target.classList.contains('autocomplete_item') && e.target.dataset.id) {
+                    repValue.value = e.target.dataset.id;
+                    repInput.value = e.target.textContent;
                     repDropdown.classList.remove('show');
                 }
             });
@@ -1274,176 +1173,100 @@ patch(ListController.prototype, {
             });
         }
 
-        // Analytic Account autocomplete - COPIED FROM WORKING SALES MODULE
-        if (analyticInput && analyticDropdown) {
-            console.log('[PURCHASE FILTER] Setting up analytic account listeners');
-
-            analyticInput.addEventListener('input', (e) => {
-                const searchTerm = e.target.value.trim();
-                if (searchTerm.length > 0) {
-                    this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm);
-                } else {
-                    // Show all analytic accounts when input is empty
-                    this.showAnalyticDropdown(analyticInput, analyticDropdown, '');
-                }
-            });
-
-            analyticInput.addEventListener('focus', (e) => {
-                // Always show dropdown on focus, even if empty
-                const searchTerm = e.target.value.trim();
-                this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm || '');
-            });
-
-            analyticInput.addEventListener('click', (e) => {
-                // Show dropdown on click as well
-                const searchTerm = e.target.value.trim();
-                this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm || '');
-            });
-
-            analyticDropdown.addEventListener('click', (e) => {
-                const item = e.target.closest('.autocomplete_item');
-                if (item && !item.classList.contains('no_results')) {
-                    const id = parseInt(item.dataset.id);
-                    const name = item.textContent;
-                    analyticInput.value = name;
-                    analyticValue.value = id;
-                    analyticDropdown.classList.remove('show');
-                }
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!analyticInput.contains(e.target) && !analyticDropdown.contains(e.target)) {
-                    analyticDropdown.classList.remove('show');
-                }
-            });
-        }
-
         // Apply filters
-        const applyFilters = async () => {
-            const resModel = this.props.resModel;
-            const viewType = this.getViewType();
-            const isPurchaseOrder = viewType === 'purchase_order';
-            const isBill = viewType === 'bill';
+        const applyFilters = () => {
+            const domain = [];
 
-            let domain = [];
-
-            // Date range filter
-            if (fromInput && fromInput.value) {
+            // Date range
+            if (fromInput?.value) {
                 const dateField = isBill ? 'invoice_date' : 'date_order';
                 domain.push([dateField, '>=', fromInput.value]);
             }
-
-            if (toInput && toInput.value) {
+            if (toInput?.value) {
                 const dateField = isBill ? 'invoice_date' : 'date_order';
                 domain.push([dateField, '<=', toInput.value]);
             }
 
-            // Warehouse filter
-            if (warehouseSelect && warehouseSelect.value) {
+            // Warehouse
+            if (warehouseSelect?.value) {
                 domain.push(['picking_type_id.warehouse_id', '=', parseInt(warehouseSelect.value)]);
             }
 
-            // Vendor filter
-            if (vendorValue && vendorValue.value) {
+            // Vendor
+            if (vendorValue?.value) {
                 domain.push(['partner_id', '=', parseInt(vendorValue.value)]);
             }
 
-            // Purchase Rep filter
-            if (repValue && repValue.value) {
-                domain.push(['user_id', '=', parseInt(repValue.value)]);
+            // Purchase Rep/Buyer - FIXED: Different field for Bills vs Purchase Orders
+            if (repValue?.value) {
+                const userField = isBill ? 'invoice_user_id' : 'user_id';
+                domain.push([userField, '=', parseInt(repValue.value)]);
+                console.log('[PURCHASE FILTER] Buyer filter applied:', userField, '=', repValue.value);
             }
 
-            // Analytic Account filter - SIMPLIFIED APPROACH FROM SALES
-            if (analyticValue && analyticValue.value) {
-                const analyticId = parseInt(analyticValue.value);
-                console.log('[PURCHASE FILTER] Applying analytic filter with ID:', analyticId);
-
+            // Analytic Account
+            if (analyticSelect?.value) {
+                const analyticId = parseInt(analyticSelect.value);
                 if (isBill) {
-                    // For bills - search in analytic_distribution JSON field
-                    domain.push(['invoice_line_ids.analytic_distribution', 'ilike', `"${analyticId}"`]);
+                    domain.push(['line_ids.analytic_distribution', 'in', [analyticId]]);
                 } else {
-                    // For purchase orders - use the same approach as sales (search via lines)
-                    try {
-                        const purchaseLines = await this.orm.searchRead(
-                            'purchase.order.line',
-                            [['account_analytic_id', '=', analyticId]],
-                            ['order_id'],
-                            { limit: 5000 }
-                        );
-
-                        const matchingOrderIds = [...new Set(
-                            purchaseLines
-                                .filter(line => line.order_id)
-                                .map(line => line.order_id[0])
-                        )];
-
-                        if (matchingOrderIds.length > 0) {
-                            domain.push(['id', 'in', matchingOrderIds]);
-                        } else {
-                            domain.push(['id', '=', -1]); // No results
-                        }
-                    } catch (error) {
-                        console.error('[PURCHASE FILTER] Analytic account filter error:', error);
-                        this.notification.add("Error applying analytic account filter", { type: "danger" });
-                        return;
-                    }
+                    domain.push(['order_line.account_analytic_id', '=', analyticId]);
                 }
             }
 
-            // Order Reference filter
-            if (orderRefInput && orderRefInput.value) {
+            // Order/Bill Reference
+            if (orderRefInput?.value) {
                 domain.push(['name', 'ilike', orderRefInput.value]);
             }
 
-            // Vendor Reference filter
-            if (vendorRefInput && vendorRefInput.value) {
+            // Vendor Reference
+            if (vendorRefInput?.value) {
                 domain.push(['partner_ref', 'ilike', vendorRefInput.value]);
             }
 
-            // Shipping Reference filter
-            if (shippingRefInput && shippingRefInput.value) {
-                domain.push(['dest_address_id', 'ilike', shippingRefInput.value]);
+            // Shipping Reference
+            if (shippingRefInput?.value && !isBill) {
+                domain.push(['dest_address_id.name', 'ilike', shippingRefInput.value]);
             }
 
-            // Amount filter
-            if (amountInput && amountInput.value) {
-                const amountField = isBill ? 'amount_total' : 'amount_total';
-                domain.push([amountField, '>=', parseFloat(amountInput.value)]);
+            // Amount
+            if (amountInput?.value) {
+                domain.push(['amount_total', '>=', parseFloat(amountInput.value)]);
             }
 
-            // Source Document filter (for Bills)
-            if (sourceDocInput && sourceDocInput.value) {
-                domain.push(['invoice_origin', 'ilike', sourceDocInput.value]);
+            // Source Document (Bills)
+            if (sourceDocInput?.value && isBill) {
+                domain.push(['ref', 'ilike', sourceDocInput.value]);
             }
 
-            // Goods Receipt filter (for Bills)
-            if (goodsReceiptInput && goodsReceiptInput.value) {
-                domain.push(['ref', 'ilike', goodsReceiptInput.value]);
+            // Billing Status
+            if (billingStatusSelect?.value && isBill) {
+                domain.push(['payment_state', '=', billingStatusSelect.value]);
             }
 
-            // Billing Status filter (for Bills)
-            if (billingStatusSelect && billingStatusSelect.value) {
-                domain.push(['invoice_status', '=', billingStatusSelect.value]);
-            }
-
-            // Payment Status filter (for Bills)
-            if (paymentStatusSelect && paymentStatusSelect.value) {
+            // Payment Status
+            if (paymentStatusSelect?.value && isBill) {
                 domain.push(['payment_state', '=', paymentStatusSelect.value]);
             }
 
-            // Add base domain for bills
+            // Goods Receipt
+            if (goodsReceiptInput?.value && !isBill) {
+                domain.push(['picking_ids.name', 'ilike', goodsReceiptInput.value]);
+            }
+
+            // Base domain for bills
             if (isBill) {
                 domain.push(['move_type', '=', 'in_invoice']);
             }
 
-            console.log('[PURCHASE FILTER] Applying domain:', domain);
+            console.log('[PURCHASE FILTER] Final domain:', JSON.stringify(domain));
 
             const actionConfig = this._getActionConfig();
 
             this.actionService.doAction({
                 type: 'ir.actions.act_window',
-                name: isPurchaseOrder ? 'Purchase Orders' : 'Vendor Bills',
-                res_model: resModel,
+                name: isBill ? 'Vendor Bills' : 'Purchase Orders',
+                res_model: this.props.resModel,
                 views: actionConfig.views,
                 view_id: actionConfig.viewId,
                 search_view_id: actionConfig.searchViewId,
@@ -1467,8 +1290,7 @@ patch(ListController.prototype, {
             if (vendorValue) vendorValue.value = '';
             if (repInput) repInput.value = '';
             if (repValue) repValue.value = '';
-            if (analyticInput) analyticInput.value = '';
-            if (analyticValue) analyticValue.value = '';
+            if (analyticSelect) analyticSelect.value = '';
             if (orderRefInput) orderRefInput.value = '';
             if (vendorRefInput) vendorRefInput.value = '';
             if (shippingRefInput) shippingRefInput.value = '';
@@ -1478,8 +1300,6 @@ patch(ListController.prototype, {
             if (billingStatusSelect) billingStatusSelect.value = '';
             if (paymentStatusSelect) paymentStatusSelect.value = '';
 
-            const viewType = this.getViewType();
-            const isBill = viewType === 'bill';
             let domain = [];
             if (isBill) {
                 domain = [['move_type', '=', 'in_invoice']];
@@ -1489,7 +1309,7 @@ patch(ListController.prototype, {
 
             this.actionService.doAction({
                 type: 'ir.actions.act_window',
-                name: viewType === 'purchase_order' ? 'Purchase Orders' : 'Vendor Bills',
+                name: isBill ? 'Vendor Bills' : 'Purchase Orders',
                 res_model: this.props.resModel,
                 views: actionConfig.views,
                 view_id: actionConfig.viewId,
@@ -1515,13 +1335,6 @@ patch(ListController.prototype, {
                         applyFilters();
                     }
                 });
-            }
-        });
-
-        // Escape to clear
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                clearFilters();
             }
         });
     },
@@ -1625,40 +1438,5 @@ patch(ListController.prototype, {
         }
 
         dropdown.classList.add('show');
-    },
-
-    // COPIED DIRECTLY FROM WORKING SALES MODULE
-    showAnalyticDropdown(input, dropdown, searchTerm) {
-        console.log('[PURCHASE FILTER] showAnalyticDropdown called with searchTerm:', searchTerm);
-
-        const lowerSearch = searchTerm.toLowerCase();
-
-        let filtered;
-        if (searchTerm === '') {
-            // Show all analytic accounts when no search term
-            filtered = this._purchaseFilterData.analyticAccounts;
-        } else {
-            // Filter by search term
-            filtered = this._purchaseFilterData.analyticAccounts.filter(a => {
-                const nameMatch = a.name.toLowerCase().includes(lowerSearch);
-                const codeMatch = a.code && a.code.toLowerCase().includes(lowerSearch);
-                return nameMatch || codeMatch;
-            });
-        }
-
-        console.log('[PURCHASE FILTER] Filtered analytic accounts:', filtered.length);
-
-        if (filtered.length === 0) {
-            dropdown.innerHTML = '<div class="autocomplete_item no_results">No analytic accounts found</div>';
-        } else {
-            dropdown.innerHTML = filtered.map(a => {
-                // Display format: "CODE - Name" or just "Name" if no code
-                const displayText = a.code ? `${a.code} - ${a.name}` : a.name;
-                return `<div class="autocomplete_item" data-id="${a.id}" data-code="${a.code || ''}" data-name="${a.name}">${displayText}</div>`;
-            }).join('');
-        }
-
-        dropdown.classList.add('show');
-        console.log('[PURCHASE FILTER] Dropdown shown with', filtered.length, 'items');
     },
 });

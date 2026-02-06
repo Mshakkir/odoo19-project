@@ -13,8 +13,8 @@
     'depends': ['purchase', 'account'],
     'data': [
         'security/ir.model.access.csv',
-        'wizard/purchase_product_report_wizard_view.xml',
-        'report/purchase_product_report_view.xml',
+        'views/purchase_product_report_wizard_view.xml',
+        'views/purchase_product_report_view.xml',
         'views/purchase_menu.xml',
     ],
     'installable': True,

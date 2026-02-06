@@ -6,13 +6,9 @@
         <field name="arch" type="xml">
             <form string="Purchase Invoice Product Report">
                 <group>
-                    <group>
-                        <field name="date_from"/>
-                        <field name="date_to"/>
-                    </group>
-                    <group>
-                        <field name="product_ids" widget="many2many_tags"/>
-                    </group>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                    <field name="product_ids" widget="many2many_tags"/>
                 </group>
                 <footer>
                     <button name="action_generate_report" string="Show Report" type="object" class="btn-primary"/>

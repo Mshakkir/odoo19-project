@@ -16,7 +16,7 @@
     """,
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',
-    'depends': ['sale_management', 'stock'],
+    'depends': ['account', 'stock'],
     'data': [
         'security/ir.model.access.csv',
         'wizard/sale_report_wizard_views.xml',

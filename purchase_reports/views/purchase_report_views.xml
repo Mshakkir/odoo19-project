@@ -33,10 +33,8 @@
         <field name="model">purchase.report.view</field>
         <field name="arch" type="xml">
             <pivot string="Purchase Analysis" sample="1">
-                <field name="order_date" interval="month" type="col"/>
                 <field name="partner_name" type="row"/>
                 <field name="price_total" type="measure"/>
-                <field name="product_qty" type="measure"/>
             </pivot>
         </field>
     </record>
@@ -46,8 +44,8 @@
         <field name="name">purchase.report.view.graph</field>
         <field name="model">purchase.report.view</field>
         <field name="arch" type="xml">
-            <graph string="Purchase Analysis" sample="1">
-                <field name="order_date" interval="month"/>
+            <graph string="Purchase Analysis" type="bar">
+                <field name="partner_name"/>
                 <field name="price_total" type="measure"/>
             </graph>
         </field>
@@ -58,26 +56,16 @@
         <field name="name">purchase.report.view.search</field>
         <field name="model">purchase.report.view</field>
         <field name="arch" type="xml">
-            <search string="Purchase Report">
+            <search>
                 <field name="order_name"/>
                 <field name="partner_name"/>
                 <field name="product_name"/>
-                <field name="category_name"/>
-                <field name="warehouse_name"/>
-                <field name="user_name"/>
-                <field name="order_date"/>
-                <filter string="RFQ" name="rfq" domain="[('state', '=', 'draft')]"/>
-                <filter string="Purchase Orders" name="purchase" domain="[('state', 'in', ['purchase', 'done'])]"/>
-                <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
-                <group expand="0" string="Group By">
-                    <filter string="Order" name="group_by_order" context="{'group_by': 'order_name'}"/>
-                    <filter string="Vendor" name="group_by_partner" context="{'group_by': 'partner_name'}"/>
-                    <filter string="Product" name="group_by_product" context="{'group_by': 'product_name'}"/>
-                    <filter string="Category" name="group_by_category" context="{'group_by': 'category_name'}"/>
-                    <filter string="Warehouse" name="group_by_warehouse" context="{'group_by': 'warehouse_name'}"/>
-                    <filter string="Purchase Rep" name="group_by_user" context="{'group_by': 'user_name'}"/>
-                    <filter string="Status" name="group_by_state" context="{'group_by': 'state'}"/>
-                    <filter string="Order Date" name="group_by_order_date" context="{'group_by': 'order_date:month'}"/>
+                <filter string="RFQ" name="rfq" domain="[('state','=','draft')]"/>
+                <filter string="Purchase Order" name="purchase" domain="[('state','in',['purchase','done'])]"/>
+                <group string="Group By">
+                    <filter string="Vendor" name="group_partner" context="{'group_by':'partner_name'}"/>
+                    <filter string="Product" name="group_product" context="{'group_by':'product_name'}"/>
+                    <filter string="Category" name="group_category" context="{'group_by':'category_name'}"/>
                 </group>
             </search>
         </field>
@@ -89,14 +77,5 @@
         <field name="res_model">purchase.report.view</field>
         <field name="view_mode">list,pivot,graph</field>
         <field name="search_view_id" ref="view_purchase_report_search"/>
-        <field name="context">{}</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                No purchase data found
-            </p>
-            <p>
-                Use the filters to generate your purchase report.
-            </p>
-        </field>
     </record>
 </odoo>

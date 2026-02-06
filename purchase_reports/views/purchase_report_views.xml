@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- List View -->
     <record id="view_purchase_report_list" model="ir.ui.view">
         <field name="name">purchase.report.view.list</field>
         <field name="model">purchase.report.view</field>
@@ -7,26 +8,24 @@
             <list string="Purchase Invoice Report" create="false" edit="false" delete="false">
                 <field name="invoice_date"/>
                 <field name="invoice_name"/>
+                <field name="partner_name"/>
+                <field name="product_code"/>
                 <field name="product_name"/>
+                <field name="category_name"/>
                 <field name="quantity" sum="Total Qty"/>
                 <field name="uom_name"/>
                 <field name="price_unit"/>
                 <field name="price_subtotal" sum="Total"/>
                 <field name="price_total" sum="Grand Total"/>
-                <field name="partner_name"/>
             </list>
         </field>
     </record>
 
-    <record id="view_purchase_report_pivot" model="ir.ui.view">
-        <field name="name">purchase.report.view.pivot</field>
-        <field name="model">purchase.report.view</field>
-        <field name="arch" type="xml">
-            <pivot string="Purchase Invoice Analysis">
-                <field name="product_name" type="row"/>
-                <field name="quantity" type="measure"/>
-                <field name="price_total" type="measure"/>
-            </pivot>
-        </field>
+    <!-- Action -->
+    <record id="action_purchase_report_view" model="ir.actions.act_window">
+        <field name="name">Purchase Invoice Report</field>
+        <field name="res_model">purchase.report.view</field>
+        <field name="view_mode">list</field>
+        <field name="context">{}</field>
     </record>
 </odoo>

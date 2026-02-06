@@ -171,7 +171,6 @@
 
 .purchase_date_filter_container .autocomplete_dropdown.show {
     display: block !important;
-    pointer-events: auto !important;
 }
 
 .purchase_date_filter_container .autocomplete_item {

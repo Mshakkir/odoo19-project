@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Purchase Report Tree View -->
+    <!-- Purchase Report List View -->
     <record id="view_purchase_report_tree" model="ir.ui.view">
         <field name="name">purchase.report.view.tree</field>
         <field name="model">purchase.report.view</field>
@@ -59,19 +59,16 @@
         <field name="model">purchase.report.view</field>
         <field name="arch" type="xml">
             <search string="Purchase Report">
-                <field name="order_name" string="Order"/>
-                <field name="partner_name" string="Vendor"/>
-                <field name="product_name" string="Product"/>
-                <field name="category_name" string="Category"/>
-                <field name="warehouse_name" string="Warehouse"/>
-                <field name="user_name" string="Purchase Rep"/>
+                <field name="order_name"/>
+                <field name="partner_name"/>
+                <field name="product_name"/>
+                <field name="category_name"/>
+                <field name="warehouse_name"/>
+                <field name="user_name"/>
                 <field name="order_date"/>
-
                 <filter string="RFQ" name="rfq" domain="[('state', '=', 'draft')]"/>
                 <filter string="Purchase Orders" name="purchase" domain="[('state', 'in', ['purchase', 'done'])]"/>
                 <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
-
-                <separator/>
                 <group expand="0" string="Group By">
                     <filter string="Order" name="group_by_order" context="{'group_by': 'order_name'}"/>
                     <filter string="Vendor" name="group_by_partner" context="{'group_by': 'partner_name'}"/>
@@ -80,16 +77,13 @@
                     <filter string="Warehouse" name="group_by_warehouse" context="{'group_by': 'warehouse_name'}"/>
                     <filter string="Purchase Rep" name="group_by_user" context="{'group_by': 'user_name'}"/>
                     <filter string="Status" name="group_by_state" context="{'group_by': 'state'}"/>
-                    <separator/>
-                    <filter string="Order Date (Day)" name="group_by_order_date_day" context="{'group_by': 'order_date:day'}"/>
-                    <filter string="Order Date (Month)" name="group_by_order_date" context="{'group_by': 'order_date:month'}"/>
-                    <filter string="Order Date (Year)" name="group_by_order_year" context="{'group_by': 'order_date:year'}"/>
+                    <filter string="Order Date" name="group_by_order_date" context="{'group_by': 'order_date:month'}"/>
                 </group>
             </search>
         </field>
     </record>
 
-    <!-- Purchase Report Action (Base) -->
+    <!-- Purchase Report Action -->
     <record id="action_purchase_report_view" model="ir.actions.act_window">
         <field name="name">Purchase Report</field>
         <field name="res_model">purchase.report.view</field>

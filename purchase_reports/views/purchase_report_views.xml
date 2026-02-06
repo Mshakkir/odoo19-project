@@ -5,16 +5,15 @@
         <field name="model">purchase.report.view</field>
         <field name="arch" type="xml">
             <list string="Purchase Invoice Report" create="false" edit="false" delete="false">
-                <field name="invoice_date" string="Date"/>
-                <field name="invoice_name" string="Vno"/>
-                <field name="product_name" string="Product"/>
-                <field name="quantity" string="Qty" sum="Total Qty"/>
-                <field name="uom_name" string="Unit"/>
-                <field name="price_unit" string="Rate"/>
-                <field name="price_subtotal" string="Untaxed" sum="Total"/>
-                <field name="price_total" string="Net Total" sum="Grand Total"/>
-                <field name="partner_name" string="Vendor"/>
-                <field name="category_name" string="Category"/>
+                <field name="invoice_date"/>
+                <field name="invoice_name"/>
+                <field name="product_name"/>
+                <field name="quantity" sum="Total Qty"/>
+                <field name="uom_name"/>
+                <field name="price_unit"/>
+                <field name="price_subtotal" sum="Total"/>
+                <field name="price_total" sum="Grand Total"/>
+                <field name="partner_name"/>
             </list>
         </field>
     </record>
@@ -28,22 +27,6 @@
                 <field name="quantity" type="measure"/>
                 <field name="price_total" type="measure"/>
             </pivot>
-        </field>
-    </record>
-
-    <record id="view_purchase_report_search" model="ir.ui.view">
-        <field name="name">purchase.report.view.search</field>
-        <field name="model">purchase.report.view</field>
-        <field name="arch" type="xml">
-            <search>
-                <field name="invoice_name"/>
-                <field name="partner_name"/>
-                <field name="product_name"/>
-                <group string="Group By">
-                    <filter string="Vendor" name="group_partner" context="{'group_by':'partner_name'}"/>
-                    <filter string="Product" name="group_product" context="{'group_by':'product_name'}"/>
-                </group>
-            </search>
         </field>
     </record>
 </odoo>

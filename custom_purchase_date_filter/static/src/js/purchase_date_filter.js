@@ -986,7 +986,7 @@ patch(ListController.prototype, {
                         <!-- Analytic Account (Dropdown Select) -->
                         <div class="filter_group">
                             <select id="${analyticId}" class="filter_select">
-                                <option value="">All Warehouse</option>
+                                <option value="">All Analytics</option>
                                 ${analyticOptions}
                             </select>
                         </div>

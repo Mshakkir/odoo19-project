@@ -125,14 +125,14 @@
 }
 
 /* Autocomplete styling for vendor, purchase rep, and analytic account */
-.purchase_date_filter_container .autocomplete_wrapper {
+.autocomplete_wrapper {
     position: relative;
     width: 100%;
 }
 
-.purchase_date_filter_container .autocomplete_input {
+.autocomplete_input {
     width: 100%;
-    padding: 6px 26px 6px 8px;
+    padding: 6px 26px 6px 8px;  /* Added right padding for dropdown icon */
     border: 1px solid #ced4da;
     border-radius: 4px;
     font-size: 12px;
@@ -144,60 +144,58 @@
     cursor: pointer;
 }
 
-.purchase_date_filter_container .autocomplete_input:focus {
+.autocomplete_input:focus {
     border-color: #80bdff;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230d6efd' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
 }
 
-/* CRITICAL: High specificity dropdown styles */
-.purchase_date_filter_container .autocomplete_dropdown {
-    position: absolute !important;
-    top: 100% !important;
-    left: 0 !important;
-    right: 0 !important;
-    background-color: #ffffff !important;
-    border: 1px solid #ced4da !important;
-    border-top: none !important;
-    border-radius: 0 0 4px 4px !important;
-    max-height: 200px !important;
-    overflow-y: auto !important;
-    z-index: 99999 !important;
-    display: none !important;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
-    margin-top: 1px !important;
+.autocomplete_dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-top: 1px;
 }
 
-.purchase_date_filter_container .autocomplete_dropdown.show {
-    display: block !important;
+.autocomplete_dropdown.show {
+    display: block;
 }
 
-.purchase_date_filter_container .autocomplete_item {
-    padding: 8px 12px !important;
-    cursor: pointer !important;
-    font-size: 12px !important;
-    border-bottom: 1px solid #f1f1f1 !important;
-    transition: background-color 0.15s !important;
-    background-color: #ffffff !important;
+.autocomplete_item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    border-bottom: 1px solid #f1f1f1;
+    transition: background-color 0.15s;
 }
 
-.purchase_date_filter_container .autocomplete_item:hover {
-    background-color: #e9ecef !important;
+.autocomplete_item:hover {
+    background-color: #e9ecef;
 }
 
-.purchase_date_filter_container .autocomplete_item:last-child {
-    border-bottom: none !important;
+.autocomplete_item:last-child {
+    border-bottom: none;
 }
 
-.purchase_date_filter_container .autocomplete_item.no_results {
-    cursor: default !important;
-    color: #6c757d !important;
-    font-style: italic !important;
+.autocomplete_item.no_results {
+    cursor: default;
+    color: #6c757d;
+    font-style: italic;
 }
 
-.purchase_date_filter_container .autocomplete_item.no_results:hover {
-    background-color: transparent !important;
+.autocomplete_item.no_results:hover {
+    background-color: transparent;
 }
 
 .filter_actions {
@@ -313,7 +311,7 @@
         width: 100%;
     }
 
-    .purchase_date_filter_container .autocomplete_dropdown {
-        max-height: 150px !important;
+    .autocomplete_dropdown {
+        max-height: 150px;
     }
 }

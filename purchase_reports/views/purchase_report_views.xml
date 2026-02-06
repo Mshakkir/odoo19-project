@@ -36,15 +36,12 @@
         <field name="model">purchase.report.view</field>
         <field name="arch" type="xml">
             <search>
-                <field name="invoice_name" string="Invoice"/>
-                <field name="partner_name" string="Vendor"/>
-                <field name="product_name" string="Product"/>
-                <field name="category_name" string="Category"/>
+                <field name="invoice_name"/>
+                <field name="partner_name"/>
+                <field name="product_name"/>
                 <group string="Group By">
                     <filter string="Vendor" name="group_partner" context="{'group_by':'partner_name'}"/>
                     <filter string="Product" name="group_product" context="{'group_by':'product_name'}"/>
-                    <filter string="Category" name="group_category" context="{'group_by':'category_name'}"/>
-                    <filter string="Date" name="group_date" context="{'group_by':'invoice_date:month'}"/>
                 </group>
             </search>
         </field>

@@ -23,7 +23,7 @@
     </record>
 
     <record id="action_purchase_report_by_product_wizard" model="ir.actions.act_window">
-        <field name="name">Purchase Product Report</field>
+        <field name="name">Purchase Invoice Product Report</field>
         <field name="res_model">purchase.report.by.product.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>

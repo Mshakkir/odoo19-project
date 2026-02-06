@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- List View -->
-    <record id="view_purchase_report_list" model="ir.ui.view">
-        <field name="name">purchase.report.view.list</field>
+    <!-- Tree View -->
+    <record id="view_purchase_report_tree" model="ir.ui.view">
+        <field name="name">purchase.report.view.tree</field>
         <field name="model">purchase.report.view</field>
         <field name="arch" type="xml">
-            <list string="Purchase Invoice Report" create="false" edit="false" delete="false">
+            <tree string="Purchase Invoice Report" create="0" edit="0" delete="0">
                 <field name="invoice_date"/>
                 <field name="invoice_name"/>
                 <field name="product_code"/>
@@ -14,7 +14,7 @@
                 <field name="uom_name"/>
                 <field name="price_unit"/>
                 <field name="price_total" sum="Grand Total"/>
-            </list>
+            </tree>
         </field>
     </record>
 
@@ -22,7 +22,6 @@
     <record id="action_purchase_report_view" model="ir.actions.act_window">
         <field name="name">Purchase Invoice Report</field>
         <field name="res_model">purchase.report.view</field>
-        <field name="view_mode">list</field>
-        <field name="context">{}</field>
+        <field name="view_mode">tree</field>
     </record>
 </odoo>

@@ -1,5 +1,5 @@
 {
-    'name': 'Purchase Reports',
+    'name': 'Purchase Product Reports',
     'version': '19.0.1.0.0',
     'category': 'Purchase',
     'depends': ['purchase', 'account'],

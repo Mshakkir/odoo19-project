@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
 from odoo.exceptions import UserError
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class SaleReportWizard(models.TransientModel):
@@ -37,6 +40,12 @@ class SaleReportWizard(models.TransientModel):
         """Generate the sales invoice report based on selected criteria"""
         self.ensure_one()
 
+        _logger.info("="*80)
+        _logger.info("DEBUG WIZARD: action_generate_report called")
+        _logger.info(f"DEBUG WIZARD: report_type = {self.report_type}")
+        _logger.info(f"DEBUG WIZARD: date_from = {self.date_from}")
+        _logger.info(f"DEBUG WIZARD: date_to = {self.date_to}")
+
         # Validate that the appropriate field is filled
         if self.report_type == 'product' and not self.product_id:
             raise UserError('Please select a product.')
@@ -53,16 +62,22 @@ class SaleReportWizard(models.TransientModel):
         record_id = False
         if self.report_type == 'product':
             record_id = self.product_id.id
+            _logger.info(f"DEBUG WIZARD: Product selected = {self.product_id.name} (ID: {record_id})")
         elif self.report_type == 'category':
             record_id = self.category_id.id
+            _logger.info(f"DEBUG WIZARD: Category selected = {self.category_id.name} (ID: {record_id})")
         elif self.report_type == 'partner':
             record_id = self.partner_id.id
+            _logger.info(f"DEBUG WIZARD: Partner selected = {self.partner_id.name} (ID: {record_id})")
         elif self.report_type == 'warehouse':
             record_id = self.warehouse_id.id
+            _logger.info(f"DEBUG WIZARD: Warehouse selected = {self.warehouse_id.name} (ID: {record_id})")
         elif self.report_type == 'salesman':
             record_id = self.salesman_id.id
+            _logger.info(f"DEBUG WIZARD: Salesman selected = {self.salesman_id.name} (ID: {record_id})")
 
         # Get sales invoice data
+        _logger.info(f"DEBUG WIZARD: Calling get_sales_report_data...")
         invoices = self.env['account.move'].get_sales_report_data(
             self.report_type,
             record_id,
@@ -70,7 +85,10 @@ class SaleReportWizard(models.TransientModel):
             self.date_to
         )
 
+        _logger.info(f"DEBUG WIZARD: get_sales_report_data returned {len(invoices)} invoices")
+
         if not invoices:
+            _logger.warning("DEBUG WIZARD: No invoices found - raising UserError")
             raise UserError('No sales invoices found for the selected criteria.')
 
         # Prepare data for the report
@@ -81,6 +99,9 @@ class SaleReportWizard(models.TransientModel):
             'date_to': self.date_to,
             'invoice_ids': invoices.ids,
         }
+
+        _logger.info(f"DEBUG WIZARD: Returning action with invoice IDs = {invoices.ids}")
+        _logger.info("="*80)
 
         # Return action to open tree view with the filtered invoices
         return {

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List View -->
+    <record id="view_purchase_invoice_report_list" model="ir.ui.view">
+        <field name="name">purchase.invoice.report.list</field>
+        <field name="model">purchase.invoice.report</field>
+        <field name="arch" type="xml">
+            <list string="Purchase Invoice Report" create="false" edit="false" delete="false">
+                <field name="invoice_date"/>
+                <field name="invoice_number"/>
+                <field name="vendor_id"/>
+                <field name="warehouse_id"/>
+                <field name="product_id"/>
+                <field name="quantity" sum="Total Qty"/>
+                <field name="uom_id"/>
+                <field name="price_unit"/>
+                <field name="net_amount" sum="Total Net Amount"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_purchase_invoice_report_search" model="ir.ui.view">
+        <field name="name">purchase.invoice.report.search</field>
+        <field name="model">purchase.invoice.report</field>
+        <field name="arch" type="xml">
+            <search string="Search Purchase Invoice Report">
+                <field name="invoice_number"/>
+                <field name="vendor_id"/>
+                <field name="warehouse_id"/>
+                <field name="product_id"/>
+                <filter name="group_by_invoice" string="Invoice Number" context="{'group_by': 'invoice_number'}"/>
+                <filter name="group_by_vendor" string="Vendor" context="{'group_by': 'vendor_id'}"/>
+                <filter name="group_by_warehouse" string="Warehouse" context="{'group_by': 'warehouse_id'}"/>
+                <filter name="group_by_product" string="Product" context="{'group_by': 'product_id'}"/>
+                <filter name="group_by_date" string="Date" context="{'group_by': 'invoice_date'}"/>
+            </search>
+        </field>
+    </record>
+</odoo>

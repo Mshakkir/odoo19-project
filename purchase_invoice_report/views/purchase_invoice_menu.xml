@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Submenu: By Invoice Number under Purchase Reports -->
+    <menuitem id="menu_purchase_report_by_invoice"
+              name="By Invoice Number"
+              parent="purchase_bypd_report.menu_purchase_reports"
+              action="action_purchase_invoice_report_wizard"
+              sequence="4"/>
+</odoo>

@@ -2,7 +2,7 @@
 <odoo>
     <!-- Submenu: By Analytic under Purchase Reports -->
     <menuitem id="menu_purchase_report_by_analytic"
-              name="By Analytic"
+              name="By Analytic Account"
               parent="purchase_bypd_report.menu_purchase_reports"
               action="action_purchase_analytic_report_wizard"
               sequence="5"/>

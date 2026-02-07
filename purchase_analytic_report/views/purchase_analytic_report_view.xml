@@ -8,6 +8,7 @@
             <list string="Purchase Analytic Report" create="false" edit="false" delete="false">
                 <field name="invoice_date"/>
                 <field name="invoice_number"/>
+                <field name="analytic_account_id"/>
                 <field name="vendor_id"/>
                 <field name="warehouse_id"/>
                 <field name="product_id"/>

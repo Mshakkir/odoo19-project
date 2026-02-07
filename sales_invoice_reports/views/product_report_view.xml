@@ -63,7 +63,7 @@
                     <filter string="Invoices" name="invoices" domain="[('move_type', '=', 'out_invoice')]"/>
                     <filter string="Credit Notes" name="refunds" domain="[('move_type', '=', 'out_refund')]"/>
                     <filter string="Invoice Date" name="invoice_date" date="invoice_date"/>
-                    <group expand="0" string="Group By">
+                    <group string="Group By">
                         <filter string="Product" name="group_product" context="{'group_by': 'product_id'}"/>
                         <filter string="Customer" name="group_customer" context="{'group_by': 'partner_id'}"/>
                         <filter string="Salesperson" name="group_salesperson" context="{'group_by': 'user_id'}"/>

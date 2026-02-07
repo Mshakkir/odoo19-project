@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Tree view for Salesperson Report Display -->
+        <record id="view_salesperson_report_display_tree" model="ir.ui.view">
+            <field name="name">salesperson.report.display.tree</field>
+            <field name="model">salesperson.report.display</field>
+            <field name="arch" type="xml">
+                <tree string="Sales Invoice Report" create="false" edit="false" delete="false"
+                      decoration-bf="not is_invoice_line">
+                    <field name="salesperson_name" optional="hide"/>
+                    <field name="invoice_date" string="Date"/>
+                    <field name="invoice_number" string="Inv No"/>
+                    <field name="customer_name" string="Customer Name"/>
+                    <field name="account_code" string="Sales Ac"/>
+                    <field name="sequence" string="Slno" optional="hide"/>
+                    <field name="product_code" string="Code"/>
+                    <field name="product_name" string="Name"/>
+                    <field name="quantity" string="Qty" sum="Total Qty"/>
+                    <field name="uom" string="Unit"/>
+                    <field name="price_unit" string="Rate"/>
+                    <field name="discount" string="Discount"/>
+                    <field name="price_subtotal" string="Net Total" sum="Grand Total"/>
+                    <field name="is_invoice_line" column_invisible="1"/>
+                    <field name="invoice_id" column_invisible="1"/>
+                    <field name="salesperson_id" column_invisible="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Action for Salesperson Report Display -->
+        <record id="action_salesperson_report_display" model="ir.actions.act_window">
+            <field name="name">Sales Invoice Report</field>
+            <field name="res_model">salesperson.report.display</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_salesperson_report_display_tree"/>
+        </record>
+    </data>
+</odoo>

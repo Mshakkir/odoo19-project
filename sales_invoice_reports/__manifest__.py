@@ -34,6 +34,7 @@
 #     'license': 'LGPL-3',
 # }
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 {
     'name': 'Sales Invoice Reports',
     'version': '19.0.1.0.0',
@@ -46,6 +47,7 @@
         * Report by Product
         * Report by Customer
         * Report by Salesperson
+        * Formatted Sales Report Display
         * Custom PDF Report by Salesperson (Detailed)
 
         All reports are based on invoices (not sale orders) for businesses 
@@ -63,6 +65,7 @@
         'views/product_report_view.xml',
         'views/customer_report_view.xml',
         'views/salesperson_report_view.xml',
+        'views/salesperson_report_display_view.xml',
         'views/menu_views.xml',
         'reports/sales_report_template.xml',
     ],

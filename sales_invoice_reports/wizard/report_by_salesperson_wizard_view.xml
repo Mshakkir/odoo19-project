@@ -22,7 +22,8 @@
                         </group>
                     </group>
                     <footer>
-                        <button name="action_apply" string="Apply" type="object" class="btn-primary"/>
+                        <button name="action_show_report" string="Show Report" type="object" class="btn-primary"/>
+                        <button name="action_apply" string="Pivot/Graph View" type="object" class="btn-secondary"/>
                         <button string="Cancel" class="btn-secondary" special="cancel"/>
                     </footer>
                 </form>

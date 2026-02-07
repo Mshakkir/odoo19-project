@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_purchase_product_report_wizard,purchase.product.report.wizard,model_purchase_product_report_wizard,purchase.group_purchase_user,1,1,1,1
-access_purchase_bypd_report,purchase.bypd.report,model_purchase_bypd_report,purchase.group_purchase_user,1,1,1,1

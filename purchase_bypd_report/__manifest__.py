@@ -15,7 +15,6 @@
         'views/purchase_product_report_wizard_view.xml',
         'views/purchase_product_report_view.xml',
         'views/purchase_menu.xml',
-        'security/ir.model.access.csv',
     ],
     'installable': True,
     'application': False,

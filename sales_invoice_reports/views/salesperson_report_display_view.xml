@@ -5,7 +5,7 @@
         <template id="salesperson_report_display_template">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="o">
-                    <t t-call="web.external_layout">
+                    <div class="container">
                         <div class="page">
                             <style>
                                 .report-header {
@@ -166,16 +166,16 @@
                                 </div>
                             </t>
                         </div>
-                    </t>
+                    </div>
                 </t>
             </t>
         </template>
 
-        <!-- Action to display report -->
+        <!-- Action to display report in Odoo tab -->
         <record id="action_salesperson_report_display" model="ir.actions.report">
             <field name="name">Sales Invoice Report</field>
             <field name="model">report.by.salesperson.wizard</field>
-            <field name="report_type">qweb-pdf</field>
+            <field name="report_type">qweb-html</field>
             <field name="report_name">sales_invoice_reports.salesperson_report_display_template</field>
             <field name="report_file">sales_invoice_reports.salesperson_report_display_template</field>
             <field name="binding_model_id" ref="model_report_by_salesperson_wizard"/>

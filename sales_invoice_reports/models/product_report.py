@@ -91,7 +91,7 @@ class ProductInvoiceReport(models.Model):
                 WHERE
                     am.move_type IN ('out_invoice', 'out_refund')
                     AND ail.product_id IS NOT NULL
-                    AND ail.display_type IS NULL
+                    AND (ail.display_type IS NULL OR ail.display_type = 'product')
             )
         """ % self._table
         self.env.cr.execute(query)

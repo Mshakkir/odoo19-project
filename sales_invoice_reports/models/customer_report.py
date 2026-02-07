@@ -93,7 +93,7 @@ class CustomerInvoiceReport(models.Model):
                     LEFT JOIN product_template pt ON pp.product_tmpl_id = pt.id
                 WHERE
                     am.move_type IN ('out_invoice', 'out_refund')
-                    AND ail.display_type IS NULL
+                    AND (ail.display_type IS NULL OR ail.display_type = 'product')
             )
         """ % self._table
         self.env.cr.execute(query)

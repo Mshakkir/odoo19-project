@@ -97,7 +97,6 @@
 #             )
 #         """ % self._table
 #         self.env.cr.execute(query)
-
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, tools
@@ -173,8 +172,17 @@ class CustomerInvoiceReport(models.Model):
                     rp.country_id as country_id,
                     am.invoice_user_id as user_id,
                     am.team_id as team_id,
-                    ail.analytic_distribution as analytic_account_id,
-                    sol.warehouse_id as warehouse_id,
+                    (SELECT aaa.id 
+                     FROM account_analytic_account aaa
+                     WHERE aaa.id IN (
+                         SELECT unnest(string_to_array(
+                             regexp_replace(ail.analytic_distribution::text, '[^0-9,]', '', 'g'), 
+                             ','
+                         ))::integer
+                     )
+                     LIMIT 1
+                    ) as analytic_account_id,
+                    so.warehouse_id as warehouse_id,
                     ail.account_id as account_id,
                     CASE 
                         WHEN am.move_type = 'out_refund' THEN -ail.quantity
@@ -199,7 +207,9 @@ class CustomerInvoiceReport(models.Model):
                     LEFT JOIN res_partner rp ON am.partner_id = rp.id
                     LEFT JOIN product_product pp ON ail.product_id = pp.id
                     LEFT JOIN product_template pt ON pp.product_tmpl_id = pt.id
-                    LEFT JOIN sale_order_line sol ON ail.sale_line_ids @> ARRAY[sol.id]
+                    LEFT JOIN sale_order_line_invoice_rel solir ON solir.invoice_line_id = ail.id
+                    LEFT JOIN sale_order_line sol ON sol.id = solir.order_line_id
+                    LEFT JOIN sale_order so ON so.id = sol.order_id
                 WHERE
                     am.move_type IN ('out_invoice', 'out_refund')
                     AND (ail.display_type IS NULL OR ail.display_type = 'product')

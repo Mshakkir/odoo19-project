@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Salesperson Invoice Report Tree View -->
+        <record id="view_salesperson_invoice_report_tree" model="ir.ui.view">
+            <field name="name">salesperson.invoice.report.tree</field>
+            <field name="model">salesperson.invoice.report</field>
+            <field name="arch" type="xml">
+                <tree string="Salesperson Sales Report" create="false" delete="false">
+                    <field name="invoice_date"/>
+                    <field name="invoice_number"/>
+                    <field name="user_id"/>
+                    <field name="partner_id"/>
+                    <field name="product_id"/>
+                    <field name="quantity" sum="Total Quantity"/>
+                    <field name="uom_id"/>
+                    <field name="price_unit"/>
+                    <field name="discount"/>
+                    <field name="price_subtotal" sum="Total Untaxed"/>
+                    <field name="price_total" sum="Total"/>
+                    <field name="invoice_state"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="company_id" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Salesperson Invoice Report Pivot View -->
+        <record id="view_salesperson_invoice_report_pivot" model="ir.ui.view">
+            <field name="name">salesperson.invoice.report.pivot</field>
+            <field name="model">salesperson.invoice.report</field>
+            <field name="arch" type="xml">
+                <pivot string="Salesperson Sales Analysis" sample="1">
+                    <field name="user_id" type="row"/>
+                    <field name="invoice_date" interval="month" type="col"/>
+                    <field name="quantity" type="measure"/>
+                    <field name="price_subtotal" type="measure"/>
+                    <field name="price_total" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Salesperson Invoice Report Graph View -->
+        <record id="view_salesperson_invoice_report_graph" model="ir.ui.view">
+            <field name="name">salesperson.invoice.report.graph</field>
+            <field name="model">salesperson.invoice.report</field>
+            <field name="arch" type="xml">
+                <graph string="Salesperson Sales Graph" sample="1" type="bar">
+                    <field name="user_id"/>
+                    <field name="price_total" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Salesperson Invoice Report Search View -->
+        <record id="view_salesperson_invoice_report_search" model="ir.ui.view">
+            <field name="name">salesperson.invoice.report.search</field>
+            <field name="model">salesperson.invoice.report</field>
+            <field name="arch" type="xml">
+                <search string="Search Salesperson Sales">
+                    <field name="user_id"/>
+                    <field name="partner_id"/>
+                    <field name="product_id"/>
+                    <field name="invoice_number"/>
+                    <filter string="Posted" name="posted" domain="[('invoice_state', '=', 'posted')]"/>
+                    <filter string="Draft" name="draft" domain="[('invoice_state', '=', 'draft')]"/>
+                    <separator/>
+                    <filter string="Invoices" name="invoices" domain="[('move_type', '=', 'out_invoice')]"/>
+                    <filter string="Credit Notes" name="refunds" domain="[('move_type', '=', 'out_refund')]"/>
+                    <separator/>
+                    <filter string="Invoice Date" name="invoice_date" date="invoice_date"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Salesperson" name="group_salesperson" context="{'group_by': 'user_id'}"/>
+                        <filter string="Sales Team" name="group_team" context="{'group_by': 'team_id'}"/>
+                        <filter string="Customer" name="group_customer" context="{'group_by': 'partner_id'}"/>
+                        <filter string="Product" name="group_product" context="{'group_by': 'product_id'}"/>
+                        <filter string="Status" name="group_status" context="{'group_by': 'invoice_state'}"/>
+                        <separator/>
+                        <filter string="Invoice Date" name="group_invoice_date" context="{'group_by': 'invoice_date:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Action for Salesperson Invoice Report -->
+        <record id="action_salesperson_invoice_report" model="ir.actions.act_window">
+            <field name="name">Salesperson Sales Report</field>
+            <field name="res_model">salesperson.invoice.report</field>
+            <field name="view_mode">tree,pivot,graph</field>
+            <field name="search_view_id" ref="view_salesperson_invoice_report_search"/>
+            <field name="context">{'search_default_posted': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No sales data found!
+                </p>
+                <p>
+                    Create invoices to see salesperson sales reports here.
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>

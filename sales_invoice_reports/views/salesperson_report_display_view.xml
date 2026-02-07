@@ -85,24 +85,21 @@
                             .text-right {
                                 text-align: right;
                             }
-                            .company-info {
-                                margin-bottom: 20px;
-                                font-size: 11px;
-                            }
+
                         </style>
 
-                        <!-- Company Info -->
-                        <div class="company-info">
-                            <div><strong t-field="docs.company_id.name"></strong></div>
-                            <div t-field="docs.company_id.street"></div>
-                            <div>
-                                <span t-field="docs.company_id.city"></span>
-                                <span t-if="docs.company_id.zip"> - <t t-esc="docs.company_id.zip"></t></span>
-                            </div>
-                            <div t-if="docs.company_id.country_id">
-                                <span t-field="docs.company_id.country_id.name"></span>
-                            </div>
-                        </div>
+<!--                        &lt;!&ndash; Company Info &ndash;&gt;-->
+<!--                        <div class="company-info">-->
+<!--                            <div><strong t-field="docs.company_id.name"></strong></div>-->
+<!--                            <div t-field="docs.company_id.street"></div>-->
+<!--                            <div>-->
+<!--                                <span t-field="docs.company_id.city"></span>-->
+<!--                                <span t-if="docs.company_id.zip"> - <t t-esc="docs.company_id.zip"></t></span>-->
+<!--                            </div>-->
+<!--                            <div t-if="docs.company_id.country_id">-->
+<!--                                <span t-field="docs.company_id.country_id.name"></span>-->
+<!--                            </div>-->
+<!--                        </div>-->
 
                         <!-- Report Header -->
                         <div class="report-header">

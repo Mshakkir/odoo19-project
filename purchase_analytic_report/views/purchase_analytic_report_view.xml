@@ -5,7 +5,7 @@
         <field name="name">purchase.analytic.report.tree</field>
         <field name="model">purchase.analytic.report</field>
         <field name="arch" type="xml">
-            <tree string="Purchase Analytic Report" create="false" edit="false" delete="false">
+            <list string="Purchase Analytic Report" create="false" edit="false" delete="false">
                 <field name="invoice_date"/>
                 <field name="invoice_number"/>
                 <field name="vendor_id"/>
@@ -16,7 +16,7 @@
                 <field name="unit_price"/>
                 <field name="net_amount" sum="Total Amount"/>
                 <field name="analytic_account_id" optional="hide"/>
-            </tree>
+            </list>
         </field>
     </record>
 

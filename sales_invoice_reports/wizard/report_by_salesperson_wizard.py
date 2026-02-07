@@ -1,97 +1,45 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, tools
+from odoo import models, fields, api
 
 
-class SalespersonInvoiceReport(models.Model):
-    _name = 'salesperson.invoice.report'
-    _description = 'Salesperson Invoice Report'
-    _auto = False
-    _rec_name = 'user_id'
-    _order = 'invoice_date desc'
+class ReportBySalespersonWizard(models.TransientModel):
+    _name = 'report.by.salesperson.wizard'
+    _description = 'Report by Salesperson Wizard'
 
-    # Invoice Information
-    invoice_id = fields.Many2one('account.move', string='Invoice', readonly=True)
-    invoice_date = fields.Date(string='Invoice Date', readonly=True)
-    invoice_number = fields.Char(string='Invoice Number', readonly=True)
+    user_id = fields.Many2one('res.users', string='Salesperson', required=True)
+    date_from = fields.Date(string='Date From')
+    date_to = fields.Date(string='Date To', default=fields.Date.today)
     invoice_state = fields.Selection([
         ('draft', 'Draft'),
         ('posted', 'Posted'),
         ('cancel', 'Cancelled'),
-    ], string='Status', readonly=True)
-    move_type = fields.Selection([
-        ('out_invoice', 'Invoice'),
-        ('out_refund', 'Credit Note'),
-    ], string='Type', readonly=True)
+        ('all', 'All')
+    ], string='Invoice Status', default='all')
 
-    # Product Information
-    product_id = fields.Many2one('product.product', string='Product', readonly=True)
-    product_template_id = fields.Many2one('product.template', string='Product Template', readonly=True)
-    categ_id = fields.Many2one('product.category', string='Product Category', readonly=True)
+    def action_apply(self):
+        """Apply filter and show salesperson report"""
+        self.ensure_one()
 
-    # Customer Information
-    partner_id = fields.Many2one('res.partner', string='Customer', readonly=True)
+        # Build domain for the report model
+        domain = [('user_id', '=', self.user_id.id)]
 
-    # Salesperson Information
-    user_id = fields.Many2one('res.users', string='Salesperson', readonly=True)
-    team_id = fields.Many2one('crm.team', string='Sales Team', readonly=True)
+        # Only filter by state if not 'all'
+        if self.invoice_state and self.invoice_state != 'all':
+            domain.append(('invoice_state', '=', self.invoice_state))
 
-    # Quantity and Amount
-    quantity = fields.Float(string='Quantity', readonly=True)
-    uom_id = fields.Many2one('uom.uom', string='Unit of Measure', readonly=True)
-    price_unit = fields.Float(string='Unit Price', readonly=True)
-    price_subtotal = fields.Monetary(string='Untaxed Total', readonly=True)
-    price_total = fields.Monetary(string='Total', readonly=True)
-    discount = fields.Float(string='Discount %', readonly=True)
+        # Only add date filters if they are set
+        if self.date_from:
+            domain.append(('invoice_date', '>=', self.date_from))
+        if self.date_to:
+            domain.append(('invoice_date', '<=', self.date_to))
 
-    # Currency
-    currency_id = fields.Many2one('res.currency', string='Currency', readonly=True)
-    company_id = fields.Many2one('res.company', string='Company', readonly=True)
-
-    def init(self):
-        """Create SQL view for salesperson invoice report"""
-        tools.drop_view_if_exists(self.env.cr, self._table)
-        query = """
-            CREATE OR REPLACE VIEW %s AS (
-                SELECT
-                    ail.id as id,
-                    am.id as invoice_id,
-                    am.invoice_date as invoice_date,
-                    am.name as invoice_number,
-                    am.state as invoice_state,
-                    am.move_type as move_type,
-                    ail.product_id as product_id,
-                    pt.id as product_template_id,
-                    pt.categ_id as categ_id,
-                    am.partner_id as partner_id,
-                    am.invoice_user_id as user_id,
-                    am.team_id as team_id,
-                    CASE 
-                        WHEN am.move_type = 'out_refund' THEN -ail.quantity
-                        ELSE ail.quantity
-                    END as quantity,
-                    ail.product_uom_id as uom_id,
-                    ail.price_unit as price_unit,
-                    CASE 
-                        WHEN am.move_type = 'out_refund' THEN -ail.price_subtotal
-                        ELSE ail.price_subtotal
-                    END as price_subtotal,
-                    CASE 
-                        WHEN am.move_type = 'out_refund' THEN -ail.price_total
-                        ELSE ail.price_total
-                    END as price_total,
-                    ail.discount as discount,
-                    am.currency_id as currency_id,
-                    am.company_id as company_id
-                FROM
-                    account_move_line ail
-                    JOIN account_move am ON ail.move_id = am.id
-                    LEFT JOIN product_product pp ON ail.product_id = pp.id
-                    LEFT JOIN product_template pt ON pp.product_tmpl_id = pt.id
-                WHERE
-                    am.move_type IN ('out_invoice', 'out_refund')
-                    AND (ail.display_type IS NULL OR ail.display_type = 'product')
-                    AND am.invoice_user_id IS NOT NULL
-            )
-        """ % self._table
-        self.env.cr.execute(query)
+        return {
+            'name': f'Sales Report - {self.user_id.display_name}',
+            'type': 'ir.actions.act_window',
+            'res_model': 'salesperson.invoice.report',
+            'view_mode': 'list,pivot,graph',
+            'domain': domain,
+            'context': {'search_default_user_id': self.user_id.id},
+            'target': 'current',
+        }

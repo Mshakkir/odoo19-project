@@ -7,49 +7,30 @@
                   parent="sale.sale_menu_root"
                   sequence="100"/>
 
-        <!-- Filtered Reports with Wizards -->
-        <menuitem id="menu_by_product"
-                  name="By Product"
+        <!-- Report Menus with Wizards (includes "All" option via checkbox) -->
+        <menuitem id="menu_product_report"
+                  name="Product Sales Report"
                   parent="menu_sales_invoice_reports_root"
                   action="action_report_by_product_wizard"
                   sequence="10"/>
 
-        <menuitem id="menu_by_customer"
-                  name="By Customer"
+        <menuitem id="menu_customer_report"
+                  name="Customer Sales Report"
                   parent="menu_sales_invoice_reports_root"
                   action="action_report_by_customer_wizard"
                   sequence="20"/>
 
-        <menuitem id="menu_by_salesperson"
-                  name="By Salesperson"
+        <menuitem id="menu_salesperson_report"
+                  name="Salesperson Sales Report"
                   parent="menu_sales_invoice_reports_root"
                   action="action_report_by_salesperson_wizard"
                   sequence="30"/>
-
-        <!-- All Reports (Direct Access without Wizard) -->
-        <menuitem id="menu_all_products"
-                  name="All Products"
-                  parent="menu_sales_invoice_reports_root"
-                  action="action_product_invoice_report"
-                  sequence="40"/>
-
-        <menuitem id="menu_all_customers"
-                  name="All Customers"
-                  parent="menu_sales_invoice_reports_root"
-                  action="action_customer_invoice_report"
-                  sequence="50"/>
-
-        <menuitem id="menu_all_salespersons"
-                  name="All Salespersons"
-                  parent="menu_sales_invoice_reports_root"
-                  action="action_salesperson_invoice_report"
-                  sequence="60"/>
 
         <!-- PDF Report Menu -->
         <menuitem id="menu_sales_report_pdf"
                   name="Sales Report by Salesperson (PDF)"
                   parent="menu_sales_invoice_reports_root"
                   action="action_sales_report_wizard"
-                  sequence="70"/>
+                  sequence="40"/>
     </data>
 </odoo>

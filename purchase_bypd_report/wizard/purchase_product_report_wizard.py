@@ -26,7 +26,7 @@ class PurchaseProductReportWizard(models.TransientModel):
         self.ensure_one()
 
         # Create the report records
-        report_obj = self.env['purchase.product.report']
+        report_obj = self.env['purchase.bypd.report']
 
         # Search for purchase invoice lines matching criteria
         domain = [
@@ -59,9 +59,9 @@ class PurchaseProductReportWizard(models.TransientModel):
         return {
             'name': 'Purchase Product Report',
             'type': 'ir.actions.act_window',
-            'res_model': 'purchase.product.report',
+            'res_model': 'purchase.bypd.report',
             'view_mode': 'list',
-            'view_id': self.env.ref('purchase_bypd_report.view_purchase_product_report_list').id,
+            'view_id': self.env.ref('purchase_bypd_report.view_purchase_bypd_report_list').id,
             'target': 'current',
             'domain': [],
         }

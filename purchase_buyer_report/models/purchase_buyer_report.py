@@ -1,7 +1,7 @@
 from odoo import models, fields, api
 
 
-class PurchaseBuyerReport(models.TransientModel):
+class PurchaseBuyerReport(models.Model):
     _name = 'purchase.buyer.report'
     _description = 'Purchase Buyer Report'
     _order = 'invoice_date desc, invoice_number'

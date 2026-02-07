@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Product Invoice Report Tree View -->
+        <!-- Product Invoice Report List View -->
         <record id="view_product_invoice_report_tree" model="ir.ui.view">
             <field name="name">product.invoice.report.tree</field>
             <field name="model">product.invoice.report</field>
             <field name="arch" type="xml">
-                <tree string="Product Sales Report" create="false" delete="false">
+                <list string="Product Sales Report" create="false" delete="false">
                     <field name="invoice_date"/>
                     <field name="invoice_number"/>
                     <field name="partner_id"/>
@@ -19,9 +19,9 @@
                     <field name="price_total" sum="Total"/>
                     <field name="invoice_state"/>
                     <field name="user_id"/>
-                    <field name="currency_id" invisible="1"/>
-                    <field name="company_id" invisible="1"/>
-                </tree>
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="company_id" column_invisible="1"/>
+                </list>
             </field>
         </record>
 
@@ -86,7 +86,7 @@
         <record id="action_product_invoice_report" model="ir.actions.act_window">
             <field name="name">Product Sales Report</field>
             <field name="res_model">product.invoice.report</field>
-            <field name="view_mode">tree,pivot,graph</field>
+            <field name="view_mode">list,pivot,graph</field>
             <field name="search_view_id" ref="view_product_invoice_report_search"/>
             <field name="context">{'search_default_posted': 1}</field>
             <field name="help" type="html">

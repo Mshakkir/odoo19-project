@@ -54,16 +54,12 @@
             <field name="model">product.invoice.report</field>
             <field name="arch" type="xml">
                 <search>
-                    <field name="product_id"/>
-                    <field name="partner_id"/>
-                    <field name="user_id"/>
-                    <field name="invoice_number"/>
                     <filter string="Posted" name="posted" domain="[('invoice_state', '=', 'posted')]"/>
                     <filter string="Draft" name="draft" domain="[('invoice_state', '=', 'draft')]"/>
                     <filter string="Invoices" name="invoices" domain="[('move_type', '=', 'out_invoice')]"/>
                     <filter string="Credit Notes" name="refunds" domain="[('move_type', '=', 'out_refund')]"/>
                     <filter string="Invoice Date" name="invoice_date" date="invoice_date"/>
-                    <group string="Group By">
+                    <group>
                         <filter string="Product" name="group_product" context="{'group_by': 'product_id'}"/>
                         <filter string="Customer" name="group_customer" context="{'group_by': 'partner_id'}"/>
                         <filter string="Salesperson" name="group_salesperson" context="{'group_by': 'user_id'}"/>

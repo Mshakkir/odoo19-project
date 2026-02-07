@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Wizard Form View -->
+    <record id="view_purchase_vendor_report_wizard_form" model="ir.ui.view">
+        <field name="name">purchase.vendor.report.wizard.form</field>
+        <field name="model">purchase.vendor.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Purchase Vendor Report">
+                <group>
+                    <group>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                    <group>
+                        <field name="vendor_ids" widget="many2many_tags"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_show_report"
+                            string="Show Report"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Wizard Action -->
+    <record id="action_purchase_vendor_report_wizard" model="ir.actions.act_window">
+        <field name="name">By Vendor</field>
+        <field name="res_model">purchase.vendor.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

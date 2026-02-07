@@ -155,8 +155,8 @@ class ReportBySalespersonWizard(models.TransientModel):
             'name': report_title,
             'type': 'ir.actions.act_window',
             'res_model': 'salesperson.report.display',
-            'view_mode': 'tree',
-            'view_id': self.env.ref('sales_invoice_reports.view_salesperson_report_display_tree').id,
+            'view_mode': 'list',
+            'view_id': self.env.ref('sales_invoice_reports.view_salesperson_report_display_list').id,
             'target': 'current',
             'context': {
                 'group_by': ['salesperson_name', 'invoice_number'],

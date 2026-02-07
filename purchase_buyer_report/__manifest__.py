@@ -13,7 +13,7 @@
     'website': 'https://www.yourcompany.com',
     'depends': ['purchase', 'account'],
     'data': [
-        # 'security/ir.model.access.csv',
+        'security/ir.model.access.csv',
         'views/purchase_buyer_report_wizard_view.xml',
         'views/purchase_buyer_report_view.xml',
         'views/purchase_buyer_menu.xml',

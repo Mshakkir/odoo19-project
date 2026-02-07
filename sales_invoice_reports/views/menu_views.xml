@@ -7,26 +7,26 @@
                   sequence="100"
                   web_icon="sales_invoice_reports,static/description/icon.png"/>
 
-        <!-- Report Menus -->
+        <!-- Report Menus - These open wizards first -->
         <menuitem id="menu_product_invoice_report"
                   name="Product Sales Report"
                   parent="menu_sales_invoice_reports_root"
-                  action="action_product_invoice_report"
+                  action="action_report_by_product_wizard"
                   sequence="10"/>
 
         <menuitem id="menu_customer_invoice_report"
                   name="Customer Sales Report"
                   parent="menu_sales_invoice_reports_root"
-                  action="action_customer_invoice_report"
+                  action="action_report_by_customer_wizard"
                   sequence="20"/>
 
         <menuitem id="menu_salesperson_invoice_report"
                   name="Salesperson Sales Report"
                   parent="menu_sales_invoice_reports_root"
-                  action="action_salesperson_invoice_report"
+                  action="action_report_by_salesperson_wizard"
                   sequence="30"/>
 
-        <!-- New PDF Report Menu -->
+        <!-- PDF Report Menu -->
         <menuitem id="menu_sales_report_by_salesperson"
                   name="Sales Report by Salesperson (PDF)"
                   parent="menu_sales_invoice_reports_root"

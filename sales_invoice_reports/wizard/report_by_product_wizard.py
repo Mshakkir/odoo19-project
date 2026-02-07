@@ -7,7 +7,8 @@ class ReportByProductWizard(models.TransientModel):
     _name = 'report.by.product.wizard'
     _description = 'Report by Product Wizard'
 
-    product_id = fields.Many2one('product.product', string='Product', required=True)
+    show_all_products = fields.Boolean(string='All Products', default=False)
+    product_id = fields.Many2one('product.product', string='Product')
     date_from = fields.Date(string='Date From')
     date_to = fields.Date(string='Date To', default=fields.Date.today)
     invoice_state = fields.Selection([
@@ -17,12 +18,33 @@ class ReportByProductWizard(models.TransientModel):
         ('all', 'All')
     ], string='Invoice Status', default='all')
 
+    @api.onchange('show_all_products')
+    def _onchange_show_all_products(self):
+        """Clear product selection when showing all products"""
+        if self.show_all_products:
+            self.product_id = False
+
     def action_apply(self):
         """Apply filter and show product report"""
         self.ensure_one()
 
         # Build domain for the report model
-        domain = [('product_id', '=', self.product_id.id)]
+        domain = []
+
+        # Only filter by product if not showing all
+        if not self.show_all_products:
+            if not self.product_id:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': 'Warning',
+                        'message': 'Please select a product or check "All Products"',
+                        'type': 'warning',
+                        'sticky': False,
+                    }
+                }
+            domain.append(('product_id', '=', self.product_id.id))
 
         # Only filter by state if not 'all'
         if self.invoice_state and self.invoice_state != 'all':
@@ -34,12 +56,18 @@ class ReportByProductWizard(models.TransientModel):
         if self.date_to:
             domain.append(('invoice_date', '<=', self.date_to))
 
+        # Set report name
+        if self.show_all_products:
+            report_name = 'Sales Report - All Products'
+        else:
+            report_name = f'Sales Report - {self.product_id.display_name}'
+
         return {
-            'name': f'Sales Report - {self.product_id.display_name}',
+            'name': report_name,
             'type': 'ir.actions.act_window',
             'res_model': 'product.invoice.report',
             'view_mode': 'list,pivot,graph',
             'domain': domain,
-            'context': {'search_default_product_id': self.product_id.id},
+            'context': {'search_default_posted': 1},
             'target': 'current',
         }

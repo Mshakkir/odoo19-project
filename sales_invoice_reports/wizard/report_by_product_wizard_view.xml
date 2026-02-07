@@ -9,7 +9,10 @@
                 <form string="Report by Product">
                     <group>
                         <group>
-                            <field name="product_id" options="{'no_create': True}"/>
+                            <field name="show_all_products"/>
+                            <field name="product_id" options="{'no_create': True}"
+                                   required="0"
+                                   invisible="show_all_products"/>
                             <field name="invoice_state"/>
                         </group>
                         <group>
@@ -27,7 +30,7 @@
 
         <!-- Action for Product Report Wizard -->
         <record id="action_report_by_product_wizard" model="ir.actions.act_window">
-            <field name="name">Report by Product</field>
+            <field name="name">Product Sales Report</field>
             <field name="res_model">report.by.product.wizard</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>

@@ -7,7 +7,8 @@ class ReportBySalespersonWizard(models.TransientModel):
     _name = 'report.by.salesperson.wizard'
     _description = 'Report by Salesperson Wizard'
 
-    user_id = fields.Many2one('res.users', string='Salesperson', required=True)
+    show_all_salespersons = fields.Boolean(string='All Salespersons', default=False)
+    user_id = fields.Many2one('res.users', string='Salesperson')
     date_from = fields.Date(string='Date From')
     date_to = fields.Date(string='Date To', default=fields.Date.today)
     invoice_state = fields.Selection([
@@ -17,12 +18,33 @@ class ReportBySalespersonWizard(models.TransientModel):
         ('all', 'All')
     ], string='Invoice Status', default='all')
 
+    @api.onchange('show_all_salespersons')
+    def _onchange_show_all_salespersons(self):
+        """Clear salesperson selection when showing all salespersons"""
+        if self.show_all_salespersons:
+            self.user_id = False
+
     def action_apply(self):
         """Apply filter and show salesperson report"""
         self.ensure_one()
 
         # Build domain for the report model
-        domain = [('user_id', '=', self.user_id.id)]
+        domain = []
+
+        # Only filter by salesperson if not showing all
+        if not self.show_all_salespersons:
+            if not self.user_id:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': 'Warning',
+                        'message': 'Please select a salesperson or check "All Salespersons"',
+                        'type': 'warning',
+                        'sticky': False,
+                    }
+                }
+            domain.append(('user_id', '=', self.user_id.id))
 
         # Only filter by state if not 'all'
         if self.invoice_state and self.invoice_state != 'all':
@@ -34,12 +56,18 @@ class ReportBySalespersonWizard(models.TransientModel):
         if self.date_to:
             domain.append(('invoice_date', '<=', self.date_to))
 
+        # Set report name
+        if self.show_all_salespersons:
+            report_name = 'Sales Report - All Salespersons'
+        else:
+            report_name = f'Sales Report - {self.user_id.display_name}'
+
         return {
-            'name': f'Sales Report - {self.user_id.display_name}',
+            'name': report_name,
             'type': 'ir.actions.act_window',
             'res_model': 'salesperson.invoice.report',
             'view_mode': 'list,pivot,graph',
             'domain': domain,
-            'context': {'search_default_user_id': self.user_id.id},
+            'context': {'search_default_posted': 1},
             'target': 'current',
         }

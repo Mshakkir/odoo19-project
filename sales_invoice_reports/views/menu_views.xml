@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Main Menu -->
+        <!-- Add Sales Reports menu under Sales top menu -->
         <menuitem id="menu_sales_invoice_reports_root"
                   name="Sales Reports"
-                  sequence="100"
-                  web_icon="sales_invoice_reports,static/description/icon.png"/>
+                  parent="sale.sale_menu_root"
+                  sequence="100"/>
 
-        <!-- Report Menus -->
-        <menuitem id="menu_product_invoice_report"
+        <!-- Report Menus with Wizards (includes "All" option via checkbox) -->
+        <menuitem id="menu_product_report"
                   name="Product Sales Report"
                   parent="menu_sales_invoice_reports_root"
-                  action="action_product_invoice_report"
+                  action="action_report_by_product_wizard"
                   sequence="10"/>
 
-        <menuitem id="menu_customer_invoice_report"
+        <menuitem id="menu_customer_report"
                   name="Customer Sales Report"
                   parent="menu_sales_invoice_reports_root"
-                  action="action_customer_invoice_report"
+                  action="action_report_by_customer_wizard"
                   sequence="20"/>
 
-        <menuitem id="menu_salesperson_invoice_report"
+        <menuitem id="menu_salesperson_report"
                   name="Salesperson Sales Report"
                   parent="menu_sales_invoice_reports_root"
-                  action="action_salesperson_invoice_report"
+                  action="action_report_by_salesperson_wizard"
                   sequence="30"/>
 
-        <!-- New PDF Report Menu -->
-        <menuitem id="menu_sales_report_by_salesperson"
+        <!-- PDF Report Menu -->
+        <menuitem id="menu_sales_report_pdf"
                   name="Sales Report by Salesperson (PDF)"
                   parent="menu_sales_invoice_reports_root"
                   action="action_sales_report_wizard"

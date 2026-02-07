@@ -105,6 +105,8 @@
 
 # -*- coding: utf-8 -*-
 
+# -*- coding: utf-8 -*-
+
 from odoo import models, fields, api, tools
 
 
@@ -177,16 +179,12 @@ class ProductInvoiceReport(models.Model):
                     am.invoice_user_id as user_id,
                     am.team_id as team_id,
                     (SELECT aaa.id 
-                     FROM account_analytic_account aaa
-                     WHERE aaa.id IN (
-                         SELECT unnest(string_to_array(
-                             regexp_replace(ail.analytic_distribution::text, '[^0-9,]', '', 'g'), 
-                             ','
-                         ))::integer
-                     )
+                     FROM account_analytic_account aaa,
+                          jsonb_each_text(COALESCE(ail.analytic_distribution, '{}'::jsonb)) as dist
+                     WHERE aaa.id = dist.key::integer
                      LIMIT 1
                     ) as analytic_account_id,
-                    so.warehouse_id as warehouse_id,
+                    ail.warehouse_id as warehouse_id,
                     ail.account_id as account_id,
                     CASE 
                         WHEN am.move_type = 'out_refund' THEN -ail.quantity
@@ -210,9 +208,6 @@ class ProductInvoiceReport(models.Model):
                     JOIN account_move am ON ail.move_id = am.id
                     LEFT JOIN product_product pp ON ail.product_id = pp.id
                     LEFT JOIN product_template pt ON pp.product_tmpl_id = pt.id
-                    LEFT JOIN sale_order_line_invoice_rel solir ON solir.invoice_line_id = ail.id
-                    LEFT JOIN sale_order_line sol ON sol.id = solir.order_line_id
-                    LEFT JOIN sale_order so ON so.id = sol.order_id
                 WHERE
                     am.move_type IN ('out_invoice', 'out_refund')
                     AND ail.product_id IS NOT NULL

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Tree view for Salesperson Report Display -->
-        <record id="view_salesperson_report_display_tree" model="ir.ui.view">
-            <field name="name">salesperson.report.display.tree</field>
+        <!-- List view for Salesperson Report Display -->
+        <record id="view_salesperson_report_display_list" model="ir.ui.view">
+            <field name="name">salesperson.report.display.list</field>
             <field name="model">salesperson.report.display</field>
             <field name="arch" type="xml">
-                <tree string="Sales Invoice Report" create="false" edit="false" delete="false"
+                <list string="Sales Invoice Report" create="false" edit="false" delete="false"
                       decoration-bf="not is_invoice_line">
                     <field name="salesperson_name" optional="hide"/>
                     <field name="invoice_date" string="Date"/>
@@ -24,7 +24,7 @@
                     <field name="is_invoice_line" column_invisible="1"/>
                     <field name="invoice_id" column_invisible="1"/>
                     <field name="salesperson_id" column_invisible="1"/>
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -32,8 +32,8 @@
         <record id="action_salesperson_report_display" model="ir.actions.act_window">
             <field name="name">Sales Invoice Report</field>
             <field name="res_model">salesperson.report.display</field>
-            <field name="view_mode">tree</field>
-            <field name="view_id" ref="view_salesperson_report_display_tree"/>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="view_salesperson_report_display_list"/>
         </record>
     </data>
 </odoo>

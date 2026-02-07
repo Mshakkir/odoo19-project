@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menu item under Purchase > Reporting > Purchase Reports -->
+    <menuitem id="menu_purchase_analytic_report"
+              name="By Analytic"
+              parent="purchase.menu_purchase_report"
+              action="action_purchase_analytic_report_wizard"
+              sequence="20"/>
+</odoo>

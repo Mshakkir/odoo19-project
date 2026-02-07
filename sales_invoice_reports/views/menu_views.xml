@@ -26,11 +26,11 @@
                   action="salesperson_report_view.action_salesperson_invoice_report"
                   sequence="30"/>
 
-<!--        &lt;!&ndash; New PDF Report Menu &ndash;&gt;-->
-<!--        <menuitem id="menu_sales_report_by_salesperson"-->
-<!--                  name="Sales Report by Salesperson (PDF)"-->
-<!--                  parent="menu_sales_invoice_reports_root"-->
-<!--                  action="action_sales_report_wizard"-->
-<!--                  sequence="40"/>-->
+        <!-- New PDF Report Menu -->
+        <menuitem id="menu_sales_report_by_salesperson"
+                  name="Sales Report by Salesperson (PDF)"
+                  parent="menu_sales_invoice_reports_root"
+                  action="action_sales_report_wizard"
+                  sequence="40"/>
     </data>
 </odoo>

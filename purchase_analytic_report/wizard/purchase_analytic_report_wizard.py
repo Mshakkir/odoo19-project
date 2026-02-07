@@ -28,6 +28,9 @@ class PurchaseAnalyticReportWizard(models.TransientModel):
         # Create the report records
         report_obj = self.env['purchase.analytic.report']
 
+        # Clear existing report data first
+        report_obj.search([]).unlink()
+
         # Search for purchase invoices matching criteria
         domain = [
             ('move_type', '=', 'in_invoice'),
@@ -38,62 +41,55 @@ class PurchaseAnalyticReportWizard(models.TransientModel):
 
         invoices = self.env['account.move'].search(domain)
 
-        # Clear existing report data
-        report_obj.search([]).unlink()
-
-        # Create report records - one per invoice line with analytic account
+        # Create report records from invoice lines that have matching analytic accounts
         for invoice in invoices:
-            # Get warehouse from purchase order or invoice lines
+            # Get warehouse from invoice lines (first line with warehouse)
             warehouse_id = False
-            if invoice.invoice_origin:
+            for line in invoice.invoice_line_ids:
+                if hasattr(line, 'warehouse_id') and line.warehouse_id:
+                    warehouse_id = line.warehouse_id.id
+                    break
+
+            # If not found in lines, try to get from purchase order
+            if not warehouse_id and invoice.invoice_origin:
                 purchase_order = self.env['purchase.order'].search([
                     ('name', '=', invoice.invoice_origin)
                 ], limit=1)
                 if purchase_order and purchase_order.picking_type_id:
                     warehouse_id = purchase_order.picking_type_id.warehouse_id.id
 
-            # Process each invoice line
+            # Process each invoice line with analytic distribution
             for line in invoice.invoice_line_ids:
-                # Check if line has analytic distribution
-                if line.analytic_distribution:
-                    # Get analytic account IDs from distribution
-                    line_analytic_ids = [int(k) for k in line.analytic_distribution.keys()]
+                if line.product_id and line.analytic_distribution:
+                    # Check if any of the selected analytic accounts are in this line
+                    analytic_account_ids = [int(k) for k in line.analytic_distribution.keys()]
 
-                    # Check if any of the line's analytic accounts match our filter
-                    matching_analytic = set(line_analytic_ids) & set(self.analytic_account_ids.ids)
+                    # Find matching analytic accounts
+                    matching_analytics = list(set(analytic_account_ids) & set(self.analytic_account_ids.ids))
 
-                    if matching_analytic:
-                        # Use the first matching analytic account
-                        analytic_account_id = list(matching_analytic)[0]
-
-                        # Get warehouse from line if available
-                        line_warehouse_id = warehouse_id
-                        if hasattr(line, 'warehouse_id') and line.warehouse_id:
-                            line_warehouse_id = line.warehouse_id.id
-
-                        # Calculate net amount for this line
-                        net_amount = line.price_subtotal
-
-                        report_obj.create({
-                            'invoice_date': invoice.invoice_date,
-                            'invoice_number': invoice.name,
-                            'vendor_id': invoice.partner_id.id,
-                            'warehouse_id': line_warehouse_id,
-                            'product_id': line.product_id.id if line.product_id else False,
-                            'quantity': line.quantity,
-                            'uom_id': line.product_uom_id.id if line.product_uom_id else False,
-                            'unit_price': line.price_unit,
-                            'net_amount': net_amount,
-                            'analytic_account_id': analytic_account_id,
-                        })
+                    if matching_analytics:
+                        # Create a report line for each matching analytic account
+                        for analytic_id in matching_analytics:
+                            report_obj.create({
+                                'invoice_date': invoice.invoice_date,
+                                'invoice_number': invoice.name,
+                                'vendor_id': invoice.partner_id.id,
+                                'warehouse_id': warehouse_id,
+                                'product_id': line.product_id.id,
+                                'quantity': line.quantity,
+                                'uom_id': line.product_uom_id.id,
+                                'price_unit': line.price_unit,
+                                'net_amount': line.price_total,  # Includes tax
+                                'analytic_account_id': analytic_id,
+                            })
 
         # Return action to open list view
         return {
             'name': 'Purchase Analytic Report',
             'type': 'ir.actions.act_window',
             'res_model': 'purchase.analytic.report',
-            'view_mode': 'tree',
-            'view_id': self.env.ref('purchase_analytic_report.view_purchase_analytic_report_tree').id,
+            'view_mode': 'list',
+            'view_id': self.env.ref('purchase_analytic_report.view_purchase_analytic_report_list').id,
             'target': 'current',
             'domain': [],
         }

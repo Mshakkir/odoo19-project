@@ -6,8 +6,8 @@
     'description': """
         This module adds a purchase report by analytic account feature.
         - Filter by date range and analytic accounts
-        - View detailed purchase invoice line information
-        - Shows date, invoice number, vendor, warehouse, product details, qty, rate, and net amount
+        - View detailed purchase invoice lines with product information
+        - Shows date, invoice number, vendor, warehouse, product, quantity, unit, rate, and net amount
     """,
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',

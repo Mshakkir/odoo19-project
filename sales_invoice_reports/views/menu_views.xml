@@ -11,19 +11,19 @@
         <menuitem id="menu_product_invoice_report"
                   name="Product Sales Report"
                   parent="menu_sales_invoice_reports_root"
-                  action="product_report_view.action_product_invoice_report"
+                  action="action_product_invoice_report"
                   sequence="10"/>
 
         <menuitem id="menu_customer_invoice_report"
                   name="Customer Sales Report"
                   parent="menu_sales_invoice_reports_root"
-                  action="customer_report_view.action_customer_invoice_report"
+                  action="action_customer_invoice_report"
                   sequence="20"/>
 
         <menuitem id="menu_salesperson_invoice_report"
                   name="Salesperson Sales Report"
                   parent="menu_sales_invoice_reports_root"
-                  action="salesperson_report_view.action_salesperson_invoice_report"
+                  action="action_salesperson_invoice_report"
                   sequence="30"/>
 
         <!-- New PDF Report Menu -->

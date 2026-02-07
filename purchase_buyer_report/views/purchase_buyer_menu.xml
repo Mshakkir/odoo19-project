@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Submenu: By Buyer under Purchase Reports -->
+    <menuitem id="menu_purchase_report_by_buyer"
+              name="By Buyer"
+              parent="purchase_bypd_report.menu_purchase_reports"
+              action="action_purchase_buyer_report_wizard"
+              sequence="3"/>
+</odoo>

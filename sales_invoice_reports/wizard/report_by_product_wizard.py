@@ -15,40 +15,31 @@ class ReportByProductWizard(models.TransientModel):
         ('posted', 'Posted'),
         ('cancel', 'Cancelled'),
         ('all', 'All')
-    ], string='Invoice Status', default='posted')
+    ], string='Invoice Status', default='all')
 
     def action_apply(self):
         """Apply filter and show product report"""
         self.ensure_one()
 
-        # Build domain for the report model (not account.move)
+        # Build domain for the report model
         domain = [('product_id', '=', self.product_id.id)]
 
-        if self.invoice_state != 'all':
+        # Only filter by state if not 'all'
+        if self.invoice_state and self.invoice_state != 'all':
             domain.append(('invoice_state', '=', self.invoice_state))
-        else:
-            domain.append(('invoice_state', '!=', 'cancel'))
 
+        # Only add date filters if they are set
         if self.date_from:
             domain.append(('invoice_date', '>=', self.date_from))
         if self.date_to:
             domain.append(('invoice_date', '<=', self.date_to))
 
-        # Create context with filters
-        context = {
-            'search_default_product_id': self.product_id.id,
-            'default_product_id': self.product_id.id,
-            'date_from': self.date_from,
-            'date_to': self.date_to,
-            'invoice_state': self.invoice_state,
-        }
-
         return {
             'name': f'Sales Report - {self.product_id.display_name}',
             'type': 'ir.actions.act_window',
             'res_model': 'product.invoice.report',
-            'view_mode': 'list,pivot,graph',  # Changed from 'tree' to 'list'
+            'view_mode': 'list,pivot,graph',
             'domain': domain,
-            'context': context,
+            'context': {'search_default_product_id': self.product_id.id},
             'target': 'current',
         }

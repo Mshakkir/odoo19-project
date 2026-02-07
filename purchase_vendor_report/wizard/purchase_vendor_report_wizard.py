@@ -43,15 +43,22 @@ class PurchaseVendorReportWizard(models.TransientModel):
         # Clear existing report data
         report_obj.search([]).unlink()
 
-        # Create report records
+        # Create report records - one per invoice (not per line)
         for invoice in invoices:
-            # Get warehouse from purchase order if exists
+            # Get warehouse from invoice lines (first line with warehouse)
             warehouse_id = False
-            purchase_order = self.env['purchase.order'].search([
-                ('name', '=', invoice.invoice_origin)
-            ], limit=1)
-            if purchase_order:
-                warehouse_id = purchase_order.picking_type_id.warehouse_id.id
+            for line in invoice.invoice_line_ids:
+                if hasattr(line, 'warehouse_id') and line.warehouse_id:
+                    warehouse_id = line.warehouse_id.id
+                    break
+
+            # If not found in lines, try to get from purchase order
+            if not warehouse_id and invoice.invoice_origin:
+                purchase_order = self.env['purchase.order'].search([
+                    ('name', '=', invoice.invoice_origin)
+                ], limit=1)
+                if purchase_order and purchase_order.picking_type_id:
+                    warehouse_id = purchase_order.picking_type_id.warehouse_id.id
 
             # Get analytic account from invoice lines (first one found)
             analytic_account_id = False
@@ -77,7 +84,7 @@ class PurchaseVendorReportWizard(models.TransientModel):
                 'analytic_account_id': analytic_account_id,
                 'purchase_account_id': purchase_account_id,
                 'warehouse_id': warehouse_id,
-                'net_amount': invoice.amount_untaxed,
+                'net_amount': invoice.amount_total,  # Changed from amount_untaxed to amount_total (includes tax)
             })
 
         # Return action to open list view

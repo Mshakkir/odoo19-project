@@ -8,6 +8,7 @@ class PurchaseBuyerReport(models.TransientModel):
 
     invoice_date = fields.Date(string='Date', readonly=True)
     invoice_number = fields.Char(string='Invoice Number', readonly=True)
+    buyer_id = fields.Many2one('res.users', string='Buyer', readonly=True)
     vendor_id = fields.Many2one('res.partner', string='Vendor Name', readonly=True)
     product_id = fields.Many2one('product.product', string='Product Name', readonly=True)
     quantity = fields.Float(string='Qty', readonly=True)

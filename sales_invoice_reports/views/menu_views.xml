@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Main Menu: Sales Reports (under Sales top menu) -->
+        <menuitem id="menu_sales_reports_main"
+                  name="Sales Reports"
+                  parent="sale.sale_menu_root"
+                  sequence="50"/>
+
+        <!-- Submenu: Report by Product -->
+        <menuitem id="menu_report_by_product"
+                  name="Report by Product"
+                  parent="menu_sales_reports_main"
+                  action="action_report_by_product_wizard"
+                  sequence="10"/>
+
+        <!-- Submenu: Report by Customer -->
+        <menuitem id="menu_report_by_customer"
+                  name="Report by Customer"
+                  parent="menu_sales_reports_main"
+                  action="action_report_by_customer_wizard"
+                  sequence="20"/>
+
+        <!-- Submenu: Report by Salesperson -->
+        <menuitem id="menu_report_by_salesperson"
+                  name="Report by Salesperson"
+                  parent="menu_sales_reports_main"
+                  action="action_report_by_salesperson_wizard"
+                  sequence="30"/>
+
+        <!-- Optional: Direct access to full reports -->
+        <menuitem id="menu_sales_reports_separator"
+                  name="All Reports"
+                  parent="menu_sales_reports_main"
+                  sequence="40"/>
+
+        <menuitem id="menu_all_product_report"
+                  name="All Products Sales"
+                  parent="menu_sales_reports_main"
+                  action="action_product_invoice_report"
+                  sequence="41"/>
+
+        <menuitem id="menu_all_customer_report"
+                  name="All Customers Sales"
+                  parent="menu_sales_reports_main"
+                  action="action_customer_invoice_report"
+                  sequence="42"/>
+
+        <menuitem id="menu_all_salesperson_report"
+                  name="All Salespersons Sales"
+                  parent="menu_sales_reports_main"
+                  action="action_salesperson_invoice_report"
+                  sequence="43"/>
+    </data>
+</odoo>

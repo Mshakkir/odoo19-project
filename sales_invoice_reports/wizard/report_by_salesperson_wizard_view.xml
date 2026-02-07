@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Salesperson Report Wizard Form -->
+        <record id="view_report_by_salesperson_wizard_form" model="ir.ui.view">
+            <field name="name">report.by.salesperson.wizard.form</field>
+            <field name="model">report.by.salesperson.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Report by Salesperson">
+                    <group>
+                        <group>
+                            <field name="user_id" options="{'no_create': True}" domain="[('share', '=', False)]"/>
+                            <field name="invoice_state"/>
+                        </group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_apply" string="Apply" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action for Salesperson Report Wizard -->
+        <record id="action_report_by_salesperson_wizard" model="ir.actions.act_window">
+            <field name="name">Report by Salesperson</field>
+            <field name="res_model">report.by.salesperson.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

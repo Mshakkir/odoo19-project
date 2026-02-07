@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Customer Report Wizard Form -->
+        <record id="view_report_by_customer_wizard_form" model="ir.ui.view">
+            <field name="name">report.by.customer.wizard.form</field>
+            <field name="model">report.by.customer.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Report by Customer">
+                    <group>
+                        <group>
+                            <field name="partner_id" options="{'no_create': True}"/>
+                            <field name="invoice_state"/>
+                        </group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_apply" string="Apply" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action for Customer Report Wizard -->
+        <record id="action_report_by_customer_wizard" model="ir.actions.act_window">
+            <field name="name">Report by Customer</field>
+            <field name="res_model">report.by.customer.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

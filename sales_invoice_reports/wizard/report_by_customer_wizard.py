@@ -21,16 +21,13 @@ class ReportByCustomerWizard(models.TransientModel):
         """Apply filter and show customer report"""
         self.ensure_one()
 
-        # Build domain for filtering
-        domain = [
-            ('move_type', 'in', ['out_invoice', 'out_refund']),
-            ('partner_id', 'child_of', self.partner_id.id),
-        ]
+        # Build domain for the report model (not account.move)
+        domain = [('partner_id', '=', self.partner_id.id)]
 
         if self.invoice_state != 'all':
-            domain.append(('state', '=', self.invoice_state))
+            domain.append(('invoice_state', '=', self.invoice_state))
         else:
-            domain.append(('state', '!=', 'cancel'))
+            domain.append(('invoice_state', '!=', 'cancel'))
 
         if self.date_from:
             domain.append(('invoice_date', '>=', self.date_from))
@@ -50,7 +47,7 @@ class ReportByCustomerWizard(models.TransientModel):
             'name': f'Sales Report - {self.partner_id.display_name}',
             'type': 'ir.actions.act_window',
             'res_model': 'customer.invoice.report',
-            'view_mode': 'tree,pivot,graph',
+            'view_mode': 'list,pivot,graph',  # Changed from 'tree' to 'list'
             'domain': domain,
             'context': context,
             'target': 'current',

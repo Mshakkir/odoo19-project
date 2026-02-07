@@ -31,49 +31,31 @@ class PurchaseBuyerReportWizard(models.TransientModel):
         # Clear existing report data first
         report_obj.search([]).unlink()
 
-        # Get purchase orders created by selected buyers
-        purchase_orders = self.env['purchase.order'].search([
-            ('user_id', 'in', self.buyer_ids.ids),
-        ])
+        # Search for purchase invoices with buyer_id matching criteria
+        domain = [
+            ('move_type', '=', 'in_invoice'),
+            ('state', '=', 'posted'),
+            ('invoice_date', '>=', self.date_from),
+            ('invoice_date', '<=', self.date_to),
+            ('buyer_id', 'in', self.buyer_ids.ids),  # Filter by buyer_id field in invoice
+        ]
 
-        if not purchase_orders:
-            # No purchase orders found for selected buyers
-            return {
-                'name': 'Purchase Buyer Report',
-                'type': 'ir.actions.act_window',
-                'res_model': 'purchase.buyer.report',
-                'view_mode': 'list',
-                'view_id': self.env.ref('purchase_buyer_report.view_purchase_buyer_report_list').id,
-                'target': 'current',
-                'domain': [],
-            }
+        invoices = self.env['account.move'].search(domain)
 
-        # Get all invoice lines related to these purchase orders
-        invoice_line_ids = []
-
-        for po in purchase_orders:
-            # Get invoices from purchase order
-            for invoice in po.invoice_ids:
-                # Check if invoice matches our criteria
-                if (invoice.move_type == 'in_invoice' and
-                        invoice.state == 'posted' and
-                        invoice.invoice_date and
-                        invoice.invoice_date >= self.date_from and
-                        invoice.invoice_date <= self.date_to):
-
-                    # Process invoice lines
-                    for line in invoice.invoice_line_ids:
-                        if line.product_id:  # Only lines with products
-                            report_obj.create({
-                                'invoice_date': invoice.invoice_date,
-                                'invoice_number': invoice.name,
-                                'vendor_id': invoice.partner_id.id,
-                                'product_id': line.product_id.id,
-                                'quantity': line.quantity,
-                                'uom_id': line.product_uom_id.id,
-                                'price_unit': line.price_unit,
-                                'net_amount': line.price_total,  # Includes tax
-                            })
+        # Create report records from invoice lines
+        for invoice in invoices:
+            for line in invoice.invoice_line_ids:
+                if line.product_id:  # Only lines with products
+                    report_obj.create({
+                        'invoice_date': invoice.invoice_date,
+                        'invoice_number': invoice.name,
+                        'vendor_id': invoice.partner_id.id,
+                        'product_id': line.product_id.id,
+                        'quantity': line.quantity,
+                        'uom_id': line.product_uom_id.id,
+                        'price_unit': line.price_unit,
+                        'net_amount': line.price_total,  # Includes tax
+                    })
 
         # Return action to open list view
         return {
@@ -85,8 +67,6 @@ class PurchaseBuyerReportWizard(models.TransientModel):
             'target': 'current',
             'domain': [],
         }
-#
-#
 #
 #
 #

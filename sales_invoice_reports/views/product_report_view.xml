@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Product Invoice Report List View -->
         <record id="view_product_invoice_report_tree" model="ir.ui.view">
             <field name="name">product.invoice.report.tree</field>
             <field name="model">product.invoice.report</field>
@@ -25,7 +24,6 @@
             </field>
         </record>
 
-        <!-- Product Invoice Report Pivot View -->
         <record id="view_product_invoice_report_pivot" model="ir.ui.view">
             <field name="name">product.invoice.report.pivot</field>
             <field name="model">product.invoice.report</field>
@@ -40,7 +38,6 @@
             </field>
         </record>
 
-        <!-- Product Invoice Report Graph View -->
         <record id="view_product_invoice_report_graph" model="ir.ui.view">
             <field name="name">product.invoice.report.graph</field>
             <field name="model">product.invoice.report</field>
@@ -52,22 +49,19 @@
             </field>
         </record>
 
-        <!-- Product Invoice Report Search View -->
         <record id="view_product_invoice_report_search" model="ir.ui.view">
             <field name="name">product.invoice.report.search</field>
             <field name="model">product.invoice.report</field>
             <field name="arch" type="xml">
-                <search string="Search Product Sales">
+                <search>
                     <field name="product_id"/>
                     <field name="partner_id"/>
                     <field name="user_id"/>
                     <field name="invoice_number"/>
                     <filter string="Posted" name="posted" domain="[('invoice_state', '=', 'posted')]"/>
                     <filter string="Draft" name="draft" domain="[('invoice_state', '=', 'draft')]"/>
-                    <separator/>
                     <filter string="Invoices" name="invoices" domain="[('move_type', '=', 'out_invoice')]"/>
                     <filter string="Credit Notes" name="refunds" domain="[('move_type', '=', 'out_refund')]"/>
-                    <separator/>
                     <filter string="Invoice Date" name="invoice_date" date="invoice_date"/>
                     <group expand="0" string="Group By">
                         <filter string="Product" name="group_product" context="{'group_by': 'product_id'}"/>
@@ -75,14 +69,12 @@
                         <filter string="Salesperson" name="group_salesperson" context="{'group_by': 'user_id'}"/>
                         <filter string="Category" name="group_category" context="{'group_by': 'categ_id'}"/>
                         <filter string="Status" name="group_status" context="{'group_by': 'invoice_state'}"/>
-                        <separator/>
                         <filter string="Invoice Date" name="group_invoice_date" context="{'group_by': 'invoice_date:month'}"/>
                     </group>
                 </search>
             </field>
         </record>
 
-        <!-- Action for Product Invoice Report -->
         <record id="action_product_invoice_report" model="ir.actions.act_window">
             <field name="name">Product Sales Report</field>
             <field name="res_model">product.invoice.report</field>

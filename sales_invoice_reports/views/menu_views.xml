@@ -7,30 +7,30 @@
                   sequence="100"
                   web_icon="sales_invoice_reports,static/description/icon.png"/>
 
-        <!-- Report Menus - These open wizards first -->
+        <!-- Report Menus -->
         <menuitem id="menu_product_invoice_report"
                   name="Product Sales Report"
                   parent="menu_sales_invoice_reports_root"
-                  action="action_report_by_product_wizard"
+                  action="product_report_view.action_product_invoice_report"
                   sequence="10"/>
 
         <menuitem id="menu_customer_invoice_report"
                   name="Customer Sales Report"
                   parent="menu_sales_invoice_reports_root"
-                  action="action_report_by_customer_wizard"
+                  action="customer_report_view.action_customer_invoice_report"
                   sequence="20"/>
 
         <menuitem id="menu_salesperson_invoice_report"
                   name="Salesperson Sales Report"
                   parent="menu_sales_invoice_reports_root"
-                  action="action_report_by_salesperson_wizard"
+                  action="salesperson_report_view.action_salesperson_invoice_report"
                   sequence="30"/>
 
-        <!-- PDF Report Menu -->
-        <menuitem id="menu_sales_report_by_salesperson"
-                  name="Sales Report by Salesperson (PDF)"
-                  parent="menu_sales_invoice_reports_root"
-                  action="action_sales_report_wizard"
-                  sequence="40"/>
+<!--        &lt;!&ndash; New PDF Report Menu &ndash;&gt;-->
+<!--        <menuitem id="menu_sales_report_by_salesperson"-->
+<!--                  name="Sales Report by Salesperson (PDF)"-->
+<!--                  parent="menu_sales_invoice_reports_root"-->
+<!--                  action="action_sales_report_wizard"-->
+<!--                  sequence="40"/>-->
     </data>
 </odoo>

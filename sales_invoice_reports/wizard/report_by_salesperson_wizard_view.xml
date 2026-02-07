@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Salesperson Report Wizard Form -->
+        <!--  Salesperson Report Wizard Form  -->
         <record id="view_report_by_salesperson_wizard_form" model="ir.ui.view">
             <field name="name">report.by.salesperson.wizard.form</field>
             <field name="model">report.by.salesperson.wizard</field>
@@ -10,10 +9,8 @@
                     <group>
                         <group>
                             <field name="show_all_salespersons"/>
-                            <field name="user_id" options="{'no_create': True}"
-                                   domain="[('share', '=', False)]"
-                                   required="0"
-                                   invisible="show_all_salespersons"/>
+                            <field name="user_id" options="{'no_create': True}" domain="[('share', '=', False)]"
+                                   required="0" invisible="show_all_salespersons"/>
                             <field name="invoice_state"/>
                         </group>
                         <group>
@@ -22,15 +19,13 @@
                         </group>
                     </group>
                     <footer>
-                        <button name="action_show_report" string="Show Report" type="object" class="btn-primary"/>
-                        <button name="action_apply" string="Pivot/Graph View" type="object" class="btn-secondary"/>
+                        <button name="action_apply" string="Apply" type="object" class="btn-primary"/>
                         <button string="Cancel" class="btn-secondary" special="cancel"/>
                     </footer>
                 </form>
             </field>
         </record>
-
-        <!-- Action for Salesperson Report Wizard -->
+        <!--  Action for Salesperson Report Wizard  -->
         <record id="action_report_by_salesperson_wizard" model="ir.actions.act_window">
             <field name="name">Salesperson Sales Report</field>
             <field name="res_model">report.by.salesperson.wizard</field>

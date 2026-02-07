@@ -1,55 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Main Menu: Sales Reports (under Sales top menu) -->
-        <menuitem id="menu_sales_reports_main"
+        <!-- Main Menu -->
+        <menuitem id="menu_sales_invoice_reports_root"
                   name="Sales Reports"
-                  parent="sale.sale_menu_root"
-                  sequence="50"/>
+                  sequence="100"
+                  web_icon="sales_invoice_reports,static/description/icon.png"/>
 
-        <!-- Submenu: Report by Product -->
-        <menuitem id="menu_report_by_product"
-                  name="Report by Product"
-                  parent="menu_sales_reports_main"
-                  action="action_report_by_product_wizard"
+        <!-- Report Menus -->
+        <menuitem id="menu_product_invoice_report"
+                  name="Product Sales Report"
+                  parent="menu_sales_invoice_reports_root"
+                  action="product_report_view.action_product_invoice_report"
                   sequence="10"/>
 
-        <!-- Submenu: Report by Customer -->
-        <menuitem id="menu_report_by_customer"
-                  name="Report by Customer"
-                  parent="menu_sales_reports_main"
-                  action="action_report_by_customer_wizard"
+        <menuitem id="menu_customer_invoice_report"
+                  name="Customer Sales Report"
+                  parent="menu_sales_invoice_reports_root"
+                  action="customer_report_view.action_customer_invoice_report"
                   sequence="20"/>
 
-        <!-- Submenu: Report by Salesperson -->
-        <menuitem id="menu_report_by_salesperson"
-                  name="Report by Salesperson"
-                  parent="menu_sales_reports_main"
-                  action="action_report_by_salesperson_wizard"
+        <menuitem id="menu_salesperson_invoice_report"
+                  name="Salesperson Sales Report"
+                  parent="menu_sales_invoice_reports_root"
+                  action="salesperson_report_view.action_salesperson_invoice_report"
                   sequence="30"/>
 
-        <!-- Optional: Direct access to full reports -->
-        <menuitem id="menu_sales_reports_separator"
-                  name="All Reports"
-                  parent="menu_sales_reports_main"
+        <!-- New PDF Report Menu -->
+        <menuitem id="menu_sales_report_by_salesperson"
+                  name="Sales Report by Salesperson (PDF)"
+                  parent="menu_sales_invoice_reports_root"
+                  action="action_sales_report_wizard"
                   sequence="40"/>
-
-        <menuitem id="menu_all_product_report"
-                  name="All Products Sales"
-                  parent="menu_sales_reports_main"
-                  action="action_product_invoice_report"
-                  sequence="41"/>
-
-        <menuitem id="menu_all_customer_report"
-                  name="All Customers Sales"
-                  parent="menu_sales_reports_main"
-                  action="action_customer_invoice_report"
-                  sequence="42"/>
-
-        <menuitem id="menu_all_salesperson_report"
-                  name="All Salespersons Sales"
-                  parent="menu_sales_reports_main"
-                  action="action_salesperson_invoice_report"
-                  sequence="43"/>
     </data>
 </odoo>

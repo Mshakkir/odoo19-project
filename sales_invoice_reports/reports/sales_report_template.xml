@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_sales_by_salesperson_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <!-- Report Header -->
+                <div class="text-center">
+                    <h2>Sales Invoice 'Sales Man' Report</h2>
+                    <h3>Between <t t-esc="date_from"/> To <t t-esc="date_to"/></h3>
+                </div>
+
+                <br/>
+
+                <!-- Loop through each salesperson -->
+                <t t-foreach="salesperson_data.values()" t-as="sp_data">
+                    <div style="margin-bottom: 30px;">
+                        <!-- Salesperson Header -->
+                        <div style="background-color: #d3d3d3; padding: 5px; margin-bottom: 10px;">
+                            <strong>Sales Man: <t t-esc="sp_data['salesperson'].name"/></strong>
+                        </div>
+
+                        <!-- Loop through invoices for this salesperson -->
+                        <t t-foreach="sp_data['invoices']" t-as="invoice">
+                            <div style="margin-bottom: 20px;">
+                                <!-- Invoice Header -->
+                                <table class="table table-sm" style="margin-bottom: 5px;">
+                                    <thead style="background-color: #e9ecef;">
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Inv No</th>
+                                            <th>Customer Name</th>
+                                            <th>Sales Ac</th>
+                                            <th class="text-end">Net Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><t t-esc="invoice['date']"/></td>
+                                            <td><t t-esc="invoice['number']"/></td>
+                                            <td><t t-esc="invoice['customer']"/></td>
+                                            <td><t t-esc="invoice['account']"/></td>
+                                            <td class="text-end">
+                                                <strong><t t-esc="'{:,.2f}'.format(invoice['total'])"/></strong>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- Invoice Line Details -->
+                                <table class="table table-sm table-bordered" style="margin-left: 20px; width: 95%;">
+                                    <thead style="background-color: #f8f9fa;">
+                                        <tr>
+                                            <th>Slno</th>
+                                            <th>Code</th>
+                                            <th>Name</th>
+                                            <th class="text-end">Qty</th>
+                                            <th>Unit</th>
+                                            <th class="text-end">Rate</th>
+                                            <th class="text-end">Free</th>
+                                            <th>Unit</th>
+                                            <th class="text-end">Discount</th>
+                                            <th class="text-end">Net Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="slno" t-value="1"/>
+                                        <t t-foreach="invoice['lines']" t-as="line">
+                                            <tr>
+                                                <td><t t-esc="slno"/></td>
+                                                <td><t t-esc="line['code']"/></td>
+                                                <td><t t-esc="line['name']"/></td>
+                                                <td class="text-end"><t t-esc="'{:,.2f}'.format(line['quantity'])"/></td>
+                                                <td><t t-esc="line['uom']"/></td>
+                                                <td class="text-end"><t t-esc="'{:,.2f}'.format(line['price_unit'])"/></td>
+                                                <td class="text-end">0.00</td>
+                                                <td><t t-esc="line['uom']"/></td>
+                                                <td class="text-end"><t t-esc="'{:,.2f}'.format(line['discount'])"/></td>
+                                                <td class="text-end"><t t-esc="'{:,.2f}'.format(line['subtotal'])"/></td>
+                                            </tr>
+                                            <t t-set="slno" t-value="slno + 1"/>
+                                        </t>
+                                        <tr style="background-color: #f8f9fa;">
+                                            <td colspan="9" class="text-end"><strong>Total</strong></td>
+                                            <td class="text-end">
+                                                <strong><t t-esc="'{:,.2f}'.format(invoice['total'])"/></strong>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+
+                        <!-- Salesperson Total -->
+                        <div class="text-end" style="margin-top: 10px; margin-bottom: 20px;">
+                            <strong>Total for <t t-esc="sp_data['salesperson'].name"/>:
+                                <t t-esc="'{:,.2f}'.format(sp_data['total'])"/>
+                            </strong>
+                        </div>
+
+                        <hr style="border-top: 2px solid #000;"/>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_sales_by_salesperson">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="sales_invoice_reports.report_sales_by_salesperson_document" t-lang="doc.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_sales_by_salesperson" model="ir.actions.report">
+        <field name="name">Sales Report by Salesperson</field>
+        <field name="model">sales.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sales_invoice_reports.report_sales_by_salesperson</field>
+        <field name="report_file">sales_invoice_reports.report_sales_by_salesperson</field>
+        <field name="binding_model_id" ref="model_sales_report_wizard"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

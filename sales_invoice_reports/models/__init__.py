@@ -4,4 +4,3 @@ from . import customer_report
 from . import product_report
 from . import salesperson_report
 from . import sales_report_by_salesperson
-from . import salesperson_report_display

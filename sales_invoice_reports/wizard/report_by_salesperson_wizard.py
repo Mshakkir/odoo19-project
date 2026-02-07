@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from odoo import models, fields, api
 
 
@@ -5,121 +7,67 @@ class ReportBySalespersonWizard(models.TransientModel):
     _name = 'report.by.salesperson.wizard'
     _description = 'Report by Salesperson Wizard'
 
-    date_from = fields.Date(string='Date From', required=True)
-    date_to = fields.Date(string='Date To', required=True)
-    salesperson_ids = fields.Many2many('res.users', string='Salespersons')
+    show_all_salespersons = fields.Boolean(string='All Salespersons', default=False)
+    user_id = fields.Many2one('res.users', string='Salesperson')
+    date_from = fields.Date(string='Date From')
+    date_to = fields.Date(string='Date To', default=fields.Date.today)
+    invoice_state = fields.Selection([
+        ('draft', 'Draft'),
+        ('posted', 'Posted'),
+        ('cancel', 'Cancelled'),
+        ('all', 'All')
+    ], string='Invoice Status', default='all')
 
-    def action_generate_report(self):
-        """Generate and display the report"""
-        return self.env.ref('sales_invoice_reports.action_salesperson_report_display').report_action(self)
+    @api.onchange('show_all_salespersons')
+    def _onchange_show_all_salespersons(self):
+        """Clear salesperson selection when showing all salespersons"""
+        if self.show_all_salespersons:
+            self.user_id = False
 
-    def _get_report_values(self):
-        """Prepare data for the report template"""
+    def action_apply(self):
+        """Apply filter and show salesperson report"""
         self.ensure_one()
 
-        # Build domain for invoices
-        domain = [
-            ('invoice_date', '>=', self.date_from),
-            ('invoice_date', '<=', self.date_to),
-            ('move_type', 'in', ['out_invoice', 'out_refund']),
-            ('state', '=', 'posted')
-        ]
+        # Build domain for the report model
+        domain = []
 
-        # Filter by salesperson if selected
-        if self.salesperson_ids:
-            domain.append(('invoice_user_id', 'in', self.salesperson_ids.ids))
-
-        # Fetch invoices
-        invoices = self.env['account.move'].search(domain, order='invoice_user_id, invoice_date')
-
-        # Group data by salesperson
-        salesperson_data = []
-        grouped_invoices = {}
-
-        for invoice in invoices:
-            salesperson = invoice.invoice_user_id
-            if not salesperson:
-                salesperson_name = 'No Salesperson'
-                salesperson_id = 0
-            else:
-                salesperson_name = salesperson.name
-                salesperson_id = salesperson.id
-
-            if salesperson_id not in grouped_invoices:
-                grouped_invoices[salesperson_id] = {
-                    'salesperson_name': salesperson_name,
-                    'invoices': [],
-                    'total': 0.0
+        # Only filter by salesperson if not showing all
+        if not self.show_all_salespersons:
+            if not self.user_id:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': 'Warning',
+                        'message': 'Please select a salesperson or check "All Salespersons"',
+                        'type': 'warning',
+                        'sticky': False,
+                    }
                 }
+            domain.append(('user_id', '=', self.user_id.id))
 
-            # Prepare invoice lines
-            lines = []
-            sequence = 1
-            for line in invoice.invoice_line_ids:
-                lines.append({
-                    'sequence': sequence,
-                    'code': line.product_id.default_code or '',
-                    'name': line.name or line.product_id.name or '',
-                    'quantity': line.quantity,
-                    'uom': line.product_uom_id.name or '',
-                    'price_unit': line.price_unit,
-                    'discount': line.discount,
-                    'subtotal': line.price_subtotal
-                })
-                sequence += 1
+        # Only filter by state if not 'all'
+        if self.invoice_state and self.invoice_state != 'all':
+            domain.append(('invoice_state', '=', self.invoice_state))
 
-            # Get account code (sales account)
-            account_code = ''
-            if invoice.invoice_line_ids:
-                account_code = invoice.invoice_line_ids[0].account_id.code or ''
+        # Only add date filters if they are set
+        if self.date_from:
+            domain.append(('invoice_date', '>=', self.date_from))
+        if self.date_to:
+            domain.append(('invoice_date', '<=', self.date_to))
 
-            # Add invoice data
-            invoice_data = {
-                'date': invoice.invoice_date.strftime('%d/%m/%Y') if invoice.invoice_date else '',
-                'number': invoice.name or '',
-                'customer': invoice.partner_id.name or '',
-                'account': account_code,
-                'lines': lines,
-                'total': invoice.amount_total
-            }
-
-            grouped_invoices[salesperson_id]['invoices'].append(invoice_data)
-            grouped_invoices[salesperson_id]['total'] += invoice.amount_total
-
-        # Convert to list
-        for sp_id, sp_info in grouped_invoices.items():
-            salesperson_data.append(sp_info)
+        # Set report name
+        if self.show_all_salespersons:
+            report_name = 'Sales Report - All Salespersons'
+        else:
+            report_name = f'Sales Report - {self.user_id.display_name}'
 
         return {
-            'salesperson_data': salesperson_data,
-            'title': 'Sales Invoice Report',
-            'date_from': self.date_from.strftime('%d/%m/%Y') if self.date_from else '',
-            'date_to': self.date_to.strftime('%d/%m/%Y') if self.date_to else '',
-        }
-
-
-class SalespersonReport(models.AbstractModel):
-    _name = 'report.sales_invoice_reports.salesperson_report_display_template'
-    _description = 'Salesperson Report'
-
-    @api.model
-    def _get_report_values(self, docids, data=None):
-        """Override to pass custom data to the report template"""
-        docs = self.env['report.by.salesperson.wizard'].browse(docids)
-
-        if not docs:
-            return {}
-
-        # Get data from the wizard
-        wizard = docs[0]
-        report_data = wizard._get_report_values()
-
-        return {
-            'doc_ids': docids,
-            'doc_model': 'report.by.salesperson.wizard',
-            'docs': docs,
-            'salesperson_data': report_data['salesperson_data'],
-            'title': report_data['title'],
-            'date_from': report_data['date_from'],
-            'date_to': report_data['date_to'],
+            'name': report_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 'salesperson.invoice.report',
+            'view_mode': 'list,pivot,graph',
+            'domain': domain,
+            'context': {'search_default_posted': 1},
+            'target': 'current',
         }

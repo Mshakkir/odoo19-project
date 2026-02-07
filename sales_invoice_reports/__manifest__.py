@@ -65,7 +65,6 @@
         'views/product_report_view.xml',
         'views/customer_report_view.xml',
         'views/salesperson_report_view.xml',
-        'views/salesperson_report_display_view.xml',
         'views/menu_views.xml',
         'reports/sales_report_template.xml',
     ],

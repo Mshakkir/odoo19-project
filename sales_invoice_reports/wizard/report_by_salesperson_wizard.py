@@ -99,7 +99,7 @@ class ReportBySalespersonWizard(models.TransientModel):
 
 
 class SalespersonReport(models.AbstractModel):
-    _name = 'report.sales_invoice_reports.salesperson_report_display_template'
+    _name = 'report.sales_invoice_reports.sp_report_template'
     _description = 'Salesperson Report'
 
     @api.model

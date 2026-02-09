@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- List View -->
+        <record id="view_product_category_invoice_report_tree" model="ir.ui.view">
+            <field name="name">product.category.invoice.report.tree</field>
+            <field name="model">product.category.invoice.report</field>
+            <field name="arch" type="xml">
+                <list string="Product Category Sales Report" create="false" delete="false" export_xlsx="1">
+                    <field name="invoice_date"/>
+                    <field name="invoice_number"/>
+                    <field name="categ_id"/>
+                    <field name="product_id"/>
+                    <field name="partner_id"/>
+                    <field name="quantity" sum="Total Quantity"/>
+                    <field name="uom_id"/>
+                    <field name="price_unit"/>
+                    <field name="discount" optional="hide"/>
+                    <field name="price_subtotal" sum="Total Untaxed" optional="hide"/>
+                    <field name="price_total" sum="Total"/>
+                    <field name="invoice_state" optional="hide"/>
+                    <field name="user_id"/>
+                    <field name="analytic_account_id" optional="hide"/>
+                    <field name="warehouse_id" optional="hide"/>
+                    <field name="account_id" optional="hide"/>
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="company_id" column_invisible="1"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Pivot View -->
+        <record id="view_product_category_invoice_report_pivot" model="ir.ui.view">
+            <field name="name">product.category.invoice.report.pivot</field>
+            <field name="model">product.category.invoice.report</field>
+            <field name="arch" type="xml">
+                <pivot string="Product Category Sales Analysis" sample="1">
+                    <field name="categ_id" type="row"/>
+                    <field name="invoice_date" interval="month" type="col"/>
+                    <field name="quantity" type="measure"/>
+                    <field name="price_subtotal" type="measure"/>
+                    <field name="price_total" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Graph View -->
+        <record id="view_product_category_invoice_report_graph" model="ir.ui.view">
+            <field name="name">product.category.invoice.report.graph</field>
+            <field name="model">product.category.invoice.report</field>
+            <field name="arch" type="xml">
+                <graph string="Product Category Sales Graph" sample="1" type="bar">
+                    <field name="categ_id"/>
+                    <field name="price_total" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Search View -->
+        <record id="view_product_category_invoice_report_search" model="ir.ui.view">
+            <field name="name">product.category.invoice.report.search</field>
+            <field name="model">product.category.invoice.report</field>
+            <field name="arch" type="xml">
+                <search string="Product Category Sales Report">
+                    <field name="invoice_number"/>
+                    <field name="categ_id"/>
+                    <field name="product_id"/>
+                    <field name="partner_id"/>
+                    <field name="user_id"/>
+                    <field name="analytic_account_id"/>
+                    <field name="warehouse_id"/>
+                    <field name="account_id"/>
+                    <separator/>
+                    <filter string="Posted" name="posted"
+                            domain="[('invoice_state', '=', 'posted')]"/>
+                    <filter string="Draft" name="draft"
+                            domain="[('invoice_state', '=', 'draft')]"/>
+                    <filter string="Cancelled" name="cancelled"
+                            domain="[('invoice_state', '=', 'cancel')]"/>
+                    <separator/>
+                    <filter string="Invoices" name="invoices"
+                            domain="[('move_type', '=', 'out_invoice')]"/>
+                    <filter string="Credit Notes" name="refunds"
+                            domain="[('move_type', '=', 'out_refund')]"/>
+                    <separator/>
+                    <filter string="Invoice Date" name="invoice_date"
+                            date="invoice_date"/>
+                    <separator/>
+                    <filter string="Product Category" name="group_category"
+                            context="{'group_by': 'categ_id'}"/>
+                    <filter string="Product" name="group_product"
+                            context="{'group_by': 'product_id'}"/>
+                    <filter string="Customer" name="group_partner"
+                            context="{'group_by': 'partner_id'}"/>
+                    <filter string="Salesperson" name="group_salesperson"
+                            context="{'group_by': 'user_id'}"/>
+                    <filter string="Analytic Account" name="group_analytic_account"
+                            context="{'group_by': 'analytic_account_id'}"/>
+                    <filter string="Warehouse" name="group_warehouse"
+                            context="{'group_by': 'warehouse_id'}"/>
+                    <filter string="Account" name="group_account"
+                            context="{'group_by': 'account_id'}"/>
+                    <filter string="Status" name="group_state"
+                            context="{'group_by': 'invoice_state'}"/>
+                    <filter string="Invoice Date" name="group_date"
+                            context="{'group_by': 'invoice_date'}"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Action -->
+        <record id="action_product_category_invoice_report" model="ir.actions.act_window">
+            <field name="name">Sales by Product Category</field>
+            <field name="res_model">product.category.invoice.report</field>
+            <field name="view_mode">list,pivot,graph</field>
+            <field name="context">{'search_default_posted': 1}</field>
+        </record>
+    </data>
+</odoo>

@@ -5,7 +5,7 @@
             <field name="name">salesperson.invoice.report.tree</field>
             <field name="model">salesperson.invoice.report</field>
             <field name="arch" type="xml">
-                <list string="Salesperson Sales Report" create="false" delete="false">
+                <list string="Salesperson Sales Report" create="false" delete="false" export_xlsx="1">
                     <field name="invoice_date"/>
                     <field name="invoice_number"/>
                     <field name="user_id"/>
@@ -14,13 +14,13 @@
                     <field name="quantity" sum="Total Quantity"/>
                     <field name="uom_id"/>
                     <field name="price_unit"/>
-                    <field name="discount"/>
-                    <field name="price_subtotal" sum="Total Untaxed"/>
+                    <field name="discount" optional="hide"/>
+                    <field name="price_subtotal" sum="Total Untaxed" optional="hide"/>
                     <field name="price_total" sum="Total"/>
-                    <field name="invoice_state"/>
-                    <field name="analytic_account_id" optional="show"/>
-                    <field name="warehouse_id" optional="show"/>
-                    <field name="account_id" optional="show"/>
+                    <field name="invoice_state" optional="hide"/>
+                    <field name="analytic_account_id" optional="hide"/>
+                    <field name="warehouse_id" optional="hide"/>
+                    <field name="account_id" optional="hide"/>
                     <field name="currency_id" column_invisible="1"/>
                     <field name="company_id" column_invisible="1"/>
                 </list>
@@ -88,6 +88,11 @@
 </odoo>
 
 
+
+
+
+
+
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 <!--    <data>-->
@@ -108,6 +113,9 @@
 <!--                    <field name="price_subtotal" sum="Total Untaxed"/>-->
 <!--                    <field name="price_total" sum="Total"/>-->
 <!--                    <field name="invoice_state"/>-->
+<!--                    <field name="analytic_account_id" optional="show"/>-->
+<!--                    <field name="warehouse_id" optional="show"/>-->
+<!--                    <field name="account_id" optional="show"/>-->
 <!--                    <field name="currency_id" column_invisible="1"/>-->
 <!--                    <field name="company_id" column_invisible="1"/>-->
 <!--                </list>-->
@@ -154,6 +162,9 @@
 <!--                        <filter string="Sales Team" name="group_team" context="{'group_by': 'team_id'}"/>-->
 <!--                        <filter string="Customer" name="group_customer" context="{'group_by': 'partner_id'}"/>-->
 <!--                        <filter string="Product" name="group_product" context="{'group_by': 'product_id'}"/>-->
+<!--                        <filter string="Analytic Account" name="group_analytic" context="{'group_by': 'analytic_account_id'}"/>-->
+<!--                        <filter string="Warehouse" name="group_warehouse" context="{'group_by': 'warehouse_id'}"/>-->
+<!--                        <filter string="Account" name="group_account" context="{'group_by': 'account_id'}"/>-->
 <!--                        <filter string="Status" name="group_status" context="{'group_by': 'invoice_state'}"/>-->
 <!--                        <filter string="Invoice Date" name="group_invoice_date" context="{'group_by': 'invoice_date:month'}"/>-->
 <!--                    </group>-->
@@ -170,3 +181,5 @@
 <!--        </record>-->
 <!--    </data>-->
 <!--</odoo>-->
+
+

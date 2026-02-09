@@ -6,3 +6,4 @@ from . import salesperson_report
 from . import sales_report_by_salesperson
 from . import invoice_number_report
 from . import analytic_account_report
+from . import product_category_report

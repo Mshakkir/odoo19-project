@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Wizard Form View -->
+    <record id="view_report_by_analytic_account_wizard" model="ir.ui.view">
+        <field name="name">report.by.analytic.account.wizard.form</field>
+        <field name="model">report.by.analytic.account.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Sales Report by Analytic Account">
+                <group>
+                    <group>
+                        <field name="show_all_analytic_accounts"/>
+                        <field name="analytic_account_id"
+                               invisible="show_all_analytic_accounts"
+                               required="not show_all_analytic_accounts"/>
+                    </group>
+                    <group>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                        <field name="invoice_state"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_apply" string="Apply" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Wizard Action -->
+    <record id="action_report_by_analytic_account_wizard" model="ir.actions.act_window">
+        <field name="name">Report by Analytic Account</field>
+        <field name="res_model">report.by.analytic.account.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

@@ -15,10 +15,13 @@ class PurchaseProductReportWizard(models.TransientModel):
         required=True,
         default=fields.Date.context_today
     )
+    all_products = fields.Boolean(
+        string='All Products',
+        default=False
+    )
     product_ids = fields.Many2many(
         'product.product',
-        string='Products',
-        required=True
+        string='Products'
     )
     invoice_status = fields.Selection([
         ('draft', 'Draft'),
@@ -27,9 +30,19 @@ class PurchaseProductReportWizard(models.TransientModel):
         ('all', 'All')
     ], string='Invoice Status', default='all', required=True)
 
+    @api.onchange('all_products')
+    def _onchange_all_products(self):
+        """When All Products is checked, clear product selection"""
+        if self.all_products:
+            self.product_ids = [(5, 0, 0)]  # Clear all products
+
     def action_show_report(self):
         """Open the report view with filtered data"""
         self.ensure_one()
+
+        # Validate: either all_products is checked OR products are selected
+        if not self.all_products and not self.product_ids:
+            raise models.ValidationError('Please select products or check "All Products"')
 
         # Create the report records
         report_obj = self.env['purchase.bypd.report']
@@ -39,8 +52,11 @@ class PurchaseProductReportWizard(models.TransientModel):
             ('move_id.move_type', '=', 'in_invoice'),
             ('move_id.invoice_date', '>=', self.date_from),
             ('move_id.invoice_date', '<=', self.date_to),
-            ('product_id', 'in', self.product_ids.ids),
         ]
+
+        # Add product filter only if not "All Products"
+        if not self.all_products:
+            domain.append(('product_id', 'in', self.product_ids.ids))
 
         # Add state filter based on selection
         if self.invoice_status == 'draft':

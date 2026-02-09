@@ -8,7 +8,14 @@
             <form string="Purchase Product Report">
                 <group>
                     <group>
-                        <field name="product_ids" widget="many2many_tags"/>
+                        <label for="all_products"/>
+                        <div class="o_row">
+                            <field name="all_products"/>
+                            <span invisible="not all_products">All Products Selected</span>
+                        </div>
+                        <field name="product_ids" widget="many2many_tags"
+                               placeholder="Select Products..."
+                               attrs="{'invisible': [('all_products', '=', True)], 'required': [('all_products', '=', False)]}"/>
                         <field name="invoice_status"/>
                     </group>
                     <group>
@@ -37,7 +44,6 @@
         <field name="target">new</field>
     </record>
 </odoo>
-
 
 
 

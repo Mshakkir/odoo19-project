@@ -15,7 +15,8 @@
                         </div>
                         <field name="product_ids" widget="many2many_tags"
                                placeholder="Select Products..."
-                               attrs="{'invisible': [('all_products', '=', True)], 'required': [('all_products', '=', False)]}"/>
+                               invisible="all_products"
+                               required="not all_products"/>
                         <field name="invoice_status"/>
                     </group>
                     <group>

@@ -28,7 +28,7 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
 
         query = """
             SELECT "account_move_line".id, "account_move_line".date, j.code, 
-                   acc.name as a_name, acc.code as a_code, 
+                   acc.name as a_name,
                    "account_move_line".ref, m.name as move_name,
                    "account_move_line".name, "account_move_line".debit, 
                    "account_move_line".credit, "account_move_line".amount_currency,

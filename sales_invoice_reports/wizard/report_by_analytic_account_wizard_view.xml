@@ -5,7 +5,7 @@
         <field name="name">report.by.analytic.account.wizard.form</field>
         <field name="model">report.by.analytic.account.wizard</field>
         <field name="arch" type="xml">
-            <form string="Sales Report by Analytic Account">
+            <form string="Sales Report by Warehouse">
                 <group>
                     <group>
                         <field name="show_all_analytic_accounts"/>

@@ -7,8 +7,8 @@ class ReportByAnalyticAccountWizard(models.TransientModel):
     _name = 'report.by.analytic.account.wizard'
     _description = 'Report by Analytic Account Wizard'
 
-    show_all_analytic_accounts = fields.Boolean(string='All Analytic Accounts', default=False)
-    analytic_account_id = fields.Many2one('account.analytic.account', string='Analytic Account')
+    show_all_analytic_accounts = fields.Boolean(string='All warehouse', default=False)
+    analytic_account_id = fields.Many2one('account.analytic.account', string='warehouse')
     date_from = fields.Date(string='Date From')
     date_to = fields.Date(string='Date To', default=fields.Date.today)
     invoice_state = fields.Selection([

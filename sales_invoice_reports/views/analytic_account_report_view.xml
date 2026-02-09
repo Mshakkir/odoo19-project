@@ -6,7 +6,7 @@
             <field name="name">analytic.account.invoice.report.tree</field>
             <field name="model">analytic.account.invoice.report</field>
             <field name="arch" type="xml">
-                <list string="Sales Report by Analytic Account" create="false" edit="false" delete="false" export_xlsx="1">
+                <list string="Sales Report by Warehouse" create="false" edit="false" delete="false" export_xlsx="1">
                     <field name="invoice_date"/>
                     <field name="invoice_number"/>
                     <field name="analytic_account_id"/>

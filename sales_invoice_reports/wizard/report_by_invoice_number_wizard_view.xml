@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Wizard Form View -->
+    <record id="view_report_by_invoice_number_wizard" model="ir.ui.view">
+        <field name="name">report.by.invoice.number.wizard.form</field>
+        <field name="model">report.by.invoice.number.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Sales Report by Invoice Number">
+                <group>
+                    <group>
+                        <field name="show_all_invoices"/>
+                        <field name="invoice_id"
+                               invisible="show_all_invoices"
+                               required="not show_all_invoices"/>
+                    </group>
+                    <group>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                        <field name="invoice_state"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_apply" string="Apply" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Wizard Action -->
+    <record id="action_report_by_invoice_number_wizard" model="ir.actions.act_window">
+        <field name="name">Report by Invoice Number</field>
+        <field name="res_model">report.by.invoice.number.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

@@ -14,7 +14,6 @@
                 </header>
                 <field name="invoice_date"/>
                 <field name="invoice_number"/>
-                <field name="analytic_account_id"/>
                 <field name="vendor_id"/>
                 <field name="warehouse_id"/>
                 <field name="buyer_id"/>
@@ -22,11 +21,11 @@
                 <field name="quantity" sum="Total Qty"/>
                 <field name="uom_id"/>
                 <field name="price_unit"/>
-                <field name="discount" column_invisible="1"/>
-                <field name="untaxed_amount" sum="Total Untaxed Amount" column_invisible="1"/>
-                <field name="tax_value" sum="Total Tax Value" column_invisible="1"/>
+                <field name="discount" optional="hide"/>
+                <field name="untaxed_amount" sum="Total Untaxed Amount" optional="hide"/>
+                <field name="tax_value" sum="Total Tax Value" optional="hide"/>
                 <field name="net_amount" sum="Total Net Amount"/>
-
+                <field name="analytic_account_id"/>
             </list>
         </field>
     </record>

@@ -21,73 +21,97 @@ export const purchaseHistoryService = {
                     let productName = null;
                     let lineId = null;
 
-                    // Method 1: Try to get from the focused row
-                    const dataRow = activeElement.closest('tr.o_data_row');
-                    if (dataRow) {
-                        lineId = dataRow.dataset.id;
+                    console.log("Ctrl+F5 pressed, searching for product...");
 
-                        if (lineId) {
-                            try {
-                                // Read the line data to get product_id
-                                const lineData = await orm.read(
-                                    'account.move.line',
-                                    [parseInt(lineId)],
-                                    ['product_id', 'display_type']
-                                );
-
-                                if (lineData && lineData[0]) {
-                                    // Check if this is a product line (not section/note)
-                                    if (lineData[0].display_type === 'product' || !lineData[0].display_type) {
-                                        if (lineData[0].product_id) {
-                                            productId = lineData[0].product_id[0];
-                                            productName = lineData[0].product_id[1];
-                                        }
-                                    }
-                                }
-                            } catch (error) {
-                                console.log("Error reading line data:", error);
+                    // Method 1: Try to get from many2one input field directly
+                    const many2oneInput = activeElement.closest('.o_field_many2one');
+                    if (many2oneInput) {
+                        console.log("Found many2one field");
+                        const input = many2oneInput.querySelector('input');
+                        if (input) {
+                            // Try to get from data attributes
+                            const recordData = input.getAttribute('data-oe-id');
+                            if (recordData) {
+                                productId = parseInt(recordData);
+                                productName = input.value;
+                                console.log("Got product from input data attribute:", productId, productName);
                             }
-                        }
-                    }
 
-                    // Method 2: Try to find from selected cells
-                    if (!productId) {
-                        const selectedCell = document.querySelector('.o_data_row.o_selected_row .o_data_cell[name="product_id"]');
-                        if (selectedCell) {
-                            const parentRow = selectedCell.closest('tr.o_data_row');
-                            if (parentRow) {
-                                lineId = parentRow.dataset.id;
-                                if (lineId) {
-                                    try {
-                                        const lineData = await orm.read(
-                                            'account.move.line',
-                                            [parseInt(lineId)],
-                                            ['product_id', 'display_type']
-                                        );
-
-                                        if (lineData && lineData[0]) {
-                                            if (lineData[0].display_type === 'product' || !lineData[0].display_type) {
-                                                if (lineData[0].product_id) {
-                                                    productId = lineData[0].product_id[0];
-                                                    productName = lineData[0].product_id[1];
-                                                }
-                                            }
-                                        }
-                                    } catch (error) {
-                                        console.log("Error reading selected line:", error);
-                                    }
+                            // Alternative: try to get from the autocomplete widget
+                            if (!productId && input.value) {
+                                productName = input.value;
+                                // We have the name, try to find the row to get the ID
+                                const parentRow = input.closest('tr.o_data_row');
+                                if (parentRow && parentRow.dataset.id) {
+                                    lineId = parentRow.dataset.id;
                                 }
                             }
                         }
                     }
 
+                    // Method 2: Try to get from the currently focused/edited row
+                    if (!lineId) {
+                        let dataRow = activeElement.closest('tr.o_data_row');
+
+                        // Method 3: If not in a row, try to find the selected row
+                        if (!dataRow) {
+                            dataRow = document.querySelector('tr.o_data_row.o_selected_row');
+                        }
+
+                        // Method 4: Try to find any row being edited
+                        if (!dataRow) {
+                            dataRow = document.querySelector('tr.o_data_row.o_row_edit');
+                        }
+
+                        // Method 5: Look for the row containing the active element
+                        if (!dataRow && activeElement) {
+                            dataRow = activeElement.closest('tr[data-id]');
+                        }
+
+                        if (dataRow && dataRow.dataset.id) {
+                            lineId = dataRow.dataset.id;
+                            console.log("Found row ID:", lineId);
+                        }
+                    }
+
+                    // If we found a line ID, read the product from the database
+                    if (lineId && !productId) {
+                        try {
+                            console.log("Reading line data from database...");
+                            const lineData = await orm.read(
+                                'account.move.line',
+                                [parseInt(lineId)],
+                                ['product_id', 'display_type']
+                            );
+
+                            if (lineData && lineData[0]) {
+                                console.log("Line data:", lineData[0]);
+                                // Check if this is a product line (not section/note)
+                                if (lineData[0].display_type === 'product' || !lineData[0].display_type) {
+                                    if (lineData[0].product_id) {
+                                        productId = lineData[0].product_id[0];
+                                        productName = lineData[0].product_id[1];
+                                        console.log("Got product from database:", productId, productName);
+                                    }
+                                } else {
+                                    console.log("This is a section/note line, not a product");
+                                }
+                            }
+                        } catch (error) {
+                            console.log("Error reading line data:", error);
+                        }
+                    }
+
                     if (!productId) {
+                        console.log("No product found");
                         notification.add(
-                            "Please select a product line first. Click on any invoice line with a product.",
+                            "Please click on a product line first (click on the row, not inside the dropdown), then press Ctrl+F5",
                             { type: "warning" }
                         );
                         return;
                     }
+
+                    console.log("Fetching purchase history for product:", productId);
 
                     // Fetch purchase history
                     const purchaseHistory = await orm.call(
@@ -95,6 +119,8 @@ export const purchaseHistoryService = {
                         'get_product_purchase_history',
                         [productId]
                     );
+
+                    console.log("Purchase history:", purchaseHistory);
 
                     // Show dialog
                     dialog.add(PurchaseHistoryDialog, {

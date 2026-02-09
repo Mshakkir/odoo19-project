@@ -14,14 +14,19 @@
                 </header>
                 <field name="invoice_date"/>
                 <field name="invoice_number"/>
+                <field name="analytic_account_id"/>
                 <field name="vendor_id"/>
                 <field name="warehouse_id"/>
+                <field name="buyer_id"/>
                 <field name="product_id"/>
                 <field name="quantity" sum="Total Qty"/>
                 <field name="uom_id"/>
                 <field name="price_unit"/>
+                <field name="discount" column_invisible="1"/>
+                <field name="untaxed_amount" sum="Total Untaxed Amount" column_invisible="1"/>
+                <field name="tax_value" sum="Total Tax Value" column_invisible="1"/>
                 <field name="net_amount" sum="Total Net Amount"/>
-                <field name="analytic_account_id"/>
+
             </list>
         </field>
     </record>
@@ -35,9 +40,11 @@
                 <field name="invoice_number"/>
                 <field name="vendor_id"/>
                 <field name="warehouse_id"/>
+                <field name="buyer_id"/>
                 <field name="product_id"/>
                 <field name="analytic_account_id"/>
                 <filter name="group_by_warehouse" string="Warehouse" context="{'group_by': 'warehouse_id'}"/>
+                <filter name="group_by_buyer" string="Buyer" context="{'group_by': 'buyer_id'}"/>
                 <filter name="group_by_vendor" string="Vendor" context="{'group_by': 'vendor_id'}"/>
                 <filter name="group_by_product" string="Product" context="{'group_by': 'product_id'}"/>
                 <filter name="group_by_analytic" string="Analytic Account" context="{'group_by': 'analytic_account_id'}"/>

@@ -92,7 +92,7 @@ class PurchaseWarehouseReportWizard(models.TransientModel):
                 else:
                     # Check if warehouse is in selected warehouses
                     should_include = warehouse_id in self.warehouse_ids.ids
-                
+
                 if should_include:
                     # Process each invoice line
                     for line in invoice.invoice_line_ids:
@@ -103,16 +103,38 @@ class PurchaseWarehouseReportWizard(models.TransientModel):
                                 analytic_account_ids = [int(k) for k in line.analytic_distribution.keys()]
                                 if analytic_account_ids:
                                     analytic_id = analytic_account_ids[0]  # Take first analytic account
-                            
+
+                            # Get buyer from purchase order
+                            buyer_id = False
+                            if invoice.invoice_origin:
+                                purchase_order = self.env['purchase.order'].search([
+                                    ('name', '=', invoice.invoice_origin)
+                                ], limit=1)
+                                if purchase_order and purchase_order.user_id:
+                                    buyer_id = purchase_order.user_id.id
+
+                            # Calculate discount (fixed discount from line)
+                            discount = line.discount_fixed if hasattr(line, 'discount_fixed') else 0.0
+
+                            # Calculate untaxed amount (price_subtotal)
+                            untaxed_amount = line.price_subtotal
+
+                            # Calculate tax value (difference between total and subtotal)
+                            tax_value = line.price_total - line.price_subtotal
+
                             report_obj.create({
                                 'invoice_date': invoice.invoice_date,
                                 'invoice_number': invoice.name,
                                 'vendor_id': invoice.partner_id.id,
                                 'warehouse_id': warehouse_id,
+                                'buyer_id': buyer_id,
                                 'product_id': line.product_id.id,
                                 'quantity': line.quantity,
                                 'uom_id': line.product_uom_id.id,
                                 'price_unit': line.price_unit,
+                                'discount': discount,
+                                'untaxed_amount': untaxed_amount,
+                                'tax_value': tax_value,
                                 'net_amount': line.price_total,  # Includes tax
                                 'analytic_account_id': analytic_id,
                             })

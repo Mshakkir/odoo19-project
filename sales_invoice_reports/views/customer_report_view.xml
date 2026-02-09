@@ -5,7 +5,7 @@
             <field name="name">customer.invoice.report.tree</field>
             <field name="model">customer.invoice.report</field>
             <field name="arch" type="xml">
-                <list string="Customer Sales Report" create="false" delete="false">
+                <list string="Customer Sales Report" create="false" delete="false" export_xlsx="1">
                     <field name="invoice_date"/>
                     <field name="invoice_number"/>
                     <field name="partner_id"/>
@@ -89,6 +89,9 @@
 
 
 
+
+
+
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 <!--    <data>-->
@@ -109,6 +112,9 @@
 <!--                    <field name="price_total" sum="Total"/>-->
 <!--                    <field name="invoice_state"/>-->
 <!--                    <field name="user_id"/>-->
+<!--                    <field name="analytic_account_id" optional="show"/>-->
+<!--                    <field name="warehouse_id" optional="show"/>-->
+<!--                    <field name="account_id" optional="show"/>-->
 <!--                    <field name="currency_id" column_invisible="1"/>-->
 <!--                    <field name="company_id" column_invisible="1"/>-->
 <!--                </list>-->
@@ -155,6 +161,9 @@
 <!--                        <filter string="Product" name="group_product" context="{'group_by': 'product_id'}"/>-->
 <!--                        <filter string="Salesperson" name="group_salesperson" context="{'group_by': 'user_id'}"/>-->
 <!--                        <filter string="Country" name="group_country" context="{'group_by': 'country_id'}"/>-->
+<!--                        <filter string="Analytic Account" name="group_analytic" context="{'group_by': 'analytic_account_id'}"/>-->
+<!--                        <filter string="Warehouse" name="group_warehouse" context="{'group_by': 'warehouse_id'}"/>-->
+<!--                        <filter string="Account" name="group_account" context="{'group_by': 'account_id'}"/>-->
 <!--                        <filter string="Status" name="group_status" context="{'group_by': 'invoice_state'}"/>-->
 <!--                        <filter string="Invoice Date" name="group_invoice_date" context="{'group_by': 'invoice_date:month'}"/>-->
 <!--                    </group>-->
@@ -171,3 +180,6 @@
 <!--        </record>-->
 <!--    </data>-->
 <!--</odoo>-->
+
+
+

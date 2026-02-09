@@ -6,6 +6,12 @@
         <field name="model">purchase.analytic.report</field>
         <field name="arch" type="xml">
             <list string="Purchase Analytic Report" create="false" edit="false" delete="false">
+                <header>
+                    <button name="%(action_purchase_analytic_report_wizard)d"
+                            string="Back to Filter"
+                            type="action"
+                            class="btn-primary"/>
+                </header>
                 <field name="invoice_date"/>
                 <field name="invoice_number"/>
                 <field name="analytic_account_id"/>

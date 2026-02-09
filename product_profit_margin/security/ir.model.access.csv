@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_product_profit_margin_wizard_user,product.profit.margin.wizard.user,model_product_profit_margin_wizard,stock.group_stock_user,1,1,1,1
+access_product_profit_margin_wizard_manager,product.profit.margin.wizard.manager,model_product_profit_margin_wizard,stock.group_stock_manager,1,1,1,1
+access_product_profit_margin_report_user,product.profit.margin.report.user,model_product_profit_margin_report,stock.group_stock_user,1,1,1,1
+access_product_profit_margin_report_manager,product.profit.margin.report.manager,model_product_profit_margin_report,stock.group_stock_manager,1,1,1,1

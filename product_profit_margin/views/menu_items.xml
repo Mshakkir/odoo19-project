@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menu Item under Inventory > Reporting -->
+    <menuitem id="menu_product_profit_margin_report"
+              name="Product Profit Margin"
+              parent="stock.menu_warehouse_report"
+              action="action_product_profit_margin_wizard"
+              sequence="99"/>
+</odoo>

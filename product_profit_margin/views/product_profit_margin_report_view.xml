@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Report Tree View -->
+    <record id="view_product_profit_margin_report_tree" model="ir.ui.view">
+        <field name="name">product.profit.margin.report.tree</field>
+        <field name="model">product.profit.margin.report</field>
+        <field name="arch" type="xml">
+            <tree string="Sales Product Profit Report" create="false" edit="false" delete="false" decoration-success="profit > 0" decoration-danger="profit &lt; 0">
+                <field name="date"/>
+                <field name="order_ref"/>
+                <field name="product_code"/>
+                <field name="product_name"/>
+                <field name="category"/>
+                <field name="qty" sum="Total Quantity"/>
+                <field name="uom"/>
+                <field name="rate"/>
+                <field name="total" sum="Total Amount"/>
+                <field name="unit_cost"/>
+                <field name="total_cost" sum="Total Cost"/>
+                <field name="profit" sum="Total Profit"/>
+                <field name="profit_margin" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Report Search View -->
+    <record id="view_product_profit_margin_report_search" model="ir.ui.view">
+        <field name="name">product.profit.margin.report.search</field>
+        <field name="model">product.profit.margin.report</field>
+        <field name="arch" type="xml">
+            <search string="Search Profit Report">
+                <field name="product_name"/>
+                <field name="product_code"/>
+                <field name="category"/>
+                <field name="order_ref"/>
+                <filter name="positive_profit" string="Positive Profit" domain="[('profit', '&gt;', 0)]"/>
+                <filter name="negative_profit" string="Negative Profit" domain="[('profit', '&lt;', 0)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_product" string="Product" context="{'group_by': 'product_name'}"/>
+                    <filter name="group_by_category" string="Category" context="{'group_by': 'category'}"/>
+                    <filter name="group_by_date" string="Date" context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Report Action -->
+    <record id="action_product_profit_margin_report" model="ir.actions.act_window">
+        <field name="name">Product Profit Report</field>
+        <field name="res_model">product.profit.margin.report</field>
+        <field name="view_mode">tree</field>
+        <field name="search_view_id" ref="view_product_profit_margin_report_search"/>
+    </record>
+</odoo>

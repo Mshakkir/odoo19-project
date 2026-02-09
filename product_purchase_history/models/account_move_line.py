@@ -18,15 +18,15 @@ class AccountMoveLine(models.Model):
         # Note: state is on purchase.order, not purchase.order.line
         purchase_lines = self.env['purchase.order.line'].search([
             ('product_id', '=', product_id),
-            ('order_id.state', 'in', ['purchase', 'done'])  # Order state, not line state
-        ], order='order_id.date_order desc', limit=50)
+            ('order_id.state', 'in', ['purchase', 'done'])  # Order state
+        ], order='date_order desc', limit=50)  # date_order works directly in order clause
 
         history = []
         for line in purchase_lines:
             # Safely get the date
             date_str = ''
-            if line.order_id.date_order:
-                date_str = line.order_id.date_order.strftime('%Y-%m-%d')
+            if line.date_order:
+                date_str = line.date_order.strftime('%Y-%m-%d')
 
             history.append({
                 'id': line.id,
@@ -38,7 +38,7 @@ class AccountMoveLine(models.Model):
                 'price_unit': line.price_unit,
                 'price_subtotal': line.price_subtotal,
                 'currency': line.order_id.currency_id.symbol if line.order_id.currency_id else '',
-                'state': line.order_id.state,  # Get state from order, not line
+                'state': line.order_id.state,  # Get state from order
             })
 
         return history

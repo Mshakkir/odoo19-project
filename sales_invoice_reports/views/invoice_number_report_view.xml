@@ -38,44 +38,40 @@
                 <field name="analytic_account_id"/>
                 <field name="warehouse_id"/>
                 <field name="account_id"/>
-
+                <separator/>
                 <filter string="Posted" name="posted"
                         domain="[('invoice_state', '=', 'posted')]"/>
                 <filter string="Draft" name="draft"
                         domain="[('invoice_state', '=', 'draft')]"/>
                 <filter string="Cancelled" name="cancelled"
                         domain="[('invoice_state', '=', 'cancel')]"/>
-
                 <separator/>
                 <filter string="Invoices" name="invoices"
                         domain="[('move_type', '=', 'out_invoice')]"/>
                 <filter string="Credit Notes" name="refunds"
                         domain="[('move_type', '=', 'out_refund')]"/>
-
                 <separator/>
                 <filter string="Invoice Date" name="invoice_date"
                         date="invoice_date"/>
-
-                <group expand="0" string="Group By">
-                    <filter string="Invoice Number" name="group_invoice"
-                            context="{'group_by': 'invoice_number'}"/>
-                    <filter string="Customer" name="group_partner"
-                            context="{'group_by': 'partner_id'}"/>
-                    <filter string="Product" name="group_product"
-                            context="{'group_by': 'product_id'}"/>
-                    <filter string="Salesperson" name="group_salesperson"
-                            context="{'group_by': 'user_id'}"/>
-                    <filter string="Analytic Account" name="group_analytic_account"
-                            context="{'group_by': 'analytic_account_id'}"/>
-                    <filter string="Warehouse" name="group_warehouse"
-                            context="{'group_by': 'warehouse_id'}"/>
-                    <filter string="Account" name="group_account"
-                            context="{'group_by': 'account_id'}"/>
-                    <filter string="Status" name="group_state"
-                            context="{'group_by': 'invoice_state'}"/>
-                    <filter string="Invoice Date" name="group_date"
-                            context="{'group_by': 'invoice_date'}"/>
-                </group>
+                <separator/>
+                <filter string="Invoice Number" name="group_invoice"
+                        context="{'group_by': 'invoice_number'}"/>
+                <filter string="Customer" name="group_partner"
+                        context="{'group_by': 'partner_id'}"/>
+                <filter string="Product" name="group_product"
+                        context="{'group_by': 'product_id'}"/>
+                <filter string="Salesperson" name="group_salesperson"
+                        context="{'group_by': 'user_id'}"/>
+                <filter string="Analytic Account" name="group_analytic_account"
+                        context="{'group_by': 'analytic_account_id'}"/>
+                <filter string="Warehouse" name="group_warehouse"
+                        context="{'group_by': 'warehouse_id'}"/>
+                <filter string="Account" name="group_account"
+                        context="{'group_by': 'account_id'}"/>
+                <filter string="Status" name="group_state"
+                        context="{'group_by': 'invoice_state'}"/>
+                <filter string="Invoice Date" name="group_date"
+                        context="{'group_by': 'invoice_date'}"/>
             </search>
         </field>
     </record>

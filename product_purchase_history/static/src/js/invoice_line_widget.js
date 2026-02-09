@@ -7,7 +7,7 @@ export const purchaseHistoryService = {
     dependencies: ["orm", "dialog", "notification"],
 
     start(env, { orm, dialog, notification }) {
-        console.log("Purchase History Service Started - Simplified Version");
+        console.log("Purchase History Service Started - Diagnostic Version");
 
         const keydownHandler = async (ev) => {
             // Check for Ctrl+F5
@@ -46,7 +46,7 @@ export const purchaseHistoryService = {
                                         productId = tooltip.id;
                                         productName = link.textContent.trim();
                                         console.log("Found product from link:", productId, productName);
-                                        if (isActive) break; // If this is the active row, use it
+                                        if (isActive) break;
                                     }
                                 } catch (e) {
                                     console.log("Error parsing tooltip:", e);
@@ -131,15 +131,30 @@ export const purchaseHistoryService = {
                     console.log("Fetching purchase history for product ID:", productId, "Name:", productName);
 
                     // Fetch purchase history
-                    const purchaseHistory = await orm.call(
-                        'account.move.line',
-                        'get_product_purchase_history',
-                        [productId]
-                    );
-
-                    console.log("Purchase history retrieved:", purchaseHistory ? purchaseHistory.length : 0, "records");
+                    let purchaseHistory;
+                    try {
+                        purchaseHistory = await orm.call(
+                            'account.move.line',
+                            'get_product_purchase_history',
+                            [productId]
+                        );
+                        console.log("✓ Purchase history call successful");
+                        console.log("  Records returned:", purchaseHistory ? purchaseHistory.length : 0);
+                        console.log("  Data:", purchaseHistory);
+                    } catch (historyError) {
+                        console.error("✗ Error fetching purchase history:", historyError);
+                        notification.add(
+                            "Error fetching purchase history: " + historyError.message,
+                            {
+                                type: "danger",
+                                title: "Error"
+                            }
+                        );
+                        return;
+                    }
 
                     if (!purchaseHistory || purchaseHistory.length === 0) {
+                        console.log("No purchase history found");
                         notification.add(
                             `No purchase history found for ${productName}`,
                             {
@@ -152,13 +167,27 @@ export const purchaseHistoryService = {
                     }
 
                     // Show dialog
-                    dialog.add(PurchaseHistoryDialog, {
-                        productName: productName || "Product",
-                        purchaseHistory: purchaseHistory,
-                    });
+                    console.log("Attempting to show dialog...");
+                    try {
+                        dialog.add(PurchaseHistoryDialog, {
+                            productName: productName || "Product",
+                            purchaseHistory: purchaseHistory,
+                        });
+                        console.log("✓ Dialog opened successfully");
+                    } catch (dialogError) {
+                        console.error("✗ Error opening dialog:", dialogError);
+                        notification.add(
+                            "Error displaying dialog: " + dialogError.message,
+                            {
+                                type: "danger",
+                                title: "Dialog Error"
+                            }
+                        );
+                    }
 
                 } catch (error) {
                     console.error("Purchase History Error:", error);
+                    console.error("Error stack:", error.stack);
                     notification.add(
                         "Error loading purchase history: " + error.message,
                         {

@@ -26,9 +26,12 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
         params = [partner.id, tuple(data['computed']['move_state']),
                   tuple(data['computed']['account_ids'])] + query_get_data[2]
 
+        # Get current language
+        lang = self.env.context.get('lang') or 'en_US'
+
         query = """
             SELECT "account_move_line".id, "account_move_line".date, j.code, 
-                   acc.name as a_name,
+                   COALESCE(acc.name->>%s, acc.name->>'en_US', acc.name::text) as a_name,
                    "account_move_line".ref, m.name as move_name,
                    "account_move_line".name, "account_move_line".debit, 
                    "account_move_line".credit, "account_move_line".amount_currency,
@@ -45,7 +48,10 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
             ORDER BY "account_move_line".date
         """
 
-        self.env.cr.execute(query, tuple(params))
+        # Add language parameter at the beginning
+        params_with_lang = [lang] + params
+
+        self.env.cr.execute(query, tuple(params_with_lang))
         res = self.env.cr.dictfetchall()
 
         sum_debit = 0.0

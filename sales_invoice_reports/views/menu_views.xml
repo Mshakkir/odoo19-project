@@ -28,7 +28,7 @@
 
         <!-- NEW: Analytic Account Report -->
         <menuitem id="menu_analytic_account_report"
-                  name="Analytic Account Sales Report"
+                  name="Warehouse Sales Report"
                   parent="menu_sales_invoice_reports_root"
                   action="action_report_by_analytic_account_wizard"
                   sequence="40"/>

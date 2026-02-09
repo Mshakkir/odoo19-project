@@ -7,11 +7,12 @@
         This module adds a purchase report by buyer feature.
         - Filter by date range and buyers
         - View detailed purchase invoice lines with product information
-        - Shows date, invoice number, vendor, product, quantity, unit, rate, and net amount
+        - Shows date, invoice number, buyer, vendor, warehouse, product, quantity, unit, rate, and net amount
+        - Includes optional columns: analytic account, discount, subtotal, tax value
     """,
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',
-    'depends': ['purchase', 'account'],
+    'depends': ['purchase', 'account', 'stock', 'analytic'],
     'data': [
         'security/ir.model.access.csv',
         'views/purchase_buyer_report_wizard_view.xml',

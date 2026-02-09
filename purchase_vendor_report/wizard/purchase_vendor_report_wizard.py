@@ -72,7 +72,7 @@ class PurchaseVendorReportWizard(models.TransientModel):
 
         invoices = self.env['account.move'].search(domain)
 
-        # Create report records
+        # Create report records from invoice lines
         for invoice in invoices:
             # Get warehouse from invoice lines (first line with warehouse)
             warehouse_id = False
@@ -89,31 +89,44 @@ class PurchaseVendorReportWizard(models.TransientModel):
                 if purchase_order and purchase_order.picking_type_id:
                     warehouse_id = purchase_order.picking_type_id.warehouse_id.id
 
-            # Get analytic account from invoice lines (first one found)
-            analytic_account_id = False
+            # Process each invoice line
             for line in invoice.invoice_line_ids:
-                if line.analytic_distribution:
-                    analytic_account_ids = [int(k) for k in line.analytic_distribution.keys()]
-                    if analytic_account_ids:
-                        analytic_account_id = analytic_account_ids[0]
-                        break
+                if line.product_id:  # Only lines with products
+                    # Get analytic account from line
+                    analytic_account_id = False
+                    if line.analytic_distribution:
+                        analytic_account_ids = [int(k) for k in line.analytic_distribution.keys()]
+                        if analytic_account_ids:
+                            analytic_account_id = analytic_account_ids[0]
 
-            # Get purchase account from invoice lines (first product line)
-            purchase_account_id = False
-            for line in invoice.invoice_line_ids:
-                if line.product_id and line.account_id:
-                    purchase_account_id = line.account_id.id
-                    break
+                    # Get buyer from invoice
+                    buyer_id = invoice.buyer_id.id if invoice.buyer_id else False
 
-            report_obj.create({
-                'invoice_date': invoice.invoice_date,
-                'invoice_number': invoice.name,
-                'vendor_id': invoice.partner_id.id,
-                'analytic_account_id': analytic_account_id,
-                'purchase_account_id': purchase_account_id,
-                'warehouse_id': warehouse_id,
-                'net_amount': invoice.amount_total,
-            })
+                    # Calculate discount (fixed)
+                    discount = line.discount_fixed if hasattr(line, 'discount_fixed') else 0.0
+
+                    # Calculate untaxed amount (subtotal)
+                    untaxed_amount = line.price_subtotal if hasattr(line, 'price_subtotal') else 0.0
+
+                    # Calculate tax value
+                    tax_value = line.tax_amount if hasattr(line, 'tax_amount') else 0.0
+
+                    report_obj.create({
+                        'invoice_date': invoice.invoice_date,
+                        'invoice_number': invoice.name,
+                        'analytic_account_id': analytic_account_id,
+                        'vendor_id': invoice.partner_id.id,
+                        'warehouse_id': warehouse_id,
+                        'product_id': line.product_id.id,
+                        'buyer_id': buyer_id,
+                        'quantity': line.quantity,
+                        'uom_id': line.product_uom_id.id,
+                        'price_unit': line.price_unit,
+                        'discount': discount,
+                        'untaxed_amount': untaxed_amount,
+                        'tax_value': tax_value,
+                        'net_amount': line.price_total,
+                    })
 
         # Return action to open list view
         return {
@@ -125,5 +138,3 @@ class PurchaseVendorReportWizard(models.TransientModel):
             'target': 'current',
             'domain': [],
         }
-
-

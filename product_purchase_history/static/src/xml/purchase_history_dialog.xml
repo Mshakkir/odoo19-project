@@ -8,36 +8,38 @@
                         <table class="table table-sm table-striped">
                             <thead>
                                 <tr>
-                                    <th>Purchase Order</th>
+                                    <th>Source</th>
+                                    <th>Reference</th>
                                     <th>Supplier</th>
                                     <th>Date</th>
-                                    <th>Quantity</th>
+                                    <th class="text-end">Qty</th>
                                     <th>Unit</th>
                                     <th class="text-end">Unit Price</th>
                                     <th class="text-end">Subtotal</th>
-                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <t t-foreach="props.purchaseHistory" t-as="line" t-key="line.id">
                                     <tr>
-                                        <td><t t-esc="line.order_name"/></td>
+                                        <td>
+                                            <span class="badge bg-secondary">
+                                                <t t-esc="getSourceLabel(line.source)"/>
+                                            </span>
+                                        </td>
+                                        <td><t t-esc="line.reference"/></td>
                                         <td><t t-esc="line.partner_name"/></td>
-                                        <td><t t-esc="line.date_order"/></td>
-                                        <td class="text-end"><t t-esc="formatNumber(line.product_qty, 2)"/></td>
-                                        <td><t t-esc="line.product_uom"/></td>
+                                        <td><t t-esc="line.date"/></td>
+                                        <td class="text-end">
+                                            <t t-esc="formatNumber(line.qty, 2)"/>
+                                        </td>
+                                        <td><t t-esc="line.uom"/></td>
                                         <td class="text-end">
                                             <t t-esc="line.currency"/>
                                             <t t-esc="formatNumber(line.price_unit, 2)"/>
                                         </td>
                                         <td class="text-end">
                                             <t t-esc="line.currency"/>
-                                            <t t-esc="formatNumber(line.price_subtotal, 2)"/>
-                                        </td>
-                                        <td>
-                                            <span t-attf-class="badge bg-{{line.state === 'done' ? 'success' : 'info'}}">
-                                                <t t-esc="getStateLabel(line.state)"/>
-                                            </span>
+                                            <t t-esc="formatNumber(line.subtotal, 2)"/>
                                         </td>
                                     </tr>
                                 </t>
@@ -47,10 +49,69 @@
                 </t>
                 <t t-else="">
                     <div class="alert alert-info">
-                        <i class="fa fa-info-circle"/> No purchase history found for this product.
+                        No purchase history found for this product.
                     </div>
                 </t>
             </div>
         </Dialog>
     </t>
 </templates>
+
+
+
+<!--<?xml version="1.0" encoding="UTF-8"?>-->
+<!--<templates xml:space="preserve">-->
+<!--    <t t-name="product_purchase_history.PurchaseHistoryDialog">-->
+<!--        <Dialog title="title" size="'xl'">-->
+<!--            <div class="o_purchase_history_dialog">-->
+<!--                <t t-if="hasHistory">-->
+<!--                    <div class="table-responsive">-->
+<!--                        <table class="table table-sm table-striped">-->
+<!--                            <thead>-->
+<!--                                <tr>-->
+<!--                                    <th>Purchase Order</th>-->
+<!--                                    <th>Supplier</th>-->
+<!--                                    <th>Date</th>-->
+<!--                                    <th>Quantity</th>-->
+<!--                                    <th>Unit</th>-->
+<!--                                    <th class="text-end">Unit Price</th>-->
+<!--                                    <th class="text-end">Subtotal</th>-->
+<!--                                    <th>Status</th>-->
+<!--                                </tr>-->
+<!--                            </thead>-->
+<!--                            <tbody>-->
+<!--                                <t t-foreach="props.purchaseHistory" t-as="line" t-key="line.id">-->
+<!--                                    <tr>-->
+<!--                                        <td><t t-esc="line.order_name"/></td>-->
+<!--                                        <td><t t-esc="line.partner_name"/></td>-->
+<!--                                        <td><t t-esc="line.date_order"/></td>-->
+<!--                                        <td class="text-end"><t t-esc="formatNumber(line.product_qty, 2)"/></td>-->
+<!--                                        <td><t t-esc="line.product_uom"/></td>-->
+<!--                                        <td class="text-end">-->
+<!--                                            <t t-esc="line.currency"/>-->
+<!--                                            <t t-esc="formatNumber(line.price_unit, 2)"/>-->
+<!--                                        </td>-->
+<!--                                        <td class="text-end">-->
+<!--                                            <t t-esc="line.currency"/>-->
+<!--                                            <t t-esc="formatNumber(line.price_subtotal, 2)"/>-->
+<!--                                        </td>-->
+<!--                                        <td>-->
+<!--                                            <span t-attf-class="badge bg-{{line.state === 'done' ? 'success' : 'info'}}">-->
+<!--                                                <t t-esc="getStateLabel(line.state)"/>-->
+<!--                                            </span>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+<!--                                </t>-->
+<!--                            </tbody>-->
+<!--                        </table>-->
+<!--                    </div>-->
+<!--                </t>-->
+<!--                <t t-else="">-->
+<!--                    <div class="alert alert-info">-->
+<!--                        <i class="fa fa-info-circle"/> No purchase history found for this product.-->
+<!--                    </div>-->
+<!--                </t>-->
+<!--            </div>-->
+<!--        </Dialog>-->
+<!--    </t>-->
+<!--</templates>-->

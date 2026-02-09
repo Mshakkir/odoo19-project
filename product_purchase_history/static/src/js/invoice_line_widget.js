@@ -7,7 +7,7 @@ export const purchaseHistoryService = {
     dependencies: ["orm", "dialog", "notification"],
 
     start(env, { orm, dialog, notification }) {
-        console.log("Purchase History Service started");
+        console.log("Purchase History Service Started - Diagnostic Version");
 
         const keydownHandler = async (ev) => {
             // Check for Ctrl+F5
@@ -16,171 +16,196 @@ export const purchaseHistoryService = {
                 ev.stopPropagation();
 
                 try {
-                    const activeElement = document.activeElement;
+                    console.log("Ctrl+F5 pressed");
+
                     let productId = null;
                     let productName = null;
 
-                    console.log("Ctrl+F5 pressed, searching for product...");
+                    // Find all product many2one fields that are currently visible
+                    const productFields = document.querySelectorAll('[name="product_id"]');
 
-                    // Try to find the active record in the list/form view
-                    const listController = document.querySelector('.o_list_view');
-                    const formController = document.querySelector('.o_form_view');
+                    console.log("Found", productFields.length, "product fields");
 
-                    if (listController || formController) {
-                        // Find the selected/active row
-                        let dataRow = activeElement.closest('tr.o_data_row');
+                    // First, try to find a selected/focused product field
+                    for (const field of productFields) {
+                        // Check if this field or its row is selected
+                        const row = field.closest('tr.o_data_row');
+                        const isActive = row && (
+                            row.classList.contains('o_selected_row') ||
+                            row.contains(document.activeElement) ||
+                            field.contains(document.activeElement)
+                        );
 
-                        if (!dataRow) {
-                            dataRow = document.querySelector('tr.o_data_row.o_selected_row');
-                        }
+                        if (isActive || !productId) {
+                            // Method 1: Try to get product from link (for saved/readonly records)
+                            const link = field.querySelector('a[data-tooltip]');
+                            if (link) {
+                                try {
+                                    const tooltip = JSON.parse(link.getAttribute('data-tooltip'));
+                                    if (tooltip.id) {
+                                        productId = tooltip.id;
+                                        productName = link.textContent.trim();
+                                        console.log("Found product from link:", productId, productName);
+                                        if (isActive) break;
+                                    }
+                                } catch (e) {
+                                    console.log("Error parsing tooltip:", e);
+                                }
+                            }
 
-                        if (!dataRow) {
-                            dataRow = document.querySelector('tr.o_data_row.o_row_edit');
-                        }
+                            // Method 2: Try to get from input value (for edit mode)
+                            if (!productId || !isActive) {
+                                const input = field.querySelector('input.o_input');
+                                if (input && input.value && input.value.trim()) {
+                                    productName = input.value.trim();
+                                    console.log("Found product name from input:", productName);
 
-                        if (dataRow) {
-                            console.log("Found row, searching for product field...");
-
-                            // Method 1: Try to get product from the many2one field widget
-                            const productCell = dataRow.querySelector('[name="product_id"]');
-                            if (productCell) {
-                                // Check if there's an anchor tag with the product info
-                                const productLink = productCell.querySelector('a[data-tooltip]');
-                                if (productLink) {
-                                    const tooltipData = productLink.getAttribute('data-tooltip');
-                                    if (tooltipData) {
+                                    // If this is the active row and we have a name, search for it
+                                    if (isActive && productName) {
+                                        console.log("Searching for product by name:", productName);
                                         try {
-                                            const tooltip = JSON.parse(tooltipData);
-                                            if (tooltip.id) {
-                                                productId = tooltip.id;
-                                                productName = productLink.textContent.trim();
-                                                console.log("Got product from tooltip:", productId, productName);
-                                            }
-                                        } catch (e) {
-                                            console.log("Error parsing tooltip:", e);
-                                        }
-                                    }
-                                }
+                                            const products = await orm.call(
+                                                'product.product',
+                                                'name_search',
+                                                [productName, [], 'ilike', 5]
+                                            );
 
-                                // Method 2: Try to get from input field
-                                if (!productId) {
-                                    const productInput = productCell.querySelector('input');
-                                    if (productInput) {
-                                        // Try to access the component data
-                                        const fieldWidget = productInput.closest('.o_field_widget');
-                                        if (fieldWidget && fieldWidget.__owl__) {
-                                            const component = fieldWidget.__owl__.component;
-                                            if (component && component.props && component.props.record) {
-                                                const recordData = component.props.record.data;
-                                                if (recordData.product_id) {
-                                                    if (Array.isArray(recordData.product_id)) {
-                                                        productId = recordData.product_id[0];
-                                                        productName = recordData.product_id[1];
-                                                    } else if (typeof recordData.product_id === 'object' && recordData.product_id.id) {
-                                                        productId = recordData.product_id.id;
-                                                        productName = recordData.product_id.display_name;
+                                            console.log("Search results:", products);
+
+                                            if (products && products.length > 0) {
+                                                // Use exact match if available, otherwise first result
+                                                let matchedProduct = products[0];
+                                                for (const product of products) {
+                                                    if (product[1].toLowerCase() === productName.toLowerCase()) {
+                                                        matchedProduct = product;
+                                                        break;
                                                     }
-                                                    console.log("Got product from component:", productId, productName);
                                                 }
+                                                productId = matchedProduct[0];
+                                                productName = matchedProduct[1];
+                                                console.log("Found product by search:", productId, productName);
+                                                break;
                                             }
+                                        } catch (searchError) {
+                                            console.error("Product search error:", searchError);
                                         }
                                     }
                                 }
                             }
+                        }
+                    }
 
-                            // Method 3: Try to access the record data from the row element
-                            if (!productId && dataRow.__owl__) {
-                                const rowComponent = dataRow.__owl__.component;
-                                if (rowComponent && rowComponent.props && rowComponent.props.record) {
-                                    const recordData = rowComponent.props.record.data;
-                                    console.log("Record data from row component:", recordData);
-                                    if (recordData.product_id) {
-                                        if (Array.isArray(recordData.product_id)) {
-                                            productId = recordData.product_id[0];
-                                            productName = recordData.product_id[1];
-                                        } else if (typeof recordData.product_id === 'object' && recordData.product_id.id) {
-                                            productId = recordData.product_id.id;
-                                            productName = recordData.product_id.display_name;
-                                        }
-                                        console.log("Got product from row component:", productId, productName);
-                                    }
-                                }
+                    // Method 3: If still no product but we have a name from somewhere, search
+                    if (!productId && productName) {
+                        console.log("Last attempt - searching for:", productName);
+                        try {
+                            const products = await orm.call(
+                                'product.product',
+                                'name_search',
+                                [productName, [], 'ilike', 1]
+                            );
+
+                            if (products && products.length > 0) {
+                                productId = products[0][0];
+                                productName = products[0][1];
+                                console.log("Found product in last attempt:", productId, productName);
                             }
-
-                            // Method 4: If still no product, try reading from database (for saved records only)
-                            if (!productId && dataRow.dataset.id) {
-                                const lineId = dataRow.dataset.id;
-                                // Only try to read if it's not a virtual ID
-                                if (!lineId.startsWith('datapoint_') && !lineId.startsWith('virtual_')) {
-                                    try {
-                                        console.log("Trying to read from database, ID:", lineId);
-                                        const lineData = await orm.read(
-                                            'account.move.line',
-                                            [parseInt(lineId)],
-                                            ['product_id', 'display_type']
-                                        );
-
-                                        if (lineData && lineData[0]) {
-                                            console.log("Line data from DB:", lineData[0]);
-                                            if ((lineData[0].display_type === 'product' || !lineData[0].display_type)
-                                                && lineData[0].product_id) {
-                                                productId = lineData[0].product_id[0];
-                                                productName = lineData[0].product_id[1];
-                                                console.log("Got product from database:", productId, productName);
-                                            }
-                                        }
-                                    } catch (error) {
-                                        console.log("Error reading from database:", error);
-                                    }
-                                }
-                            }
+                        } catch (searchError) {
+                            console.error("Final search error:", searchError);
                         }
                     }
 
                     if (!productId) {
-                        console.log("No product found");
+                        console.log("No product found after all attempts");
                         notification.add(
-                            "Please select a product in the line first, then click on the row (not in the dropdown) and press Ctrl+F5",
-                            { type: "warning" }
+                            "Please select a product first. Click on the Product field, select a product from the dropdown, then press Ctrl+F5.",
+                            {
+                                type: "warning",
+                                title: "No Product Selected",
+                                sticky: false
+                            }
                         );
                         return;
                     }
 
-                    console.log("Fetching purchase history for product:", productId);
+                    console.log("Fetching purchase history for product ID:", productId, "Name:", productName);
 
                     // Fetch purchase history
-                    const purchaseHistory = await orm.call(
-                        'account.move.line',
-                        'get_product_purchase_history',
-                        [productId]
-                    );
+                    let purchaseHistory;
+                    try {
+                        purchaseHistory = await orm.call(
+                            'account.move.line',
+                            'get_product_purchase_history',
+                            [productId]
+                        );
+                        console.log("✓ Purchase history call successful");
+                        console.log("  Records returned:", purchaseHistory ? purchaseHistory.length : 0);
+                        console.log("  Data:", purchaseHistory);
+                    } catch (historyError) {
+                        console.error("✗ Error fetching purchase history:", historyError);
+                        notification.add(
+                            "Error fetching purchase history: " + historyError.message,
+                            {
+                                type: "danger",
+                                title: "Error"
+                            }
+                        );
+                        return;
+                    }
 
-                    console.log("Purchase history:", purchaseHistory);
+                    if (!purchaseHistory || purchaseHistory.length === 0) {
+                        console.log("No purchase history found");
+                        notification.add(
+                            `No purchase history found for ${productName}`,
+                            {
+                                type: "info",
+                                title: "No History",
+                                sticky: false
+                            }
+                        );
+                        return;
+                    }
 
                     // Show dialog
-                    dialog.add(PurchaseHistoryDialog, {
-                        productName: productName || "Product",
-                        purchaseHistory: purchaseHistory,
-                    });
+                    console.log("Attempting to show dialog...");
+                    try {
+                        dialog.add(PurchaseHistoryDialog, {
+                            productName: productName || "Product",
+                            purchaseHistory: purchaseHistory,
+                        });
+                        console.log("✓ Dialog opened successfully");
+                    } catch (dialogError) {
+                        console.error("✗ Error opening dialog:", dialogError);
+                        notification.add(
+                            "Error displaying dialog: " + dialogError.message,
+                            {
+                                type: "danger",
+                                title: "Dialog Error"
+                            }
+                        );
+                    }
 
                 } catch (error) {
                     console.error("Purchase History Error:", error);
+                    console.error("Error stack:", error.stack);
                     notification.add(
                         "Error loading purchase history: " + error.message,
-                        { type: "danger" }
+                        {
+                            type: "danger",
+                            title: "Error"
+                        }
                     );
                 }
             }
         };
 
-        // Add event listener
-        window.addEventListener('keydown', keydownHandler);
-        console.log("Ctrl+F5 listener added for purchase history");
+        // Use capture phase to ensure we catch the event
+        window.addEventListener('keydown', keydownHandler, true);
+        console.log("Ctrl+F5 listener registered (capture phase)");
 
-        // Return cleanup function
         return {
             dispose() {
-                window.removeEventListener('keydown', keydownHandler);
+                window.removeEventListener('keydown', keydownHandler, true);
                 console.log("Purchase History Service disposed");
             }
         };

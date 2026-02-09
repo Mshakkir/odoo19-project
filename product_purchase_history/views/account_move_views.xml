@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- No view modifications needed - the JS service handles everything globally -->
+    <!-- This file is intentionally minimal to avoid xpath errors -->
+    <!-- The JavaScript service will handle the Ctrl+F5 functionality -->
+    <!-- without requiring view modifications -->
+
+    <data>
+        <!-- Placeholder - no view inheritance needed -->
+        <!-- All functionality is handled by JavaScript -->
+    </data>
 </odoo>

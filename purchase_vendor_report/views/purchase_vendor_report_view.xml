@@ -6,6 +6,12 @@
         <field name="model">purchase.vendor.report</field>
         <field name="arch" type="xml">
             <list string="Purchase Vendor Report" create="false" edit="false" delete="false">
+                <header>
+                    <button name="%(action_purchase_vendor_report_wizard)d"
+                            string="Back to Filter"
+                            type="action"
+                            class="btn-primary"/>
+                </header>
                 <field name="invoice_date"/>
                 <field name="invoice_number"/>
                 <field name="vendor_id"/>

@@ -6,6 +6,12 @@
         <field name="model">purchase.buyer.report</field>
         <field name="arch" type="xml">
             <list string="Purchase Buyer Report" create="false" edit="false" delete="false">
+                 <header>
+                    <button name="%(action_purchase_buyer_report_wizard)d"
+                            string="Back to Filter"
+                            type="action"
+                            class="btn-primary"/>
+                </header>
                 <field name="invoice_date"/>
                 <field name="invoice_number"/>
                 <field name="buyer_id"/>

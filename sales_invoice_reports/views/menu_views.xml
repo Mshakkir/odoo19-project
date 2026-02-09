@@ -28,7 +28,7 @@
 
         <!-- NEW: Analytic Account Report -->
         <menuitem id="menu_analytic_account_report"
-                  name="Warehouse Sales Report"
+                  name="Analytic Account Sales Report"
                   parent="menu_sales_invoice_reports_root"
                   action="action_report_by_analytic_account_wizard"
                   sequence="40"/>
@@ -40,11 +40,18 @@
                   action="action_report_by_invoice_number_wizard"
                   sequence="50"/>
 
+        <!-- NEW: Product Category Report -->
+        <menuitem id="menu_product_category_report"
+                  name="Product Category Sales Report"
+                  parent="menu_sales_invoice_reports_root"
+                  action="action_report_by_product_category_wizard"
+                  sequence="60"/>
+
         <!-- PDF Report Menu -->
         <menuitem id="menu_sales_report_pdf"
                   name="Sales Report by Salesperson (PDF)"
                   parent="menu_sales_invoice_reports_root"
                   action="action_sales_report_wizard"
-                  sequence="60"/>
+                  sequence="70"/>
     </data>
 </odoo>

@@ -13,6 +13,7 @@
         * Report by Salesperson
         * Report by Analytic Account
         * Report by Invoice Number
+        * Report by Product Category
         * Formatted Sales Report Display
         * Custom PDF Report by Salesperson (Detailed)
 
@@ -29,12 +30,14 @@
         'wizard/report_by_salesperson_wizard_view.xml',
         'wizard/report_by_analytic_account_wizard_view.xml',
         'wizard/report_by_invoice_number_wizard_view.xml',
+        'wizard/report_by_product_category_wizard_view.xml',
         'wizard/sales_report_wizard_view.xml',
         'views/product_report_view.xml',
         'views/customer_report_view.xml',
         'views/salesperson_report_view.xml',
         'views/analytic_account_report_view.xml',
         'views/invoice_number_report_view.xml',
+        'views/product_category_report_view.xml',
         'views/menu_views.xml',
         'reports/sales_report_template.xml',
     ],

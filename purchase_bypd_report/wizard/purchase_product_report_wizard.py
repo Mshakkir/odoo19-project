@@ -75,14 +75,47 @@ class PurchaseProductReportWizard(models.TransientModel):
         # Create report records
         for line in invoice_lines:
             if line.product_id:
+                # Get analytic account from line
+                analytic_account_id = False
+                if line.analytic_distribution:
+                    # analytic_distribution is a JSON field with analytic_account_id as keys
+                    analytic_ids = list(line.analytic_distribution.keys())
+                    if analytic_ids:
+                        analytic_account_id = int(analytic_ids[0])
+
+                # Get warehouse from invoice line
+                warehouse_id = line.warehouse_id.id if line.warehouse_id else False
+
+                # Get buyer from purchase order (via invoice)
+                buyer_id = False
+                if line.move_id.invoice_origin:
+                    # Try to find purchase order from origin
+                    purchase_order = self.env['purchase.order'].search([
+                        ('name', '=', line.move_id.invoice_origin)
+                    ], limit=1)
+                    if purchase_order:
+                        buyer_id = purchase_order.user_id.id
+
+                # Calculate tax amount
+                tax_amount = 0
+                if line.tax_ids:
+                    tax_amount = line.price_total - line.price_subtotal
+
                 report_obj.create({
                     'invoice_date': line.move_id.invoice_date,
                     'invoice_number': line.move_id.name,
+                    'analytic_account_id': analytic_account_id,
+                    'vendor_id': line.move_id.partner_id.id,
+                    'warehouse_id': warehouse_id,
                     'product_id': line.product_id.id,
+                    'buyer_id': buyer_id,
                     'quantity': line.quantity,
                     'uom_id': line.product_uom_id.id,
                     'price_unit': line.price_unit,
                     'price_total': line.price_total,
+                    'discount_fixed': line.discount_fixed if hasattr(line, 'discount_fixed') else 0,
+                    'price_subtotal': line.price_subtotal,
+                    'tax_amount': tax_amount,
                 })
 
         # Return action to open list view
@@ -95,4 +128,3 @@ class PurchaseProductReportWizard(models.TransientModel):
             'target': 'current',
             'domain': [],
         }
-

@@ -6,19 +6,30 @@
         <field name="model">purchase.bypd.report</field>
         <field name="arch" type="xml">
             <list string="Purchase Product Report" create="false" edit="false" delete="false">
-                 <header>
+                <header>
                     <button name="%(action_purchase_product_report_wizard)d"
                             string="Back to Filter"
                             type="action"
                             class="btn-primary"/>
                 </header>
+
+                <!-- Visible Columns -->
                 <field name="invoice_date"/>
                 <field name="invoice_number"/>
+                <field name="analytic_account_id"/>
+                <field name="vendor_id"/>
+                <field name="warehouse_id"/>
                 <field name="product_id"/>
-                <field name="quantity"/>
+                <field name="buyer_id"/>
+                <field name="quantity" sum="Total Quantity"/>
                 <field name="uom_id"/>
                 <field name="price_unit"/>
-                <field name="price_total"/>
+                <field name="price_total" sum="Total Net Amount"/>
+
+                <!-- Hidden Columns (optional="hide") -->
+                <field name="discount_fixed" optional="hide" sum="Total Discount"/>
+                <field name="price_subtotal" optional="hide" sum="Total Subtotal"/>
+                <field name="tax_amount" optional="hide" sum="Total Tax"/>
             </list>
         </field>
     </record>

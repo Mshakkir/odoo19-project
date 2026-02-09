@@ -38,7 +38,7 @@ class AnalyticAccountInvoiceReport(models.Model):
     team_id = fields.Many2one('crm.team', string='Sales Team', readonly=True)
 
     # Analytic Account Information
-    analytic_account_id = fields.Many2one('account.analytic.account', string='Analytic Account', readonly=True)
+    analytic_account_id = fields.Many2one('account.analytic.account', string='Warehouse', readonly=True)
     warehouse_id = fields.Many2one('stock.warehouse', string='Warehouse', readonly=True)
     account_id = fields.Many2one('account.account', string='Account', readonly=True)
 

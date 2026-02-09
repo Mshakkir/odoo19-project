@@ -11,11 +11,13 @@
 
                 <field name="partner_id"/>
                 <field name="date"/>
+                <field name="invoice_date_due"/>
                 <field name="move_id" optional="hide"/>
                 <field name="journal_id"/>
                 <field name="account_id"/>
                 <field name="name"/>
                 <field name="ref"/>
+                <field name="po_number"/>
                 <field name="debit" sum="Total Debit"/>
                 <field name="credit" sum="Total Credit"/>
                 <field name="balance"/>
@@ -53,4 +55,3 @@
     </record>
 
 </odoo>
-

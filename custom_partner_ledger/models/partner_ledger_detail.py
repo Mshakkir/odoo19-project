@@ -1,5 +1,3 @@
-
-
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 
@@ -30,6 +28,10 @@ class PartnerLedgerDetail(models.TransientModel):
 
     # For opening balance line
     is_opening_balance = fields.Boolean(string='Is Opening Balance', readonly=True)
+
+    # NEW FIELDS: Due Date and PO Number
+    invoice_date_due = fields.Date(string='Due Date', readonly=True)
+    po_number = fields.Char(string='PO Number', readonly=True)
 
     # NEW FIELD: Show final balance only for the last transaction of each partner
     final_balance = fields.Monetary(
@@ -199,6 +201,8 @@ class PartnerLedgerDetail(models.TransientModel):
                         'credit': abs(opening_balance) if opening_balance < 0 else 0,
                         'company_currency_id': company_currency.id,
                         'is_opening_balance': True,
+                        'invoice_date_due': False,
+                        'po_number': '',
                     })
 
             # Add all move lines for this partner
@@ -221,6 +225,9 @@ class PartnerLedgerDetail(models.TransientModel):
                     'reconcile_id': line.full_reconcile_id.id if line.full_reconcile_id else False,
                     'move_state': line.move_id.state,
                     'is_opening_balance': False,
+                    # Add due date and PO number from client_order_ref
+                    'invoice_date_due': line.move_id.invoice_date_due or False,
+                    'po_number': line.move_id.client_order_ref or '',
                 }
 
                 # Add currency information if needed

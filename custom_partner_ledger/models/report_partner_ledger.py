@@ -10,9 +10,74 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
 
     def _lines(self, data, partner):
         """
-        Override the _lines method to add custom functionality
+        Override the _lines method to add custom functionality (due date and PO number)
         """
-        full_account = super()._lines(data, partner)
+        full_account = []
+
+        currency = self.env.company.currency_id
+
+        query_get_data = self.env['account.move.line'].with_context(
+            data['form'].get('used_context', {})
+        )._query_get()
+
+        reconcile_clause = "" if data['form']['reconciled'] else \
+            ' AND "account_move_line".full_reconcile_id IS NULL '
+
+        params = [partner.id, tuple(data['computed']['move_state']),
+                  tuple(data['computed']['account_ids'])] + query_get_data[2]
+
+        # Get current language
+        lang = self.env.context.get('lang') or 'en_US'
+
+        query = """
+            SELECT "account_move_line".id, "account_move_line".date, j.code, 
+                   COALESCE(acc.name->>%s, acc.name->>'en_US', acc.name::text) as a_name,
+                   "account_move_line".ref, m.name as move_name,
+                   "account_move_line".name, "account_move_line".debit, 
+                   "account_move_line".credit, "account_move_line".amount_currency,
+                   "account_move_line".currency_id, c.symbol AS currency_code,
+                   m.invoice_date_due, m.client_order_ref as po_number
+            FROM """ + query_get_data[0] + """
+            LEFT JOIN account_journal j ON ("account_move_line".journal_id = j.id)
+            LEFT JOIN account_account acc ON ("account_move_line".account_id = acc.id)
+            LEFT JOIN res_currency c ON ("account_move_line".currency_id=c.id)
+            LEFT JOIN account_move m ON (m.id="account_move_line".move_id)
+            WHERE "account_move_line".partner_id = %s
+                AND m.state IN %s
+                AND "account_move_line".account_id IN %s AND """ + query_get_data[1] + reconcile_clause + """
+            ORDER BY "account_move_line".date
+        """
+
+        # Add language parameter at the beginning
+        params_with_lang = [lang] + params
+
+        self.env.cr.execute(query, tuple(params_with_lang))
+        res = self.env.cr.dictfetchall()
+
+        sum_debit = 0.0
+        sum_credit = 0.0
+
+        for r in res:
+            sum_debit += r['debit']
+            sum_credit += r['credit']
+
+            r['progress'] = sum_debit - sum_credit
+            r['displayed_name'] = r['move_name'] if r['move_name'] else ''
+            if r['ref']:
+                r['displayed_name'] = r['ref'] if not r['displayed_name'] else r['displayed_name'] + ' ' + r['ref']
+            if r['name'] and r['name'] != '/':
+                r['displayed_name'] = r['name'] if not r['displayed_name'] else r['displayed_name'] + ' ' + r['name']
+
+            # Add due date and PO number to the line
+            r['invoice_date_due'] = r['invoice_date_due'] if r['invoice_date_due'] else ''
+            r['po_number'] = r['po_number'] if r['po_number'] else ''
+
+            # Currency formatting
+            if data['form']['amount_currency'] and r['currency_id']:
+                r['currency_id'] = self.env['res.currency'].browse(r['currency_id'])
+
+            full_account.append(r)
+
         return full_account
 
     def _sum_partner(self, data, partner, field):
@@ -156,6 +221,3 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
         if result:
             return result[0] - result[1]
         return 0.0
-
-
-

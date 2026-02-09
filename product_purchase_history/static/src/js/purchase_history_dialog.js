@@ -28,12 +28,10 @@ export class PurchaseHistoryDialog extends Component {
 
     getStateLabel(state) {
         const stateLabels = {
-            'posted': _t('Posted'),
-            'draft': _t('Draft'),
-            'cancel': _t('Cancelled'),
             'purchase': _t('Purchase Order'),
             'done': _t('Done'),
         };
         return stateLabels[state] || state;
     }
 }
+

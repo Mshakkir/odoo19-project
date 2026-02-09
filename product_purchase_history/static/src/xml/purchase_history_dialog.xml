@@ -5,14 +5,14 @@
             <div class="o_purchase_history_dialog">
                 <t t-if="hasHistory">
                     <div class="table-responsive">
-                        <table class="table table-sm table-striped">
-                            <thead>
+                        <table class="table table-sm table-striped table-hover">
+                            <thead class="table-light">
                                 <tr>
-                                    <th>Invoice/Order</th>
-                                    <th>Type</th>
+                                    <th>Reference</th>
+                                    <th>Source</th>
                                     <th>Supplier</th>
                                     <th>Date</th>
-                                    <th>Quantity</th>
+                                    <th class="text-end">Quantity</th>
                                     <th>Unit</th>
                                     <th class="text-end">Unit Price</th>
                                     <th class="text-end">Subtotal</th>
@@ -25,10 +25,15 @@
                             <tbody>
                                 <t t-foreach="props.purchaseHistory" t-as="line" t-key="line.id">
                                     <tr>
-                                        <td><t t-esc="line.order_name"/></td>
+                                        <td><strong><t t-esc="line.order_name"/></strong></td>
                                         <td>
-                                            <span t-attf-class="badge bg-{{line.invoice_type === 'Credit Note' ? 'warning' : 'primary'}}">
+                                            <span t-if="line.source_type === 'Invoice'"
+                                                  t-attf-class="badge bg-{{line.invoice_type === 'Credit Note' ? 'warning' : 'primary'}}">
                                                 <t t-esc="line.invoice_type"/>
+                                            </span>
+                                            <span t-elif="line.source_type === 'Purchase Order'"
+                                                  class="badge bg-info">
+                                                PO
                                             </span>
                                         </td>
                                         <td><t t-esc="line.partner_name"/></td>
@@ -43,17 +48,30 @@
                                             <t t-esc="line.currency"/>
                                             <t t-esc="formatNumber(line.price_subtotal, 2)"/>
                                         </td>
-                                        <td><t t-esc="line.tax_names"/></td>
+                                        <td>
+                                            <small class="text-muted"><t t-esc="line.tax_names"/></small>
+                                        </td>
                                         <td class="text-end">
                                             <t t-esc="line.currency"/>
                                             <t t-esc="formatNumber(line.tax_amount, 2)"/>
                                         </td>
                                         <td class="text-end">
-                                            <t t-esc="line.currency"/>
-                                            <t t-esc="formatNumber(line.price_total, 2)"/>
+                                            <strong>
+                                                <t t-esc="line.currency"/>
+                                                <t t-esc="formatNumber(line.price_total, 2)"/>
+                                            </strong>
                                         </td>
                                         <td>
-                                            <span t-attf-class="badge bg-{{line.state === 'posted' ? 'success' : 'secondary'}}">
+                                            <span t-if="line.state === 'posted'" class="badge bg-success">
+                                                Posted
+                                            </span>
+                                            <span t-elif="line.state === 'done'" class="badge bg-success">
+                                                Done
+                                            </span>
+                                            <span t-elif="line.state === 'purchase'" class="badge bg-info">
+                                                Purchase Order
+                                            </span>
+                                            <span t-else="" class="badge bg-secondary">
                                                 <t t-esc="getStateLabel(line.state)"/>
                                             </span>
                                         </td>

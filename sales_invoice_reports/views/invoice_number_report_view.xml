@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Tree View -->
+    <!-- List View -->
     <record id="view_invoice_number_report_tree" model="ir.ui.view">
         <field name="name">invoice.number.report.tree</field>
         <field name="model">invoice.number.report</field>
         <field name="arch" type="xml">
-            <tree string="Sales Report by Invoice Number" create="false" edit="false" delete="false">
+            <list string="Sales Report by Invoice Number" create="false" edit="false" delete="false">
                 <field name="invoice_date"/>
                 <field name="invoice_number"/>
                 <field name="partner_id"/>
@@ -20,7 +20,7 @@
                 <field name="invoice_state"/>
                 <field name="currency_id" invisible="1"/>
                 <field name="company_id" invisible="1"/>
-            </tree>
+            </list>
         </field>
     </record>
 

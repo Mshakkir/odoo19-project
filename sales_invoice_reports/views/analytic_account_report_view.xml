@@ -1,37 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Wizard Form View -->
-    <record id="view_report_by_analytic_account_wizard" model="ir.ui.view">
-        <field name="name">report.by.analytic.account.wizard.form</field>
-        <field name="model">report.by.analytic.account.wizard</field>
+    <!-- List View -->
+    <record id="view_analytic_account_invoice_report_tree" model="ir.ui.view">
+        <field name="name">analytic.account.invoice.report.tree</field>
+        <field name="model">analytic.account.invoice.report</field>
         <field name="arch" type="xml">
-            <form string="Sales Report by Analytic Account">
-                <group>
-                    <group>
-                        <field name="show_all_analytic_accounts"/>
-                        <field name="analytic_account_id"
-                               invisible="show_all_analytic_accounts"
-                               required="not show_all_analytic_accounts"/>
-                    </group>
-                    <group>
-                        <field name="date_from"/>
-                        <field name="date_to"/>
-                        <field name="invoice_state"/>
-                    </group>
-                </group>
-                <footer>
-                    <button name="action_apply" string="Apply" type="object" class="btn-primary"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
-                </footer>
-            </form>
+            <list string="Sales Report by Analytic Account" create="false" edit="false" delete="false">
+                <field name="invoice_date"/>
+                <field name="invoice_number"/>
+                <field name="analytic_account_id"/>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="user_id"/>
+                <field name="quantity" sum="Total Quantity"/>
+                <field name="price_unit"/>
+                <field name="discount"/>
+                <field name="price_subtotal" sum="Total Untaxed"/>
+                <field name="price_total" sum="Total"/>
+                <field name="invoice_state"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="company_id" invisible="1"/>
+            </list>
         </field>
     </record>
 
-    <!-- Wizard Action -->
-    <record id="action_report_by_analytic_account_wizard" model="ir.actions.act_window">
-        <field name="name">Report by Analytic Account</field>
-        <field name="res_model">report.by.analytic.account.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
+    <!-- Search View -->
+    <record id="view_analytic_account_invoice_report_search" model="ir.ui.view">
+        <field name="name">analytic.account.invoice.report.search</field>
+        <field name="model">analytic.account.invoice.report</field>
+        <field name="arch" type="xml">
+            <search string="Sales Report by Analytic Account">
+                <field name="invoice_number"/>
+                <field name="analytic_account_id"/>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="user_id"/>
+                <field name="warehouse_id"/>
+                <field name="account_id"/>
+
+                <filter string="Posted" name="posted"
+                        domain="[('invoice_state', '=', 'posted')]"/>
+                <filter string="Draft" name="draft"
+                        domain="[('invoice_state', '=', 'draft')]"/>
+                <filter string="Cancelled" name="cancelled"
+                        domain="[('invoice_state', '=', 'cancel')]"/>
+
+                <separator/>
+                <filter string="Invoices" name="invoices"
+                        domain="[('move_type', '=', 'out_invoice')]"/>
+                <filter string="Credit Notes" name="refunds"
+                        domain="[('move_type', '=', 'out_refund')]"/>
+
+                <separator/>
+                <filter string="Invoice Date" name="invoice_date"
+                        date="invoice_date"/>
+
+                <group expand="0" string="Group By">
+                    <filter string="Analytic Account" name="group_analytic_account"
+                            context="{'group_by': 'analytic_account_id'}"/>
+                    <filter string="Customer" name="group_partner"
+                            context="{'group_by': 'partner_id'}"/>
+                    <filter string="Product" name="group_product"
+                            context="{'group_by': 'product_id'}"/>
+                    <filter string="Salesperson" name="group_salesperson"
+                            context="{'group_by': 'user_id'}"/>
+                    <filter string="Warehouse" name="group_warehouse"
+                            context="{'group_by': 'warehouse_id'}"/>
+                    <filter string="Account" name="group_account"
+                            context="{'group_by': 'account_id'}"/>
+                    <filter string="Status" name="group_state"
+                            context="{'group_by': 'invoice_state'}"/>
+                    <filter string="Invoice Date" name="group_date"
+                            context="{'group_by': 'invoice_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Pivot View -->
+    <record id="view_analytic_account_invoice_report_pivot" model="ir.ui.view">
+        <field name="name">analytic.account.invoice.report.pivot</field>
+        <field name="model">analytic.account.invoice.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Sales Analysis by Analytic Account">
+                <field name="analytic_account_id" type="row"/>
+                <field name="price_subtotal" type="measure"/>
+                <field name="price_total" type="measure"/>
+                <field name="quantity" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="view_analytic_account_invoice_report_graph" model="ir.ui.view">
+        <field name="name">analytic.account.invoice.report.graph</field>
+        <field name="model">analytic.account.invoice.report</field>
+        <field name="arch" type="xml">
+            <graph string="Sales Analysis by Analytic Account" type="bar">
+                <field name="analytic_account_id"/>
+                <field name="price_subtotal" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_analytic_account_invoice_report" model="ir.actions.act_window">
+        <field name="name">Sales by Analytic Account</field>
+        <field name="res_model">analytic.account.invoice.report</field>
+        <field name="view_mode">list,pivot,graph</field>
+        <field name="context">{'search_default_posted': 1}</field>
     </record>
 </odoo>

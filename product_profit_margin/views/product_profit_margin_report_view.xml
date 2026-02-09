@@ -5,7 +5,8 @@
         <field name="name">product.profit.margin.report.tree</field>
         <field name="model">product.profit.margin.report</field>
         <field name="arch" type="xml">
-            <tree string="Sales Product Profit Report" create="false" edit="false" delete="false" decoration-success="profit > 0" decoration-danger="profit &lt; 0">
+            <tree string="Sales Product Profit Report" create="false" edit="false" delete="false"
+                  decoration-success="profit &gt; 0" decoration-danger="profit &lt; 0">
                 <field name="date"/>
                 <field name="order_ref"/>
                 <field name="product_code"/>

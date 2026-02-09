@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_purchase_warehouse_report_user,access.purchase.warehouse.report.user,model_purchase_warehouse_report,purchase.group_purchase_user,1,1,1,1
+access_purchase_warehouse_report_manager,access.purchase.warehouse.report.manager,model_purchase_warehouse_report,purchase.group_purchase_manager,1,1,1,1
+access_purchase_warehouse_report_wizard_user,access.purchase.warehouse.report.wizard.user,model_purchase_warehouse_report_wizard,purchase.group_purchase_user,1,1,1,1
+access_purchase_warehouse_report_wizard_manager,access.purchase.warehouse.report.wizard.manager,model_purchase_warehouse_report_wizard,purchase.group_purchase_manager,1,1,1,1

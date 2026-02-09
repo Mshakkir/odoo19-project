@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Submenu: By Warehouse under Purchase Reports -->
+    <menuitem id="menu_purchase_report_by_warehouse"
+              name="By Warehouse"
+              parent="purchase_bypd_report.menu_purchase_reports"
+              action="action_purchase_warehouse_report_wizard"
+              sequence="6"/>
+</odoo>

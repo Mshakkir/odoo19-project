@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Wizard Form View -->
+    <record id="view_purchase_warehouse_report_wizard_form" model="ir.ui.view">
+        <field name="name">purchase.warehouse.report.wizard.form</field>
+        <field name="model">purchase.warehouse.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Purchase Warehouse Report">
+                <group>
+                    <group>
+                        <label for="all_warehouses"/>
+                        <div class="o_row">
+                            <field name="all_warehouses"/>
+                            <span invisible="not all_warehouses">All Warehouses Selected</span>
+                        </div>
+                        <field name="warehouse_ids" widget="many2many_tags"
+                               placeholder="Select Warehouses..."
+                               invisible="all_warehouses"
+                               required="not all_warehouses"/>
+                        <field name="invoice_status"/>
+                    </group>
+                    <group>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_show_report"
+                            string="Apply"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Wizard Action -->
+    <record id="action_purchase_warehouse_report_wizard" model="ir.actions.act_window">
+        <field name="name">By Warehouse</field>
+        <field name="res_model">purchase.warehouse.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

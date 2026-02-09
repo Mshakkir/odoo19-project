@@ -125,26 +125,8 @@
                                 <strong>Company:</strong>
                                 <p t-esc="res_company.name" style="margin: 3px 0;"/>
                             </div>
-                            <div class="col-3">
-                                <t t-if="data['form']['date_from']">
-                                    <strong>Date from:</strong>
-                                    <p t-esc="data['form']['date_from']" style="margin: 3px 0;"/>
-                                </t>
-                                <t t-else="">
-                                    <strong>Date from:</strong>
-                                    <p style="margin: 3px 0;">Start</p>
-                                </t>
-                            </div>
-                            <div class="col-3">
-                                <t t-if="data['form']['date_to']">
-                                    <strong>Date to:</strong>
-                                    <p t-esc="data['form']['date_to']" style="margin: 3px 0;"/>
-                                </t>
-                                <t t-else="">
-                                    <strong>Date to:</strong>
-                                    <p style="margin: 3px 0;">End</p>
-                                </t>
-                            </div>
+
+
                             <div class="col-3">
                                 <strong>Target Moves:</strong>
                                 <p style="margin: 3px 0;">

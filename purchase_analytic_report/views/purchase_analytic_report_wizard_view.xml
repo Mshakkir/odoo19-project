@@ -33,8 +33,7 @@
         <field name="name">By Analytic</field>
         <field name="res_model">purchase.analytic.report.wizard</field>
         <field name="view_mode">form</field>
-<!--        <field name="target">new</field>-->
-        <field name="target">inline</field>
+        <field name="target">new</field>
 
     </record>
 </odoo>

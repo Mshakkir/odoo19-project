@@ -90,7 +90,6 @@ class PurchaseAnalyticReportWizard(models.TransientModel):
             'res_model': 'purchase.analytic.report',
             'view_mode': 'list',
             'view_id': self.env.ref('purchase_analytic_report.view_purchase_analytic_report_list').id,
-            # 'target': 'current',
-            'target': 'new',
+            'target': 'current',
             'domain': [],
         }

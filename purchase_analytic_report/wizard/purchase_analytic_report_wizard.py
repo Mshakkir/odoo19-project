@@ -84,6 +84,15 @@ class PurchaseAnalyticReportWizard(models.TransientModel):
                 if purchase_order and purchase_order.picking_type_id:
                     warehouse_id = purchase_order.picking_type_id.warehouse_id.id
 
+            # Get buyer from purchase order
+            buyer_id = False
+            if invoice.invoice_origin:
+                purchase_order = self.env['purchase.order'].search([
+                    ('name', '=', invoice.invoice_origin)
+                ], limit=1)
+                if purchase_order and purchase_order.user_id:
+                    buyer_id = purchase_order.user_id.id
+
             # Process each invoice line with analytic distribution
             for line in invoice.invoice_line_ids:
                 if line.product_id and line.analytic_distribution:
@@ -98,6 +107,15 @@ class PurchaseAnalyticReportWizard(models.TransientModel):
                         matching_analytics = list(set(analytic_account_ids) & set(self.analytic_account_ids.ids))
 
                     if matching_analytics:
+                        # Calculate discount (fixed discount from line)
+                        discount = line.discount_fixed if hasattr(line, 'discount_fixed') else 0.0
+
+                        # Calculate untaxed amount (price_subtotal)
+                        untaxed_amount = line.price_subtotal
+
+                        # Calculate tax value (difference between total and subtotal)
+                        tax_value = line.price_total - line.price_subtotal
+
                         # Create a report line for each matching analytic account
                         for analytic_id in matching_analytics:
                             report_obj.create({
@@ -105,10 +123,14 @@ class PurchaseAnalyticReportWizard(models.TransientModel):
                                 'invoice_number': invoice.name,
                                 'vendor_id': invoice.partner_id.id,
                                 'warehouse_id': warehouse_id,
+                                'buyer_id': buyer_id,
                                 'product_id': line.product_id.id,
                                 'quantity': line.quantity,
                                 'uom_id': line.product_uom_id.id,
                                 'price_unit': line.price_unit,
+                                'discount': discount,
+                                'untaxed_amount': untaxed_amount,
+                                'tax_value': tax_value,
                                 'net_amount': line.price_total,  # Includes tax
                                 'analytic_account_id': analytic_id,
                             })
@@ -123,5 +145,3 @@ class PurchaseAnalyticReportWizard(models.TransientModel):
             'target': 'current',
             'domain': [],
         }
-
-

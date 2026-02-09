@@ -139,13 +139,7 @@
                                 <strong t-esc="partner_type_info['display_label']"/>:
                                 <p t-esc="partner_type_info['count']" style="margin: 3px 0;"/>
                             </div>
-                            <div class="col-3">
-                                <strong>Currency Display:</strong>
-                                <p style="margin: 3px 0;">
-                                    <span t-if="data['form']['amount_currency']">Enabled</span>
-                                    <span t-else="">Disabled</span>
-                                </p>
-                            </div>
+
                             <div class="col-3">
                                 <strong>Reconciled Items:</strong>
                                 <p style="margin: 3px 0;">

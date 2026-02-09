@@ -8,13 +8,17 @@
                         <table class="table table-sm table-striped">
                             <thead>
                                 <tr>
-                                    <th>Purchase Order</th>
+                                    <th>Invoice/Order</th>
+                                    <th>Type</th>
                                     <th>Supplier</th>
                                     <th>Date</th>
                                     <th>Quantity</th>
                                     <th>Unit</th>
                                     <th class="text-end">Unit Price</th>
                                     <th class="text-end">Subtotal</th>
+                                    <th>Tax</th>
+                                    <th class="text-end">Tax Amount</th>
+                                    <th class="text-end">Total</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -22,6 +26,11 @@
                                 <t t-foreach="props.purchaseHistory" t-as="line" t-key="line.id">
                                     <tr>
                                         <td><t t-esc="line.order_name"/></td>
+                                        <td>
+                                            <span t-attf-class="badge bg-{{line.invoice_type === 'Credit Note' ? 'warning' : 'primary'}}">
+                                                <t t-esc="line.invoice_type"/>
+                                            </span>
+                                        </td>
                                         <td><t t-esc="line.partner_name"/></td>
                                         <td><t t-esc="line.date_order"/></td>
                                         <td class="text-end"><t t-esc="formatNumber(line.product_qty, 2)"/></td>
@@ -34,8 +43,17 @@
                                             <t t-esc="line.currency"/>
                                             <t t-esc="formatNumber(line.price_subtotal, 2)"/>
                                         </td>
+                                        <td><t t-esc="line.tax_names"/></td>
+                                        <td class="text-end">
+                                            <t t-esc="line.currency"/>
+                                            <t t-esc="formatNumber(line.tax_amount, 2)"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-esc="line.currency"/>
+                                            <t t-esc="formatNumber(line.price_total, 2)"/>
+                                        </td>
                                         <td>
-                                            <span t-attf-class="badge bg-{{line.state === 'done' ? 'success' : 'info'}}">
+                                            <span t-attf-class="badge bg-{{line.state === 'posted' ? 'success' : 'secondary'}}">
                                                 <t t-esc="getStateLabel(line.state)"/>
                                             </span>
                                         </td>

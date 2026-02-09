@@ -1,69 +1,130 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
-import { Many2OneField } from "@web/views/fields/many2one/many2one_field";
-import { useService } from "@web/core/utils/hooks";
 import { PurchaseHistoryDialog } from "./purchase_history_dialog";
 
-export class ProductPurchaseHistoryField extends Many2OneField {
-    setup() {
-        super.setup();
-        this.orm = useService("orm");
-        this.dialog = useService("dialog");
-        this.notification = useService("notification");
+export const purchaseHistoryService = {
+    dependencies: ["orm", "dialog", "notification"],
 
-        // Add keyboard event listener
-        window.addEventListener('keydown', this.onKeyDown.bind(this));
-    }
+    start(env, { orm, dialog, notification }) {
+        console.log("Purchase History Service started");
 
-    onWillUnmount() {
-        super.onWillUnmount();
-        window.removeEventListener('keydown', this.onKeyDown.bind(this));
-    }
+        const keydownHandler = async (ev) => {
+            // Check for Ctrl+F5
+            if (ev.ctrlKey && ev.key === 'F5') {
+                ev.preventDefault();
+                ev.stopPropagation();
 
-    async onKeyDown(ev) {
-        // Check for Ctrl+F5
-        if (ev.ctrlKey && ev.key === 'F5') {
-            ev.preventDefault();
-            ev.stopPropagation();
-            await this.showPurchaseHistory();
-        }
-    }
+                try {
+                    const activeElement = document.activeElement;
+                    let productId = null;
+                    let productName = null;
+                    let lineId = null;
 
-    async showPurchaseHistory() {
-        const productId = this.props.record.data[this.props.name] && this.props.record.data[this.props.name][0];
-        const productName = this.props.record.data[this.props.name] && this.props.record.data[this.props.name][1];
+                    // Method 1: Try to get from the focused row
+                    const dataRow = activeElement.closest('tr.o_data_row');
+                    if (dataRow) {
+                        lineId = dataRow.dataset.id;
 
-        if (!productId) {
-            this.notification.add(
-                "Please select a product first",
-                { type: "warning" }
-            );
-            return;
-        }
+                        if (lineId) {
+                            try {
+                                // Read the line data to get product_id
+                                const lineData = await orm.read(
+                                    'account.move.line',
+                                    [parseInt(lineId)],
+                                    ['product_id', 'display_type']
+                                );
 
-        try {
-            // Call the model method to get purchase history
-            const purchaseHistory = await this.orm.call(
-                'account.move.line',
-                'get_product_purchase_history',
-                [productId]
-            );
+                                if (lineData && lineData[0]) {
+                                    // Check if this is a product line (not section/note)
+                                    if (lineData[0].display_type === 'product' || !lineData[0].display_type) {
+                                        if (lineData[0].product_id) {
+                                            productId = lineData[0].product_id[0];
+                                            productName = lineData[0].product_id[1];
+                                        }
+                                    }
+                                }
+                            } catch (error) {
+                                console.log("Error reading line data:", error);
+                            }
+                        }
+                    }
 
-            // Show dialog with purchase history
-            this.dialog.add(PurchaseHistoryDialog, {
-                productName: productName || "Unknown Product",
-                purchaseHistory: purchaseHistory,
-            });
+                    // Method 2: Try to find from selected cells
+                    if (!productId) {
+                        const selectedCell = document.querySelector('.o_data_row.o_selected_row .o_data_cell[name="product_id"]');
+                        if (selectedCell) {
+                            const parentRow = selectedCell.closest('tr.o_data_row');
+                            if (parentRow) {
+                                lineId = parentRow.dataset.id;
+                                if (lineId) {
+                                    try {
+                                        const lineData = await orm.read(
+                                            'account.move.line',
+                                            [parseInt(lineId)],
+                                            ['product_id', 'display_type']
+                                        );
 
-        } catch (error) {
-            this.notification.add(
-                "Error loading purchase history: " + error.message,
-                { type: "danger" }
-            );
-        }
-    }
-}
+                                        if (lineData && lineData[0]) {
+                                            if (lineData[0].display_type === 'product' || !lineData[0].display_type) {
+                                                if (lineData[0].product_id) {
+                                                    productId = lineData[0].product_id[0];
+                                                    productName = lineData[0].product_id[1];
+                                                }
+                                            }
+                                        }
+                                    } catch (error) {
+                                        console.log("Error reading selected line:", error);
+                                    }
+                                }
+                            }
+                        }
+                    }
 
-// Register the widget
-registry.category("fields").add("product_purchase_history", ProductPurchaseHistoryField);
+                    if (!productId) {
+                        notification.add(
+                            "Please select a product line first. Click on any invoice line with a product.",
+                            { type: "warning" }
+                        );
+                        return;
+                    }
+
+                    // Fetch purchase history
+                    const purchaseHistory = await orm.call(
+                        'account.move.line',
+                        'get_product_purchase_history',
+                        [productId]
+                    );
+
+                    // Show dialog
+                    dialog.add(PurchaseHistoryDialog, {
+                        productName: productName || "Product",
+                        purchaseHistory: purchaseHistory,
+                    });
+
+                } catch (error) {
+                    console.error("Purchase History Error:", error);
+                    notification.add(
+                        "Error loading purchase history: " + error.message,
+                        { type: "danger" }
+                    );
+                }
+            }
+        };
+
+        // Add event listener
+        window.addEventListener('keydown', keydownHandler);
+        console.log("Ctrl+F5 listener added for purchase history");
+
+        // Return cleanup function
+        return {
+            dispose() {
+                window.removeEventListener('keydown', keydownHandler);
+                console.log("Purchase History Service disposed");
+            }
+        };
+    },
+};
+
+// Register the service
+registry.category("services").add("purchaseHistoryService", purchaseHistoryService);

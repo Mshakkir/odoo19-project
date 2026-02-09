@@ -11,10 +11,8 @@
                         <field name="report_type"/>
                         <field name="form_type"/>
                         <field name="product_filter"/>
-                        <group attrs="{'invisible': [('product_filter', '=', 'all')]}">
-                            <field name="group_id" attrs="{'invisible': [('product_filter', '!=', 'by_group')], 'required': [('product_filter', '=', 'by_group')]}"/>
-                            <field name="product_id" attrs="{'invisible': [('product_filter', '!=', 'by_product')], 'required': [('product_filter', '=', 'by_product')]}"/>
-                        </group>
+                        <field name="group_id" invisible="product_filter != 'by_group'" required="product_filter == 'by_group'"/>
+                        <field name="product_id" invisible="product_filter != 'by_product'" required="product_filter == 'by_product'"/>
                     </group>
                     <group>
                         <field name="filter_type"/>
@@ -26,14 +24,14 @@
                     <group>
                         <label for="date_from" string="Period"/>
                         <div class="o_row">
-                            <field name="date_from" class="oe_inline" attrs="{'readonly': [('filter_type', '!=', 'custom')]}"/>
+                            <field name="date_from" class="oe_inline" readonly="filter_type != 'custom'"/>
                             <span class="oe_inline">to</span>
-                            <field name="date_to" class="oe_inline" attrs="{'readonly': [('filter_type', '!=', 'custom')]}"/>
+                            <field name="date_to" class="oe_inline" readonly="filter_type != 'custom'"/>
                         </div>
                     </group>
                 </group>
                 <footer>
-                    <button name="action_show_report" string="Show Report" type="object" class="btn-primary" icon="fa-file-text-o"/>
+                    <button name="action_show_report" string="Show Report" type="object" class="btn-primary"/>
                     <button string="Exit" special="cancel" class="btn-secondary"/>
                 </footer>
             </form>
@@ -46,6 +44,5 @@
         <field name="res_model">product.profit.margin.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-        <field name="binding_model_id" ref="product.model_product_template"/>
     </record>
 </odoo>

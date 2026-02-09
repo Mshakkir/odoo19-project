@@ -144,12 +144,12 @@ class ProductProfitMarginWizard(models.TransientModel):
             report_line = self.env['product.profit.margin.report'].create(data)
             report_data.append(report_line.id)
 
-        # Return action to open tree view
+        # Return action to open list view
         return {
             'name': 'Sales Product Profit Report',
             'type': 'ir.actions.act_window',
             'res_model': 'product.profit.margin.report',
-            'view_mode': 'tree',
+            'view_mode': 'list',
             'domain': [('id', 'in', report_data)],
             'target': 'current',
             'context': {

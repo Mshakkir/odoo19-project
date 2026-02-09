@@ -13,14 +13,14 @@
                     <field name="quantity" sum="Total Quantity"/>
                     <field name="uom_id"/>
                     <field name="price_unit"/>
-                    <field name="discount"/>
-                    <field name="price_subtotal" sum="Total Untaxed"/>
+                    <field name="discount" optional="hide"/>
+                    <field name="price_subtotal" sum="Total Untaxed" optional="hide"/>
                     <field name="price_total" sum="Total"/>
-                    <field name="invoice_state"/>
+                    <field name="invoice_state" optional="hide"/>
                     <field name="user_id"/>
-                    <field name="analytic_account_id" optional="show"/>
-                    <field name="warehouse_id" optional="show"/>
-                    <field name="account_id" optional="show"/>
+                    <field name="analytic_account_id" optional="hide"/>
+                    <field name="warehouse_id" optional="hide"/>
+                    <field name="account_id" optional="hide"/>
                     <field name="currency_id" column_invisible="1"/>
                     <field name="company_id" column_invisible="1"/>
                 </list>

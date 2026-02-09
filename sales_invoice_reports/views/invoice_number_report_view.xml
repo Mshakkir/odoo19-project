@@ -15,10 +15,10 @@
                     <field name="analytic_account_id"/>
                     <field name="quantity" sum="Total Quantity"/>
                     <field name="price_unit"/>
-                    <field name="discount"/>
-                    <field name="price_subtotal" sum="Total Untaxed"/>
+                    <field name="discount" optional="hide" />
+                    <field name="price_subtotal" sum="Total Untaxed" optional="hide" />
                     <field name="price_total" sum="Total"/>
-                    <field name="invoice_state"/>
+                    <field name="invoice_state" optional="hide"/>
                     <field name="currency_id" column_invisible="1"/>
                     <field name="company_id" column_invisible="1"/>
                 </list>

@@ -1,154 +1,199 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { Many2OneField } from "@web/views/fields/many2one/many2one_field";
 import { PurchaseHistoryDialog } from "./purchase_history_dialog";
+import { useService } from "@web/core/utils/hooks";
 
+// Extend the Many2One field for product_id
+export class ProductMany2OneWithHistory extends Many2OneField {
+    setup() {
+        super.setup();
+        this.orm = useService("orm");
+        this.dialog = useService("dialog");
+        this.notification = useService("notification");
+
+        // Listen for Ctrl+F5 when this field is focused
+        this.addKeyListener();
+    }
+
+    addKeyListener() {
+        const handleKeyDown = async (ev) => {
+            if (ev.ctrlKey && ev.key === 'F5') {
+                ev.preventDefault();
+                ev.stopPropagation();
+                await this.showPurchaseHistory();
+            }
+        };
+
+        // Store the handler so we can remove it later
+        this.keyHandler = handleKeyDown;
+    }
+
+    async showPurchaseHistory() {
+        try {
+            console.log("Showing purchase history, current value:", this.props.record.data[this.props.name]);
+
+            const productValue = this.props.record.data[this.props.name];
+            let productId = null;
+            let productName = null;
+
+            // Handle different formats of Many2One value
+            if (Array.isArray(productValue) && productValue.length >= 2) {
+                productId = productValue[0];
+                productName = productValue[1];
+            } else if (productValue && typeof productValue === 'object') {
+                productId = productValue.id;
+                productName = productValue.display_name || productValue.name;
+            } else if (typeof productValue === 'number') {
+                productId = productValue;
+            }
+
+            if (!productId) {
+                this.notification.add(
+                    "Please select a product first",
+                    { type: "warning", title: "No Product Selected" }
+                );
+                return;
+            }
+
+            console.log("Fetching history for product:", productId, productName);
+
+            // Fetch purchase history
+            const purchaseHistory = await this.orm.call(
+                'account.move.line',
+                'get_product_purchase_history',
+                [productId]
+            );
+
+            console.log("Purchase history:", purchaseHistory);
+
+            if (!purchaseHistory || purchaseHistory.length === 0) {
+                this.notification.add(
+                    `No purchase history found for ${productName || 'this product'}`,
+                    { type: "info", title: "No History" }
+                );
+                return;
+            }
+
+            // Show dialog
+            this.dialog.add(PurchaseHistoryDialog, {
+                productName: productName || `Product ${productId}`,
+                purchaseHistory: purchaseHistory,
+            });
+
+        } catch (error) {
+            console.error("Error showing purchase history:", error);
+            this.notification.add(
+                "Error loading purchase history: " + error.message,
+                { type: "danger", title: "Error" }
+            );
+        }
+    }
+}
+
+// Register this field specifically for product_id in account.move.line
+registry.category("fields").add("product_many2one_with_history", ProductMany2OneWithHistory);
+
+
+// Also add a global service as backup
 export const purchaseHistoryService = {
     dependencies: ["orm", "dialog", "notification"],
 
     start(env, { orm, dialog, notification }) {
-        console.log("Purchase History Service started");
+        console.log("Purchase History Global Service started");
 
         const keydownHandler = async (ev) => {
-            // Check for Ctrl+F5
             if (ev.ctrlKey && ev.key === 'F5') {
                 ev.preventDefault();
                 ev.stopPropagation();
 
                 try {
-                    const activeElement = document.activeElement;
+                    console.log("Ctrl+F5 pressed globally");
+
+                    // Find all product many2one fields that are currently visible
+                    const productFields = document.querySelectorAll('[name="product_id"]');
+
                     let productId = null;
                     let productName = null;
 
-                    console.log("Ctrl+F5 pressed, searching for product...");
+                    // First, try to find a selected/focused product field
+                    for (const field of productFields) {
+                        // Check if this field or its row is selected
+                        const row = field.closest('tr.o_data_row');
+                        const isActive = row && (
+                            row.classList.contains('o_selected_row') ||
+                            row.contains(document.activeElement)
+                        );
 
-                    // Try to find the active record in the list/form view
-                    const listController = document.querySelector('.o_list_view');
-                    const formController = document.querySelector('.o_form_view');
-
-                    if (listController || formController) {
-                        // Find the selected/active row
-                        let dataRow = activeElement.closest('tr.o_data_row');
-
-                        if (!dataRow) {
-                            dataRow = document.querySelector('tr.o_data_row.o_selected_row');
-                        }
-
-                        if (!dataRow) {
-                            dataRow = document.querySelector('tr.o_data_row.o_row_edit');
-                        }
-
-                        if (dataRow) {
-                            console.log("Found row, searching for product field...");
-
-                            // Method 1: Try to get product from the many2one field widget
-                            const productCell = dataRow.querySelector('[name="product_id"]');
-                            if (productCell) {
-                                // Check if there's an anchor tag with the product info
-                                const productLink = productCell.querySelector('a[data-tooltip]');
-                                if (productLink) {
-                                    const tooltipData = productLink.getAttribute('data-tooltip');
-                                    if (tooltipData) {
-                                        try {
-                                            const tooltip = JSON.parse(tooltipData);
-                                            if (tooltip.id) {
-                                                productId = tooltip.id;
-                                                productName = productLink.textContent.trim();
-                                                console.log("Got product from tooltip:", productId, productName);
-                                            }
-                                        } catch (e) {
-                                            console.log("Error parsing tooltip:", e);
-                                        }
+                        if (isActive || field.contains(document.activeElement)) {
+                            // Try to get product from link
+                            const link = field.querySelector('a[data-tooltip]');
+                            if (link) {
+                                try {
+                                    const tooltip = JSON.parse(link.getAttribute('data-tooltip'));
+                                    if (tooltip.id) {
+                                        productId = tooltip.id;
+                                        productName = link.textContent.trim();
+                                        console.log("Found product from active field:", productId, productName);
+                                        break;
                                     }
-                                }
-
-                                // Method 2: Try to get from input field
-                                if (!productId) {
-                                    const productInput = productCell.querySelector('input');
-                                    if (productInput) {
-                                        // Try to access the component data
-                                        const fieldWidget = productInput.closest('.o_field_widget');
-                                        if (fieldWidget && fieldWidget.__owl__) {
-                                            const component = fieldWidget.__owl__.component;
-                                            if (component && component.props && component.props.record) {
-                                                const recordData = component.props.record.data;
-                                                if (recordData.product_id) {
-                                                    if (Array.isArray(recordData.product_id)) {
-                                                        productId = recordData.product_id[0];
-                                                        productName = recordData.product_id[1];
-                                                    } else if (typeof recordData.product_id === 'object' && recordData.product_id.id) {
-                                                        productId = recordData.product_id.id;
-                                                        productName = recordData.product_id.display_name;
-                                                    }
-                                                    console.log("Got product from component:", productId, productName);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                                } catch (e) {}
                             }
 
-                            // Method 3: Try to access the record data from the row element
-                            if (!productId && dataRow.__owl__) {
-                                const rowComponent = dataRow.__owl__.component;
-                                if (rowComponent && rowComponent.props && rowComponent.props.record) {
-                                    const recordData = rowComponent.props.record.data;
-                                    console.log("Record data from row component:", recordData);
-                                    if (recordData.product_id) {
-                                        if (Array.isArray(recordData.product_id)) {
-                                            productId = recordData.product_id[0];
-                                            productName = recordData.product_id[1];
-                                        } else if (typeof recordData.product_id === 'object' && recordData.product_id.id) {
-                                            productId = recordData.product_id.id;
-                                            productName = recordData.product_id.display_name;
-                                        }
-                                        console.log("Got product from row component:", productId, productName);
-                                    }
-                                }
+                            // Try to get from input value
+                            const input = field.querySelector('input');
+                            if (input && input.value && !productId) {
+                                productName = input.value;
+                                console.log("Found product name from input:", productName);
                             }
+                        }
+                    }
 
-                            // Method 4: If still no product, try reading from database (for saved records only)
-                            if (!productId && dataRow.dataset.id) {
-                                const lineId = dataRow.dataset.id;
-                                // Only try to read if it's not a virtual ID
-                                if (!lineId.startsWith('datapoint_') && !lineId.startsWith('virtual_')) {
-                                    try {
-                                        console.log("Trying to read from database, ID:", lineId);
-                                        const lineData = await orm.read(
-                                            'account.move.line',
-                                            [parseInt(lineId)],
-                                            ['product_id', 'display_type']
-                                        );
+                    // If we only have the name, search for the product
+                    if (!productId && productName) {
+                        console.log("Searching for product by name:", productName);
+                        const products = await orm.call(
+                            'product.product',
+                            'name_search',
+                            [productName, [], 'ilike', 1]
+                        );
 
-                                        if (lineData && lineData[0]) {
-                                            console.log("Line data from DB:", lineData[0]);
-                                            if ((lineData[0].display_type === 'product' || !lineData[0].display_type)
-                                                && lineData[0].product_id) {
-                                                productId = lineData[0].product_id[0];
-                                                productName = lineData[0].product_id[1];
-                                                console.log("Got product from database:", productId, productName);
-                                            }
-                                        }
-                                    } catch (error) {
-                                        console.log("Error reading from database:", error);
+                        if (products && products.length > 0) {
+                            productId = products[0][0];
+                            productName = products[0][1];
+                            console.log("Found product by search:", productId, productName);
+                        }
+                    }
+
+                    if (!productId) {
+                        // Last resort: look for any visible product
+                        for (const field of productFields) {
+                            const link = field.querySelector('a[data-tooltip]');
+                            if (link) {
+                                try {
+                                    const tooltip = JSON.parse(link.getAttribute('data-tooltip'));
+                                    if (tooltip.id) {
+                                        productId = tooltip.id;
+                                        productName = link.textContent.trim();
+                                        console.log("Using first visible product:", productId, productName);
+                                        break;
                                     }
-                                }
+                                } catch (e) {}
                             }
                         }
                     }
 
                     if (!productId) {
-                        console.log("No product found");
                         notification.add(
-                            "Please select a product in the line first, then click on the row (not in the dropdown) and press Ctrl+F5",
-                            { type: "warning" }
+                            "Please select a product in the invoice line first. After selecting from the dropdown, click on the row and press Ctrl+F5.",
+                            { type: "warning", title: "No Product Selected" }
                         );
                         return;
                     }
 
-                    console.log("Fetching purchase history for product:", productId);
+                    console.log("Fetching purchase history for:", productId, productName);
 
-                    // Fetch purchase history
                     const purchaseHistory = await orm.call(
                         'account.move.line',
                         'get_product_purchase_history',
@@ -157,7 +202,14 @@ export const purchaseHistoryService = {
 
                     console.log("Purchase history:", purchaseHistory);
 
-                    // Show dialog
+                    if (!purchaseHistory || purchaseHistory.length === 0) {
+                        notification.add(
+                            `No purchase history found for ${productName}`,
+                            { type: "info", title: "No History" }
+                        );
+                        return;
+                    }
+
                     dialog.add(PurchaseHistoryDialog, {
                         productName: productName || "Product",
                         purchaseHistory: purchaseHistory,
@@ -166,26 +218,22 @@ export const purchaseHistoryService = {
                 } catch (error) {
                     console.error("Purchase History Error:", error);
                     notification.add(
-                        "Error loading purchase history: " + error.message,
+                        "Error: " + error.message,
                         { type: "danger" }
                     );
                 }
             }
         };
 
-        // Add event listener
-        window.addEventListener('keydown', keydownHandler);
-        console.log("Ctrl+F5 listener added for purchase history");
+        window.addEventListener('keydown', keydownHandler, true);
+        console.log("Ctrl+F5 listener registered");
 
-        // Return cleanup function
         return {
             dispose() {
-                window.removeEventListener('keydown', keydownHandler);
-                console.log("Purchase History Service disposed");
+                window.removeEventListener('keydown', keydownHandler, true);
             }
         };
     },
 };
 
-// Register the service
 registry.category("services").add("purchaseHistoryService", purchaseHistoryService);

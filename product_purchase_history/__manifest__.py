@@ -17,6 +17,7 @@
     'website': 'https://www.yourcompany.com',
     'license': 'LGPL-3',
     'depends': [
+        'account',
         'sale',
         'purchase',
         'web',

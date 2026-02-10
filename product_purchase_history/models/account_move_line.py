@@ -14,11 +14,11 @@ class AccountMoveLine(models.Model):
         if not product_id:
             return []
 
-        # Search for vendor bill lines with this product
+        # Search for vendor bill lines with this product (no order clause)
         invoice_lines = self.env['account.move.line'].search([
             ('product_id', '=', product_id),
             ('move_id.move_type', '=', 'in_invoice'),
-        ], order='move_id.date desc', limit=50)
+        ], limit=50)
 
         history = []
         for line in invoice_lines:
@@ -38,8 +38,7 @@ class AccountMoveLine(models.Model):
                 'id': line.id,
                 'order_name': line.move_id.name or '',
                 'partner_name': line.move_id.partner_id.name if line.move_id.partner_id else '',
-                'date_order': line.move_id.invoice_date.strftime('%Y-%m-%d') if line.move_id.invoice_date else (
-                    line.move_id.date.strftime('%Y-%m-%d') if line.move_id.date else ''),
+                'date_order': line.move_id.invoice_date.strftime('%Y-%m-%d') if line.move_id.invoice_date else '',
                 'product_qty': line.quantity,
                 'product_uom': line.product_uom_id.name if line.product_uom_id else '',
                 'price_unit': line.price_unit,
@@ -47,5 +46,8 @@ class AccountMoveLine(models.Model):
                 'currency': line.currency_id.symbol if line.currency_id else '',
                 'state': line.move_id.state,
             })
+
+        # Sort by date in Python (descending)
+        history.sort(key=lambda x: x['date_order'], reverse=True)
 
         return history

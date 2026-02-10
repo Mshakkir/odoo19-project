@@ -100,12 +100,23 @@ class ProductProfitMarginWizard(models.TransientModel):
                     'profit_margin': 0.0,
                 }
 
+            # Accumulate quantities and amounts
             product_data[key]['qty'] += line.quantity
             product_data[key]['total'] += line.price_subtotal
-            product_data[key]['rate'] = line.price_unit
             product_data[key]['total_cost'] += (product.standard_price * line.quantity)
+
+        # Calculate rate, profit and margin after accumulation
+        for key in product_data:
+            # Calculate average rate (total / qty)
+            if product_data[key]['qty'] > 0:
+                product_data[key]['rate'] = product_data[key]['total'] / product_data[key]['qty']
+            else:
+                product_data[key]['rate'] = 0.0
+
+            # Calculate profit
             product_data[key]['profit'] = product_data[key]['total'] - product_data[key]['total_cost']
 
+            # Calculate profit margin percentage
             if product_data[key]['total'] > 0:
                 product_data[key]['profit_margin'] = ((product_data[key]['total'] - product_data[key]['total_cost']) /
                                                       product_data[key]['total']) * 100

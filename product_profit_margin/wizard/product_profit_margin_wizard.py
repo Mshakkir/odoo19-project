@@ -89,7 +89,7 @@ class ProductProfitMarginWizard(models.TransientModel):
         if self.date_from > self.date_to:
             raise UserError('From date cannot be greater than To date!')
 
-        # Clear old report data for this user
+        # Clear old report data
         old_reports = self.env['product.profit.margin.report'].search([])
         old_reports.unlink()
 
@@ -135,6 +135,7 @@ class ProductProfitMarginWizard(models.TransientModel):
                     'unit_cost': product.standard_price,
                     'total_cost': 0.0,
                     'profit': 0.0,
+                    'profit_margin': 0.0,
                 }
 
             product_data[key]['qty'] += line.product_uom_qty
@@ -142,6 +143,13 @@ class ProductProfitMarginWizard(models.TransientModel):
             product_data[key]['rate'] = line.price_unit
             product_data[key]['total_cost'] += (product.standard_price * line.product_uom_qty)
             product_data[key]['profit'] = product_data[key]['total'] - product_data[key]['total_cost']
+
+            # Calculate profit margin
+            if product_data[key]['total'] > 0:
+                product_data[key]['profit_margin'] = ((product_data[key]['total'] - product_data[key]['total_cost']) /
+                                                      product_data[key]['total']) * 100
+            else:
+                product_data[key]['profit_margin'] = 0.0
 
         # Convert to list
         for data in product_data.values():

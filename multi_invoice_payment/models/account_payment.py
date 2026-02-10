@@ -7,19 +7,23 @@ _logger = logging.getLogger(__name__)
 class AccountPayment(models.Model):
     _inherit = 'account.payment'
 
-    @api.model
-    def create(self, vals):
+    @api.model_create_multi
+    def create(self, vals_list):
         """Override create to ensure partner context is passed"""
-        # Ensure partner_id is in context for move creation
-        if vals.get('partner_id') and 'default_partner_id' not in self.env.context:
-            self = self.with_context(default_partner_id=vals['partner_id'])
+        # vals_list is a list of dictionaries in Odoo 13+
+        # Check if we need to add partner context
+        if vals_list and isinstance(vals_list, list) and len(vals_list) > 0:
+            first_vals = vals_list[0]
+            if first_vals.get('partner_id') and 'default_partner_id' not in self.env.context:
+                self = self.with_context(default_partner_id=first_vals['partner_id'])
 
-        payment = super(AccountPayment, self).create(vals)
+        payments = super(AccountPayment, self).create(vals_list)
 
-        _logger.info(
-            f"Created payment {payment.name} for partner {payment.partner_id.name if payment.partner_id else 'N/A'}")
+        for payment in payments:
+            _logger.info(
+                f"Created payment {payment.name} for partner {payment.partner_id.name if payment.partner_id else 'N/A'}")
 
-        return payment
+        return payments
 
     def _synchronize_to_moves(self, changed_fields):
         """Override to ensure partner is properly set on journal entry"""

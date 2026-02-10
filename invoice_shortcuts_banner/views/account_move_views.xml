@@ -15,7 +15,7 @@
                                 <div class="shortcut_icon">📦</div>
                                 <div class="shortcut_content">
                                     <strong>Purchase History</strong>
-                                    <div class="shortcut_key">Ctrl+F5</div>
+                                    <span class="shortcut_key">Ctrl+F5</span>
                                 </div>
                             </div>
 
@@ -23,7 +23,7 @@
                                 <div class="shortcut_icon">💰</div>
                                 <div class="shortcut_content">
                                     <strong>Sales History</strong>
-                                    <div class="shortcut_key">Ctrl+F6</div>
+                                    <span class="shortcut_key">Ctrl+F6</span>
                                 </div>
                             </div>
 
@@ -31,12 +31,9 @@
                                 <div class="shortcut_icon">📊</div>
                                 <div class="shortcut_content">
                                     <strong>Stock Monitor</strong>
-                                    <div class="shortcut_key">Ctrl+F7</div>
+                                    <span class="shortcut_key">Ctrl+F7</span>
                                 </div>
                             </div>
-                        </div>
-                        <div class="shortcuts_hint">
-                            Select a product line and press the shortcut to view details
                         </div>
                     </div>
                 </xpath>

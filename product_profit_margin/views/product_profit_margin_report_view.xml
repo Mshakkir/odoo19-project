@@ -34,8 +34,6 @@
                 <field name="product_code"/>
                 <field name="category"/>
                 <field name="order_ref"/>
-                <filter name="positive_profit" string="Positive Profit" domain="[('profit', '&gt;', 0)]"/>
-                <filter name="negative_profit" string="Negative Profit" domain="[('profit', '&lt;', 0)]"/>
                 <group expand="0" string="Group By">
                     <filter name="group_by_product" string="Product" context="{'group_by': 'product_name'}"/>
                     <filter name="group_by_category" string="Category" context="{'group_by': 'category'}"/>

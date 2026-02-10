@@ -2,7 +2,6 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError
-from datetime import timedelta
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -11,17 +10,6 @@ _logger = logging.getLogger(__name__)
 class ProductProfitMarginWizard(models.TransientModel):
     _name = 'product.profit.margin.wizard'
     _description = 'Product Profit Margin Report Wizard'
-
-    report_type = fields.Selection([
-        ('short', 'Short'),
-        ('detailed', 'Detailed'),
-        ('monthly', 'Monthly')
-    ], string='Type', default='short', required=True)
-
-    form_type = fields.Selection([
-        ('normal', 'Normal Mode'),
-        ('detailed', 'Detailed Mode')
-    ], string='Form Type', default='normal', required=True)
 
     product_filter = fields.Selection([
         ('all', 'All'),
@@ -35,76 +23,19 @@ class ProductProfitMarginWizard(models.TransientModel):
         ('unbilled', 'Unbilled')
     ], string='Bill Mode', default='all', required=True)
 
-    filter_type = fields.Selection([
-        ('today', 'Today'),
-        ('one_week', 'One Week'),
-        ('two_week', 'Two Week'),
-        ('one_month', 'One Month'),
-        ('two_month', 'Two Month'),
-        ('quarterly', 'Quarterly'),
-        ('six_month', 'Six Month'),
-        ('one_year', 'One Year'),
-        ('financial', 'Financial'),
-        ('custom', 'Custom')
-    ], string='Filter', default='one_month', required=True)
-
     date_from = fields.Date(string='From', required=True, default=fields.Date.today)
     date_to = fields.Date(string='To', required=True, default=fields.Date.today)
 
     group_id = fields.Many2one('product.category', string='Group')
     product_id = fields.Many2one('product.product', string='Product')
 
-    use_master_rate = fields.Boolean(string='Use Master Rate', default=False)
-
-    @api.onchange('filter_type')
-    def _onchange_filter_type(self):
-        """Update date range based on filter type"""
-        today = fields.Date.today()
-
-        if self.filter_type == 'today':
-            self.date_from = today
-            self.date_to = today
-        elif self.filter_type == 'one_week':
-            self.date_from = today - timedelta(days=7)
-            self.date_to = today
-        elif self.filter_type == 'two_week':
-            self.date_from = today - timedelta(days=14)
-            self.date_to = today
-        elif self.filter_type == 'one_month':
-            self.date_from = today - timedelta(days=30)
-            self.date_to = today
-        elif self.filter_type == 'two_month':
-            self.date_from = today - timedelta(days=60)
-            self.date_to = today
-        elif self.filter_type == 'quarterly':
-            self.date_from = today - timedelta(days=90)
-            self.date_to = today
-        elif self.filter_type == 'six_month':
-            self.date_from = today - timedelta(days=180)
-            self.date_to = today
-        elif self.filter_type == 'one_year':
-            self.date_from = today - timedelta(days=365)
-            self.date_to = today
-
     def action_show_report(self):
-        """
-        Generate and show the profit margin report based on SALES INVOICES
-
-        DATA SOURCES:
-        - Sales Data: From account.move.line (Posted customer invoices)
-        - Selling Price: line.price_unit (from invoice line)
-        - Total Sales: line.price_subtotal (unit price × quantity)
-        - Product Cost: product.standard_price (cost set in product form)
-        - Total Cost: product.standard_price × quantity
-        - Profit: Total Sales - Total Cost
-        - Profit Margin %: (Profit / Total Sales) × 100
-        """
+        """Generate and show the profit margin report based on SALES INVOICES"""
         self.ensure_one()
 
         if self.date_from > self.date_to:
             raise UserError('From date cannot be greater than To date!')
 
-        # Log the search criteria for debugging
         _logger.info(f"Searching for invoices between {self.date_from} and {self.date_to}")
 
         # Clear old report data
@@ -112,14 +43,13 @@ class ProductProfitMarginWizard(models.TransientModel):
         old_reports.unlink()
 
         # Build domain for filtering INVOICE LINES
-        # In Odoo 19, we need to filter by display_type to exclude section/note lines
         domain = [
             ('move_id.invoice_date', '>=', self.date_from),
             ('move_id.invoice_date', '<=', self.date_to),
-            ('move_id.move_type', '=', 'out_invoice'),  # Customer invoices only
-            ('move_id.state', '=', 'posted'),  # Posted invoices only
-            ('product_id', '!=', False),  # Must have a product
-            ('display_type', 'in', [False, 'product']),  # Only product lines (exclude section/note)
+            ('move_id.move_type', '=', 'out_invoice'),
+            ('move_id.state', '=', 'posted'),
+            ('product_id', '!=', False),
+            ('display_type', 'in', [False, 'product']),
         ]
 
         # Apply product filter
@@ -133,56 +63,13 @@ class ProductProfitMarginWizard(models.TransientModel):
 
         _logger.info(f"Found {len(invoice_lines)} invoice lines matching criteria")
 
-        # If no lines found, provide detailed debugging information
         if not invoice_lines:
-            # Check for any invoices in date range (regardless of state)
-            all_invoices_domain = [
-                ('move_id.invoice_date', '>=', self.date_from),
-                ('move_id.invoice_date', '<=', self.date_to),
-                ('move_id.move_type', '=', 'out_invoice'),
-                ('product_id', '!=', False),
-            ]
-            all_lines = self.env['account.move.line'].search(all_invoices_domain)
-
-            if not all_lines:
-                # Check if there are ANY customer invoices with products (no date filter)
-                any_invoice_lines = self.env['account.move.line'].search([
-                    ('move_id.move_type', '=', 'out_invoice'),
-                    ('product_id', '!=', False),
-                ], limit=5)
-
-                if any_invoice_lines:
-                    sample_dates = any_invoice_lines.mapped('move_id.invoice_date')
-                    raise UserError(
-                        f'No customer invoices found between {self.date_from} and {self.date_to}.\n\n'
-                        f'However, I found invoices on these dates: {", ".join(str(d) for d in sample_dates)}\n\n'
-                        'Please adjust your date range to include these dates.'
-                    )
-                else:
-                    raise UserError(
-                        f'No customer invoices with products found in the system.\n\n'
-                        'Please check:\n'
-                        '1. You have created Customer Invoices (not Vendor Bills)\n'
-                        '2. The invoices have line items with products\n\n'
-                        'Go to: Invoicing > Customers > Invoices'
-                    )
-            else:
-                # Invoices exist but not posted
-                states = all_lines.mapped('move_id.state')
-                unique_states = list(set(states))
-                posted_count = len([s for s in states if s == 'posted'])
-                draft_count = len([s for s in states if s == 'draft'])
-
-                raise UserError(
-                    f'Found {len(all_lines)} invoice lines between {self.date_from} and {self.date_to},\n'
-                    f'but none are POSTED.\n\n'
-                    f'Invoice states: {", ".join(unique_states)}\n'
-                    f'Posted: {posted_count}, Draft: {draft_count}\n\n'
-                    'Please post your invoices:\n'
-                    '1. Go to: Invoicing > Customers > Invoices\n'
-                    '2. Open each invoice\n'
-                    '3. Click "Confirm" button'
-                )
+            raise UserError(
+                f'No customer invoices found between {self.date_from} and {self.date_to}.\n\n'
+                'Please check:\n'
+                '1. You have posted Customer Invoices in this date range\n'
+                '2. The invoices have line items with products'
+            )
 
         # Prepare report data
         report_data = []
@@ -193,7 +80,6 @@ class ProductProfitMarginWizard(models.TransientModel):
             if not product:
                 continue
 
-            # Use product ID as key to aggregate same products
             key = product.id
 
             if key not in product_data:
@@ -203,25 +89,23 @@ class ProductProfitMarginWizard(models.TransientModel):
                     'product_code': product.default_code or '',
                     'category': product.categ_id.name if product.categ_id else '',
                     'date': line.move_id.invoice_date,
-                    'order_ref': line.move_id.name,  # Invoice number
+                    'order_ref': line.move_id.name,
                     'qty': 0.0,
                     'uom': product.uom_id.name if product.uom_id else '',
                     'rate': 0.0,
                     'total': 0.0,
-                    'unit_cost': product.standard_price,  # Product cost from inventory
+                    'unit_cost': product.standard_price,
                     'total_cost': 0.0,
                     'profit': 0.0,
                     'profit_margin': 0.0,
                 }
 
-            # Accumulate quantities and amounts
             product_data[key]['qty'] += line.quantity
-            product_data[key]['total'] += line.price_subtotal  # Total sales amount (excluding tax)
-            product_data[key]['rate'] = line.price_unit  # Selling price per unit
-            product_data[key]['total_cost'] += (product.standard_price * line.quantity)  # Total cost
+            product_data[key]['total'] += line.price_subtotal
+            product_data[key]['rate'] = line.price_unit
+            product_data[key]['total_cost'] += (product.standard_price * line.quantity)
             product_data[key]['profit'] = product_data[key]['total'] - product_data[key]['total_cost']
 
-            # Calculate profit margin percentage
             if product_data[key]['total'] > 0:
                 product_data[key]['profit_margin'] = ((product_data[key]['total'] - product_data[key]['total_cost']) /
                                                       product_data[key]['total']) * 100
@@ -235,7 +119,6 @@ class ProductProfitMarginWizard(models.TransientModel):
 
         _logger.info(f"Created {len(report_data)} report records")
 
-        # Return action to open list view
         return {
             'name': f'Sales Product Profit Report ({len(report_data)} products)',
             'type': 'ir.actions.act_window',

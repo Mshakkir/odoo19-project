@@ -8,25 +8,21 @@
             <form string="Product Profit Margin Report">
                 <group>
                     <group>
-                        <field name="report_type"/>
-                        <field name="form_type"/>
                         <field name="product_filter"/>
                         <field name="group_id" invisible="product_filter != 'by_group'" required="product_filter == 'by_group'"/>
                         <field name="product_id" invisible="product_filter != 'by_product'" required="product_filter == 'by_product'"/>
                     </group>
                     <group>
-                        <field name="filter_type"/>
                         <field name="bill_mode"/>
-                        <field name="use_master_rate"/>
                     </group>
                 </group>
                 <group>
                     <group>
-                        <label for="date_from" string="Period"/>
+                        <label for="date_from" string="Date Range"/>
                         <div class="o_row">
-                            <field name="date_from" class="oe_inline" readonly="filter_type != 'custom'"/>
+                            <field name="date_from" class="oe_inline"/>
                             <span class="oe_inline">to</span>
-                            <field name="date_to" class="oe_inline" readonly="filter_type != 'custom'"/>
+                            <field name="date_to" class="oe_inline"/>
                         </div>
                     </group>
                 </group>

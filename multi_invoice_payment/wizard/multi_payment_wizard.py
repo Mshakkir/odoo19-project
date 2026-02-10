@@ -273,7 +273,7 @@ class MultiPaymentWizard(models.TransientModel):
         self.invoice_line_ids = invoice_lines
 
     def action_create_payment(self):
-        """Create payment and allocate to selected invoices"""
+        """Create a single combined payment and allocate to selected invoices"""
         self.ensure_one()
 
         if not self.partner_id:
@@ -323,14 +323,11 @@ class MultiPaymentWizard(models.TransientModel):
                                   % (total_allocated, self.payment_amount))
 
         # ==============================================
-        # CREATE PAYMENT WITH REGISTER PAYMENT METHOD
+        # CREATE ONE SINGLE COMBINED PAYMENT
         # ==============================================
 
-        # Collect invoices
-        invoices = self.env['account.move'].browse([item['invoice'].id for item in invoices_to_pay])
-
         # Prepare payment reference with invoice numbers
-        invoice_numbers = [inv.name for inv in invoices]
+        invoice_numbers = [inv_data['invoice'].name for inv_data in invoices_to_pay]
         if self.memo:
             payment_reference = self.memo
         else:
@@ -340,72 +337,76 @@ class MultiPaymentWizard(models.TransientModel):
                 payment_reference = _('Payment for %d invoices: %s') % (len(invoice_numbers),
                                                                         ', '.join(invoice_numbers))
 
-        # Use the register payment wizard context
-        payment_register = self.env['account.payment.register'].with_context(
-            active_model='account.move',
-            active_ids=invoices.ids
-        ).create({
-            'payment_date': self.payment_date,
+        # Create a single payment for the total allocated amount
+        payment_vals = {
+            'payment_type': 'inbound',
+            'partner_type': 'customer',
+            'partner_id': self.partner_id.id,
+            'amount': total_allocated,  # Use total allocated, not payment_amount
+            'currency_id': self.currency_id.id,
+            'date': self.payment_date,
             'journal_id': self.journal_id.id,
-            'payment_method_line_id': self.payment_method_line_id.id if self.payment_method_line_id else False,
-            'communication': payment_reference,
-        })
+            'ref': payment_reference,
+        }
 
-        # For partial payments, we need to handle allocation manually
-        if total_allocated < sum(inv.amount_residual for inv in invoices):
-            # This is a partial payment scenario
-            # We need to create the payment and then manually allocate amounts
+        if self.payment_method_line_id:
+            payment_vals['payment_method_line_id'] = self.payment_method_line_id.id
 
-            # Create a single payment for total allocated amount
-            payment_vals = {
-                'payment_type': 'inbound',
-                'partner_type': 'customer',
-                'partner_id': self.partner_id.id,
-                'amount': total_allocated,
-                'currency_id': self.currency_id.id,
-                'date': self.payment_date,
-                'journal_id': self.journal_id.id,
-                'ref': payment_reference,
-            }
+        # Create the payment
+        payment = self.env['account.payment'].create(payment_vals)
 
-            if self.payment_method_line_id:
-                payment_vals['payment_method_line_id'] = self.payment_method_line_id.id
+        # Post the payment
+        payment.action_post()
 
-            payment = self.env['account.payment'].create(payment_vals)
-            payment.action_post()
+        _logger.info(f"Created combined payment: {payment.name} for amount: {total_allocated}")
 
-            _logger.info(f"Created payment: {payment.name} for amount: {total_allocated}")
+        # ==============================================
+        # RECONCILE PAYMENT WITH INVOICES
+        # ==============================================
 
-            # Get the payment move line
-            payment_line = payment.move_id.line_ids.filtered(
-                lambda l: l.account_id.account_type in ('asset_receivable', 'liability_payable') and l.credit > 0
+        # Get the credit line from payment (this is the receivable account line with credit > 0)
+        payment_line = payment.move_id.line_ids.filtered(
+            lambda l: l.account_id.account_type in ('asset_receivable', 'liability_payable')
+                      and l.credit > 0
+        )
+
+        if not payment_line:
+            raise UserError(_('Could not find payment receivable line for reconciliation.'))
+
+        _logger.info(f"Payment line found - Credit: {payment_line.credit}, Account: {payment_line.account_id.name}")
+
+        # Collect all invoice receivable lines (debit lines)
+        invoice_lines_to_reconcile = self.env['account.move.line']
+
+        for invoice_data in invoices_to_pay:
+            invoice = invoice_data['invoice']
+
+            # Get the invoice receivable line (debit line)
+            invoice_line = invoice.line_ids.filtered(
+                lambda l: l.account_id.account_type in ('asset_receivable', 'liability_payable')
+                          and l.debit > 0
             )
 
-            # Now reconcile each invoice with the appropriate amount
-            for invoice_data in invoices_to_pay:
-                invoice = invoice_data['invoice']
-                amount_to_pay = invoice_data['amount']
+            if invoice_line:
+                invoice_lines_to_reconcile |= invoice_line
+                _logger.info(f"Added invoice {invoice.name} line - Debit: {invoice_line.debit}")
 
-                # Get invoice receivable line
-                invoice_line = invoice.line_ids.filtered(
-                    lambda l: l.account_id.account_type in ('asset_receivable', 'liability_payable')
-                              and l.debit > 0 and not l.reconciled
-                )
+        # Reconcile all together
+        if payment_line and invoice_lines_to_reconcile:
+            lines_to_reconcile = payment_line + invoice_lines_to_reconcile
+            _logger.info(
+                f"Reconciling {len(lines_to_reconcile)} lines (1 payment + {len(invoice_lines_to_reconcile)} invoices)")
 
-                if invoice_line and payment_line:
-                    # Reconcile with partial amount
-                    to_reconcile = payment_line + invoice_line
-                    to_reconcile.reconcile()
-                    _logger.info(f"Reconciled invoice {invoice.name} with amount {amount_to_pay}")
-
-        else:
-            # Full payment - use standard method
-            payments = payment_register._create_payments()
-            payment = payments[0] if payments else None
+            try:
+                lines_to_reconcile.reconcile()
+                _logger.info("Successfully reconciled payment with all invoices")
+            except Exception as e:
+                _logger.error(f"Reconciliation error: {str(e)}")
+                raise UserError(_('Error during reconciliation: %s') % str(e))
 
         # Show success message
         message = _('Payment created successfully!\n\n')
-        message += _('Payment Number: %s\n') % (payment.name if payment else 'N/A')
+        message += _('Payment Number: %s\n') % payment.name
         message += _('Total Amount: %.2f %s\n') % (total_allocated, self.currency_id.symbol or '')
         message += _('Number of invoices paid: %d\n') % len(invoices_to_pay)
         message += _('Invoices: %s') % ', '.join(invoice_numbers)

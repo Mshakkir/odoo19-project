@@ -20,30 +20,30 @@
             </field>
         </record>
 
-        <!-- Advance Payment Report Search View -->
-        <record id="view_advance_payment_report_search" model="ir.ui.view">
-            <field name="name">advance.payment.report.search</field>
-            <field name="model">advance.payment.report</field>
-            <field name="arch" type="xml">
-                <search string="Search Advance Payments">
-                    <field name="receipt_number"/>
-                    <field name="vendor_name"/>
-                    <field name="payment_method"/>
-                    <field name="date"/>
-                    
-                    <filter string="Date" name="filter_date" date="date"/>
-                    
-                    <group expand="0" string="Group By">
-                        <filter string="Vendor" name="group_by_vendor" 
-                                context="{'group_by': 'vendor_name'}"/>
-                        <filter string="Payment Method" name="group_by_payment_method" 
-                                context="{'group_by': 'payment_method'}"/>
-                        <filter string="Date" name="group_by_date" 
-                                context="{'group_by': 'date'}"/>
-                    </group>
-                </search>
-            </field>
-        </record>
+<!--        &lt;!&ndash; Advance Payment Report Search View &ndash;&gt;-->
+<!--        <record id="view_advance_payment_report_search" model="ir.ui.view">-->
+<!--            <field name="name">advance.payment.report.search</field>-->
+<!--            <field name="model">advance.payment.report</field>-->
+<!--            <field name="arch" type="xml">-->
+<!--                <search string="Search Advance Payments">-->
+<!--                    <field name="receipt_number"/>-->
+<!--                    <field name="vendor_name"/>-->
+<!--                    <field name="payment_method"/>-->
+<!--                    <field name="date"/>-->
+<!--                    -->
+<!--                    <filter string="Date" name="filter_date" date="date"/>-->
+<!--                    -->
+<!--                    <group expand="0" string="Group By">-->
+<!--                        <filter string="Vendor" name="group_by_vendor" -->
+<!--                                context="{'group_by': 'vendor_name'}"/>-->
+<!--                        <filter string="Payment Method" name="group_by_payment_method" -->
+<!--                                context="{'group_by': 'payment_method'}"/>-->
+<!--                        <filter string="Date" name="group_by_date" -->
+<!--                                context="{'group_by': 'date'}"/>-->
+<!--                    </group>-->
+<!--                </search>-->
+<!--            </field>-->
+<!--        </record>-->
 
         <!-- Advance Payment Report Action (for direct access if needed) -->
         <record id="action_advance_payment_report" model="ir.actions.act_window">

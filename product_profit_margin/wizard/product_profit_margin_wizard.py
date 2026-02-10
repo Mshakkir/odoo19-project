@@ -89,6 +89,15 @@ class ProductProfitMarginWizard(models.TransientModel):
     def action_show_report(self):
         """
         Generate and show the profit margin report based on SALES INVOICES
+
+        DATA SOURCES:
+        - Sales Data: From account.move.line (Posted customer invoices)
+        - Selling Price: line.price_unit (from invoice line)
+        - Total Sales: line.price_subtotal (unit price × quantity)
+        - Product Cost: product.standard_price (cost set in product form)
+        - Total Cost: product.standard_price × quantity
+        - Profit: Total Sales - Total Cost
+        - Profit Margin %: (Profit / Total Sales) × 100
         """
         self.ensure_one()
 
@@ -103,13 +112,14 @@ class ProductProfitMarginWizard(models.TransientModel):
         old_reports.unlink()
 
         # Build domain for filtering INVOICE LINES
+        # In Odoo 19, we need to filter by display_type to exclude section/note lines
         domain = [
             ('move_id.invoice_date', '>=', self.date_from),
             ('move_id.invoice_date', '<=', self.date_to),
             ('move_id.move_type', '=', 'out_invoice'),  # Customer invoices only
             ('move_id.state', '=', 'posted'),  # Posted invoices only
             ('product_id', '!=', False),  # Must have a product
-            ('exclude_from_invoice_tab', '=', False),  # Exclude non-invoice lines
+            ('display_type', 'in', [False, 'product']),  # Only product lines (exclude section/note)
         ]
 
         # Apply product filter

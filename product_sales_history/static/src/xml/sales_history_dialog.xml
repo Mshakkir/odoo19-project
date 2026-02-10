@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
-    <t t-name="product_purchase_history.PurchaseHistoryDialog">
+    <t t-name="product_sales_history.SalesHistoryDialog">
         <Dialog title="title" size="'xl'">
-            <div class="o_purchase_history_dialog">
+            <div class="o_sales_history_dialog">
                 <t t-if="hasHistory">
                     <div class="table-responsive">
-                        <table class="table table-sm table-striped">
+                        <table class="table table-sm table-hover">
                             <thead>
                                 <tr>
-                                    <th>Reference</th>
-                                    <th>Supplier</th>
+                                    <th>Invoice</th>
+                                    <th>Customer</th>
                                     <th>Date</th>
                                     <th class="text-end">Quantity</th>
-                                    <th>Unit</th>
+                                    <th>UoM</th>
                                     <th class="text-end">Unit Price</th>
+                                    <th class="text-end">Subtotal</th>
                                     <th>Tax</th>
                                     <th class="text-end">Tax Amount</th>
                                     <th class="text-end">Total</th>
@@ -21,7 +22,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <t t-foreach="props.purchaseHistory" t-as="record" t-key="record.id">
+                                <t t-foreach="props.salesHistory" t-as="record" t-key="record.id">
                                     <tr>
                                         <td><t t-esc="record.order_name"/></td>
                                         <td><t t-esc="record.partner_name"/></td>
@@ -29,20 +30,24 @@
                                         <td class="text-end"><t t-esc="formatNumber(record.product_qty)"/></td>
                                         <td><t t-esc="record.product_uom"/></td>
                                         <td class="text-end">
-                                            <t t-esc="record.currency"/><t t-esc="formatNumber(record.price_unit)"/>
+                                            <t t-esc="record.currency"/>
+                                            <t t-esc="formatNumber(record.price_unit)"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-esc="record.currency"/>
+                                            <t t-esc="formatNumber(record.price_subtotal)"/>
                                         </td>
                                         <td><t t-esc="record.tax_name"/></td>
                                         <td class="text-end">
-                                            <t t-esc="record.currency"/><t t-esc="formatNumber(record.tax_amount)"/>
+                                            <t t-esc="record.currency"/>
+                                            <t t-esc="formatNumber(record.tax_amount)"/>
                                         </td>
                                         <td class="text-end">
-                                            <t t-esc="record.currency"/><t t-esc="formatNumber(record.price_total)"/>
+                                            <t t-esc="record.currency"/>
+                                            <t t-esc="formatNumber(record.price_total)"/>
                                         </td>
                                         <td>
-                                            <span t-if="record.state === 'posted'" class="badge bg-success">
-                                                <t t-esc="getStateLabel(record.state)"/>
-                                            </span>
-                                            <span t-elif="record.state === 'draft'" class="badge bg-warning">
+                                            <span t-att-class="'badge ' + (record.state === 'posted' ? 'text-bg-success' : 'text-bg-warning')">
                                                 <t t-esc="getStateLabel(record.state)"/>
                                             </span>
                                         </td>
@@ -54,11 +59,10 @@
                 </t>
                 <t t-else="">
                     <div class="alert alert-info">
-                        No purchase history found for this product.
+                        No sales history found for this product.
                     </div>
                 </t>
             </div>
         </Dialog>
     </t>
 </templates>
-

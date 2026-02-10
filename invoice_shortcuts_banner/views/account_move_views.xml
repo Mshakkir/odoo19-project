@@ -39,5 +39,83 @@
                 </xpath>
             </field>
         </record>
+
+        <!-- Add shortcuts banner to Purchase Order form -->
+        <record id="view_purchase_order_form_shortcuts_banner" model="ir.ui.view">
+            <field name="name">purchase.order.form.shortcuts.banner</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <!-- Add banner after the sheet element starts -->
+                <xpath expr="//sheet" position="before">
+                    <div class="shortcuts_info_banner">
+                        <div class="shortcuts_container">
+                            <div class="shortcut_item">
+                                <div class="shortcut_icon">📦</div>
+                                <div class="shortcut_content">
+                                    <strong>Purchase History</strong>
+                                    <span class="shortcut_key">Ctrl+F5</span>
+                                </div>
+                            </div>
+
+                            <div class="shortcut_item">
+                                <div class="shortcut_icon">💰</div>
+                                <div class="shortcut_content">
+                                    <strong>Sales History</strong>
+                                    <span class="shortcut_key">Ctrl+F6</span>
+                                </div>
+                            </div>
+
+                            <div class="shortcut_item">
+                                <div class="shortcut_icon">📊</div>
+                                <div class="shortcut_content">
+                                    <strong>Stock Monitor</strong>
+                                    <span class="shortcut_key">Ctrl+F7</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Add shortcuts banner to Sale Order form -->
+        <record id="view_sale_order_form_shortcuts_banner" model="ir.ui.view">
+            <field name="name">sale.order.form.shortcuts.banner</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <!-- Add banner after the sheet element starts -->
+                <xpath expr="//sheet" position="before">
+                    <div class="shortcuts_info_banner">
+                        <div class="shortcuts_container">
+                            <div class="shortcut_item">
+                                <div class="shortcut_icon">📦</div>
+                                <div class="shortcut_content">
+                                    <strong>Purchase History</strong>
+                                    <span class="shortcut_key">Ctrl+F5</span>
+                                </div>
+                            </div>
+
+                            <div class="shortcut_item">
+                                <div class="shortcut_icon">💰</div>
+                                <div class="shortcut_content">
+                                    <strong>Sales History</strong>
+                                    <span class="shortcut_key">Ctrl+F6</span>
+                                </div>
+                            </div>
+
+                            <div class="shortcut_item">
+                                <div class="shortcut_icon">📊</div>
+                                <div class="shortcut_content">
+                                    <strong>Stock Monitor</strong>
+                                    <span class="shortcut_key">Ctrl+F7</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+            </field>
+        </record>
     </data>
 </odoo>

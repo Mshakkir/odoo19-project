@@ -3,12 +3,18 @@
     'name': 'Invoice Shortcuts Info Banner',
     'version': '19.0.1.0.0',
     'category': 'Accounting',
-    'summary': 'Display keyboard shortcuts banner in invoice form',
+    'summary': 'Display keyboard shortcuts banner in invoice, purchase order, and sale order forms',
     'description': """
-        This module displays an informative banner at the top of invoice forms
+        This module displays an informative banner at the top of forms
         showing available keyboard shortcuts for product history features.
 
-        Displays:
+        Displays on:
+        - Customer Invoices
+        - Vendor Bills
+        - Purchase Orders
+        - Sale Orders
+
+        Shows:
         - Ctrl+F5: Purchase History
         - Ctrl+F6: Sales History
         - Ctrl+F7: Stock Monitor
@@ -18,6 +24,8 @@
     'license': 'LGPL-3',
     'depends': [
         'account',
+        'purchase',
+        'sale',
     ],
     'data': [
         'views/account_move_views.xml',

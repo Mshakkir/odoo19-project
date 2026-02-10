@@ -5,8 +5,8 @@
             <div class="o_purchase_history_dialog">
                 <t t-if="hasHistory">
                     <div class="table-responsive">
-                        <table class="table table-sm table-striped table-hover">
-                            <thead class="table-light">
+                        <table class="table table-sm table-striped">
+                            <thead>
                                 <tr>
                                     <th>Reference</th>
                                     <th>Source</th>
@@ -23,56 +23,28 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <t t-foreach="props.purchaseHistory" t-as="line" t-key="line.id">
+                                <t t-foreach="props.purchaseHistory" t-as="record" t-key="record.id">
                                     <tr>
-                                        <td><strong><t t-esc="line.order_name"/></strong></td>
-                                        <td>
-                                            <span t-if="line.source_type === 'Invoice'"
-                                                  t-attf-class="badge bg-{{line.invoice_type === 'Credit Note' ? 'warning' : 'primary'}}">
-                                                <t t-esc="line.invoice_type"/>
-                                            </span>
-                                            <span t-elif="line.source_type === 'Purchase Order'"
-                                                  class="badge bg-info">
-                                                PO
-                                            </span>
-                                        </td>
-                                        <td><t t-esc="line.partner_name"/></td>
-                                        <td><t t-esc="line.date_order"/></td>
-                                        <td class="text-end"><t t-esc="formatNumber(line.product_qty, 2)"/></td>
-                                        <td><t t-esc="line.product_uom"/></td>
+                                        <td><t t-esc="record.order_name"/></td>
+                                        <td></td>
+                                        <td><t t-esc="record.partner_name"/></td>
+                                        <td><t t-esc="record.date_order"/></td>
+                                        <td class="text-end"><t t-esc="formatNumber(record.product_qty)"/></td>
+                                        <td><t t-esc="record.product_uom"/></td>
                                         <td class="text-end">
-                                            <t t-esc="line.currency"/>
-                                            <t t-esc="formatNumber(line.price_unit, 2)"/>
+                                            <t t-esc="record.currency"/><t t-esc="formatNumber(record.price_unit)"/>
                                         </td>
                                         <td class="text-end">
-                                            <t t-esc="line.currency"/>
-                                            <t t-esc="formatNumber(line.price_subtotal, 2)"/>
+                                            <t t-esc="record.currency"/><t t-esc="formatNumber(record.price_subtotal)"/>
+                                        </td>
+                                        <td></td>
+                                        <td class="text-end"></td>
+                                        <td class="text-end">
+                                            <t t-esc="record.currency"/><t t-esc="formatNumber(record.price_subtotal)"/>
                                         </td>
                                         <td>
-                                            <small class="text-muted"><t t-esc="line.tax_names"/></small>
-                                        </td>
-                                        <td class="text-end">
-                                            <t t-esc="line.currency"/>
-                                            <t t-esc="formatNumber(line.tax_amount, 2)"/>
-                                        </td>
-                                        <td class="text-end">
-                                            <strong>
-                                                <t t-esc="line.currency"/>
-                                                <t t-esc="formatNumber(line.price_total, 2)"/>
-                                            </strong>
-                                        </td>
-                                        <td>
-                                            <span t-if="line.state === 'posted'" class="badge bg-success">
-                                                Posted
-                                            </span>
-                                            <span t-elif="line.state === 'done'" class="badge bg-success">
-                                                Done
-                                            </span>
-                                            <span t-elif="line.state === 'purchase'" class="badge bg-info">
-                                                Purchase Order
-                                            </span>
-                                            <span t-else="" class="badge bg-secondary">
-                                                <t t-esc="getStateLabel(line.state)"/>
+                                            <span class="badge bg-success">
+                                                <t t-esc="getStateLabel(record.state)"/>
                                             </span>
                                         </td>
                                     </tr>
@@ -83,7 +55,7 @@
                 </t>
                 <t t-else="">
                     <div class="alert alert-info">
-                        <i class="fa fa-info-circle"/> No purchase history found for this product.
+                        No purchase history found for this product.
                     </div>
                 </t>
             </div>

@@ -179,6 +179,57 @@ class MultiPaymentWizard(models.TransientModel):
             'target': 'current',
         }
 
+    def action_load_invoices(self):
+        """Load unpaid invoices for the selected customer"""
+        self.ensure_one()
+
+        if not self.partner_id:
+            raise UserError(_('Please select a customer first.'))
+
+        # Get unpaid invoices for the customer
+        unpaid_invoices = self.env['account.move'].search([
+            ('partner_id', '=', self.partner_id.id),
+            ('move_type', '=', 'out_invoice'),
+            ('state', '=', 'posted'),
+            ('payment_state', 'in', ['not_paid', 'partial']),
+        ], order='invoice_date asc')
+
+        if not unpaid_invoices:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Unpaid Invoices'),
+                    'message': _('There are no unpaid invoices for this customer.'),
+                    'type': 'info',
+                }
+            }
+
+        # Create invoice lines
+        invoice_lines = []
+        for invoice in unpaid_invoices:
+            invoice_lines.append((0, 0, {
+                'invoice_id': invoice.id,
+                'invoice_date': invoice.invoice_date,
+                'invoice_number': invoice.name,
+                'amount_total': invoice.amount_total,
+                'amount_residual': invoice.amount_residual,
+                'amount_to_pay': 0.0,
+                'selected': False,
+            }))
+
+        self.invoice_line_ids = invoice_lines
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Success'),
+                'message': _('%d unpaid invoices loaded successfully.') % len(unpaid_invoices),
+                'type': 'success',
+            }
+        }
+
     @api.onchange('auto_allocate')
     def _onchange_auto_allocate(self):
         """Load unpaid invoices when auto_allocate is enabled"""

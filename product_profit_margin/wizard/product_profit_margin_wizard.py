@@ -3,6 +3,9 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 from datetime import timedelta
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class ProductProfitMarginWizard(models.TransientModel):
@@ -86,34 +89,27 @@ class ProductProfitMarginWizard(models.TransientModel):
     def action_show_report(self):
         """
         Generate and show the profit margin report based on SALES INVOICES
-
-        DATA SOURCES:
-        - Sales Data: From account.move.line (Posted customer invoices)
-        - Selling Price: line.price_unit (from invoice line)
-        - Total Sales: line.price_subtotal (unit price × quantity)
-        - Product Cost: product.standard_price (cost set in product form)
-        - Total Cost: product.standard_price × quantity
-        - Profit: Total Sales - Total Cost
-        - Profit Margin %: (Profit / Total Sales) × 100
         """
         self.ensure_one()
 
         if self.date_from > self.date_to:
             raise UserError('From date cannot be greater than To date!')
 
+        # Log the search criteria for debugging
+        _logger.info(f"Searching for invoices between {self.date_from} and {self.date_to}")
+
         # Clear old report data
         old_reports = self.env['product.profit.margin.report'].search([])
         old_reports.unlink()
 
         # Build domain for filtering INVOICE LINES
-        # We use account.move.line for invoice lines
         domain = [
             ('move_id.invoice_date', '>=', self.date_from),
             ('move_id.invoice_date', '<=', self.date_to),
             ('move_id.move_type', '=', 'out_invoice'),  # Customer invoices only
             ('move_id.state', '=', 'posted'),  # Posted invoices only
             ('product_id', '!=', False),  # Must have a product
-            ('display_type', '=', False),  # Exclude section/note lines
+            ('exclude_from_invoice_tab', '=', False),  # Exclude non-invoice lines
         ]
 
         # Apply product filter
@@ -125,29 +121,57 @@ class ProductProfitMarginWizard(models.TransientModel):
         # Get invoice lines
         invoice_lines = self.env['account.move.line'].search(domain)
 
+        _logger.info(f"Found {len(invoice_lines)} invoice lines matching criteria")
+
+        # If no lines found, provide detailed debugging information
         if not invoice_lines:
-            # Provide helpful error message
-            all_lines = self.env['account.move.line'].search([
+            # Check for any invoices in date range (regardless of state)
+            all_invoices_domain = [
                 ('move_id.invoice_date', '>=', self.date_from),
                 ('move_id.invoice_date', '<=', self.date_to),
                 ('move_id.move_type', '=', 'out_invoice'),
                 ('product_id', '!=', False),
-            ])
+            ]
+            all_lines = self.env['account.move.line'].search(all_invoices_domain)
 
             if not all_lines:
-                raise UserError(
-                    f'No customer invoices found between {self.date_from} and {self.date_to}.\n\n'
-                    'Please check:\n'
-                    '1. You have created Customer Invoices in this date range\n'
-                    '2. The invoices have line items with products\n\n'
-                    'Go to: Invoicing > Customers > Invoices'
-                )
+                # Check if there are ANY customer invoices with products (no date filter)
+                any_invoice_lines = self.env['account.move.line'].search([
+                    ('move_id.move_type', '=', 'out_invoice'),
+                    ('product_id', '!=', False),
+                ], limit=5)
+
+                if any_invoice_lines:
+                    sample_dates = any_invoice_lines.mapped('move_id.invoice_date')
+                    raise UserError(
+                        f'No customer invoices found between {self.date_from} and {self.date_to}.\n\n'
+                        f'However, I found invoices on these dates: {", ".join(str(d) for d in sample_dates)}\n\n'
+                        'Please adjust your date range to include these dates.'
+                    )
+                else:
+                    raise UserError(
+                        f'No customer invoices with products found in the system.\n\n'
+                        'Please check:\n'
+                        '1. You have created Customer Invoices (not Vendor Bills)\n'
+                        '2. The invoices have line items with products\n\n'
+                        'Go to: Invoicing > Customers > Invoices'
+                    )
             else:
+                # Invoices exist but not posted
                 states = all_lines.mapped('move_id.state')
+                unique_states = list(set(states))
+                posted_count = len([s for s in states if s == 'posted'])
+                draft_count = len([s for s in states if s == 'draft'])
+
                 raise UserError(
-                    f'No POSTED invoices found between {self.date_from} and {self.date_to}.\n\n'
-                    f'Found {len(all_lines)} invoice lines, but their states are: {", ".join(set(states))}\n\n'
-                    'Please post your invoices (click "Confirm" button on the invoice).'
+                    f'Found {len(all_lines)} invoice lines between {self.date_from} and {self.date_to},\n'
+                    f'but none are POSTED.\n\n'
+                    f'Invoice states: {", ".join(unique_states)}\n'
+                    f'Posted: {posted_count}, Draft: {draft_count}\n\n'
+                    'Please post your invoices:\n'
+                    '1. Go to: Invoicing > Customers > Invoices\n'
+                    '2. Open each invoice\n'
+                    '3. Click "Confirm" button'
                 )
 
         # Prepare report data
@@ -199,6 +223,8 @@ class ProductProfitMarginWizard(models.TransientModel):
             report_line = self.env['product.profit.margin.report'].create(data)
             report_data.append(report_line.id)
 
+        _logger.info(f"Created {len(report_data)} report records")
+
         # Return action to open list view
         return {
             'name': f'Sales Product Profit Report ({len(report_data)} products)',
@@ -208,6 +234,6 @@ class ProductProfitMarginWizard(models.TransientModel):
             'domain': [('id', 'in', report_data)],
             'target': 'current',
             'context': {
-                'report_title': f'Sales Product Profit Report [{self.form_type.replace("_", " ").title()}/{self.report_type.title()}] Between {self.date_from} To {self.date_to}'
+                'report_title': f'Sales Product Profit Report - {self.date_from} to {self.date_to}'
             }
         }

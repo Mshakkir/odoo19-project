@@ -146,8 +146,13 @@ class AccountMoveLine(models.Model):
     @api.depends('product_id', 'product_id.qty_available', 'product_id.virtual_available')
     def _compute_is_stock_low(self):
         for line in self:
-            if line.product_id and line.product_id.detailed_type == 'product':
+            # Check if product exists and is a stockable product
+            # In Odoo 19, check product.type instead of detailed_type
+            if line.product_id and hasattr(line.product_id, 'type') and line.product_id.type == 'product':
                 # Consider stock low if virtual available (forecasted) is <= 0
+                line.is_stock_low = line.product_id.virtual_available <= 0
+            elif line.product_id and hasattr(line.product_id, 'detailed_type') and line.product_id.detailed_type == 'product':
+                # Fallback for older versions
                 line.is_stock_low = line.product_id.virtual_available <= 0
             else:
                 line.is_stock_low = False

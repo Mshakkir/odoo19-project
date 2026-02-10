@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="product_stock_monitor.StockMonitorDialog">
+        <Dialog title="title" size="'lg'">
+            <div class="o_stock_monitor_dialog">
+                <t t-if="hasStock">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 40%;">Warehouse Name</th>
+                                    <th class="text-end" style="width: 20%;">Qty</th>
+                                    <th class="text-end" style="width: 20%;">Pur.Rate</th>
+                                    <th class="text-end" style="width: 20%;">Sal.Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="props.stockData" t-as="record" t-key="record.id">
+                                    <tr>
+                                        <td>
+                                            <strong t-esc="record.warehouse_name"/>
+                                            <br/>
+                                            <small class="text-muted" t-esc="record.location_stock"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-esc="formatNumber(record.qty)"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-esc="formatNumber(record.purchase_rate)"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-esc="formatNumber(record.sales_rate)"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td><strong>Total</strong></td>
+                                    <td class="text-end"><strong t-esc="formatNumber(getTotalQty())"/></td>
+                                    <td colspan="2"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </t>
+                <t t-else="">
+                    <div class="alert alert-info">
+                        No warehouse data found for this product.
+                    </div>
+                </t>
+            </div>
+        </Dialog>
+    </t>
+</templates>

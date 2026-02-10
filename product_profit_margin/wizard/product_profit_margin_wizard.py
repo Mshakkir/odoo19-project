@@ -94,11 +94,11 @@ class ProductProfitMarginWizard(models.TransientModel):
         old_reports = self.env['product.profit.margin.report'].search([])
         old_reports.unlink()
 
-        # Build domain for filtering
+        # Build domain for filtering - use order_id.date_order instead of date
         domain = [
-            ('date', '>=', self.date_from),
-            ('date', '<=', self.date_to),
-            ('state', '=', 'sale'),
+            ('order_id.date_order', '>=', self.date_from),
+            ('order_id.date_order', '<=', self.date_to),
+            ('order_id.state', '=', 'sale'),
         ]
 
         # Apply product filter
@@ -109,6 +109,9 @@ class ProductProfitMarginWizard(models.TransientModel):
 
         # Get sale order lines
         sale_lines = self.env['sale.order.line'].search(domain)
+
+        if not sale_lines:
+            raise UserError('No sale order lines found for the selected criteria!')
 
         # Prepare report data
         report_data = []
@@ -127,7 +130,8 @@ class ProductProfitMarginWizard(models.TransientModel):
                     'product_name': product.name,
                     'product_code': product.default_code or '',
                     'category': product.categ_id.name if product.categ_id else '',
-                    'date': line.order_id.date_order,
+                    'date': line.order_id.date_order.date() if hasattr(line.order_id.date_order,
+                                                                       'date') else line.order_id.date_order,
                     'order_ref': line.order_id.name,
                     'qty': 0.0,
                     'uom': product.uom_id.name,

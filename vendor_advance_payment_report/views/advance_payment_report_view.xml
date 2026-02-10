@@ -1,57 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Advance Payment Report list View -->
-        <record id="view_advance_payment_report_tree" model="ir.ui.view">
+        <!-- Advance Payment Report List View -->
+        <record id="view_advance_payment_report_list" model="ir.ui.view">
             <field name="name">advance.payment.report.list</field>
             <field name="model">advance.payment.report</field>
             <field name="arch" type="xml">
                 <list string="Advance Payment Report"
-                      create="false" 
-                      edit="false" 
+                      create="false"
+                      edit="false"
                       delete="false">
                     <field name="date"/>
                     <field name="receipt_number"/>
                     <field name="payment_method"/>
                     <field name="vendor_name"/>
                     <field name="amount" sum="Total Amount"/>
-                    <field name="currency_id" invisible="1"/>
+                    <field name="currency_id" column_invisible="1"/>
                 </list>
             </field>
         </record>
-
-<!--        &lt;!&ndash; Advance Payment Report Search View &ndash;&gt;-->
-<!--        <record id="view_advance_payment_report_search" model="ir.ui.view">-->
-<!--            <field name="name">advance.payment.report.search</field>-->
-<!--            <field name="model">advance.payment.report</field>-->
-<!--            <field name="arch" type="xml">-->
-<!--                <search string="Search Advance Payments">-->
-<!--                    <field name="receipt_number"/>-->
-<!--                    <field name="vendor_name"/>-->
-<!--                    <field name="payment_method"/>-->
-<!--                    <field name="date"/>-->
-<!--                    -->
-<!--                    <filter string="Date" name="filter_date" date="date"/>-->
-<!--                    -->
-<!--                    <group expand="0" string="Group By">-->
-<!--                        <filter string="Vendor" name="group_by_vendor" -->
-<!--                                context="{'group_by': 'vendor_name'}"/>-->
-<!--                        <filter string="Payment Method" name="group_by_payment_method" -->
-<!--                                context="{'group_by': 'payment_method'}"/>-->
-<!--                        <filter string="Date" name="group_by_date" -->
-<!--                                context="{'group_by': 'date'}"/>-->
-<!--                    </group>-->
-<!--                </search>-->
-<!--            </field>-->
-<!--        </record>-->
 
         <!-- Advance Payment Report Action (for direct access if needed) -->
         <record id="action_advance_payment_report" model="ir.actions.act_window">
             <field name="name">Advance Payment Report</field>
             <field name="res_model">advance.payment.report</field>
             <field name="view_mode">list</field>
-            <field name="view_id" ref="view_advance_payment_report_tree"/>
-            <field name="search_view_id" ref="view_advance_payment_report_search"/>
+            <field name="view_id" ref="view_advance_payment_report_list"/>
         </record>
     </data>
 </odoo>

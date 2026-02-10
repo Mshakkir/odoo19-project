@@ -1,0 +1,68 @@
+/* Shortcuts Info Banner Styles - Simple Version */
+
+.shortcuts_info_banner {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin: 0 0 12px 0;
+    max-width: 600px;
+}
+
+.shortcuts_container {
+    display: flex;
+    justify-content: flex-start;
+    gap: 15px;
+    margin-bottom: 0;
+}
+
+.shortcut_item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    border: 1px solid #e0e0e0;
+    background: white;
+}
+
+.shortcut_icon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.shortcut_content {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    align-items: center;
+}
+
+.shortcut_content strong {
+    font-size: 12px;
+    font-weight: 500;
+    color: #333;
+}
+
+.shortcut_key {
+    background: #e9ecef;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+    color: #495057;
+    border: 1px solid #ced4da;
+}
+
+.shortcuts_hint {
+    display: none;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .shortcuts_container {
+        flex-direction: column;
+        gap: 6px;
+    }
+}

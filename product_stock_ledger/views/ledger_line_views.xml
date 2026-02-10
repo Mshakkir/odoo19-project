@@ -3,7 +3,7 @@
     <field name="name">product.stock.ledger.line.list</field>
     <field name="model">product.stock.ledger.line</field>
     <field name="arch" type="xml">
-      <list string="Product Stock Ledger" create="false" edit="false">
+      <list string="Product Stock Ledger" create="false" edit="false" delete="false">
         <field name="product_id" string="Product"/>
         <field name="warehouse_id" string="Warehouse"/>
         <field name="date" string="Date"/>
@@ -74,12 +74,16 @@
 
 
 
+
+
+
+
 <!--<odoo>-->
 <!--  <record id="view_ledger_line_list" model="ir.ui.view">-->
 <!--    <field name="name">product.stock.ledger.line.list</field>-->
 <!--    <field name="model">product.stock.ledger.line</field>-->
 <!--    <field name="arch" type="xml">-->
-<!--      <list string="Product Stock Ledger" create="false" edit="false" delete="false">-->
+<!--      <list string="Product Stock Ledger" create="false" edit="false">-->
 <!--        <field name="product_id" string="Product"/>-->
 <!--        <field name="warehouse_id" string="Warehouse"/>-->
 <!--        <field name="date" string="Date"/>-->
@@ -136,4 +140,17 @@
 <!--    </field>-->
 <!--  </record>-->
 <!--</odoo>-->
+
+
+
+
+
+
+
+
+
+
+
+
+
 

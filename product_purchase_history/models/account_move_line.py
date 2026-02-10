@@ -18,13 +18,20 @@ class AccountMoveLine(models.Model):
         invoice_lines = self.env['account.move.line'].search([
             ('product_id', '=', product_id),
             ('move_id.move_type', '=', 'in_invoice'),
-            ('move_id.state', 'in', ['draft', 'posted']),
         ], order='move_id.date desc', limit=50)
 
         history = []
         for line in invoice_lines:
-            # Skip lines without product or display lines
-            if not line.product_id or line.display_type:
+            # Skip if move is not in valid state
+            if line.move_id.state not in ['draft', 'posted']:
+                continue
+
+            # Skip lines without product
+            if not line.product_id:
+                continue
+
+            # Skip display lines (section/note)
+            if hasattr(line, 'display_type') and line.display_type:
                 continue
 
             history.append({

@@ -346,7 +346,7 @@ class MultiPaymentWizard(models.TransientModel):
             'currency_id': self.currency_id.id,
             'date': self.payment_date,
             'journal_id': self.journal_id.id,
-            'ref': payment_reference,
+            'payment_reference': payment_reference,
         }
 
         if self.payment_method_line_id:

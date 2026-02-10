@@ -84,7 +84,18 @@ class ProductProfitMarginWizard(models.TransientModel):
             self.date_to = today
 
     def action_show_report(self):
-        """Generate and show the profit margin report"""
+        """
+        Generate and show the profit margin report based on SALES INVOICES
+
+        DATA SOURCES:
+        - Sales Data: From account.move.line (Posted customer invoices)
+        - Selling Price: line.price_unit (from invoice line)
+        - Total Sales: line.price_subtotal (unit price × quantity)
+        - Product Cost: product.standard_price (cost set in product form)
+        - Total Cost: product.standard_price × quantity
+        - Profit: Total Sales - Total Cost
+        - Profit Margin %: (Profit / Total Sales) × 100
+        """
         self.ensure_one()
 
         if self.date_from > self.date_to:
@@ -94,11 +105,15 @@ class ProductProfitMarginWizard(models.TransientModel):
         old_reports = self.env['product.profit.margin.report'].search([])
         old_reports.unlink()
 
-        # Build domain for filtering - use order_id.date_order instead of date
+        # Build domain for filtering INVOICE LINES
+        # We use account.move.line for invoice lines
         domain = [
-            ('order_id.date_order', '>=', self.date_from),
-            ('order_id.date_order', '<=', self.date_to),
-            ('order_id.state', '=', 'sale'),
+            ('move_id.invoice_date', '>=', self.date_from),
+            ('move_id.invoice_date', '<=', self.date_to),
+            ('move_id.move_type', '=', 'out_invoice'),  # Customer invoices only
+            ('move_id.state', '=', 'posted'),  # Posted invoices only
+            ('product_id', '!=', False),  # Must have a product
+            ('display_type', '=', False),  # Exclude section/note lines
         ]
 
         # Apply product filter
@@ -107,21 +122,44 @@ class ProductProfitMarginWizard(models.TransientModel):
         elif self.product_filter == 'by_product' and self.product_id:
             domain.append(('product_id', '=', self.product_id.id))
 
-        # Get sale order lines
-        sale_lines = self.env['sale.order.line'].search(domain)
+        # Get invoice lines
+        invoice_lines = self.env['account.move.line'].search(domain)
 
-        if not sale_lines:
-            raise UserError('No sale order lines found for the selected criteria!')
+        if not invoice_lines:
+            # Provide helpful error message
+            all_lines = self.env['account.move.line'].search([
+                ('move_id.invoice_date', '>=', self.date_from),
+                ('move_id.invoice_date', '<=', self.date_to),
+                ('move_id.move_type', '=', 'out_invoice'),
+                ('product_id', '!=', False),
+            ])
+
+            if not all_lines:
+                raise UserError(
+                    f'No customer invoices found between {self.date_from} and {self.date_to}.\n\n'
+                    'Please check:\n'
+                    '1. You have created Customer Invoices in this date range\n'
+                    '2. The invoices have line items with products\n\n'
+                    'Go to: Invoicing > Customers > Invoices'
+                )
+            else:
+                states = all_lines.mapped('move_id.state')
+                raise UserError(
+                    f'No POSTED invoices found between {self.date_from} and {self.date_to}.\n\n'
+                    f'Found {len(all_lines)} invoice lines, but their states are: {", ".join(set(states))}\n\n'
+                    'Please post your invoices (click "Confirm" button on the invoice).'
+                )
 
         # Prepare report data
         report_data = []
         product_data = {}
 
-        for line in sale_lines:
+        for line in invoice_lines:
             product = line.product_id
             if not product:
                 continue
 
+            # Use product ID as key to aggregate same products
             key = product.id
 
             if key not in product_data:
@@ -130,40 +168,40 @@ class ProductProfitMarginWizard(models.TransientModel):
                     'product_name': product.name,
                     'product_code': product.default_code or '',
                     'category': product.categ_id.name if product.categ_id else '',
-                    'date': line.order_id.date_order.date() if hasattr(line.order_id.date_order,
-                                                                       'date') else line.order_id.date_order,
-                    'order_ref': line.order_id.name,
+                    'date': line.move_id.invoice_date,
+                    'order_ref': line.move_id.name,  # Invoice number
                     'qty': 0.0,
-                    'uom': product.uom_id.name,
+                    'uom': product.uom_id.name if product.uom_id else '',
                     'rate': 0.0,
                     'total': 0.0,
-                    'unit_cost': product.standard_price,
+                    'unit_cost': product.standard_price,  # Product cost from inventory
                     'total_cost': 0.0,
                     'profit': 0.0,
                     'profit_margin': 0.0,
                 }
 
-            product_data[key]['qty'] += line.product_uom_qty
-            product_data[key]['total'] += line.price_subtotal
-            product_data[key]['rate'] = line.price_unit
-            product_data[key]['total_cost'] += (product.standard_price * line.product_uom_qty)
+            # Accumulate quantities and amounts
+            product_data[key]['qty'] += line.quantity
+            product_data[key]['total'] += line.price_subtotal  # Total sales amount (excluding tax)
+            product_data[key]['rate'] = line.price_unit  # Selling price per unit
+            product_data[key]['total_cost'] += (product.standard_price * line.quantity)  # Total cost
             product_data[key]['profit'] = product_data[key]['total'] - product_data[key]['total_cost']
 
-            # Calculate profit margin
+            # Calculate profit margin percentage
             if product_data[key]['total'] > 0:
                 product_data[key]['profit_margin'] = ((product_data[key]['total'] - product_data[key]['total_cost']) /
                                                       product_data[key]['total']) * 100
             else:
                 product_data[key]['profit_margin'] = 0.0
 
-        # Convert to list
+        # Create report records
         for data in product_data.values():
             report_line = self.env['product.profit.margin.report'].create(data)
             report_data.append(report_line.id)
 
         # Return action to open list view
         return {
-            'name': 'Sales Product Profit Report',
+            'name': f'Sales Product Profit Report ({len(report_data)} products)',
             'type': 'ir.actions.act_window',
             'res_model': 'product.profit.margin.report',
             'view_mode': 'list',

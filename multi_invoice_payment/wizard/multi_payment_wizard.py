@@ -371,26 +371,34 @@ class MultiPaymentWizard(models.TransientModel):
         if not payment_move_line:
             raise UserError(_('Could not find payment line for reconciliation.'))
 
-        # Collect all invoice move lines to reconcile
-        invoice_move_lines = self.env['account.move.line']
+        _logger.info(
+            f"Payment move line: {payment_move_line.name}, Debit: {payment_move_line.debit}, Credit: {payment_move_line.credit}")
+
+        # For partial payments, we need to reconcile with partial reconciliation
         for invoice_data in invoices_to_pay:
             invoice = invoice_data['invoice']
+            amount_to_allocate = invoice_data['amount']
 
-            # Get invoice receivable lines
+            # Get invoice receivable lines that are not fully reconciled
             invoice_lines = invoice.line_ids.filtered(
                 lambda line: line.account_id.account_type in ('asset_receivable', 'liability_payable')
-                             and not line.reconciled
+                             and line.amount_residual != 0
             )
 
-            invoice_move_lines |= invoice_lines
-            _logger.info(f"Added invoice {invoice.name} lines for reconciliation")
+            if invoice_lines:
+                _logger.info(f"Processing invoice {invoice.name}, Amount to allocate: {amount_to_allocate}")
 
-        # Reconcile the payment line with all invoice lines
-        if payment_move_line and invoice_move_lines:
-            lines_to_reconcile = payment_move_line + invoice_move_lines
-            _logger.info(f"Reconciling {len(lines_to_reconcile)} lines")
-            lines_to_reconcile.reconcile()
-            _logger.info("Reconciliation completed successfully")
+                # Use Odoo's reconcile method with partial reconciliation
+                # This will create partial reconciliation if needed
+                lines_to_reconcile = payment_move_line + invoice_lines
+
+                try:
+                    # Reconcile - Odoo will handle partial reconciliation automatically
+                    lines_to_reconcile.reconcile()
+                    _logger.info(f"Successfully reconciled payment with invoice {invoice.name}")
+                except Exception as e:
+                    _logger.error(f"Error reconciling invoice {invoice.name}: {str(e)}")
+                    raise UserError(_('Error reconciling payment with invoice %s: %s') % (invoice.name, str(e)))
 
         # Show success message with payment details
         message = _('Payment created successfully!\n\n')

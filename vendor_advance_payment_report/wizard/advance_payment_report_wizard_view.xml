@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Advance Payment Report Wizard Form View -->
+        <record id="view_advance_payment_report_wizard_form" model="ir.ui.view">
+            <field name="name">advance.payment.report.wizard.form</field>
+            <field name="model">advance.payment.report.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Advance Payment Report">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="date_from"/>
+                                <field name="date_to"/>
+                            </group>
+                            <group>
+                                <field name="bank_id"/>
+                                <field name="vendor_id"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_show_report" 
+                                string="Show Report" 
+                                type="object" 
+                                class="btn-primary"/>
+                        <button name="action_exit" 
+                                string="Exit" 
+                                type="object" 
+                                class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Wizard Action -->
+        <record id="action_advance_payment_report_wizard" model="ir.actions.act_window">
+            <field name="name">Advance Payment Report</field>
+            <field name="res_model">advance.payment.report.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="view_advance_payment_report_wizard_form"/>
+        </record>
+    </data>
+</odoo>

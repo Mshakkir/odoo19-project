@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Add menu item under Accounting > Vendors -->
+        <menuitem 
+            id="menu_advance_payment_report"
+            name="Advance Payment Report"
+            parent="account.menu_finance_payables"
+            action="action_advance_payment_report_wizard"
+            sequence="20"/>
+    </data>
+</odoo>

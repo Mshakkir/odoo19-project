@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_advance_payment_report_user,advance.payment.report.user,model_advance_payment_report,account.group_account_user,1,1,1,1
+access_advance_payment_report_manager,advance.payment.report.manager,model_advance_payment_report,account.group_account_manager,1,1,1,1
+access_advance_payment_report_wizard_user,advance.payment.report.wizard.user,model_advance_payment_report_wizard,account.group_account_user,1,1,1,1
+access_advance_payment_report_wizard_manager,advance.payment.report.wizard.manager,model_advance_payment_report_wizard,account.group_account_manager,1,1,1,1

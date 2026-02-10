@@ -329,26 +329,21 @@ class MultiPaymentWizard(models.TransientModel):
         # Create the payment
         payment = self.env['account.payment'].create(payment_vals)
 
-        # Post the payment
+        _logger.info(f"Created payment: {payment.name} for partner: {self.partner_id.name} (ID: {self.partner_id.id})")
+
+        # Post the payment - this automatically creates the journal entry with partner_id
         payment.action_post()
 
-        # ==============================================
-        # CRITICAL FIX: ENSURE PARTNER IS SET ON MOVE
-        # ==============================================
-        # Explicitly set partner_id on the journal entry and all its lines
-        # This ensures the payment appears in the partner ledger
+        _logger.info(f"Posted payment: {payment.name}, Move: {payment.move_id.name if payment.move_id else 'N/A'}")
+
+        # Verify partner is set on the move and move lines
         if payment.move_id:
-            # Set partner on the move itself
-            payment.move_id.write({'partner_id': self.partner_id.id})
+            move_partner = payment.move_id.partner_id
+            _logger.info(f"Move partner_id: {move_partner.name if move_partner else 'NOT SET'}")
 
-            # Ensure all move lines have the partner set
             for line in payment.move_id.line_ids:
-                if not line.partner_id:
-                    line.write({'partner_id': self.partner_id.id})
-
-            _logger.info(f"Set partner {self.partner_id.name} on payment move {payment.move_id.name}")
-
-        _logger.info(f"Created combined payment: {payment.name} for amount: {total_allocated}")
+                _logger.info(
+                    f"  Line: Account={line.account_id.code}, Debit={line.debit}, Credit={line.credit}, Partner={line.partner_id.name if line.partner_id else 'NOT SET'}")
 
         # ==============================================
         # RECONCILE PAYMENT WITH INVOICES
@@ -364,7 +359,7 @@ class MultiPaymentWizard(models.TransientModel):
             raise UserError(_('Could not find payment receivable line for reconciliation.'))
 
         _logger.info(
-            f"Payment line found - Credit: {payment_line.credit}, Account: {payment_line.account_id.name}, Partner: {payment_line.partner_id.name}")
+            f"Payment line - Credit: {payment_line.credit}, Account: {payment_line.account_id.name}, Partner: {payment_line.partner_id.name if payment_line.partner_id else 'NOT SET'}")
 
         # Collect all invoice receivable lines (debit lines)
         invoice_lines_to_reconcile = self.env['account.move.line']
@@ -380,7 +375,8 @@ class MultiPaymentWizard(models.TransientModel):
 
             if invoice_line:
                 invoice_lines_to_reconcile |= invoice_line
-                _logger.info(f"Added invoice {invoice.name} line - Debit: {invoice_line.debit}")
+                _logger.info(
+                    f"Added invoice {invoice.name} line - Debit: {invoice_line.debit}, Partner: {invoice_line.partner_id.name if invoice_line.partner_id else 'NOT SET'}")
 
         # Reconcile all together
         if payment_line and invoice_lines_to_reconcile:

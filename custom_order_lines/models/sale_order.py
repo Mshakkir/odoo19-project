@@ -1,6 +1,4 @@
 #
-#
-#
 # from odoo import api, fields, models
 #
 #
@@ -15,7 +13,9 @@
 #
 #     product_code = fields.Char(
 #         string='P. Code',
-#         related='product_id.default_code',
+#         compute='_compute_product_code',
+#         store=True,
+#         search='_search_product_code',
 #         readonly=True
 #     )
 #
@@ -44,6 +44,15 @@
 #             for line in order.order_line:
 #                 line.sequence_number = number
 #                 number += 1
+#
+#     @api.depends('product_id', 'product_id.default_code')
+#     def _compute_product_code(self):
+#         for line in self:
+#             line.product_code = line.product_id.default_code if line.product_id else False
+#
+#     def _search_product_code(self, operator, value):
+#         """Enable search on product_code field by searching on product's default_code"""
+#         return [('product_id.default_code', operator, value)]
 #
 #     @api.depends('product_uom_qty', 'price_unit', 'discount')
 #     def _compute_untaxed_amount_after_discount(self):
@@ -150,6 +159,21 @@ class SaleOrderLine(models.Model):
         compute='_compute_total_amount',
         store=True
     )
+
+    is_stock_low = fields.Boolean(
+        string='Stock Low',
+        compute='_compute_is_stock_low',
+        store=False
+    )
+
+    @api.depends('product_id', 'product_id.qty_available', 'product_id.virtual_available')
+    def _compute_is_stock_low(self):
+        for line in self:
+            if line.product_id and line.product_id.detailed_type == 'product':
+                # Consider stock low if virtual available (forecasted) is <= 0
+                line.is_stock_low = line.product_id.virtual_available <= 0
+            else:
+                line.is_stock_low = False
 
     @api.depends('order_id.order_line')
     def _compute_sequence_number(self):

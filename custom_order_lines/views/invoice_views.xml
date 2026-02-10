@@ -45,7 +45,7 @@
                            widget="many2one"/>
 
                     <field name="analytic_distribution"
-                           string="Anal"
+                           string="Analytic"
                            widget="analytic_distribution"
                            options="{'product_field': 'product_id', 'business_domain': 'purchase', 'amount_field': 'price_subtotal'}"
                            groups="analytic.group_analytic_accounting"

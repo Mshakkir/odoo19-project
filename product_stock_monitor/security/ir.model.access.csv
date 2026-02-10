@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_product_stock_monitor,access.product.stock.monitor,product.model_product_product,base.group_user,1,0,0,0
+access_stock_warehouse_monitor,access.stock.warehouse.monitor,stock.model_stock_warehouse,base.group_user,1,0,0,0
+access_stock_quant_monitor,access.stock.quant.monitor,stock.model_stock_quant,base.group_user,1,0,0,0

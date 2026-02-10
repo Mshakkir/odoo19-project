@@ -1,0 +1,81 @@
+/* Shortcuts Info Banner Styles */
+
+.shortcuts_info_banner {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 20px;
+    margin: -16px -16px 16px -16px;
+    border-radius: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.shortcuts_container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 8px;
+}
+
+.shortcut_item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 10px 20px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.shortcut_item:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.shortcut_icon {
+    font-size: 24px;
+    line-height: 1;
+}
+
+.shortcut_content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.shortcut_content strong {
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+}
+
+.shortcut_key {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.shortcuts_hint {
+    text-align: center;
+    font-size: 12px;
+    opacity: 0.9;
+    font-style: italic;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .shortcuts_container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .shortcut_item {
+        justify-content: center;
+    }
+}

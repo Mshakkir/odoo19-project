@@ -3,10 +3,11 @@
 from odoo import models, fields, api
 
 
-class ProductProfitMarginReport(models.TransientModel):
+class ProductProfitMarginReport(models.Model):
     _name = 'product.profit.margin.report'
     _description = 'Product Profit Margin Report'
     _order = 'date desc, product_name'
+    _rec_name = 'product_name'
 
     date = fields.Date(string='Date', readonly=True)
     order_ref = fields.Char(string='Order Reference', readonly=True)

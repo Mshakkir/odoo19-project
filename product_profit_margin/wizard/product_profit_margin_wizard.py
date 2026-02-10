@@ -89,6 +89,10 @@ class ProductProfitMarginWizard(models.TransientModel):
         if self.date_from > self.date_to:
             raise UserError('From date cannot be greater than To date!')
 
+        # Clear old report data for this user
+        old_reports = self.env['product.profit.margin.report'].search([])
+        old_reports.unlink()
+
         # Build domain for filtering
         domain = [
             ('date', '>=', self.date_from),

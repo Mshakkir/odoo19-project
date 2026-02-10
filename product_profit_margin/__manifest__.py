@@ -20,7 +20,7 @@
     'website': 'https://www.yourcompany.com',
     'depends': ['base', 'stock', 'sale', 'product'],
     'data': [
-        # 'security/ir.model.access.csv',
+        'security/ir.model.access.csv',
         'wizard/product_profit_margin_wizard_view.xml',
         'views/product_profit_margin_report_view.xml',
         'views/menu_items.xml',

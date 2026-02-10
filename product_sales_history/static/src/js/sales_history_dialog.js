@@ -2,21 +2,21 @@ import { Component } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
 import { _t } from "@web/core/l10n/translation";
 
-export class PurchaseHistoryDialog extends Component {
-    static template = "product_purchase_history.PurchaseHistoryDialog";
+export class SalesHistoryDialog extends Component {
+    static template = "product_sales_history.SalesHistoryDialog";
     static components = { Dialog };
     static props = {
         close: Function,
         productName: String,
-        purchaseHistory: Array,
+        salesHistory: Array,
     };
 
     get hasHistory() {
-        return this.props.purchaseHistory && this.props.purchaseHistory.length > 0;
+        return this.props.salesHistory && this.props.salesHistory.length > 0;
     }
 
     get title() {
-        return _t("Purchase History - ") + this.props.productName;
+        return _t("Sales History - ") + this.props.productName;
     }
 
     formatNumber(value, decimals = 2) {

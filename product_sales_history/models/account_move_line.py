@@ -5,18 +5,18 @@ class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
 
     @api.model
-    def get_product_purchase_history(self, product_id):
+    def get_product_sales_history(self, product_id):
         """
-        Fetch purchase history for a given product from vendor bills
-        Returns list of invoice lines with supplier info
+        Fetch sales history for a given product from customer invoices
+        Returns list of invoice lines with customer info
         """
         if not product_id:
             return []
 
-        # Search for vendor bill lines with this product
+        # Search for customer invoice lines with this product
         invoice_lines = self.env['account.move.line'].search([
             ('product_id', '=', product_id),
-            ('move_id.move_type', '=', 'in_invoice'),
+            ('move_id.move_type', '=', 'out_invoice'),
         ], limit=50)
 
         history = []

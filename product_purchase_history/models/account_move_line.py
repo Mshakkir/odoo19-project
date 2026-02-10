@@ -15,18 +15,16 @@ class AccountMoveLine(models.Model):
             return []
 
         # Search for vendor bill lines with this product
-        # Remove display_type filter as it might be blocking results
         invoice_lines = self.env['account.move.line'].search([
             ('product_id', '=', product_id),
             ('move_id.move_type', '=', 'in_invoice'),
-            ('move_id.state', 'in', ['draft', 'posted']),  # Include both draft and posted
-            ('exclude_from_invoice_tab', '=', False),  # Exclude non-invoice lines
+            ('move_id.state', 'in', ['draft', 'posted']),
         ], order='move_id.date desc', limit=50)
 
         history = []
         for line in invoice_lines:
-            # Skip lines without product (like section/note lines)
-            if not line.product_id:
+            # Skip lines without product or display lines
+            if not line.product_id or line.display_type:
                 continue
 
             history.append({

@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError
+from datetime import timedelta
 
 
 class ProductProfitMarginWizard(models.TransientModel):
@@ -61,25 +62,25 @@ class ProductProfitMarginWizard(models.TransientModel):
             self.date_from = today
             self.date_to = today
         elif self.filter_type == 'one_week':
-            self.date_from = today - fields.timedelta(days=7)
+            self.date_from = today - timedelta(days=7)
             self.date_to = today
         elif self.filter_type == 'two_week':
-            self.date_from = today - fields.timedelta(days=14)
+            self.date_from = today - timedelta(days=14)
             self.date_to = today
         elif self.filter_type == 'one_month':
-            self.date_from = today - fields.timedelta(days=30)
+            self.date_from = today - timedelta(days=30)
             self.date_to = today
         elif self.filter_type == 'two_month':
-            self.date_from = today - fields.timedelta(days=60)
+            self.date_from = today - timedelta(days=60)
             self.date_to = today
         elif self.filter_type == 'quarterly':
-            self.date_from = today - fields.timedelta(days=90)
+            self.date_from = today - timedelta(days=90)
             self.date_to = today
         elif self.filter_type == 'six_month':
-            self.date_from = today - fields.timedelta(days=180)
+            self.date_from = today - timedelta(days=180)
             self.date_to = today
         elif self.filter_type == 'one_year':
-            self.date_from = today - fields.timedelta(days=365)
+            self.date_from = today - timedelta(days=365)
             self.date_to = today
 
     def action_show_report(self):

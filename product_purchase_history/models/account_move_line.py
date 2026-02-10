@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models
-import logging
-
-_logger = logging.getLogger(__name__)
 
 
 class AccountMoveLine(models.Model):
@@ -14,54 +11,28 @@ class AccountMoveLine(models.Model):
         Fetch purchase history for a given product from vendor bills
         Returns list of invoice lines with supplier info
         """
-        _logger.info("=" * 80)
-        _logger.info("PURCHASE HISTORY - Product ID: %s", product_id)
-
         if not product_id:
             return []
 
-        # First, let's check if there are ANY lines with this product
-        all_lines = self.env['account.move.line'].search([
-            ('product_id', '=', product_id),
-        ])
-        _logger.info("Total lines with product_id=%s: %s", product_id, len(all_lines))
-
-        # Check move types
-        for line in all_lines[:5]:  # Check first 5
-            _logger.info("  Line ID %s: move_type=%s, state=%s, display_type=%s",
-                         line.id,
-                         line.move_id.move_type if line.move_id else 'NO MOVE',
-                         line.move_id.state if line.move_id else 'NO STATE',
-                         line.display_type if hasattr(line, 'display_type') else 'NO ATTR')
-
-        # Now search for vendor bills specifically
+        # Search for vendor bill lines with this product
         invoice_lines = self.env['account.move.line'].search([
             ('product_id', '=', product_id),
             ('move_id.move_type', '=', 'in_invoice'),
         ], limit=50)
 
-        _logger.info("Vendor bill lines found: %s", len(invoice_lines))
-
         history = []
         for line in invoice_lines:
-            _logger.info("Processing line ID: %s", line.id)
-
             # Skip if move is not in valid state
             if line.move_id.state not in ['draft', 'posted']:
-                _logger.info("  SKIP: state=%s", line.move_id.state)
                 continue
 
             # Skip lines without product
             if not line.product_id:
-                _logger.info("  SKIP: no product")
                 continue
 
-            # Skip display lines (section/note)
-            if hasattr(line, 'display_type') and line.display_type:
-                _logger.info("  SKIP: display_type=%s", line.display_type)
+            # Skip ONLY section and note lines, NOT product lines
+            if hasattr(line, 'display_type') and line.display_type in ['line_section', 'line_note']:
                 continue
-
-            _logger.info("  ADDING to history")
 
             history.append({
                 'id': line.id,
@@ -78,8 +49,5 @@ class AccountMoveLine(models.Model):
 
         # Sort by date in Python (descending)
         history.sort(key=lambda x: x['date_order'], reverse=True)
-
-        _logger.info("Final history count: %s", len(history))
-        _logger.info("=" * 80)
 
         return history

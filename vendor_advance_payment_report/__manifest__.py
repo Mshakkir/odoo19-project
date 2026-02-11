@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Advance Payment Report',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Accounting',
     'summary': 'Add Advance Payment Report under Vendors menu',
     'description': """

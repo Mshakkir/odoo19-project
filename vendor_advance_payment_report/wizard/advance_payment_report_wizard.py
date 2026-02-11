@@ -94,7 +94,6 @@ class AdvancePaymentReportWizard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'res_model': 'advance.payment.report',
             'view_mode': 'list',
-            'view_id': self.env.ref('advance_payment_report.view_advance_payment_report_list').id,
             'target': 'current',
         }
 

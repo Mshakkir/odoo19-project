@@ -89,17 +89,18 @@ class AdvancePaymentReportWizard(models.TransientModel):
         _logger.info(f"Final domain: {domain}")
 
         # Search for vendor payments using account.payment model
-        # Filter to show only outbound payments (vendor payments, not customer receipts)
         payments = self.env['account.payment'].search(domain)
         _logger.info(f"Found {len(payments)} total payments with basic domain")
 
-        # Filter to ONLY vendor payments (outbound to suppliers)
-        # This excludes customer receipts (inbound from customers)
-        payments = payments.filtered(lambda p:
-                                     p.payment_type == 'outbound' and
-                                     p.state == 'posted'
-                                     )
-        _logger.info(f"Filtered to {len(payments)} outbound posted payments (vendor payments only)")
+        # Filter to ONLY vendor payments by checking the sequence prefix
+        # Vendor payments start with PAY/, Customer receipts start with PREC/
+        vendor_payments = payments.filtered(lambda p:
+                                            p.name and p.name.startswith('PAY/') and
+                                            p.state == 'posted'
+                                            )
+        _logger.info(f"Filtered to {len(vendor_payments)} vendor payments (PAY/* only)")
+
+        payments = vendor_payments
 
         # Search for advance payments
         # Looking for payments where the memo contains 'ADVANCE'

@@ -56,31 +56,65 @@ class AdvancePaymentReportWizard(models.TransientModel):
         # Clear previous report data
         self.env['advance.payment.report'].search([]).unlink()
 
-        # Build domain for searching vendor payments
+        # Add logging
+        import logging
+        _logger = logging.getLogger(__name__)
+
+        _logger.info("=" * 80)
+        _logger.info("SEARCH CRITERIA:")
+        _logger.info(f"Date From: {self.date_from}")
+        _logger.info(f"Date To: {self.date_to}")
+        _logger.info(f"Bank: {self.bank_id.name if self.bank_id else 'All Banks'}")
+        _logger.info(f"Vendor: {self.vendor_id.name if self.vendor_id else 'All Vendors'}")
+        _logger.info("=" * 80)
+
+        # Build domain for searching vendor payments - SIMPLIFIED
         domain = [
             ('date', '>=', self.date_from),
             ('date', '<=', self.date_to),
-            ('payment_type', '=', 'outbound'),  # Vendor payments
-            ('partner_type', '=', 'supplier'),
-            ('state', '=', 'posted'),  # Only posted payments
         ]
+
+        _logger.info(f"Initial domain: {domain}")
 
         # Add bank filter if selected
         if self.bank_id:
             domain.append(('journal_id', '=', self.bank_id.id))
+            _logger.info(f"Added bank filter: journal_id = {self.bank_id.id}")
 
         # Add vendor filter if not all vendors
         if not self.all_vendors and self.vendor_id:
             domain.append(('partner_id', '=', self.vendor_id.id))
+            _logger.info(f"Added vendor filter: partner_id = {self.vendor_id.id}")
+
+        _logger.info(f"Final domain: {domain}")
+
+        # Search for ALL payments first (remove type restrictions to debug)
+        payments = self.env['account.payment'].search(domain)
+        _logger.info(f"Found {len(payments)} payments with basic domain")
+
+        # Now filter by payment type
+        outbound_payments = payments.filtered(lambda p: p.payment_type == 'outbound')
+        _logger.info(f"Outbound payments: {len(outbound_payments)}")
+
+        supplier_payments = payments.filtered(lambda p: p.partner_type == 'supplier')
+        _logger.info(f"Supplier payments: {len(supplier_payments)}")
+
+        posted_payments = payments.filtered(lambda p: p.state == 'posted')
+        _logger.info(f"Posted payments: {len(posted_payments)}")
+
+        # Use only posted outbound supplier payments
+        payments = payments.filtered(lambda p:
+                                     p.payment_type == 'outbound' and
+                                     p.partner_type == 'supplier' and
+                                     p.state == 'posted'
+                                     )
+        _logger.info(f"Final filtered payments: {len(payments)}")
 
         # Search for advance payments
         # Looking for payments where the memo contains 'ADVANCE'
         payments = self.env['account.payment'].search(domain)
 
         # DEBUGGING: Log payment details to help identify the correct field
-        import logging
-        _logger = logging.getLogger(__name__)
-
         _logger.info("=" * 80)
         _logger.info("ADVANCE PAYMENT REPORT DEBUG INFO")
         _logger.info("=" * 80)

@@ -88,12 +88,18 @@ class AdvancePaymentReportWizard(models.TransientModel):
 
         _logger.info(f"Final domain: {domain}")
 
-        # Search for ALL payments first (using the correct model for vendor payments)
-        payments = self.env['account.supplier.payment.list'].search(domain)
-        _logger.info(f"Found {len(payments)} payments with basic domain")
+        # Search for vendor payments using account.payment model
+        # Filter to show only outbound payments (vendor payments, not customer receipts)
+        payments = self.env['account.payment'].search(domain)
+        _logger.info(f"Found {len(payments)} total payments with basic domain")
 
-        # The account.supplier.payment.list model already filters to suppliers only
-        # So we don't need to filter by payment_type or partner_type
+        # Filter to ONLY vendor payments (outbound to suppliers)
+        # This excludes customer receipts (inbound from customers)
+        payments = payments.filtered(lambda p:
+                                     p.payment_type == 'outbound' and
+                                     p.state == 'posted'
+                                     )
+        _logger.info(f"Filtered to {len(payments)} outbound posted payments (vendor payments only)")
 
         # Search for advance payments
         # Looking for payments where the memo contains 'ADVANCE'
@@ -162,7 +168,7 @@ class AdvancePaymentReportWizard(models.TransientModel):
 
         # Convert list back to recordset
         if advance_payments:
-            advance_payments = self.env['account.supplier.payment.list'].browse([p.id for p in advance_payments])
+            advance_payments = self.env['account.payment'].browse([p.id for p in advance_payments])
         else:
             advance_payments = payments
 

@@ -16,7 +16,9 @@
                             <group>
                                 <field name="bank_id"/>
                                 <field name="all_vendors"/>
-                                <field name="vendor_id" attrs="{'invisible': [('all_vendors', '=', True)], 'required': [('all_vendors', '=', False)]}"/>
+                                <field name="vendor_id"
+                                       invisible="all_vendors"
+                                       required="not all_vendors"/>
                             </group>
                         </group>
                     </sheet>

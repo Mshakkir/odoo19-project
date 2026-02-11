@@ -88,27 +88,12 @@ class AdvancePaymentReportWizard(models.TransientModel):
 
         _logger.info(f"Final domain: {domain}")
 
-        # Search for ALL payments first (remove type restrictions to debug)
-        payments = self.env['account.payment'].search(domain)
+        # Search for ALL payments first (using the correct model for vendor payments)
+        payments = self.env['account.supplier.payment.list'].search(domain)
         _logger.info(f"Found {len(payments)} payments with basic domain")
 
-        # Now filter by payment type
-        outbound_payments = payments.filtered(lambda p: p.payment_type == 'outbound')
-        _logger.info(f"Outbound payments: {len(outbound_payments)}")
-
-        supplier_payments = payments.filtered(lambda p: p.partner_type == 'supplier')
-        _logger.info(f"Supplier payments: {len(supplier_payments)}")
-
-        posted_payments = payments.filtered(lambda p: p.state == 'posted')
-        _logger.info(f"Posted payments: {len(posted_payments)}")
-
-        # Use only posted outbound supplier payments
-        payments = payments.filtered(lambda p:
-                                     p.payment_type == 'outbound' and
-                                     p.partner_type == 'supplier' and
-                                     p.state == 'posted'
-                                     )
-        _logger.info(f"Final filtered payments: {len(payments)}")
+        # The account.supplier.payment.list model already filters to suppliers only
+        # So we don't need to filter by payment_type or partner_type
 
         # Search for advance payments
         # Looking for payments where the memo contains 'ADVANCE'
@@ -177,7 +162,7 @@ class AdvancePaymentReportWizard(models.TransientModel):
 
         # Convert list back to recordset
         if advance_payments:
-            advance_payments = self.env['account.payment'].browse([p.id for p in advance_payments])
+            advance_payments = self.env['account.supplier.payment.list'].browse([p.id for p in advance_payments])
         else:
             advance_payments = payments
 

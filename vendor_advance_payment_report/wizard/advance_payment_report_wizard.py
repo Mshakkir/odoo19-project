@@ -74,42 +74,77 @@ class AdvancePaymentReportWizard(models.TransientModel):
             domain.append(('partner_id', '=', self.vendor_id.id))
 
         # Search for advance payments
-        # Looking for payments where the memo/communication contains 'ADVANCE'
+        # Looking for payments where the memo contains 'ADVANCE'
         payments = self.env['account.payment'].search(domain)
+
+        # DEBUGGING: Log payment details to help identify the correct field
+        import logging
+        _logger = logging.getLogger(__name__)
+
+        _logger.info("=" * 80)
+        _logger.info("ADVANCE PAYMENT REPORT DEBUG INFO")
+        _logger.info("=" * 80)
+        _logger.info(f"Found {len(payments)} total payments in date range")
 
         # Filter advance payments based on multiple fields
         advance_payments = []
         for payment in payments:
             is_advance = False
 
-            # Check memo_new field first (the actual memo field in your system)
-            if hasattr(payment, 'memo_new') and payment.memo_new and 'ADVANCE' in payment.memo_new.upper():
-                is_advance = True
+            # Log payment details
+            _logger.info(f"\n--- Payment: {payment.name} ---")
+            _logger.info(f"Date: {payment.date}")
+            _logger.info(f"Partner: {payment.partner_id.name}")
+            _logger.info(f"Amount: {payment.amount}")
 
-            # Check ref field (memo in UI)
-            if not is_advance and payment.ref and 'ADVANCE' in payment.ref.upper():
-                is_advance = True
+            # Check all possible memo fields
+            _logger.info("Checking fields:")
 
-            # Check if there's a move_id with lines containing ADVANCE
-            if not is_advance and hasattr(payment, 'move_id') and payment.move_id:
+            # Check memo_new field
+            if hasattr(payment, 'memo_new'):
+                _logger.info(f"  memo_new: '{payment.memo_new}'")
+                if payment.memo_new and 'ADVANCE' in str(payment.memo_new).upper():
+                    is_advance = True
+                    _logger.info("  ✓ MATCHED in memo_new!")
+
+            # Check ref field
+            if hasattr(payment, 'ref'):
+                _logger.info(f"  ref: '{payment.ref}'")
+                if not is_advance and payment.ref and 'ADVANCE' in str(payment.ref).upper():
+                    is_advance = True
+                    _logger.info("  ✓ MATCHED in ref!")
+
+            # Check narration field
+            if hasattr(payment, 'narration'):
+                _logger.info(f"  narration: '{payment.narration}'")
+                if not is_advance and payment.narration and 'ADVANCE' in str(payment.narration).upper():
+                    is_advance = True
+                    _logger.info("  ✓ MATCHED in narration!")
+
+            # Check move lines
+            if hasattr(payment, 'move_id') and payment.move_id:
+                _logger.info(f"  Journal Entry: {payment.move_id.name}")
                 for line in payment.move_id.line_ids:
-                    if line.name and 'ADVANCE' in line.name.upper():
+                    _logger.info(f"    Line: {line.name}")
+                    if not is_advance and line.name and 'ADVANCE' in str(line.name).upper():
                         is_advance = True
+                        _logger.info("    ✓ MATCHED in move line!")
                         break
 
-            # Check payment_reference
-            if not is_advance and hasattr(payment, 'payment_reference') and payment.payment_reference:
-                if 'ADVANCE' in payment.payment_reference.upper():
-                    is_advance = True
+            # For debugging, show ALL payments
+            _logger.info(f"  Final decision: {'ADVANCE PAYMENT' if is_advance else 'REGULAR PAYMENT'}")
 
-            if is_advance:
-                advance_payments.append(payment)
+            # Add ALL payments for now (debugging mode)
+            advance_payments.append(payment)
+
+        _logger.info("=" * 80)
+        _logger.info(f"Total advance payments found: {len(advance_payments)}")
+        _logger.info("=" * 80)
 
         # Convert list back to recordset
         if advance_payments:
             advance_payments = self.env['account.payment'].browse([p.id for p in advance_payments])
         else:
-            # If no advance payments found, show all payments for debugging
             advance_payments = payments
 
         # Prepare report data

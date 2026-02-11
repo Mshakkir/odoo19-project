@@ -23,107 +23,6 @@ class AdvancePaymentReportWizard(models.TransientModel):
         string='Bank',
         domain="[('type', '=', 'bank')]"
     )
-    vendor_id = fields.Many2one(
-        'res.partner',
-        string='Vendor',
-        domain="[('supplier_rank', '>', 0)]"
-    )
-
-    def action_show_report(self):
-        """Generate and display the advance payment report"""
-        self.ensure_one()
-
-        # Validate date range
-        if self.date_from > self.date_to:
-            raise UserError('Date From cannot be greater than Date To.')
-
-        # Clear previous report data
-        self.env['advance.payment.report'].search([]).unlink()
-
-        # Build domain for searching vendor payments
-        domain = [
-            ('date', '>=', self.date_from),
-            ('date', '<=', self.date_to),
-            ('payment_type', '=', 'outbound'),  # Vendor payments
-            ('partner_type', '=', 'supplier'),
-            ('state', '=', 'posted'),  # Only posted payments
-        ]
-
-        # Add bank filter if selected
-        if self.bank_id:
-            domain.append(('journal_id', '=', self.bank_id.id))
-
-        # Add vendor filter if selected
-        if self.vendor_id:
-            domain.append(('partner_id', '=', self.vendor_id.id))
-
-        # Search for advance payments
-        # Looking for payments where the memo/communication contains 'ADVANCE'
-        payments = self.env['account.payment'].search(domain)
-
-        # Filter advance payments based on memo
-        advance_payments = payments.filtered(
-            lambda p: p.ref and 'ADVANCE' in p.ref.upper()
-        )
-
-        # Prepare report data
-        report_lines = []
-        for payment in advance_payments:
-            # Get payment method name
-            payment_method_name = 'Manual Payment'
-            if payment.payment_method_line_id:
-                payment_method_name = payment.payment_method_line_id.name
-
-            # Create report line
-            report_lines.append({
-                'date': payment.date,
-                'receipt_number': payment.name or '',
-                'payment_method': payment_method_name,
-                'vendor_name': payment.partner_id.name or '',
-                'amount': payment.amount,
-                'currency_id': payment.currency_id.id,
-            })
-
-        # Create report records
-        if report_lines:
-            self.env['advance.payment.report'].create(report_lines)
-
-        # Return action to open list view
-        return {
-            'name': 'Advance Payment Report',
-            'type': 'ir.actions.act_window',
-            'res_model': 'advance.payment.report',
-            'view_mode': 'list',
-            'target': 'current',
-        }
-
-    def action_exit(self):
-        """Close the wizard"""
-        return {'type': 'ir.actions.act_window_close'}# -*- coding: utf-8 -*-
-
-from odoo import models, fields, api
-from odoo.exceptions import UserError
-
-
-class AdvancePaymentReportWizard(models.TransientModel):
-    _name = 'advance.payment.report.wizard'
-    _description = 'Advance Payment Report Wizard'
-
-    date_from = fields.Date(
-        string='Date From',
-        required=True,
-        default=fields.Date.context_today
-    )
-    date_to = fields.Date(
-        string='Date To',
-        required=True,
-        default=fields.Date.context_today
-    )
-    bank_id = fields.Many2one(
-        'account.journal',
-        string='Bank',
-        domain="[('type', '=', 'bank')]"
-    )
     all_vendors = fields.Boolean(
         string='All Vendors',
         default=True
@@ -178,10 +77,40 @@ class AdvancePaymentReportWizard(models.TransientModel):
         # Looking for payments where the memo/communication contains 'ADVANCE'
         payments = self.env['account.payment'].search(domain)
 
-        # Filter advance payments based on memo
-        advance_payments = payments.filtered(
-            lambda p: p.ref and 'ADVANCE' in p.ref.upper()
-        )
+        # Filter advance payments based on multiple fields
+        advance_payments = []
+        for payment in payments:
+            is_advance = False
+
+            # Check memo_new field first (the actual memo field in your system)
+            if hasattr(payment, 'memo_new') and payment.memo_new and 'ADVANCE' in payment.memo_new.upper():
+                is_advance = True
+
+            # Check ref field (memo in UI)
+            if not is_advance and payment.ref and 'ADVANCE' in payment.ref.upper():
+                is_advance = True
+
+            # Check if there's a move_id with lines containing ADVANCE
+            if not is_advance and hasattr(payment, 'move_id') and payment.move_id:
+                for line in payment.move_id.line_ids:
+                    if line.name and 'ADVANCE' in line.name.upper():
+                        is_advance = True
+                        break
+
+            # Check payment_reference
+            if not is_advance and hasattr(payment, 'payment_reference') and payment.payment_reference:
+                if 'ADVANCE' in payment.payment_reference.upper():
+                    is_advance = True
+
+            if is_advance:
+                advance_payments.append(payment)
+
+        # Convert list back to recordset
+        if advance_payments:
+            advance_payments = self.env['account.payment'].browse([p.id for p in advance_payments])
+        else:
+            # If no advance payments found, show all payments for debugging
+            advance_payments = payments
 
         # Prepare report data
         report_lines = []

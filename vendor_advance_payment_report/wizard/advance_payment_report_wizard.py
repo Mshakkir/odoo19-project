@@ -25,7 +25,7 @@ class AdvancePaymentReportWizard(models.TransientModel):
     journal_id = fields.Many2one(
         'account.journal',
         string='Journal',
-        domain="[('type', 'in', ['bank', 'cash'])]"
+        domain="[('type', 'in', ['bank', 'cash','Credit Card'])]"
     )
     all_vendors = fields.Boolean(
         string='All Vendors',

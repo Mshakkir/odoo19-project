@@ -19,7 +19,7 @@
 
                         <!-- Confirmation Date FIRST -->
                         <field name="date_approve"
-                               string="Confirmation Date"
+                               string="Order Date"
                                optional="show"
                                readonly="1"
                                width="130px"/>

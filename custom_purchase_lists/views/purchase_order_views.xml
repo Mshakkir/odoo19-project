@@ -22,7 +22,7 @@
 
                         <!-- Order Date -->
                         <field name="date_order"
-                               string="Order Date"
+                               string="Quotation Date"
                                optional="show"
                                width="130px"/>
 

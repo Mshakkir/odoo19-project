@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Customer Advance Receipt Report Wizard Form View -->
+        <record id="view_customer_advance_receipt_wizard_form" model="ir.ui.view">
+            <field name="name">customer.advance.receipt.wizard.form</field>
+            <field name="model">customer.advance.receipt.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Customer Advance Receipt Report">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="date_from"/>
+                                <field name="date_to"/>
+                            </group>
+                            <group>
+                                <field name="all_journals"/>
+                                <field name="journal_id" 
+                                       invisible="all_journals" 
+                                       required="not all_journals"/>
+                                <field name="all_customers"/>
+                                <field name="customer_id" 
+                                       invisible="all_customers" 
+                                       required="not all_customers"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_show_report" 
+                                string="Show Report" 
+                                type="object" 
+                                class="btn-primary"/>
+                        <button name="action_exit" 
+                                string="Exit" 
+                                type="object" 
+                                class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Wizard Action -->
+        <record id="action_customer_advance_receipt_wizard" model="ir.actions.act_window">
+            <field name="name">Customer Advance Receipt Report</field>
+            <field name="res_model">customer.advance.receipt.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="view_customer_advance_receipt_wizard_form"/>
+        </record>
+    </data>
+</odoo>

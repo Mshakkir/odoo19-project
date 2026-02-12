@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Add menu item under Accounting > Customers -->
+        <menuitem 
+            id="menu_customer_advance_receipt_report"
+            name="Customer Advance Receipt Report"
+            parent="account.menu_finance_receivables"
+            action="action_customer_advance_receipt_wizard"
+            sequence="20"/>
+    </data>
+</odoo>

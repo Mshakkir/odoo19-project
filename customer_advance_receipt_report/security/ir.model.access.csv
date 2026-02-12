@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_customer_advance_receipt_report_user,customer.advance.receipt.report.user,model_customer_advance_receipt_report,account.group_account_user,1,1,1,1
+access_customer_advance_receipt_report_manager,customer.advance.receipt.report.manager,model_customer_advance_receipt_report,account.group_account_manager,1,1,1,1
+access_customer_advance_receipt_wizard_user,customer.advance.receipt.wizard.user,model_customer_advance_receipt_wizard,account.group_account_user,1,1,1,1
+access_customer_advance_receipt_wizard_manager,customer.advance.receipt.wizard.manager,model_customer_advance_receipt_wizard,account.group_account_manager,1,1,1,1

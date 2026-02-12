@@ -97,45 +97,16 @@ class AdvancePaymentReportWizard(models.TransientModel):
         vendor_payments = payments.filtered(lambda p: p.name and p.name.startswith('PAY/'))
         _logger.info(f"Filtered to {len(vendor_payments)} vendor payments (PAY/* only)")
 
-        payments = vendor_payments
+        # Filter to advance payments only (using the is_advance_payment checkbox)
+        advance_payments = vendor_payments.filtered(lambda p:
+                                                    hasattr(p, 'is_advance_payment') and p.is_advance_payment == True
+                                                    )
 
-        # Log payment details
         _logger.info("=" * 80)
-        _logger.info("VENDOR PAYMENTS FOUND:")
-        for payment in payments:
+        _logger.info(f"ADVANCE PAYMENTS FOUND: {len(advance_payments)}")
+        for payment in advance_payments:
             _logger.info(f"  {payment.name} - {payment.partner_id.name} - {payment.amount}")
         _logger.info("=" * 80)
-
-        # Search for advance payments
-        # Looking for payments where the memo contains 'ADVANCE'
-        payments = self.env['account.payment'].search(domain)
-
-        # Filter for advance payments based on memo_new field
-        _logger.info("Checking for ADVANCE payments:")
-        advance_payments = []
-        for payment in payments:
-            is_advance = False
-
-            # Check memo_new field for "ADVANCE"
-            memo_value = payment.memo_new if hasattr(payment, 'memo_new') else False
-            _logger.info(f"  {payment.name}: memo_new = '{memo_value}'")
-
-            if memo_value and 'ADVANCE' in str(memo_value).upper():
-                is_advance = True
-                _logger.info(f"    ✓ ADVANCE PAYMENT")
-
-            # Add ALL vendor payments to the report (not just advance ones)
-            # Users can filter later if needed
-            advance_payments.append(payment)
-
-        _logger.info(f"Total payments to show in report: {len(advance_payments)}")
-        _logger.info("=" * 80)
-
-        # Convert list back to recordset
-        if advance_payments:
-            advance_payments = self.env['account.payment'].browse([p.id for p in advance_payments])
-        else:
-            advance_payments = payments
 
         # Prepare report data
         report_lines = []

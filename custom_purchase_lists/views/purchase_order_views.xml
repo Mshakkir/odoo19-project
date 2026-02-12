@@ -14,10 +14,10 @@
             <field name="priority">100</field>
             <field name="arch" type="xml">
 
-                <!-- Replace the entire tree structure for RFQs -->
-                <xpath expr="//tree" position="replace">
-                    <tree string="Requests for Quotation" 
-                          multi_edit="1" 
+                <!-- Replace the list element (Odoo 19 uses <list> not <tree>) -->
+                <xpath expr="//list" position="replace">
+                    <list string="Requests for Quotation"
+                          multi_edit="1"
                           sample="1"
                           decoration-info="state in ('draft', 'sent')"
                           decoration-warning="state == 'to approve'"
@@ -25,134 +25,134 @@
                           default_order="date_order desc">
 
                         <!-- Order Date (most relevant for RFQs) -->
-                        <field name="date_order" 
-                               string="Order Date" 
-                               optional="show" 
+                        <field name="date_order"
+                               string="Order Date"
+                               optional="show"
                                width="130px"/>
 
                         <!-- Reference (PO Number) -->
-                        <field name="name" 
-                               string="Reference" 
-                               readonly="1" 
+                        <field name="name"
+                               string="Reference"
+                               readonly="1"
                                width="130px"/>
 
                         <!-- Vendor -->
-                        <field name="partner_id" 
-                               string="Vendor" 
+                        <field name="partner_id"
+                               string="Vendor"
                                width="150px"/>
 
                         <!-- Vendor Reference -->
-                        <field name="partner_ref" 
-                               string="Vendor Reference" 
-                               optional="show" 
+                        <field name="partner_ref"
+                               string="Vendor Reference"
+                               optional="show"
                                width="120px"/>
 
                         <!-- Warehouse -->
-                        <field name="picking_type_id" 
-                               string="Warehouse" 
-                               optional="show" 
+                        <field name="picking_type_id"
+                               string="Warehouse"
+                               optional="show"
                                width="130px"/>
 
                         <!-- AWB Number (Shipping Reference) -->
-                        <field name="awb_number" 
-                               string="Shipping Ref #" 
-                               optional="show" 
+                        <field name="awb_number"
+                               string="Shipping Ref #"
+                               optional="show"
                                width="110px"/>
 
                         <!-- Untaxed Amount -->
-                        <field name="amount_untaxed" 
+                        <field name="amount_untaxed"
                                string="Untaxed Amount"
                                widget="monetary"
-                               sum="Total Untaxed" 
-                               optional="show" 
+                               sum="Total Untaxed"
+                               optional="show"
                                width="120px"/>
 
                         <!-- Tax Amount (Computed) -->
-                        <field name="amount_tax" 
+                        <field name="amount_tax"
                                string="Tax Amount"
                                widget="monetary"
-                               sum="Total Tax" 
-                               optional="show" 
+                               sum="Total Tax"
+                               optional="show"
                                width="100px"/>
 
                         <!-- Total Amount -->
-                        <field name="amount_total" 
+                        <field name="amount_total"
                                string="Total Amount"
                                widget="monetary"
-                               sum="Total" 
-                               optional="show" 
+                               sum="Total"
+                               optional="show"
                                width="120px"/>
 
                         <!-- Buyer (Purchase Representative) -->
-                        <field name="user_id" 
+                        <field name="user_id"
                                string="Buyer"
                                widget="many2one_avatar_user"
-                               optional="show" 
+                               optional="show"
                                width="130px"/>
 
                         <!-- Status -->
-                        <field name="state" 
+                        <field name="state"
                                string="Status"
                                widget="badge"
                                decoration-success="state == 'purchase'"
                                decoration-warning="state == 'to approve'"
                                decoration-info="state in ('draft', 'sent')"
-                               optional="show" 
+                               optional="show"
                                width="90px"/>
 
                         <!-- Billing Status -->
-                        <field name="invoice_status" 
+                        <field name="invoice_status"
                                string="Billing Status"
                                widget="badge"
                                decoration-success="invoice_status == 'invoiced'"
                                decoration-info="invoice_status == 'to invoice'"
-                               optional="show" 
+                               optional="show"
                                width="110px"/>
 
                         <!-- ===== Additional Fields (Hidden by Default) ===== -->
-                        
-                        <field name="priority" 
-                               optional="hide" 
-                               widget="priority" 
-                               nolabel="1" 
+
+                        <field name="priority"
+                               optional="hide"
+                               widget="priority"
+                               nolabel="1"
                                width="60px"/>
-                        
-                        <field name="date_approve" 
-                               string="Confirmation Date" 
-                               optional="hide" 
+
+                        <field name="date_approve"
+                               string="Confirmation Date"
+                               optional="hide"
                                width="130px"/>
-                        
-                        <field name="date_planned" 
-                               string="Expected Arrival" 
-                               optional="hide" 
+
+                        <field name="date_planned"
+                               string="Expected Arrival"
+                               optional="hide"
                                width="130px"/>
-                        
-                        <field name="company_id" 
-                               readonly="1" 
+
+                        <field name="company_id"
+                               readonly="1"
                                options="{'no_create': True}"
-                               groups="base.group_multi_company" 
-                               optional="hide" 
+                               groups="base.group_multi_company"
+                               optional="hide"
                                width="120px"/>
-                        
-                        <field name="activity_ids" 
-                               string="Next Activity" 
-                               widget="list_activity" 
-                               optional="hide" 
+
+                        <field name="activity_ids"
+                               string="Next Activity"
+                               widget="list_activity"
+                               optional="hide"
                                width="100px"/>
-                        
-                        <field name="origin" 
-                               string="Source Document" 
-                               optional="hide" 
+
+                        <field name="origin"
+                               string="Source Document"
+                               optional="hide"
                                width="130px"/>
-                        
+
                         <!-- Required technical fields -->
-                        <field name="currency_id" 
+                        <field name="currency_id"
                                column_invisible="True"/>
-                        
-                        <field name="activity_exception_decoration" 
+
+                        <field name="activity_exception_decoration"
                                widget="activity_exception"/>
-                        
-                    </tree>
+
+                    </list>
                 </xpath>
 
             </field>
@@ -163,7 +163,7 @@
         <!-- CONFIRMED PURCHASE ORDERS LIST VIEW                                      -->
         <!-- View ID: purchase.purchase_order_view_tree                               -->
         <!-- ========================================================================= -->
-        
+
         <record id="purchase_order_view_tree_inherit_custom_confirmed" model="ir.ui.view">
             <field name="name">purchase.order.view.tree.inherit.custom.confirmed</field>
             <field name="model">purchase.order</field>
@@ -179,118 +179,118 @@
                           default_order="date_approve desc">
 
                         <!-- Confirmation Date (most relevant for confirmed orders) -->
-                        <field name="date_approve" 
-                               string="Confirmation Date" 
-                               optional="show" 
-                               readonly="1" 
+                        <field name="date_approve"
+                               string="Confirmation Date"
+                               optional="show"
+                               readonly="1"
                                width="130px"/>
 
                         <!-- Reference (PO Number) -->
-                        <field name="name" 
-                               string="Reference" 
-                               readonly="1" 
+                        <field name="name"
+                               string="Reference"
+                               readonly="1"
                                width="130px"/>
 
                         <!-- Vendor -->
-                        <field name="partner_id" 
-                               string="Vendor" 
-                               readonly="state in ['cancel', 'purchase']" 
+                        <field name="partner_id"
+                               string="Vendor"
+                               readonly="state in ['cancel', 'purchase']"
                                width="150px"/>
 
                         <!-- Vendor Reference -->
-                        <field name="partner_ref" 
-                               string="Vendor Reference" 
-                               optional="show" 
+                        <field name="partner_ref"
+                               string="Vendor Reference"
+                               optional="show"
                                width="130px"/>
 
                         <!-- Warehouse -->
-                        <field name="picking_type_id" 
-                               string="Warehouse" 
-                               optional="show" 
+                        <field name="picking_type_id"
+                               string="Warehouse"
+                               optional="show"
                                width="135px"/>
 
                         <!-- AWB Number (Shipping Reference) -->
-                        <field name="awb_number" 
-                               string="Shipping Ref #" 
-                               optional="show" 
-                               readonly="state in ('cancel', 'purchase')" 
+                        <field name="awb_number"
+                               string="Shipping Ref #"
+                               optional="show"
+                               readonly="state in ('cancel', 'purchase')"
                                width="110px"/>
 
                         <!-- Untaxed Amount -->
-                        <field name="amount_untaxed" 
-                               string="Untaxed Amount" 
-                               widget="monetary" 
-                               sum="Total Untaxed" 
-                               optional="show" 
+                        <field name="amount_untaxed"
+                               string="Untaxed Amount"
+                               widget="monetary"
+                               sum="Total Untaxed"
+                               optional="show"
                                width="120px"/>
 
                         <!-- Tax Amount (Computed) -->
-                        <field name="amount_tax" 
-                               string="Tax Amount" 
-                               widget="monetary" 
-                               sum="Total Tax" 
-                               optional="show" 
+                        <field name="amount_tax"
+                               string="Tax Amount"
+                               widget="monetary"
+                               sum="Total Tax"
+                               optional="show"
                                width="100px"/>
 
                         <!-- Total Amount -->
-                        <field name="amount_total" 
-                               string="Total Amount" 
-                               widget="monetary" 
-                               sum="Total" 
-                               optional="show" 
+                        <field name="amount_total"
+                               string="Total Amount"
+                               widget="monetary"
+                               sum="Total"
+                               optional="show"
                                width="120px"/>
 
                         <!-- Buyer (Purchase Representative) -->
-                        <field name="user_id" 
-                               string="Buyer" 
-                               widget="many2one_avatar_user" 
-                               optional="show" 
+                        <field name="user_id"
+                               string="Buyer"
+                               widget="many2one_avatar_user"
+                               optional="show"
                                width="130px"/>
 
                         <!-- State (Hidden - only used for decorations) -->
-                        <field name="state" 
+                        <field name="state"
                                column_invisible="True"/>
 
                         <!-- Billing Status -->
-                        <field name="invoice_status" 
-                               string="Billing Status" 
-                               widget="badge" 
+                        <field name="invoice_status"
+                               string="Billing Status"
+                               widget="badge"
                                decoration-success="invoice_status == 'invoiced'"
                                decoration-info="invoice_status == 'to invoice'"
-                               optional="show" 
+                               optional="show"
                                width="110px"/>
 
                         <!-- ===== Additional Fields (Hidden by Default) ===== -->
-                        
-                        <field name="priority" 
-                               widget="priority" 
-                               optional="hide" 
+
+                        <field name="priority"
+                               widget="priority"
+                               optional="hide"
                                width="60px"/>
-                        
-                        <field name="company_id" 
+
+                        <field name="company_id"
                                column_invisible="True"/>
-                        
-                        <field name="activity_ids" 
-                               widget="list_activity" 
-                               optional="hide" 
+
+                        <field name="activity_ids"
+                               widget="list_activity"
+                               optional="hide"
                                width="100px"/>
-                        
-                        <field name="origin" 
+
+                        <field name="origin"
                                string="Source Document"
-                               optional="hide" 
+                               optional="hide"
                                width="130px"/>
-                        
-                        <field name="currency_id" 
+
+                        <field name="currency_id"
                                column_invisible="True"/>
-                        
-                        <field name="date_planned" 
+
+                        <field name="date_planned"
                                string="Expected Arrival"
-                               optional="hide" 
+                               optional="hide"
                                width="130px"/>
-                        
-                        <field name="date_order" 
+
+                        <field name="date_order"
                                string="Order Date"
-                               optional="hide" 
+                               optional="hide"
                                width="110px"/>
 
                     </list>

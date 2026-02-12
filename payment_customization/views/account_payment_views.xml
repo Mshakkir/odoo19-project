@@ -13,13 +13,46 @@
                     <attribute name="string">Payment Reference</attribute>
                 </xpath>
 
-                <!-- Add new memo field after the partner_bank_id fields in group2 -->
-                <!-- We'll add it after the last partner_bank_id field -->
+                <!-- Add new memo field and advance payment checkbox after partner_bank_id -->
                 <xpath expr="//group[@name='group2']/field[@name='partner_bank_id'][last()]" position="after">
                     <field name="memo_new" placeholder="Add additional notes here..."/>
+                    <field name="is_advance_payment"/>
                 </xpath>
 
             </field>
         </record>
     </data>
 </odoo>
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <data>-->
+<!--        &lt;!&ndash; Inherit the account payment form view &ndash;&gt;-->
+<!--        <record id="view_account_payment_form_custom" model="ir.ui.view">-->
+<!--            <field name="name">account.payment.form.custom</field>-->
+<!--            <field name="model">account.payment</field>-->
+<!--            <field name="inherit_id" ref="account.view_account_payment_form"/>-->
+<!--            <field name="arch" type="xml">-->
+
+<!--                &lt;!&ndash; Rename the existing memo field to "Payment Reference" &ndash;&gt;-->
+<!--                <xpath expr="//field[@name='memo']" position="attributes">-->
+<!--                    <attribute name="string">Payment Reference</attribute>-->
+<!--                </xpath>-->
+
+<!--                &lt;!&ndash; Add new memo field after the partner_bank_id fields in group2 &ndash;&gt;-->
+<!--                &lt;!&ndash; We'll add it after the last partner_bank_id field &ndash;&gt;-->
+<!--                <xpath expr="//group[@name='group2']/field[@name='partner_bank_id'][last()]" position="after">-->
+<!--                    <field name="memo_new" placeholder="Add additional notes here..."/>-->
+<!--                </xpath>-->
+
+<!--            </field>-->
+<!--        </record>-->
+<!--    </data>-->
+<!--</odoo>-->

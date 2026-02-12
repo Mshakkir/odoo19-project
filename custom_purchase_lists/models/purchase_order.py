@@ -4,14 +4,11 @@ from odoo import models, fields, api
 
 class PurchaseOrder(models.Model):
     """
-    Extends the purchase.order model with additional fields for tracking and display
+    Extends the purchase.order model with additional fields
     """
     _inherit = 'purchase.order'
 
-    # ========================================
-    # FIELDS
-    # ========================================
-    
+    # AWB/Shipping Reference Number
     awb_number = fields.Char(
         string='AWB Number',
         help='Air Waybill or Shipping Reference Number',
@@ -19,6 +16,7 @@ class PurchaseOrder(models.Model):
         copy=False,
     )
 
+    # Tax Amount (computed field)
     amount_tax = fields.Monetary(
         string='Tax Amount',
         store=True,
@@ -28,6 +26,7 @@ class PurchaseOrder(models.Model):
         help='Total tax amount (Total Amount - Untaxed Amount)'
     )
 
+    # Receipt Status
     receipt_status = fields.Selection([
         ('pending', 'Nothing to Receive'),
         ('partial', 'Partially Received'),
@@ -38,10 +37,6 @@ class PurchaseOrder(models.Model):
         store=True,
         help='Current receipt status based on received quantities'
     )
-
-    # ========================================
-    # COMPUTE METHODS
-    # ========================================
 
     @api.depends('amount_total', 'amount_untaxed')
     def _compute_amount_tax(self):
@@ -54,22 +49,16 @@ class PurchaseOrder(models.Model):
     @api.depends('order_line.qty_received', 'order_line.product_qty')
     def _compute_receipt_status(self):
         """
-        Compute receipt status based on received quantities vs ordered quantities
-        - pending: Nothing received yet (qty_received = 0)
-        - partial: Some items received but not all
-        - full: All items received (qty_received >= product_qty)
+        Compute receipt status based on received quantities
         """
         for order in self:
-            # If no order lines, status is pending
             if not order.order_line:
                 order.receipt_status = 'pending'
                 continue
 
-            # Calculate total ordered and received quantities
             total_qty = sum(order.order_line.mapped('product_qty'))
             received_qty = sum(order.order_line.mapped('qty_received'))
 
-            # Determine status based on quantities
             if received_qty == 0:
                 order.receipt_status = 'pending'
             elif received_qty >= total_qty:

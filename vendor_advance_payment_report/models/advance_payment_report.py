@@ -10,6 +10,7 @@ class AdvancePaymentReport(models.TransientModel):
 
     date = fields.Date(string='Date', required=True)
     receipt_number = fields.Char(string='Receipt Number', required=True)
+    journal_name = fields.Char(string='Journal', required=True)
     payment_method = fields.Char(string='Payment Method', required=True)
     vendor_name = fields.Char(string='Vendor Name', required=True)
     amount = fields.Float(string='Amount', required=True)

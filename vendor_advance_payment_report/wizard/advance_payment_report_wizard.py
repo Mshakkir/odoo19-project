@@ -20,15 +20,16 @@ class AdvancePaymentReportWizard(models.TransientModel):
     )
     all_journals = fields.Boolean(
         string='All Journals',
-        default=True
+        default=False
     )
     journal_id = fields.Many2one(
         'account.journal',
-        string='Journal'
+        string='Journal',
+        domain="[('type', 'in', ['bank', 'cash'])]"
     )
     all_vendors = fields.Boolean(
         string='All Vendors',
-        default=True
+        default=False
     )
     vendor_id = fields.Many2one(
         'res.partner',
@@ -135,6 +136,7 @@ class AdvancePaymentReportWizard(models.TransientModel):
             report_lines.append({
                 'date': payment.date,
                 'receipt_number': payment.name or '',
+                'journal_name': payment.journal_id.name or '',
                 'payment_method': payment_method_name,
                 'vendor_name': payment.partner_id.name or '',
                 'amount': payment.amount,

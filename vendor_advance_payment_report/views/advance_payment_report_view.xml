@@ -12,6 +12,7 @@
                       delete="false">
                     <field name="date"/>
                     <field name="receipt_number"/>
+                    <field name="journal_name"/>
                     <field name="payment_method"/>
                     <field name="vendor_name"/>
                     <field name="amount" sum="Total Amount"/>

@@ -15,7 +15,7 @@
     """,
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',
-    'depends': ['account', 'payment_form_customization'],
+    'depends': ['account'],
     'data': [
         'security/ir.model.access.csv',
         'wizard/customer_advance_receipt_wizard_view.xml',

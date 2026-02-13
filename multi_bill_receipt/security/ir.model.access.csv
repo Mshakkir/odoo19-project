@@ -7,5 +7,3 @@ access_receipt_list_display_wizard_user,receipt.list.display.wizard.user,model_r
 access_receipt_list_display_wizard_manager,receipt.list.display.wizard.manager,model_receipt_list_display_wizard,account.group_account_manager,1,1,1,1
 access_receipt_list_display_line_user,receipt.list.display.line.user,model_receipt_list_display_line,account.group_account_invoice,1,1,1,1
 access_receipt_list_display_line_manager,receipt.list.display.line.manager,model_receipt_list_display_line,account.group_account_manager,1,1,1,1
-access_bill_allocation_history_user,bill.allocation.history.user,model_bill_allocation_history,account.group_account_invoice,1,1,1,0
-access_bill_allocation_history_manager,bill.allocation.history.manager,model_bill_allocation_history,account.group_account_manager,1,1,1,1

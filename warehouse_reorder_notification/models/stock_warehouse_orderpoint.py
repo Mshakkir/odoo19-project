@@ -571,7 +571,7 @@ class StockWarehouseOrderpoint(models.Model):
                 'order_id': purchase_order.id,
                 'product_id': product.id,
                 'product_qty': qty_to_order,
-                'product_uom': product.uom_id.id,
+                'product_uom_id': product.uom_id.id,
                 'price_unit': price,
                 'date_planned': fields.Datetime.now(),
                 'name': product.display_name,
@@ -695,7 +695,6 @@ class StockWarehouseOrderpoint(models.Model):
             'view_mode': 'form',
             'target': 'current',
         }
-
 
 
 

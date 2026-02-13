@@ -1,3 +1,5 @@
+/** @odoo-module **/
+
 import { patch } from "@web/core/utils/patch";
 import { ListController } from "@web/views/list/list_controller";
 import { useService } from "@web/core/utils/hooks";
@@ -16,7 +18,7 @@ patch(ListController.prototype, {
             warehouses: [],
             customers: [],
             salespersons: [],
-            analyticAccounts: []
+            analyticAccounts: []  // Added analytic accounts
         };
         this._listeners = [];
 
@@ -24,13 +26,14 @@ patch(ListController.prototype, {
             if (this.shouldShowFilter()) {
                 try {
                     await this.loadFilterData();
+                    // Keep trying to inject until successful
                     let attempts = 0;
                     const tryInject = setInterval(async () => {
                         if (this.injectDateFilter()) {
                             clearInterval(tryInject);
                         }
                         attempts++;
-                        if (attempts > 20) clearInterval(tryInject);
+                        if (attempts > 20) clearInterval(tryInject); // Stop after 20 attempts (10 seconds)
                     }, 500);
                 } catch (error) {
                     console.error('Filter initialization error:', error);
@@ -48,20 +51,25 @@ patch(ListController.prototype, {
         const context = this.props.context || {};
         const domain = this.props.domain || [];
 
+        // Check if it's a sale order
         if (resModel === 'sale.order') {
             return true;
         }
 
+        // Check if it's a sale invoice (account.move with move_type 'out_invoice')
         if (resModel === 'account.move') {
+            // Check if domain contains out_invoice filter
             const hasOutInvoiceFilter = domain.some(condition =>
                 Array.isArray(condition) &&
                 condition[0] === 'move_type' &&
                 condition[2] === 'out_invoice'
             );
 
+            // Check context for type indicator
             const isOutInvoiceFromContext = context.default_move_type === 'out_invoice' ||
                                            context.type === 'out_invoice';
 
+            // If either check passes, it's a sales invoice
             return hasOutInvoiceFilter || isOutInvoiceFromContext;
         }
 
@@ -69,6 +77,7 @@ patch(ListController.prototype, {
     },
 
     cleanupFilter() {
+        // Remove all event listeners
         this._listeners.forEach(({ element, event, handler }) => {
             try {
                 if (element) {
@@ -95,6 +104,7 @@ patch(ListController.prototype, {
                 this.orm.searchRead('res.partner', [['customer_rank', '>', 0]], ['id', 'name'],
                     { limit: 500, order: 'name' }).catch(() => []),
                 this.orm.searchRead('res.users', [], ['id', 'name'], { limit: 100, order: 'name' }).catch(() => []),
+                // Load analytic accounts with reference for better display
                 this.orm.searchRead('account.analytic.account', [], ['id', 'name', 'code'],
                     { limit: 500, order: 'name' }).catch(() => [])
             ]);
@@ -113,17 +123,18 @@ patch(ListController.prototype, {
 
     injectDateFilter() {
         if (this._filterInjected) {
-            return true;
+            return true; // Already injected
         }
 
         const listTable = document.querySelector('.o_list_table');
         if (!listTable) {
-            return false;
+            return false; // List table not ready yet
         }
 
+        // Check if filter already exists
         const existingFilter = document.querySelector('.sale_date_filter_wrapper_main');
         if (existingFilter) {
-            return true;
+            return true; // Already exists
         }
 
         try {
@@ -140,103 +151,192 @@ patch(ListController.prototype, {
                 .join('');
 
             const filterHTML = `
-                <div class="sale_date_filter_wrapper_main">
-                    <div class="sale_date_filter_container">
-                        <div class="date_filter_wrapper">
-                            <div class="filter_group filter_group_small date_group_small">
-                                <div class="date_input_group">
-                                    <input type="date" class="form-control date_input_small filter_date_from" value="${dateFrom}" />
-                                    <span class="date_separator">→</span>
-                                    <input type="date" class="form-control date_input_small filter_date_to" value="${dateTo}" />
-                                </div>
+                <div class="sale_date_filter_container">
+                    <div class="date_filter_wrapper">
+                        <div class="filter_group filter_group_small date_group_small">
+                            <div class="date_input_group">
+                                <input type="date" class="form-control date_input_small filter_date_from" value="${dateFrom}" />
+                                <span class="date_separator">→</span>
+                                <input type="date" class="form-control date_input_small filter_date_to" value="${dateTo}" />
                             </div>
+                        </div>
 
-                            <div class="filter_group filter_group_small">
-                                <input type="text" class="form-control filter_input_small filter_doc_number"
-                                    placeholder="${isSaleOrder ? 'Sale Order' : 'Invoice'}" />
-                            </div>
+                        <div class="filter_group filter_group_small">
+                            <input type="text" class="form-control filter_input_small filter_doc_number"
+                                placeholder="${isSaleOrder ? 'Sale Order' : 'Invoice'}" />
+                        </div>
 
-                            <div class="filter_group filter_group_small autocomplete_group_small">
-                                <div class="autocomplete_wrapper">
-                                    <input type="text" class="form-control autocomplete_input_small filter_customer_input" placeholder="Customer" />
-                                    <div class="autocomplete_dropdown filter_customer_dropdown"></div>
-                                </div>
+                        <div class="filter_group filter_group_small autocomplete_group_small">
+                            <div class="autocomplete_wrapper">
+                                <input type="text" class="form-control autocomplete_input_small filter_customer_input" placeholder="Customer" />
+                                <div class="autocomplete_dropdown filter_customer_dropdown"></div>
                             </div>
+                        </div>
 
-                            <div class="filter_group filter_group_small">
-                                <input type="text" class="form-control filter_input_small filter_customer_ref" placeholder="Customer Ref" />
+                        <div class="filter_group filter_group_small autocomplete_group_small">
+                            <div class="autocomplete_wrapper">
+                                <input type="text" class="form-control autocomplete_input_small filter_analytic_input" placeholder="Warehouse" />
+                                <div class="autocomplete_dropdown filter_analytic_dropdown"></div>
                             </div>
+                        </div>
 
-                            <div class="filter_group filter_group_small autocomplete_group_small">
-                                <div class="autocomplete_wrapper">
-                                    <input type="text" class="form-control autocomplete_input_small filter_salesperson_input" placeholder="Salesperson" />
-                                    <div class="autocomplete_dropdown filter_salesperson_dropdown"></div>
-                                </div>
-                            </div>
+                        <div class="filter_group filter_group_small">
+                            <input type="text" class="form-control filter_input_small filter_customer_ref" placeholder="Customer Ref" />
+                        </div>
 
-                            <div class="filter_group filter_group_small autocomplete_group_small">
-                                <div class="autocomplete_wrapper">
-                                    <input type="text" class="form-control autocomplete_input_small filter_analytic_input" placeholder="Analytic Account" />
-                                    <div class="autocomplete_dropdown filter_analytic_dropdown"></div>
-                                </div>
+                        <div class="filter_group filter_group_small autocomplete_group_small">
+                            <div class="autocomplete_wrapper">
+                                <input type="text" class="form-control autocomplete_input_small filter_salesperson_input" placeholder="Salesperson" />
+                                <div class="autocomplete_dropdown filter_salesperson_dropdown"></div>
                             </div>
+                        </div>
 
-                            <div class="filter_group filter_group_small">
-                                <input type="number" step="0.01" class="form-control filter_input_small filter_total_amount" placeholder="Total Amount" />
-                            </div>
+                        <div class="filter_group filter_group_small">
+                            <input type="text" class="form-control filter_input_small filter_total_amount" placeholder="Total Amount" />
+                        </div>
 
-                            <div class="filter_group filter_group_small">
-                                <input type="text" class="form-control filter_input_small filter_awb_number" placeholder="AWB Number" />
-                            </div>
+                        <div class="filter_group filter_group_small">
+                            <input type="text" class="form-control filter_input_small filter_awb_number" placeholder="AWB No" />
+                        </div>
 
-                            <div class="filter_group filter_group_small">
-                                <input type="text" class="form-control filter_input_small filter_delivery_note" placeholder="Delivery Note" />
-                            </div>
+                        <div class="filter_group filter_group_small">
+                            <input type="text" class="form-control filter_input_small filter_delivery_note" placeholder="Delivery Note" />
+                        </div>
 
-                            <div class="filter_actions">
-                                <button class="btn btn-primary apply_filter_btn">Apply</button>
-                                <button class="btn btn-secondary clear_filter_btn">Clear</button>
-                            </div>
+
+                        <div class="filter_actions">
+                            <button class="btn btn-primary apply_filter_btn">Apply</button>
+                            <button class="btn btn-secondary clear_filter_btn">Clear</button>
                         </div>
                     </div>
                 </div>
             `;
 
-            const wrapper = document.createElement('div');
-            wrapper.innerHTML = filterHTML;
-            const filterElement = wrapper.firstElementChild;
+            const wrapperDiv = document.createElement('div');
+            wrapperDiv.className = 'sale_date_filter_wrapper_main';
+            wrapperDiv.innerHTML = filterHTML;
 
-            const contentArea = listTable.closest('.o_content');
-            if (contentArea) {
-                contentArea.insertBefore(filterElement, listTable);
-            } else {
-                listTable.parentNode.insertBefore(filterElement, listTable);
+            // Try multiple insertion strategies
+            let inserted = false;
+
+            // Strategy 1: Try to insert before listTable if it has a parent
+            if (listTable.parentNode) {
+                try {
+                    listTable.parentNode.insertBefore(wrapperDiv, listTable);
+                    inserted = true;
+                } catch (e) {
+                    console.debug('Strategy 1 failed:', e);
+                }
             }
 
-            this.attachFilterEvents();
-            this._filterInjected = true;
-            return true;
+            // Strategy 2: Try to find .o_content and prepend
+            if (!inserted) {
+                const contentArea = document.querySelector('.o_content');
+                if (contentArea) {
+                    try {
+                        contentArea.insertBefore(wrapperDiv, contentArea.firstChild);
+                        inserted = true;
+                    } catch (e) {
+                        console.debug('Strategy 2 failed:', e);
+                    }
+                }
+            }
 
+            // Strategy 3: Try to find .o_list_view and prepend
+            if (!inserted) {
+                const listView = document.querySelector('.o_list_view');
+                if (listView) {
+                    try {
+                        listView.insertBefore(wrapperDiv, listView.firstChild);
+                        inserted = true;
+                    } catch (e) {
+                        console.debug('Strategy 3 failed:', e);
+                    }
+                }
+            }
+
+            if (!inserted) {
+                console.warn('Could not insert filter - no valid insertion point found');
+                return false;
+            }
+
+            this._filterInjected = true;
+            this.attachFilterListeners();
+
+            return true;
         } catch (error) {
             console.error('Error injecting filter:', error);
             return false;
         }
     },
 
+    _getCurrentActionViews() {
+        try {
+            // Try to get current action's views to preserve column configuration
+            const action = this.actionService?.currentController?.action;
+            if (action && action.views && action.views.length > 0) {
+                return action.views;
+            }
+        } catch (e) {
+            console.debug('Could not get current action views:', e);
+        }
+
+        // Fallback: use the views from props or model-specific defaults
+        if (this.props.views && this.props.views.length > 0) {
+            return this.props.views;
+        }
+
+        // Last resort fallback
+        return this.props.resModel === 'sale.order'
+            ? [[false, 'list'], [false, 'form']]
+            : [[false, 'list'], [false, 'form']];
+    },
+
+    _getCurrentActionContext() {
+        try {
+            // Get current action context to preserve settings
+            const action = this.actionService?.currentController?.action;
+            if (action && action.context) {
+                return { ...action.context };
+            }
+        } catch (e) {
+            console.debug('Could not get current action context:', e);
+        }
+
+        // Fallback to props context
+        return { ...(this.props.context || {}) };
+    },
+
     _getActionConfig() {
-        const resModel = this.props.resModel;
-        const context = this.props.context || {};
-        const isSaleOrder = resModel === 'sale.order';
+        // Helper to get complete action configuration
+        try {
+            const action = this.actionService?.currentController?.action;
+            if (action) {
+                return {
+                    views: action.views || this._getCurrentActionViews(),
+                    context: action.context || this._getCurrentActionContext(),
+                    viewId: action.view_id || false,
+                    searchViewId: action.search_view_id || false,
+                };
+            }
+        } catch (e) {
+            console.debug('Could not get action config:', e);
+        }
 
         return {
-            views: isSaleOrder ? [[false, 'list'], [false, 'form']] : [[false, 'tree'], [false, 'form']],
+            views: this._getCurrentActionViews(),
+            context: this._getCurrentActionContext(),
             viewId: false,
             searchViewId: false,
-            context: isSaleOrder ? { ...context } : { ...context, default_move_type: 'out_invoice' }
         };
     },
 
-    attachFilterEvents() {
+    attachFilterListeners() {
+        // Define model type flags at the beginning so they're available to all functions
+        const isSaleOrder = this.props.resModel === 'sale.order';
+        const isInvoice = this.props.resModel === 'account.move';
+        const resModel = this.props.resModel;
+
         const dateFromInput = document.querySelector('.filter_date_from');
         const dateToInput = document.querySelector('.filter_date_to');
         const warehouseSelect = document.querySelector('.filter_warehouse');
@@ -245,37 +345,48 @@ patch(ListController.prototype, {
         const customerRefInput = document.querySelector('.filter_customer_ref');
         const awbNumberInput = document.querySelector('.filter_awb_number');
         const deliveryNoteInput = document.querySelector('.filter_delivery_note');
-        const applyBtn = document.querySelector('.apply_filter_btn');
-        const clearBtn = document.querySelector('.clear_filter_btn');
 
-        // Autocomplete inputs
         const customerInput = document.querySelector('.filter_customer_input');
         const customerDropdown = document.querySelector('.filter_customer_dropdown');
+
         const salespersonInput = document.querySelector('.filter_salesperson_input');
         const salespersonDropdown = document.querySelector('.filter_salesperson_dropdown');
+
+        // Analytic account elements
         const analyticInput = document.querySelector('.filter_analytic_input');
         const analyticDropdown = document.querySelector('.filter_analytic_dropdown');
 
+        const applyBtn = document.querySelector('.apply_filter_btn');
+        const clearBtn = document.querySelector('.clear_filter_btn');
+
         let customerSelectedId = null;
         let salespersonSelectedId = null;
-        let analyticSelectedId = null;
+        let analyticSelectedId = null;  // Track selected analytic account
 
         // Customer autocomplete
         if (customerInput && customerDropdown) {
-            this.addEventListener(customerInput, 'focus', () => {
-                this.showCustomerDropdown(customerInput, customerDropdown, customerInput.value);
+            this.addEventListener(customerInput, 'input', (e) => {
+                const searchTerm = e.target.value.trim();
+                if (searchTerm.length > 0) {
+                    this.showCustomerDropdown(customerInput, customerDropdown, searchTerm);
+                } else {
+                    customerDropdown.classList.remove('show');
+                    customerSelectedId = null;
+                }
             });
 
-            this.addEventListener(customerInput, 'input', (e) => {
-                customerSelectedId = null;
-                this.showCustomerDropdown(customerInput, customerDropdown, e.target.value);
+            this.addEventListener(customerInput, 'focus', (e) => {
+                const searchTerm = e.target.value.trim();
+                if (searchTerm.length > 0) {
+                    this.showCustomerDropdown(customerInput, customerDropdown, searchTerm);
+                }
             });
 
             this.addEventListener(customerDropdown, 'click', (e) => {
                 const item = e.target.closest('.autocomplete_item');
                 if (item && !item.classList.contains('no_results')) {
                     customerSelectedId = parseInt(item.dataset.id);
-                    customerInput.value = item.textContent.trim();
+                    customerInput.value = item.textContent;
                     customerDropdown.classList.remove('show');
                 }
             });
@@ -289,20 +400,28 @@ patch(ListController.prototype, {
 
         // Salesperson autocomplete
         if (salespersonInput && salespersonDropdown) {
-            this.addEventListener(salespersonInput, 'focus', () => {
-                this.showSalespersonDropdown(salespersonInput, salespersonDropdown, salespersonInput.value);
+            this.addEventListener(salespersonInput, 'input', (e) => {
+                const searchTerm = e.target.value.trim();
+                if (searchTerm.length > 0) {
+                    this.showSalespersonDropdown(salespersonInput, salespersonDropdown, searchTerm);
+                } else {
+                    salespersonDropdown.classList.remove('show');
+                    salespersonSelectedId = null;
+                }
             });
 
-            this.addEventListener(salespersonInput, 'input', (e) => {
-                salespersonSelectedId = null;
-                this.showSalespersonDropdown(salespersonInput, salespersonDropdown, e.target.value);
+            this.addEventListener(salespersonInput, 'focus', (e) => {
+                const searchTerm = e.target.value.trim();
+                if (searchTerm.length > 0) {
+                    this.showSalespersonDropdown(salespersonInput, salespersonDropdown, searchTerm);
+                }
             });
 
             this.addEventListener(salespersonDropdown, 'click', (e) => {
                 const item = e.target.closest('.autocomplete_item');
                 if (item && !item.classList.contains('no_results')) {
                     salespersonSelectedId = parseInt(item.dataset.id);
-                    salespersonInput.value = item.textContent.trim();
+                    salespersonInput.value = item.textContent;
                     salespersonDropdown.classList.remove('show');
                 }
             });
@@ -314,24 +433,35 @@ patch(ListController.prototype, {
             });
         }
 
-        // Analytic autocomplete
+        // Analytic account autocomplete
         if (analyticInput && analyticDropdown) {
-            this.addEventListener(analyticInput, 'focus', () => {
-                this.showAnalyticDropdown(analyticInput, analyticDropdown, analyticInput.value);
+            this.addEventListener(analyticInput, 'input', (e) => {
+                const searchTerm = e.target.value.trim();
+                if (searchTerm.length > 0) {
+                    this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm);
+                } else {
+                    // Show all analytic accounts when input is empty
+                    this.showAnalyticDropdown(analyticInput, analyticDropdown, '');
+                }
             });
 
-            this.addEventListener(analyticInput, 'input', (e) => {
-                analyticSelectedId = null;
-                this.showAnalyticDropdown(analyticInput, analyticDropdown, e.target.value);
+            this.addEventListener(analyticInput, 'focus', (e) => {
+                // Always show dropdown on focus, even if empty
+                const searchTerm = e.target.value.trim();
+                this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm || '');
+            });
+
+            this.addEventListener(analyticInput, 'click', (e) => {
+                // Show dropdown on click as well
+                const searchTerm = e.target.value.trim();
+                this.showAnalyticDropdown(analyticInput, analyticDropdown, searchTerm || '');
             });
 
             this.addEventListener(analyticDropdown, 'click', (e) => {
                 const item = e.target.closest('.autocomplete_item');
                 if (item && !item.classList.contains('no_results')) {
                     analyticSelectedId = parseInt(item.dataset.id);
-                    const code = item.dataset.code;
-                    const name = item.dataset.name;
-                    analyticInput.value = code ? `${code} - ${name}` : name;
+                    analyticInput.value = item.textContent;
                     analyticDropdown.classList.remove('show');
                 }
             });
@@ -343,39 +473,61 @@ patch(ListController.prototype, {
             });
         }
 
-        const isSaleOrder = this.props.resModel === 'sale.order';
-        const isInvoice = this.props.resModel === 'account.move';
-        const resModel = this.props.resModel;
-
-        // Apply filters
+        // --- Apply filters ---
         const applyFilters = async () => {
-            const dateFrom = dateFromInput.value;
-            const dateTo = dateToInput.value;
-            const warehouse = warehouseSelect ? warehouseSelect.value : '';
-            const documentNumber = documentNumberInput ? documentNumberInput.value.trim() : '';
-            const totalAmount = totalAmountInput ? totalAmountInput.value.trim() : '';
-            const customerRef = customerRefInput ? customerRefInput.value.trim() : '';
-            const awbNumber = awbNumberInput ? awbNumberInput.value.trim() : '';
-            const deliveryNote = deliveryNoteInput ? deliveryNoteInput.value.trim() : '';
+            const dateFrom = dateFromInput?.value;
+            const dateTo = dateToInput?.value;
+            const warehouse = warehouseSelect?.value;
+            const documentNumber = documentNumberInput?.value.trim();
+            const totalAmount = totalAmountInput?.value.trim();
+            const customerRef = customerRefInput?.value.trim();
+            const awbNumber = awbNumberInput?.value.trim();
+            const deliveryNote = deliveryNoteInput?.value.trim();
 
             let domain = [];
-
             if (isInvoice) {
                 domain.push(['move_type', '=', 'out_invoice']);
             }
 
-            // Date filter
-            const dateField = isSaleOrder ? 'date_order' : 'invoice_date';
-            if (dateFrom) {
-                domain.push([dateField, '>=', dateFrom]);
-            }
-            if (dateTo) {
-                domain.push([dateField, '<=', dateTo]);
+            // Date range filter
+            if (dateFrom || dateTo) {
+                const dateField = isSaleOrder ? 'date_order' : 'invoice_date';
+                if (dateFrom && dateTo) {
+                    domain.push([dateField, '>=', dateFrom + ' 00:00:00']);
+                    domain.push([dateField, '<=', dateTo + ' 23:59:59']);
+                } else if (dateFrom) {
+                    domain.push([dateField, '>=', dateFrom + ' 00:00:00']);
+                } else if (dateTo) {
+                    domain.push([dateField, '<=', dateTo + ' 23:59:59']);
+                }
             }
 
             // Warehouse filter
             if (warehouse) {
-                domain.push(['warehouse_id', '=', parseInt(warehouse)]);
+                if (isSaleOrder) {
+                    domain.push(['warehouse_id', '=', parseInt(warehouse)]);
+                } else {
+                    // For invoices, search via sale orders
+                    try {
+                        const saleOrders = await this.orm.searchRead(
+                            'sale.order',
+                            [['warehouse_id', '=', parseInt(warehouse)]],
+                            ['name'],
+                            { limit: 500 }
+                        );
+
+                        if (saleOrders.length > 0) {
+                            const soNames = saleOrders.map(so => so.name);
+                            domain.push(['invoice_origin', 'in', soNames]);
+                        } else {
+                            domain.push(['id', '=', -1]);
+                        }
+                    } catch (error) {
+                        console.error('Warehouse filter error:', error);
+                        this.notification.add("Error applying warehouse filter", { type: "danger" });
+                        return;
+                    }
+                }
             }
 
             // Customer filter
@@ -391,9 +543,77 @@ patch(ListController.prototype, {
             // Analytic account filter
             if (analyticSelectedId) {
                 if (isSaleOrder) {
-                    domain.push(['analytic_account_id', '=', analyticSelectedId]);
+                    // For sale orders, check order lines
+                    try {
+                        const saleLines = await this.orm.searchRead(
+                            'sale.order.line',
+                            [['analytic_distribution', '!=', false]],
+                            ['order_id', 'analytic_distribution'],
+                            { limit: 5000 }
+                        );
+
+                        const matchingSaleIds = [];
+                        for (const line of saleLines) {
+                            if (line.analytic_distribution) {
+                                // analytic_distribution is stored as JSON object like {"1": 100}
+                                const distribution = typeof line.analytic_distribution === 'string'
+                                    ? JSON.parse(line.analytic_distribution)
+                                    : line.analytic_distribution;
+
+                                if (distribution[analyticSelectedId.toString()]) {
+                                    matchingSaleIds.push(line.order_id[0]);
+                                }
+                            }
+                        }
+
+                        if (matchingSaleIds.length > 0) {
+                            const uniqueSaleIds = [...new Set(matchingSaleIds)];
+                            domain.push(['id', 'in', uniqueSaleIds]);
+                        } else {
+                            domain.push(['id', '=', -1]);
+                        }
+                    } catch (error) {
+                        console.error('Analytic account filter error:', error);
+                        this.notification.add("Error applying analytic account filter", { type: "danger" });
+                        return;
+                    }
                 } else {
-                    domain.push(['line_ids.analytic_distribution', 'ilike', analyticSelectedId]);
+                    // For invoices, check invoice lines
+                    try {
+                        const invoiceLines = await this.orm.searchRead(
+                            'account.move.line',
+                            [
+                                ['move_id.move_type', '=', 'out_invoice'],
+                                ['analytic_distribution', '!=', false]
+                            ],
+                            ['move_id', 'analytic_distribution'],
+                            { limit: 5000 }
+                        );
+
+                        const matchingInvoiceIds = [];
+                        for (const line of invoiceLines) {
+                            if (line.analytic_distribution) {
+                                const distribution = typeof line.analytic_distribution === 'string'
+                                    ? JSON.parse(line.analytic_distribution)
+                                    : line.analytic_distribution;
+
+                                if (distribution[analyticSelectedId.toString()]) {
+                                    matchingInvoiceIds.push(line.move_id[0]);
+                                }
+                            }
+                        }
+
+                        if (matchingInvoiceIds.length > 0) {
+                            const uniqueInvoiceIds = [...new Set(matchingInvoiceIds)];
+                            domain.push(['id', 'in', uniqueInvoiceIds]);
+                        } else {
+                            domain.push(['id', '=', -1]);
+                        }
+                    } catch (error) {
+                        console.error('Analytic account filter error:', error);
+                        this.notification.add("Error applying analytic account filter", { type: "danger" });
+                        return;
+                    }
                 }
             }
 
@@ -404,11 +624,10 @@ patch(ListController.prototype, {
 
             // Total amount filter
             if (totalAmount) {
-                const amountFloat = parseFloat(totalAmount);
-                if (!isNaN(amountFloat)) {
-                    const field = isSaleOrder ? 'amount_total' : 'amount_total';
-                    domain.push([field, '>=', amountFloat - 0.01]);
-                    domain.push([field, '<=', amountFloat + 0.01]);
+                const amount = parseFloat(totalAmount);
+                if (!isNaN(amount)) {
+                    const amountField = isSaleOrder ? 'amount_total' : 'amount_total';
+                    domain.push([amountField, '=', amount]);
                 }
             }
 
@@ -417,12 +636,11 @@ patch(ListController.prototype, {
                 domain.push(['client_order_ref', 'ilike', customerRef]);
             }
 
-            // AWB Number filter - FIXED VERSION
+            // AWB number filter
             if (awbNumber) {
                 if (isSaleOrder) {
                     try {
-                        // Search in stock.picking for AWB number
-                        // Try multiple possible field names for AWB/tracking reference
+                        // Search in multiple fields for AWB number
                         const pickingDomain = ['|', '|',
                             ['carrier_tracking_ref', 'ilike', awbNumber],
                             ['name', 'ilike', awbNumber],
@@ -497,7 +715,7 @@ patch(ListController.prototype, {
                 }
             }
 
-            // Delivery Note filter - FIXED VERSION
+            // Delivery note filter
             if (deliveryNote) {
                 if (isSaleOrder) {
                     try {
@@ -581,7 +799,7 @@ patch(ListController.prototype, {
             this.notification.add("Filters applied successfully", { type: "success" });
         };
 
-        // Clear filters
+        // --- Clear filters ---
         const clearFilters = () => {
             const today = new Date();
             const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -628,7 +846,7 @@ patch(ListController.prototype, {
         this.addEventListener(applyBtn, 'click', applyFilters);
         this.addEventListener(clearBtn, 'click', clearFilters);
 
-        // Enter key on all inputs
+        // Enter key on all text/number/date/select inputs
         [dateFromInput, dateToInput, warehouseSelect, documentNumberInput,
          totalAmountInput, customerRefInput, awbNumberInput, deliveryNoteInput]
             .forEach(el => {
@@ -689,8 +907,10 @@ patch(ListController.prototype, {
 
         let filtered;
         if (searchTerm === '') {
+            // Show all analytic accounts when no search term
             filtered = this._filterData.analyticAccounts;
         } else {
+            // Filter by search term
             filtered = this._filterData.analyticAccounts.filter(a => {
                 const nameMatch = a.name.toLowerCase().includes(lowerSearch);
                 const codeMatch = a.code && a.code.toLowerCase().includes(lowerSearch);
@@ -702,6 +922,7 @@ patch(ListController.prototype, {
             dropdown.innerHTML = '<div class="autocomplete_item no_results">No analytic accounts found</div>';
         } else {
             dropdown.innerHTML = filtered.map(a => {
+                // Display format: "CODE - Name" or just "Name" if no code
                 const displayText = a.code ? `${a.code} - ${a.name}` : a.name;
                 return `<div class="autocomplete_item" data-id="${a.id}" data-code="${a.code || ''}" data-name="${a.name}">${displayText}</div>`;
             }).join('');

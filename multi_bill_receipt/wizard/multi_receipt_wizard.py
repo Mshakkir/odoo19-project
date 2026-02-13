@@ -324,29 +324,6 @@ class MultiReceiptWizard(models.TransientModel):
         _logger.info(f"Created combined payment: {payment.name} for amount: {total_allocated}")
 
         # ==============================================
-        # SAVE ALLOCATION HISTORY (NEW FEATURE)
-        # ==============================================
-        # Add this code in multi_receipt_wizard.py after payment.action_post() and before RECONCILE section
-
-        # Prepare allocation history data
-        allocation_history_vals = []
-        for line in selected_lines:
-            allocation_history_vals.append({
-                'payment_id': payment.id,
-                'bill_id': line.invoice_id.id,
-                'bill_number': line.invoice_number,
-                'bill_date': line.invoice_date,
-                'amount_total': line.amount_total,
-                'amount_due': line.amount_residual,
-                'amount_paid': line.amount_to_pay,
-                'balance_after_payment': line.balance_amount,
-                'currency_id': self.currency_id.id,
-            })
-
-        # Create all allocation history records at once
-        self.env['payment.allocation.history'].create(allocation_history_vals)
-        _logger.info(f"Saved {len(allocation_history_vals)} bill allocation history records for payment {payment.name}")
-        # ==============================================
         # RECONCILE PAYMENT WITH BILLS
         # ==============================================
 

@@ -16,7 +16,17 @@ class ReportBankBookAnalytic(models.AbstractModel):
         analytic_ids = self.env.context.get('analytic_account_ids', [])
         report_type = self.env.context.get('report_type', 'combined')
         show_without_analytic = self.env.context.get('show_without_analytic', True)
+
+        # Get partner_ids - can be recordset or list
         partner_ids = self.env.context.get('partner_ids', [])
+        if partner_ids:
+            # If it's a recordset, get the IDs
+            if hasattr(partner_ids, 'ids'):
+                partner_ids_list = partner_ids.ids
+            else:
+                partner_ids_list = partner_ids if isinstance(partner_ids, list) else [partner_ids]
+        else:
+            partner_ids_list = []
 
         # Initial balance
         if init_balance:
@@ -39,15 +49,9 @@ class ReportBankBookAnalytic(models.AbstractModel):
                     init_wheres.append("l.analytic_distribution::text LIKE ANY(ARRAY[%s])")
                     init_where_params += ([f'%"{aid}%' for aid in analytic_ids],)
 
-            if partner_ids:
-                # Handle partner_ids as list or recordset
-                if hasattr(partner_ids, 'ids'):
-                    partner_ids_list = partner_ids.ids
-                else:
-                    partner_ids_list = partner_ids
-                if partner_ids_list:
-                    init_wheres.append("l.partner_id IN %s")
-                    init_where_params += (tuple(partner_ids_list),)
+            if partner_ids_list:
+                init_wheres.append("l.partner_id IN %s")
+                init_where_params += (tuple(partner_ids_list),)
 
             init_filters = " AND ".join(init_wheres)
             filters = init_filters.replace('account_move_line__move_id', 'm').replace('account_move_line', 'l')
@@ -70,7 +74,7 @@ class ReportBankBookAnalytic(models.AbstractModel):
                 JOIN account_journal j ON (l.journal_id = j.id)
                 JOIN account_account acc ON (l.account_id = acc.id)
                 WHERE l.account_id IN %s """ + filters + ' GROUP BY l.account_id'
-            )
+                   )
 
             params = (tuple(accounts.ids),) + tuple(init_where_params)
             cr.execute(sql, params)
@@ -94,15 +98,9 @@ class ReportBankBookAnalytic(models.AbstractModel):
                 wheres.append("l.analytic_distribution::text LIKE ANY(ARRAY[%s])")
                 where_params += ([f'%"{aid}%' for aid in analytic_ids],)
 
-        if partner_ids:
-            # Handle partner_ids as list or recordset
-            if hasattr(partner_ids, 'ids'):
-                partner_ids_list = partner_ids.ids
-            else:
-                partner_ids_list = partner_ids
-            if partner_ids_list:
-                wheres.append("l.partner_id IN %s")
-                where_params += (tuple(partner_ids_list),)
+        if partner_ids_list:
+            wheres.append("l.partner_id IN %s")
+            where_params += (tuple(partner_ids_list),)
 
         filters = " AND ".join(wheres).replace('account_move_line__move_id', 'm').replace('account_move_line', 'l')
 
@@ -265,7 +263,20 @@ class ReportBankBookAnalytic(models.AbstractModel):
         analytic_ids = data['form'].get('analytic_account_ids', [])
         report_type = data['form'].get('report_type', 'combined')
         show_without_analytic = data['form'].get('show_without_analytic', True)
-        partner_ids = data['form'].get('partner_ids', [])
+
+        # Get partner_ids from form data
+        partner_ids_data = data['form'].get('partner_ids', [])
+        partner_names = []
+        if partner_ids_data:
+            # If it's a recordset, get the IDs
+            if hasattr(partner_ids_data, 'ids'):
+                partner_ids_list = partner_ids_data.ids
+            else:
+                partner_ids_list = partner_ids_data if isinstance(partner_ids_data, list) else [partner_ids_data]
+
+            if partner_ids_list:
+                partners = self.env['res.partner'].browse(partner_ids_list)
+                partner_names = partners.mapped('name')
 
         codes = []
         if data['form'].get('journal_ids', False):
@@ -302,18 +313,6 @@ class ReportBankBookAnalytic(models.AbstractModel):
                 for aa in self.env['account.analytic.account'].browse(all_ids):
                     analytic_accounts[aa.id] = aa.name
 
-        # Get partner names for display
-        partner_names = []
-        if partner_ids:
-            # Handle partner_ids as list or recordset
-            if hasattr(partner_ids, 'ids'):
-                partner_ids_list = partner_ids.ids
-            else:
-                partner_ids_list = partner_ids
-            if partner_ids_list:
-                partners = self.env['res.partner'].browse(partner_ids_list)
-                partner_names = partners.mapped('name')
-
         return {
             'doc_ids': docids,
             'doc_model': model,
@@ -328,7 +327,7 @@ class ReportBankBookAnalytic(models.AbstractModel):
             'without_analytic_data': without_analytic_data,
             'show_without_analytic': show_without_analytic,
             'analytic_account_ids': analytic_ids,
-            'partner_ids': partner_ids,
+            'partner_ids': partner_ids_data,
             'partner_names': partner_names,
         }
 

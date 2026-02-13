@@ -47,6 +47,7 @@
     'depends': ['account'],
     'data': [
         'security/ir.model.access.csv',
+        'security/bill_allocation_security.xml',
         'wizard/multi_receipt_wizard_views.xml',
         'views/bill_allocation_views.xml',
     ],

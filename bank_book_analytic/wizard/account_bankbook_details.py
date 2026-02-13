@@ -194,7 +194,8 @@ class AccountBankBookDetailsLine(models.TransientModel):
                         'name': 'Related Invoices/Bills',
                         'type': 'ir.actions.act_window',
                         'res_model': 'account.move',
-                        'view_mode': 'tree,form',
+                        'views': [(False, 'list'), (False, 'form')],
+                        'view_mode': 'list,form',
                         'domain': [('id', 'in', reconciled_invoices.ids)],
                         'target': 'current',
                     }

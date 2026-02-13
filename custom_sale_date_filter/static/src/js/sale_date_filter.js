@@ -640,23 +640,32 @@ patch(ListController.prototype, {
             if (awbNumber) {
                 if (isSaleOrder) {
                     try {
-                        // Search in stock.picking for AWB number
-                        // Try carrier_tracking_ref first, then fall back to searching by name
-                        let pickings = await this.orm.searchRead(
-                            'stock.picking',
-                            [['carrier_tracking_ref', 'ilike', awbNumber]],
-                            ['sale_id', 'origin'],
-                            { limit: 500 }
-                        );
+                        let pickings = [];
 
-                        // If no results, also try searching in the name field
-                        if (pickings.length === 0) {
+                        // Try carrier_tracking_ref field
+                        try {
                             pickings = await this.orm.searchRead(
                                 'stock.picking',
-                                [['name', 'ilike', awbNumber]],
+                                [['carrier_tracking_ref', 'ilike', awbNumber]],
                                 ['sale_id', 'origin'],
                                 { limit: 500 }
                             );
+                        } catch (e) {
+                            console.log('carrier_tracking_ref field not available:', e.message);
+                        }
+
+                        // If no results, try searching by name
+                        if (pickings.length === 0) {
+                            try {
+                                pickings = await this.orm.searchRead(
+                                    'stock.picking',
+                                    [['name', 'ilike', awbNumber]],
+                                    ['sale_id', 'origin'],
+                                    { limit: 500 }
+                                );
+                            } catch (e) {
+                                console.log('Could not search picking name:', e.message);
+                            }
                         }
 
                         const saleIds = [...new Set(
@@ -668,6 +677,7 @@ patch(ListController.prototype, {
                         if (saleIds.length > 0) {
                             domain.push(['id', 'in', saleIds]);
                         } else {
+                            this.notification.add("No sale orders found with AWB: " + awbNumber, { type: "warning" });
                             domain.push(['id', '=', -1]);
                         }
                     } catch (error) {
@@ -678,22 +688,32 @@ patch(ListController.prototype, {
                 } else {
                     // For invoices, find pickings then trace to invoices
                     try {
-                        // Search in stock.picking for AWB number
-                        let pickings = await this.orm.searchRead(
-                            'stock.picking',
-                            [['carrier_tracking_ref', 'ilike', awbNumber]],
-                            ['sale_id', 'origin'],
-                            { limit: 500 }
-                        );
+                        let pickings = [];
 
-                        // If no results, also try searching in the name field
-                        if (pickings.length === 0) {
+                        // Try carrier_tracking_ref field
+                        try {
                             pickings = await this.orm.searchRead(
                                 'stock.picking',
-                                [['name', 'ilike', awbNumber]],
+                                [['carrier_tracking_ref', 'ilike', awbNumber]],
                                 ['sale_id', 'origin'],
                                 { limit: 500 }
                             );
+                        } catch (e) {
+                            console.log('carrier_tracking_ref field not available:', e.message);
+                        }
+
+                        // If no results, try searching by name
+                        if (pickings.length === 0) {
+                            try {
+                                pickings = await this.orm.searchRead(
+                                    'stock.picking',
+                                    [['name', 'ilike', awbNumber]],
+                                    ['sale_id', 'origin'],
+                                    { limit: 500 }
+                                );
+                            } catch (e) {
+                                console.log('Could not search picking name:', e.message);
+                            }
                         }
 
                         const saleIds = [...new Set(
@@ -715,6 +735,7 @@ patch(ListController.prototype, {
                             // Find invoices with these sale order names in invoice_origin
                             domain.push(['invoice_origin', 'in', soNames]);
                         } else {
+                            this.notification.add("No invoices found with AWB: " + awbNumber, { type: "warning" });
                             domain.push(['id', '=', -1]);
                         }
                     } catch (error) {
@@ -737,54 +758,71 @@ patch(ListController.prototype, {
                             { limit: 500 }
                         );
 
-                        console.log('Delivery note pickings found:', pickings);
+                        console.log('Delivery note pickings found:', pickings.length, pickings);
 
                         // Method 1: Direct sale_id link
                         let saleIds = [...new Set(
                             pickings
-                                .filter(p => p.sale_id)
+                                .filter(p => p.sale_id && p.sale_id.length > 0)
                                 .map(p => p.sale_id[0])
                         )];
 
+                        console.log('Sale IDs from sale_id field:', saleIds);
+
                         // Method 2: If no sale_id, try to find via origin field (SO name)
-                        if (saleIds.length === 0) {
+                        if (saleIds.length === 0 && pickings.length > 0) {
                             const origins = pickings
-                                .filter(p => p.origin)
+                                .filter(p => p.origin && typeof p.origin === 'string')
                                 .map(p => p.origin);
 
+                            console.log('Origins found:', origins);
+
                             if (origins.length > 0) {
-                                const saleOrders = await this.orm.searchRead(
-                                    'sale.order',
-                                    [['name', 'in', origins]],
-                                    ['id'],
-                                    { limit: 500 }
-                                );
-                                saleIds = saleOrders.map(so => so.id);
+                                try {
+                                    const saleOrders = await this.orm.searchRead(
+                                        'sale.order',
+                                        [['name', 'in', origins]],
+                                        ['id'],
+                                        { limit: 500 }
+                                    );
+                                    saleIds = saleOrders.map(so => so.id);
+                                    console.log('Sale IDs from origins:', saleIds);
+                                } catch (e) {
+                                    console.log('Could not search by origin:', e.message);
+                                }
                             }
                         }
 
                         // Method 3: If still no results, try via procurement group
-                        if (saleIds.length === 0) {
+                        if (saleIds.length === 0 && pickings.length > 0) {
                             const groupIds = pickings
-                                .filter(p => p.group_id)
+                                .filter(p => p.group_id && p.group_id.length > 0)
                                 .map(p => p.group_id[0]);
 
+                            console.log('Group IDs found:', groupIds);
+
                             if (groupIds.length > 0) {
-                                const saleOrders = await this.orm.searchRead(
-                                    'sale.order',
-                                    [['procurement_group_id', 'in', groupIds]],
-                                    ['id'],
-                                    { limit: 500 }
-                                );
-                                saleIds = saleOrders.map(so => so.id);
+                                try {
+                                    const saleOrders = await this.orm.searchRead(
+                                        'sale.order',
+                                        [['procurement_group_id', 'in', groupIds]],
+                                        ['id'],
+                                        { limit: 500 }
+                                    );
+                                    saleIds = saleOrders.map(so => so.id);
+                                    console.log('Sale IDs from groups:', saleIds);
+                                } catch (e) {
+                                    console.log('Could not search by procurement_group_id:', e.message);
+                                }
                             }
                         }
 
-                        console.log('Sale IDs found:', saleIds);
+                        console.log('Final Sale IDs:', saleIds);
 
                         if (saleIds.length > 0) {
                             domain.push(['id', 'in', saleIds]);
                         } else {
+                            this.notification.add("No sale orders found for delivery note: " + deliveryNote, { type: "warning" });
                             domain.push(['id', '=', -1]);
                         }
                     } catch (error) {
@@ -802,46 +840,62 @@ patch(ListController.prototype, {
                             { limit: 500 }
                         );
 
-                        console.log('Delivery note pickings found (invoices):', pickings);
+                        console.log('Delivery note pickings found (invoices):', pickings.length, pickings);
 
                         // Method 1: Direct sale_id link
                         let saleIds = [...new Set(
                             pickings
-                                .filter(p => p.sale_id)
+                                .filter(p => p.sale_id && p.sale_id.length > 0)
                                 .map(p => p.sale_id[0])
                         )];
 
+                        console.log('Sale IDs from sale_id field:', saleIds);
+
                         // Method 2: If no sale_id, try to find via origin field (SO name)
-                        if (saleIds.length === 0) {
+                        if (saleIds.length === 0 && pickings.length > 0) {
                             const origins = pickings
-                                .filter(p => p.origin)
+                                .filter(p => p.origin && typeof p.origin === 'string')
                                 .map(p => p.origin);
 
+                            console.log('Origins found:', origins);
+
                             if (origins.length > 0) {
-                                const saleOrders = await this.orm.searchRead(
-                                    'sale.order',
-                                    [['name', 'in', origins]],
-                                    ['id'],
-                                    { limit: 500 }
-                                );
-                                saleIds = saleOrders.map(so => so.id);
+                                try {
+                                    const saleOrders = await this.orm.searchRead(
+                                        'sale.order',
+                                        [['name', 'in', origins]],
+                                        ['id'],
+                                        { limit: 500 }
+                                    );
+                                    saleIds = saleOrders.map(so => so.id);
+                                    console.log('Sale IDs from origins:', saleIds);
+                                } catch (e) {
+                                    console.log('Could not search by origin:', e.message);
+                                }
                             }
                         }
 
                         // Method 3: If still no results, try via procurement group
-                        if (saleIds.length === 0) {
+                        if (saleIds.length === 0 && pickings.length > 0) {
                             const groupIds = pickings
-                                .filter(p => p.group_id)
+                                .filter(p => p.group_id && p.group_id.length > 0)
                                 .map(p => p.group_id[0]);
 
+                            console.log('Group IDs found:', groupIds);
+
                             if (groupIds.length > 0) {
-                                const saleOrders = await this.orm.searchRead(
-                                    'sale.order',
-                                    [['procurement_group_id', 'in', groupIds]],
-                                    ['id'],
-                                    { limit: 500 }
-                                );
-                                saleIds = saleOrders.map(so => so.id);
+                                try {
+                                    const saleOrders = await this.orm.searchRead(
+                                        'sale.order',
+                                        [['procurement_group_id', 'in', groupIds]],
+                                        ['id'],
+                                        { limit: 500 }
+                                    );
+                                    saleIds = saleOrders.map(so => so.id);
+                                    console.log('Sale IDs from groups:', saleIds);
+                                } catch (e) {
+                                    console.log('Could not search by procurement_group_id:', e.message);
+                                }
                             }
                         }
 
@@ -860,6 +914,7 @@ patch(ListController.prototype, {
                             // Find invoices by invoice_origin
                             domain.push(['invoice_origin', 'in', soNames]);
                         } else {
+                            this.notification.add("No invoices found for delivery note: " + deliveryNote, { type: "warning" });
                             domain.push(['id', '=', -1]);
                         }
                     } catch (error) {

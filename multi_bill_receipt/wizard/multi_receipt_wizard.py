@@ -518,15 +518,20 @@ class MultiReceiptWizard(models.TransientModel):
 
             total_invoiced = sum(inv.amount_total for inv in bills)
 
+            # NEW CODE - USE THIS:
             payable_accounts = self.env['account.account'].search([
                 ('account_type', '=', 'liability_payable'),
-                ('company_id', '=', self.env.company.id),
             ])
 
-            if payable_accounts:
+            # Filter for accounts that belong to current company
+            payable_account = payable_accounts.filtered(
+                lambda acc: rec.env.company in acc.company_ids
+            )
+
+            if payable_account:
                 move_lines = self.env['account.move.line'].search([
                     ('partner_id', '=', rec.vendor_id.id),
-                    ('account_id', 'in', payable_accounts.ids),
+                    ('account_id', 'in', payable_account.ids),
                     ('move_id.state', '=', 'posted'),
                 ])
                 total_paid = sum(line.debit for line in move_lines)

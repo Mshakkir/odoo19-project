@@ -29,30 +29,61 @@
 #         """Override to ensure partner is properly set on journal entry"""
 #         res = super()._synchronize_to_moves(changed_fields)
 #
-#         # After synchronization, ensure partner is set on the move (if in draft state)
+#         # After synchronization, ensure partner is set on the move and all lines
 #         for payment in self:
 #             if payment.move_id and payment.partner_id:
-#                 # Only update if move is still in draft
-#                 if payment.move_id.state == 'draft' and not payment.move_id.partner_id:
+#                 # Set partner on move if not set
+#                 if not payment.move_id.partner_id:
 #                     try:
 #                         payment.move_id.write({'partner_id': payment.partner_id.id})
-#                         _logger.info(f"Set partner {payment.partner_id.name} on draft move {payment.move_id.name}")
+#                         _logger.info(f"Set partner {payment.partner_id.name} on move {payment.move_id.name}")
 #                     except Exception as e:
 #                         _logger.warning(f"Could not set partner on move {payment.move_id.name}: {str(e)}")
 #
-#                 # Ensure all move lines have partner set
+#                 # CRITICAL: Ensure all move lines have partner set
+#                 # This is essential for Partner Ledger to show the payment
 #                 for line in payment.move_id.line_ids:
-#                     if not line.partner_id and line.account_id.account_type in ('asset_receivable', 'liability_payable',
-#                                                                                 'asset_cash', 'liability_credit_card'):
+#                     if not line.partner_id:
 #                         try:
 #                             line.write({'partner_id': payment.partner_id.id})
-#                             _logger.info(f"Set partner on move line for account {line.account_id.code}")
+#                             _logger.info(
+#                                 f"Set partner {payment.partner_id.name} on move line for account {line.account_id.code}")
 #                         except Exception as e:
 #                             _logger.warning(f"Could not set partner on line: {str(e)}")
 #
 #         return res
+#
+#     def action_post(self):
+#         """Override action_post to ensure partner is set on journal entry lines after posting"""
+#         res = super().action_post()
+#
+#         # After posting, double-check that partner is set on all lines
+#         for payment in self:
+#             if payment.move_id and payment.partner_id:
+#                 lines_without_partner = payment.move_id.line_ids.filtered(lambda l: not l.partner_id)
+#
+#                 if lines_without_partner:
+#                     _logger.warning(
+#                         f"Found {len(lines_without_partner)} lines without partner after posting payment {payment.name}")
+#
+#                     # Force set partner on these lines
+#                     for line in lines_without_partner:
+#                         try:
+#                             # Use sudo() to bypass any access rights issues
+#                             line.sudo().write({'partner_id': payment.partner_id.id})
+#                             _logger.info(
+#                                 f"POST-FIX: Set partner {payment.partner_id.name} on line {line.id} for account {line.account_id.code}")
+#                         except Exception as e:
+#                             _logger.error(f"CRITICAL: Could not set partner on line {line.id}: {str(e)}")
+#
+#                 # Log final status
+#                 for line in payment.move_id.line_ids:
+#                     _logger.info(
+#                         f"Final line status - Account: {line.account_id.code}, Partner: {line.partner_id.name if line.partner_id else 'MISSING'}, Debit: {line.debit}, Credit: {line.credit}")
+#
+#         return res
 
-from odoo import models, api, _
+from odoo import models, api, fields, _
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -60,6 +91,59 @@ _logger = logging.getLogger(__name__)
 
 class AccountPayment(models.Model):
     _inherit = 'account.payment'
+
+    # Add relation to allocation history
+    allocation_history_ids = fields.One2many('payment.allocation.history', 'payment_id',
+                                             string='Invoice Allocations', readonly=True)
+    allocation_count = fields.Integer(string='Allocations', compute='_compute_allocation_count')
+
+    @api.depends('allocation_history_ids')
+    def _compute_allocation_count(self):
+        for rec in self:
+            rec.allocation_count = len(rec.allocation_history_ids)
+
+    def action_view_allocation_history(self):
+        """Open wizard to display invoice allocation details"""
+        self.ensure_one()
+
+        if not self.allocation_history_ids:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Allocation History'),
+                    'message': _(
+                        'This payment does not have invoice allocation history. This feature only works for payments created through the "Against Receipts" wizard.'),
+                    'type': 'info',
+                }
+            }
+
+        # Create wizard record
+        wizard = self.env['payment.allocation.display.wizard'].create({
+            'payment_id': self.id,
+        })
+
+        # Create wizard lines from allocation history
+        for history in self.allocation_history_ids:
+            self.env['payment.allocation.display.line'].create({
+                'wizard_id': wizard.id,
+                'invoice_id': history.invoice_id.id,
+                'invoice_number': history.invoice_number,
+                'invoice_date': history.invoice_date,
+                'amount_total': history.amount_total,
+                'amount_due': history.amount_due,
+                'amount_paid': history.amount_paid,
+                'balance_after_payment': history.balance_after_payment,
+            })
+
+        return {
+            'name': _('Invoice Allocation Details'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'payment.allocation.display.wizard',
+            'view_mode': 'form',
+            'res_id': wizard.id,
+            'target': 'new',
+        }
 
     @api.model_create_multi
     def create(self, vals_list):

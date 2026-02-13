@@ -40,7 +40,6 @@
         * Manually select which bills to pay
         * Support for partial and full payments
         * View bill allocation history for each payment
-        * Works without core accounting module
         * Fixed: Partner ID properly set on journal entry lines for Partner Ledger
     """,
     'author': 'Custom Development',

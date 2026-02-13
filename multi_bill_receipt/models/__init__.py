@@ -1,2 +1,2 @@
 from . import account_payment
-from . import payment_allocation_history
+from . import bill_allocation_history

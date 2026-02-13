@@ -12,6 +12,7 @@
         * Manually select which bills to pay
         * Support for partial and full payments
         * Works without core accounting module
+        * Fixed: Partner ID properly set on journal entry lines for Partner Ledger
     """,
     'author': 'Custom Development',
     'website': 'https://www.example.com',

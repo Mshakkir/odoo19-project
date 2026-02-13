@@ -17,20 +17,43 @@ class ReportBankBookAnalytic(models.AbstractModel):
         report_type = self.env.context.get('report_type', 'combined')
         show_without_analytic = self.env.context.get('show_without_analytic', True)
 
-        # Get partner_ids - can be recordset or list
+        # Get partner_ids - can be recordset, list, or string (from serialized context)
         partner_ids = self.env.context.get('partner_ids', [])
+        partner_ids_list = []
+
         if partner_ids:
-            # If it's a recordset, get the IDs
+            # Handle different types
             if hasattr(partner_ids, 'ids'):
+                # It's a recordset
                 partner_ids_list = partner_ids.ids
+            elif isinstance(partner_ids, (list, tuple)):
+                # It's already a list
+                partner_ids_list = list(partner_ids)
+            elif isinstance(partner_ids, str):
+                # It might be a string representation from serialization
+                try:
+                    import ast
+                    partner_ids_list = ast.literal_eval(partner_ids)
+                    if not isinstance(partner_ids_list, list):
+                        partner_ids_list = [partner_ids_list]
+                except:
+                    partner_ids_list = []
             else:
-                partner_ids_list = partner_ids if isinstance(partner_ids, list) else [partner_ids]
+                # Single ID
+                partner_ids_list = [partner_ids]
+
+        # Create a modified context with partner_ids as recordset for accounting_pdf_reports module
+        modified_context = dict(self.env.context)
+        if partner_ids_list:
+            modified_context['partner_ids'] = self.env['res.partner'].browse(partner_ids_list)
         else:
-            partner_ids_list = []
+            # Empty recordset if no partners selected
+            modified_context['partner_ids'] = self.env['res.partner']
 
         # Initial balance
         if init_balance:
             init_tables, init_where_clause, init_where_params = MoveLine.with_context(
+                modified_context,
                 date_from=self.env.context.get('date_from'),
                 date_to=False,
                 initial_bal=True
@@ -48,10 +71,6 @@ class ReportBankBookAnalytic(models.AbstractModel):
                 else:
                     init_wheres.append("l.analytic_distribution::text LIKE ANY(ARRAY[%s])")
                     init_where_params += ([f'%"{aid}%' for aid in analytic_ids],)
-
-            if partner_ids_list:
-                init_wheres.append("l.partner_id IN %s")
-                init_where_params += (tuple(partner_ids_list),)
 
             init_filters = " AND ".join(init_wheres)
             filters = init_filters.replace('account_move_line__move_id', 'm').replace('account_move_line', 'l')
@@ -85,7 +104,7 @@ class ReportBankBookAnalytic(models.AbstractModel):
         sql_sort = 'l.date, p.name, l.move_id'
 
         # Main query
-        tables, where_clause, where_params = MoveLine._query_get()
+        tables, where_clause, where_params = MoveLine.with_context(modified_context)._query_get()
         wheres = [""]
         if where_clause.strip():
             wheres.append(where_clause.strip())
@@ -97,10 +116,6 @@ class ReportBankBookAnalytic(models.AbstractModel):
             else:
                 wheres.append("l.analytic_distribution::text LIKE ANY(ARRAY[%s])")
                 where_params += ([f'%"{aid}%' for aid in analytic_ids],)
-
-        if partner_ids_list:
-            wheres.append("l.partner_id IN %s")
-            where_params += (tuple(partner_ids_list),)
 
         filters = " AND ".join(wheres).replace('account_move_line__move_id', 'm').replace('account_move_line', 'l')
 

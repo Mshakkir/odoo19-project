@@ -42,16 +42,13 @@ class AccountBankBookReportAnalytic(models.TransientModel):
         result['report_type'] = data['form'].get('report_type', 'combined')
         result['show_without_analytic'] = data['form'].get('show_without_analytic', True)
 
-        # Get partner_ids and ensure it's a list of IDs
+        # Store partner_ids as list (serializable for reports)
         partner_ids = data['form'].get('partner_ids', [])
         if partner_ids:
             # If it's a recordset, get the IDs
             if hasattr(partner_ids, 'ids'):
                 partner_ids = partner_ids.ids
-            # Convert to recordset for compatibility with accounting_pdf_reports module
-            result['partner_ids'] = self.env['res.partner'].browse(partner_ids)
-        else:
-            result['partner_ids'] = self.env['res.partner']
+        result['partner_ids'] = partner_ids or []
 
         return result
 

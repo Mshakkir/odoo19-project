@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- Payment Allocation Display Line Tree View (Define Separately First) -->
+    <record id="view_payment_allocation_display_line_tree" model="ir.ui.view">
+        <field name="name">payment.allocation.display.line.tree</field>
+        <field name="model">payment.allocation.display.line</field>
+        <field name="arch" type="xml">
+            <tree create="0" edit="0" delete="0">
+                <field name="invoice_number"/>
+                <field name="invoice_date"/>
+                <field name="amount_total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="amount_due" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="amount_paid" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="balance_after_payment" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="currency_id" column_invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
     <!-- Payment Allocation Display Wizard Form View -->
     <record id="view_payment_allocation_display_wizard_form" model="ir.ui.view">
         <field name="name">payment.allocation.display.wizard.form</field>
@@ -45,17 +62,8 @@
                     </group>
 
                     <separator string="Invoices to Pay"/>
-                    <field name="allocation_line_ids" nolabel="1" readonly="1">
-                        <tree>
-                            <field name="invoice_number"/>
-                            <field name="invoice_date"/>
-                            <field name="amount_total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                            <field name="amount_due" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                            <field name="amount_paid" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                            <field name="balance_after_payment" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                            <field name="currency_id" column_invisible="1"/>
-                        </tree>
-                    </field>
+                    <field name="allocation_line_ids" nolabel="1" readonly="1"
+                           widget="one2many" context="{'tree_view_ref': 'multi_invoice_payment.view_payment_allocation_display_line_tree'}"/>
 
                     <group class="oe_subtotal_footer oe_right">
                         <field name="payment_amount"

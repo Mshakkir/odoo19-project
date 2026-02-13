@@ -49,7 +49,6 @@
     'data': [
         'security/ir.model.access.csv',
         'wizard/multi_receipt_wizard_views.xml',
-        'views/bill_allocation_views.xml',
     ],
     'installable': True,
     'application': False,

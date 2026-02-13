@@ -40,8 +40,14 @@ class ReportBankBookAnalytic(models.AbstractModel):
                     init_where_params += ([f'%"{aid}%' for aid in analytic_ids],)
 
             if partner_ids:
-                init_wheres.append("l.partner_id IN %s")
-                init_where_params += (tuple(partner_ids),)
+                # Handle partner_ids as list or recordset
+                if hasattr(partner_ids, 'ids'):
+                    partner_ids_list = partner_ids.ids
+                else:
+                    partner_ids_list = partner_ids
+                if partner_ids_list:
+                    init_wheres.append("l.partner_id IN %s")
+                    init_where_params += (tuple(partner_ids_list),)
 
             init_filters = " AND ".join(init_wheres)
             filters = init_filters.replace('account_move_line__move_id', 'm').replace('account_move_line', 'l')
@@ -89,8 +95,14 @@ class ReportBankBookAnalytic(models.AbstractModel):
                 where_params += ([f'%"{aid}%' for aid in analytic_ids],)
 
         if partner_ids:
-            wheres.append("l.partner_id IN %s")
-            where_params += (tuple(partner_ids),)
+            # Handle partner_ids as list or recordset
+            if hasattr(partner_ids, 'ids'):
+                partner_ids_list = partner_ids.ids
+            else:
+                partner_ids_list = partner_ids
+            if partner_ids_list:
+                wheres.append("l.partner_id IN %s")
+                where_params += (tuple(partner_ids_list),)
 
         filters = " AND ".join(wheres).replace('account_move_line__move_id', 'm').replace('account_move_line', 'l')
 
@@ -293,8 +305,14 @@ class ReportBankBookAnalytic(models.AbstractModel):
         # Get partner names for display
         partner_names = []
         if partner_ids:
-            partners = self.env['res.partner'].browse(partner_ids)
-            partner_names = partners.mapped('name')
+            # Handle partner_ids as list or recordset
+            if hasattr(partner_ids, 'ids'):
+                partner_ids_list = partner_ids.ids
+            else:
+                partner_ids_list = partner_ids
+            if partner_ids_list:
+                partners = self.env['res.partner'].browse(partner_ids_list)
+                partner_names = partners.mapped('name')
 
         return {
             'doc_ids': docids,

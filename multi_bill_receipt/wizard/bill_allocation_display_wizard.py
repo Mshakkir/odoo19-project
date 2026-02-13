@@ -38,7 +38,7 @@ class BillAllocationDisplayLine(models.TransientModel):
     _description = 'Bill Allocation Display Line'
 
     wizard_id = fields.Many2one('bill.allocation.display.wizard', string='Wizard', required=True, ondelete='cascade')
-    bill_id = fields.Many2one('account.move', string='Bill', readonly=True)
+    invoice_vendor_bill_id = fields.Many2one('account.move', string='Bill', readonly=True)
     bill_number = fields.Char(string='Bill Number', readonly=True)
     bill_date = fields.Date(string='Bill Date', readonly=True)
     amount_total = fields.Monetary(string='Total Amount', currency_field='currency_id', readonly=True)

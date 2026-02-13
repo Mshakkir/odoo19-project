@@ -579,14 +579,17 @@ class StockWarehouseOrderpoint(models.Model):
 
             self.env['purchase.order.line'].sudo().create(line_vals)
 
-            # Return action to open the created PO
+            # Return success notification (user can view PO in Purchase menu)
             return {
-                'type': 'ir.actions.act_window',
-                'name': _('Purchase Order Created'),
-                'res_model': 'purchase.order',
-                'res_id': purchase_order.id,
-                'view_mode': 'form',
-                'target': 'current',
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('✅ Purchase Order Created'),
+                    'message': _(
+                        'PO %s created successfully. Go to Purchase → Orders to view it.') % purchase_order.name,
+                    'type': 'success',
+                    'sticky': True,
+                }
             }
 
         except Exception as e:

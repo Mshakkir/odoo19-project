@@ -646,12 +646,12 @@ patch(ListController.prototype, {
                         try {
                             pickings = await this.orm.searchRead(
                                 'stock.picking',
-                                [['carrier_tracking_ref', 'ilike', awbNumber]],
+                                [['awb_number', 'ilike', awbNumber]],
                                 ['sale_id', 'origin'],
                                 { limit: 500 }
                             );
                         } catch (e) {
-                            console.log('carrier_tracking_ref field not available:', e.message);
+                            console.log('awb_number field not available:', e.message);
                         }
 
                         // If no results, try searching by name
@@ -694,12 +694,12 @@ patch(ListController.prototype, {
                         try {
                             pickings = await this.orm.searchRead(
                                 'stock.picking',
-                                [['carrier_tracking_ref', 'ilike', awbNumber]],
+                                [['awb_number', 'ilike', awbNumber]],
                                 ['sale_id', 'origin'],
                                 { limit: 500 }
                             );
                         } catch (e) {
-                            console.log('carrier_tracking_ref field not available:', e.message);
+                            console.log('awb_number field not available:', e.message);
                         }
 
                         // If no results, try searching by name

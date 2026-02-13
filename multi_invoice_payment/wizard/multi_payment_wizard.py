@@ -255,68 +255,56 @@ class MultiPaymentWizard(models.TransientModel):
         }
 
     def action_create_payment(self):
-        """Create payment and reconcile with selected invoices"""
+        """Create payment and reconcile with selected invoices - UPDATED to save allocation history"""
         self.ensure_one()
 
-        # Validations
         if not self.partner_id:
             raise UserError(_('Please select a customer.'))
 
         if not self.journal_id:
             raise UserError(_('Please select a payment journal.'))
 
-        if self.payment_amount <= 0:
-            raise UserError(_('Payment amount must be greater than zero.'))
-
-        # Get selected invoices with amounts
-        selected_lines = self.invoice_line_ids.filtered(lambda l: l.selected and l.amount_to_pay > 0)
-
-        if not selected_lines:
-            raise UserError(_('Please select at least one invoice to pay.'))
-
-        # Collect invoices and amounts to pay
+        # Collect selected invoices to pay
         invoices_to_pay = []
-        total_allocated = 0.0
+        invoice_numbers = []
 
-        for line in selected_lines:
-            if line.amount_to_pay > line.amount_residual:
-                raise UserError(
-                    _('Amount to pay (%.2f) cannot exceed the amount due (%.2f) for invoice %s')
-                    % (line.amount_to_pay, line.amount_residual, line.invoice_number)
-                )
+        for line in self.invoice_line_ids:
+            if line.selected and line.amount_to_pay > 0:
+                invoices_to_pay.append({
+                    'invoice': line.invoice_id,
+                    'invoice_number': line.invoice_number,
+                    'invoice_date': line.invoice_date,
+                    'amount_total': line.amount_total,
+                    'amount_due': line.amount_residual,
+                    'amount_to_pay': line.amount_to_pay,
+                    'balance_after': line.balance_amount,
+                })
+                invoice_numbers.append(line.invoice_number)
 
-            invoices_to_pay.append({
-                'invoice': line.invoice_id,
-                'amount': line.amount_to_pay,
-            })
-            total_allocated += line.amount_to_pay
+        if not invoices_to_pay:
+            raise UserError(_('Please select at least one invoice to pay and enter an amount.'))
 
-        # Validate total allocated does not exceed payment amount
-        if total_allocated > self.payment_amount:
-            raise UserError(_('Total allocated amount (%.2f) exceeds the payment amount (%.2f).')
-                            % (total_allocated, self.payment_amount))
+        # Calculate total amount being allocated
+        total_allocated = sum(inv['amount_to_pay'] for inv in invoices_to_pay)
 
-        # ==============================================
-        # CREATE ONE SINGLE COMBINED PAYMENT
-        # ==============================================
+        if total_allocated <= 0:
+            raise UserError(_('Total allocated amount must be greater than zero.'))
 
-        # Prepare payment reference with invoice numbers
-        invoice_numbers = [inv_data['invoice'].name for inv_data in invoices_to_pay]
-        if self.memo:
-            payment_reference = self.memo
-        else:
-            if len(invoice_numbers) == 1:
-                payment_reference = _('Payment for %s') % invoice_numbers[0]
-            else:
-                payment_reference = _('Payment for %d invoices: %s') % (len(invoice_numbers),
-                                                                        ', '.join(invoice_numbers))
+        # Generate payment reference
+        payment_reference = self.memo or (
+                _('Payment for %s') % ', '.join(invoice_numbers[:3]) +
+                (_(' and %d more') % (len(invoice_numbers) - 3) if len(invoice_numbers) > 3 else '')
+        )
+
+        _logger.info(
+            f"Creating payment for partner {self.partner_id.name} - Amount: {total_allocated}, Invoices: {len(invoices_to_pay)}")
 
         # Create a single payment for the total allocated amount
         payment_vals = {
             'payment_type': 'inbound',
             'partner_type': 'customer',
             'partner_id': self.partner_id.id,
-            'amount': total_allocated,  # Use total allocated, not payment_amount
+            'amount': total_allocated,
             'currency_id': self.currency_id.id,
             'date': self.payment_date,
             'journal_id': self.journal_id.id,
@@ -331,25 +319,37 @@ class MultiPaymentWizard(models.TransientModel):
 
         _logger.info(f"Created payment: {payment.name} for partner: {self.partner_id.name} (ID: {self.partner_id.id})")
 
-        # Post the payment - this automatically creates the journal entry with partner_id
+        # Post the payment
         payment.action_post()
 
         _logger.info(f"Posted payment: {payment.name}, Move: {payment.move_id.name if payment.move_id else 'N/A'}")
 
-        # Verify partner is set on the move and move lines
-        if payment.move_id:
-            move_partner = payment.move_id.partner_id
-            _logger.info(f"Move partner_id: {move_partner.name if move_partner else 'NOT SET'}")
+        # ==============================================
+        # SAVE ALLOCATION HISTORY (NEW FEATURE)
+        # ==============================================
+        allocation_history_vals = []
+        for invoice_data in invoices_to_pay:
+            allocation_history_vals.append({
+                'payment_id': payment.id,
+                'invoice_id': invoice_data['invoice'].id,
+                'invoice_number': invoice_data['invoice_number'],
+                'invoice_date': invoice_data['invoice_date'],
+                'amount_total': invoice_data['amount_total'],
+                'amount_due': invoice_data['amount_due'],
+                'amount_paid': invoice_data['amount_to_pay'],
+                'balance_after_payment': invoice_data['balance_after'],
+                'currency_id': self.currency_id.id,
+            })
 
-            for line in payment.move_id.line_ids:
-                _logger.info(
-                    f"  Line: Account={line.account_id.code}, Debit={line.debit}, Credit={line.credit}, Partner={line.partner_id.name if line.partner_id else 'NOT SET'}")
+        # Create all allocation history records at once
+        self.env['payment.allocation.history'].create(allocation_history_vals)
+        _logger.info(f"Saved {len(allocation_history_vals)} allocation history records for payment {payment.name}")
 
         # ==============================================
         # RECONCILE PAYMENT WITH INVOICES
         # ==============================================
 
-        # Get the credit line from payment (this is the receivable account line with credit > 0)
+        # Get the credit line from payment
         payment_line = payment.move_id.line_ids.filtered(
             lambda l: l.account_id.account_type in ('asset_receivable', 'liability_payable')
                       and l.credit > 0
@@ -361,13 +361,11 @@ class MultiPaymentWizard(models.TransientModel):
         _logger.info(
             f"Payment line - Credit: {payment_line.credit}, Account: {payment_line.account_id.name}, Partner: {payment_line.partner_id.name if payment_line.partner_id else 'NOT SET'}")
 
-        # Collect all invoice receivable lines (debit lines)
+        # Collect all invoice receivable lines
         invoice_lines_to_reconcile = self.env['account.move.line']
 
         for invoice_data in invoices_to_pay:
             invoice = invoice_data['invoice']
-
-            # Get the invoice receivable line (debit line)
             invoice_line = invoice.line_ids.filtered(
                 lambda l: l.account_id.account_type in ('asset_receivable', 'liability_payable')
                           and l.debit > 0

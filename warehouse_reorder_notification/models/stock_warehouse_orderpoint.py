@@ -497,6 +497,110 @@ class StockWarehouseOrderpoint(models.Model):
             'context': {'default_res_id': self.id, 'default_res_model': 'stock.warehouse.orderpoint'},
         }
 
+    def action_replenish(self):
+        """Override standard Odoo replenish action to create purchase order"""
+        self.ensure_one()
+
+        # Check if stock is below minimum
+        product = self.product_id
+        location = self.location_id
+        qty_available = product.with_context(location=location.id).qty_available
+
+        if qty_available >= self.product_min_qty:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Replenishment Needed'),
+                    'message': _('Current stock (%.2f) is above minimum (%.2f)') % (
+                        qty_available, self.product_min_qty),
+                    'type': 'info',
+                    'sticky': False,
+                }
+            }
+
+        # Calculate quantity to order
+        qty_to_order = self.product_max_qty - qty_available
+
+        if qty_to_order <= 0:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Invalid Quantity'),
+                    'message': _('Cannot calculate order quantity'),
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
+
+        # Get vendor
+        vendor = False
+        price = 0.0
+        if product.seller_ids:
+            vendor = product.seller_ids[0].partner_id
+            price = product.seller_ids[0].price
+
+        if not vendor:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Vendor'),
+                    'message': _('Please configure a vendor for product %s') % product.name,
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
+
+        # Create purchase order
+        try:
+            warehouse = self.warehouse_id
+
+            po_vals = {
+                'partner_id': vendor.id,
+                'date_order': fields.Datetime.now(),
+                'origin': f'Reorder: {self.name}',
+                'picking_type_id': warehouse.in_type_id.id if warehouse else False,
+            }
+
+            purchase_order = self.env['purchase.order'].sudo().create(po_vals)
+
+            # Create purchase order line
+            line_vals = {
+                'order_id': purchase_order.id,
+                'product_id': product.id,
+                'product_qty': qty_to_order,
+                'product_uom': product.uom_id.id,
+                'price_unit': price,
+                'date_planned': fields.Datetime.now(),
+                'name': product.display_name,
+            }
+
+            self.env['purchase.order.line'].sudo().create(line_vals)
+
+            # Return action to open the created PO
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Purchase Order Created'),
+                'res_model': 'purchase.order',
+                'res_id': purchase_order.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
+
+        except Exception as e:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Error'),
+                    'message': _('Error creating purchase order: %s') % str(e),
+                    'type': 'danger',
+                    'sticky': False,
+                }
+            }
+
     def action_create_combined_purchase_order(self):
         """Create ONE combined purchase order for ALL selected products"""
         if not self:
@@ -591,6 +695,8 @@ class StockWarehouseOrderpoint(models.Model):
             'view_mode': 'form',
             'target': 'current',
         }
+
+
 
 
 
@@ -709,7 +815,6 @@ class StockWarehouseOrderpoint(models.Model):
 #             return False
 #
 #         # Send notification ONLY to users assigned to THIS warehouse
-#         notifications = []
 #         for user in users_to_notify:
 #             try:
 #                 # Check if activity already exists for this user/orderpoint
@@ -742,21 +847,13 @@ class StockWarehouseOrderpoint(models.Model):
 #                     # CRITICAL: Recompute warehouse_id for this activity
 #                     new_activity._compute_warehouse_id()
 #
-#                 # Send browser notification
-#                 notifications.append([
-#                     user.partner_id,
-#                     'mail.activity/updated',
-#                     {
-#                         'type': 'activity_updated',
-#                         'activity_created': True,
-#                     }
-#                 ])
+#                     # Send browser notification using Odoo 19 bus system
+#                     # The activity creation itself triggers the notification
+#                     # No need for manual bus.bus calls in Odoo 19
+#                     pass
+#
 #             except Exception as e:
 #                 continue
-#
-#         # Send all notifications via bus
-#         if notifications:
-#             self.env['bus.bus'].sudo()._sendmany(notifications)
 #
 #         return True
 #
@@ -1207,3 +1304,4 @@ class StockWarehouseOrderpoint(models.Model):
 #             'view_mode': 'form',
 #             'target': 'current',
 #         }
+#

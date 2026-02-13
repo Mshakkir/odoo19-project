@@ -127,7 +127,7 @@ class AccountPayment(models.Model):
         for history in self.bill_allocation_history_ids:
             self.env['bill.allocation.display.line'].create({
                 'wizard_id': wizard.id,
-                'bill_id': history.bill_id.id,
+                'invoice_vendor_bill_id': history.invoice_vendor_bill_id.id,
                 'bill_number': history.bill_number,
                 'bill_date': history.bill_date,
                 'amount_total': history.amount_total,

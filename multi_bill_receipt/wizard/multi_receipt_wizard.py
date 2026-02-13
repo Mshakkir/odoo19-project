@@ -323,6 +323,58 @@ class MultiReceiptWizard(models.TransientModel):
 
         _logger.info(f"Created combined payment: {payment.name} for amount: {total_allocated}")
 
+        def action_create_payment(self):
+            # ... validation code ...
+
+            # Create payment
+            payment = self.env['account.payment'].create(payment_vals)
+
+            # Post the payment
+            payment.action_post()
+
+            _logger.info(f"Created combined payment: {payment.name} for amount: {total_allocated}")
+
+            # ==============================================
+            # SAVE ALLOCATION HISTORY (NEW FEATURE)
+            # ==============================================
+            # ADD THIS CODE HERE - BEFORE RECONCILE
+            allocation_history_vals = []
+            for line in selected_lines:
+                allocation_history_vals.append({
+                    'payment_id': payment.id,
+                    'invoice_vendor_bill_id': line.invoice_id.id,
+                    'bill_number': line.invoice_number,
+                    'bill_date': line.invoice_date,
+                    'amount_total': line.amount_total,
+                    'amount_due': line.amount_residual,
+                    'amount_paid': line.amount_to_pay,
+                    'balance_after_payment': line.balance_amount,
+                    'currency_id': self.currency_id.id,
+                })
+
+            # Create all allocation history records at once
+            self.env['payment.allocation.history'].create(allocation_history_vals)
+            _logger.info(
+                f"Saved {len(allocation_history_vals)} bill allocation history records for payment {payment.name}")
+
+            # ==============================================
+            # RECONCILE PAYMENT WITH BILLS
+            # ==============================================
+            # Get the debit line from payment...
+            payment_line = payment.move_id.line_ids.filtered(...)
+
+            # ... rest of reconciliation code ...
+
+            # Show success message
+            message = _('Payment created successfully!\n\n')
+            # ...
+
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                # ...
+            }
+
         # ==============================================
         # RECONCILE PAYMENT WITH BILLS
         # ==============================================

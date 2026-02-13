@@ -8,7 +8,7 @@ class PaymentAllocationHistory(models.Model):
     _order = 'bill_date desc'
 
     payment_id = fields.Many2one('account.payment', string='Payment', required=True, ondelete='cascade')
-    bill_id = fields.Many2one('account.move', string='Bill', required=True, ondelete='restrict')
+    invoice_vendor_bill_id = fields.Many2one('account.move', string='Bill', required=True, ondelete='restrict')
     bill_number = fields.Char(string='Bill Number', readonly=True)
     bill_date = fields.Date(string='Bill Date', readonly=True)
     amount_total = fields.Monetary(string='Bill Total', currency_field='currency_id', readonly=True)

@@ -58,7 +58,7 @@
                         <group string="PAYMENT DETAILS">
                             <field name="journal_id" readonly="1"/>
                             <field name="payment_number" readonly="1"/>
-                            <field name="memo" readonly="1"/>
+                            <field name="payment_reference" readonly="1"/>
                         </group>
                     </group>
 
@@ -136,3 +136,145 @@
     </record>
 
 </odoo>
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+
+<!--    &lt;!&ndash; Payment Allocation Display Line List View (Odoo 19 uses 'list' instead of 'tree') &ndash;&gt;-->
+<!--    <record id="view_payment_allocation_display_line_list" model="ir.ui.view">-->
+<!--        <field name="name">payment.allocation.display.line.list</field>-->
+<!--        <field name="model">payment.allocation.display.line</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <list create="0" edit="0" delete="0">-->
+<!--                <field name="invoice_number"/>-->
+<!--                <field name="invoice_date"/>-->
+<!--                <field name="amount_total" widget="monetary" options="{'currency_field': 'currency_id'}"/>-->
+<!--                <field name="amount_due" widget="monetary" options="{'currency_field': 'currency_id'}"/>-->
+<!--                <field name="amount_paid" widget="monetary" options="{'currency_field': 'currency_id'}"/>-->
+<!--                <field name="balance_after_payment" widget="monetary" options="{'currency_field': 'currency_id'}"/>-->
+<!--                <field name="currency_id" column_invisible="1"/>-->
+<!--            </list>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Payment Allocation Display Wizard Form View &ndash;&gt;-->
+<!--    <record id="view_payment_allocation_display_wizard_form" model="ir.ui.view">-->
+<!--        <field name="name">payment.allocation.display.wizard.form</field>-->
+<!--        <field name="model">payment.allocation.display.wizard</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <form string="Invoice Allocation Details">-->
+<!--                <sheet>-->
+<!--                    &lt;!&ndash; Payment Summary Section - Top Right &ndash;&gt;-->
+<!--                    <div class="oe_right" style="font-size: 13px; line-height: 2; margin-bottom: 15px;">-->
+<!--                        <div>-->
+<!--                            <span>Total Invoiced = </span>-->
+<!--                            <field name="total_invoiced" widget="monetary"-->
+<!--                                   options="{'currency_field': 'currency_id'}" nolabel="1"-->
+<!--                                   readonly="1" style="font-weight: bold;"/>-->
+<!--                        </div>-->
+<!--                        <div>-->
+<!--                            <span>Total Received = </span>-->
+<!--                            <field name="total_allocated" widget="monetary"-->
+<!--                                   options="{'currency_field': 'currency_id'}" nolabel="1"-->
+<!--                                   readonly="1" style="font-weight: bold;"/>-->
+<!--                        </div>-->
+<!--                        <div>-->
+<!--                            <span>Balance Due = </span>-->
+<!--                            <field name="total_balance" widget="monetary"-->
+<!--                                   options="{'currency_field': 'currency_id'}" nolabel="1"-->
+<!--                                   readonly="1" style="font-weight: bold;"/>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    <group>-->
+<!--                        <group string="PAYMENT INFORMATION">-->
+<!--                            <field name="partner_id" readonly="1"/>-->
+<!--                            <field name="payment_date" readonly="1"/>-->
+<!--                            <field name="payment_amount" widget="monetary"-->
+<!--                                   options="{'currency_field': 'currency_id'}" readonly="1"/>-->
+<!--                            <field name="currency_id" invisible="1"/>-->
+<!--                        </group>-->
+<!--                        <group string="PAYMENT DETAILS">-->
+<!--                            <field name="journal_id" readonly="1"/>-->
+<!--                            <field name="payment_number" readonly="1"/>-->
+<!--                            <field name="memo" readonly="1"/>-->
+<!--                        </group>-->
+<!--                    </group>-->
+
+<!--                    <separator string="Invoices to Pay"/>-->
+<!--                    <field name="allocation_line_ids" nolabel="1" readonly="1"/>-->
+
+<!--                    <group class="oe_subtotal_footer oe_right">-->
+<!--                        <field name="payment_amount"-->
+<!--                               string="Payment Amount"-->
+<!--                               widget="monetary"-->
+<!--                               options="{'currency_field': 'currency_id'}"-->
+<!--                               readonly="1"/>-->
+<!--                        <field name="total_allocated"-->
+<!--                               string="Total Allocated"-->
+<!--                               widget="monetary"-->
+<!--                               options="{'currency_field': 'currency_id'}"-->
+<!--                               readonly="1"/>-->
+<!--                        <field name="total_balance"-->
+<!--                               string="Remaining Amount"-->
+<!--                               widget="monetary"-->
+<!--                               options="{'currency_field': 'currency_id'}"-->
+<!--                               readonly="1"-->
+<!--                               class="oe_subtotal_footer_separator"/>-->
+<!--                    </group>-->
+<!--                </sheet>-->
+<!--                <footer>-->
+<!--                    <button string="Close" class="btn-secondary" special="cancel"/>-->
+<!--                </footer>-->
+<!--            </form>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Payment Allocation History List View &ndash;&gt;-->
+<!--    <record id="view_payment_allocation_history_list" model="ir.ui.view">-->
+<!--        <field name="name">payment.allocation.history.list</field>-->
+<!--        <field name="model">payment.allocation.history</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <list create="0" edit="0" delete="0">-->
+<!--                <field name="payment_number"/>-->
+<!--                <field name="payment_date"/>-->
+<!--                <field name="partner_id"/>-->
+<!--                <field name="invoice_number"/>-->
+<!--                <field name="invoice_date"/>-->
+<!--                <field name="amount_total" widget="monetary" options="{'currency_field': 'currency_id'}"/>-->
+<!--                <field name="amount_due" widget="monetary" options="{'currency_field': 'currency_id'}"/>-->
+<!--                <field name="amount_paid" widget="monetary" options="{'currency_field': 'currency_id'}"/>-->
+<!--                <field name="balance_after_payment" widget="monetary" options="{'currency_field': 'currency_id'}"/>-->
+<!--                <field name="memo"/>-->
+<!--                <field name="currency_id" column_invisible="1"/>-->
+<!--            </list>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Inherit account.payment form to add button &ndash;&gt;-->
+<!--    <record id="view_account_payment_form_inherit_allocation" model="ir.ui.view">-->
+<!--        <field name="name">account.payment.form.inherit.allocation</field>-->
+<!--        <field name="model">account.payment</field>-->
+<!--        <field name="inherit_id" ref="account.view_account_payment_form"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            &lt;!&ndash; Add button in header &ndash;&gt;-->
+<!--            <xpath expr="//header" position="inside">-->
+<!--                <button name="action_view_allocation_history"-->
+<!--                        string="View Invoice Allocation"-->
+<!--                        type="object"-->
+<!--                        class="btn-primary"-->
+<!--                        invisible="allocation_count == 0"-->
+<!--                        help="View the invoices that were paid with this payment"/>-->
+<!--            </xpath>-->
+
+<!--            &lt;!&ndash; Add invisible field to track if allocation history exists &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='partner_id']" position="after">-->
+<!--                <field name="allocation_count" invisible="1"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--</odoo>-->

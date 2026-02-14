@@ -134,11 +134,6 @@ class StockWarehouseOrderpoint(models.Model):
                     # CRITICAL: Recompute warehouse_id for this activity
                     new_activity._compute_warehouse_id()
 
-                    # Send browser notification using Odoo 19 bus system
-                    # The activity creation itself triggers the notification
-                    # No need for manual bus.bus calls in Odoo 19
-                    pass
-
             except Exception as e:
                 continue
 
@@ -338,8 +333,8 @@ class StockWarehouseOrderpoint(models.Model):
     def action_create_purchase_order(self):
         """Create a draft purchase order for this reordering rule
 
-        SOLUTION: Use sudo() to create PO, but immediately share it with current user
-        via message_subscribe so they can see it despite record rules.
+        SOLUTION: Create PO with sudo(), add user as follower, and commit transaction
+        so the follower record exists before returning the form view action.
         """
         self.ensure_one()
 
@@ -424,9 +419,12 @@ class StockWarehouseOrderpoint(models.Model):
 
             self.env['purchase.order.line'].sudo().create(line_vals)
 
-            # CRITICAL FIX: Subscribe current user as follower so they can access the PO
-            # This bypasses record rule restrictions
+            # CRITICAL FIX: Add user as follower
             purchase_order.sudo().message_subscribe(partner_ids=[current_user.partner_id.id])
+
+            # IMPORTANT: Commit the transaction so follower record exists
+            # This ensures the follower is created before we try to open the form
+            self.env.cr.commit()
 
             # Close the notification activity for this user
             activity_type = self.env.ref(
@@ -461,6 +459,8 @@ class StockWarehouseOrderpoint(models.Model):
             }
 
         except Exception as e:
+            # Rollback on error
+            self.env.cr.rollback()
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
@@ -528,50 +528,66 @@ class StockWarehouseOrderpoint(models.Model):
                 }
             }
 
-        warehouse = self[0].warehouse_id
-        current_user = self.env.user
+        try:
+            warehouse = self[0].warehouse_id
+            current_user = self.env.user
 
-        po_vals = {
-            'date_order': fields.Datetime.now(),
-            'origin': f'Combined Reorder - {warehouse.name}',
-            'picking_type_id': warehouse.in_type_id.id,
-            'state': 'draft',
-        }
-
-        if default_vendor:
-            po_vals['partner_id'] = default_vendor.id
-
-        purchase_order = self.env['purchase.order'].sudo().create(po_vals)
-
-        for op_data in orderpoints_data:
-            product = op_data['product']
-            qty = op_data['qty_to_order']
-            price = op_data['price']
-
-            line_vals = {
-                'order_id': purchase_order.id,
-                'product_id': product.id,
-                'product_qty': qty,
-                'product_uom_id': product.uom_id.id,
-                'price_unit': price,
-                'date_planned': fields.Datetime.now(),
-                'name': product.display_name,
+            po_vals = {
+                'date_order': fields.Datetime.now(),
+                'origin': f'Combined Reorder - {warehouse.name}',
+                'picking_type_id': warehouse.in_type_id.id,
+                'state': 'draft',
             }
 
-            self.env['purchase.order.line'].sudo().create(line_vals)
+            if default_vendor:
+                po_vals['partner_id'] = default_vendor.id
 
-        # Subscribe current user as follower
-        purchase_order.sudo().message_subscribe(partner_ids=[current_user.partner_id.id])
+            purchase_order = self.env['purchase.order'].sudo().create(po_vals)
 
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('Combined Purchase Order (Draft)'),
-            'res_model': 'purchase.order',
-            'res_id': purchase_order.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
+            for op_data in orderpoints_data:
+                product = op_data['product']
+                qty = op_data['qty_to_order']
+                price = op_data['price']
 
+                line_vals = {
+                    'order_id': purchase_order.id,
+                    'product_id': product.id,
+                    'product_qty': qty,
+                    'product_uom_id': product.uom_id.id,
+                    'price_unit': price,
+                    'date_planned': fields.Datetime.now(),
+                    'name': product.display_name,
+                }
+
+                self.env['purchase.order.line'].sudo().create(line_vals)
+
+            # Subscribe current user as follower
+            purchase_order.sudo().message_subscribe(partner_ids=[current_user.partner_id.id])
+
+            # Commit transaction
+            self.env.cr.commit()
+
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Combined Purchase Order (Draft)'),
+                'res_model': 'purchase.order',
+                'res_id': purchase_order.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
+
+        except Exception as e:
+            self.env.cr.rollback()
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Error'),
+                    'message': _('Error creating combined purchase order: %s') % str(e),
+                    'type': 'danger',
+                    'sticky': False,
+                }
+            }
 
 
 

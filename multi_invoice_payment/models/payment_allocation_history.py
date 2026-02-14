@@ -16,6 +16,7 @@ class PaymentAllocationHistory(models.Model):
     amount_paid = fields.Monetary(string='Amount Paid', currency_field='currency_id', readonly=True)
     balance_after_payment = fields.Monetary(string='Balance After Payment', currency_field='currency_id', readonly=True)
     currency_id = fields.Many2one('res.currency', string='Currency', readonly=True)
+    memo = fields.Char(string='Memo', readonly=True)
 
     # Computed display fields
     partner_id = fields.Many2one('res.partner', related='payment_id.partner_id', string='Customer', readonly=True, store=True)

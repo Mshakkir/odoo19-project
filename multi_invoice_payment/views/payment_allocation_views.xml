@@ -58,6 +58,7 @@
                         <group string="PAYMENT DETAILS">
                             <field name="journal_id" readonly="1"/>
                             <field name="payment_number" readonly="1"/>
+                            <field name="memo" readonly="1"/>
                         </group>
                     </group>
 
@@ -105,6 +106,7 @@
                 <field name="amount_due" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 <field name="amount_paid" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 <field name="balance_after_payment" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="memo"/>
                 <field name="currency_id" column_invisible="1"/>
             </list>
         </field>

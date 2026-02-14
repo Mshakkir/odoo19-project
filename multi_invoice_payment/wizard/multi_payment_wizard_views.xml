@@ -206,7 +206,7 @@
                     </notebook>
                 </sheet>
                 <footer>
-                    <button name="action_create_payment"
+                    <button name="action_register_payment"
                             string="Create Payment"
                             type="object"
                             class="btn-primary"

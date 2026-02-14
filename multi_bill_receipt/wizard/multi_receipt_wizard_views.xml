@@ -118,11 +118,11 @@
                             <field name="receipt_date"/>
                             <field name="receipt_amount" widget="monetary"
                                    options="{'currency_field': 'currency_id'}"/>
-                            <field name="auto_distribute"
-                                   string="Auto Distribute"
-                                   widget="boolean_toggle"
-                                   invisible="not invoice_line_ids"
-                                   help="Automatically distribute receipt amount to bills using FIFO method (First In First Out)"/>
+<!--                            <field name="auto_distribute"-->
+<!--                                   string="Auto Distribute"-->
+<!--                                   widget="boolean_toggle"-->
+<!--                                   invisible="not invoice_line_ids"-->
+<!--                                   help="Automatically distribute receipt amount to bills using FIFO method (First In First Out)"/>-->
                             <field name="currency_id" invisible="1"/>
                             <button name="action_load_bills"
                                     string="Load Bills"
@@ -151,7 +151,7 @@
                     <group>
                         <group>
                             <field name="auto_allocate"
-                                   string="Auto Allocate"
+                                   string="Display Bills"
                                    widget="boolean_toggle"/>
                         </group>
                         <group/>

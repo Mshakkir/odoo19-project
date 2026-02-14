@@ -891,7 +891,7 @@ class MultiPaymentWizard(models.TransientModel):
             'date': self.payment_date,
             'journal_id': self.journal_id.id,
             'currency_id': self.currency_id.id,
-            'ref': self.memo or f"Payment for {', '.join(invoice_numbers[:3])}{'...' if len(invoice_numbers) > 3 else ''}",
+            # 'ref': self.memo or f"Payment for {', '.join(invoice_numbers[:3])}{'...' if len(invoice_numbers) > 3 else ''}",
         }
 
         # Add payment method if selected

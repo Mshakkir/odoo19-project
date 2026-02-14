@@ -32,12 +32,52 @@
 
         <!-- ============================================ -->
         <!-- MAIL ACTIVITY RECORD RULES -->
+        <!-- CRITICAL: global="False" prevents conflicts with default mail rules -->
         <!-- ============================================ -->
 
-        <!-- Stock Managers see ALL activities -->
+        <!-- Stock Managers see ALL activities (non-global to avoid conflicts) -->
         <record id="mail_activity_orderpoint_manager_rule" model="ir.rule">
             <field name="name">Stock Manager: All Orderpoint Activities</field>
             <field name="model_id" ref="mail.model_mail_activity"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>
+            <field name="global" eval="False"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Stock Users see activities from their warehouses only (non-global) -->
+        <record id="mail_activity_orderpoint_user_rule" model="ir.rule">
+            <field name="name">Stock User: Assigned Warehouse Activities</field>
+            <field name="model_id" ref="mail.model_mail_activity"/>
+            <field name="domain_force">[
+                '|',
+                    ('res_model', '!=', 'stock.warehouse.orderpoint'),
+                '|',
+                    ('warehouse_id', '=', False),
+                '|',
+                    ('warehouse_id.notification_user_ids', '=', False),
+                    ('warehouse_id.notification_user_ids', 'in', [user.id])
+            ]</field>
+            <field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>
+            <field name="global" eval="False"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- WAREHOUSE RECORD RULES -->
+        <!-- Allow warehouse users to read warehouse info -->
+        <!-- ============================================ -->
+
+        <!-- Stock Managers see ALL warehouses -->
+        <record id="stock_warehouse_manager_rule" model="ir.rule">
+            <field name="name">Stock Manager: All Warehouses</field>
+            <field name="model_id" ref="stock.model_stock_warehouse"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>
             <field name="perm_read" eval="True"/>
@@ -46,18 +86,163 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
-        <!-- Stock Users see activities from their warehouses only -->
-        <record id="mail_activity_orderpoint_user_rule" model="ir.rule">
-            <field name="name">Stock User: Assigned Warehouse Activities Only</field>
-            <field name="model_id" ref="mail.model_mail_activity"/>
-            <field name="domain_force">['|', ('res_model', '!=', 'stock.warehouse.orderpoint'), '|', ('warehouse_id.notification_user_ids', '=', False), ('warehouse_id.notification_user_ids', 'in', [user.id])]</field>
+        <!-- Stock Users see their assigned warehouses -->
+        <record id="stock_warehouse_user_rule" model="ir.rule">
+            <field name="name">Stock User: Assigned Warehouses</field>
+            <field name="model_id" ref="stock.model_stock_warehouse"/>
+            <field name="domain_force">[
+                '|',
+                    ('notification_user_ids', '=', False),
+                    ('notification_user_ids', 'in', [user.id])
+            ]</field>
             <field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- PURCHASE ORDER RECORD RULES -->
+        <!-- Warehouse users can only see/create POs for their warehouses -->
+        <!-- ============================================ -->
+
+        <!-- Purchase Managers see ALL purchase orders (override default) -->
+        <record id="purchase_order_manager_all_rule" model="ir.rule">
+            <field name="name">Purchase Manager: All Orders</field>
+            <field name="model_id" ref="purchase.model_purchase_order"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('purchase.group_purchase_manager'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
         </record>
 
+        <!-- Purchase Users with Warehouse Assignment: See only their warehouse POs -->
+        <record id="purchase_order_warehouse_user_rule" model="ir.rule">
+            <field name="name">Purchase User: Warehouse-Based Access</field>
+            <field name="model_id" ref="purchase.model_purchase_order"/>
+            <field name="domain_force">[
+                '|',
+                    ('picking_type_id.warehouse_id.notification_user_ids', '=', False),
+                    ('picking_type_id.warehouse_id.notification_user_ids', 'in', [user.id])
+            ]</field>
+            <field name="groups" eval="[(4, ref('purchase.group_purchase_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- PURCHASE ORDER LINE RECORD RULES -->
+        <!-- ============================================ -->
+
+        <!-- Purchase Managers see ALL purchase order lines -->
+        <record id="purchase_order_line_manager_all_rule" model="ir.rule">
+            <field name="name">Purchase Manager: All Order Lines</field>
+            <field name="model_id" ref="purchase.model_purchase_order_line"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('purchase.group_purchase_manager'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Purchase Users: See only lines from their warehouse POs -->
+        <record id="purchase_order_line_warehouse_user_rule" model="ir.rule">
+            <field name="name">Purchase User: Warehouse-Based Line Access</field>
+            <field name="model_id" ref="purchase.model_purchase_order_line"/>
+            <field name="domain_force">[
+                '|',
+                    ('order_id.picking_type_id.warehouse_id.notification_user_ids', '=', False),
+                    ('order_id.picking_type_id.warehouse_id.notification_user_ids', 'in', [user.id])
+            ]</field>
+            <field name="groups" eval="[(4, ref('purchase.group_purchase_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
     </data>
 </odoo>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <data noupdate="1">-->
+
+<!--        &lt;!&ndash; ============================================ &ndash;&gt;-->
+<!--        &lt;!&ndash; ORDERPOINT RECORD RULES &ndash;&gt;-->
+<!--        &lt;!&ndash; ============================================ &ndash;&gt;-->
+
+<!--        &lt;!&ndash; Stock Managers see ALL orderpoints &ndash;&gt;-->
+<!--        <record id="stock_warehouse_orderpoint_manager_rule" model="ir.rule">-->
+<!--            <field name="name">Stock Manager: All Orderpoints</field>-->
+<!--            <field name="model_id" ref="stock.model_stock_warehouse_orderpoint"/>-->
+<!--            <field name="domain_force">[(1, '=', 1)]</field>-->
+<!--            <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>-->
+<!--            <field name="perm_read" eval="True"/>-->
+<!--            <field name="perm_write" eval="True"/>-->
+<!--            <field name="perm_create" eval="True"/>-->
+<!--            <field name="perm_unlink" eval="True"/>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; Stock Users see orderpoints from their assigned warehouses OR unassigned warehouses &ndash;&gt;-->
+<!--        <record id="stock_warehouse_orderpoint_user_rule" model="ir.rule">-->
+<!--            <field name="name">Stock User: Assigned Warehouse Orderpoints</field>-->
+<!--            <field name="model_id" ref="stock.model_stock_warehouse_orderpoint"/>-->
+<!--            <field name="domain_force">['|', ('warehouse_id.notification_user_ids', '=', False), ('warehouse_id.notification_user_ids', 'in', [user.id])]</field>-->
+<!--            <field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>-->
+<!--            <field name="perm_read" eval="True"/>-->
+<!--            <field name="perm_write" eval="True"/>-->
+<!--            <field name="perm_create" eval="True"/>-->
+<!--            <field name="perm_unlink" eval="False"/>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; ============================================ &ndash;&gt;-->
+<!--        &lt;!&ndash; MAIL ACTIVITY RECORD RULES &ndash;&gt;-->
+<!--        &lt;!&ndash; ============================================ &ndash;&gt;-->
+
+<!--        &lt;!&ndash; Stock Managers see ALL activities &ndash;&gt;-->
+<!--        <record id="mail_activity_orderpoint_manager_rule" model="ir.rule">-->
+<!--            <field name="name">Stock Manager: All Orderpoint Activities</field>-->
+<!--            <field name="model_id" ref="mail.model_mail_activity"/>-->
+<!--            <field name="domain_force">[(1, '=', 1)]</field>-->
+<!--            <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>-->
+<!--            <field name="perm_read" eval="True"/>-->
+<!--            <field name="perm_write" eval="True"/>-->
+<!--            <field name="perm_create" eval="True"/>-->
+<!--            <field name="perm_unlink" eval="True"/>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; Stock Users see activities from their warehouses only &ndash;&gt;-->
+<!--        <record id="mail_activity_orderpoint_user_rule" model="ir.rule">-->
+<!--            <field name="name">Stock User: Assigned Warehouse Activities Only</field>-->
+<!--            <field name="model_id" ref="mail.model_mail_activity"/>-->
+<!--            <field name="domain_force">['|', ('res_model', '!=', 'stock.warehouse.orderpoint'), '|', ('warehouse_id.notification_user_ids', '=', False), ('warehouse_id.notification_user_ids', 'in', [user.id])]</field>-->
+<!--            <field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>-->
+<!--            <field name="perm_read" eval="True"/>-->
+<!--            <field name="perm_write" eval="True"/>-->
+<!--            <field name="perm_create" eval="True"/>-->
+<!--            <field name="perm_unlink" eval="True"/>-->
+<!--        </record>-->
+
+<!--    </data>-->
+<!--</odoo>-->
 

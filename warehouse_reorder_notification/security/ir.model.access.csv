@@ -11,3 +11,9 @@ access_mail_message_stock_user,mail.message.stock.user,mail.model_mail_message,s
 access_mail_message_stock_manager,mail.message.stock.manager,mail.model_mail_message,stock.group_stock_manager,1,1,1,1
 access_mail_activity_stock_user,mail.activity.stock.user,mail.model_mail_activity,stock.group_stock_user,1,1,1,1
 access_mail_activity_stock_manager,mail.activity.stock.manager,mail.model_mail_activity,stock.group_stock_manager,1,1,1,1
+access_purchase_order_stock_user,purchase.order.stock.user,purchase.model_purchase_order,stock.group_stock_user,1,1,1,0
+access_purchase_order_stock_manager,purchase.order.stock.manager,purchase.model_purchase_order,stock.group_stock_manager,1,1,1,1
+access_purchase_order_line_stock_user,purchase.order.line.stock.user,purchase.model_purchase_order_line,stock.group_stock_user,1,1,1,0
+access_purchase_order_line_stock_manager,purchase.order.line.stock.manager,purchase.model_purchase_order_line,stock.group_stock_manager,1,1,1,1
+access_product_supplierinfo_stock_user,product.supplierinfo.stock.user,product.model_product_supplierinfo,stock.group_stock_user,1,0,0,0
+access_product_supplierinfo_stock_manager,product.supplierinfo.stock.manager,product.model_product_supplierinfo,stock.group_stock_manager,1,1,1,1

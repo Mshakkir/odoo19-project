@@ -42,27 +42,21 @@
             <!-- Add buttons inside the sheet -->
             <xpath expr="//sheet" position="inside">
                 <div class="oe_button_box" name="button_box">
-                    <button name="action_send_notification_now"
+                    <!-- FIXED: Changed to action_check_and_notify which exists in Python code -->
+                    <button name="action_check_and_notify"
                             string="Send Notification"
                             type="object"
                             class="oe_stat_button"
                             icon="fa-bell"
                             groups="stock.group_stock_user"/>
-                    <button name="action_view_notifications"
-                            string="View Notifications"
-                            type="object"
-                            class="oe_stat_button"
-                            icon="fa-list"
-                            groups="stock.group_stock_user"
-                            invisible="notification_count == 0">
-                        <field name="notification_count" widget="statinfo" string="Notifications"/>
-                    </button>
+                    <!-- Removed action_view_notifications as it doesn't exist -->
                 </div>
             </xpath>
 
             <!-- Add notification fields -->
             <xpath expr="//field[@name='product_max_qty']" position="after">
                 <field name="last_notification_date" readonly="1"/>
+                <field name="notification_count" invisible="1"/>
             </xpath>
         </field>
     </record>
@@ -72,9 +66,103 @@
         <field name="name">Warehouse: Check Reordering Rules and Send Notifications</field>
         <field name="model_id" ref="stock.model_stock_warehouse_orderpoint"/>
         <field name="state">code</field>
-        <field name="code">model.check_and_send_reorder_notifications()</field>
+        <field name="code">model._cron_check_stock_levels()</field>
         <field name="interval_number">4</field>
         <field name="interval_type">hours</field>
         <field name="active" eval="True"/>
     </record>
 </odoo>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+
+<!--<odoo>-->
+<!--    &lt;!&ndash; Warehouse Form View - Add notification settings &ndash;&gt;-->
+<!--    <record id="view_warehouse_form_inherit_notification" model="ir.ui.view">-->
+<!--        <field name="name">stock.warehouse.form.inherit.notification</field>-->
+<!--        <field name="model">stock.warehouse</field>-->
+<!--        <field name="inherit_id" ref="stock.view_warehouse"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//page[@name='warehouse_config']" position="after">-->
+<!--                <page string="Reorder Notifications" groups="stock.group_stock_manager">-->
+<!--                    <group>-->
+<!--                        <group>-->
+<!--                            <field name="enable_reorder_notifications"/>-->
+<!--                        </group>-->
+<!--                    </group>-->
+<!--                    <group string="Notification Recipients" invisible="not enable_reorder_notifications">-->
+<!--                        <field name="notification_user_ids" widget="many2many_tags" nolabel="1"/>-->
+<!--                    </group>-->
+<!--                    <div class="alert alert-info" role="alert" invisible="not enable_reorder_notifications">-->
+<!--                        <p><strong>ℹ️ How it works:</strong></p>-->
+<!--                        <ul>-->
+<!--                            <li>Notifications appear in the bell/clock icon (🔔) at the top of Odoo</li>-->
+<!--                            <li>Users listed above will receive reorder alerts</li>-->
+<!--                            <li>If no users specified, all inventory users will be notified</li>-->
+<!--                            <li><strong>IMPORTANT: Only assigned users can see reorder rules for this warehouse</strong></li>-->
+<!--                            <li>Automatic checks run every 4 hours</li>-->
+<!--                            <li>Manual notifications can be triggered from reordering rules</li>-->
+<!--                        </ul>-->
+<!--                    </div>-->
+<!--                </page>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Reordering Rule Form - Add notification features &ndash;&gt;-->
+<!--    <record id="view_warehouse_orderpoint_form_inherit" model="ir.ui.view">-->
+<!--        <field name="name">stock.warehouse.orderpoint.form.inherit.notification</field>-->
+<!--        <field name="model">stock.warehouse.orderpoint</field>-->
+<!--        <field name="inherit_id" ref="stock.view_warehouse_orderpoint_form"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            &lt;!&ndash; Add buttons inside the sheet &ndash;&gt;-->
+<!--            <xpath expr="//sheet" position="inside">-->
+<!--                <div class="oe_button_box" name="button_box">-->
+<!--                    <button name="action_send_notification_now"-->
+<!--                            string="Send Notification"-->
+<!--                            type="object"-->
+<!--                            class="oe_stat_button"-->
+<!--                            icon="fa-bell"-->
+<!--                            groups="stock.group_stock_user"/>-->
+<!--                    <button name="action_view_notifications"-->
+<!--                            string="View Notifications"-->
+<!--                            type="object"-->
+<!--                            class="oe_stat_button"-->
+<!--                            icon="fa-list"-->
+<!--                            groups="stock.group_stock_user"-->
+<!--                            invisible="notification_count == 0">-->
+<!--                        <field name="notification_count" widget="statinfo" string="Notifications"/>-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--            </xpath>-->
+
+<!--            &lt;!&ndash; Add notification fields &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='product_max_qty']" position="after">-->
+<!--                <field name="last_notification_date" readonly="1"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Scheduled Action - Check reorder rules every 4 hours &ndash;&gt;-->
+<!--    <record id="ir_cron_check_reorder_notifications" model="ir.cron">-->
+<!--        <field name="name">Warehouse: Check Reordering Rules and Send Notifications</field>-->
+<!--        <field name="model_id" ref="stock.model_stock_warehouse_orderpoint"/>-->
+<!--        <field name="state">code</field>-->
+<!--        <field name="code">model.check_and_send_reorder_notifications()</field>-->
+<!--        <field name="interval_number">4</field>-->
+<!--        <field name="interval_type">hours</field>-->
+<!--        <field name="active" eval="True"/>-->
+<!--    </record>-->
+<!--</odoo>-->

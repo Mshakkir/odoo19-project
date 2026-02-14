@@ -113,6 +113,11 @@
                             <field name="payment_amount"
                                    widget="monetary"
                                    options="{'currency_field': 'currency_id'}"/>
+                            <field name="auto_distribute"
+                                   string="Auto Distribute"
+                                   widget="boolean_toggle"
+                                   invisible="not invoice_line_ids"
+                                   help="Automatically distribute payment amount to invoices using FIFO method (First In First Out)"/>
                             <field name="currency_id" invisible="1"/>
                             <button name="action_load_invoices"
                                     string="Load Invoices"
@@ -181,10 +186,10 @@
                                         <li><strong>Enter Payment Amount:</strong> Enter the exact amount received (e.g., 2500 SAR)</li>
                                         <li><strong>Click "Load Invoices":</strong> This will fetch all unpaid invoices for the customer and display them in the table</li>
                                         <li><strong>Select Payment Journal:</strong> Choose your bank (e.g., SNB Bank)</li>
-                                        <li><strong>Select Invoices:</strong>
+                                        <li><strong>Allocate Payment:</strong>
                                             <ul>
-                                                <li>Enable "Auto Allocate" to automatically select and fill amounts for oldest invoices</li>
-                                                <li>OR manually check the "Pay" box and enter amounts for each invoice</li>
+                                                <li><strong>Auto Distribute (FIFO):</strong> Enable this checkbox to automatically distribute the payment amount to invoices starting from the oldest invoice first (First In First Out method)</li>
+                                                <li><strong>Manual Selection:</strong> OR manually check the "Pay" box and enter amounts for each invoice</li>
                                                 <li>Click OUTSIDE the row after entering amounts to save</li>
                                             </ul>
                                         </li>
@@ -193,12 +198,18 @@
                                     <h4>Tips:</h4>
                                     <ul>
                                         <li>You MUST click "Load Invoices" button after selecting the customer</li>
-                                        <li>Use "Auto Allocate" for quick allocation to oldest invoices</li>
+                                        <li><strong>Auto Distribute:</strong> Automatically pays oldest invoices first (FIFO method) - great for batch payments!</li>
                                         <li>You can partially pay multiple invoices</li>
                                         <li>Total allocated cannot exceed payment amount</li>
                                         <li>After entering an amount, click outside the row to save it</li>
                                         <li><strong>Balance Amount:</strong> Shows the remaining amount due after subtracting what you're paying</li>
                                         <li><strong>View Details:</strong> Click on "Total Invoiced Amount" to see all invoices or "Total Amount Received" to see payment history</li>
+                                    </ul>
+                                    <h4>FIFO Method Example:</h4>
+                                    <ul>
+                                        <li>If you have 3 invoices: Invoice 1 (Feb 10) = 1000 SR, Invoice 2 (Feb 12) = 1500 SR, Invoice 3 (Feb 14) = 2000 SR</li>
+                                        <li>And you enter payment amount = 3000 SR</li>
+                                        <li>Auto Distribute will allocate: Invoice 1 = 1000 SR (fully paid), Invoice 2 = 1500 SR (fully paid), Invoice 3 = 500 SR (partial)</li>
                                     </ul>
                                 </div>
                             </group>
@@ -247,3 +258,255 @@
 <!--              sequence="1"/>-->
 
 </odoo>
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+
+<!--    &lt;!&ndash; Payment List Display Wizard View &ndash;&gt;-->
+<!--    <record id="view_payment_list_display_wizard_form" model="ir.ui.view">-->
+<!--        <field name="name">payment.list.display.wizard.form</field>-->
+<!--        <field name="model">payment.list.display.wizard</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <form string="Customer Payments">-->
+<!--                <sheet>-->
+<!--                    <group>-->
+<!--                        <field name="partner_id" readonly="1" string="Customer"/>-->
+<!--                    </group>-->
+<!--                    <separator string="Payment History"/>-->
+<!--                    <field name="payment_line_ids" nolabel="1" readonly="1">-->
+<!--                        <list>-->
+<!--                            <field name="date"/>-->
+<!--                            <field name="number"/>-->
+<!--                            <field name="journal_id"/>-->
+<!--                            <field name="payment_method"/>-->
+<!--                            <field name="amount"/>-->
+<!--                            <field name="state"/>-->
+<!--                        </list>-->
+<!--                    </field>-->
+<!--                </sheet>-->
+<!--                <footer>-->
+<!--                    <button string="Close" class="btn-secondary" special="cancel"/>-->
+<!--                </footer>-->
+<!--            </form>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Payment List Display Line List View &ndash;&gt;-->
+<!--    <record id="view_payment_list_display_line_list" model="ir.ui.view">-->
+<!--        <field name="name">payment.list.display.line.list</field>-->
+<!--        <field name="model">payment.list.display.line</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <list create="0" edit="0" delete="0">-->
+<!--                <field name="date"/>-->
+<!--                <field name="number"/>-->
+<!--                <field name="journal_id"/>-->
+<!--                <field name="payment_method"/>-->
+<!--                <field name="amount"/>-->
+<!--                <field name="state"/>-->
+<!--            </list>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Multi Payment Invoice Line List View &ndash;&gt;-->
+<!--    <record id="view_multi_payment_invoice_line_tree" model="ir.ui.view">-->
+<!--        <field name="name">multi.payment.invoice.line.list</field>-->
+<!--        <field name="model">multi.payment.invoice.line</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <list editable="bottom" create="0" delete="0" multi_edit="1">-->
+<!--                <field name="wizard_id" column_invisible="1"/>-->
+<!--                <field name="invoice_id" column_invisible="1"/>-->
+<!--                <field name="currency_id" column_invisible="1"/>-->
+<!--                <field name="selected" widget="boolean_toggle" force_save="1"/>-->
+<!--                <field name="invoice_number" readonly="1"/>-->
+<!--                <field name="invoice_date" readonly="1"/>-->
+<!--                <field name="amount_total" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>-->
+<!--                <field name="amount_residual" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>-->
+<!--                <field name="amount_to_pay" widget="monetary" options="{'currency_field': 'currency_id'}" force_save="1"/>-->
+<!--                <field name="balance_amount" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>-->
+<!--            </list>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Multi Payment Wizard Form View &ndash;&gt;-->
+<!--    <record id="view_multi_payment_wizard_form" model="ir.ui.view">-->
+<!--        <field name="name">multi.payment.wizard.form</field>-->
+<!--        <field name="model">multi.payment.wizard</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <form string="Register Payment Against Multiple Invoices">-->
+<!--                <sheet>-->
+<!--                    &lt;!&ndash; Customer Summary Section - Top Right, Clean Display &ndash;&gt;-->
+<!--                    <div invisible="not partner_id" class="oe_right" style="font-size: 13px; line-height: 2; margin-bottom: 15px;">-->
+<!--                        <div>-->
+<!--                            <span>Total Invoiced = </span>-->
+<!--                            <button name="action_view_customer_invoices" type="object"-->
+<!--                                    class="btn btn-link"-->
+<!--                                    style="padding: 0; font-weight: bold; text-decoration: none; color: inherit;">-->
+<!--                                <field name="total_invoiced_amount" widget="monetary"-->
+<!--                                       options="{'currency_field': 'currency_id'}" nolabel="1"-->
+<!--                                       readonly="1"/>-->
+<!--                            </button>-->
+<!--                        </div>-->
+<!--                        <div>-->
+<!--                            <span>Total Received = </span>-->
+<!--                            <button name="action_view_customer_payments" type="object"-->
+<!--                                    class="btn btn-link"-->
+<!--                                    style="padding: 0; font-weight: bold; text-decoration: none; color: inherit;">-->
+<!--                                <field name="total_amount_received" widget="monetary"-->
+<!--                                       options="{'currency_field': 'currency_id'}" nolabel="1"-->
+<!--                                       readonly="1"/>-->
+<!--                            </button>-->
+<!--                        </div>-->
+<!--                        <div>-->
+<!--                            <span>Balance Due = </span>-->
+<!--                            <field name="total_balance_due" widget="monetary"-->
+<!--                                   options="{'currency_field': 'currency_id'}" nolabel="1"-->
+<!--                                   class="oe_inline"-->
+<!--                                   style="font-weight: bold;"-->
+<!--                                   readonly="1"/>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    <group>-->
+<!--                        <group string="Payment Information">-->
+<!--                            <field name="partner_id" options="{'no_create': True}"-->
+<!--                                   placeholder="Select customer..."/>-->
+<!--                            <field name="payment_date"/>-->
+<!--                            <field name="payment_amount"-->
+<!--                                   widget="monetary"-->
+<!--                                   options="{'currency_field': 'currency_id'}"/>-->
+<!--                            <field name="currency_id" invisible="1"/>-->
+<!--                            <button name="action_load_invoices"-->
+<!--                                    string="Load Invoices"-->
+<!--                                    type="object"-->
+<!--                                    class="btn-primary"-->
+<!--                                    icon="fa-download"-->
+<!--                                    invisible="not partner_id"-->
+<!--                                    help="Click to load unpaid invoices for the selected customer"/>-->
+<!--                        </group>-->
+<!--                        <group string="Payment Details">-->
+<!--                            <field name="journal_id"-->
+<!--                                   options="{'no_create': True}"/>-->
+<!--                            <field name="payment_method_line_id"-->
+<!--                                   options="{'no_create': True}"/>-->
+<!--                            <field name="memo" placeholder="Payment reference or note..."/>-->
+<!--                        </group>-->
+<!--                    </group>-->
+
+<!--                    <group>-->
+<!--                        <group>-->
+<!--                            <field name="auto_allocate"-->
+<!--                                   string="Display Invoices"-->
+<!--                                   widget="boolean_toggle"/>-->
+<!--                        </group>-->
+<!--                        <group>-->
+<!--                        </group>-->
+<!--                    </group>-->
+
+<!--                    <notebook>-->
+<!--                        <page string="Invoices to Pay" name="invoices_page">-->
+<!--                            &lt;!&ndash; Show message when no invoices are loaded &ndash;&gt;-->
+<!--                            <div invisible="invoice_line_ids" class="alert alert-info" role="alert">-->
+<!--                                <p><strong>No invoices loaded yet.</strong></p>-->
+<!--                                <p>Please click the "Load Invoices" button above to fetch unpaid invoices for the selected customer.</p>-->
+<!--                            </div>-->
+
+<!--                            &lt;!&ndash; Show invoice lines when loaded &ndash;&gt;-->
+<!--                            <field name="invoice_line_ids" nolabel="1" invisible="not invoice_line_ids"/>-->
+
+<!--                            <group class="oe_subtotal_footer oe_right" invisible="not invoice_line_ids">-->
+<!--                                <field name="payment_amount"-->
+<!--                                       string="Payment Amount"-->
+<!--                                       widget="monetary"-->
+<!--                                       options="{'currency_field': 'currency_id'}"-->
+<!--                                       readonly="1"/>-->
+<!--                                <field name="total_allocated"-->
+<!--                                       string="Total Allocated"-->
+<!--                                       widget="monetary"-->
+<!--                                       options="{'currency_field': 'currency_id'}"-->
+<!--                                       readonly="1"/>-->
+<!--                                <field name="remaining_amount"-->
+<!--                                       string="Remaining Amount"-->
+<!--                                       widget="monetary"-->
+<!--                                       options="{'currency_field': 'currency_id'}"-->
+<!--                                       readonly="1"-->
+<!--                                       class="oe_subtotal_footer_separator"/>-->
+<!--                            </group>-->
+<!--                        </page>-->
+
+<!--                        <page string="Help" name="help_page">-->
+<!--                            <group>-->
+<!--                                <div class="alert alert-info" role="alert">-->
+<!--                                    <h4>How to Use:</h4>-->
+<!--                                    <ol>-->
+<!--                                        <li><strong>Select Customer:</strong> Choose the customer who made the payment</li>-->
+<!--                                        <li><strong>Enter Payment Amount:</strong> Enter the exact amount received (e.g., 2500 SAR)</li>-->
+<!--                                        <li><strong>Click "Load Invoices":</strong> This will fetch all unpaid invoices for the customer and display them in the table</li>-->
+<!--                                        <li><strong>Select Payment Journal:</strong> Choose your bank (e.g., SNB Bank)</li>-->
+<!--                                        <li><strong>Select Invoices:</strong>-->
+<!--                                            <ul>-->
+<!--                                                <li>Enable "Auto Allocate" to automatically select and fill amounts for oldest invoices</li>-->
+<!--                                                <li>OR manually check the "Pay" box and enter amounts for each invoice</li>-->
+<!--                                                <li>Click OUTSIDE the row after entering amounts to save</li>-->
+<!--                                            </ul>-->
+<!--                                        </li>-->
+<!--                                        <li><strong>Create Payment:</strong> Click "Create Payment" button</li>-->
+<!--                                    </ol>-->
+<!--                                    <h4>Tips:</h4>-->
+<!--                                    <ul>-->
+<!--                                        <li>You MUST click "Load Invoices" button after selecting the customer</li>-->
+<!--                                        <li>Use "Auto Allocate" for quick allocation to oldest invoices</li>-->
+<!--                                        <li>You can partially pay multiple invoices</li>-->
+<!--                                        <li>Total allocated cannot exceed payment amount</li>-->
+<!--                                        <li>After entering an amount, click outside the row to save it</li>-->
+<!--                                        <li><strong>Balance Amount:</strong> Shows the remaining amount due after subtracting what you're paying</li>-->
+<!--                                        <li><strong>View Details:</strong> Click on "Total Invoiced Amount" to see all invoices or "Total Amount Received" to see payment history</li>-->
+<!--                                    </ul>-->
+<!--                                </div>-->
+<!--                            </group>-->
+<!--                        </page>-->
+<!--                    </notebook>-->
+<!--                </sheet>-->
+<!--                <footer>-->
+<!--                    <button name="action_register_payment"-->
+<!--                            string="Create Payment"-->
+<!--                            type="object"-->
+<!--                            class="btn-primary"-->
+<!--                            invisible="not partner_id"/>-->
+<!--                    <button string="Cancel"-->
+<!--                            class="btn-secondary"-->
+<!--                            special="cancel"/>-->
+<!--                </footer>-->
+<!--            </form>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Action to Open Wizard &ndash;&gt;-->
+<!--    <record id="action_multi_payment_wizard" model="ir.actions.act_window">-->
+<!--        <field name="name">Against Receipts</field>-->
+<!--        <field name="res_model">multi.payment.wizard</field>-->
+<!--        <field name="view_mode">form</field>-->
+<!--        <field name="target">new</field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Main Menu Item in Accounting Top Bar &ndash;&gt;-->
+<!--    <menuitem id="menu_multi_payment_wizard"-->
+<!--              name="Against Receipts"-->
+<!--              parent="account.menu_finance"-->
+<!--              action="action_multi_payment_wizard"-->
+<!--              sequence="10"/>-->
+
+<!--&lt;!&ndash;    &lt;!&ndash; Alternative Menu in Accounting Receivables &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    <menuitem id="menu_multi_payment_root"&ndash;&gt;-->
+<!--&lt;!&ndash;              name="Multi Payments"&ndash;&gt;-->
+<!--&lt;!&ndash;              parent="account.menu_finance_receivables"&ndash;&gt;-->
+<!--&lt;!&ndash;              sequence="15"/>&ndash;&gt;-->
+
+<!--&lt;!&ndash;    <menuitem id="menu_multi_payment_register"&ndash;&gt;-->
+<!--&lt;!&ndash;              name="Register Against receipts"&ndash;&gt;-->
+<!--&lt;!&ndash;              parent="menu_multi_payment_root"&ndash;&gt;-->
+<!--&lt;!&ndash;              action="action_multi_payment_wizard"&ndash;&gt;-->
+<!--&lt;!&ndash;              sequence="1"/>&ndash;&gt;-->
+
+<!--</odoo>-->

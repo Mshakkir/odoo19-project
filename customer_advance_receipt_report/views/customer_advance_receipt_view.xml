@@ -6,9 +6,9 @@
             <field name="name">customer.advance.receipt.report.list</field>
             <field name="model">customer.advance.receipt.report</field>
             <field name="arch" type="xml">
-                <list string="Customer Advance Receipt Report" 
-                      create="false" 
-                      edit="false" 
+                <list string="Customer Advance Receipt Report"
+                      create="false"
+                      edit="false"
                       delete="false">
                     <field name="date"/>
                     <field name="receipt_number"/>
@@ -17,6 +17,12 @@
                     <field name="customer_name"/>
                     <field name="amount" sum="Total Amount"/>
                     <field name="currency_id" column_invisible="1"/>
+                    <field name="payment_id" column_invisible="1"/>
+                    <button name="action_open_payment"
+                            type="object"
+                            string="View Receipt"
+                            class="btn-primary"
+                            icon="fa-eye"/>
                 </list>
             </field>
         </record>
@@ -30,3 +36,47 @@
         </record>
     </data>
 </odoo>
+
+
+
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <data>-->
+<!--        &lt;!&ndash; Customer Advance Receipt Report List View &ndash;&gt;-->
+<!--        <record id="view_customer_advance_receipt_report_list" model="ir.ui.view">-->
+<!--            <field name="name">customer.advance.receipt.report.list</field>-->
+<!--            <field name="model">customer.advance.receipt.report</field>-->
+<!--            <field name="arch" type="xml">-->
+<!--                <list string="Customer Advance Receipt Report" -->
+<!--                      create="false" -->
+<!--                      edit="false" -->
+<!--                      delete="false">-->
+<!--                    <field name="date"/>-->
+<!--                    <field name="receipt_number"/>-->
+<!--                    <field name="journal_name"/>-->
+<!--                    <field name="payment_method"/>-->
+<!--                    <field name="customer_name"/>-->
+<!--                    <field name="amount" sum="Total Amount"/>-->
+<!--                    <field name="currency_id" column_invisible="1"/>-->
+<!--                </list>-->
+<!--            </field>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; Customer Advance Receipt Report Action (for direct access if needed) &ndash;&gt;-->
+<!--        <record id="action_customer_advance_receipt_report" model="ir.actions.act_window">-->
+<!--            <field name="name">Customer Advance Receipt Report</field>-->
+<!--            <field name="res_model">customer.advance.receipt.report</field>-->
+<!--            <field name="view_mode">list</field>-->
+<!--            <field name="view_id" ref="view_customer_advance_receipt_report_list"/>-->
+<!--        </record>-->
+<!--    </data>-->
+<!--</odoo>-->

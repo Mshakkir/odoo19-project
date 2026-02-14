@@ -15,6 +15,7 @@ class PaymentAllocationDisplayWizard(models.TransientModel):
     payment_number = fields.Char(string='Payment Number', related='payment_id.name', readonly=True)
     journal_id = fields.Many2one('account.journal', string='Journal', related='payment_id.journal_id', readonly=True)
     currency_id = fields.Many2one('res.currency', related='payment_id.currency_id', readonly=True)
+    memo = fields.Char(string='Memo', readonly=True)
 
     allocation_line_ids = fields.One2many('payment.allocation.display.line', 'wizard_id', string='Invoice Allocations')
 

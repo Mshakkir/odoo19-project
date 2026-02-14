@@ -131,13 +131,13 @@
                                     icon="fa-download"
                                     invisible="not vendor_id"
                                     help="Click to load unpaid bills for the selected vendor"/>
-                            <button name="action_apply_distribution"
-                                    string="Apply Distribution"
-                                    type="object"
-                                    class="btn-success"
-                                    icon="fa-magic"
-                                    invisible="not invoice_line_ids"
-                                    help="Click to manually apply FIFO distribution"/>
+<!--                            <button name="action_apply_distribution"-->
+<!--                                    string="Apply Distribution"-->
+<!--                                    type="object"-->
+<!--                                    class="btn-success"-->
+<!--                                    icon="fa-magic"-->
+<!--                                    invisible="not invoice_line_ids"-->
+<!--                                    help="Click to manually apply FIFO distribution"/>-->
                         </group>
                         <group string="Receipt Details">
                             <field name="journal_id" options="{'no_create': True}"/>

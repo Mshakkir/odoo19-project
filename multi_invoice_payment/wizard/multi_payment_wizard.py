@@ -299,8 +299,7 @@ class MultiPaymentWizard(models.TransientModel):
             'currency_id': self.currency_id.id,
             'payment_type': 'inbound',
             'partner_type': 'customer',
-            'ref': self.memo or payment_reference,
-            'payment_reference': payment_reference,
+            'payment_reference': self.memo or payment_reference,
         }
 
         if self.payment_method_line_id:

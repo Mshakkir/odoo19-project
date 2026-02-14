@@ -476,6 +476,7 @@
 #     currency_id = fields.Many2one('res.currency', related='wizard_id.partner_id.company_id.currency_id',
 #                                   string='Currency', readonly=True)
 
+
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 import logging
@@ -589,12 +590,25 @@ class MultiPaymentWizard(models.TransientModel):
         self.auto_allocate = False  # Reset auto allocate
         self.auto_distribute = False  # Reset auto distribute
 
-    @api.onchange('auto_distribute', 'payment_amount')
+    @api.onchange('auto_distribute')
     def _onchange_auto_distribute(self):
         """Automatically distribute payment amount to invoices using FIFO when auto_distribute is enabled"""
-        if not self.auto_distribute:
-            return
+        if self.auto_distribute:
+            self._apply_auto_distribution()
+        else:
+            # When disabled, clear all allocations
+            for line in self.invoice_line_ids:
+                line.selected = False
+                line.amount_to_pay = 0.0
 
+    @api.onchange('payment_amount')
+    def _onchange_payment_amount(self):
+        """Reapply distribution when payment amount changes and auto_distribute is enabled"""
+        if self.auto_distribute:
+            self._apply_auto_distribution()
+
+    def _apply_auto_distribution(self):
+        """Apply FIFO distribution logic"""
         if not self.invoice_line_ids:
             return
 
@@ -606,30 +620,30 @@ class MultiPaymentWizard(models.TransientModel):
 
         remaining_payment = self.payment_amount
 
+        # Create list to store updates
+        updates = []
+
         for line in sorted_lines:
             if remaining_payment <= 0:
                 # No more payment to distribute
                 line.selected = False
                 line.amount_to_pay = 0.0
-                continue
-
-            if line.amount_residual <= 0:
+            elif line.amount_residual <= 0:
                 # Invoice already fully paid
                 line.selected = False
                 line.amount_to_pay = 0.0
-                continue
-
-            # Allocate payment to this invoice
-            line.selected = True
-
-            if remaining_payment >= line.amount_residual:
-                # Full payment for this invoice
-                line.amount_to_pay = line.amount_residual
-                remaining_payment -= line.amount_residual
             else:
-                # Partial payment for this invoice
-                line.amount_to_pay = remaining_payment
-                remaining_payment = 0.0
+                # Allocate payment to this invoice
+                line.selected = True
+
+                if remaining_payment >= line.amount_residual:
+                    # Full payment for this invoice
+                    line.amount_to_pay = line.amount_residual
+                    remaining_payment -= line.amount_residual
+                else:
+                    # Partial payment for this invoice
+                    line.amount_to_pay = remaining_payment
+                    remaining_payment = 0.0
 
         _logger.info(f"Auto-distributed {self.payment_amount} across {len(sorted_lines)} invoices using FIFO")
 
@@ -765,12 +779,38 @@ class MultiPaymentWizard(models.TransientModel):
 
         _logger.info(f"Loaded {len(invoice_line_vals)} unpaid invoices for customer {self.partner_id.name}")
 
+        # If auto_distribute is enabled, apply distribution after loading
+        if self.auto_distribute:
+            self._apply_auto_distribution()
+
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': _('Invoices Loaded'),
                 'message': _('%d unpaid invoice(s) loaded successfully.') % len(invoice_line_vals),
+                'type': 'success',
+            }
+        }
+
+    def action_apply_distribution(self):
+        """Manually apply FIFO distribution - Button action"""
+        self.ensure_one()
+
+        if not self.invoice_line_ids:
+            raise UserError(_('Please load invoices first.'))
+
+        if not self.payment_amount or self.payment_amount <= 0:
+            raise UserError(_('Please enter a valid payment amount.'))
+
+        self._apply_auto_distribution()
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Distribution Applied'),
+                'message': _('Payment amount has been distributed using FIFO method.'),
                 'type': 'success',
             }
         }

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Custom Journal Audit',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Accounting',
     'summary': 'Customized Journal Audit Report with Manual Journal Selection',
     'description': """
@@ -11,11 +11,15 @@
         - Manual journal selection (no auto-selection)
         - Journal entry number filtering
         - Show Details button functionality
+
+        Version 1.0.1 - Bug Fixes:
+        - Fixed journal auto-selection issue
+        - Fixed company_id KeyError in Show Details
     """,
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',
     'depends': [
-        'accounting_pdf_reports',  # OdooMates module dependency
+        'accounting_pdf_reports',
     ],
     'data': [
         'security/ir.model.access.csv',

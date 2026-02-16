@@ -2,7 +2,7 @@
 <odoo>
 
     <record id="view_journal_audit_line_tree" model="ir.ui.view">
-        <field name="name">journal.audit.line.list</field>
+        <field name="name">journal.audit.line.tree</field>
         <field name="model">account.move.line</field>
         <field name="arch" type="xml">
             <list string="Journal Audit Details"

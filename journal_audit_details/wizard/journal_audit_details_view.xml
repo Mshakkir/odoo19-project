@@ -15,6 +15,17 @@
                        placeholder="Search journals... (leave empty for all)"/>
             </xpath>
 
+            <!--
+                Add Journal Entry Number input field AFTER sort_selection.
+                It is only visible when "Journal Entry Number" radio is selected.
+                Uses attrs invisible so it shows/hides dynamically without reload.
+            -->
+            <xpath expr="//field[@name='sort_selection']" position="after">
+                <field name="journal_entry_number"
+                       placeholder="e.g. INV/2026/00001  (partial search supported)"
+                       invisible="sort_selection != 'move_name'"/>
+            </xpath>
+
             <!-- Add Show Details button -->
             <xpath expr="//footer/button[@name='check_report']" position="after">
                 <button string="Show Details"

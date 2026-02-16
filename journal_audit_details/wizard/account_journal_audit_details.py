@@ -16,6 +16,15 @@ class AccountPrintJournalDetails(models.TransientModel):
         default=False,
     )
 
+    # ── New field: Journal Entry Number filter ────────────────────────────────
+    # Shown only when sort_selection == 'move_name'
+    # User types e.g. INV/2026/00001 to filter results to that specific entry
+    journal_entry_number = fields.Char(
+        string='Journal Entry Number',
+        help='Enter a specific journal entry number to filter results (e.g. INV/2026/00001). '
+             'Leave empty to include all entries.',
+    )
+
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
@@ -26,6 +35,12 @@ class AccountPrintJournalDetails(models.TransientModel):
     def _onchange_clear_journal_ids(self):
         """Block parent onchange from repopulating journal_ids."""
         self.journal_ids = [(5, 0, 0)]
+
+    @api.onchange('sort_selection')
+    def _onchange_sort_selection(self):
+        """Clear journal entry number when switching sort mode."""
+        if self.sort_selection != 'move_name':
+            self.journal_entry_number = False
 
     def check_report_details(self):
         """Open detailed view of journal entries based on wizard filters"""
@@ -53,18 +68,17 @@ class AccountPrintJournalDetails(models.TransientModel):
         if self.company_id:
             domain.append(('company_id', '=', self.company_id.id))
 
-        # ── Apply sort_selection ──────────────────────────────────────────────
-        # sort_selection values from Odoo Mates:
-        #   'date'      → sort by date, then journal entry number
-        #   'move_name' → sort by journal entry number only
-        if self.sort_selection == 'date':
-            order = 'date asc, move_name asc'
-        else:
-            # 'move_name' = Journal Entry Number (default)
-            order = 'move_name asc'
+        # ── Journal Entry Number filter ───────────────────────────────────────
+        # If user selected "Journal Entry Number" mode AND typed a number,
+        # filter results to only lines belonging to that specific entry
+        if self.sort_selection == 'move_name' and self.journal_entry_number:
+            entry_number = self.journal_entry_number.strip()
+            # Search with ilike so partial matches work too
+            # e.g. typing "INV/2026" will match all invoices in 2026
+            domain.append(('move_name', 'ilike', entry_number))
 
         # ── Search ────────────────────────────────────────────────────────────
-        move_lines = self.env['account.move.line'].search(domain, order=order)
+        move_lines = self.env['account.move.line'].search(domain, order='move_name asc, date asc')
 
         if not move_lines:
             error_msg = _('No journal entries found for the selected criteria.\n\nPlease check:')
@@ -73,6 +87,8 @@ class AccountPrintJournalDetails(models.TransientModel):
                 error_details.append(f'- Journals: {", ".join(self.journal_ids.mapped("name"))}')
             else:
                 error_details.append('- Journals: All')
+            if self.sort_selection == 'move_name' and self.journal_entry_number:
+                error_details.append(f'- Journal Entry No.: {self.journal_entry_number}')
             error_details.append(f'- Target Moves: {self.target_move}')
             raise UserError(error_msg + '\n' + '\n'.join(error_details))
 
@@ -88,19 +104,13 @@ class AccountPrintJournalDetails(models.TransientModel):
         else:
             title_parts.append('All Journals')
 
+        if self.sort_selection == 'move_name' and self.journal_entry_number:
+            title_parts.append(f'Entry: {self.journal_entry_number.strip()}')
+
         if self.target_move == 'posted':
             title_parts.append('Posted Only')
 
-        sort_label = 'Sorted by Date' if self.sort_selection == 'date' else 'Sorted by Entry No.'
-        title_parts.append(sort_label)
-
         title += ' - ' + ' | '.join(title_parts)
-
-        # ── Pass order to context so list view respects it ────────────────────
-        context = {
-            'group_by': 'journal_id',
-            'order': order,
-        }
 
         return {
             'name': title,
@@ -109,6 +119,6 @@ class AccountPrintJournalDetails(models.TransientModel):
             'view_mode': 'list',
             'view_id': self.env.ref('journal_audit_details.view_journal_audit_line_tree').id,
             'domain': [('id', 'in', move_lines.ids)],
-            'context': context,
+            'context': {'group_by': 'journal_id'},
             'target': 'current',
         }

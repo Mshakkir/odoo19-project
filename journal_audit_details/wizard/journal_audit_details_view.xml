@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="account_report_print_journal_details_view" model="ir.ui.view">
+        <field name="name">journal.audit.details.view</field>
+        <field name="model">account.print.journal</field>
+        <field name="inherit_id" ref="accounting_pdf_reports.account_report_print_journal_view"/>
+        <field name="arch" type="xml">
+            <!-- Add Show Details button next to Print button -->
+            <xpath expr="//footer/button[@name='check_report']" position="after">
+                <button string="Show Details"
+                        name="check_report_details"
+                        type="object"
+                        class="btn-primary"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

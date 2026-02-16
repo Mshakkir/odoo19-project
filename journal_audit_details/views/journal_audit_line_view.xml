@@ -2,10 +2,10 @@
 <odoo>
 
     <record id="view_journal_audit_line_tree" model="ir.ui.view">
-        <field name="name">journal.audit.line.tree</field>
+        <field name="name">journal.audit.line.list</field>
         <field name="model">account.move.line</field>
         <field name="arch" type="xml">
-            <tree string="Journal Audit Details"
+            <list string="Journal Audit Details"
                   create="false"
                   edit="false"
                   delete="false"
@@ -45,7 +45,7 @@
                 <!-- Company (for multi-company) -->
                 <field name="company_id" groups="base.group_multi_company" optional="hide"/>
 
-            </tree>
+            </list>
         </field>
     </record>
 

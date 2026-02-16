@@ -30,6 +30,10 @@ class AccountReportGeneralLedgerAnalytic(models.TransientModel):
             ('date', '<=', self.date_to),
         ]
 
+        # Add account filter - THIS IS THE KEY FIX
+        if self.account_ids:
+            domain.append(('account_id', 'in', self.account_ids.ids))
+
         # Add journal filter
         if self.journal_ids:
             domain.append(('journal_id', 'in', self.journal_ids.ids))
@@ -80,6 +84,8 @@ class AccountReportGeneralLedgerAnalytic(models.TransientModel):
             error_msg = _('No journal entries found for the selected criteria.\n\nPlease check:')
             error_details = []
             error_details.append(f'- Date range: {self.date_from} to {self.date_to}')
+            if self.account_ids:
+                error_details.append(f'- Accounts: {", ".join(self.account_ids.mapped("code"))}')
             if self.journal_ids:
                 error_details.append(f'- Journals: {", ".join(self.journal_ids.mapped("name"))}')
             if self.analytic_account_ids:
@@ -95,9 +101,18 @@ class AccountReportGeneralLedgerAnalytic(models.TransientModel):
 
         # Build a descriptive name
         title = _('General Ledger Details')
+        title_parts = []
+
+        if self.account_ids:
+            account_names = ', '.join(self.account_ids.mapped('code'))
+            title_parts.append(account_names)
+
         if self.analytic_account_ids:
             analytic_names = ', '.join(self.analytic_account_ids.mapped('name'))
-            title += f' - {analytic_names}'
+            title_parts.append(f'Analytic: {analytic_names}')
+
+        if title_parts:
+            title += ' - ' + ' | '.join(title_parts)
 
         return {
             'name': title,

@@ -7,12 +7,7 @@
         <field name="inherit_id" ref="accounting_pdf_reports.account_report_print_journal_view"/>
         <field name="arch" type="xml">
 
-            <!--
-                Replace the journals embedded table with a searchable tag widget.
-                - many2many_tags: shows a clean dropdown search, selected items appear as tags
-                - no_create: prevents creating new journals from this field
-                - placeholder: shown when field is empty (empty = all journals)
-            -->
+            <!-- Replace journals table with searchable tag widget -->
             <xpath expr="//field[@name='journal_ids']" position="replace">
                 <field name="journal_ids"
                        widget="many2many_tags"
@@ -20,7 +15,7 @@
                        placeholder="Search journals... (leave empty for all)"/>
             </xpath>
 
-            <!-- Add Show Details button next to Print button -->
+            <!-- Add Show Details button -->
             <xpath expr="//footer/button[@name='check_report']" position="after">
                 <button string="Show Details"
                         name="check_report_details"

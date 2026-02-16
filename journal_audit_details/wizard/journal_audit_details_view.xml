@@ -6,11 +6,13 @@
         <field name="model">account.print.journal</field>
         <field name="inherit_id" ref="accounting_pdf_reports.account_report_print_journal_view"/>
         <field name="arch" type="xml">
-            <!-- Show journals as dropdown list (not embedded table, not tags) -->
+
+            <!-- Replace the journals table with a tag-based search widget -->
             <xpath expr="//field[@name='journal_ids']" position="replace">
                 <field name="journal_ids"
-                       widget="many2many"
-                       options="{'no_create': True}"/>
+                       widget="many2many_tags"
+                       options="{'no_create': True}"
+                       placeholder="Leave empty for all journals..."/>
             </xpath>
 
             <!-- Add Show Details button next to Print button -->
@@ -20,6 +22,7 @@
                         type="object"
                         class="btn-primary"/>
             </xpath>
+
         </field>
     </record>
 

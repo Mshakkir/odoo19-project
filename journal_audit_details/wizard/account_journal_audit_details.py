@@ -5,13 +5,15 @@ from odoo.exceptions import UserError
 class AccountPrintJournalDetails(models.TransientModel):
     _inherit = "account.print.journal"
 
-    # Override to remove required=True and clear the default
-    # so users can leave it empty to mean "all journals"
+    # ✅ Override the parent field to:
+    #    - Remove required=True (was required in Odoo Mates)
+    #    - Clear the default (parent defaults to sale+purchase journals)
+    #    - This makes the field start empty = "all journals"
     journal_ids = fields.Many2many(
         'account.journal',
         string='Journals',
         required=False,
-        default=lambda self: self.env['account.journal'].browse()
+        default=False,   # False = empty recordset on wizard open
     )
 
     def check_report_details(self):
@@ -23,7 +25,7 @@ class AccountPrintJournalDetails(models.TransientModel):
             ('date', '<=', self.date_to),
         ]
 
-        # If journals are selected, filter by them; otherwise include all
+        # If journals selected, filter by them; if empty = all journals
         if self.journal_ids:
             domain.append(('journal_id', 'in', self.journal_ids.ids))
 

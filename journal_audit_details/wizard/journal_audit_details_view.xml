@@ -6,11 +6,9 @@
         <field name="model">account.print.journal</field>
         <field name="inherit_id" ref="accounting_pdf_reports.account_report_print_journal_view"/>
         <field name="arch" type="xml">
-            <!-- Customize Journals field to show as dropdown list instead of tags -->
+            <!-- Replace journals field to show as embedded list view -->
             <xpath expr="//field[@name='journal_ids']" position="replace">
-                <field name="journal_ids"
-                       string="Journals"
-                       options="{'no_create': True, 'no_open': True}"/>
+                <field name="journal_ids"/>
             </xpath>
 
             <!-- Add Show Details button next to Print button -->

@@ -9,10 +9,12 @@
                   create="false"
                   edit="false"
                   delete="false"
+                  default_order="move_name asc"
                   decoration-muted="parent_state == 'draft'">
 
-                <!-- Move Information -->
-                <field name="move_id" string="Journal Entry"/>
+                <!-- Move Information — move_name is Journal Entry Number -->
+                <field name="move_name" string="Journal Entry No." optional="show"/>
+                <field name="move_id" string="Journal Entry" optional="hide"/>
                 <field name="date"/>
                 <field name="journal_id"/>
 

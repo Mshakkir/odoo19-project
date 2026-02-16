@@ -43,9 +43,10 @@ class AccountPrintJournalDetails(models.TransientModel):
             raise UserError(error_msg + '\n' + '\n'.join(error_details))
 
         # Build context for proper grouping
-        context = {
-            'search_default_group_by_journal': 1,
-        }
+        context = {}
+
+        # Group by journal by default
+        context['group_by'] = 'journal_id'
 
         # Build a descriptive name
         title = _('Journal Audit Details')
@@ -62,12 +63,6 @@ class AccountPrintJournalDetails(models.TransientModel):
 
         if title_parts:
             title += ' - ' + ' | '.join(title_parts)
-
-        # Determine sort order
-        if self.sort_selection == 'date':
-            context['search_default_sort_date'] = 1
-        else:
-            context['search_default_sort_move'] = 1
 
         return {
             'name': title,

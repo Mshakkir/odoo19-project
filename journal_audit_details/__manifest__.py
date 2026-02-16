@@ -1,6 +1,6 @@
 {
     'name': 'Journal Audit with Details View',
-    'version': '1.0.2',
+    'version': '1.0.3',
     'depends': ['accounting_pdf_reports'],
     'author': 'Your Name',
     'category': 'Accounting',

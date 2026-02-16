@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit the original report template to add custom features -->
+    <template id="report_journal_custom" inherit_id="accounting_pdf_reports.report_journal">
+
+        <!-- Add filter information if entry numbers are specified -->
+        <xpath expr="//div[@class='row mt32']" position="after">
+            <div class="row mt16" t-if="entry_number_from or entry_number_to">
+                <div class="col-12">
+                    <strong>Entry Number Filter:</strong>
+                    <span t-if="entry_number_from">From: <t t-esc="entry_number_from"/></span>
+                    <span t-if="entry_number_to" style="margin-left: 20px;">To: <t t-esc="entry_number_to"/></span>
+                </div>
+            </div>
+        </xpath>
+
+        <!-- Add enhanced details section when show_details is enabled -->
+        <xpath expr="//div[@class='row'][last()]" position="after">
+            <div class="row mt32" t-if="show_details">
+                <div class="col-12">
+                    <h4>Detailed Analysis</h4>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Journal</th>
+                                <th>Total Entries</th>
+                                <th>Total Debit</th>
+                                <th>Total Credit</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="docs" t-as="journal">
+                                <td><span t-esc="journal.name"/></td>
+                                <td><span t-esc="len(lines[journal.id])"/></td>
+                                <td><span t-esc="sum_debit(data, journal)" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/></td>
+                                <td><span t-esc="sum_credit(data, journal)" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/></td>
+                                <td><span t-esc="sum_debit(data, journal) - sum_credit(data, journal)" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Add entry number range statistics when show_details is enabled -->
+            <div class="row mt16" t-if="show_details and (entry_number_from or entry_number_to)">
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <strong>Filter Applied:</strong>
+                        Showing entries
+                        <span t-if="entry_number_from">from <strong t-esc="entry_number_from"/></span>
+                        <span t-if="entry_number_to">to <strong t-esc="entry_number_to"/></span>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+
+    </template>
+
+</odoo>

@@ -196,3 +196,62 @@
         width: 100%;
     }
 }
+
+/* ── Product Autocomplete Dropdown ─────────────────────────────── */
+
+.ledger_product_filter_group {
+    min-width: 180px;
+}
+
+.ledger_product_autocomplete {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: #ffffff;
+    border: 1px solid #ced4da;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    max-height: 240px;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ledger_autocomplete_item {
+    padding: 7px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    transition: background-color 0.1s;
+}
+
+.ledger_autocomplete_item:last-child {
+    border-bottom: none;
+}
+
+.ledger_autocomplete_item:hover,
+.ledger_autocomplete_item.active {
+    background-color: #f0f7ff;
+}
+
+.ledger_autocomplete_item .product_code_badge {
+    background: #e9ecef;
+    color: #495057;
+    border-radius: 3px;
+    padding: 1px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.ledger_autocomplete_item .product_name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

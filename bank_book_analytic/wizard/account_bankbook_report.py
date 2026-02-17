@@ -68,6 +68,17 @@ class AccountBankBookReportAnalytic(models.TransientModel):
             'bank_book_analytic.action_report_bankbook_analytic'
         ).report_action(self, data=data)
 
+    def _get_memo_for_move(self, move_id):
+        """Fetch memo_new from account.payment linked to the given account.move id."""
+        if not move_id:
+            return ''
+        payment = self.env['account.payment'].search(
+            [('move_id', '=', move_id)], limit=1
+        )
+        if payment and payment.memo_new:
+            return payment.memo_new
+        return ''
+
     def action_show_details(self):
         """Open a new window showing bank book details"""
         self.ensure_one()
@@ -120,9 +131,14 @@ class AccountBankBookReportAnalytic(models.TransientModel):
 
             for line in account.get('move_lines', []):
                 if line.get('lname') != 'Initial Balance':  # Skip initial balance lines
+                    move_id = line.get('move_id', False)
+                    # Fetch memo from linked payment
+                    memo_value = self._get_memo_for_move(move_id)
+
                     detail_lines.append((0, 0, {
                         'date': line.get('ldate'),
                         'reference': line.get('move_name') or '',
+                        'memo': memo_value,  # NEW: memo_new from account.payment
                         'description': line.get('lname') or '',
                         'journal_code': line.get('lcode'),
                         'partner_name': line.get('partner_name') or '',
@@ -132,7 +148,7 @@ class AccountBankBookReportAnalytic(models.TransientModel):
                         'credit': line.get('credit', 0.0),
                         'balance': line.get('balance', 0.0),
                         'analytic_account_names': line.get('analytic_account_names') or '',
-                        'move_id': line.get('move_id', False),  # Add move_id here
+                        'move_id': move_id,
                     }))
                     account_debit += line.get('debit', 0.0)
                     account_credit += line.get('credit', 0.0)
@@ -184,6 +200,9 @@ class AccountBankBookReportAnalytic(models.TransientModel):
 
 
 
+
+
+
 # from odoo import fields, models, api, _
 #
 #
@@ -213,19 +232,38 @@ class AccountBankBookReportAnalytic(models.TransientModel):
 #              'that have no analytic account assigned'
 #     )
 #
+#     partner_ids = fields.Many2many(
+#         'res.partner',
+#         'bankbook_partner_rel',
+#         'report_id',
+#         'partner_id',
+#         string='Partners',
+#         help='Filter by partners (customers/vendors). Leave empty for all partners.'
+#     )
+#
 #     def _build_comparison_context(self, data):
 #         result = super()._build_comparison_context(data)
 #         result['analytic_account_ids'] = data['form'].get('analytic_account_ids', [])
 #         result['report_type'] = data['form'].get('report_type', 'combined')
 #         result['show_without_analytic'] = data['form'].get('show_without_analytic', True)
+#
+#         # Store partner_ids as list (serializable for reports)
+#         partner_ids = data['form'].get('partner_ids', [])
+#         if partner_ids:
+#             # If it's a recordset, get the IDs
+#             if hasattr(partner_ids, 'ids'):
+#                 partner_ids = partner_ids.ids
+#         result['partner_ids'] = partner_ids or []
+#
 #         return result
 #
 #     def check_report(self):
 #         data = {}
 #         data['form'] = self.read([
 #             'target_move', 'date_from', 'date_to', 'journal_ids',
-#             'account_ids', 'sortby', 'initial_balance', 'display_account',
-#             'analytic_account_ids', 'report_type', 'show_without_analytic'
+#             'account_ids', 'initial_balance', 'display_account',
+#             'analytic_account_ids', 'report_type', 'show_without_analytic',
+#             'partner_ids'
 #         ])[0]
 #
 #         comparison_context = self._build_comparison_context(data)
@@ -243,8 +281,9 @@ class AccountBankBookReportAnalytic(models.TransientModel):
 #         data = {}
 #         data['form'] = self.read([
 #             'target_move', 'date_from', 'date_to', 'journal_ids',
-#             'account_ids', 'sortby', 'initial_balance', 'display_account',
-#             'analytic_account_ids', 'report_type', 'show_without_analytic'
+#             'account_ids', 'initial_balance', 'display_account',
+#             'analytic_account_ids', 'report_type', 'show_without_analytic',
+#             'partner_ids'
 #         ])[0]
 #
 #         comparison_context = self._build_comparison_context(data)
@@ -267,7 +306,7 @@ class AccountBankBookReportAnalytic(models.TransientModel):
 #         account_res = report_obj.with_context(comparison_context)._get_account_move_entry(
 #             accounts,
 #             data['form']['initial_balance'],
-#             data['form']['sortby'],
+#             'sort_date',  # Always use date sorting
 #             data['form']['display_account']
 #         )
 #

@@ -85,7 +85,8 @@ class ReportBankBookAnalytic(models.AbstractModel):
                        COALESCE(SUM(l.debit), 0) - COALESCE(SUM(l.credit), 0) AS balance,
                        '' AS lpartner_id, '' AS move_name, '' AS currency_code,
                        NULL AS currency_id, '' AS partner_name,
-                       '' AS analytic_account_id, '' AS analytic_account_name
+                       '' AS analytic_account_id, '' AS analytic_account_name,
+                       '' AS memo
                 FROM account_move_line l
                 LEFT JOIN account_move m ON (l.move_id = m.id)
                 LEFT JOIN res_currency c ON (l.currency_id = c.id)
@@ -130,22 +131,26 @@ class ReportBankBookAnalytic(models.AbstractModel):
                     if acc_in.payment_account_id:
                         accounts += acc_in.payment_account_id
 
+        # Join account.payment to fetch memo_new (the Memo field on payments)
         sql = ('''
                     SELECT l.id AS lid, l.account_id AS account_id, l.date AS ldate, j.code AS lcode,
                            l.currency_id, l.amount_currency, l.ref AS lref, l.name AS lname,
                            COALESCE(l.debit, 0) AS debit, COALESCE(l.credit, 0) AS credit,
                            COALESCE(SUM(l.debit), 0) - COALESCE(SUM(l.credit), 0) AS balance,
                            m.name AS move_name, c.symbol AS currency_code, p.name AS partner_name,
-                           l.analytic_distribution, m.id AS move_id
+                           l.analytic_distribution, m.id AS move_id,
+                           COALESCE(pay.memo_new, '') AS memo
                     FROM account_move_line l
                     JOIN account_move m ON (l.move_id = m.id)
                     LEFT JOIN res_currency c ON (l.currency_id = c.id)
                     LEFT JOIN res_partner p ON (l.partner_id = p.id)
                     JOIN account_journal j ON (l.journal_id = j.id)
                     JOIN account_account acc ON (l.account_id = acc.id)
+                    LEFT JOIN account_payment pay ON (pay.move_id = m.id)
                     WHERE l.account_id IN %s ''' + filters + '''
                     GROUP BY l.id, l.account_id, l.date, j.code, l.currency_id, l.amount_currency,
-                             l.ref, l.name, m.name, c.symbol, p.name, l.analytic_distribution, m.id
+                             l.ref, l.name, m.name, c.symbol, p.name, l.analytic_distribution, m.id,
+                             pay.memo_new
                     ORDER BY ''' + sql_sort
                )
 
@@ -357,6 +362,9 @@ class ReportBankBookAnalytic(models.AbstractModel):
 
 
 
+
+
+
 # import time
 # from odoo import api, models, _
 # from odoo.exceptions import UserError
@@ -376,9 +384,43 @@ class ReportBankBookAnalytic(models.AbstractModel):
 #         report_type = self.env.context.get('report_type', 'combined')
 #         show_without_analytic = self.env.context.get('show_without_analytic', True)
 #
+#         # Get partner_ids - can be recordset, list, or string (from serialized context)
+#         partner_ids = self.env.context.get('partner_ids', [])
+#         partner_ids_list = []
+#
+#         if partner_ids:
+#             # Handle different types
+#             if hasattr(partner_ids, 'ids'):
+#                 # It's a recordset
+#                 partner_ids_list = partner_ids.ids
+#             elif isinstance(partner_ids, (list, tuple)):
+#                 # It's already a list
+#                 partner_ids_list = list(partner_ids)
+#             elif isinstance(partner_ids, str):
+#                 # It might be a string representation from serialization
+#                 try:
+#                     import ast
+#                     partner_ids_list = ast.literal_eval(partner_ids)
+#                     if not isinstance(partner_ids_list, list):
+#                         partner_ids_list = [partner_ids_list]
+#                 except:
+#                     partner_ids_list = []
+#             else:
+#                 # Single ID
+#                 partner_ids_list = [partner_ids]
+#
+#         # Create a modified context with partner_ids as recordset for accounting_pdf_reports module
+#         modified_context = dict(self.env.context)
+#         if partner_ids_list:
+#             modified_context['partner_ids'] = self.env['res.partner'].browse(partner_ids_list)
+#         else:
+#             # Empty recordset if no partners selected
+#             modified_context['partner_ids'] = self.env['res.partner']
+#
 #         # Initial balance
 #         if init_balance:
 #             init_tables, init_where_clause, init_where_params = MoveLine.with_context(
+#                 modified_context,
 #                 date_from=self.env.context.get('date_from'),
 #                 date_to=False,
 #                 initial_bal=True
@@ -418,19 +460,18 @@ class ReportBankBookAnalytic(models.AbstractModel):
 #                 JOIN account_journal j ON (l.journal_id = j.id)
 #                 JOIN account_account acc ON (l.account_id = acc.id)
 #                 WHERE l.account_id IN %s """ + filters + ' GROUP BY l.account_id'
-#             )
+#                    )
 #
 #             params = (tuple(accounts.ids),) + tuple(init_where_params)
 #             cr.execute(sql, params)
 #             for row in cr.dictfetchall():
 #                 move_lines[row.pop('account_id')].append(row)
 #
-#         sql_sort = 'l.date, l.move_id'
-#         if sortby == 'sort_journal_partner':
-#             sql_sort = 'j.code, p.name, l.move_id'
+#         # Always sort by date, partner for bank book
+#         sql_sort = 'l.date, p.name, l.move_id'
 #
 #         # Main query
-#         tables, where_clause, where_params = MoveLine._query_get()
+#         tables, where_clause, where_params = MoveLine.with_context(modified_context)._query_get()
 #         wheres = [""]
 #         if where_clause.strip():
 #             wheres.append(where_clause.strip())
@@ -599,11 +640,25 @@ class ReportBankBookAnalytic(models.AbstractModel):
 #         docs = self.env[model].browse(self.env.context.get('active_ids', []))
 #         init_balance = data['form'].get('initial_balance', True)
 #         display_account = data['form'].get('display_account')
-#         sortby = data['form'].get('sortby', 'sort_date')
+#         sortby = 'sort_date'  # Always use date sorting
 #
 #         analytic_ids = data['form'].get('analytic_account_ids', [])
 #         report_type = data['form'].get('report_type', 'combined')
 #         show_without_analytic = data['form'].get('show_without_analytic', True)
+#
+#         # Get partner_ids from form data
+#         partner_ids_data = data['form'].get('partner_ids', [])
+#         partner_names = []
+#         if partner_ids_data:
+#             # If it's a recordset, get the IDs
+#             if hasattr(partner_ids_data, 'ids'):
+#                 partner_ids_list = partner_ids_data.ids
+#             else:
+#                 partner_ids_list = partner_ids_data if isinstance(partner_ids_data, list) else [partner_ids_data]
+#
+#             if partner_ids_list:
+#                 partners = self.env['res.partner'].browse(partner_ids_list)
+#                 partner_names = partners.mapped('name')
 #
 #         codes = []
 #         if data['form'].get('journal_ids', False):
@@ -654,5 +709,6 @@ class ReportBankBookAnalytic(models.AbstractModel):
 #             'without_analytic_data': without_analytic_data,
 #             'show_without_analytic': show_without_analytic,
 #             'analytic_account_ids': analytic_ids,
+#             'partner_ids': partner_ids_data,
+#             'partner_names': partner_names,
 #         }
-#

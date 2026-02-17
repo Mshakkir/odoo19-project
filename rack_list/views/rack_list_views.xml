@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tree/List View -->
+    <record id="view_rack_list_tree" model="ir.ui.view">
+        <field name="name">rack.list.tree</field>
+        <field name="model">rack.list</field>
+        <field name="arch" type="xml">
+            <list string="Rack List" create="false" edit="false" delete="false">
+                <field name="product_code" string="Ref#" optional="show"/>
+                <field name="product_id" string="Product"/>
+                <field name="product_categ_id" string="Category" optional="show"/>
+                <field name="location_complete_name" string="Location"/>
+                <field name="quantity" string="Qty On Hand"/>
+                <field name="uom_id" string="Unit"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_rack_list_search" model="ir.ui.view">
+        <field name="name">rack.list.search</field>
+        <field name="model">rack.list</field>
+        <field name="arch" type="xml">
+            <search string="Search Rack List">
+                <field name="product_id" string="Product"/>
+                <field name="product_code" string="Internal Reference"/>
+                <field name="location_id" string="Location"/>
+                <field name="product_categ_id" string="Category"/>
+                <separator/>
+                <group string="Group By">
+                    <filter string="Location" name="group_by_location"
+                            context="{'group_by': 'location_id'}"/>
+                    <filter string="Category" name="group_by_category"
+                            context="{'group_by': 'product_categ_id'}"/>
+                    <filter string="Product" name="group_by_product"
+                            context="{'group_by': 'product_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_rack_list" model="ir.actions.act_window">
+        <field name="name">Rack List</field>
+        <field name="res_model">rack.list</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_rack_list_tree"/>
+        <field name="search_view_id" ref="view_rack_list_search"/>
+        <field name="context">{'search_default_group_by_location': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No products found in stock locations.
+            </p>
+            <p>
+                This list shows all products currently stored in internal locations.
+            </p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Add Rack List menu item to Sales top bar -->
+    <menuitem
+        id="menu_rack_list"
+        name="Rack List"
+        parent="sale.sale_menu_root"
+        action="action_rack_list"
+        sequence="50"/>
+
+</odoo>

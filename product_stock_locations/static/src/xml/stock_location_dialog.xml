@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="product_stock_locations.StockLocationDialog">
+        <Dialog title="title" size="'xl'">
+            <div class="o_stock_location_dialog">
+                <t t-if="hasStock">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Location</th>
+                                    <th>Lot / Serial</th>
+                                    <th>Package</th>
+                                    <th class="text-end">On Hand</th>
+                                    <th class="text-end">Reserved</th>
+                                    <th class="text-end">Available</th>
+                                    <th>UoM</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="props.stockLocations" t-as="record" t-key="record.id">
+                                    <tr t-att-class="isTotal(record) ? 'table-secondary fw-bold border-top border-dark' : ''">
+                                        <td>
+                                            <t t-if="isTotal(record)">
+                                                <strong>TOTAL</strong>
+                                            </t>
+                                            <t t-else="">
+                                                <i class="fa fa-map-marker me-1 text-muted"/>
+                                                <t t-esc="record.location_name"/>
+                                            </t>
+                                        </td>
+                                        <td>
+                                            <t t-if="record.lot_name">
+                                                <span class="badge text-bg-info">
+                                                    <t t-esc="record.lot_name"/>
+                                                </span>
+                                            </t>
+                                            <t t-else="">
+                                                <span class="text-muted">-</span>
+                                            </t>
+                                        </td>
+                                        <td>
+                                            <t t-if="record.package_name">
+                                                <span class="badge text-bg-secondary">
+                                                    <t t-esc="record.package_name"/>
+                                                </span>
+                                            </t>
+                                            <t t-else="">
+                                                <span class="text-muted">-</span>
+                                            </t>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-esc="formatNumber(record.on_hand)"/>
+                                        </td>
+                                        <td class="text-end text-warning">
+                                            <t t-esc="formatNumber(record.reserved)"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <span t-att-class="getAvailableClass(record.available)">
+                                                <t t-esc="formatNumber(record.available)"/>
+                                            </span>
+                                        </td>
+                                        <td class="text-muted">
+                                            <t t-esc="record.uom"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+                <t t-else="">
+                    <div class="alert alert-warning">
+                        <i class="fa fa-exclamation-triangle me-2"/>
+                        No stock found for this product in any internal location.
+                    </div>
+                </t>
+            </div>
+        </Dialog>
+    </t>
+</templates>

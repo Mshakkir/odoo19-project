@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Add Rack List menu item to Sales top bar -->
     <menuitem
         id="menu_rack_list"
         name="Rack List"

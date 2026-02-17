@@ -161,12 +161,14 @@ class AccountBankBookReportAnalytic(models.TransientModel):
                 'line_ids': detail_lines,
                 'subtotal_debit': account_debit,
                 'subtotal_credit': account_credit,
-                'subtotal_balance': account_balance,
+                'subtotal_balance': account_debit - account_credit,  # Net = Debit - Credit
             }))
 
             total_debit += account_debit
             total_credit += account_credit
-            total_balance = account_balance
+
+        # Net balance = total debit - total credit across all accounts
+        total_balance = total_debit - total_credit
 
         # Create the details record
         details = self.env['account.bankbook.details'].create({

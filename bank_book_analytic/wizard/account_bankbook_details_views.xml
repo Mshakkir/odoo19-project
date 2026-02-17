@@ -92,10 +92,9 @@
                                        optional="show"
                                        width="90"/>
 
-                                <!-- Balance with sum total -->
+                                <!-- Balance: running balance, not summed in list footer -->
                                 <field name="balance"
                                        string="Balance"
-                                       sum="Total Balance"
                                        optional="show"
                                        width="90"/>
 
@@ -143,7 +142,6 @@
         </field>
     </record>
 </odoo>
-
 
 
 

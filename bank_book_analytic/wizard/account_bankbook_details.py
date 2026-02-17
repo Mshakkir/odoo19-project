@@ -18,12 +18,13 @@ class AccountBankBookDetails(models.TransientModel):
     total_credit = fields.Float(string='Total Credit', compute='_compute_totals', store=False)
     total_balance = fields.Float(string='Total Balance', compute='_compute_totals', store=False)
 
-    @api.depends('account_ids.subtotal_debit', 'account_ids.subtotal_credit', 'account_ids.subtotal_balance')
+    @api.depends('account_ids.subtotal_debit', 'account_ids.subtotal_credit')
     def _compute_totals(self):
         for record in self:
             record.total_debit = sum(record.account_ids.mapped('subtotal_debit'))
             record.total_credit = sum(record.account_ids.mapped('subtotal_credit'))
-            record.total_balance = sum(record.account_ids.mapped('subtotal_balance'))
+            # Balance = Total Debit - Total Credit (running balance sum is meaningless)
+            record.total_balance = record.total_debit - record.total_credit
 
 
 class AccountBankBookDetailsAccount(models.TransientModel):

@@ -24,10 +24,8 @@
         <field name="arch" type="xml">
             <search string="Search Rack List">
                 <field name="product_id" string="Product"/>
-                <field name="product_code" string="Internal Reference"/>
                 <field name="location_id" string="Location"/>
                 <field name="product_categ_id" string="Category"/>
-                <separator/>
                 <group string="Group By">
                     <filter string="Location" name="group_by_location"
                             context="{'group_by': 'location_id'}"/>

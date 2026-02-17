@@ -9,40 +9,40 @@
 
         <!-- Report Menus with Wizards (includes "All" option via checkbox) -->
         <menuitem id="menu_product_report"
-                  name="Product Sales Report"
+                  name="By Products"
                   parent="menu_sales_invoice_reports_root"
                   action="action_report_by_product_wizard"
                   sequence="10"/>
 
         <menuitem id="menu_customer_report"
-                  name="Customer Sales Report"
+                  name=" By Customer"
                   parent="menu_sales_invoice_reports_root"
                   action="action_report_by_customer_wizard"
                   sequence="20"/>
 
         <menuitem id="menu_salesperson_report"
-                  name="Salesperson Sales Report"
+                  name="By Salesperson"
                   parent="menu_sales_invoice_reports_root"
                   action="action_report_by_salesperson_wizard"
                   sequence="30"/>
 
         <!-- NEW: Analytic Account Report -->
         <menuitem id="menu_analytic_account_report"
-                  name="Warehouse Sales Report"
+                  name="By Warehouse"
                   parent="menu_sales_invoice_reports_root"
                   action="action_report_by_analytic_account_wizard"
                   sequence="40"/>
 
         <!-- NEW: Invoice Number Report -->
         <menuitem id="menu_invoice_number_report"
-                  name="Invoice Number Sales Report"
+                  name="By Invoice Number"
                   parent="menu_sales_invoice_reports_root"
                   action="action_report_by_invoice_number_wizard"
                   sequence="50"/>
 
         <!-- NEW: Product Category Report -->
         <menuitem id="menu_product_category_report"
-                  name="Product Category Sales Report"
+                  name="By Product Category "
                   parent="menu_sales_invoice_reports_root"
                   action="action_report_by_product_category_wizard"
                   sequence="60"/>

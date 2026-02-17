@@ -300,6 +300,7 @@
 #             'payment_type': 'inbound',
 #             'partner_type': 'customer',
 #             'payment_reference': self.memo or payment_reference,
+#             'memo': self.memo or '',  # Populate the memo field
 #         }
 #
 #         if self.payment_method_line_id:
@@ -314,6 +315,14 @@
 #         payment.action_post()
 #
 #         _logger.info(f"Posted payment: {payment.name}, Move: {payment.move_id.name if payment.move_id else 'N/A'}")
+#
+#         # Set memo on the journal entry after posting
+#         if payment.move_id and self.memo:
+#             try:
+#                 payment.move_id.write({'ref': self.memo})
+#                 _logger.info(f"Set memo '{self.memo}' on move {payment.move_id.name}")
+#             except Exception as e:
+#                 _logger.warning(f"Could not set memo on move: {str(e)}")
 #
 #         # ==============================================
 #         # SAVE ALLOCATION HISTORY (UPDATED WITH MEMO)
@@ -467,6 +476,7 @@
 #     currency_id = fields.Many2one('res.currency', related='wizard_id.partner_id.company_id.currency_id',
 #                                   string='Currency', readonly=True)
 
+
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 import logging
@@ -496,6 +506,8 @@ class MultiPaymentWizard(models.TransientModel):
                                        currency_field='currency_id', store=True)
     auto_allocate = fields.Boolean(string='Display invoices', default=False,
                                    help='Display invoices')
+    auto_distribute = fields.Boolean(string='Auto Distribute', default=False,
+                                     help='Automatically distribute payment amount to invoices using FIFO method')
 
     # Customer Summary Fields
     total_invoiced_amount = fields.Monetary(string='Total Invoiced Amount',
@@ -576,6 +588,64 @@ class MultiPaymentWizard(models.TransientModel):
         # IMPORTANT: Clear invoice lines when customer changes
         self.invoice_line_ids = [(5, 0, 0)]  # Delete all records
         self.auto_allocate = False  # Reset auto allocate
+        self.auto_distribute = False  # Reset auto distribute
+
+    @api.onchange('auto_distribute')
+    def _onchange_auto_distribute(self):
+        """Automatically distribute payment amount to invoices using FIFO when auto_distribute is enabled"""
+        if self.auto_distribute:
+            self._apply_auto_distribution()
+        else:
+            # When disabled, clear all allocations
+            for line in self.invoice_line_ids:
+                line.selected = False
+                line.amount_to_pay = 0.0
+
+    @api.onchange('payment_amount')
+    def _onchange_payment_amount(self):
+        """Reapply distribution when payment amount changes and auto_distribute is enabled"""
+        if self.auto_distribute:
+            self._apply_auto_distribution()
+
+    def _apply_auto_distribution(self):
+        """Apply FIFO distribution logic"""
+        if not self.invoice_line_ids:
+            return
+
+        if not self.payment_amount or self.payment_amount <= 0:
+            return
+
+        # Sort invoice lines by date (FIFO - First In First Out)
+        sorted_lines = self.invoice_line_ids.sorted(key=lambda l: l.invoice_date)
+
+        remaining_payment = self.payment_amount
+
+        # Create list to store updates
+        updates = []
+
+        for line in sorted_lines:
+            if remaining_payment <= 0:
+                # No more payment to distribute
+                line.selected = False
+                line.amount_to_pay = 0.0
+            elif line.amount_residual <= 0:
+                # Invoice already fully paid
+                line.selected = False
+                line.amount_to_pay = 0.0
+            else:
+                # Allocate payment to this invoice
+                line.selected = True
+
+                if remaining_payment >= line.amount_residual:
+                    # Full payment for this invoice
+                    line.amount_to_pay = line.amount_residual
+                    remaining_payment -= line.amount_residual
+                else:
+                    # Partial payment for this invoice
+                    line.amount_to_pay = remaining_payment
+                    remaining_payment = 0.0
+
+        _logger.info(f"Auto-distributed {self.payment_amount} across {len(sorted_lines)} invoices using FIFO")
 
     def action_view_customer_invoices(self):
         """View all invoices for the selected customer in a popup dialog"""
@@ -636,12 +706,12 @@ class MultiPaymentWizard(models.TransientModel):
                 }
             }
 
-        # Create wizard
+        # Create wizard to display payment lines
         wizard = self.env['payment.list.display.wizard'].create({
             'partner_id': self.partner_id.id,
         })
 
-        # Create lines
+        # Create payment lines
         for payment in payments:
             self.env['payment.list.display.line'].create({
                 'wizard_id': wizard.id,
@@ -650,7 +720,7 @@ class MultiPaymentWizard(models.TransientModel):
                 'journal_id': payment.journal_id.id,
                 'payment_method': payment.payment_method_line_id.name if payment.payment_method_line_id else '',
                 'amount': payment.amount,
-                'state': payment.state,
+                'state': dict(payment._fields['state'].selection).get(payment.state),
             })
 
         return {
@@ -663,127 +733,189 @@ class MultiPaymentWizard(models.TransientModel):
         }
 
     def action_load_invoices(self):
-        """Load unpaid invoices for selected customer"""
+        """Load unpaid invoices for the selected customer"""
         self.ensure_one()
+
         if not self.partner_id:
             raise UserError(_('Please select a customer first.'))
 
-        # Clear existing lines
+        # Clear existing invoice lines
         self.invoice_line_ids = [(5, 0, 0)]
 
-        # Search for unpaid invoices
+        # Search for unpaid posted invoices
         invoices = self.env['account.move'].search([
             ('partner_id', '=', self.partner_id.id),
             ('move_type', '=', 'out_invoice'),
             ('state', '=', 'posted'),
             ('payment_state', 'in', ['not_paid', 'partial']),
-        ], order='invoice_date')
+        ], order='invoice_date asc')  # Order by date for proper FIFO
 
         if not invoices:
-            raise UserError(_('No unpaid invoices found for this customer.'))
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Unpaid Invoices'),
+                    'message': _('No unpaid invoices found for this customer.'),
+                    'type': 'info',
+                }
+            }
 
         # Create invoice lines
-        lines = []
+        invoice_line_vals = []
         for invoice in invoices:
-            lines.append((0, 0, {
-                'invoice_id': invoice.id,
-                'invoice_date': invoice.invoice_date,
-                'invoice_number': invoice.name,
-                'amount_total': invoice.amount_total,
-                'amount_residual': invoice.amount_residual,
-                'amount_to_pay': 0.0,
-                'selected': False,
-            }))
+            if invoice.amount_residual > 0:  # Only include invoices with outstanding balance
+                invoice_line_vals.append((0, 0, {
+                    'invoice_id': invoice.id,
+                    'invoice_date': invoice.invoice_date,
+                    'invoice_number': invoice.name,
+                    'amount_total': invoice.amount_total,
+                    'amount_residual': invoice.amount_residual,
+                    'amount_to_pay': 0.0,
+                    'selected': False,
+                }))
 
-        self.invoice_line_ids = lines
-        self.auto_allocate = True
+        self.invoice_line_ids = invoice_line_vals
+
+        _logger.info(f"Loaded {len(invoice_line_vals)} unpaid invoices for customer {self.partner_id.name}")
+
+        # If auto_distribute is enabled, apply distribution after loading
+        if self.auto_distribute:
+            self._apply_auto_distribution()
 
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': _('Invoices Loaded'),
-                'message': _('%d unpaid invoice(s) loaded successfully.') % len(invoices),
+                'message': _('%d unpaid invoice(s) loaded successfully.') % len(invoice_line_vals),
+                'type': 'success',
+            }
+        }
+
+    def action_apply_distribution(self):
+        """Manually apply FIFO distribution - Button action"""
+        self.ensure_one()
+
+        if not self.invoice_line_ids:
+            raise UserError(_('Please load invoices first.'))
+
+        if not self.payment_amount or self.payment_amount <= 0:
+            raise UserError(_('Please enter a valid payment amount.'))
+
+        self._apply_auto_distribution()
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Distribution Applied'),
+                'message': _('Payment amount has been distributed using FIFO method.'),
                 'type': 'success',
             }
         }
 
     def action_register_payment(self):
-        """Register payment and reconcile with selected invoices"""
+        """Register payment against multiple invoices"""
         self.ensure_one()
 
-        # Validate customer
+        # Validation checks
         if not self.partner_id:
             raise UserError(_('Please select a customer.'))
 
-        # Validate payment amount
-        if self.payment_amount <= 0:
-            raise UserError(_('Payment amount must be greater than zero.'))
+        if not self.payment_date:
+            raise UserError(_('Please enter the payment date.'))
 
-        # Get selected invoices
+        if not self.payment_amount or self.payment_amount <= 0:
+            raise UserError(_('Please enter a valid payment amount.'))
+
+        if not self.journal_id:
+            raise UserError(_('Please select a payment journal.'))
+
+        # Get selected invoices with amounts
         selected_lines = self.invoice_line_ids.filtered(lambda l: l.selected and l.amount_to_pay > 0)
 
         if not selected_lines:
             raise UserError(_('Please select at least one invoice and enter the amount to pay.'))
 
-        # Validate total allocated doesn't exceed payment amount
-        if self.total_allocated > self.payment_amount:
+        # Calculate total allocated
+        total_allocated = sum(line.amount_to_pay for line in selected_lines)
+
+        if total_allocated > self.payment_amount:
             raise UserError(
-                _('Total allocated amount (%.2f) cannot exceed payment amount (%.2f).')
-                % (self.total_allocated, self.payment_amount)
+                _('Total allocated amount (%.2f) cannot exceed the payment amount (%.2f).')
+                % (total_allocated, self.payment_amount)
             )
 
-        # Prepare invoice data for reconciliation and display
+        if total_allocated <= 0:
+            raise UserError(_('Total allocated amount must be greater than zero.'))
+
+        _logger.info(f"Creating payment for customer {self.partner_id.name}, amount: {total_allocated}")
+
+        # Prepare invoice data for allocation history
         invoices_to_pay = []
         invoice_numbers = []
-        total_allocated = 0.0
 
         for line in selected_lines:
-            if line.amount_to_pay > 0:
-                invoices_to_pay.append({
-                    'invoice': line.invoice_id,
-                    'invoice_number': line.invoice_number,
-                    'invoice_date': line.invoice_date,
-                    'amount_total': line.amount_total,
-                    'amount_due': line.amount_residual,
-                    'amount_to_pay': line.amount_to_pay,
-                    'balance_after': line.balance_amount,
-                })
-                invoice_numbers.append(line.invoice_number)
-                total_allocated += line.amount_to_pay
+            invoice = line.invoice_id
+            amount_to_pay = line.amount_to_pay
 
-        # Create payment reference
-        payment_reference = ', '.join(invoice_numbers[:3])
-        if len(invoice_numbers) > 3:
-            payment_reference += f' +{len(invoice_numbers) - 3} more'
+            # Validate amount
+            if amount_to_pay > invoice.amount_residual:
+                raise UserError(
+                    _('Amount to pay (%.2f) for invoice %s exceeds the amount due (%.2f).')
+                    % (amount_to_pay, invoice.name, invoice.amount_residual)
+                )
+
+            invoices_to_pay.append({
+                'invoice': invoice,
+                'invoice_number': invoice.name,
+                'invoice_date': invoice.invoice_date,
+                'amount_total': invoice.amount_total,
+                'amount_due': invoice.amount_residual,
+                'amount_to_pay': amount_to_pay,
+                'balance_after': invoice.amount_residual - amount_to_pay,
+            })
+            invoice_numbers.append(invoice.name)
 
         # ==============================================
-        # CREATE PAYMENT
+        # CREATE PAYMENT RECORD
         # ==============================================
+
+        # Prepare payment values
         payment_vals = {
             'partner_id': self.partner_id.id,
-            'amount': self.payment_amount,
+            'payment_type': 'inbound',
+            'partner_type': 'customer',
+            'amount': total_allocated,
             'date': self.payment_date,
             'journal_id': self.journal_id.id,
             'currency_id': self.currency_id.id,
-            'payment_type': 'inbound',
-            'partner_type': 'customer',
-            'payment_reference': self.memo or payment_reference,
-            'memo': self.memo or '',  # Populate the memo field
+            'memo': self.memo or f"Payment for {', '.join(invoice_numbers[:3])}{'...' if len(invoice_numbers) > 3 else ''}",
         }
 
+        # Add payment method if selected
         if self.payment_method_line_id:
             payment_vals['payment_method_line_id'] = self.payment_method_line_id.id
 
-        # Create the payment
-        payment = self.env['account.payment'].create(payment_vals)
+        # Create payment with partner context
+        payment = self.env['account.payment'].with_context(
+            default_partner_id=self.partner_id.id
+        ).create(payment_vals)
 
-        _logger.info(f"Created payment: {payment.name} for partner: {self.partner_id.name} (ID: {self.partner_id.id})")
+        _logger.info(f"Created payment record: {payment.name}")
 
         # Post the payment
         payment.action_post()
+        _logger.info(f"Posted payment: {payment.name}")
 
-        _logger.info(f"Posted payment: {payment.name}, Move: {payment.move_id.name if payment.move_id else 'N/A'}")
+        # Verify partner is set on move and lines
+        if payment.move_id:
+            _logger.info(
+                f"Payment move: {payment.move_id.name}, Partner: {payment.move_id.partner_id.name if payment.move_id.partner_id else 'NOT SET'}")
+            for line in payment.move_id.line_ids:
+                _logger.info(
+                    f"Move line - Account: {line.account_id.code}, Partner: {line.partner_id.name if line.partner_id else 'NOT SET'}, Debit: {line.debit}, Credit: {line.credit}")
 
         # Set memo on the journal entry after posting
         if payment.move_id and self.memo:

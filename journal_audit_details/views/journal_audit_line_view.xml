@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_journal_audit_line_tree" model="ir.ui.view">
+        <field name="name">journal.audit.line.tree</field>
+        <field name="model">account.move.line</field>
+        <field name="arch" type="xml">
+            <list string="Journal Audit Details"
+                  create="false"
+                  edit="false"
+                  delete="false"
+                  default_order="move_name asc"
+                  decoration-muted="parent_state == 'draft'">
+
+                <!-- Move Information — move_name is Journal Entry Number -->
+                <field name="move_name" string="Journal Entry No." optional="show"/>
+                <field name="move_id" string="Journal Entry" optional="hide"/>
+                <field name="date"/>
+                <field name="journal_id"/>
+
+                <!-- Account Information -->
+                <field name="account_id"/>
+                <field name="partner_id"/>
+
+                <!-- Entry Details -->
+                <field name="name" string="Label"/>
+                <field name="ref" string="Reference" optional="hide"/>
+
+                <!-- Amounts -->
+                <field name="debit" sum="Total Debit"/>
+                <field name="credit" sum="Total Credit"/>
+                <field name="balance" sum="Total Balance" optional="hide"/>
+
+                <!-- Currency (for multi-currency) -->
+                <field name="currency_id" optional="hide" groups="base.group_multi_currency"/>
+                <field name="amount_currency" optional="hide" groups="base.group_multi_currency"/>
+
+                <!-- Analytic (if available) -->
+                <field name="analytic_distribution"
+                       widget="analytic_distribution"
+                       optional="hide"
+                       groups="analytic.group_analytic_accounting"/>
+
+                <!-- State -->
+                <field name="parent_state" string="Status" optional="hide"/>
+
+                <!-- Company (for multi-company) -->
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+
+            </list>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="account_report_print_journal_details_view" model="ir.ui.view">
+        <field name="name">journal.audit.details.view</field>
+        <field name="model">account.print.journal</field>
+        <field name="inherit_id" ref="accounting_pdf_reports.account_report_print_journal_view"/>
+        <field name="arch" type="xml">
+
+            <!-- Replace journals table with searchable tag widget -->
+            <xpath expr="//field[@name='journal_ids']" position="replace">
+                <field name="journal_ids"
+                       widget="many2many_tags"
+                       options="{'no_create': True}"
+                       placeholder="Search journals... (leave empty for all)"/>
+            </xpath>
+
+            <!--
+                Add Journal Entry Number input field AFTER sort_selection.
+                It is only visible when "Journal Entry Number" radio is selected.
+                Uses attrs invisible so it shows/hides dynamically without reload.
+            -->
+            <xpath expr="//field[@name='sort_selection']" position="after">
+                <field name="journal_entry_number"
+                       placeholder="e.g. INV/2026/00001  (partial search supported)"
+                       invisible="sort_selection != 'move_name'"/>
+            </xpath>
+
+            <!-- Add Show Details button -->
+            <xpath expr="//footer/button[@name='check_report']" position="after">
+                <button string="Show Details"
+                        name="check_report_details"
+                        type="object"
+                        class="btn-primary"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

@@ -16,9 +16,9 @@ class StockMove(models.Model):
         for move in self:
             if move.location_final_id and move.location_final_id != move.location_dest_id:
                 _logger.info(
-                    "Stock Final Location Fix: Overriding destination for move %s "
+                    "Stock Final Location Fix: Overriding destination for move ID %s "
                     "from '%s' to Final Location '%s'",
-                    move.name,
+                    move.id,
                     move.location_dest_id.complete_name,
                     move.location_final_id.complete_name,
                 )

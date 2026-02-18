@@ -6,7 +6,7 @@
                 <t t-if="hasStock">
                     <div class="table-responsive">
                         <table class="table table-sm table-hover">
-                            <thead style="background-color: #a3aabe; color: #ffffff;">
+                            <thead style="background-color: #a3aabe; color: dark;">
                                 <tr>
                                     <th>Location</th>
                                     <th class="text-end">On Hand</th>

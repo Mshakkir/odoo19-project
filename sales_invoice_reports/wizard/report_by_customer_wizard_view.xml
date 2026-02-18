@@ -10,7 +10,7 @@
                     <group>
                         <group>
                             <field name="show_all_customers"/>
-                            <field name="partner_id" options="{'no_create': True}"
+                            <field name="partner_id" widget="many2many_tags" options="{'no_create': True}"
                                    required="0"
                                    invisible="show_all_customers"/>
                             <field name="invoice_state"/>

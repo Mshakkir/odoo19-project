@@ -8,7 +8,7 @@ class ReportByCustomerWizard(models.TransientModel):
     _description = 'Report by Customer Wizard'
 
     show_all_customers = fields.Boolean(string='All Customers', default=False)
-    partner_id = fields.Many2one('res.partner', string='Customer')
+    partner_id = fields.Many2many('res.partner', string='Customer')
     date_from = fields.Date(string='Date From')
     date_to = fields.Date(string='Date To', default=fields.Date.today)
     invoice_state = fields.Selection([
@@ -22,7 +22,7 @@ class ReportByCustomerWizard(models.TransientModel):
     def _onchange_show_all_customers(self):
         """Clear customer selection when showing all customers"""
         if self.show_all_customers:
-            self.partner_id = False
+            self.partner_ids = [(5,0,0)]
 
     def action_apply(self):
         """Apply filter and show customer report"""
@@ -44,7 +44,7 @@ class ReportByCustomerWizard(models.TransientModel):
                         'sticky': False,
                     }
                 }
-            domain.append(('partner_id', '=', self.partner_id.id))
+            domain.append(('partner_id', 'in', self.partner_ids.ids))
 
         # Only filter by state if not 'all'
         if self.invoice_state and self.invoice_state != 'all':

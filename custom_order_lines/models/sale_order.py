@@ -192,7 +192,7 @@ class SaleOrderLine(models.Model):
     def _get_warehouse_from_analytic(self):
         """
         Match warehouse from analytic account on this line.
-        Tries matching warehouse.name and warehouse.short_name
+        Tries warehouse.name and warehouse.code (Odoo 19, was short_name)
         against both account.name and account.code.
         """
         if not self.analytic_distribution:
@@ -217,15 +217,21 @@ class SaleOrderLine(models.Model):
         )
 
         Warehouse = self.env['stock.warehouse']
+
+        # Determine the correct warehouse code field name
+        # Odoo 16/17 uses 'short_name', Odoo 18/19 renamed it to 'code'
+        wh_code_field = 'code' if 'code' in self.env['stock.warehouse']._fields else 'short_name'
+
         for account in accounts:
-            for field in ('name', 'short_name'):
-                for attr in (account.name, account.code):
-                    if not attr:
+            for wh_field in ('name', wh_code_field):
+                for analytic_val in (account.name, account.code):
+                    if not analytic_val:
                         continue
-                    wh = Warehouse.search([(field, 'ilike', attr)], limit=1)
+                    wh = Warehouse.search([(wh_field, 'ilike', analytic_val)], limit=1)
                     _logger.info(
                         "[STOCK_CHECK][SO] warehouse.%s ilike '%s' → %s",
-                        field, attr, wh.name if wh else 'NOT FOUND',
+                        wh_field, analytic_val,
+                        wh.name if wh else 'NOT FOUND',
                     )
                     if wh:
                         return wh
@@ -241,6 +247,9 @@ class SaleOrderLine(models.Model):
     )
     def _compute_is_stock_low(self):
         StockQuant = self.env['stock.quant']
+        # Determine warehouse code field once per call
+        wh_code_field = 'code' if 'code' in self.env['stock.warehouse']._fields else 'short_name'
+
         for line in self:
             product = line.product_id
 
@@ -248,13 +257,6 @@ class SaleOrderLine(models.Model):
                 line.is_stock_low = False
                 continue
 
-            # -------------------------------------------------------
-            # Odoo 17/18/19 changed product types:
-            #   type='service'  → no stock, skip
-            #   type='consu'    → consumable OR storable (check quants)
-            #   type='product'  → storable (older Odoo versions)
-            # We skip ONLY pure service products.
-            # -------------------------------------------------------
             product_type = getattr(product, 'type', None)
             detailed_type = getattr(product, 'detailed_type', None)
 
@@ -266,7 +268,7 @@ class SaleOrderLine(models.Model):
                 line.analytic_distribution,
             )
 
-            # Skip only services
+            # Skip only pure service products
             if product_type == 'service' or detailed_type == 'service':
                 line.is_stock_low = False
                 _logger.info(
@@ -287,10 +289,11 @@ class SaleOrderLine(models.Model):
                 reserved = sum(quants.mapped('reserved_quantity'))
                 available = on_hand - reserved
 
+                wh_code = getattr(warehouse, wh_code_field, '?')
                 _logger.info(
-                    "[STOCK_CHECK][SO] Warehouse='%s' short='%s' | "
+                    "[STOCK_CHECK][SO] Warehouse='%s' code='%s' | "
                     "on_hand=%.2f | reserved=%.2f | available=%.2f",
-                    warehouse.name, warehouse.short_name,
+                    warehouse.name, wh_code,
                     on_hand, reserved, available,
                 )
                 line.is_stock_low = available <= 0

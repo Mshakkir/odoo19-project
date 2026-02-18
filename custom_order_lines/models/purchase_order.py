@@ -201,15 +201,18 @@ class PurchaseOrderLine(models.Model):
         )
 
         Warehouse = self.env['stock.warehouse']
+        wh_code_field = 'code' if 'code' in Warehouse._fields else 'short_name'
+
         for account in accounts:
-            for field in ('name', 'short_name'):
-                for attr in (account.name, account.code):
-                    if not attr:
+            for wh_field in ('name', wh_code_field):
+                for analytic_val in (account.name, account.code):
+                    if not analytic_val:
                         continue
-                    wh = Warehouse.search([(field, 'ilike', attr)], limit=1)
+                    wh = Warehouse.search([(wh_field, 'ilike', analytic_val)], limit=1)
                     _logger.info(
                         "[STOCK_CHECK][PO] warehouse.%s ilike '%s' → %s",
-                        field, attr, wh.name if wh else 'NOT FOUND',
+                        wh_field, analytic_val,
+                        wh.name if wh else 'NOT FOUND',
                     )
                     if wh:
                         return wh
@@ -225,6 +228,8 @@ class PurchaseOrderLine(models.Model):
     )
     def _compute_is_stock_low(self):
         StockQuant = self.env['stock.quant']
+        wh_code_field = 'code' if 'code' in self.env['stock.warehouse']._fields else 'short_name'
+
         for line in self:
             product = line.product_id
 
@@ -243,7 +248,6 @@ class PurchaseOrderLine(models.Model):
                 line.analytic_distribution,
             )
 
-            # Skip only services
             if product_type == 'service' or detailed_type == 'service':
                 line.is_stock_low = False
                 _logger.info(
@@ -264,10 +268,11 @@ class PurchaseOrderLine(models.Model):
                 reserved = sum(quants.mapped('reserved_quantity'))
                 available = on_hand - reserved
 
+                wh_code = getattr(warehouse, wh_code_field, '?')
                 _logger.info(
-                    "[STOCK_CHECK][PO] Warehouse='%s' short='%s' | "
+                    "[STOCK_CHECK][PO] Warehouse='%s' code='%s' | "
                     "on_hand=%.2f | reserved=%.2f | available=%.2f",
-                    warehouse.name, warehouse.short_name,
+                    warehouse.name, wh_code,
                     on_hand, reserved, available,
                 )
                 line.is_stock_low = available <= 0

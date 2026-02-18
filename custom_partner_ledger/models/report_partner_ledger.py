@@ -123,13 +123,13 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
         # Determine display label and report title
         if has_receivable and has_payable:
             display_label = 'Customers & Vendors'
-            report_title = 'Customer/Vendor Statement of Account'
+            report_title = 'Customer/Vendor Statement of Report'
         elif has_receivable:
             display_label = 'Customers'
-            report_title = 'Customer Statement of Account'
+            report_title = 'Customer Statement of Report'
         elif has_payable:
             display_label = 'Vendors'
-            report_title = 'Vendor Statement of Account'
+            report_title = 'Vendor Statement of Report'
         else:
             display_label = 'Partners'
             report_title = 'Partner Ledger Report'

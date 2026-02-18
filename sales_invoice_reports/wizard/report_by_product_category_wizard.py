@@ -8,7 +8,7 @@ class ReportByProductCategoryWizard(models.TransientModel):
     _description = 'Report by Product Category Wizard'
 
     show_all_categories = fields.Boolean(string='All Categories', default=False)
-    categ_id = fields.Many2one('product.category', string='Product Category')
+    categ_id = fields.Many2many('product.category', string='Product Category')
     date_from = fields.Date(string='Date From')
     date_to = fields.Date(string='Date To', default=fields.Date.today)
     invoice_state = fields.Selection([
@@ -22,7 +22,7 @@ class ReportByProductCategoryWizard(models.TransientModel):
     def _onchange_show_all_categories(self):
         """Clear category selection when showing all categories"""
         if self.show_all_categories:
-            self.categ_id = False
+            self.categ_ids = [(5,0,0)]
 
     def action_apply(self):
         """Apply filter and show product category report"""
@@ -44,7 +44,7 @@ class ReportByProductCategoryWizard(models.TransientModel):
                         'sticky': False,
                     }
                 }
-            domain.append(('categ_id', '=', self.categ_id.id))
+            domain.append(('categ_id', 'in', self.categ_ids.ids))
 
         # Only filter by state if not 'all'
         if self.invoice_state and self.invoice_state != 'all':

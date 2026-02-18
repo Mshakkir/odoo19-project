@@ -9,7 +9,8 @@
                 <group>
                     <group>
                         <field name="show_all_categories"/>
-                        <field name="categ_id"
+                        <field name="categ_ids" options="{'no_create': True}"
+                                   widget="many2many_tags"
                                invisible="show_all_categories"
                                required="not show_all_categories"/>
                     </group>

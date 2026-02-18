@@ -121,18 +121,33 @@
                     <!-- Partner Details Block (below title) -->
                     <t t-foreach="docs" t-as="o">
                         <div style="margin-bottom: 8px; padding: 8px 12px; background-color: #f8f9fa; border-left: 3px solid #8B1538;">
-                            <strong t-esc="get_partner_label(data, o)"/>:
-                            <strong t-esc="o.name"/>
-                            <span t-if="o.vat" style="font-weight: normal;"> (VAT: <t t-esc="o.vat"/>)</span>
-                            <t t-if="o.street or o.city or o.country_id">
-                                <span style="margin-left: 8px; color: #555; font-size: 12px;">
-                                    <t t-if="o.street"><t t-esc="o.street"/><t t-if="o.street2 or o.city">, </t></t>
-                                    <t t-if="o.street2"><t t-esc="o.street2"/><t t-if="o.city">, </t></t>
-                                    <t t-if="o.city"><t t-esc="o.city"/><t t-if="o.zip"> <t t-esc="o.zip"/></t><t t-if="o.state_id or o.country_id">, </t></t>
-                                    <t t-if="o.state_id"><t t-esc="o.state_id.name"/><t t-if="o.country_id">, </t></t>
-                                    <t t-if="o.country_id"><t t-esc="o.country_id.name"/></t>
-                                </span>
-                            </t>
+                            <div>
+                                <strong t-esc="get_partner_label(data, o)"/>:
+                                <strong t-esc="o.name"/>
+                            </div>
+                            <div t-if="o.vat" style="color: #555; font-size: 12px;">
+                                VAT: <t t-esc="o.vat"/>
+                            </div>
+                            <div t-if="o.street" style="color: #555; font-size: 12px;">
+                                <t t-esc="o.street"/>
+                            </div>
+                            <div t-if="o.street2" style="color: #555; font-size: 12px;">
+                                <t t-esc="o.street2"/>
+                            </div>
+                            <div t-if="o.city or o.zip" style="color: #555; font-size: 12px;">
+                                <t t-if="o.city"><t t-esc="o.city"/></t>
+                                <t t-if="o.zip"> <t t-esc="o.zip"/></t>
+                            </div>
+                            <div t-if="o.state_id or o.country_id" style="color: #555; font-size: 12px;">
+                                <t t-if="o.state_id"><t t-esc="o.state_id.name"/><t t-if="o.country_id">, </t></t>
+                                <t t-if="o.country_id"><t t-esc="o.country_id.name"/></t>
+                            </div>
+                            <div t-if="o.phone" style="color: #555; font-size: 12px;">
+                                Tel: <t t-esc="o.phone"/>
+                            </div>
+                            <div t-if="o.email" style="color: #555; font-size: 12px;">
+                                Email: <t t-esc="o.email"/>
+                            </div>
                         </div>
                     </t>
 

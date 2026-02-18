@@ -8,7 +8,7 @@ class ReportByAnalyticAccountWizard(models.TransientModel):
     _description = 'Report by Analytic Account Wizard'
 
     show_all_analytic_accounts = fields.Boolean(string='All warehouse', default=False)
-    analytic_account_id = fields.Many2many('account.analytic.account', string='warehouse')
+    analytic_account_ids = fields.Many2many('account.analytic.account', string='Warehouses')
     date_from = fields.Date(string='Date From')
     date_to = fields.Date(string='Date To', default=fields.Date.today)
     invoice_state = fields.Selection([
@@ -33,13 +33,13 @@ class ReportByAnalyticAccountWizard(models.TransientModel):
 
         # Only filter by analytic account if not showing all
         if not self.show_all_analytic_accounts:
-            if not self.analytic_account_id:
+            if not self.analytic_account_ids:
                 return {
                     'type': 'ir.actions.client',
                     'tag': 'display_notification',
                     'params': {
                         'title': 'Warning',
-                        'message': 'Please select an analytic account or check "All Analytic Accounts"',
+                        'message': 'Please select at least one analytic account or check "All Analytic Accounts"',
                         'type': 'warning',
                         'sticky': False,
                     }
@@ -59,8 +59,10 @@ class ReportByAnalyticAccountWizard(models.TransientModel):
         # Set report name
         if self.show_all_analytic_accounts:
             report_name = 'Sales Report - All Analytic Accounts'
+        elif len(self.analytic_account_ids) == 1:
+            report_name = f'Sales Report - {self.analytic_account_ids[0].display_name}'
         else:
-            report_name = f'Sales Report - {self.analytic_account_id.display_name}'
+            report_name = f'Sales Report - {len(self.analytic_account_ids)} Analytic Accounts'
 
         return {
             'name': report_name,

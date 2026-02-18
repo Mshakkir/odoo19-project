@@ -8,7 +8,7 @@ class ReportByCustomerWizard(models.TransientModel):
     _description = 'Report by Customer Wizard'
 
     show_all_customers = fields.Boolean(string='All Customers', default=False)
-    partner_id = fields.Many2many('res.partner', string='Customer')
+    partner_id = fields.Many2one('res.partner', string='Customer')
     date_from = fields.Date(string='Date From')
     date_to = fields.Date(string='Date To', default=fields.Date.today)
     invoice_state = fields.Selection([

@@ -19,7 +19,7 @@
                             </thead>
                             <tbody>
                                 <t t-foreach="props.stockLocations" t-as="record" t-key="record.id">
-                                    <tr t-att-class="isTotal(record) ? 'table-secondary fw-bold border-top border-white' : ''">
+                                    <tr t-att-class="isTotal(record) ? 'table-secondary fw-bold border-top border-Cadet Blue' : ''">
                                         <td>
                                             <t t-if="isTotal(record)">
                                                 <strong>TOTAL</strong>

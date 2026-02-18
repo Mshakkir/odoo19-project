@@ -8,7 +8,7 @@ class ReportByProductCategoryWizard(models.TransientModel):
     _description = 'Report by Product Category Wizard'
 
     show_all_categories = fields.Boolean(string='All Categories', default=False)
-    categ_ids = fields.Many2many('product.category', string='Product Category')
+    categ_ids = fields.Many2many('product.category', string='Product Categories')
     date_from = fields.Date(string='Date From')
     date_to = fields.Date(string='Date To', default=fields.Date.today)
     invoice_state = fields.Selection([
@@ -22,7 +22,7 @@ class ReportByProductCategoryWizard(models.TransientModel):
     def _onchange_show_all_categories(self):
         """Clear category selection when showing all categories"""
         if self.show_all_categories:
-            self.categ_ids = [(5,0,0)]
+            self.categ_ids = [(5, 0, 0)]
 
     def action_apply(self):
         """Apply filter and show product category report"""
@@ -39,7 +39,7 @@ class ReportByProductCategoryWizard(models.TransientModel):
                     'tag': 'display_notification',
                     'params': {
                         'title': 'Warning',
-                        'message': 'Please select a product category or check "All Categories"',
+                        'message': 'Please select at least one product category or check "All Categories"',
                         'type': 'warning',
                         'sticky': False,
                     }
@@ -59,8 +59,10 @@ class ReportByProductCategoryWizard(models.TransientModel):
         # Set report name
         if self.show_all_categories:
             report_name = 'Sales Report - All Product Categories'
+        elif len(self.categ_ids) == 1:
+            report_name = f'Sales Report - {self.categ_ids[0].display_name}'
         else:
-            report_name = f'Sales Report - {self.categ_id.display_name}'
+            report_name = f'Sales Report - {len(self.categ_ids)} Categories'
 
         return {
             'name': report_name,

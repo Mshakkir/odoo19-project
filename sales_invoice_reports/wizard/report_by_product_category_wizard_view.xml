@@ -9,10 +9,10 @@
                 <group>
                     <group>
                         <field name="show_all_categories"/>
-                        <field name="categ_ids" options="{'no_create': True}"
-                                   widget="many2many_tags"
-                               invisible="show_all_categories"
-                              />
+                        <field name="categ_ids"
+                               widget="many2many_tags"
+                               options="{'no_create': True}"
+                               invisible="show_all_categories"/>
                     </group>
                     <group>
                         <field name="date_from"/>

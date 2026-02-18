@@ -179,54 +179,70 @@ class PurchaseOrderLine(models.Model):
     )
 
     def _get_warehouse_from_analytic(self):
-        _logger.debug(
-            "[STOCK_CHECK][PO] line id=%s | product=%s | analytic_distribution=%s",
-            self.id,
-            self.product_id.display_name if self.product_id else 'None',
-            self.analytic_distribution,
-        )
-
         if not self.analytic_distribution:
-            _logger.debug("[STOCK_CHECK][PO] analytic_distribution is empty/False")
+            _logger.info(
+                "[STOCK_CHECK][PO] line id=%s product='%s' → "
+                "NO analytic_distribution set",
+                self.id,
+                self.product_id.display_name if self.product_id else 'None',
+            )
             return False
 
         try:
             account_ids = [int(k) for k in self.analytic_distribution.keys()]
         except (ValueError, AttributeError) as e:
-            _logger.warning("[STOCK_CHECK][PO] Failed to parse analytic_distribution: %s", e)
+            _logger.warning(
+                "[STOCK_CHECK][PO] Failed to parse analytic_distribution: %s", e
+            )
             return False
 
         accounts = self.env['account.analytic.account'].browse(account_ids).exists()
-        _logger.debug(
-            "[STOCK_CHECK][PO] Analytic accounts: %s",
-            [(a.id, a.name) for a in accounts],
+        _logger.info(
+            "[STOCK_CHECK][PO] line id=%s | analytic accounts: %s",
+            self.id,
+            [(a.id, a.name, a.code) for a in accounts],
         )
 
-        for account in accounts:
-            warehouse = self.env['stock.warehouse'].search(
-                [('name', 'ilike', account.name)], limit=1
-            )
-            _logger.debug(
-                "[STOCK_CHECK][PO] Analytic '%s' → name search: %s",
-                account.name,
-                warehouse.name if warehouse else 'NOT FOUND',
-            )
-            if warehouse:
-                return warehouse
+        Warehouse = self.env['stock.warehouse']
 
         for account in accounts:
-            warehouse = self.env['stock.warehouse'].search(
-                [('short_name', 'ilike', account.name)], limit=1
-            )
-            _logger.debug(
-                "[STOCK_CHECK][PO] Analytic '%s' → short_name search: %s",
-                account.name,
-                warehouse.name if warehouse else 'NOT FOUND',
-            )
-            if warehouse:
-                return warehouse
+            if account.name:
+                wh = Warehouse.search([('name', 'ilike', account.name)], limit=1)
+                _logger.info(
+                    "[STOCK_CHECK][PO] warehouse.name ilike '%s' → %s",
+                    account.name, wh.name if wh else 'NOT FOUND',
+                )
+                if wh:
+                    return wh
 
-        _logger.debug("[STOCK_CHECK][PO] No matching warehouse found")
+            if account.code:
+                wh = Warehouse.search([('name', 'ilike', account.code)], limit=1)
+                _logger.info(
+                    "[STOCK_CHECK][PO] warehouse.name ilike code='%s' → %s",
+                    account.code, wh.name if wh else 'NOT FOUND',
+                )
+                if wh:
+                    return wh
+
+            if account.name:
+                wh = Warehouse.search([('short_name', 'ilike', account.name)], limit=1)
+                _logger.info(
+                    "[STOCK_CHECK][PO] warehouse.short_name ilike '%s' → %s",
+                    account.name, wh.name if wh else 'NOT FOUND',
+                )
+                if wh:
+                    return wh
+
+            if account.code:
+                wh = Warehouse.search([('short_name', 'ilike', account.code)], limit=1)
+                _logger.info(
+                    "[STOCK_CHECK][PO] warehouse.short_name ilike code='%s' → %s",
+                    account.code, wh.name if wh else 'NOT FOUND',
+                )
+                if wh:
+                    return wh
+
+        _logger.info("[STOCK_CHECK][PO] No warehouse match for line id=%s", self.id)
         return False
 
     @api.depends(
@@ -239,11 +255,6 @@ class PurchaseOrderLine(models.Model):
         StockQuant = self.env['stock.quant']
         for line in self:
             product = line.product_id
-            _logger.debug(
-                "[STOCK_CHECK][PO] Computing is_stock_low | line id=%s | product=%s",
-                line.id,
-                product.display_name if product else 'None',
-            )
 
             if not product:
                 line.is_stock_low = False
@@ -253,9 +264,12 @@ class PurchaseOrderLine(models.Model):
             detailed_type = getattr(product, 'detailed_type', None)
             is_storable = (product_type == 'product' or detailed_type == 'product')
 
-            _logger.debug(
-                "[STOCK_CHECK][PO] type=%s | detailed_type=%s | is_storable=%s",
+            _logger.info(
+                "[STOCK_CHECK][PO] Computing | line id=%s | product='%s' | "
+                "type=%s | detailed_type=%s | is_storable=%s | analytic=%s",
+                line.id, product.display_name,
                 product_type, detailed_type, is_storable,
+                line.analytic_distribution,
             )
 
             if not is_storable:
@@ -274,38 +288,45 @@ class PurchaseOrderLine(models.Model):
                 reserved = sum(quants.mapped('reserved_quantity'))
                 available = on_hand - reserved
 
-                _logger.debug(
-                    "[STOCK_CHECK][PO] Warehouse='%s' | Location='%s' | "
-                    "on_hand=%.2f | reserved=%.2f | available=%.2f",
-                    warehouse.name, location.complete_name,
+                _logger.info(
+                    "[STOCK_CHECK][PO] Warehouse='%s' short='%s' | "
+                    "on_hand=%.2f reserved=%.2f available=%.2f",
+                    warehouse.name, warehouse.short_name,
                     on_hand, reserved, available,
                 )
-
                 line.is_stock_low = available <= 0
             else:
-                _logger.debug(
-                    "[STOCK_CHECK][PO] Fallback: virtual_available=%.2f",
+                _logger.info(
+                    "[STOCK_CHECK][PO] Fallback virtual_available=%.2f",
                     product.virtual_available,
                 )
                 line.is_stock_low = product.virtual_available <= 0
 
-            _logger.debug(
-                "[STOCK_CHECK][PO] RESULT: is_stock_low=%s for product='%s'",
-                line.is_stock_low, product.display_name,
+            _logger.info(
+                "[STOCK_CHECK][PO] FINAL: product='%s' is_stock_low=%s",
+                product.display_name, line.is_stock_low,
             )
+
+    @api.onchange('product_id', 'analytic_distribution')
+    def _onchange_recompute_stock_status(self):
+        self._compute_is_stock_low()
 
     @api.depends('order_id.order_line', 'display_type')
     def _compute_sequence_number(self):
         for order in self.mapped('order_id'):
             number = 1
-            for line in order.order_line.filtered(lambda l: l.display_type in ['product', False]):
+            for line in order.order_line.filtered(
+                lambda l: l.display_type in ['product', False]
+            ):
                 line.sequence_number = number
                 number += 1
 
     @api.depends('product_id', 'product_id.default_code')
     def _compute_product_code(self):
         for line in self:
-            line.product_code = line.product_id.default_code if line.product_id else False
+            line.product_code = (
+                line.product_id.default_code if line.product_id else False
+            )
 
     def _search_product_code(self, operator, value):
         return [('product_id.default_code', operator, value)]
@@ -315,15 +336,19 @@ class PurchaseOrderLine(models.Model):
         for line in self:
             if line.display_type in ['product', False] and line.tax_ids:
                 try:
-                    price_after_discount = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
+                    price_after_discount = (
+                        line.price_unit * (1 - (line.discount or 0.0) / 100.0)
+                    )
                     tax_results = line.tax_ids.compute_all(
                         price_after_discount,
                         line.order_id.currency_id,
                         line.product_qty,
                         product=line.product_id,
-                        partner=line.order_id.partner_id
+                        partner=line.order_id.partner_id,
                     )
-                    line.tax_amount = tax_results['total_included'] - tax_results['total_excluded']
+                    line.tax_amount = (
+                        tax_results['total_included'] - tax_results['total_excluded']
+                    )
                 except Exception:
                     line.tax_amount = 0.0
             else:
@@ -352,7 +377,9 @@ class PurchaseOrderLine(models.Model):
             )
             if action:
                 result = action.read()[0]
-                result['context'] = {'search_default_product_id': self.product_id.id}
+                result['context'] = {
+                    'search_default_product_id': self.product_id.id,
+                }
                 return result
         except Exception:
             pass

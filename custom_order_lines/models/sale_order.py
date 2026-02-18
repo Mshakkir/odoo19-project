@@ -191,59 +191,88 @@ class SaleOrderLine(models.Model):
 
     def _get_warehouse_from_analytic(self):
         """
-        Return the first warehouse whose name matches (ilike) any analytic
-        account name selected on this line. Returns browse record or False.
-        """
-        _logger.debug(
-            "[STOCK_CHECK][SO] line id=%s | product=%s | analytic_distribution=%s",
-            self.id,
-            self.product_id.display_name if self.product_id else 'None',
-            self.analytic_distribution,
-        )
+        Match a warehouse from the analytic account on the line.
 
+        Odoo displays analytic accounts as "[CODE] Name".
+        We match against:
+          1. warehouse.name   ilike  account.name
+          2. warehouse.name   ilike  account.code
+          3. warehouse.short_name ilike account.name
+          4. warehouse.short_name ilike account.code
+
+        This covers cases where:
+          - The analytic name  = "JED-Fyh"  and warehouse name      = "JED-Fyh"
+          - The analytic code  = "FYH"      and warehouse short_name = "FYH"
+          - Any combination of the above
+        """
         if not self.analytic_distribution:
-            _logger.debug("[STOCK_CHECK][SO] analytic_distribution is empty/False")
+            _logger.info(
+                "[STOCK_CHECK][SO] line id=%s product='%s' → "
+                "NO analytic_distribution set",
+                self.id,
+                self.product_id.display_name if self.product_id else 'None',
+            )
             return False
 
         try:
             account_ids = [int(k) for k in self.analytic_distribution.keys()]
         except (ValueError, AttributeError) as e:
-            _logger.warning("[STOCK_CHECK][SO] Failed to parse analytic_distribution: %s", e)
+            _logger.warning(
+                "[STOCK_CHECK][SO] Failed to parse analytic_distribution keys: %s", e
+            )
             return False
 
         accounts = self.env['account.analytic.account'].browse(account_ids).exists()
-        _logger.debug(
-            "[STOCK_CHECK][SO] Analytic accounts: %s",
-            [(a.id, a.name) for a in accounts],
+        _logger.info(
+            "[STOCK_CHECK][SO] line id=%s | analytic accounts found: %s",
+            self.id,
+            [(a.id, a.name, a.code) for a in accounts],
         )
 
-        for account in accounts:
-            # Search warehouse by name match
-            warehouse = self.env['stock.warehouse'].search(
-                [('name', 'ilike', account.name)], limit=1
-            )
-            _logger.debug(
-                "[STOCK_CHECK][SO] Analytic '%s' → warehouse search result: %s",
-                account.name,
-                warehouse.name if warehouse else 'NOT FOUND',
-            )
-            if warehouse:
-                return warehouse
+        Warehouse = self.env['stock.warehouse']
 
-        # Also try matching on short_name (e.g. 'JED') in case analytic = short code
         for account in accounts:
-            warehouse = self.env['stock.warehouse'].search(
-                [('short_name', 'ilike', account.name)], limit=1
-            )
-            _logger.debug(
-                "[STOCK_CHECK][SO] Analytic '%s' → short_name search result: %s",
-                account.name,
-                warehouse.name if warehouse else 'NOT FOUND',
-            )
-            if warehouse:
-                return warehouse
+            # Try: warehouse.name ilike account.name
+            if account.name:
+                wh = Warehouse.search([('name', 'ilike', account.name)], limit=1)
+                _logger.info(
+                    "[STOCK_CHECK][SO] Search warehouse.name ilike '%s' → %s",
+                    account.name, wh.name if wh else 'NOT FOUND',
+                )
+                if wh:
+                    return wh
 
-        _logger.debug("[STOCK_CHECK][SO] No matching warehouse found")
+            # Try: warehouse.name ilike account.code
+            if account.code:
+                wh = Warehouse.search([('name', 'ilike', account.code)], limit=1)
+                _logger.info(
+                    "[STOCK_CHECK][SO] Search warehouse.name ilike code='%s' → %s",
+                    account.code, wh.name if wh else 'NOT FOUND',
+                )
+                if wh:
+                    return wh
+
+            # Try: warehouse.short_name ilike account.name
+            if account.name:
+                wh = Warehouse.search([('short_name', 'ilike', account.name)], limit=1)
+                _logger.info(
+                    "[STOCK_CHECK][SO] Search warehouse.short_name ilike '%s' → %s",
+                    account.name, wh.name if wh else 'NOT FOUND',
+                )
+                if wh:
+                    return wh
+
+            # Try: warehouse.short_name ilike account.code
+            if account.code:
+                wh = Warehouse.search([('short_name', 'ilike', account.code)], limit=1)
+                _logger.info(
+                    "[STOCK_CHECK][SO] Search warehouse.short_name ilike code='%s' → %s",
+                    account.code, wh.name if wh else 'NOT FOUND',
+                )
+                if wh:
+                    return wh
+
+        _logger.info("[STOCK_CHECK][SO] No warehouse match found for line id=%s", self.id)
         return False
 
     @api.depends(
@@ -256,11 +285,6 @@ class SaleOrderLine(models.Model):
         StockQuant = self.env['stock.quant']
         for line in self:
             product = line.product_id
-            _logger.debug(
-                "[STOCK_CHECK][SO] Computing is_stock_low | line id=%s | product=%s",
-                line.id,
-                product.display_name if product else 'None',
-            )
 
             if not product:
                 line.is_stock_low = False
@@ -270,13 +294,21 @@ class SaleOrderLine(models.Model):
             detailed_type = getattr(product, 'detailed_type', None)
             is_storable = (product_type == 'product' or detailed_type == 'product')
 
-            _logger.debug(
-                "[STOCK_CHECK][SO] product.type=%s | product.detailed_type=%s | is_storable=%s",
+            _logger.info(
+                "[STOCK_CHECK][SO] Computing | line id=%s | product='%s' | "
+                "type=%s | detailed_type=%s | is_storable=%s | "
+                "analytic_distribution=%s",
+                line.id, product.display_name,
                 product_type, detailed_type, is_storable,
+                line.analytic_distribution,
             )
 
             if not is_storable:
                 line.is_stock_low = False
+                _logger.info(
+                    "[STOCK_CHECK][SO] Product '%s' is NOT storable → is_stock_low=False",
+                    product.display_name,
+                )
                 continue
 
             warehouse = line._get_warehouse_from_analytic()
@@ -291,27 +323,38 @@ class SaleOrderLine(models.Model):
                 reserved = sum(quants.mapped('reserved_quantity'))
                 available = on_hand - reserved
 
-                _logger.debug(
-                    "[STOCK_CHECK][SO] Warehouse='%s' | Location='%s' | "
-                    "on_hand=%.2f | reserved=%.2f | available=%.2f",
-                    warehouse.name, location.complete_name,
+                _logger.info(
+                    "[STOCK_CHECK][SO] Warehouse='%s' | short_name='%s' | "
+                    "Location='%s' | on_hand=%.2f | reserved=%.2f | available=%.2f",
+                    warehouse.name, warehouse.short_name,
+                    location.complete_name,
                     on_hand, reserved, available,
                 )
 
                 line.is_stock_low = available <= 0
             else:
-                # Fallback to global forecast
-                _logger.debug(
-                    "[STOCK_CHECK][SO] Fallback: virtual_available=%.2f",
+                _logger.info(
+                    "[STOCK_CHECK][SO] No warehouse → fallback global "
+                    "virtual_available=%.2f",
                     product.virtual_available,
                 )
                 line.is_stock_low = product.virtual_available <= 0
 
-            _logger.debug(
-                "[STOCK_CHECK][SO] RESULT: is_stock_low=%s for product='%s'",
-                line.is_stock_low,
-                product.display_name,
+            _logger.info(
+                "[STOCK_CHECK][SO] FINAL: product='%s' | is_stock_low=%s",
+                product.display_name, line.is_stock_low,
             )
+
+    # ------------------------------------------------------------------ #
+    #  CRITICAL: explicit onchange so the UI refreshes is_stock_low
+    #  immediately when analytic or product changes (non-stored fields
+    #  do NOT always auto-recompute via @api.depends on unsaved records)
+    # ------------------------------------------------------------------ #
+    @api.onchange('product_id', 'analytic_distribution')
+    def _onchange_recompute_stock_status(self):
+        self._compute_is_stock_low()
+
+    # ------------------------------------------------------------------ #
 
     @api.depends('order_id.order_line')
     def _compute_sequence_number(self):
@@ -324,7 +367,9 @@ class SaleOrderLine(models.Model):
     @api.depends('product_id', 'product_id.default_code')
     def _compute_product_code(self):
         for line in self:
-            line.product_code = line.product_id.default_code if line.product_id else False
+            line.product_code = (
+                line.product_id.default_code if line.product_id else False
+            )
 
     def _search_product_code(self, operator, value):
         return [('product_id.default_code', operator, value)]
@@ -343,7 +388,9 @@ class SaleOrderLine(models.Model):
     @api.depends('untaxed_amount_after_discount', 'tax_amount')
     def _compute_total_amount(self):
         for line in self:
-            line.total_amount = line.untaxed_amount_after_discount + line.tax_amount
+            line.total_amount = (
+                line.untaxed_amount_after_discount + line.tax_amount
+            )
 
     def action_product_forecast_report(self):
         self.ensure_one()
@@ -368,7 +415,9 @@ class SaleOrderLine(models.Model):
             )
             if action:
                 result = action.read()[0]
-                result['context'] = {'search_default_product_id': self.product_id.id}
+                result['context'] = {
+                    'search_default_product_id': self.product_id.id,
+                }
                 return result
         except Exception:
             pass

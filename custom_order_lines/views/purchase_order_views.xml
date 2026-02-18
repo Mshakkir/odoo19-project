@@ -25,12 +25,9 @@
                     <field name="display_type" column_invisible="True"/>
                     <field name="currency_id" column_invisible="True"/>
                     <field name="sequence" column_invisible="True"/>
-
-                    <!-- is_stock_low must be present (column_invisible) for button expressions -->
                     <field name="is_stock_low" column_invisible="True"/>
 
                     <field name="sequence_number" string="SN" readonly="1" width="35px"/>
-
                     <field name="product_code" string="P. Code" width="70px" readonly="1"/>
 
                     <field name="product_id"
@@ -54,7 +51,7 @@
                            readonly="state not in ['draft', 'sent', 'purchase']"
                            width="45px"/>
 
-                    <!-- RED icon: stock is low -->
+                    <!-- RED  = stock not available -->
                     <button string=""
                             name="action_product_forecast_report"
                             type="object"
@@ -63,7 +60,7 @@
                             class="text-danger"
                             width="20px"/>
 
-                    <!-- GREEN icon: stock is OK -->
+                    <!-- GREEN = stock available -->
                     <button string=""
                             name="action_product_forecast_report"
                             type="object"
@@ -111,20 +108,9 @@
                            width="70px"
                            groups="purchase.group_discount_per_po_line"/>
 
-                    <field name="price_subtotal"
-                           string="Untax Amt"
-                           readonly="1"
-                           width="100px"/>
-
-                    <field name="tax_amount"
-                           string="Tax Value"
-                           readonly="1"
-                           width="90px"/>
-
-                    <field name="price_total"
-                           string="Total"
-                           readonly="1"
-                           width="110px"/>
+                    <field name="price_subtotal" string="Untax Amt" readonly="1" width="100px"/>
+                    <field name="tax_amount"     string="Tax Value"  readonly="1" width="90px"/>
+                    <field name="price_total"    string="Total"      readonly="1" width="110px"/>
 
                     <field name="date_planned" string="Expected Arrival" optional="hide" invisible="1"/>
                     <field name="propagate_cancel" string="Propagate Cancellation" optional="hide" invisible="1"/>

@@ -6,11 +6,9 @@
                 <t t-if="hasStock">
                     <div class="table-responsive">
                         <table class="table table-sm table-hover">
-                            <thead class="table-Cadet-Blue">
+                            <thead style="background-color: #a3aabe; color: #ffffff;">
                                 <tr>
                                     <th>Location</th>
-<!--                                    <th>Lot / Serial</th>-->
-<!--                                    <th>Package</th>-->
                                     <th class="text-end">On Hand</th>
                                     <th class="text-end">Reserved</th>
                                     <th class="text-end">Available</th>
@@ -29,26 +27,6 @@
                                                 <t t-esc="record.location_name"/>
                                             </t>
                                         </td>
-<!--                                        <td>-->
-<!--                                            <t t-if="record.lot_name">-->
-<!--                                                <span class="badge text-bg-info">-->
-<!--                                                    <t t-esc="record.lot_name"/>-->
-<!--                                                </span>-->
-<!--                                            </t>-->
-<!--                                            <t t-else="">-->
-<!--                                                <span class="text-muted">-</span>-->
-<!--                                            </t>-->
-<!--                                        </td>-->
-<!--                                        <td>-->
-<!--                                            <t t-if="record.package_name">-->
-<!--                                                <span class="badge text-bg-secondary">-->
-<!--                                                    <t t-esc="record.package_name"/>-->
-<!--                                                </span>-->
-<!--                                            </t>-->
-<!--                                            <t t-else="">-->
-<!--                                                <span class="text-muted">-</span>-->
-<!--                                            </t>-->
-<!--                                        </td>-->
                                         <td class="text-end">
                                             <t t-esc="formatNumber(record.on_hand)"/>
                                         </td>

@@ -43,6 +43,9 @@
                     <field name="collapse_composition" column_invisible="1"/>
                     <field name="currency_id" column_invisible="True"/>
                     <field name="sequence" column_invisible="True"/>
+
+                    <!-- IMPORTANT: is_stock_low must NOT be column_invisible so the
+                         button invisible expressions can read it -->
                     <field name="is_stock_low" column_invisible="True"/>
 
                     <field name="sequence_number" string="SN" readonly="1" width="35px"/>
@@ -84,21 +87,22 @@
                            readonly="is_downpayment"
                            width="35px"/>
 
+                    <!-- RED icon: visible when stock IS low (is_stock_low=True) -->
                     <button string=""
                             name="action_product_forecast_report"
                             type="object"
                             icon="fa-area-chart"
-                            invisible="display_type"
+                            invisible="display_type or not is_stock_low"
                             class="text-danger"
-                            attrs="{'invisible': [('is_stock_low', '=', False)]}"
                             width="25px"/>
 
+                    <!-- GREEN icon: visible when stock is OK (is_stock_low=False) -->
                     <button string=""
                             name="action_product_forecast_report"
                             type="object"
                             icon="fa-area-chart"
-                            invisible="display_type"
-                            attrs="{'invisible': [('is_stock_low', '=', True)]}"
+                            invisible="display_type or is_stock_low"
+                            class="text-success"
                             width="25px"/>
 
                     <field name="qty_delivered"
@@ -177,8 +181,6 @@
                            invisible="is_downpayment"
                            optional="hide"/>
 
-<!--                    <field name="warehouse_id" string="Delivery Warehouse" optional="hide"/>-->
-
                     <field name="company_id" column_invisible="1"/>
                     <field name="state" column_invisible="1"/>
                 </list>
@@ -186,7 +188,6 @@
         </field>
     </record>
 </odoo>
-
 
 
 <!--<?xml version="1.0" encoding="utf-8"?>-->
@@ -234,6 +235,7 @@
 <!--                    <field name="collapse_composition" column_invisible="1"/>-->
 <!--                    <field name="currency_id" column_invisible="True"/>-->
 <!--                    <field name="sequence" column_invisible="True"/>-->
+<!--                    <field name="is_stock_low" column_invisible="True"/>-->
 
 <!--                    <field name="sequence_number" string="SN" readonly="1" width="35px"/>-->
 
@@ -274,7 +276,22 @@
 <!--                           readonly="is_downpayment"-->
 <!--                           width="35px"/>-->
 
-<!--                    <button string="" name="action_product_forecast_report" type="object" icon="fa-area-chart" invisible="display_type" class="px-4" width="25px"/>-->
+<!--                    <button string=""-->
+<!--                            name="action_product_forecast_report"-->
+<!--                            type="object"-->
+<!--                            icon="fa-area-chart"-->
+<!--                            invisible="display_type"-->
+<!--                            class="text-danger"-->
+<!--                            attrs="{'invisible': [('is_stock_low', '=', False)]}"-->
+<!--                            width="25px"/>-->
+
+<!--                    <button string=""-->
+<!--                            name="action_product_forecast_report"-->
+<!--                            type="object"-->
+<!--                            icon="fa-area-chart"-->
+<!--                            invisible="display_type"-->
+<!--                            attrs="{'invisible': [('is_stock_low', '=', True)]}"-->
+<!--                            width="25px"/>-->
 
 <!--                    <field name="qty_delivered"-->
 <!--                           string="Delivered"-->
@@ -361,3 +378,4 @@
 <!--        </field>-->
 <!--    </record>-->
 <!--</odoo>-->
+

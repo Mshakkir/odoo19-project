@@ -33,7 +33,7 @@ class ReportByProductCategoryWizard(models.TransientModel):
 
         # Only filter by category if not showing all
         if not self.show_all_categories:
-            if not self.categ_id:
+            if not self.categ_ids:
                 return {
                     'type': 'ir.actions.client',
                     'tag': 'display_notification',

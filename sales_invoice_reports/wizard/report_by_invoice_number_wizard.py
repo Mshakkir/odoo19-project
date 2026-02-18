@@ -8,8 +8,8 @@ class ReportByInvoiceNumberWizard(models.TransientModel):
     _description = 'Report by Invoice Number Wizard'
 
     show_all_invoices = fields.Boolean(string='All Invoices', default=False)
-    invoice_id = fields.Many2many('account.move', string='Invoice',
-                                  domain="[('move_type', 'in', ['out_invoice', 'out_refund'])]")
+    invoice_ids = fields.Many2many('account.move', string='Invoices',
+                                   domain="[('move_type', 'in', ['out_invoice', 'out_refund'])]")
     date_from = fields.Date(string='Date From')
     date_to = fields.Date(string='Date To', default=fields.Date.today)
     invoice_state = fields.Selection([
@@ -34,13 +34,13 @@ class ReportByInvoiceNumberWizard(models.TransientModel):
 
         # Only filter by invoice if not showing all
         if not self.show_all_invoices:
-            if not self.invoice_id:
+            if not self.invoice_ids:
                 return {
                     'type': 'ir.actions.client',
                     'tag': 'display_notification',
                     'params': {
                         'title': 'Warning',
-                        'message': 'Please select an invoice or check "All Invoices"',
+                        'message': 'Please select at least one invoice or check "All Invoices"',
                         'type': 'warning',
                         'sticky': False,
                     }
@@ -60,8 +60,10 @@ class ReportByInvoiceNumberWizard(models.TransientModel):
         # Set report name
         if self.show_all_invoices:
             report_name = 'Sales Report - All Invoices'
+        elif len(self.invoice_ids) == 1:
+            report_name = f'Sales Report - {self.invoice_ids[0].name}'
         else:
-            report_name = f'Sales Report - {self.invoice_id.name}'
+            report_name = f'Sales Report - {len(self.invoice_ids)} Invoices'
 
         return {
             'name': report_name,

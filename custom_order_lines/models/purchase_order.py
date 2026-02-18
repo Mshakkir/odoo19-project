@@ -181,8 +181,7 @@ class PurchaseOrderLine(models.Model):
     def _get_warehouse_from_analytic(self):
         if not self.analytic_distribution:
             _logger.info(
-                "[STOCK_CHECK][PO] line id=%s product='%s' → "
-                "NO analytic_distribution set",
+                "[STOCK_CHECK][PO] line id=%s product='%s' → NO analytic set",
                 self.id,
                 self.product_id.display_name if self.product_id else 'None',
             )
@@ -191,9 +190,7 @@ class PurchaseOrderLine(models.Model):
         try:
             account_ids = [int(k) for k in self.analytic_distribution.keys()]
         except (ValueError, AttributeError) as e:
-            _logger.warning(
-                "[STOCK_CHECK][PO] Failed to parse analytic_distribution: %s", e
-            )
+            _logger.warning("[STOCK_CHECK][PO] Cannot parse analytic keys: %s", e)
             return False
 
         accounts = self.env['account.analytic.account'].browse(account_ids).exists()
@@ -204,43 +201,18 @@ class PurchaseOrderLine(models.Model):
         )
 
         Warehouse = self.env['stock.warehouse']
-
         for account in accounts:
-            if account.name:
-                wh = Warehouse.search([('name', 'ilike', account.name)], limit=1)
-                _logger.info(
-                    "[STOCK_CHECK][PO] warehouse.name ilike '%s' → %s",
-                    account.name, wh.name if wh else 'NOT FOUND',
-                )
-                if wh:
-                    return wh
-
-            if account.code:
-                wh = Warehouse.search([('name', 'ilike', account.code)], limit=1)
-                _logger.info(
-                    "[STOCK_CHECK][PO] warehouse.name ilike code='%s' → %s",
-                    account.code, wh.name if wh else 'NOT FOUND',
-                )
-                if wh:
-                    return wh
-
-            if account.name:
-                wh = Warehouse.search([('short_name', 'ilike', account.name)], limit=1)
-                _logger.info(
-                    "[STOCK_CHECK][PO] warehouse.short_name ilike '%s' → %s",
-                    account.name, wh.name if wh else 'NOT FOUND',
-                )
-                if wh:
-                    return wh
-
-            if account.code:
-                wh = Warehouse.search([('short_name', 'ilike', account.code)], limit=1)
-                _logger.info(
-                    "[STOCK_CHECK][PO] warehouse.short_name ilike code='%s' → %s",
-                    account.code, wh.name if wh else 'NOT FOUND',
-                )
-                if wh:
-                    return wh
+            for field in ('name', 'short_name'):
+                for attr in (account.name, account.code):
+                    if not attr:
+                        continue
+                    wh = Warehouse.search([(field, 'ilike', attr)], limit=1)
+                    _logger.info(
+                        "[STOCK_CHECK][PO] warehouse.%s ilike '%s' → %s",
+                        field, attr, wh.name if wh else 'NOT FOUND',
+                    )
+                    if wh:
+                        return wh
 
         _logger.info("[STOCK_CHECK][PO] No warehouse match for line id=%s", self.id)
         return False
@@ -262,18 +234,22 @@ class PurchaseOrderLine(models.Model):
 
             product_type = getattr(product, 'type', None)
             detailed_type = getattr(product, 'detailed_type', None)
-            is_storable = (product_type == 'product' or detailed_type == 'product')
 
             _logger.info(
-                "[STOCK_CHECK][PO] Computing | line id=%s | product='%s' | "
-                "type=%s | detailed_type=%s | is_storable=%s | analytic=%s",
+                "[STOCK_CHECK][PO] line id=%s | product='%s' | "
+                "type=%s | detailed_type=%s | analytic=%s",
                 line.id, product.display_name,
-                product_type, detailed_type, is_storable,
+                product_type, detailed_type,
                 line.analytic_distribution,
             )
 
-            if not is_storable:
+            # Skip only services
+            if product_type == 'service' or detailed_type == 'service':
                 line.is_stock_low = False
+                _logger.info(
+                    "[STOCK_CHECK][PO] product='%s' is a service → skip",
+                    product.display_name,
+                )
                 continue
 
             warehouse = line._get_warehouse_from_analytic()
@@ -290,14 +266,14 @@ class PurchaseOrderLine(models.Model):
 
                 _logger.info(
                     "[STOCK_CHECK][PO] Warehouse='%s' short='%s' | "
-                    "on_hand=%.2f reserved=%.2f available=%.2f",
+                    "on_hand=%.2f | reserved=%.2f | available=%.2f",
                     warehouse.name, warehouse.short_name,
                     on_hand, reserved, available,
                 )
                 line.is_stock_low = available <= 0
             else:
                 _logger.info(
-                    "[STOCK_CHECK][PO] Fallback virtual_available=%.2f",
+                    "[STOCK_CHECK][PO] Fallback: virtual_available=%.2f",
                     product.virtual_available,
                 )
                 line.is_stock_low = product.virtual_available <= 0

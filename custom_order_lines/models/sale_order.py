@@ -191,24 +191,13 @@ class SaleOrderLine(models.Model):
 
     def _get_warehouse_from_analytic(self):
         """
-        Match a warehouse from the analytic account on the line.
-
-        Odoo displays analytic accounts as "[CODE] Name".
-        We match against:
-          1. warehouse.name   ilike  account.name
-          2. warehouse.name   ilike  account.code
-          3. warehouse.short_name ilike account.name
-          4. warehouse.short_name ilike account.code
-
-        This covers cases where:
-          - The analytic name  = "JED-Fyh"  and warehouse name      = "JED-Fyh"
-          - The analytic code  = "FYH"      and warehouse short_name = "FYH"
-          - Any combination of the above
+        Match warehouse from analytic account on this line.
+        Tries matching warehouse.name and warehouse.short_name
+        against both account.name and account.code.
         """
         if not self.analytic_distribution:
             _logger.info(
-                "[STOCK_CHECK][SO] line id=%s product='%s' → "
-                "NO analytic_distribution set",
+                "[STOCK_CHECK][SO] line id=%s product='%s' → NO analytic set",
                 self.id,
                 self.product_id.display_name if self.product_id else 'None',
             )
@@ -217,62 +206,31 @@ class SaleOrderLine(models.Model):
         try:
             account_ids = [int(k) for k in self.analytic_distribution.keys()]
         except (ValueError, AttributeError) as e:
-            _logger.warning(
-                "[STOCK_CHECK][SO] Failed to parse analytic_distribution keys: %s", e
-            )
+            _logger.warning("[STOCK_CHECK][SO] Cannot parse analytic keys: %s", e)
             return False
 
         accounts = self.env['account.analytic.account'].browse(account_ids).exists()
         _logger.info(
-            "[STOCK_CHECK][SO] line id=%s | analytic accounts found: %s",
+            "[STOCK_CHECK][SO] line id=%s | analytic accounts: %s",
             self.id,
             [(a.id, a.name, a.code) for a in accounts],
         )
 
         Warehouse = self.env['stock.warehouse']
-
         for account in accounts:
-            # Try: warehouse.name ilike account.name
-            if account.name:
-                wh = Warehouse.search([('name', 'ilike', account.name)], limit=1)
-                _logger.info(
-                    "[STOCK_CHECK][SO] Search warehouse.name ilike '%s' → %s",
-                    account.name, wh.name if wh else 'NOT FOUND',
-                )
-                if wh:
-                    return wh
+            for field in ('name', 'short_name'):
+                for attr in (account.name, account.code):
+                    if not attr:
+                        continue
+                    wh = Warehouse.search([(field, 'ilike', attr)], limit=1)
+                    _logger.info(
+                        "[STOCK_CHECK][SO] warehouse.%s ilike '%s' → %s",
+                        field, attr, wh.name if wh else 'NOT FOUND',
+                    )
+                    if wh:
+                        return wh
 
-            # Try: warehouse.name ilike account.code
-            if account.code:
-                wh = Warehouse.search([('name', 'ilike', account.code)], limit=1)
-                _logger.info(
-                    "[STOCK_CHECK][SO] Search warehouse.name ilike code='%s' → %s",
-                    account.code, wh.name if wh else 'NOT FOUND',
-                )
-                if wh:
-                    return wh
-
-            # Try: warehouse.short_name ilike account.name
-            if account.name:
-                wh = Warehouse.search([('short_name', 'ilike', account.name)], limit=1)
-                _logger.info(
-                    "[STOCK_CHECK][SO] Search warehouse.short_name ilike '%s' → %s",
-                    account.name, wh.name if wh else 'NOT FOUND',
-                )
-                if wh:
-                    return wh
-
-            # Try: warehouse.short_name ilike account.code
-            if account.code:
-                wh = Warehouse.search([('short_name', 'ilike', account.code)], limit=1)
-                _logger.info(
-                    "[STOCK_CHECK][SO] Search warehouse.short_name ilike code='%s' → %s",
-                    account.code, wh.name if wh else 'NOT FOUND',
-                )
-                if wh:
-                    return wh
-
-        _logger.info("[STOCK_CHECK][SO] No warehouse match found for line id=%s", self.id)
+        _logger.info("[STOCK_CHECK][SO] No warehouse match for line id=%s", self.id)
         return False
 
     @api.depends(
@@ -290,23 +248,29 @@ class SaleOrderLine(models.Model):
                 line.is_stock_low = False
                 continue
 
+            # -------------------------------------------------------
+            # Odoo 17/18/19 changed product types:
+            #   type='service'  → no stock, skip
+            #   type='consu'    → consumable OR storable (check quants)
+            #   type='product'  → storable (older Odoo versions)
+            # We skip ONLY pure service products.
+            # -------------------------------------------------------
             product_type = getattr(product, 'type', None)
             detailed_type = getattr(product, 'detailed_type', None)
-            is_storable = (product_type == 'product' or detailed_type == 'product')
 
             _logger.info(
-                "[STOCK_CHECK][SO] Computing | line id=%s | product='%s' | "
-                "type=%s | detailed_type=%s | is_storable=%s | "
-                "analytic_distribution=%s",
+                "[STOCK_CHECK][SO] line id=%s | product='%s' | "
+                "type=%s | detailed_type=%s | analytic=%s",
                 line.id, product.display_name,
-                product_type, detailed_type, is_storable,
+                product_type, detailed_type,
                 line.analytic_distribution,
             )
 
-            if not is_storable:
+            # Skip only services
+            if product_type == 'service' or detailed_type == 'service':
                 line.is_stock_low = False
                 _logger.info(
-                    "[STOCK_CHECK][SO] Product '%s' is NOT storable → is_stock_low=False",
+                    "[STOCK_CHECK][SO] product='%s' is a service → skip",
                     product.display_name,
                 )
                 continue
@@ -324,37 +288,27 @@ class SaleOrderLine(models.Model):
                 available = on_hand - reserved
 
                 _logger.info(
-                    "[STOCK_CHECK][SO] Warehouse='%s' | short_name='%s' | "
-                    "Location='%s' | on_hand=%.2f | reserved=%.2f | available=%.2f",
+                    "[STOCK_CHECK][SO] Warehouse='%s' short='%s' | "
+                    "on_hand=%.2f | reserved=%.2f | available=%.2f",
                     warehouse.name, warehouse.short_name,
-                    location.complete_name,
                     on_hand, reserved, available,
                 )
-
                 line.is_stock_low = available <= 0
             else:
                 _logger.info(
-                    "[STOCK_CHECK][SO] No warehouse → fallback global "
-                    "virtual_available=%.2f",
+                    "[STOCK_CHECK][SO] Fallback: virtual_available=%.2f",
                     product.virtual_available,
                 )
                 line.is_stock_low = product.virtual_available <= 0
 
             _logger.info(
-                "[STOCK_CHECK][SO] FINAL: product='%s' | is_stock_low=%s",
+                "[STOCK_CHECK][SO] FINAL: product='%s' is_stock_low=%s",
                 product.display_name, line.is_stock_low,
             )
 
-    # ------------------------------------------------------------------ #
-    #  CRITICAL: explicit onchange so the UI refreshes is_stock_low
-    #  immediately when analytic or product changes (non-stored fields
-    #  do NOT always auto-recompute via @api.depends on unsaved records)
-    # ------------------------------------------------------------------ #
     @api.onchange('product_id', 'analytic_distribution')
     def _onchange_recompute_stock_status(self):
         self._compute_is_stock_low()
-
-    # ------------------------------------------------------------------ #
 
     @api.depends('order_id.order_line')
     def _compute_sequence_number(self):

@@ -8,7 +8,7 @@ class ReportByAnalyticAccountWizard(models.TransientModel):
     _description = 'Report by Analytic Account Wizard'
 
     show_all_analytic_accounts = fields.Boolean(string='All warehouse', default=False)
-    analytic_account_id = fields.Many2one('account.analytic.account', string='warehouse')
+    analytic_account_id = fields.Many2many('account.analytic.account', string='warehouse')
     date_from = fields.Date(string='Date From')
     date_to = fields.Date(string='Date To', default=fields.Date.today)
     invoice_state = fields.Selection([
@@ -22,7 +22,7 @@ class ReportByAnalyticAccountWizard(models.TransientModel):
     def _onchange_show_all_analytic_accounts(self):
         """Clear analytic account selection when showing all"""
         if self.show_all_analytic_accounts:
-            self.analytic_account_id = False
+            self.analytic_account_ids = [(5, 0, 0)]
 
     def action_apply(self):
         """Apply filter and show analytic account report"""
@@ -44,7 +44,7 @@ class ReportByAnalyticAccountWizard(models.TransientModel):
                         'sticky': False,
                     }
                 }
-            domain.append(('analytic_account_id', '=', self.analytic_account_id.id))
+            domain.append(('analytic_account_id', 'in', self.analytic_account_ids.ids))
 
         # Only filter by state if not 'all'
         if self.invoice_state and self.invoice_state != 'all':

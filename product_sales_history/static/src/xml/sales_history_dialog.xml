@@ -40,7 +40,7 @@
                                             <t t-esc="record.currency"/>
                                         </td>
 <!--                                        <td><t t-esc="record.tax_name"/></td>-->
-<!--                                        <td class="text-end">-->
+                                        <td class="text-end">
 
                                             <t t-esc="formatNumber(record.tax_amount)"/>
                                             <t t-esc="record.currency"/>

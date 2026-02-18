@@ -12,7 +12,7 @@
                         <field name="categ_ids" options="{'no_create': True}"
                                    widget="many2many_tags"
                                invisible="show_all_categories"
-                               required="not show_all_categories"/>
+                              />
                     </group>
                     <group>
                         <field name="date_from"/>

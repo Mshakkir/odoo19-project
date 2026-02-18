@@ -8,7 +8,7 @@ class ReportBySalespersonWizard(models.TransientModel):
     _description = 'Report by Salesperson Wizard'
 
     show_all_salespersons = fields.Boolean(string='All Salespersons', default=False)
-    user_id = fields.Many2one('res.users', string='Salesperson')
+    user_ids = fields.Many2many('res.users', string='Salesperson')
     date_from = fields.Date(string='Date From')
     date_to = fields.Date(string='Date To', default=fields.Date.today)
     invoice_state = fields.Selection([
@@ -22,7 +22,7 @@ class ReportBySalespersonWizard(models.TransientModel):
     def _onchange_show_all_salespersons(self):
         """Clear salesperson selection when showing all salespersons"""
         if self.show_all_salespersons:
-            self.user_id = False
+            self.user_ids = [(5,0,0)]
 
     def action_apply(self):
         """Apply filter and show salesperson report"""
@@ -33,7 +33,7 @@ class ReportBySalespersonWizard(models.TransientModel):
 
         # Only filter by salesperson if not showing all
         if not self.show_all_salespersons:
-            if not self.user_id:
+            if not self.user_ids:
                 return {
                     'type': 'ir.actions.client',
                     'tag': 'display_notification',
@@ -44,7 +44,7 @@ class ReportBySalespersonWizard(models.TransientModel):
                         'sticky': False,
                     }
                 }
-            domain.append(('user_id', '=', self.user_id.id))
+            domain.append(('user_id', 'in', self.user_ids.ids))
 
         # Only filter by state if not 'all'
         if self.invoice_state and self.invoice_state != 'all':
@@ -59,8 +59,10 @@ class ReportBySalespersonWizard(models.TransientModel):
         # Set report name
         if self.show_all_salespersons:
             report_name = 'Sales Report - All Salespersons'
+        elif len(self.user_ids) == 1:
+            report_name = f'Sales Report - {self.user_ids[0].display_name}'
         else:
-            report_name = f'Sales Report - {self.user_id.display_name}'
+            report_name = f'Sales Report - {len(self.user_ids)} Salespersons'
 
         return {
             'name': report_name,

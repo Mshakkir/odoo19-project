@@ -6,7 +6,7 @@
                 <t t-if="hasStock">
                     <div class="table-responsive">
                         <table class="table table-sm table-hover">
-                            <thead class="table-Cadet Blue">
+                            <thead class="table-Cadet-Blue">
                                 <tr>
                                     <th>Location</th>
 <!--                                    <th>Lot / Serial</th>-->
@@ -19,7 +19,7 @@
                             </thead>
                             <tbody>
                                 <t t-foreach="props.stockLocations" t-as="record" t-key="record.id">
-                                    <tr t-att-class="isTotal(record) ? 'table-secondary fw-bold border-top border-Cadet Blue' : ''">
+                                    <tr t-att-class="isTotal(record) ? 'table-secondary fw-bold border-top border-Cadet-Blue' : ''">
                                         <td>
                                             <t t-if="isTotal(record)">
                                                 <strong>TOTAL</strong>

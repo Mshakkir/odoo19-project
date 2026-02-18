@@ -30,21 +30,25 @@
                                         <td class="text-end"><t t-esc="formatNumber(record.product_qty)"/></td>
                                         <td><t t-esc="record.product_uom"/></td>
                                         <td class="text-end">
-                                            <t t-esc="record.currency"/>
+
                                             <t t-esc="formatNumber(record.price_unit)"/>
+                                            <t t-esc="record.currency"/>
                                         </td>
                                         <td class="text-end">
-                                            <t t-esc="record.currency"/>
+
                                             <t t-esc="formatNumber(record.price_subtotal)"/>
+                                            <t t-esc="record.currency"/>
                                         </td>
                                         <td><t t-esc="record.tax_name"/></td>
                                         <td class="text-end">
-                                            <t t-esc="record.currency"/>
+
                                             <t t-esc="formatNumber(record.tax_amount)"/>
+                                            <t t-esc="record.currency"/>
                                         </td>
                                         <td class="text-end">
-                                            <t t-esc="record.currency"/>
+
                                             <t t-esc="formatNumber(record.price_total)"/>
+                                            <t t-esc="record.currency"/>
                                         </td>
                                         <td>
                                             <span t-att-class="'badge ' + (record.state === 'posted' ? 'text-bg-success' : 'text-bg-warning')">

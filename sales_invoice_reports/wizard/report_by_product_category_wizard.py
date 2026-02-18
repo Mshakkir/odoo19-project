@@ -8,7 +8,7 @@ class ReportByProductCategoryWizard(models.TransientModel):
     _description = 'Report by Product Category Wizard'
 
     show_all_categories = fields.Boolean(string='All Categories', default=False)
-    categ_id = fields.Many2many('product.category', string='Product Category')
+    categ_ids = fields.Many2many('product.category', string='Product Category')
     date_from = fields.Date(string='Date From')
     date_to = fields.Date(string='Date To', default=fields.Date.today)
     invoice_state = fields.Selection([

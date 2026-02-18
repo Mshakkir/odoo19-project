@@ -6,7 +6,7 @@
                 <t t-if="hasHistory">
                     <div class="table-responsive">
                         <table class="table table-sm table-striped">
-                            <thead>
+                            <thead style="background-color: #a3aabe; color: #ffffff;">
                                 <tr>
                                     <th>Reference</th>
                                     <th>Supplier</th>

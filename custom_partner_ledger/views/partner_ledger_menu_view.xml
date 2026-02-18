@@ -12,7 +12,7 @@
 
     <!-- Add Partner Ledger to top menu bar -->
     <menuitem id="menu_partner_ledger_top"
-              name="Partner Ledger"
+              name="Customer/Vendor Statement of Report"
               parent="account.menu_finance"
               action="custom_partner_ledger.action_custom_partner_ledger"
               sequence="2"/>

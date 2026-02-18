@@ -19,10 +19,11 @@
             <xpath expr="//field[@name='invoice_line_ids']/list" position="replace">
                 <list string="Invoice Lines" editable="bottom" limit="200">
                     <field name="display_type" column_invisible="True"/>
-                    <field name="currency_id" column_invisible="True"/>
-                    <field name="company_id" column_invisible="True"/>
-                    <field name="move_id" column_invisible="True"/>
-                    <field name="sequence" column_invisible="True"/>
+                    <field name="currency_id"  column_invisible="True"/>
+                    <field name="company_id"   column_invisible="True"/>
+                    <field name="move_id"      column_invisible="True"/>
+                    <field name="sequence"     column_invisible="True"/>
+                    <!-- Fetched but hidden – required for button invisible expressions -->
                     <field name="is_stock_low" column_invisible="True"/>
 
                     <field name="sequence_number" string="SN" readonly="1" width="35px"/>
@@ -54,13 +55,13 @@
 
                     <field name="quantity" string="Qty" readonly="parent.state != 'draft'" width="45px"/>
 
-                    <!-- RED  = stock not available -->
+                    <!-- RED  = stock NOT available in the analytic warehouse -->
                     <button string=""
                             name="action_product_forecast_report"
                             type="object"
                             icon="fa-area-chart"
                             invisible="display_type or not is_stock_low"
-                            class="text-danger"
+                            class="stock-icon-danger"
                             width="25px"/>
 
                     <!-- GREEN = stock available -->
@@ -69,7 +70,7 @@
                             type="object"
                             icon="fa-area-chart"
                             invisible="display_type or is_stock_low"
-                            class="text-success"
+                            class="stock-icon-success"
                             width="25px"/>
 
                     <field name="product_uom_id"

@@ -55,6 +55,7 @@ class AccountMoveLine(models.Model):
         )
 
         Warehouse = self.env['stock.warehouse']
+        # Odoo 16/17 uses 'short_name'; Odoo 18/19 renamed it to 'code'
         wh_code_field = 'code' if 'code' in Warehouse._fields else 'short_name'
 
         for account in accounts:
@@ -102,12 +103,9 @@ class AccountMoveLine(models.Model):
                 line.analytic_distribution,
             )
 
+            # Skip only pure services
             if product_type == 'service' or detailed_type == 'service':
                 line.is_stock_low = False
-                _logger.info(
-                    "[STOCK_CHECK][INV] product='%s' is a service → skip",
-                    product.display_name,
-                )
                 continue
 
             warehouse = line._get_warehouse_from_analytic()
@@ -126,8 +124,7 @@ class AccountMoveLine(models.Model):
                 _logger.info(
                     "[STOCK_CHECK][INV] Warehouse='%s' code='%s' | "
                     "on_hand=%.2f | reserved=%.2f | available=%.2f",
-                    warehouse.name, wh_code,
-                    on_hand, reserved, available,
+                    warehouse.name, wh_code, on_hand, reserved, available,
                 )
                 line.is_stock_low = available <= 0
             else:

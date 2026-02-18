@@ -6,7 +6,7 @@
                 <t t-if="hasStock">
                     <div class="table-responsive">
                         <table class="table table-sm table-hover">
-                            <thead class="table-white">
+                            <thead class="table-#a3aabe">
                                 <tr>
                                     <th>Location</th>
 <!--                                    <th>Lot / Serial</th>-->

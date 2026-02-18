@@ -97,6 +97,7 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
                 'has_customers': False,
                 'has_vendors': False,
                 'display_label': 'Partners',
+                'report_title': 'Partner Ledger Report',
                 'count': 0
             }
 
@@ -108,6 +109,7 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
                 'has_customers': False,
                 'has_vendors': False,
                 'display_label': 'Partners',
+                'report_title': 'Partner Ledger Report',
                 'count': len(docs)
             }
 
@@ -118,20 +120,25 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
         has_receivable = any(acc.account_type == 'asset_receivable' for acc in accounts)
         has_payable = any(acc.account_type == 'liability_payable' for acc in accounts)
 
-        # Determine display label
+        # Determine display label and report title
         if has_receivable and has_payable:
             display_label = 'Customers & Vendors'
+            report_title = 'Customer/Vendor Statement of Account'
         elif has_receivable:
             display_label = 'Customers'
+            report_title = 'Customer Statement of Account'
         elif has_payable:
             display_label = 'Vendors'
+            report_title = 'Vendor Statement of Account'
         else:
             display_label = 'Partners'
+            report_title = 'Partner Ledger Report'
 
         return {
             'has_customers': has_receivable,
             'has_vendors': has_payable,
             'display_label': display_label,
+            'report_title': report_title,
             'count': len(docs)
         }
 

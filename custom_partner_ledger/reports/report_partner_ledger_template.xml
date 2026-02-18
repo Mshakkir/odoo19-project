@@ -108,7 +108,7 @@
                     <!-- Report Title -->
                     <div class="row" style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 3px solid white; margin-top: 5px;">
                         <div class="col-8">
-                            <h5 style="margin: 0; color: black; font-weight: bold;">Partner Ledger Report</h5>
+                            <h5 style="margin: 0; color: black; font-weight: bold;" t-esc="partner_type_info['report_title']"/>
                         </div>
                         <div class="col-4 text-end">
                             <p style="margin: 0;">
@@ -121,26 +121,21 @@
                     <!-- Report Parameters -->
                     <div class="report-params">
                         <div class="row" style="margin-bottom: 8px;">
-                            <div class="col-3">
-                                <strong>Company:</strong>
-                                <p t-esc="res_company.name" style="margin: 3px 0;"/>
-                            </div>
 
-
-                            <div class="col-3">
+                            <div class="col-4">
                                 <strong>Target Moves:</strong>
                                 <p style="margin: 3px 0;">
                                     <span t-if="data['form']['target_move'] == 'all'">All Entries</span>
                                     <span t-if="data['form']['target_move'] == 'posted'">All Posted Entries</span>
                                 </p>
                             </div>
-                            <div class="col-3">
+                            <div class="col-4">
                                 <!-- Display dynamic label based on account type -->
                                 <strong t-esc="partner_type_info['display_label']"/>:
                                 <p t-esc="partner_type_info['count']" style="margin: 3px 0;"/>
                             </div>
 
-                            <div class="col-3">
+                            <div class="col-4">
                                 <strong>Reconciled Items:</strong>
                                 <p style="margin: 3px 0;">
                                     <span t-if="data['form']['reconciled']">Included</span>
@@ -179,6 +174,22 @@
                                         <span t-if="o.ref"> - </span>
                                         <strong t-esc="o.name"/>
                                         <span t-if="o.vat" class="text-muted"> (VAT: <t t-esc="o.vat"/>)</span>
+                                        <br/>
+                                        <span class="text-muted" style="font-size: 11px;">
+                                            <t t-if="o.street"><t t-esc="o.street"/><t t-if="o.street2 or o.city">, </t></t>
+                                            <t t-if="o.street2"><t t-esc="o.street2"/><t t-if="o.city">, </t></t>
+                                            <t t-if="o.city"><t t-esc="o.city"/><t t-if="o.state_id or o.country_id">, </t></t>
+                                            <t t-if="o.state_id"><t t-esc="o.state_id.name"/><t t-if="o.country_id">, </t></t>
+                                            <t t-if="o.country_id"><t t-esc="o.country_id.name"/></t>
+                                        </span>
+                                        <t t-if="o.phone or o.email">
+                                            <br/>
+                                            <span class="text-muted" style="font-size: 11px;">
+                                                <t t-if="o.phone">Tel: <t t-esc="o.phone"/></t>
+                                                <t t-if="o.phone and o.email"> | </t>
+                                                <t t-if="o.email">Email: <t t-esc="o.email"/></t>
+                                            </span>
+                                        </t>
                                     </td>
                                     <td class="text-end" style="padding: 10px; border: 1px solid #ddd;">
                                         <strong t-esc="sum_partner(data, o, 'debit')"

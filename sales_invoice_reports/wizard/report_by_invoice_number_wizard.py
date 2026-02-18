@@ -8,7 +8,7 @@ class ReportByInvoiceNumberWizard(models.TransientModel):
     _description = 'Report by Invoice Number Wizard'
 
     show_all_invoices = fields.Boolean(string='All Invoices', default=False)
-    invoice_id = fields.Many2one('account.move', string='Invoice',
+    invoice_id = fields.Many2many('account.move', string='Invoice',
                                   domain="[('move_type', 'in', ['out_invoice', 'out_refund'])]")
     date_from = fields.Date(string='Date From')
     date_to = fields.Date(string='Date To', default=fields.Date.today)
@@ -23,7 +23,7 @@ class ReportByInvoiceNumberWizard(models.TransientModel):
     def _onchange_show_all_invoices(self):
         """Clear invoice selection when showing all"""
         if self.show_all_invoices:
-            self.invoice_id = False
+            self.invoice_ids = [(5, 0, 0)]
 
     def action_apply(self):
         """Apply filter and show invoice report"""
@@ -45,7 +45,7 @@ class ReportByInvoiceNumberWizard(models.TransientModel):
                         'sticky': False,
                     }
                 }
-            domain.append(('invoice_id', '=', self.invoice_id.id))
+            domain.append(('invoice_id', 'in', self.invoice_ids.ids))
 
         # Only filter by state if not 'all'
         if self.invoice_state and self.invoice_state != 'all':

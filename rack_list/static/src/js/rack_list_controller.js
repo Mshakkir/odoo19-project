@@ -21,11 +21,7 @@ class RackListController extends ListController {
     setup() {
         super.setup(...arguments);
 
-        // Plain object — no useState needed, we update DOM directly
-        this._rackSort = {
-            field: "location_complete_name",
-            order: "asc",
-        };
+        this._rackSort = { field: null, order: "asc" };
         this._sortBarEl = null;
 
         onMounted(() => this._mountSortBar());
@@ -38,10 +34,8 @@ class RackListController extends ListController {
         });
     }
 
-    // ── Build and insert the sort bar into the DOM ──────────────────────────
     _mountSortBar() {
-        // __owl__.bdom.el is the root DOM node of this controller component
-        const rootEl = this.__owl__.bdom && this.__owl__.bdom.el;
+        const rootEl = this.el || this.__owl__.bdom?.el;
         if (!rootEl || this._sortBarEl) return;
 
         const bar = document.createElement("div");
@@ -49,69 +43,53 @@ class RackListController extends ListController {
             "rack_sort_bar d-flex align-items-center flex-wrap gap-2 " +
             "px-3 py-2 bg-white border-bottom shadow-sm";
 
-        // Label
+        // "Sort by" label
         const label = document.createElement("span");
         label.className = "fw-semibold text-secondary small me-1";
         label.innerHTML = '<i class="fa fa-filter me-1"></i>Sort by:';
         bar.appendChild(label);
 
-        // Buttons
+        // Sort buttons
         for (const btn of SORT_BUTTONS) {
             const b = document.createElement("button");
             b.type = "button";
             b.dataset.sortField = btn.field;
-            b.className =
-                "btn btn-sm " +
-                (this._rackSort.field === btn.field
-                    ? "btn-primary"
-                    : "btn-outline-secondary");
+            b.className = "btn btn-sm btn-outline-secondary";
             b.title = "Sort by " + btn.label;
-            b.innerHTML =
-                btn.label +
-                ` <i class="fa ms-1 ${this._iconFor(btn.field)}"></i>`;
+            b.innerHTML = `${btn.label} <i class="fa fa-sort ms-1"></i>`;
             b.addEventListener("click", () => this._applySort(btn.field));
             bar.appendChild(b);
         }
 
-        // Active-sort status text
+        // Status text on the right
         const status = document.createElement("span");
         status.className = "rack_sort_status ms-auto small text-muted fst-italic";
         bar.appendChild(status);
-        this._renderStatus(status);
 
         this._sortBarEl = bar;
-
-        // Insert the bar just before the controller root element
         rootEl.insertAdjacentElement("beforebegin", bar);
     }
 
-    // ── Sync button classes/icons after any re-render ───────────────────────
     _refreshSortBar() {
         if (!this._sortBarEl) return;
 
-        for (const btn of this._sortBarEl.querySelectorAll(
-            "button[data-sort-field]"
-        )) {
+        for (const btn of this._sortBarEl.querySelectorAll("button[data-sort-field]")) {
             const f = btn.dataset.sortField;
-            btn.className =
-                "btn btn-sm " +
-                (this._rackSort.field === f
-                    ? "btn-primary"
-                    : "btn-outline-secondary");
+            const isActive = this._rackSort.field === f;
+            btn.className = "btn btn-sm " + (isActive ? "btn-primary" : "btn-outline-secondary");
             const icon = btn.querySelector("i.fa");
             if (icon) icon.className = "fa ms-1 " + this._iconFor(f);
         }
 
         const status = this._sortBarEl.querySelector(".rack_sort_status");
-        if (status) this._renderStatus(status);
-    }
-
-    _renderStatus(el) {
-        const dir =
-            this._rackSort.order === "asc" ? "↑ Ascending" : "↓ Descending";
-        el.innerHTML = `Sorted by <strong>${
-            LABEL_MAP[this._rackSort.field] || this._rackSort.field
-        }</strong> (${dir})`;
+        if (status) {
+            if (this._rackSort.field) {
+                const dir = this._rackSort.order === "asc" ? "↑ Ascending" : "↓ Descending";
+                status.innerHTML = `Sorted by <strong>${LABEL_MAP[this._rackSort.field]}</strong> (${dir})`;
+            } else {
+                status.innerHTML = "";
+            }
+        }
     }
 
     _iconFor(field) {
@@ -119,11 +97,10 @@ class RackListController extends ListController {
         return this._rackSort.order === "asc" ? "fa-sort-asc" : "fa-sort-desc";
     }
 
-    // ── Apply sort: update state → update bar → reload list ─────────────────
     async _applySort(field) {
+        // Toggle direction if same field, else reset to asc
         if (this._rackSort.field === field) {
-            this._rackSort.order =
-                this._rackSort.order === "asc" ? "desc" : "asc";
+            this._rackSort.order = this._rackSort.order === "asc" ? "desc" : "asc";
         } else {
             this._rackSort.field = field;
             this._rackSort.order = "asc";
@@ -131,15 +108,21 @@ class RackListController extends ListController {
 
         this._refreshSortBar();
 
-        this.model.root.orderBy = [
-            { name: field, asc: this._rackSort.order === "asc" },
-        ];
-        await this.model.root.load();
-        this.render(true);
+        // ✅ Use the correct Odoo API — never assign to orderBy directly
+        // sortBy() toggles asc/desc internally; call twice if we need desc
+        await this.model.root.sortBy(field);
+
+        // If we need descending, sortBy sets asc first — call again to flip
+        const currentOrder = this.model.root.orderBy;
+        const isCurrentlyAsc = currentOrder?.[0]?.asc ?? true;
+        if (this._rackSort.order === "desc" && isCurrentlyAsc) {
+            await this.model.root.sortBy(field);
+        } else if (this._rackSort.order === "asc" && !isCurrentlyAsc) {
+            await this.model.root.sortBy(field);
+        }
     }
 }
 
-// ── IMPORTANT: Do NOT assign .template — subclass inherits ListController's ──
 export const rackListView = {
     ...listView,
     Controller: RackListController,

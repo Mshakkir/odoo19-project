@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
 
-    <!--
-        Extends the standard ListController template.
-        Injects a "Sort by" button bar just above the list rows.
-        Only used when js_class="rack_list" is set on the <list> view.
-    -->
     <t t-name="rack_list.ListController" t-inherit="web.ListController" t-inherit-mode="extension">
-
-        <!-- Insert the sort bar right before the actual list/table content -->
         <xpath expr="//div[hasclass('o_list_view')]" position="before">
             <div class="rack_sort_bar d-flex align-items-center flex-wrap gap-2 px-3 py-2 bg-white border-bottom shadow-sm">
 
@@ -21,24 +14,19 @@
                         t-att-class="'btn btn-sm ' + (rackSort.field === btn.field ? 'btn-primary' : 'btn-outline-secondary')"
                         t-on-click="() => this.applySort(btn.field)"
                         t-att-title="'Sort by ' + btn.label">
-
                         <t t-esc="btn.label"/>
-
-                        <!-- Sort direction icon -->
                         <i t-att-class="'fa ms-1 ' + getSortIcon(btn.field)"/>
-
                     </button>
                 </t>
 
-                <!-- Active sort indicator -->
                 <span t-if="rackSort.field" class="ms-auto small text-muted fst-italic">
-                    Sorted by <strong t-esc="rackSort.field === 'product_name' ? 'Product' : rackSort.field === 'location_complete_name' ? 'Location' : 'Qty'"/>
+                    Sorted by
+                    <strong t-esc="rackSort.field === 'product_name' ? 'Product' : rackSort.field === 'location_complete_name' ? 'Location' : 'Qty'"/>
                     (<t t-esc="rackSort.order === 'asc' ? '↑ Ascending' : '↓ Descending'"/>)
                 </span>
 
             </div>
         </xpath>
-
     </t>
 
 </templates>

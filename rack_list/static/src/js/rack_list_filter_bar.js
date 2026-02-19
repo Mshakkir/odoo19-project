@@ -12,16 +12,16 @@ class FilterAutocomplete extends Component {
     static props = {
         placeholder: String,
         fetchOptions: Function,
-        onSelect: Function,
-        onClear: Function,
+        onSelect:     Function,
+        onClear:      Function,
     };
 
     setup() {
         this.state = useState({
             inputValue: "",
             suggestions: [],
-            open: false,
-            activeIdx: -1,
+            open:        false,
+            activeIdx:   -1,
         });
         this.wrapperRef = useRef("wrapper");
         this._onDocClick = this._onDocClick.bind(this);
@@ -39,15 +39,15 @@ class FilterAutocomplete extends Component {
     async onInput(ev) {
         const q = ev.target.value;
         this.state.inputValue = q;
-        this.state.activeIdx = -1;
+        this.state.activeIdx  = -1;
         if (!q) {
             this.props.onClear();
             this.state.suggestions = [];
-            this.state.open = false;
+            this.state.open        = false;
             return;
         }
         this.state.suggestions = await this.props.fetchOptions(q);
-        this.state.open = this.state.suggestions.length > 0;
+        this.state.open        = this.state.suggestions.length > 0;
     }
 
     onKeyDown(ev) {
@@ -69,14 +69,14 @@ class FilterAutocomplete extends Component {
 
     selectOption(option) {
         this.state.inputValue = option.label;
-        this.state.open = false;
+        this.state.open       = false;
         this.state.suggestions = [];
         this.props.onSelect(option);
     }
 
     onClearClick() {
-        this.state.inputValue = "";
-        this.state.open = false;
+        this.state.inputValue  = "";
+        this.state.open        = false;
         this.state.suggestions = [];
         this.props.onClear();
     }
@@ -88,79 +88,46 @@ class FilterAutocomplete extends Component {
 
 // ─── Filter Bar ───────────────────────────────────────────────────────────────
 class RackListFilterBar extends Component {
-    static template = "rack_list.FilterBar";
-    static components = { FilterAutocomplete };
+    static template    = "rack_list.FilterBar";
+    static components  = { FilterAutocomplete };
 
     setup() {
-        this.orm = useService("orm");
-        this.state = useState({
-            productId: null,
-            locationId: null,
-        });
+        this.orm   = useService("orm");
+        this.state = useState({ productId: null, locationId: null });
     }
 
-    // Product autocomplete source
     async fetchProducts(query) {
-        const results = await this.orm.call("product.product", "name_search", [], {
-            name: query,
-            limit: 8,
+        const res = await this.orm.call("product.product", "name_search", [], {
+            name: query, limit: 8,
         });
-        return results.map(([id, label]) => ({ id, label }));
+        return res.map(([id, label]) => ({ id, label }));
     }
 
-    // Location autocomplete source
     async fetchLocations(query) {
-        const results = await this.orm.call("stock.location", "name_search", [], {
+        const res = await this.orm.call("stock.location", "name_search", [], {
             name: query,
             args: [["usage", "=", "internal"]],
             limit: 8,
         });
-        return results.map(([id, label]) => ({ id, label }));
+        return res.map(([id, label]) => ({ id, label }));
     }
 
-    onProductSelect(option) {
-        this.state.productId = option.id;
-        this._applyFilters();
-    }
+    onProductSelect(option)  { this.state.productId  = option.id;  this._apply(); }
+    onProductClear()          { this.state.productId  = null;        this._apply(); }
+    onLocationSelect(option) { this.state.locationId = option.id;  this._apply(); }
+    onLocationClear()         { this.state.locationId = null;        this._apply(); }
 
-    onProductClear() {
-        this.state.productId = null;
-        this._applyFilters();
-    }
-
-    onLocationSelect(option) {
-        this.state.locationId = option.id;
-        this._applyFilters();
-    }
-
-    onLocationClear() {
-        this.state.locationId = null;
-        this._applyFilters();
-    }
-
-    _applyFilters() {
+    _apply() {
         const domain = [];
-        if (this.state.productId) {
-            domain.push(["product_id", "=", this.state.productId]);
-        }
-        if (this.state.locationId) {
-            domain.push(["location_id", "=", this.state.locationId]);
-        }
-        try {
-            // Odoo 16 / 17 / 18
-            this.env.searchModel.setDomainParts({ rackListFilters: domain });
-        } catch (_e) {
-            // Fallback: toggle an invisible domain filter
-            this.env.searchModel.query = domain;
-        }
+        if (this.state.productId)  domain.push(["product_id",  "=", this.state.productId]);
+        if (this.state.locationId) domain.push(["location_id", "=", this.state.locationId]);
+        this.env.searchModel.setDomainParts({ rackListFilters: domain });
     }
 
-    onApply() {
-        this._applyFilters();
-    }
+    onApply()    { this._apply(); }
 
     onClearAll() {
-        this.state.productId = null;
+        this.state.productId  = null;
         this.state.locationId = null;
         this.env.searchModel.setDomainParts({ rackListFilters: [] });
     }
@@ -176,9 +143,7 @@ class RackListController extends ListController {
 }
 
 // ─── Register View ────────────────────────────────────────────────────────────
-const rackListView = {
+registry.category("views").add("rack_list_view", {
     ...listView,
     Controller: RackListController,
-};
-
-registry.category("views").add("rack_list_view", rackListView);
+});

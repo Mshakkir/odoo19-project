@@ -45,15 +45,15 @@
         <div class="rack_filter_bar">
             <FilterAutocomplete
                 placeholder="Product"
-                fetchOptions="fetchProducts"
-                onSelect="onProductSelect"
-                onClear="onProductClear"
+                fetchOptions.bind="fetchProducts"
+                onSelect.bind="onProductSelect"
+                onClear.bind="onProductClear"
             />
             <FilterAutocomplete
                 placeholder="Location"
-                fetchOptions="fetchLocations"
-                onSelect="onLocationSelect"
-                onClear="onLocationClear"
+                fetchOptions.bind="fetchLocations"
+                onSelect.bind="onLocationSelect"
+                onClear.bind="onLocationClear"
             />
             <button class="rack_apply_btn" t-on-click="onApply">Apply</button>
             <button class="rack_clear_all_btn" t-on-click="onClearAll">Clear</button>
@@ -61,10 +61,18 @@
     </t>
 
     <!-- ═══════════════════════════════════════════════════════
-         List Controller — inject filter bar into control-panel
+         Extend web.ListController — replace bottom-left slot
+         with our Product + Location filter bar.
+         IMPORTANT: this file is forced to load AFTER
+         web/static/src/views/list/list_controller.xml via
+         the ('after', ...) entry in __manifest__.py so that
+         OWL can resolve the t-inherit parent at runtime.
          ═══════════════════════════════════════════════════════ -->
-    <t t-name="rack_list.ListController" t-inherit="web.ListController" t-inherit-mode="primary">
-        <xpath expr="//Layout/t[@t-set-slot='control-panel-bottom-left']" position="replace">
+    <t t-name="rack_list.ListController"
+       t-inherit="web.ListController"
+       t-inherit-mode="primary">
+        <xpath expr="//t[@t-set-slot='control-panel-bottom-left']"
+               position="replace">
             <t t-set-slot="control-panel-bottom-left">
                 <RackListFilterBar/>
             </t>

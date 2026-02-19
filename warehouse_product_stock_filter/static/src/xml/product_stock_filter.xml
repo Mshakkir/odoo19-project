@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<templates xml:space="preserve">
-    <!-- Product Stock Filter - DOM injected via JS, no OWL template needed -->
-    <t t-name="product_stock_filter.FilterBar">
-        <div class="psf_filter_bar"/>
-    </t>
-</templates>

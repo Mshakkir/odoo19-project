@@ -6,7 +6,7 @@
                 <t t-if="hasHistory">
                     <div class="table-responsive">
                         <table class="table table-sm table-striped">
-                            <thead>
+                            <thead style="background-color: #a3aabe; color: dark;">
                                 <tr>
                                     <th>Reference</th>
                                     <th>Supplier</th>
@@ -14,7 +14,7 @@
                                     <th class="text-end">Quantity</th>
                                     <th>Unit</th>
                                     <th class="text-end">Unit Price</th>
-                                    <th>Tax</th>
+
                                     <th class="text-end">Tax Amount</th>
                                     <th class="text-end">Total</th>
                                     <th>Status</th>
@@ -31,7 +31,7 @@
                                         <td class="text-end">
                                             <t t-esc="record.currency"/><t t-esc="formatNumber(record.price_unit)"/>
                                         </td>
-                                        <td><t t-esc="record.tax_name"/></td>
+<!--                                        <td><t t-esc="record.tax_name"/></td>-->
                                         <td class="text-end">
                                             <t t-esc="record.currency"/><t t-esc="formatNumber(record.tax_amount)"/>
                                         </td>

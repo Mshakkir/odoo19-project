@@ -17,12 +17,16 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='order_line']/list" position="replace">
-                <list string="Sales Order Lines" editable="bottom" limit="200" decoration-warning="(state in ['draft', 'sent'] and is_product_archived) or sale_line_warn_msg">
+                <list string="Sales Order Lines" editable="bottom" limit="200"
+                      decoration-warning="(state in ['draft', 'sent'] and is_product_archived) or sale_line_warn_msg">
                     <control>
                         <create name="add_product_control" string="Add a product"/>
-                        <create name="add_section_control" string="Add a section" context="{'default_display_type': 'line_section'}"/>
-                        <create name="add_note_control" string="Add a note" context="{'default_display_type': 'line_note'}"/>
-                        <button string="Catalog" name="action_add_from_catalog" type="object" class="px-4 btn-link" context="{'order_id': parent.id}"/>
+                        <create name="add_section_control" string="Add a section"
+                                context="{'default_display_type': 'line_section'}"/>
+                        <create name="add_note_control" string="Add a note"
+                                context="{'default_display_type': 'line_note'}"/>
+                        <button string="Catalog" name="action_add_from_catalog" type="object"
+                                class="px-4 btn-link" context="{'order_id': parent.id}"/>
                     </control>
 
                     <field name="display_type" column_invisible="True"/>
@@ -43,10 +47,11 @@
                     <field name="collapse_composition" column_invisible="1"/>
                     <field name="currency_id" column_invisible="True"/>
                     <field name="sequence" column_invisible="True"/>
+                    <!-- is_stock_low MUST be fetched (column_invisible keeps it hidden
+                         but still available for the button invisible expressions) -->
                     <field name="is_stock_low" column_invisible="True"/>
 
                     <field name="sequence_number" string="SN" readonly="1" width="35px"/>
-
                     <field name="product_code" string="P. Code" width="70px"/>
 
                     <field name="product_template_id"
@@ -79,39 +84,40 @@
 
                     <field name="product_uom_qty"
                            string="Qty"
-                           decoration-info="(not display_type and invoice_status == 'to invoice')"
-                           decoration-bf="(not display_type and invoice_status == 'to invoice')"
+                           decoration-info="not display_type and invoice_status == 'to invoice'"
+                           decoration-bf="not display_type and invoice_status == 'to invoice'"
                            readonly="is_downpayment"
                            width="35px"/>
 
+                    <!-- RED  = stock not available in the analytic warehouse -->
                     <button string=""
                             name="action_product_forecast_report"
                             type="object"
                             icon="fa-area-chart"
-                            invisible="display_type"
+                            invisible="display_type or not is_stock_low"
                             class="text-danger"
-                            attrs="{'invisible': [('is_stock_low', '=', False)]}"
                             width="25px"/>
 
+                    <!-- GREEN = stock available -->
                     <button string=""
                             name="action_product_forecast_report"
                             type="object"
                             icon="fa-area-chart"
-                            invisible="display_type"
-                            attrs="{'invisible': [('is_stock_low', '=', True)]}"
+                            invisible="display_type or is_stock_low"
+                            class="text-success"
                             width="25px"/>
 
                     <field name="qty_delivered"
                            string="Delivered"
-                           decoration-info="(not display_type and invoice_status == 'to invoice')"
-                           decoration-bf="(not display_type and invoice_status == 'to invoice')"
+                           decoration-info="not display_type and invoice_status == 'to invoice'"
+                           decoration-bf="not display_type and invoice_status == 'to invoice'"
                            column_invisible="parent.state != 'sale'"
                            readonly="qty_delivered_method != 'manual' or is_downpayment"
                            optional="hide"/>
                     <field name="qty_invoiced"
                            string="Invoiced"
-                           decoration-info="(not display_type and invoice_status == 'to invoice')"
-                           decoration-bf="(not display_type and invoice_status == 'to invoice')"
+                           decoration-info="not display_type and invoice_status == 'to invoice'"
+                           decoration-bf="not display_type and invoice_status == 'to invoice'"
                            column_invisible="parent.state != 'sale'"
                            optional="hide"/>
 
@@ -177,8 +183,6 @@
                            invisible="is_downpayment"
                            optional="hide"/>
 
-<!--                    <field name="warehouse_id" string="Delivery Warehouse" optional="hide"/>-->
-
                     <field name="company_id" column_invisible="1"/>
                     <field name="state" column_invisible="1"/>
                 </list>
@@ -186,7 +190,6 @@
         </field>
     </record>
 </odoo>
-
 
 
 <!--<?xml version="1.0" encoding="utf-8"?>-->
@@ -234,6 +237,7 @@
 <!--                    <field name="collapse_composition" column_invisible="1"/>-->
 <!--                    <field name="currency_id" column_invisible="True"/>-->
 <!--                    <field name="sequence" column_invisible="True"/>-->
+<!--                    <field name="is_stock_low" column_invisible="True"/>-->
 
 <!--                    <field name="sequence_number" string="SN" readonly="1" width="35px"/>-->
 
@@ -274,7 +278,22 @@
 <!--                           readonly="is_downpayment"-->
 <!--                           width="35px"/>-->
 
-<!--                    <button string="" name="action_product_forecast_report" type="object" icon="fa-area-chart" invisible="display_type" class="px-4" width="25px"/>-->
+<!--                    <button string=""-->
+<!--                            name="action_product_forecast_report"-->
+<!--                            type="object"-->
+<!--                            icon="fa-area-chart"-->
+<!--                            invisible="display_type"-->
+<!--                            class="text-danger"-->
+<!--                            attrs="{'invisible': [('is_stock_low', '=', False)]}"-->
+<!--                            width="25px"/>-->
+
+<!--                    <button string=""-->
+<!--                            name="action_product_forecast_report"-->
+<!--                            type="object"-->
+<!--                            icon="fa-area-chart"-->
+<!--                            invisible="display_type"-->
+<!--                            attrs="{'invisible': [('is_stock_low', '=', True)]}"-->
+<!--                            width="25px"/>-->
 
 <!--                    <field name="qty_delivered"-->
 <!--                           string="Delivered"-->
@@ -361,3 +380,4 @@
 <!--        </field>-->
 <!--    </record>-->
 <!--</odoo>-->
+

@@ -1,0 +1,33 @@
+/* ============================================================
+   Stock forecast icon buttons – keep color stable on all states
+   ============================================================ */
+
+/* RED icon – stock not available */
+.o_data_row .stock-icon-danger,
+.o_data_row .stock-icon-danger:hover,
+.o_data_row .stock-icon-danger:focus,
+.o_data_row .stock-icon-danger:active,
+.o_data_row .stock-icon-danger.active {
+    color: #dc3545 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* GREEN icon – stock available */
+.o_data_row .stock-icon-success,
+.o_data_row .stock-icon-success:hover,
+.o_data_row .stock-icon-success:focus,
+.o_data_row .stock-icon-success:active,
+.o_data_row .stock-icon-success.active {
+    color: #198754 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Slightly enlarge icon for visibility */
+.o_data_row .stock-icon-danger .fa-area-chart,
+.o_data_row .stock-icon-success .fa-area-chart {
+    font-size: 14px;
+}

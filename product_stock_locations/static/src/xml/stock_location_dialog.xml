@@ -6,11 +6,9 @@
                 <t t-if="hasStock">
                     <div class="table-responsive">
                         <table class="table table-sm table-hover">
-                            <thead class="table-dark">
+                            <thead style="background-color: #a3aabe; color: dark;">
                                 <tr>
                                     <th>Location</th>
-                                    <th>Lot / Serial</th>
-                                    <th>Package</th>
                                     <th class="text-end">On Hand</th>
                                     <th class="text-end">Reserved</th>
                                     <th class="text-end">Available</th>
@@ -19,7 +17,7 @@
                             </thead>
                             <tbody>
                                 <t t-foreach="props.stockLocations" t-as="record" t-key="record.id">
-                                    <tr t-att-class="isTotal(record) ? 'table-secondary fw-bold border-top border-dark' : ''">
+                                    <tr t-att-class="isTotal(record) ? 'table-secondary fw-bold border-top border-Cadet-Blue' : ''">
                                         <td>
                                             <t t-if="isTotal(record)">
                                                 <strong>TOTAL</strong>
@@ -27,26 +25,6 @@
                                             <t t-else="">
                                                 <i class="fa fa-map-marker me-1 text-muted"/>
                                                 <t t-esc="record.location_name"/>
-                                            </t>
-                                        </td>
-                                        <td>
-                                            <t t-if="record.lot_name">
-                                                <span class="badge text-bg-info">
-                                                    <t t-esc="record.lot_name"/>
-                                                </span>
-                                            </t>
-                                            <t t-else="">
-                                                <span class="text-muted">-</span>
-                                            </t>
-                                        </td>
-                                        <td>
-                                            <t t-if="record.package_name">
-                                                <span class="badge text-bg-secondary">
-                                                    <t t-esc="record.package_name"/>
-                                                </span>
-                                            </t>
-                                            <t t-else="">
-                                                <span class="text-muted">-</span>
                                             </t>
                                         </td>
                                         <td class="text-end">

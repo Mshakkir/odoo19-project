@@ -28,7 +28,6 @@
                     <field name="is_stock_low" column_invisible="True"/>
 
                     <field name="sequence_number" string="SN" readonly="1" width="35px"/>
-
                     <field name="product_code" string="P. Code" width="70px" readonly="1"/>
 
                     <field name="product_id"
@@ -52,21 +51,22 @@
                            readonly="state not in ['draft', 'sent', 'purchase']"
                            width="45px"/>
 
+                    <!-- RED  = stock not available -->
                     <button string=""
                             name="action_product_forecast_report"
                             type="object"
                             icon="fa-area-chart"
-                            invisible="display_type"
+                            invisible="display_type or not is_stock_low"
                             class="text-danger"
-                            attrs="{'invisible': [('is_stock_low', '=', False)]}"
                             width="20px"/>
 
+                    <!-- GREEN = stock available -->
                     <button string=""
                             name="action_product_forecast_report"
                             type="object"
                             icon="fa-area-chart"
-                            invisible="display_type"
-                            attrs="{'invisible': [('is_stock_low', '=', True)]}"
+                            invisible="display_type or is_stock_low"
+                            class="text-success"
                             width="20px"/>
 
                     <field name="qty_received"
@@ -108,22 +108,10 @@
                            width="70px"
                            groups="purchase.group_discount_per_po_line"/>
 
-                    <field name="price_subtotal"
-                           string="Untax Amt"
-                           readonly="1"
-                           width="100px"/>
+                    <field name="price_subtotal" string="Untax Amt" readonly="1" width="100px"/>
+                    <field name="tax_amount"     string="Tax Value"  readonly="1" width="90px"/>
+                    <field name="price_total"    string="Total"      readonly="1" width="110px"/>
 
-                    <field name="tax_amount"
-                           string="Tax Value"
-                           readonly="1"
-                           width="90px"/>
-
-                    <field name="price_total"
-                           string="Total"
-                           readonly="1"
-                           width="110px"/>
-
-<!--                    <field name="warehouse_id" string="Warehouse" optional="hide" invisible="1"/>-->
                     <field name="date_planned" string="Expected Arrival" optional="hide" invisible="1"/>
                     <field name="propagate_cancel" string="Propagate Cancellation" optional="hide" invisible="1"/>
                     <field name="name" widget="text" optional="hide" invisible="1"/>
@@ -162,6 +150,7 @@
 <!--                    <field name="display_type" column_invisible="True"/>-->
 <!--                    <field name="currency_id" column_invisible="True"/>-->
 <!--                    <field name="sequence" column_invisible="True"/>-->
+<!--                    <field name="is_stock_low" column_invisible="True"/>-->
 
 <!--                    <field name="sequence_number" string="SN" readonly="1" width="35px"/>-->
 
@@ -188,7 +177,22 @@
 <!--                           readonly="state not in ['draft', 'sent', 'purchase']"-->
 <!--                           width="45px"/>-->
 
-<!--                    <button string="" name="action_product_forecast_report" type="object" icon="fa-area-chart" invisible="display_type" class="px-4" width="20px"/>-->
+<!--                    <button string=""-->
+<!--                            name="action_product_forecast_report"-->
+<!--                            type="object"-->
+<!--                            icon="fa-area-chart"-->
+<!--                            invisible="display_type"-->
+<!--                            class="text-danger"-->
+<!--                            attrs="{'invisible': [('is_stock_low', '=', False)]}"-->
+<!--                            width="20px"/>-->
+
+<!--                    <button string=""-->
+<!--                            name="action_product_forecast_report"-->
+<!--                            type="object"-->
+<!--                            icon="fa-area-chart"-->
+<!--                            invisible="display_type"-->
+<!--                            attrs="{'invisible': [('is_stock_low', '=', True)]}"-->
+<!--                            width="20px"/>-->
 
 <!--                    <field name="qty_received"-->
 <!--                           string="Received"-->
@@ -253,6 +257,5 @@
 <!--        </field>-->
 <!--    </record>-->
 <!--</odoo>-->
-
 
 

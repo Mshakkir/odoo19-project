@@ -9,9 +9,10 @@
                 <group>
                     <group>
                         <field name="show_all_analytic_accounts"/>
-                        <field name="analytic_account_id"
-                               invisible="show_all_analytic_accounts"
-                               required="not show_all_analytic_accounts"/>
+                        <field name="analytic_account_ids"
+                               widget="many2many_tags"
+                               options="{'no_create': True}"
+                               invisible="show_all_analytic_accounts"/>
                     </group>
                     <group>
                         <field name="date_from"/>

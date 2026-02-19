@@ -5,12 +5,14 @@
     'description': """
         Adds a "Rack List" menu item in the Sales top bar that displays
         all products along with their exact storage locations and quantities.
+        Includes OWL-powered Sort By buttons (Product / Location / Qty).
     """,
     'author': 'Custom',
     'category': 'Sales',
     'depends': ['sale_management', 'stock'],
     'data': [
         'security/ir.model.access.csv',
+        'views/rack_list_assets.xml',
         'views/rack_list_views.xml',
         'views/rack_list_menus.xml',
     ],

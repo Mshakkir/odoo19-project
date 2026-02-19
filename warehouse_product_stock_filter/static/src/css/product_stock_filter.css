@@ -1,4 +1,4 @@
-/* ── Product Stock Filter Bar ─────────────────────────────────────────────── */
+/* Product Stock Filter Bar */
 
 .psf_filter_bar {
     width: 100%;
@@ -15,7 +15,7 @@
     flex-wrap: wrap;
 }
 
-/* ── Filter groups ────────────────────────────────────────────────────────── */
+/* Filter groups */
 
 .psf_filters {
     display: flex;
@@ -54,7 +54,7 @@
     line-height: 1;
 }
 
-/* ── Inputs & Selects ─────────────────────────────────────────────────────── */
+/* Inputs and Selects */
 
 .psf_input,
 .psf_select {
@@ -81,11 +81,7 @@
     color: #adb5bd;
 }
 
-.psf_input_sm {
-    font-size: 12px;
-}
-
-/* ── Price range ──────────────────────────────────────────────────────────── */
+/* Price range */
 
 .psf_range_inputs {
     display: flex;
@@ -104,14 +100,13 @@
     flex-shrink: 0;
 }
 
-/* ── Action buttons ───────────────────────────────────────────────────────── */
+/* Action buttons */
 
 .psf_actions {
     display: flex;
     gap: 8px;
     align-items: flex-end;
     flex-shrink: 0;
-    padding-bottom: 0;
 }
 
 .psf_btn {
@@ -125,12 +120,8 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background 0.15s, transform 0.1s;
+    transition: background 0.15s;
     white-space: nowrap;
-}
-
-.psf_btn:active {
-    transform: scale(0.97);
 }
 
 .psf_btn_apply {
@@ -151,7 +142,7 @@
     background: #5c636a;
 }
 
-/* ── Autocomplete dropdown ────────────────────────────────────────────────── */
+/* Autocomplete dropdown */
 
 .psf_autocomplete {
     position: absolute;
@@ -207,7 +198,7 @@
     color: #212529;
 }
 
-/* ── Responsive ───────────────────────────────────────────────────────────── */
+/* Responsive */
 
 @media (max-width: 1200px) {
     .psf_filters { gap: 8px; }
@@ -233,7 +224,6 @@
     }
     .psf_actions {
         width: 100%;
-        justify-content: stretch;
     }
     .psf_btn {
         flex: 1;

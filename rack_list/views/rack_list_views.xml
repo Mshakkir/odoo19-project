@@ -1,29 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Tree/List View -->
-    <record id="view_rack_list_tree" model="ir.ui.view">
-        <field name="name">rack.list.tree</field>
-        <field name="model">rack.list</field>
-        <field name="arch" type="xml">
-            <list string="Rack List" create="false" edit="false" delete="false">
-                <field name="product_code" string="Ref#" optional="show"/>
-                <field name="product_id" string="Product"/>
-                <field name="product_categ_id" string="Category" optional="show"/>
-                <field name="location_complete_name" string="Location"/>
-                <field name="quantity" string="Qty On Hand"/>
-                <field name="uom_id" string="Unit"/>
-            </list>
-        </field>
-    </record>
-
-    <!-- Action -->
-    <record id="action_rack_list" model="ir.actions.act_window">
-        <field name="name">Rack List</field>
-        <field name="res_model">rack.list</field><?xml version="1.0" encoding="utf-8"?>
-<odoo>
-
-    <!-- Tree/List View — js_class activates the custom OWL RackListController -->
     <record id="view_rack_list_tree" model="ir.ui.view">
         <field name="name">rack.list.tree</field>
         <field name="model">rack.list</field>
@@ -33,33 +10,19 @@
                   create="false"
                   edit="false"
                   delete="false">
-
-                <field name="product_code"         string="Ref#"     optional="show"/>
-                <field name="product_id"           string="Product"/>
-                <field name="product_categ_id"     string="Category" optional="show"/>
-                <field name="location_complete_name" string="Location"/>
-                <field name="quantity"             string="Qty On Hand"/>
-                <field name="uom_id"               string="Unit"/>
-
+                <field name="product_code"            string="Ref#"     optional="show"/>
+                <field name="product_id"              string="Product"/>
+                <field name="product_categ_id"        string="Category" optional="show"/>
+                <field name="location_complete_name"  string="Location"/>
+                <field name="quantity"                string="Qty On Hand"/>
+                <field name="uom_id"                  string="Unit"/>
             </list>
         </field>
     </record>
 
-    <!-- Action — default view grouped by location -->
     <record id="action_rack_list" model="ir.actions.act_window">
         <field name="name">Rack List</field>
         <field name="res_model">rack.list</field>
-        <field name="view_mode">list</field>
-        <field name="view_id" ref="view_rack_list_tree"/>
-        <field name="context">{'group_by': 'location_id'}</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                No products found in stock locations.
-            </p>
-        </field>
-    </record>
-
-</odoo>
         <field name="view_mode">list</field>
         <field name="view_id" ref="view_rack_list_tree"/>
         <field name="context">{'group_by': 'location_id'}</field>

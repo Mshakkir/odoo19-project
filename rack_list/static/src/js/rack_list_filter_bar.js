@@ -1,10 +1,11 @@
 /** @odoo-module **/
 
-import { Component, useState, useRef, onWillUnmount } from "@odoo/owl";
+import { Component, App, useState, useRef, onMounted, onWillUnmount } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { ListController } from "@web/views/list/list_controller";
 import { listView } from "@web/views/list/list_view";
 import { registry } from "@web/core/registry";
+import { templates } from "@web/core/assets";
 
 // ─── Autocomplete Input ───────────────────────────────────────────────────────
 class FilterAutocomplete extends Component {
@@ -20,8 +21,8 @@ class FilterAutocomplete extends Component {
         this.state = useState({
             inputValue: "",
             suggestions: [],
-            open:        false,
-            activeIdx:   -1,
+            open:      false,
+            activeIdx: -1,
         });
         this.wrapperRef = useRef("wrapper");
         this._onDocClick = this._onDocClick.bind(this);
@@ -31,9 +32,7 @@ class FilterAutocomplete extends Component {
 
     _onDocClick(ev) {
         const el = this.wrapperRef.el;
-        if (el && !el.contains(ev.target)) {
-            this.state.open = false;
-        }
+        if (el && !el.contains(ev.target)) this.state.open = false;
     }
 
     async onInput(ev) {
@@ -68,8 +67,8 @@ class FilterAutocomplete extends Component {
     }
 
     selectOption(option) {
-        this.state.inputValue = option.label;
-        this.state.open       = false;
+        this.state.inputValue  = option.label;
+        this.state.open        = false;
         this.state.suggestions = [];
         this.props.onSelect(option);
     }
@@ -81,15 +80,13 @@ class FilterAutocomplete extends Component {
         this.props.onClear();
     }
 
-    get hasValue() {
-        return this.state.inputValue.length > 0;
-    }
+    get hasValue() { return this.state.inputValue.length > 0; }
 }
 
 // ─── Filter Bar ───────────────────────────────────────────────────────────────
 class RackListFilterBar extends Component {
-    static template    = "rack_list.FilterBar";
-    static components  = { FilterAutocomplete };
+    static template   = "rack_list.FilterBar";
+    static components = { FilterAutocomplete };
 
     setup() {
         this.orm   = useService("orm");
@@ -112,10 +109,10 @@ class RackListFilterBar extends Component {
         return res.map(([id, label]) => ({ id, label }));
     }
 
-    onProductSelect(option)  { this.state.productId  = option.id;  this._apply(); }
-    onProductClear()          { this.state.productId  = null;        this._apply(); }
-    onLocationSelect(option) { this.state.locationId = option.id;  this._apply(); }
-    onLocationClear()         { this.state.locationId = null;        this._apply(); }
+    onProductSelect(opt)  { this.state.productId  = opt.id;  this._apply(); }
+    onProductClear()       { this.state.productId  = null;    this._apply(); }
+    onLocationSelect(opt) { this.state.locationId = opt.id;  this._apply(); }
+    onLocationClear()      { this.state.locationId = null;    this._apply(); }
 
     _apply() {
         const domain = [];
@@ -125,7 +122,6 @@ class RackListFilterBar extends Component {
     }
 
     onApply()    { this._apply(); }
-
     onClearAll() {
         this.state.productId  = null;
         this.state.locationId = null;
@@ -133,13 +129,50 @@ class RackListFilterBar extends Component {
     }
 }
 
-// ─── Custom List Controller ───────────────────────────────────────────────────
+// ─── Custom Controller ────────────────────────────────────────────────────────
+// NO static template override — we don't inherit any OWL template.
+// Instead we mount RackListFilterBar directly into the control panel DOM
+// via onMounted, sharing the parent env so searchModel is accessible.
 class RackListController extends ListController {
-    static template = "rack_list.ListController";
-    static components = {
-        ...ListController.components,
-        RackListFilterBar,
-    };
+    setup() {
+        super.setup();
+        this._filterApp       = null;
+        this._filterContainer = null;
+
+        onMounted(() => this._mountFilterBar());
+        onWillUnmount(() => this._destroyFilterBar());
+    }
+
+    _mountFilterBar() {
+        // Walk up to the action manager then down into the control panel slot.
+        // .o_control_panel_bottom_left is the same area the Invoice filter row lives in.
+        const anchor = document
+            .querySelector(".o_action_manager .o_control_panel_bottom .o_control_panel_bottom_left");
+
+        if (!anchor) return;
+
+        // Avoid double-mounting if the action stays alive
+        if (anchor.querySelector(".rack_filter_bar")) return;
+
+        const container = document.createElement("div");
+        anchor.prepend(container);
+        this._filterContainer = container;
+
+        // Mount as a separate OWL App but share THIS component's env so that
+        // env.searchModel, env.services etc. are all available inside the bar.
+        this._filterApp = new App(RackListFilterBar, {
+            env: this.env,
+            templates,
+        });
+        this._filterApp.mount(container);
+    }
+
+    _destroyFilterBar() {
+        this._filterApp?.destroy();
+        this._filterContainer?.remove();
+        this._filterApp       = null;
+        this._filterContainer = null;
+    }
 }
 
 // ─── Register View ────────────────────────────────────────────────────────────

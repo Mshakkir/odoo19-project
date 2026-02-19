@@ -17,14 +17,11 @@
     ],
     'assets': {
         'web.assets_backend': [
+            # Simple sequential order — no ('after', ...) needed because
+            # we no longer inherit any web.* OWL template.
             'rack_list/static/src/css/rack_list_filter_bar.css',
-            # XML MUST be bundled AFTER web's list_controller.xml so that
-            # OWL can resolve t-inherit="web.ListController" at runtime.
-            ('after', 'web/static/src/views/list/list_controller.xml',
-             'rack_list/static/src/xml/rack_list_filter_bar.xml'),
-            # JS component file must come after the XML templates are registered.
-            ('after', 'rack_list/static/src/xml/rack_list_filter_bar.xml',
-             'rack_list/static/src/js/rack_list_filter_bar.js'),
+            'rack_list/static/src/xml/rack_list_filter_bar.xml',
+            'rack_list/static/src/js/rack_list_filter_bar.js',
         ],
     },
     'installable': True,

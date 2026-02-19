@@ -16,21 +16,15 @@
                     t-on-keydown="onKeyDown"
                     autocomplete="off"
                 />
-                <button
-                    t-if="hasValue"
-                    class="rack_clear_btn"
-                    t-on-click="onClearClick"
-                    title="Clear"
-                >&#x2715;</button>
+                <button t-if="hasValue" class="rack_clear_btn"
+                        t-on-click="onClearClick" title="Clear">&#x2715;</button>
             </div>
             <ul t-if="state.open" class="rack_dropdown">
                 <t t-foreach="state.suggestions" t-as="opt" t-key="opt.id">
-                    <li
-                        class="rack_dropdown_item"
+                    <li class="rack_dropdown_item"
                         t-att-class="{ active: opt_index === state.activeIdx }"
                         t-on-click="() => selectOption(opt)"
-                        t-on-mouseenter="() => { state.activeIdx = opt_index; }"
-                    >
+                        t-on-mouseenter="() => { state.activeIdx = opt_index; }">
                         <t t-esc="opt.label"/>
                     </li>
                 </t>
@@ -55,28 +49,13 @@
                 onSelect.bind="onLocationSelect"
                 onClear.bind="onLocationClear"
             />
-            <button class="rack_apply_btn" t-on-click="onApply">Apply</button>
+            <button class="rack_apply_btn"     t-on-click="onApply">Apply</button>
             <button class="rack_clear_all_btn" t-on-click="onClearAll">Clear</button>
         </div>
     </t>
 
-    <!-- ═══════════════════════════════════════════════════════
-         Extend web.ListController — replace bottom-left slot
-         with our Product + Location filter bar.
-         IMPORTANT: this file is forced to load AFTER
-         web/static/src/views/list/list_controller.xml via
-         the ('after', ...) entry in __manifest__.py so that
-         OWL can resolve the t-inherit parent at runtime.
-         ═══════════════════════════════════════════════════════ -->
-    <t t-name="rack_list.ListController"
-       t-inherit="web.ListController"
-       t-inherit-mode="primary">
-        <xpath expr="//t[@t-set-slot='control-panel-bottom-left']"
-               position="replace">
-            <t t-set-slot="control-panel-bottom-left">
-                <RackListFilterBar/>
-            </t>
-        </xpath>
-    </t>
+    <!-- NOTE: NO t-inherit of web.ListController here.
+         The controller injects the filter bar via onMounted DOM injection
+         so Odoo's compiled-in-JS templates are never a dependency. -->
 
 </templates>

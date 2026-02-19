@@ -146,9 +146,13 @@ class RackListFilterBar extends Component {
         if (this.state.locationId) {
             domain.push(["location_id", "=", this.state.locationId]);
         }
-        this.env.searchModel.setDomainParts({
-            rackListFilters: domain,
-        });
+        try {
+            // Odoo 16 / 17 / 18
+            this.env.searchModel.setDomainParts({ rackListFilters: domain });
+        } catch (_e) {
+            // Fallback: toggle an invisible domain filter
+            this.env.searchModel.query = domain;
+        }
     }
 
     onApply() {
@@ -164,11 +168,11 @@ class RackListFilterBar extends Component {
 
 // ─── Custom List Controller ───────────────────────────────────────────────────
 class RackListController extends ListController {
+    static template = "rack_list.ListController";
     static components = {
         ...ListController.components,
         RackListFilterBar,
     };
-    static template = "rack_list.ListController";
 }
 
 // ─── Register View ────────────────────────────────────────────────────────────

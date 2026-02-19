@@ -61,10 +61,10 @@
     </t>
 
     <!-- ═══════════════════════════════════════════════════════
-         List Controller — inject filter bar above the list
+         List Controller — inject filter bar into control-panel
          ═══════════════════════════════════════════════════════ -->
-    <t t-name="rack_list.ListController" t-inherit="web.ListController" t-inherit-mode="extension">
-        <xpath expr="//Layout" position="inside">
+    <t t-name="rack_list.ListController" t-inherit="web.ListController" t-inherit-mode="primary">
+        <xpath expr="//Layout/t[@t-set-slot='control-panel-bottom-left']" position="replace">
             <t t-set-slot="control-panel-bottom-left">
                 <RackListFilterBar/>
             </t>

@@ -1,23 +1,53 @@
 <odoo>
+
+    <!-- ── Product list view: extra columns ─────────────────────────────── -->
     <record id="product_template_tree_view_warehouse_qty" model="ir.ui.view">
         <field name="name">product.template.tree.warehouse.qty</field>
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_tree_view"/>
         <field name="priority">100</field>
         <field name="arch" type="xml">
-            <!-- Add Total Sales Price and Total Cost Price after uom_id (unit) -->
             <xpath expr="//field[@name='uom_id']" position="after">
-                <field name="total_sales_price" string="Total Sales Price" optional="show" widget="monetary" column_invisible="0" sum="Total Sales Price"/>
-                <field name="total_cost_price" string="Total Cost Price" optional="show" widget="monetary" column_invisible="0" sum="Total Cost Price"/>
+                <field name="total_sales_price" string="Total Sales Price"
+                       optional="show" widget="monetary" sum="Total Sales"/>
+                <field name="total_cost_price" string="Total Cost Price"
+                       optional="show" widget="monetary" sum="Total Cost"/>
             </xpath>
-
-            <!-- Add warehouse quantity columns after standard_price (cost) -->
             <xpath expr="//field[@name='standard_price']" position="after">
-                <field name="qty_fyh_stock" string="FYH/Stock" optional="show" sum="FYH/Stock Total"/>
-                <field name="qty_bld_stock" string="BLD/Stock" optional="show" sum="BLD/Stock Total"/>
-                <field name="qty_dmm_stock" string="DMM-1/Stock" optional="show" sum="DMM-1/Stock Total"/>
+                <field name="qty_fyh_stock"  string="FYH/Stock"   optional="show" sum="FYH Total"/>
+                <field name="qty_bld_stock"  string="BLD/Stock"   optional="show" sum="BLD Total"/>
+                <field name="qty_dmm_stock"  string="DMM-1/Stock" optional="show" sum="DMM-1 Total"/>
             </xpath>
         </field>
     </record>
+
 </odoo>
+
+
+
+
+
+
+<!--<odoo>-->
+<!--    <record id="product_template_tree_view_warehouse_qty" model="ir.ui.view">-->
+<!--        <field name="name">product.template.tree.warehouse.qty</field>-->
+<!--        <field name="model">product.template</field>-->
+<!--        <field name="inherit_id" ref="product.product_template_tree_view"/>-->
+<!--        <field name="priority">100</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            &lt;!&ndash; Add Total Sales Price and Total Cost Price after uom_id (unit) &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='uom_id']" position="after">-->
+<!--                <field name="total_sales_price" string="Total Sales Price" optional="show" widget="monetary" column_invisible="0" sum="Total Sales Price"/>-->
+<!--                <field name="total_cost_price" string="Total Cost Price" optional="show" widget="monetary" column_invisible="0" sum="Total Cost Price"/>-->
+<!--            </xpath>-->
+
+<!--            &lt;!&ndash; Add warehouse quantity columns after standard_price (cost) &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='standard_price']" position="after">-->
+<!--                <field name="qty_fyh_stock" string="FYH/Stock" optional="show" sum="FYH/Stock Total"/>-->
+<!--                <field name="qty_bld_stock" string="BLD/Stock" optional="show" sum="BLD/Stock Total"/>-->
+<!--                <field name="qty_dmm_stock" string="DMM-1/Stock" optional="show" sum="DMM-1/Stock Total"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+<!--</odoo>-->
 

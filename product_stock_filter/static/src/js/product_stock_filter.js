@@ -53,31 +53,29 @@ patch(ListController.prototype, {
 
         if (document.querySelector(".psf_filter_bar")) return;
 
-        const listTable = document.querySelector(".o_list_table");
+        var listTable = document.querySelector(".o_list_table");
         if (!listTable) {
             setTimeout(() => this.injectPsfBar(), 150);
             return;
         }
 
-        const ts = Date.now();
+        var ts = Date.now();
 
-        const bar = document.createElement("div");
+        var bar = document.createElement("div");
         bar.className = "psf_filter_bar";
         bar.innerHTML = [
             '<div class="psf_inner">',
             '  <div class="psf_filters">',
 
             '    <div class="psf_group psf_product_group" style="position:relative;">',
-            '      <label class="psf_label">Product</label>',
             '      <input type="text" id="psf_product_' + ts + '" class="psf_input"',
-            '             placeholder="Name or code..." autocomplete="off"/>',
+            '             placeholder="Product" autocomplete="off"/>',
             '      <div id="psf_ac_' + ts + '" class="psf_autocomplete" style="display:none;"></div>',
             '    </div>',
 
             '    <div class="psf_group">',
-            '      <label class="psf_label">Stock</label>',
             '      <select id="psf_stock_' + ts + '" class="psf_select">',
-            '        <option value="">All</option>',
+            '        <option value="">Stock</option>',
             '        <option value="zero">Zero Stock</option>',
             '        <option value="negative">Negative Stock</option>',
             '        <option value="positive">In Stock</option>',
@@ -85,28 +83,8 @@ patch(ListController.prototype, {
             '    </div>',
 
             '    <div class="psf_group psf_gt_group">',
-            '      <label class="psf_label">On Hand &gt;</label>',
             '      <input type="text" id="psf_gt_' + ts + '" class="psf_input"',
-            '             placeholder="e.g. 10" inputmode="decimal"/>',
-            '    </div>',
-
-            '    <div class="psf_group">',
-            '      <label class="psf_label">Type</label>',
-            '      <select id="psf_type_' + ts + '" class="psf_select">',
-            '        <option value="">All Types</option>',
-            '        <option value="consu">Consumable</option>',
-            '        <option value="storable">Storable</option>',
-            '        <option value="service">Service</option>',
-            '      </select>',
-            '    </div>',
-
-            '    <div class="psf_group psf_range_group">',
-            '      <label class="psf_label">Sales Price</label>',
-            '      <div class="psf_range_inputs">',
-            '        <input type="text" id="psf_pfrom_' + ts + '" class="psf_input" placeholder="Min" inputmode="decimal"/>',
-            '        <span class="psf_range_sep">to</span>',
-            '        <input type="text" id="psf_pto_' + ts + '" class="psf_input" placeholder="Max" inputmode="decimal"/>',
-            '      </div>',
+            '             placeholder="On Hand greater than" inputmode="decimal"/>',
             '    </div>',
 
             '  </div>',
@@ -115,36 +93,30 @@ patch(ListController.prototype, {
             '    <button id="psf_clear_' + ts + '" class="psf_btn psf_btn_clear" type="button">Clear</button>',
             '  </div>',
             '</div>'
-        ].join('\n');
+        ].join('');
 
         listTable.parentElement.insertBefore(bar, listTable);
         this._psfElement = bar;
 
-        const get = function(id) { return document.getElementById(id); };
+        var get = function(id) { return document.getElementById(id); };
 
-        const productInput = get("psf_product_" + ts);
-        const acBox        = get("psf_ac_" + ts);
-        const stockSelect  = get("psf_stock_" + ts);
-        const gtInput      = get("psf_gt_" + ts);
-        const typeSelect   = get("psf_type_" + ts);
-        const priceFrom    = get("psf_pfrom_" + ts);
-        const priceTo      = get("psf_pto_" + ts);
-        const applyBtn     = get("psf_apply_" + ts);
-        const clearBtn     = get("psf_clear_" + ts);
+        var productInput = get("psf_product_" + ts);
+        var acBox        = get("psf_ac_" + ts);
+        var stockSelect  = get("psf_stock_" + ts);
+        var gtInput      = get("psf_gt_" + ts);
+        var applyBtn     = get("psf_apply_" + ts);
+        var clearBtn     = get("psf_clear_" + ts);
 
-        // Numeric-only validation
-        [gtInput, priceFrom, priceTo].forEach(function(inp) {
-            if (!inp) return;
-            inp.addEventListener("input", function() {
-                if (!/^-?\d*\.?\d*$/.test(this.value)) {
-                    this.value = this.value.slice(0, -1);
-                }
-            });
+        // Numeric-only validation for gt input
+        gtInput.addEventListener("input", function() {
+            if (!/^-?\d*\.?\d*$/.test(this.value)) {
+                this.value = this.value.slice(0, -1);
+            }
         });
 
-        // Apply domain
         var self = this;
 
+        // Apply domain
         var doApply = function() {
             var domain = [];
 
@@ -168,20 +140,6 @@ patch(ListController.prototype, {
                 domain.push(["qty_available", ">", gt]);
             }
 
-            if (typeSelect.value) {
-                domain.push(["type", "=", typeSelect.value]);
-            }
-
-            var pf = parseFloat(priceFrom.value);
-            var pt = parseFloat(priceTo.value);
-            if (priceFrom.value.trim() && !isNaN(pf)) domain.push(["list_price", ">=", pf]);
-            if (priceTo.value.trim()   && !isNaN(pt)) domain.push(["list_price", "<=", pt]);
-
-            if (priceFrom.value.trim() && priceTo.value.trim() && !isNaN(pf) && !isNaN(pt) && pf > pt) {
-                self.notification.add("Price Min must be less than or equal to Price Max", { type: "warning" });
-                return;
-            }
-
             if (self.model && self.model.load) {
                 self.model.load({ domain: domain }).catch(function(err) {
                     console.warn("PSF apply error:", err);
@@ -198,9 +156,6 @@ patch(ListController.prototype, {
             acBox.innerHTML = "";
             stockSelect.value = "";
             gtInput.value = "";
-            typeSelect.value = "";
-            priceFrom.value = "";
-            priceTo.value = "";
 
             if (self.model && self.model.load) {
                 self.model.load({ domain: [] }).catch(function(err) {

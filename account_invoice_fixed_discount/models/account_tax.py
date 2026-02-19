@@ -10,6 +10,8 @@ class AccountTax(models.Model):
     @api.model
     def _prepare_base_line_for_taxes_computation(self, record, **kwargs):
         res = super()._prepare_base_line_for_taxes_computation(record, **kwargs)
-        if record and record._name == "account.move.line" and record.discount_fixed:
+        # if record and record._name == "account.move.line" and record.discount_fixed:
+        # After
+        if record and hasattr(record, '_name') and record._name == "account.move.line" and record.discount_fixed:
             res["discount"] = record._get_discount_from_fixed_discount()
         return res

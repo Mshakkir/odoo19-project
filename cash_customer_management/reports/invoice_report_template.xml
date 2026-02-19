@@ -10,15 +10,15 @@
                 <t t-if="o.is_cash_customer and o.actual_customer_name">
                     <div>
                         <strong><span t-field="o.actual_customer_name"/></strong><br/>
-                        <span t-if="o.actual_customer_mobile">
-                            Mobile: <span t-field="o.actual_customer_mobile"/><br/>
-                        </span>
-                        <span t-if="o.actual_customer_email">
-                            Email: <span t-field="o.actual_customer_email"/><br/>
-                        </span>
-                        <span t-if="o.actual_customer_address">
+                        <t t-if="o.actual_customer_address">
                             <span t-field="o.actual_customer_address"/><br/>
-                        </span>
+                        </t>
+                        <t t-if="o.actual_customer_mobile">
+                            Mobile: <span t-field="o.actual_customer_mobile"/><br/>
+                        </t>
+                        <t t-if="o.actual_customer_email">
+                            Email: <span t-field="o.actual_customer_email"/><br/>
+                        </t>
                     </div>
                 </t>
 

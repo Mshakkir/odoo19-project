@@ -22,7 +22,7 @@
                             <field name="actual_customer_email" placeholder="Enter email address"/>
                         </group>
                         <group string="Address">
-                            <field name="actual_customer_address" placeholder="Enter complete address"/>
+                            <field name="actual_customer_address" placeholder="Enter complete address and VAT No:"/>
                         </group>
                     </group>
                     <separator/>

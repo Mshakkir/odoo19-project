@@ -1,5 +1,9 @@
+import logging
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
+_logger.info("DEBUG delivery_invoice_batch: stock_picking_invoice.py module-level code executing")
 
 
 class StockPickingInvoiceWizard(models.TransientModel):
@@ -44,25 +48,31 @@ class StockPickingInvoiceWizard(models.TransientModel):
     def action_create_invoice(self):
         self.ensure_one()
 
+        picking_names = self.picking_ids.mapped('name')
+        delivery_note_value = ', '.join(picking_names)
+
+        _logger.info(
+            "DEBUG delivery_invoice_batch: Creating invoice for pickings: %s, "
+            "delivery_note_number will be: %s",
+            picking_names, delivery_note_value
+        )
+
         invoice_vals = {
             'move_type': 'out_invoice',
             'partner_id': self.partner_id.id,
             'invoice_date': self.invoice_date,
-            'invoice_origin': ', '.join(self.picking_ids.mapped('name')),
+            'invoice_origin': delivery_note_value,
             'journal_id': self.journal_id.id,
+            'delivery_note_number': delivery_note_value,
             'invoice_line_ids': [],
         }
 
-        # Collect products from all delivery notes
         for picking in self.picking_ids:
-            # Use move_ids or move_lines depending on Odoo version
             moves = picking.move_ids if hasattr(picking, 'move_ids') else picking.move_lines
 
             for move in moves:
                 if move.state == 'done':
-                    # Get product price from sale price or standard price
                     price_unit = move.product_id.list_price or move.product_id.standard_price
-
                     line_vals = {
                         'product_id': move.product_id.id,
                         'name': move.product_id.display_name,
@@ -77,6 +87,11 @@ class StockPickingInvoiceWizard(models.TransientModel):
             raise UserError(_('No products found in the selected delivery notes to invoice.'))
 
         invoice = self.env['account.move'].create(invoice_vals)
+
+        _logger.info(
+            "DEBUG delivery_invoice_batch: Invoice created: %s, delivery_note_number: %s",
+            invoice.name, invoice.delivery_note_number
+        )
 
         return {
             'name': _('Invoice'),

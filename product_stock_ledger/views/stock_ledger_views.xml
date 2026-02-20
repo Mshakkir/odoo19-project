@@ -15,8 +15,8 @@
                 <field name="product_id"     string="Product"        width="200px"/>
                 <field name="warehouse_id"   string="Warehouse"      width="100px"/>
                 <field name="date"           string="Date"           width="125px"/>
-                <field name="voucher"        string="Voucher"        width="250px"/>
-                <field name="particulars"    string="Particulars"    width="350px"/>
+                <field name="voucher"        string="Voucher"        width="270px"/>
+                <field name="particulars"    string="Particulars"    width="450px"/>
                 <field name="type"           string="Type"           width="70px"/>
                 <field name="rec_qty"        string="Rec. Qty"       sum="Total Received" width="90px"/>
                 <field name="rec_rate"       string="Rec. Rate"      width="90px"/>

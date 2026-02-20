@@ -56,6 +56,22 @@ export class RackListFilterBar extends Component {
         );
     }
 
+    // ── Keyboard shortcut handler ──────────────────────────────────────────
+    onKeyDown(ev) {
+        if (ev.key === "Enter") {
+            // Close dropdown if open, then apply filters
+            this.state.dropdownOpen = false;
+            this.onApply();
+        } else if (ev.key === "Escape") {
+            // Close dropdown if open, otherwise clear all filters
+            if (this.state.dropdownOpen) {
+                this.state.dropdownOpen = false;
+            } else {
+                this.onClear();
+            }
+        }
+    }
+
     onProductInput(ev) { this.state.productFilter = ev.target.value; }
 
     onLocationSearchInput(ev) {
@@ -101,7 +117,7 @@ export class RackListFilterBar extends Component {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Custom Renderer — inserts FilterBar before the table
+// Custom Renderer
 // ─────────────────────────────────────────────────────────────────────────────
 
 class RackListRenderer extends ListRenderer {
@@ -113,32 +129,19 @@ class RackListRenderer extends ListRenderer {
 
     applyRackFilters(filters) {
         const controller = this._getController();
-        if (controller) {
-            controller.applyRackFilters(filters);
-        }
+        if (controller) controller.applyRackFilters(filters);
     }
 
     clearRackFilters() {
         const controller = this._getController();
-        if (controller) {
-            controller.clearRackFilters();
-        }
+        if (controller) controller.clearRackFilters();
     }
 
     _getController() {
-        // Walk OWL parent chain — skip nodes that are NOT RackListController
-        // by checking for the specific marker property set on that class
         let node = this.__owl__.parent;
         while (node) {
             const comp = node.component;
-            // RackListController has applyRackFilters but is NOT a renderer
-            // We identify it by checking it has applyRackFilters AND
-            // does NOT have the renderer-specific `list` prop structure
-            if (
-                comp &&
-                typeof comp.applyRackFilters === "function" &&
-                comp.__IS_RACK_CONTROLLER__ === true
-            ) {
+            if (comp && comp.__IS_RACK_CONTROLLER__ === true) {
                 return comp;
             }
             node = node.parent;
@@ -154,7 +157,6 @@ class RackListRenderer extends ListRenderer {
 class RackListController extends ListController {
     static template = "rack_list.ListController";
 
-    // Unique marker so the renderer can identify this class in the parent chain
     __IS_RACK_CONTROLLER__ = true;
 
     setup() {

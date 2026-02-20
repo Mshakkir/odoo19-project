@@ -3,7 +3,7 @@
 
     <!-- ── Filter Bar Component ───────────────────────────────────────────── -->
     <t t-name="rack_list.FilterBar">
-        <div class="rack_list_filter_bar">
+        <div class="rack_list_filter_bar" t-on-keydown="onKeyDown">
             <input
                 type="text"
                 class="rack_filter_input o_input"
@@ -49,13 +49,6 @@
         </div>
     </t>
 
-    <!--
-        ── Custom Renderer Template ───────────────────────────────────────────
-        Primary inherit from web.ListRenderer.
-        Insert RackListFilterBar BEFORE the table.
-        The renderer instance methods applyRackFilters/clearRackFilters
-        proxy up to the controller.
-    -->
     <t t-name="rack_list.ListRenderer"
        t-inherit="web.ListRenderer"
        t-inherit-mode="primary">
@@ -67,10 +60,6 @@
         </xpath>
     </t>
 
-    <!--
-        ── Controller Template ────────────────────────────────────────────────
-        Primary inherit — no filter bar here, it's in the renderer now.
-    -->
     <t t-name="rack_list.ListController"
        t-inherit="web.ListView"
        t-inherit-mode="primary">

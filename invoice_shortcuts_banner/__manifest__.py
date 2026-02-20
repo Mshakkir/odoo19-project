@@ -18,6 +18,7 @@
         - Ctrl+F5: Purchase History
         - Ctrl+F6: Sales History
         - Ctrl+F7: Stock Monitor
+        - Ctrl+F9: Stock Location
     """,
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',

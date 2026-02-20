@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates xml:space="preserve">
 
-    <!-- ── Filter Bar Component ───────────────────────────────────────────── -->
+    <!-- ── Filter Bar ─────────────────────────────────────────────────────── -->
     <t t-name="rack_list.FilterBar">
         <div class="rack_list_filter_bar">
+
+            <!-- Product name or code -->
             <input
                 type="text"
                 class="rack_filter_input o_input"
@@ -11,27 +13,81 @@
                 t-att-value="state.productFilter"
                 t-on-input="onProductInput"
             />
-            <select class="rack_filter_select o_input" t-on-change="onLocationChange">
-                <option value="">Location</option>
-                <t t-foreach="state.locations" t-as="loc" t-key="loc.id">
-                    <option
-                        t-att-value="loc.id"
-                        t-att-selected="state.locationId == loc.id"
-                    >
-                        <t t-esc="loc.name"/>
-                    </option>
-                </t>
-            </select>
+
+            <!-- Searchable Location Dropdown -->
+            <div class="rack_loc_dropdown_wrap">
+                <!-- Trigger button -->
+                <div class="rack_loc_trigger o_input" t-on-click="openDropdown">
+                    <span class="rack_loc_label" t-if="state.selectedLocationName">
+                        <t t-esc="state.selectedLocationName"/>
+                    </span>
+                    <span class="rack_loc_placeholder" t-else="">Location</span>
+                    <span class="rack_loc_caret">▾</span>
+                    <!-- Clear X button -->
+                    <span
+                        t-if="state.selectedLocationName"
+                        class="rack_loc_clear"
+                        t-on-click.stop="clearLocation"
+                    >✕</span>
+                </div>
+
+                <!-- Dropdown panel -->
+                <div class="rack_loc_dropdown" t-if="state.dropdownOpen">
+                    <!-- Search inside dropdown -->
+                    <div class="rack_loc_search_wrap">
+                        <input
+                            type="text"
+                            class="rack_loc_search o_input"
+                            placeholder="Search location..."
+                            t-att-value="state.locationSearch"
+                            t-on-input="onLocationSearchInput"
+                            t-on-click.stop=""
+                        />
+                    </div>
+                    <!-- Options list -->
+                    <div class="rack_loc_options">
+                        <div
+                            class="rack_loc_option rack_loc_all"
+                            t-on-click="() => this.selectLocation(null)"
+                        >
+                            All Locations
+                        </div>
+                        <t t-foreach="state.filteredLocations" t-as="loc" t-key="loc.id">
+                            <div
+                                class="rack_loc_option"
+                                t-att-class="{ 'rack_loc_selected': state.locationId == loc.id }"
+                                t-on-click="() => this.selectLocation(loc)"
+                            >
+                                <t t-esc="loc.name"/>
+                            </div>
+                        </t>
+                        <div class="rack_loc_empty" t-if="state.filteredLocations.length === 0">
+                            No locations found
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Apply -->
             <button class="btn btn-primary" t-on-click="onApply">Apply</button>
+
+            <!-- Clear -->
             <button class="btn btn-secondary" t-on-click="onClear">Clear</button>
+
         </div>
     </t>
 
-    <!-- ── Rack List Controller Template ─────────────────────────────────── -->
+    <!-- ── Controller template: insert filter bar INSIDE Layout (below search) -->
     <t t-name="rack_list.ListController"
        t-inherit="web.ListView"
        t-inherit-mode="primary">
-        <xpath expr="//Layout" position="before">
+        <!--
+            "inside" on Layout inserts as the FIRST child of Layout.
+            Layout renders: ControlPanel (search bar) then content.
+            By inserting at the start of Layout's default slot / inner content,
+            the filter bar appears right below the search/control panel area.
+        -->
+        <xpath expr="//Layout" position="inside">
             <RackListFilterBar
                 applyFilters.bind="applyRackFilters"
                 clearFilters.bind="clearRackFilters"

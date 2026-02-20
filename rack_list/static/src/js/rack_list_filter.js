@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { Component, useState, onWillStart } from "@odoo/owl";
+import { Component, useState, onWillStart, useRef, useEffect } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { ListController } from "@web/views/list/list_controller";
@@ -22,21 +22,72 @@ class RackListFilterBar extends Component {
         this.state = useState({
             productFilter: "",
             locationId: "",
+            locationSearch: "",
             locations: [],
+            filteredLocations: [],
+            dropdownOpen: false,
+            selectedLocationName: "",
         });
 
         onWillStart(async () => {
             try {
                 const locs = await this.orm.call("rack.list", "get_locations", []);
                 this.state.locations = locs;
+                this.state.filteredLocations = locs;
             } catch (e) {
                 console.error("[RackList] Could not load locations:", e);
             }
         });
+
+        // Close dropdown when clicking outside
+        this.boundClose = (ev) => {
+            const el = document.querySelector(".rack_loc_dropdown_wrap");
+            if (el && !el.contains(ev.target)) {
+                this.state.dropdownOpen = false;
+            }
+        };
+
+        useEffect(
+            () => {
+                document.addEventListener("mousedown", this.boundClose);
+                return () => document.removeEventListener("mousedown", this.boundClose);
+            },
+            () => []
+        );
     }
 
-    onProductInput(ev) { this.state.productFilter = ev.target.value; }
-    onLocationChange(ev) { this.state.locationId = ev.target.value; }
+    onProductInput(ev) {
+        this.state.productFilter = ev.target.value;
+    }
+
+    // Location search filter
+    onLocationSearchInput(ev) {
+        const q = ev.target.value.toLowerCase();
+        this.state.locationSearch = ev.target.value;
+        this.state.filteredLocations = this.state.locations.filter(l =>
+            l.name.toLowerCase().includes(q)
+        );
+    }
+
+    openDropdown() {
+        this.state.dropdownOpen = true;
+        this.state.locationSearch = "";
+        this.state.filteredLocations = this.state.locations;
+    }
+
+    selectLocation(loc) {
+        this.state.locationId = loc ? loc.id : "";
+        this.state.selectedLocationName = loc ? loc.name : "";
+        this.state.dropdownOpen = false;
+    }
+
+    clearLocation() {
+        this.state.locationId = "";
+        this.state.selectedLocationName = "";
+        this.state.locationSearch = "";
+        this.state.filteredLocations = this.state.locations;
+        this.state.dropdownOpen = false;
+    }
 
     onApply() {
         this.props.applyFilters({
@@ -47,7 +98,7 @@ class RackListFilterBar extends Component {
 
     onClear() {
         this.state.productFilter = "";
-        this.state.locationId = "";
+        this.clearLocation();
         this.props.clearFilters();
     }
 }
@@ -72,9 +123,6 @@ class RackListController extends ListController {
         const domain = [];
 
         if (productFilter) {
-            // product_name is jsonb (translatable) — cannot use ilike directly.
-            // Use product_code (plain char) OR filter via the Many2one
-            // product_id.name which Odoo ORM handles correctly for jsonb/translated fields.
             domain.push("|",
                 ["product_code", "ilike", productFilter],
                 ["product_id.name", "ilike", productFilter]

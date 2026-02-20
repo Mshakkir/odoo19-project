@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates xml:space="preserve">
 
-    <!-- ── Filter Bar Component ───────────────────────────────────────────── -->
     <t t-name="rack_list.FilterBar">
         <div class="rack_list_filter_bar" t-on-keydown="onKeyDown">
             <input
@@ -27,7 +26,9 @@
                                placeholder="Search location..."
                                t-att-value="state.locationSearch"
                                t-on-input="onLocationSearchInput"
-                               t-on-click.stop=""/>
+                               t-on-click.stop=""
+                               t-on-keydown="onLocationKeyDown"
+                        />
                     </div>
                     <div class="rack_loc_options">
                         <div class="rack_loc_option rack_loc_all"

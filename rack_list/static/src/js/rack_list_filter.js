@@ -7,10 +7,6 @@ import { ListController } from "@web/views/list/list_controller";
 import { ListRenderer } from "@web/views/list/list_renderer";
 import { listView } from "@web/views/list/list_view";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Filter Bar Component
-// ─────────────────────────────────────────────────────────────────────────────
-
 export class RackListFilterBar extends Component {
     static template = "rack_list.FilterBar";
     static props = {
@@ -56,19 +52,39 @@ export class RackListFilterBar extends Component {
         );
     }
 
-    // ── Keyboard shortcut handler ──────────────────────────────────────────
+    // ── Enter/Escape on the product input and filter bar wrapper ──────────
     onKeyDown(ev) {
         if (ev.key === "Enter") {
-            // Close dropdown if open, then apply filters
             this.state.dropdownOpen = false;
             this.onApply();
         } else if (ev.key === "Escape") {
-            // Close dropdown if open, otherwise clear all filters
             if (this.state.dropdownOpen) {
                 this.state.dropdownOpen = false;
             } else {
                 this.onClear();
             }
+        }
+    }
+
+    // ── Enter/Escape specifically inside the location search input ────────
+    onLocationKeyDown(ev) {
+        if (ev.key === "Enter") {
+            ev.stopPropagation();
+            // If there's exactly one filtered result, auto-select it
+            if (this.state.filteredLocations.length === 1) {
+                this.selectLocation(this.state.filteredLocations[0]);
+            } else if (this.state.filteredLocations.length === 0) {
+                // Nothing matched — just close dropdown
+                this.state.dropdownOpen = false;
+            } else {
+                // Multiple results — just close dropdown and apply with
+                // whatever was already selected (or none)
+                this.state.dropdownOpen = false;
+            }
+            this.onApply();
+        } else if (ev.key === "Escape") {
+            ev.stopPropagation();
+            this.state.dropdownOpen = false;
         }
     }
 

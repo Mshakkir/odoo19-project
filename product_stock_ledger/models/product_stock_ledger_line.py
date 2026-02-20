@@ -38,7 +38,7 @@ class ProductStockLedgerLine(models.Model):
                     sm.id                                           AS move_id,
                     sm.product_id,
                     sm.date::date                                   AS date,
-                    COALESCE(sm.reference, sm.name, '')             AS voucher,
+                    COALESCE(sm.reference, sp.name, '')             AS voucher,
                     sm.product_uom_qty                              AS qty,
 
                     /* move direction */

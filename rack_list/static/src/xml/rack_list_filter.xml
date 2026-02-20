@@ -16,14 +16,12 @@
 
             <!-- Searchable Location Dropdown -->
             <div class="rack_loc_dropdown_wrap">
-                <!-- Trigger button -->
                 <div class="rack_loc_trigger o_input" t-on-click="openDropdown">
                     <span class="rack_loc_label" t-if="state.selectedLocationName">
                         <t t-esc="state.selectedLocationName"/>
                     </span>
                     <span class="rack_loc_placeholder" t-else="">Location</span>
                     <span class="rack_loc_caret">▾</span>
-                    <!-- Clear X button -->
                     <span
                         t-if="state.selectedLocationName"
                         class="rack_loc_clear"
@@ -31,9 +29,7 @@
                     >✕</span>
                 </div>
 
-                <!-- Dropdown panel -->
                 <div class="rack_loc_dropdown" t-if="state.dropdownOpen">
-                    <!-- Search inside dropdown -->
                     <div class="rack_loc_search_wrap">
                         <input
                             type="text"
@@ -44,12 +40,8 @@
                             t-on-click.stop=""
                         />
                     </div>
-                    <!-- Options list -->
                     <div class="rack_loc_options">
-                        <div
-                            class="rack_loc_option rack_loc_all"
-                            t-on-click="() => this.selectLocation(null)"
-                        >
+                        <div class="rack_loc_option rack_loc_all" t-on-click="() => this.selectLocation(null)">
                             All Locations
                         </div>
                         <t t-foreach="state.filteredLocations" t-as="loc" t-key="loc.id">
@@ -68,26 +60,22 @@
                 </div>
             </div>
 
-            <!-- Apply -->
             <button class="btn btn-primary" t-on-click="onApply">Apply</button>
-
-            <!-- Clear -->
             <button class="btn btn-secondary" t-on-click="onClear">Clear</button>
 
         </div>
     </t>
 
-    <!-- ── Controller template: insert filter bar INSIDE Layout (below search) -->
+    <!-- ── Controller Template ────────────────────────────────────────────── -->
+    <!--
+        Use position="after" on the ControlPanel component.
+        This places the filter bar directly below the search/breadcrumb bar
+        and above the list content — exactly where we want it.
+    -->
     <t t-name="rack_list.ListController"
        t-inherit="web.ListView"
        t-inherit-mode="primary">
-        <!--
-            "inside" on Layout inserts as the FIRST child of Layout.
-            Layout renders: ControlPanel (search bar) then content.
-            By inserting at the start of Layout's default slot / inner content,
-            the filter bar appears right below the search/control panel area.
-        -->
-        <xpath expr="//Layout" position="inside">
+        <xpath expr="//Layout" position="after">
             <RackListFilterBar
                 applyFilters.bind="applyRackFilters"
                 clearFilters.bind="clearRackFilters"

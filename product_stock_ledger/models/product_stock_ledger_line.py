@@ -1,14 +1,14 @@
 # product_stock_ledger/models/product_stock_ledger_line.py
-from odoo import fields, models, api, tools
+from odoo import fields, models, tools
 
 
 class ProductStockLedgerLine(models.Model):
     _name = 'product.stock.ledger.line'
     _description = 'Product Stock Ledger (Live View)'
-    _auto = False          # Odoo will NOT create a real table — we define the SQL view below
+    _auto = False          # no real table — backed by a PostgreSQL view
     _order = 'date asc, move_id asc'
 
-    # ── Fields (mapped to SQL columns) ──────────────────────────────────────
+    # ── Fields ───────────────────────────────────────────────────────────────
     move_id        = fields.Many2one('stock.move',      string='Move',      readonly=True)
     product_id     = fields.Many2one('product.product', string='Product',   readonly=True)
     warehouse_id   = fields.Many2one('stock.warehouse', string='Warehouse', readonly=True)
@@ -41,7 +41,7 @@ class ProductStockLedgerLine(models.Model):
                     COALESCE(sm.reference, sp.name, '')             AS voucher,
                     sm.product_uom_qty                              AS qty,
 
-                    /* move direction */
+                    /* direction based on location usage */
                     CASE
                         WHEN dest.usage = 'internal'
                          AND src.usage  <> 'internal'   THEN 'incoming'
@@ -50,7 +50,7 @@ class ProductStockLedgerLine(models.Model):
                         ELSE                                 'internal'
                     END                                             AS move_type,
 
-                    /* warehouse: first match in dest, fallback src */
+                    /* warehouse: prefer dest location, fall back to src */
                     COALESCE(
                         (SELECT sw.id FROM stock_warehouse sw
                           WHERE dest.complete_name LIKE sw.code || '/%%'
@@ -62,14 +62,14 @@ class ProductStockLedgerLine(models.Model):
                           LIMIT 1)
                     )                                               AS warehouse_id,
 
-                    /* particulars */
+                    /* particulars: partner + route */
                     CONCAT(
                         COALESCE(rp.name || ' - ', ''),
                         src.complete_name, ' → ', dest.complete_name
                     )                                               AS particulars,
 
-                    /* unit price */
-                    COALESCE(sm.price_unit, pp.standard_price, 0)  AS price_unit,
+                    /* unit price — sm.price_unit only (standard_price is jsonb in v19) */
+                    COALESCE(sm.price_unit, 0.0)                   AS price_unit,
 
                     /* uom */
                     uu.name                                         AS uom,
@@ -80,17 +80,16 @@ class ProductStockLedgerLine(models.Model):
                     sm.sale_line_id
 
                 FROM  stock_move          sm
-                JOIN  stock_location      src   ON src.id   = sm.location_id
-                JOIN  stock_location      dest  ON dest.id  = sm.location_dest_id
-                JOIN  product_product     pp    ON pp.id    = sm.product_id
-                JOIN  uom_uom             uu    ON uu.id    = sm.product_uom
-                LEFT JOIN stock_picking       sp   ON sp.id   = sm.picking_id
-                LEFT JOIN stock_picking_type  spt  ON spt.id  = sp.picking_type_id
-                LEFT JOIN res_partner         rp   ON rp.id   = sp.partner_id
+                JOIN  stock_location      src   ON src.id  = sm.location_id
+                JOIN  stock_location      dest  ON dest.id = sm.location_dest_id
+                JOIN  uom_uom             uu    ON uu.id   = sm.product_uom
+                LEFT JOIN stock_picking       sp   ON sp.id  = sm.picking_id
+                LEFT JOIN stock_picking_type  spt  ON spt.id = sp.picking_type_id
+                LEFT JOIN res_partner         rp   ON rp.id  = sp.partner_id
                 WHERE sm.state = 'done'
             ),
 
-            /* 2. Running balance per (product, warehouse) using a window fn */
+            /* 2. Running balance per (product, warehouse) via window function */
             with_balance AS (
                 SELECT
                     c.*,
@@ -132,26 +131,28 @@ class ProductStockLedgerLine(models.Model):
                 wb.balance,
                 wb.uom,
 
-                /* Invoice status from PO / SO */
+                /* Invoice status resolved from PO / SO */
                 CASE
                     WHEN wb.picking_type_code = 'incoming' THEN
                         CASE COALESCE(
-                                (SELECT po.invoice_status
-                                   FROM purchase_order_line pol
-                                   JOIN purchase_order po ON po.id = pol.order_id
-                                  WHERE pol.id = wb.purchase_line_id LIMIT 1),
-                                'none')
+                            (SELECT po.invoice_status
+                               FROM purchase_order_line pol
+                               JOIN purchase_order po ON po.id = pol.order_id
+                              WHERE pol.id = wb.purchase_line_id
+                              LIMIT 1),
+                            'none')
                             WHEN 'invoiced'   THEN 'Invoiced'
                             WHEN 'to invoice' THEN 'To Invoice'
                             ELSE                   'Not Invoiced'
                         END
                     WHEN wb.picking_type_code = 'outgoing' THEN
                         CASE COALESCE(
-                                (SELECT so.invoice_status
-                                   FROM sale_order_line sol
-                                   JOIN sale_order so ON so.id = sol.order_id
-                                  WHERE sol.id = wb.sale_line_id LIMIT 1),
-                                'none')
+                            (SELECT so.invoice_status
+                               FROM sale_order_line sol
+                               JOIN sale_order so ON so.id = sol.order_id
+                              WHERE sol.id = wb.sale_line_id
+                              LIMIT 1),
+                            'none')
                             WHEN 'invoiced'   THEN 'Invoiced'
                             WHEN 'to invoice' THEN 'To Invoice'
                             ELSE                   'Not Invoiced'
@@ -165,7 +166,7 @@ class ProductStockLedgerLine(models.Model):
         """ % self._table)
 
     def action_open_move(self):
-        """Open the underlying stock move form (optional drill-down)."""
+        """Drill down to the underlying stock move."""
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',

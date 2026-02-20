@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_delivery_note_form_inherit_address" model="ir.ui.view">
+        <field name="name">stock.picking.delivery.address.inherit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field
+                    name="partner_shipping_id"
+                    string="Delivery Address"
+                    domain="[
+                        '|',
+                        ('company_id', '=', False),
+                        ('company_id', '=', company_id)
+                    ]"
+                    options="{'no_create': True}"
+                    readonly="state in ('done', 'cancel')"
+                />
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

@@ -46,3 +46,65 @@ class RackList(models.Model):
                 sl.complete_name,
                 pt.uom_id
         """)
+
+    @api.model
+    def get_locations(self):
+        """Return ALL active internal locations."""
+        self.env.cr.execute("""
+            SELECT id, complete_name as name
+            FROM stock_location
+            WHERE usage = 'internal'
+              AND active = true
+            ORDER BY complete_name
+        """)
+        rows = self.env.cr.fetchall()
+        return [{'id': r[0], 'name': r[1]} for r in rows]
+
+    @api.model
+    def search_products(self, query, limit=15):
+        """
+        Search products currently in stock matching query by name or code.
+        Returns list of {id, code, name, label} for autocomplete dropdown.
+        """
+        lang = self.env.lang or 'en_US'
+        like_query = f'%{query}%'
+
+        self.env.cr.execute("""
+            SELECT DISTINCT ON (pp.id)
+                pp.id,
+                pp.default_code,
+                pt.name
+            FROM stock_quant sq
+            JOIN product_product pp  ON pp.id = sq.product_id
+            JOIN product_template pt ON pt.id = pp.product_tmpl_id
+            JOIN stock_location sl   ON sl.id = sq.location_id
+            WHERE sl.usage = 'internal'
+              AND sq.quantity > 0
+              AND (
+                  pp.default_code ILIKE %s
+                  OR (pt.name->>'en_US') ILIKE %s
+                  OR (pt.name->>%s) ILIKE %s
+              )
+            ORDER BY pp.id, pp.default_code NULLS LAST
+            LIMIT %s
+        """, (like_query, like_query, lang, like_query, limit))
+
+        rows = self.env.cr.fetchall()
+        results = []
+        for prod_id, code, name_jsonb in rows:
+            # name_jsonb comes as dict from psycopg2 for jsonb columns
+            if isinstance(name_jsonb, dict):
+                name = (name_jsonb.get(lang)
+                        or name_jsonb.get('en_US')
+                        or next(iter(name_jsonb.values()), ''))
+            else:
+                name = str(name_jsonb or '')
+
+            label = f'[{code}] {name}' if code else name
+            results.append({
+                'id': prod_id,
+                'code': code or '',
+                'name': name,
+                'label': label,
+            })
+        return results

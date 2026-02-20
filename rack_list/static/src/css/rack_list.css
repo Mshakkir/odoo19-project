@@ -1,0 +1,193 @@
+/* ── Rack List Filter Bar ──────────────────────────────────────────────────── */
+
+.rack_list_filter_bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 16px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    position: relative;
+    z-index: 100;
+}
+
+/* ── Product Autocomplete ──────────────────────────────────────────────────── */
+
+.rack_product_dropdown_wrap {
+    position: relative;
+    width: 260px;
+}
+
+.rack_product_input_wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.rack_filter_input {
+    width: 100%;
+    padding-right: 26px !important;
+}
+
+.rack_product_clear {
+    position: absolute;
+    right: 8px;
+    color: #6c757d;
+    cursor: pointer;
+    font-size: 0.75rem;
+    line-height: 1;
+    z-index: 2;
+}
+
+.rack_product_clear:hover { color: #dc3545; }
+
+/* Suggestions dropdown */
+.rack_product_dropdown {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    width: 100%;
+    min-width: 260px;
+    max-width: 460px;
+    background: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.13);
+    z-index: 9999;
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.rack_product_option {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #212529;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid #f3f3f3;
+}
+
+.rack_product_option:last-child { border-bottom: none; }
+
+.rack_product_option:hover {
+    background: #e8f0fe;
+    color: #1a73e8;
+}
+
+.rack_product_code {
+    font-weight: 700;
+    color: #555;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    background: #f0f0f0;
+    padding: 1px 5px;
+    border-radius: 3px;
+}
+
+.rack_product_option:hover .rack_product_code {
+    background: #c8dcfd;
+    color: #1a73e8;
+}
+
+.rack_product_name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ── Location Dropdown ─────────────────────────────────────────────────────── */
+
+.rack_loc_dropdown_wrap {
+    position: relative;
+    width: 240px;
+}
+
+.rack_loc_trigger {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 4px 8px;
+    min-height: 32px;
+    user-select: none;
+    gap: 4px;
+}
+
+.rack_loc_label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #212529;
+    font-size: 0.875rem;
+}
+
+.rack_loc_placeholder {
+    flex: 1;
+    color: #adb5bd;
+    font-size: 0.875rem;
+}
+
+.rack_loc_caret {
+    color: #6c757d;
+    font-size: 0.75rem;
+    margin-left: auto;
+}
+
+.rack_loc_clear {
+    color: #6c757d;
+    font-size: 0.75rem;
+    padding: 0 2px;
+    cursor: pointer;
+}
+
+.rack_loc_clear:hover { color: #dc3545; }
+
+.rack_loc_dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 100%;
+    min-width: 240px;
+    background: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.rack_loc_search_wrap {
+    padding: 8px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.rack_loc_search { width: 100%; box-sizing: border-box; font-size: 0.8rem; }
+
+.rack_loc_options { max-height: 240px; overflow-y: auto; }
+
+.rack_loc_option {
+    padding: 7px 12px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #212529;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rack_loc_option:hover { background: #e9f0ff; color: #0d6efd; }
+.rack_loc_all { font-weight: 600; color: #6c757d; border-bottom: 1px solid #e9ecef; }
+.rack_loc_selected { background: #e9f0ff; color: #0d6efd; font-weight: 600; }
+.rack_loc_empty { padding: 10px 12px; color: #adb5bd; font-size: 0.85rem; text-align: center; }
+
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
+
+.rack_list_filter_bar .btn {
+    min-width: 72px;
+    padding: 4px 14px;
+    font-size: 0.875rem;
+}

@@ -1,42 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Inherit stock.picking form to add Create Invoice button and Invoice stat button -->
-    <record id="view_picking_form_inherit" model="ir.ui.view">
-        <field name="name">stock.picking.form.inherit.invoice</field>
-        <field name="model">stock.picking</field>
-        <field name="inherit_id" ref="stock.view_picking_form"/>
-        <field name="arch" type="xml">
 
-            <!-- Add Create Invoice button in header -->
-            <xpath expr="//header/button[last()]" position="after">
-                <button name="action_create_invoice"
-                        string="Create Invoice"
-                        type="object"
-                        invisible="state != 'done' or picking_type_code != 'outgoing'"
-                        class="oe_highlight"
-                        groups="account.group_account_invoice"/>
-            </xpath>
-
-            <!-- Add Invoice smart button in stat buttons area -->
-            <xpath expr="//div[@name='button_box']" position="inside">
-                <button name="action_view_invoices"
-                        type="object"
-                        class="oe_stat_button"
-                        icon="fa-pencil-square-o"
-                        invisible="invoice_count == 0">
-                    <field name="invoice_count" widget="statinfo" string="Invoices"/>
-                </button>
-            </xpath>
-
-        </field>
-    </record>
-
-    <!-- Action: Create Invoice from tree view (Actions menu) -->
+    <!-- Server Action bound to BOTH list and form views via Actions menu -->
     <record id="action_stock_picking_create_invoice" model="ir.actions.server">
         <field name="name">Create Invoice</field>
         <field name="model_id" ref="stock.model_stock_picking"/>
         <field name="binding_model_id" ref="stock.model_stock_picking"/>
-        <field name="binding_view_types">list</field>
+        <field name="binding_view_types">list,form</field>
         <field name="state">code</field>
         <field name="code">
 if records:

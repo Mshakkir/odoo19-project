@@ -1,7 +1,7 @@
 {
     "name": "Product Stock Ledger (Custom)",
     "version": "1.0",
-    "author": "You",
+    "author": "shakkir",
     "category": "Inventory",
     "summary": "Product-wise stock ledger report with Purchase, Sales & Delivery Details",
     "depends": [
@@ -9,14 +9,12 @@
         "product",
         "account",
         "web",
-        "purchase",          # For purchase order and vendor-related details
-        "sale_management",   # For sales order and delivery note details
+        "purchase",
+        "sale_management",
     ],
     "data": [
         "security/ir.model.access.csv",
-        "views/stock_ledger_wizard_views.xml",
-        "views/report_action.xml",
-        "report/product_stock_ledger_templates.xml",
+        "views/stock_ledger_views.xml",
     ],
     "installable": True,
     "application": False,

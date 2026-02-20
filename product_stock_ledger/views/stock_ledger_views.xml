@@ -1,0 +1,196 @@
+<odoo>
+
+    <!-- ══════════════════════════════════════════
+         LIST VIEW
+    ══════════════════════════════════════════ -->
+    <record id="view_product_ledger_line_list" model="ir.ui.view">
+        <field name="name">product.stock.ledger.line.list.view</field>
+        <field name="model">product.stock.ledger.line</field>
+        <field name="arch" type="xml">
+            <list string="Product Stock Ledger" create="false" edit="false" export_xlsx="true">
+                <header>
+                    <button name="action_refresh_ledger" type="object"
+                            string="Refresh Data" class="btn-primary" icon="fa-refresh"/>
+                </header>
+                <field name="product_id"     string="Product"        width="180px"/>
+                <field name="warehouse_id"   string="Warehouse"      width="120px"/>
+                <field name="date"           string="Date"           width="125px"/>
+                <field name="voucher"        string="Voucher"        width="130px"/>
+                <field name="particulars"    string="Particulars"    width="250px"/>
+                <field name="type"           string="Type"           width="70px"/>
+                <field name="rec_qty"        string="Rec. Qty"       sum="Total Received" width="90px"/>
+                <field name="rec_rate"       string="Rec. Rate"      width="90px"/>
+                <field name="issue_qty"      string="Issue Qty"      sum="Total Issued"   width="90px"/>
+                <field name="issue_rate"     string="Issue Rate"     width="90px"/>
+                <field name="balance"        string="Balance"        width="90px"/>
+                <field name="uom"            string="Unit"           width="60px"/>
+                <field name="invoice_status" string="Invoice Status" width="110px"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════
+         FORM VIEW
+    ══════════════════════════════════════════ -->
+    <record id="view_product_ledger_line_form" model="ir.ui.view">
+        <field name="name">product.stock.ledger.line.form.view</field>
+        <field name="model">product.stock.ledger.line</field>
+        <field name="arch" type="xml">
+            <form string="Stock Ledger Line" create="false" edit="false">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="product_id" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Basic Information">
+                            <field name="warehouse_id"/>
+                            <field name="date"/>
+                            <field name="voucher"/>
+                            <field name="type"/>
+                        </group>
+                        <group string="Status">
+                            <field name="invoice_status"/>
+                            <field name="uom"/>
+                            <field name="balance"/>
+                        </group>
+                    </group>
+                    <group string="Particulars">
+                        <field name="particulars" nolabel="1" readonly="1"/>
+                    </group>
+                    <group>
+                        <group string="Received">
+                            <field name="rec_qty"/>
+                            <field name="rec_rate"/>
+                        </group>
+                        <group string="Issued">
+                            <field name="issue_qty"/>
+                            <field name="issue_rate"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════
+         SEARCH VIEW
+    ══════════════════════════════════════════ -->
+    <record id="view_product_ledger_line_search" model="ir.ui.view">
+        <field name="name">product.stock.ledger.line.search.view</field>
+        <field name="model">product.stock.ledger.line</field>
+        <field name="arch" type="xml">
+            <search string="Product Stock Ledger">
+                <field name="product_id"   string="Product"
+                       filter_domain="[('product_id', 'ilike', self)]"/>
+                <field name="warehouse_id" string="Warehouse"/>
+                <field name="voucher"      string="Voucher"/>
+                <field name="particulars"  string="Particulars"/>
+
+                <separator/>
+
+                <filter name="filter_today" string="Today"
+                        domain="[('date', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00')),
+                                 ('date', '&lt;=', context_today().strftime('%Y-%m-%d 23:59:59'))]"/>
+                <filter name="filter_this_week" string="This Week"
+                        domain="[('date', '&gt;=', (context_today() - relativedelta(weeks=1)).strftime('%Y-%m-%d 00:00:00'))]"/>
+                <filter name="filter_this_month" string="This Month"
+                        domain="[('date', '&gt;=', context_today().strftime('%Y-%m-01 00:00:00'))]"/>
+
+                <separator/>
+
+                <filter name="filter_receipts" string="Receipts"
+                        domain="[('type', '=', 'Receipts')]"/>
+                <filter name="filter_delivery" string="Delivery"
+                        domain="[('type', '=', 'Delivery')]"/>
+                <filter name="filter_internal" string="Internal Transfer"
+                        domain="[('type', '=', 'Internal Transfer')]"/>
+
+                <separator/>
+
+                <filter name="filter_invoiced"     string="Invoiced"
+                        domain="[('invoice_status', '=', 'Invoiced')]"/>
+                <filter name="filter_not_invoiced" string="Not Invoiced"
+                        domain="[('invoice_status', '=', 'Not Invoiced')]"/>
+                <filter name="filter_to_invoice"   string="To Invoice"
+                        domain="[('invoice_status', '=', 'To Invoice')]"/>
+
+                <separator/>
+
+                <filter name="group_by_product"        string="Product"
+                        context="{'group_by': 'product_id'}"/>
+                <filter name="group_by_warehouse"      string="Warehouse"
+                        context="{'group_by': 'warehouse_id'}"/>
+                <filter name="group_by_date"           string="Date"
+                        context="{'group_by': 'date:day'}"/>
+                <filter name="group_by_type"           string="Type"
+                        context="{'group_by': 'type'}"/>
+                <filter name="group_by_invoice_status" string="Invoice Status"
+                        context="{'group_by': 'invoice_status'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════
+         SERVER ACTION — delete selected rows
+    ══════════════════════════════════════════ -->
+    <record id="action_delete_ledger_lines" model="ir.actions.server">
+        <field name="name">Delete</field>
+        <field name="model_id" ref="model_product_stock_ledger_line"/>
+        <field name="binding_model_id" ref="model_product_stock_ledger_line"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    records.unlink()
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════
+         WINDOW ACTION
+    ══════════════════════════════════════════ -->
+    <record id="action_product_stock_ledger_window" model="ir.actions.act_window">
+        <field name="name">Product Stock Ledger</field>
+        <field name="res_model">product.stock.ledger.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_product_ledger_line_list"/>
+        <field name="search_view_id" ref="view_product_ledger_line_search"/>
+        <field name="context">{}</field>
+    </record>
+
+    <!-- ══════════════════════════════════════════
+         SERVER ACTION — auto-generate on open
+    ══════════════════════════════════════════ -->
+    <record id="action_auto_generate_ledger" model="ir.actions.server">
+        <field name="name">Auto Generate Stock Ledger</field>
+        <field name="model_id" ref="model_product_stock_ledger_line"/>
+        <field name="state">code</field>
+        <field name="code">
+existing_records = model.search([], limit=1)
+if not existing_records:
+    model.generate_ledger()
+action = env.ref('product_stock_ledger.action_product_stock_ledger_window').read()[0]
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════
+         MENU ITEMS
+    ══════════════════════════════════════════ -->
+    <menuitem id="menu_product_stock_ledger_inventory"
+              name="Product Stock Ledger"
+              parent="stock.menu_stock_root"
+              action="action_auto_generate_ledger"
+              sequence="60"/>
+
+    <menuitem id="menu_product_stock_ledger_purchase"
+              name="Product Stock Ledger"
+              parent="purchase.menu_purchase_root"
+              action="action_auto_generate_ledger"
+              sequence="99"/>
+
+    <menuitem id="menu_product_stock_ledger_sales"
+              name="Product Stock Ledger"
+              parent="sale.sale_menu_root"
+              action="action_auto_generate_ledger"
+              sequence="99"/>
+
+</odoo>

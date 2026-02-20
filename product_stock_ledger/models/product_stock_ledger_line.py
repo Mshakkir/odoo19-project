@@ -294,4 +294,3 @@ class ProductStockLedgerLine(models.Model):
                 'sticky': False,
             }
         }
-

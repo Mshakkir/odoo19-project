@@ -34,6 +34,14 @@
                                     <span class="shortcut_key">Ctrl+F7</span>
                                 </div>
                             </div>
+
+                            <div class="shortcut_item">
+                                <div class="shortcut_icon">🏭</div>
+                                <div class="shortcut_content">
+                                    <strong>Stock Location</strong>
+                                    <span class="shortcut_key">Ctrl+F9</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </xpath>
@@ -73,6 +81,14 @@
                                     <span class="shortcut_key">Ctrl+F7</span>
                                 </div>
                             </div>
+
+                            <div class="shortcut_item">
+                                <div class="shortcut_icon">🏭</div>
+                                <div class="shortcut_content">
+                                    <strong>Stock Location</strong>
+                                    <span class="shortcut_key">Ctrl+F9</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </xpath>
@@ -110,6 +126,14 @@
                                 <div class="shortcut_content">
                                     <strong>Stock Monitor</strong>
                                     <span class="shortcut_key">Ctrl+F7</span>
+                                </div>
+                            </div>
+
+                            <div class="shortcut_item">
+                                <div class="shortcut_icon">🏭</div>
+                                <div class="shortcut_content">
+                                    <strong>Stock Location</strong>
+                                    <span class="shortcut_key">Ctrl+F9</span>
                                 </div>
                             </div>
                         </div>

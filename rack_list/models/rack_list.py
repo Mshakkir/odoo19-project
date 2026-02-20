@@ -61,14 +61,16 @@ class RackList(models.Model):
         return [{'id': r[0], 'name': r[1]} for r in rows]
 
     @api.model
-    def search_products(self, query, limit=10):
+    def search_products(self, query, limit=15):
         """
-        Return products that are currently in stock and match the query
-        by name or internal reference. Used for the autocomplete dropdown.
+        Search products currently in stock matching query by name or code.
+        Returns list of {id, code, name, label} for autocomplete dropdown.
         """
         lang = self.env.lang or 'en_US'
+        like_query = f'%{query}%'
+
         self.env.cr.execute("""
-            SELECT DISTINCT
+            SELECT DISTINCT ON (pp.id)
                 pp.id,
                 pp.default_code,
                 pt.name
@@ -79,26 +81,25 @@ class RackList(models.Model):
             WHERE sl.usage = 'internal'
               AND sq.quantity > 0
               AND (
-                  pp.default_code ILIKE %(query)s
-                  OR (pt.name->>%(lang)s) ILIKE %(query)s
-                  OR (pt.name->>'en_US') ILIKE %(query)s
+                  pp.default_code ILIKE %s
+                  OR (pt.name->>'en_US') ILIKE %s
+                  OR (pt.name->>%s) ILIKE %s
               )
-            ORDER BY pp.default_code, pt.name->>%(lang)s
-            LIMIT %(limit)s
-        """, {
-            'query': f'%{query}%',
-            'lang': lang,
-            'limit': limit,
-        })
+            ORDER BY pp.id, pp.default_code NULLS LAST
+            LIMIT %s
+        """, (like_query, like_query, lang, like_query, limit))
+
         rows = self.env.cr.fetchall()
         results = []
-        for r in rows:
-            prod_id, code, name_jsonb = r
-            # name_jsonb is a dict from psycopg2 for jsonb columns
+        for prod_id, code, name_jsonb in rows:
+            # name_jsonb comes as dict from psycopg2 for jsonb columns
             if isinstance(name_jsonb, dict):
-                name = name_jsonb.get(lang) or name_jsonb.get('en_US') or next(iter(name_jsonb.values()), '')
+                name = (name_jsonb.get(lang)
+                        or name_jsonb.get('en_US')
+                        or next(iter(name_jsonb.values()), ''))
             else:
-                name = name_jsonb or ''
+                name = str(name_jsonb or '')
+
             label = f'[{code}] {name}' if code else name
             results.append({
                 'id': prod_id,

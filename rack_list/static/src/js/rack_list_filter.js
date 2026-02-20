@@ -30,7 +30,7 @@ export class RackListFilterBar extends Component {
             selectedLocationName: "",
         });
 
-        this._productDebounceTimer = null;
+        this._debounceTimer = null;
 
         onWillStart(async () => {
             try {
@@ -42,7 +42,7 @@ export class RackListFilterBar extends Component {
             }
         });
 
-        // Close both dropdowns when clicking outside
+        // Close dropdowns on outside click
         this.boundClose = (ev) => {
             const locEl = document.querySelector(".rack_loc_dropdown_wrap");
             if (locEl && !locEl.contains(ev.target)) {
@@ -63,50 +63,59 @@ export class RackListFilterBar extends Component {
         );
     }
 
-    // ── Product Input with autocomplete ───────────────────────────────────
+    // ── Product autocomplete ───────────────────────────────────────────────
 
-    onProductInput(ev) {
+    async onProductInput(ev) {
         const val = ev.target.value;
         this.state.productFilter = val;
 
-        // Clear debounce timer
-        clearTimeout(this._productDebounceTimer);
+        clearTimeout(this._debounceTimer);
 
-        if (!val || val.trim().length < 1) {
+        if (!val || val.trim().length === 0) {
             this.state.productSuggestions = [];
             this.state.productDropdownOpen = false;
             return;
         }
 
-        // Debounce 250ms before querying
-        this._productDebounceTimer = setTimeout(async () => {
+        // Debounce 200ms
+        this._debounceTimer = setTimeout(async () => {
             try {
                 const results = await this.orm.call(
                     "rack.list",
                     "search_products",
-                    [val.trim()]
+                    [val.trim()],
+                    { limit: 15 }
                 );
                 this.state.productSuggestions = results;
                 this.state.productDropdownOpen = results.length > 0;
             } catch (e) {
-                console.error("[RackList] Product search error:", e);
+                console.error("[RackList] search_products error:", e);
+                this.state.productSuggestions = [];
+                this.state.productDropdownOpen = false;
             }
-        }, 250);
+        }, 200);
     }
 
     selectProduct(suggestion) {
+        // Fill input with selected product label and close dropdown
         this.state.productFilter = suggestion.label;
         this.state.productSuggestions = [];
         this.state.productDropdownOpen = false;
+        // Auto-apply immediately on selection
+        this.props.applyFilters({
+            productFilter: suggestion.label,
+            locationId: this.state.locationId,
+        });
     }
 
     clearProduct() {
+        clearTimeout(this._debounceTimer);
         this.state.productFilter = "";
         this.state.productSuggestions = [];
         this.state.productDropdownOpen = false;
     }
 
-    // ── Keyboard: product input ────────────────────────────────────────────
+    // ── Keyboard shortcuts ─────────────────────────────────────────────────
 
     onKeyDown(ev) {
         if (ev.key === "Enter") {
@@ -123,8 +132,6 @@ export class RackListFilterBar extends Component {
             }
         }
     }
-
-    // ── Keyboard: location search input ───────────────────────────────────
 
     onLocationKeyDown(ev) {
         if (ev.key === "Enter") {
@@ -188,7 +195,7 @@ export class RackListFilterBar extends Component {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Custom Renderer
+// Renderer
 // ─────────────────────────────────────────────────────────────────────────────
 
 class RackListRenderer extends ListRenderer {
@@ -221,7 +228,7 @@ class RackListRenderer extends ListRenderer {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Custom Controller
+// Controller
 // ─────────────────────────────────────────────────────────────────────────────
 
 class RackListController extends ListController {
@@ -257,7 +264,7 @@ class RackListController extends ListController {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Register view
+// Register
 // ─────────────────────────────────────────────────────────────────────────────
 
 registry.category("views").add("rack_list_view", {

@@ -20,14 +20,11 @@
                           t-on-click="clearProduct">✕</span>
                 </div>
 
-                <!-- Suggestions dropdown -->
-                <div class="rack_product_dropdown" t-if="state.productDropdownOpen">
+                <!-- Live suggestions list -->
+                <div class="rack_product_dropdown" t-if="state.productDropdownOpen and state.productSuggestions.length">
                     <t t-foreach="state.productSuggestions" t-as="s" t-key="s.id">
-                        <div class="rack_product_option"
-                             t-on-click="() => this.selectProduct(s)">
-                            <span class="rack_product_code" t-if="s.code">
-                                [<t t-esc="s.code"/>]
-                            </span>
+                        <div class="rack_product_option" t-on-click="() => this.selectProduct(s)">
+                            <span class="rack_product_code" t-if="s.code">[<t t-esc="s.code"/>]</span>
                             <span class="rack_product_name"><t t-esc="s.name"/></span>
                         </div>
                     </t>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates xml:space="preserve">
 
-    <!-- ── Filter Bar ─────────────────────────────────────────────────────── -->
+    <!-- ── Filter Bar Component ───────────────────────────────────────────── -->
     <t t-name="rack_list.FilterBar">
         <div class="rack_list_filter_bar">
             <input
@@ -13,25 +13,34 @@
             />
             <div class="rack_loc_dropdown_wrap">
                 <div class="rack_loc_trigger o_input" t-on-click="openDropdown">
-                    <span class="rack_loc_label" t-if="state.selectedLocationName"><t t-esc="state.selectedLocationName"/></span>
+                    <span class="rack_loc_label" t-if="state.selectedLocationName">
+                        <t t-esc="state.selectedLocationName"/>
+                    </span>
                     <span class="rack_loc_placeholder" t-else="">Location</span>
                     <span class="rack_loc_caret">▾</span>
-                    <span t-if="state.selectedLocationName" class="rack_loc_clear" t-on-click.stop="clearLocation">✕</span>
+                    <span t-if="state.selectedLocationName" class="rack_loc_clear"
+                          t-on-click.stop="clearLocation">✕</span>
                 </div>
                 <div class="rack_loc_dropdown" t-if="state.dropdownOpen">
                     <div class="rack_loc_search_wrap">
-                        <input type="text" class="rack_loc_search o_input" placeholder="Search location..."
-                            t-att-value="state.locationSearch" t-on-input="onLocationSearchInput" t-on-click.stop=""/>
+                        <input type="text" class="rack_loc_search o_input"
+                               placeholder="Search location..."
+                               t-att-value="state.locationSearch"
+                               t-on-input="onLocationSearchInput"
+                               t-on-click.stop=""/>
                     </div>
                     <div class="rack_loc_options">
-                        <div class="rack_loc_option rack_loc_all" t-on-click="() => this.selectLocation(null)">All Locations</div>
+                        <div class="rack_loc_option rack_loc_all"
+                             t-on-click="() => this.selectLocation(null)">All Locations</div>
                         <t t-foreach="state.filteredLocations" t-as="loc" t-key="loc.id">
-                            <div class="rack_loc_option" t-att-class="{ 'rack_loc_selected': state.locationId == loc.id }"
-                                t-on-click="() => this.selectLocation(loc)">
+                            <div class="rack_loc_option"
+                                 t-att-class="{ 'rack_loc_selected': state.locationId == loc.id }"
+                                 t-on-click="() => this.selectLocation(loc)">
                                 <t t-esc="loc.name"/>
                             </div>
                         </t>
-                        <div class="rack_loc_empty" t-if="state.filteredLocations.length === 0">No locations found</div>
+                        <div class="rack_loc_empty"
+                             t-if="state.filteredLocations.length === 0">No locations found</div>
                     </div>
                 </div>
             </div>
@@ -40,21 +49,31 @@
         </div>
     </t>
 
-    <!-- ── Controller Template ────────────────────────────────────────────── -->
-    <t t-name="rack_list.ListController"
-       t-inherit="web.ListView"
+    <!--
+        ── Custom Renderer Template ───────────────────────────────────────────
+        Primary inherit from web.ListRenderer.
+        Insert RackListFilterBar BEFORE the table.
+        The renderer instance methods applyRackFilters/clearRackFilters
+        proxy up to the controller.
+    -->
+    <t t-name="rack_list.ListRenderer"
+       t-inherit="web.ListRenderer"
        t-inherit-mode="primary">
-        <!--
-            Target the Renderer component (the actual list table) and insert
-            the filter bar BEFORE it. This places it below the search/control
-            panel and directly above the column headers — exactly correct.
-        -->
-        <xpath expr="//t[@t-component='Renderer']" position="before">
+        <xpath expr="//table" position="before">
             <RackListFilterBar
                 applyFilters.bind="applyRackFilters"
                 clearFilters.bind="clearRackFilters"
             />
         </xpath>
+    </t>
+
+    <!--
+        ── Controller Template ────────────────────────────────────────────────
+        Primary inherit — no filter bar here, it's in the renderer now.
+    -->
+    <t t-name="rack_list.ListController"
+       t-inherit="web.ListView"
+       t-inherit-mode="primary">
     </t>
 
 </templates>

@@ -1,16 +1,17 @@
 /** @odoo-module **/
 
-import { Component, useState, onWillStart, useRef, useEffect } from "@odoo/owl";
+import { Component, useState, onWillStart, useEffect } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { ListController } from "@web/views/list/list_controller";
+import { ListRenderer } from "@web/views/list/list_renderer";
 import { listView } from "@web/views/list/list_view";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Filter Bar Component
 // ─────────────────────────────────────────────────────────────────────────────
 
-class RackListFilterBar extends Component {
+export class RackListFilterBar extends Component {
     static template = "rack_list.FilterBar";
     static props = {
         applyFilters: Function,
@@ -39,7 +40,6 @@ class RackListFilterBar extends Component {
             }
         });
 
-        // Close dropdown when clicking outside
         this.boundClose = (ev) => {
             const el = document.querySelector(".rack_loc_dropdown_wrap");
             if (el && !el.contains(ev.target)) {
@@ -56,16 +56,13 @@ class RackListFilterBar extends Component {
         );
     }
 
-    onProductInput(ev) {
-        this.state.productFilter = ev.target.value;
-    }
+    onProductInput(ev) { this.state.productFilter = ev.target.value; }
 
-    // Location search filter
     onLocationSearchInput(ev) {
         const q = ev.target.value.toLowerCase();
         this.state.locationSearch = ev.target.value;
-        this.state.filteredLocations = this.state.locations.filter(l =>
-            l.name.toLowerCase().includes(q)
+        this.state.filteredLocations = this.state.locations.filter(
+            l => l.name.toLowerCase().includes(q)
         );
     }
 
@@ -104,15 +101,46 @@ class RackListFilterBar extends Component {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Custom Renderer — includes the FilterBar before the table
+// ─────────────────────────────────────────────────────────────────────────────
+
+class RackListRenderer extends ListRenderer {
+    static template = "rack_list.ListRenderer";
+    static components = {
+        ...ListRenderer.components,
+        RackListFilterBar,
+    };
+
+    // Proxy methods that call up to the controller
+    applyRackFilters(filters) {
+        // Walk up to the controller via __owl__ parent chain
+        this._getRackController()?.applyRackFilters(filters);
+    }
+
+    clearRackFilters() {
+        this._getRackController()?.clearRackFilters();
+    }
+
+    _getRackController() {
+        // The controller is the parent of WithSearch which is parent of Renderer
+        // Walk the OWL parent chain to find RackListController
+        let node = this.__owl__;
+        while (node) {
+            if (node.component && node.component.applyRackFilters) {
+                return node.component;
+            }
+            node = node.parent;
+        }
+        return null;
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Custom Controller
 // ─────────────────────────────────────────────────────────────────────────────
 
 class RackListController extends ListController {
     static template = "rack_list.ListController";
-    static components = {
-        ...ListController.components,
-        RackListFilterBar,
-    };
 
     setup() {
         super.setup();
@@ -121,18 +149,15 @@ class RackListController extends ListController {
 
     async applyRackFilters({ productFilter, locationId }) {
         const domain = [];
-
         if (productFilter) {
             domain.push("|",
                 ["product_code", "ilike", productFilter],
                 ["product_id.name", "ilike", productFilter]
             );
         }
-
         if (locationId) {
             domain.push(["location_id", "=", parseInt(locationId, 10)]);
         }
-
         this._rackDomain = domain;
         await this.model.load({ domain });
         this.render(true);
@@ -152,6 +177,7 @@ class RackListController extends ListController {
 registry.category("views").add("rack_list_view", {
     ...listView,
     Controller: RackListController,
+    Renderer: RackListRenderer,
     display_name: "Rack List",
     multiRecord: true,
 });

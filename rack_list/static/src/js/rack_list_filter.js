@@ -1,19 +1,18 @@
 /** @odoo-module **/
 
 /**
- * Rack List - Custom Filter Bar
+ * Rack List — Custom Filter Bar
  *
- * Injects a filter bar (product input + location dropdown + Apply/Clear)
- * above the list view when the active model is `rack.list`.
- *
- * Strategy: patch ListController to add the filter bar component and wire up
- * domain injection via env.searchModel.setDomainParts().
+ * Uses js_class="rack_list_view" in the list arch to activate this custom view.
+ * The custom view extends listView with a custom Controller that renders
+ * a filter bar (product text input + location dropdown) above the list.
  */
 
 import { Component, useState, onWillStart } from "@odoo/owl";
+import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
-import { patch } from "@web/core/utils/patch";
 import { ListController } from "@web/views/list/list_controller";
+import { listView } from "@web/views/list/list_view";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Filter Bar Component
@@ -22,8 +21,8 @@ import { ListController } from "@web/views/list/list_controller";
 class RackListFilterBar extends Component {
     static template = "rack_list.FilterBar";
     static props = {
-        applyFilters: { type: Function },
-        clearFilters: { type: Function },
+        applyFilters: Function,
+        clearFilters: Function,
     };
 
     setup() {
@@ -67,28 +66,16 @@ class RackListFilterBar extends Component {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Patch ListController
+// Custom List Controller
 // ─────────────────────────────────────────────────────────────────────────────
 
-patch(ListController, {
-    components: {
+class RackListController extends ListController {
+    static template = "rack_list.ListController";
+    static components = {
         ...ListController.components,
         RackListFilterBar,
-    },
-});
+    };
 
-patch(ListController.prototype, {
-    /**
-     * Returns true when this controller is managing the rack.list model.
-     * Used by the template to decide whether to render the filter bar.
-     */
-    get isRackList() {
-        return this.props.resModel === "rack.list";
-    },
-
-    /**
-     * Build and inject a domain from the filter bar values into the search model.
-     */
     applyRackFilters({ productFilter, locationId }) {
         const domain = [];
 
@@ -107,14 +94,22 @@ patch(ListController.prototype, {
         this.env.searchModel.setDomainParts({
             rackListCustomFilter: { domain, facets: [] },
         });
-    },
+    }
 
-    /**
-     * Remove the custom domain injected by the filter bar.
-     */
     clearRackFilters() {
         this.env.searchModel.setDomainParts({
             rackListCustomFilter: { domain: [], facets: [] },
         });
-    },
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Register the view — key must match js_class in the XML arch
+// ─────────────────────────────────────────────────────────────────────────────
+
+registry.category("views").add("rack_list_view", {
+    ...listView,
+    Controller: RackListController,
+    display_name: "Rack List",
+    multiRecord: true,
 });

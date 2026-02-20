@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates xml:space="preserve">
 
-    <!-- ── Filter Bar ─────────────────────────────────────────────────────── -->
+    <!-- ── Filter Bar Component ───────────────────────────────────────────── -->
     <t t-name="rack_list.FilterBar">
         <div class="rack_list_filter_bar">
-            <!-- Product name / code -->
             <input
                 type="text"
                 class="rack_filter_input o_input"
@@ -12,7 +11,6 @@
                 t-att-value="state.productFilter"
                 t-on-input="onProductInput"
             />
-            <!-- Location -->
             <select class="rack_filter_select o_input" t-on-change="onLocationChange">
                 <option value="">Location</option>
                 <t t-foreach="state.locations" t-as="loc" t-key="loc.id">
@@ -24,26 +22,38 @@
                     </option>
                 </t>
             </select>
-            <!-- Buttons -->
             <button class="btn btn-primary" t-on-click="onApply">Apply</button>
             <button class="btn btn-secondary" t-on-click="onClear">Clear</button>
         </div>
     </t>
 
-    <!-- ── Extend the default ListView Controller template ────────────────── -->
     <!--
-        The standard ListController template name is "web.ListView.Controller".
-        We inject the RackListFilterBar just before the Renderer, but only when
-        the model is rack.list (controlled by the `isRackList` getter).
+        ── Rack List Controller Template ──────────────────────────────────────
+        Primary inheritance from web.ListView.Controller.
+        We insert <RackListFilterBar> before the <Layout> component,
+        which is the outermost structural component in Odoo 17+ list views.
+
+        Odoo 17/18/19 ListController template uses:
+            <Layout ...>
+                ...
+                <t t-component="Renderer" .../>
+                ...
+            </Layout>
+
+        We target <Layout> to prepend our filter bar before the whole view,
+        outside the Layout so it's always visible above the control panel area.
+
+        Actually, inserting INSIDE the outer div but BEFORE Layout puts it
+        between the control panel and the list — exactly where we want it.
     -->
-    <t t-name="web.ListView.Controller" t-inherit="web.ListView.Controller" t-inherit-mode="extension">
-        <xpath expr="//t[@t-component='Renderer']" position="before">
-            <t t-if="isRackList">
-                <RackListFilterBar
-                    applyFilters.bind="applyRackFilters"
-                    clearFilters.bind="clearRackFilters"
-                />
-            </t>
+    <t t-name="rack_list.ListController"
+       t-inherit="web.ListView.Controller"
+       t-inherit-mode="primary">
+        <xpath expr="//Layout" position="before">
+            <RackListFilterBar
+                applyFilters.bind="applyRackFilters"
+                clearFilters.bind="clearRackFilters"
+            />
         </xpath>
     </t>
 

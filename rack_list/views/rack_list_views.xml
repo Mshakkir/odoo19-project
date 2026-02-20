@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Standard List View -->
+    <!--
+        The js_class="rack_list_view" attribute on <list> tells the web client
+        to look up "rack_list_view" in the view registry instead of the default
+        list view. This is the correct Odoo 17/19 mechanism to use a custom
+        JS view for a specific model/action without touching ir.ui.view.type.
+    -->
     <record id="view_rack_list_tree" model="ir.ui.view">
         <field name="name">rack.list.tree</field>
         <field name="model">rack.list</field>
         <field name="arch" type="xml">
-            <list string="Rack List" create="false" edit="false" delete="false">
+            <list js_class="rack_list_view" string="Rack List"
+                  create="false" edit="false" delete="false">
                 <field name="product_code" string="Ref#" optional="show"/>
                 <field name="product_id" string="Product"/>
                 <field name="product_categ_id" string="Category" optional="show"/>
@@ -17,7 +23,7 @@
         </field>
     </record>
 
-    <!-- Action -->
+    <!-- Action — standard list mode, Odoo uses js_class from the view arch -->
     <record id="action_rack_list" model="ir.actions.act_window">
         <field name="name">Rack List</field>
         <field name="res_model">rack.list</field>

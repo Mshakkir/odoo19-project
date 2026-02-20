@@ -101,7 +101,7 @@ export class RackListFilterBar extends Component {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Custom Renderer — includes the FilterBar before the table
+// Custom Renderer — inserts FilterBar before the table
 // ─────────────────────────────────────────────────────────────────────────────
 
 class RackListRenderer extends ListRenderer {
@@ -111,23 +111,35 @@ class RackListRenderer extends ListRenderer {
         RackListFilterBar,
     };
 
-    // Proxy methods that call up to the controller
     applyRackFilters(filters) {
-        // Walk up to the controller via __owl__ parent chain
-        this._getRackController()?.applyRackFilters(filters);
+        const controller = this._getController();
+        if (controller) {
+            controller.applyRackFilters(filters);
+        }
     }
 
     clearRackFilters() {
-        this._getRackController()?.clearRackFilters();
+        const controller = this._getController();
+        if (controller) {
+            controller.clearRackFilters();
+        }
     }
 
-    _getRackController() {
-        // The controller is the parent of WithSearch which is parent of Renderer
-        // Walk the OWL parent chain to find RackListController
-        let node = this.__owl__;
+    _getController() {
+        // Walk OWL parent chain — skip nodes that are NOT RackListController
+        // by checking for the specific marker property set on that class
+        let node = this.__owl__.parent;
         while (node) {
-            if (node.component && node.component.applyRackFilters) {
-                return node.component;
+            const comp = node.component;
+            // RackListController has applyRackFilters but is NOT a renderer
+            // We identify it by checking it has applyRackFilters AND
+            // does NOT have the renderer-specific `list` prop structure
+            if (
+                comp &&
+                typeof comp.applyRackFilters === "function" &&
+                comp.__IS_RACK_CONTROLLER__ === true
+            ) {
+                return comp;
             }
             node = node.parent;
         }
@@ -141,6 +153,9 @@ class RackListRenderer extends ListRenderer {
 
 class RackListController extends ListController {
     static template = "rack_list.ListController";
+
+    // Unique marker so the renderer can identify this class in the parent chain
+    __IS_RACK_CONTROLLER__ = true;
 
     setup() {
         super.setup();

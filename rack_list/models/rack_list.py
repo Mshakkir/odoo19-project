@@ -49,13 +49,13 @@ class RackList(models.Model):
 
     @api.model
     def get_locations(self):
-        """Return all distinct internal locations that have stock."""
+        """Return ALL internal locations (not just ones with stock)."""
         self.env.cr.execute("""
-            SELECT DISTINCT sl.id, sl.complete_name
-            FROM stock_quant sq
-            JOIN stock_location sl ON sl.id = sq.location_id
-            WHERE sl.usage = 'internal' AND sq.quantity > 0
-            ORDER BY sl.complete_name
+            SELECT id, complete_name as name
+            FROM stock_location
+            WHERE usage = 'internal'
+              AND active = true
+            ORDER BY complete_name
         """)
         rows = self.env.cr.fetchall()
         return [{'id': r[0], 'name': r[1]} for r in rows]

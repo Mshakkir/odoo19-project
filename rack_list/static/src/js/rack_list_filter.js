@@ -65,23 +65,19 @@ class RackListController extends ListController {
 
     setup() {
         super.setup();
-        // Store current custom domain so we can combine with search panel
         this._rackDomain = [];
     }
 
-    /**
-     * Reload the model with the given domain.
-     * In Odoo 17/18/19 the correct way to programmatically filter a list
-     * is to call this.model.load({ domain }) which bypasses the search model
-     * entirely and directly sets what records are fetched.
-     */
     async applyRackFilters({ productFilter, locationId }) {
         const domain = [];
 
         if (productFilter) {
+            // product_name is jsonb (translatable) — cannot use ilike directly.
+            // Use product_code (plain char) OR filter via the Many2one
+            // product_id.name which Odoo ORM handles correctly for jsonb/translated fields.
             domain.push("|",
-                ["product_name", "ilike", productFilter],
-                ["product_code", "ilike", productFilter]
+                ["product_code", "ilike", productFilter],
+                ["product_id.name", "ilike", productFilter]
             );
         }
 

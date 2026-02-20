@@ -26,6 +26,18 @@ class ProductStockLedgerLine(models.Model):
 
     # ── SQL view ─────────────────────────────────────────────────────────────
     def init(self):
+        # Drop old table if upgrading from stored-table version
+        self.env.cr.execute("""
+            DO $$ BEGIN
+                IF EXISTS (
+                    SELECT 1 FROM pg_class c
+                    JOIN pg_namespace n ON n.oid = c.relnamespace
+                    WHERE c.relname = 'product_stock_ledger_line' AND c.relkind = 'r'
+                ) THEN
+                    DROP TABLE product_stock_ledger_line CASCADE;
+                END IF;
+            END $$;
+        """)
         tools.drop_view_if_exists(self.env.cr, self._table)
         self.env.cr.execute("""
             CREATE OR REPLACE VIEW %s AS (

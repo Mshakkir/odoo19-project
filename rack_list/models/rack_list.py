@@ -49,7 +49,7 @@ class RackList(models.Model):
 
     @api.model
     def get_locations(self):
-        """Return ALL internal locations (not just ones with stock)."""
+        """Return ALL active internal locations."""
         self.env.cr.execute("""
             SELECT id, complete_name as name
             FROM stock_location
@@ -59,3 +59,51 @@ class RackList(models.Model):
         """)
         rows = self.env.cr.fetchall()
         return [{'id': r[0], 'name': r[1]} for r in rows]
+
+    @api.model
+    def search_products(self, query, limit=10):
+        """
+        Return products that are currently in stock and match the query
+        by name or internal reference. Used for the autocomplete dropdown.
+        """
+        lang = self.env.lang or 'en_US'
+        self.env.cr.execute("""
+            SELECT DISTINCT
+                pp.id,
+                pp.default_code,
+                pt.name
+            FROM stock_quant sq
+            JOIN product_product pp  ON pp.id = sq.product_id
+            JOIN product_template pt ON pt.id = pp.product_tmpl_id
+            JOIN stock_location sl   ON sl.id = sq.location_id
+            WHERE sl.usage = 'internal'
+              AND sq.quantity > 0
+              AND (
+                  pp.default_code ILIKE %(query)s
+                  OR (pt.name->>%(lang)s) ILIKE %(query)s
+                  OR (pt.name->>'en_US') ILIKE %(query)s
+              )
+            ORDER BY pp.default_code, pt.name->>%(lang)s
+            LIMIT %(limit)s
+        """, {
+            'query': f'%{query}%',
+            'lang': lang,
+            'limit': limit,
+        })
+        rows = self.env.cr.fetchall()
+        results = []
+        for r in rows:
+            prod_id, code, name_jsonb = r
+            # name_jsonb is a dict from psycopg2 for jsonb columns
+            if isinstance(name_jsonb, dict):
+                name = name_jsonb.get(lang) or name_jsonb.get('en_US') or next(iter(name_jsonb.values()), '')
+            else:
+                name = name_jsonb or ''
+            label = f'[{code}] {name}' if code else name
+            results.append({
+                'id': prod_id,
+                'code': code or '',
+                'name': name,
+                'label': label,
+            })
+        return results

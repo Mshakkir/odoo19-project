@@ -17,14 +17,20 @@ export class RackListFilterBar extends Component {
     setup() {
         this.orm = useService("orm");
         this.state = useState({
+            // Product
             productFilter: "",
+            productSuggestions: [],
+            productDropdownOpen: false,
+            // Location
             locationId: "",
             locationSearch: "",
             locations: [],
             filteredLocations: [],
-            dropdownOpen: false,
+            locationDropdownOpen: false,
             selectedLocationName: "",
         });
+
+        this._productDebounceTimer = null;
 
         onWillStart(async () => {
             try {
@@ -36,10 +42,15 @@ export class RackListFilterBar extends Component {
             }
         });
 
+        // Close both dropdowns when clicking outside
         this.boundClose = (ev) => {
-            const el = document.querySelector(".rack_loc_dropdown_wrap");
-            if (el && !el.contains(ev.target)) {
-                this.state.dropdownOpen = false;
+            const locEl = document.querySelector(".rack_loc_dropdown_wrap");
+            if (locEl && !locEl.contains(ev.target)) {
+                this.state.locationDropdownOpen = false;
+            }
+            const prodEl = document.querySelector(".rack_product_dropdown_wrap");
+            if (prodEl && !prodEl.contains(ev.target)) {
+                this.state.productDropdownOpen = false;
             }
         };
 
@@ -52,43 +63,85 @@ export class RackListFilterBar extends Component {
         );
     }
 
-    // ── Enter/Escape on the product input and filter bar wrapper ──────────
+    // ── Product Input with autocomplete ───────────────────────────────────
+
+    onProductInput(ev) {
+        const val = ev.target.value;
+        this.state.productFilter = val;
+
+        // Clear debounce timer
+        clearTimeout(this._productDebounceTimer);
+
+        if (!val || val.trim().length < 1) {
+            this.state.productSuggestions = [];
+            this.state.productDropdownOpen = false;
+            return;
+        }
+
+        // Debounce 250ms before querying
+        this._productDebounceTimer = setTimeout(async () => {
+            try {
+                const results = await this.orm.call(
+                    "rack.list",
+                    "search_products",
+                    [val.trim()]
+                );
+                this.state.productSuggestions = results;
+                this.state.productDropdownOpen = results.length > 0;
+            } catch (e) {
+                console.error("[RackList] Product search error:", e);
+            }
+        }, 250);
+    }
+
+    selectProduct(suggestion) {
+        this.state.productFilter = suggestion.label;
+        this.state.productSuggestions = [];
+        this.state.productDropdownOpen = false;
+    }
+
+    clearProduct() {
+        this.state.productFilter = "";
+        this.state.productSuggestions = [];
+        this.state.productDropdownOpen = false;
+    }
+
+    // ── Keyboard: product input ────────────────────────────────────────────
+
     onKeyDown(ev) {
         if (ev.key === "Enter") {
-            this.state.dropdownOpen = false;
+            this.state.productDropdownOpen = false;
+            this.state.locationDropdownOpen = false;
             this.onApply();
         } else if (ev.key === "Escape") {
-            if (this.state.dropdownOpen) {
-                this.state.dropdownOpen = false;
+            if (this.state.productDropdownOpen) {
+                this.state.productDropdownOpen = false;
+            } else if (this.state.locationDropdownOpen) {
+                this.state.locationDropdownOpen = false;
             } else {
                 this.onClear();
             }
         }
     }
 
-    // ── Enter/Escape specifically inside the location search input ────────
+    // ── Keyboard: location search input ───────────────────────────────────
+
     onLocationKeyDown(ev) {
         if (ev.key === "Enter") {
             ev.stopPropagation();
-            // If there's exactly one filtered result, auto-select it
             if (this.state.filteredLocations.length === 1) {
                 this.selectLocation(this.state.filteredLocations[0]);
-            } else if (this.state.filteredLocations.length === 0) {
-                // Nothing matched — just close dropdown
-                this.state.dropdownOpen = false;
             } else {
-                // Multiple results — just close dropdown and apply with
-                // whatever was already selected (or none)
-                this.state.dropdownOpen = false;
+                this.state.locationDropdownOpen = false;
             }
             this.onApply();
         } else if (ev.key === "Escape") {
             ev.stopPropagation();
-            this.state.dropdownOpen = false;
+            this.state.locationDropdownOpen = false;
         }
     }
 
-    onProductInput(ev) { this.state.productFilter = ev.target.value; }
+    // ── Location dropdown ──────────────────────────────────────────────────
 
     onLocationSearchInput(ev) {
         const q = ev.target.value.toLowerCase();
@@ -98,8 +151,8 @@ export class RackListFilterBar extends Component {
         );
     }
 
-    openDropdown() {
-        this.state.dropdownOpen = true;
+    openLocationDropdown() {
+        this.state.locationDropdownOpen = true;
         this.state.locationSearch = "";
         this.state.filteredLocations = this.state.locations;
     }
@@ -107,7 +160,7 @@ export class RackListFilterBar extends Component {
     selectLocation(loc) {
         this.state.locationId = loc ? loc.id : "";
         this.state.selectedLocationName = loc ? loc.name : "";
-        this.state.dropdownOpen = false;
+        this.state.locationDropdownOpen = false;
     }
 
     clearLocation() {
@@ -115,8 +168,10 @@ export class RackListFilterBar extends Component {
         this.state.selectedLocationName = "";
         this.state.locationSearch = "";
         this.state.filteredLocations = this.state.locations;
-        this.state.dropdownOpen = false;
+        this.state.locationDropdownOpen = false;
     }
+
+    // ── Apply / Clear ──────────────────────────────────────────────────────
 
     onApply() {
         this.props.applyFilters({
@@ -126,7 +181,7 @@ export class RackListFilterBar extends Component {
     }
 
     onClear() {
-        this.state.productFilter = "";
+        this.clearProduct();
         this.clearLocation();
         this.props.clearFilters();
     }
@@ -144,21 +199,20 @@ class RackListRenderer extends ListRenderer {
     };
 
     applyRackFilters(filters) {
-        const controller = this._getController();
-        if (controller) controller.applyRackFilters(filters);
+        const c = this._getController();
+        if (c) c.applyRackFilters(filters);
     }
 
     clearRackFilters() {
-        const controller = this._getController();
-        if (controller) controller.clearRackFilters();
+        const c = this._getController();
+        if (c) c.clearRackFilters();
     }
 
     _getController() {
         let node = this.__owl__.parent;
         while (node) {
-            const comp = node.component;
-            if (comp && comp.__IS_RACK_CONTROLLER__ === true) {
-                return comp;
+            if (node.component && node.component.__IS_RACK_CONTROLLER__ === true) {
+                return node.component;
             }
             node = node.parent;
         }
@@ -172,7 +226,6 @@ class RackListRenderer extends ListRenderer {
 
 class RackListController extends ListController {
     static template = "rack_list.ListController";
-
     __IS_RACK_CONTROLLER__ = true;
 
     setup() {

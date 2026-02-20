@@ -6,7 +6,6 @@
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
 
-            <!-- Insert Delivery Address field after the existing partner/delivery address area -->
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field
                     name="partner_shipping_id"
@@ -17,7 +16,7 @@
                         ('company_id', '=', company_id)
                     ]"
                     options="{'no_create': True}"
-                    attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"
+                    readonly="state in ('done', 'cancel')"
                 />
             </xpath>
 

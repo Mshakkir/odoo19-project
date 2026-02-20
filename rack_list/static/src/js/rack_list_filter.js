@@ -1,13 +1,5 @@
 /** @odoo-module **/
 
-/**
- * Rack List — Custom Filter Bar
- *
- * Uses js_class="rack_list_view" in the list arch to activate this custom view.
- * The custom view extends listView with a custom Controller that renders
- * a filter bar (product text input + location dropdown) above the list.
- */
-
 import { Component, useState, onWillStart } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
@@ -43,13 +35,8 @@ class RackListFilterBar extends Component {
         });
     }
 
-    onProductInput(ev) {
-        this.state.productFilter = ev.target.value;
-    }
-
-    onLocationChange(ev) {
-        this.state.locationId = ev.target.value;
-    }
+    onProductInput(ev) { this.state.productFilter = ev.target.value; }
+    onLocationChange(ev) { this.state.locationId = ev.target.value; }
 
     onApply() {
         this.props.applyFilters({
@@ -66,7 +53,8 @@ class RackListFilterBar extends Component {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Custom List Controller
+// Custom Controller — extends ListController, adds filter methods
+// Template name matches the t-name in the XML file
 // ─────────────────────────────────────────────────────────────────────────────
 
 class RackListController extends ListController {
@@ -78,19 +66,15 @@ class RackListController extends ListController {
 
     applyRackFilters({ productFilter, locationId }) {
         const domain = [];
-
         if (productFilter) {
-            domain.push(
-                "|",
+            domain.push("|",
                 ["product_name", "ilike", productFilter],
                 ["product_code", "ilike", productFilter]
             );
         }
-
         if (locationId) {
             domain.push(["location_id", "=", parseInt(locationId, 10)]);
         }
-
         this.env.searchModel.setDomainParts({
             rackListCustomFilter: { domain, facets: [] },
         });
@@ -104,7 +88,7 @@ class RackListController extends ListController {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Register the view — key must match js_class in the XML arch
+// Register — key matches js_class="rack_list_view" in the list arch
 // ─────────────────────────────────────────────────────────────────────────────
 
 registry.category("views").add("rack_list_view", {

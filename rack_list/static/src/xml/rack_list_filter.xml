@@ -28,26 +28,22 @@
     </t>
 
     <!--
-        ── Rack List Controller Template ──────────────────────────────────────
-        Primary inheritance from web.ListView.Controller.
-        We insert <RackListFilterBar> before the <Layout> component,
-        which is the outermost structural component in Odoo 17+ list views.
+        ── Rack List Controller Template ─────────────────────────────────────
 
-        Odoo 17/18/19 ListController template uses:
-            <Layout ...>
-                ...
-                <t t-component="Renderer" .../>
-                ...
-            </Layout>
+        t-inherit-mode="primary" creates a STANDALONE copy of the parent
+        template — it does NOT modify the original.
 
-        We target <Layout> to prepend our filter bar before the whole view,
-        outside the Layout so it's always visible above the control panel area.
+        The parent template "web.ListView" is the correct name used by
+        Odoo 17/18/19 for the ListController template, as confirmed by
+        Odoo's own documentation example:
+          t-name="my_module.CustomKanbanView" t-inherit="web.KanbanView"
+        The equivalent for list is "web.ListView".
 
-        Actually, inserting INSIDE the outer div but BEFORE Layout puts it
-        between the control panel and the list — exactly where we want it.
+        We insert RackListFilterBar BEFORE the <Layout> component,
+        which places it between the control panel and the list table.
     -->
     <t t-name="rack_list.ListController"
-       t-inherit="web.ListView.Controller"
+       t-inherit="web.ListView"
        t-inherit-mode="primary">
         <xpath expr="//Layout" position="before">
             <RackListFilterBar

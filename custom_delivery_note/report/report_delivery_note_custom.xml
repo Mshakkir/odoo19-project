@@ -43,7 +43,6 @@
                                         <t t-if="o.company_id.logo">
                                             <img t-att-src="image_data_uri(o.company_id.logo)"
                                                  style="max-height: 140px; max-width: 100%; object-fit: contain; display: block; margin: -23px auto;padding-top:8px;padding-top:5px;"/>
-
                                         </t>
                                     </td>
 
@@ -62,13 +61,10 @@
 
                         </div>
                     </div>
-
-
                 </t>
 
                 <div class="footer"
                      style=" font-size:13px; background:#fff;width:854px;margin-top:10px;padding-top:10px;">
-                    <!-- ===== Bank Details ===== -->
                     <!-- ===== Branch Details ===== -->
                     <table width="100%" style="border-collapse: collapse; margin-bottom:5px; font-size:10px;">
                         <tr>
@@ -105,6 +101,7 @@
                     </div>
                 </div>
             </t>
+
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
 
@@ -117,15 +114,14 @@
                         </div>
                     </div>
 
-
+                    <!-- ===== Sold To + Ship To Side by Side ===== -->
                     <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 5px; border: 0;">
                         <tr>
-                            <td style="width: 100%; vertical-align: top; padding-right: 0px; border: 0;">
+                            <!-- SOLD TO -->
+                            <td style="width: 50%; vertical-align: top; padding-right: 4px; border: 0;">
                                 <table width="100%" border="1"
                                        style="border-collapse: collapse; font-size: 11px; border: 1px solid #000;"
                                        cellpadding="0" cellspacing="0">
-
-                                    <!-- Header Row -->
                                     <tr style="background-color: #d3d3d3; height: 28px;">
                                         <td style="padding: 4px; font-weight: bold; border: 1px solid #000;">
                                             Sold To /
@@ -134,60 +130,102 @@
                                             </span>
                                         </td>
                                     </tr>
-
-                                    <!-- Customer Information Block -->
                                     <tr>
                                         <td style="padding: 8px; border: 1px solid #000; vertical-align: top;">
-                                            <!-- Name -->
                                             <strong>
                                                 <span t-field="o.partner_id.name"/>
                                             </strong>
                                             <br/>
-
-                                            <!-- Address Lines -->
                                             <t t-if="o.partner_id.street">
                                                 <span t-field="o.partner_id.street"/>
                                                 <br/>
                                             </t>
-
                                             <t t-if="o.partner_id.street2">
                                                 <span t-field="o.partner_id.street2"/>
                                                 <br/>
                                             </t>
-
                                             <t t-if="o.partner_id.city or o.partner_id.state_id or o.partner_id.zip">
                                                 <span t-if="o.partner_id.city" t-field="o.partner_id.city"/>
                                                 <span t-if="o.partner_id.state_id">,
                                                     <span t-field="o.partner_id.state_id.name"/>
                                                 </span>
-                                                <span t-if="o.partner_id.zip">-
+                                                <span t-if="o.partner_id.zip"> -
                                                     <span t-field="o.partner_id.zip"/>
                                                 </span>
                                                 <br/>
                                             </t>
-
                                             <t t-if="o.partner_id.country_id">
                                                 <span t-field="o.partner_id.country_id.name"/>
                                                 <br/>
                                             </t>
-
                                             <br/>
-                                            <!-- VAT -->
                                             <strong>VAT NO:</strong>
                                             <span t-field="o.partner_id.vat"/>
                                         </td>
                                     </tr>
+                                </table>
+                            </td>
 
+                            <!-- SHIP TO (Delivery Address) -->
+                            <td style="width: 50%; vertical-align: top; padding-left: 4px; border: 0;">
+                                <table width="100%" border="1"
+                                       style="border-collapse: collapse; font-size: 11px; border: 1px solid #000;"
+                                       cellpadding="0" cellspacing="0">
+                                    <tr style="background-color: #d3d3d3; height: 28px;">
+                                        <td style="padding: 4px; font-weight: bold; border: 1px solid #000;">
+                                            Ship To /
+                                            <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
+                                                عنوان التسليم
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; border: 1px solid #000; vertical-align: top;">
+                                            <t t-if="o.partner_shipping_id">
+                                                <strong>
+                                                    <span t-field="o.partner_shipping_id.name"/>
+                                                </strong>
+                                                <br/>
+                                                <t t-if="o.partner_shipping_id.street">
+                                                    <span t-field="o.partner_shipping_id.street"/>
+                                                    <br/>
+                                                </t>
+                                                <t t-if="o.partner_shipping_id.street2">
+                                                    <span t-field="o.partner_shipping_id.street2"/>
+                                                    <br/>
+                                                </t>
+                                                <t t-if="o.partner_shipping_id.city or o.partner_shipping_id.state_id or o.partner_shipping_id.zip">
+                                                    <span t-if="o.partner_shipping_id.city" t-field="o.partner_shipping_id.city"/>
+                                                    <span t-if="o.partner_shipping_id.state_id">,
+                                                        <span t-field="o.partner_shipping_id.state_id.name"/>
+                                                    </span>
+                                                    <span t-if="o.partner_shipping_id.zip"> -
+                                                        <span t-field="o.partner_shipping_id.zip"/>
+                                                    </span>
+                                                    <br/>
+                                                </t>
+                                                <t t-if="o.partner_shipping_id.country_id">
+                                                    <span t-field="o.partner_shipping_id.country_id.name"/>
+                                                    <br/>
+                                                </t>
+                                                <br/>
+                                                <strong>VAT NO:</strong>
+                                                <span t-field="o.partner_shipping_id.vat"/>
+                                            </t>
+                                            <t t-else="">
+                                                <span style="color: #999;">—</span>
+                                            </t>
+                                        </td>
+                                    </tr>
                                 </table>
                             </td>
                         </tr>
                     </table>
 
-                    <!-- BOTTOM TABLE -->
+                    <!-- BOTTOM INFO TABLE -->
                     <table width="100%" border="1"
                            style="border-collapse: collapse; font-size: 11px; margin-top: 5px; border: 1px solid #000;"
                            cellpadding="0" cellspacing="0">
-
                         <tr style="background-color: #d3d3d3; height: 28px;">
                             <td style="padding: 4px; font-weight: bold; border: 1px solid #000; width: 20%;">
                                 Delivery Note No. /
@@ -197,7 +235,6 @@
                                 <br/>
                                 <span t-field="o.name"/>
                             </td>
-
                             <td style="padding: 4px; font-weight: bold; border: 1px solid #000; width: 20%;">
                                 Date /
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
@@ -206,7 +243,6 @@
                                 <br/>
                                 <span t-field="o.scheduled_date" t-options="{'widget': 'date'}"/>
                             </td>
-
                             <td style="padding: 4px; font-weight: bold; border: 1px solid #000; width: 20%;">
                                 Delivery Date /
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">
@@ -215,7 +251,6 @@
                                 <br/>
                                 <span t-if="o.date_deadline" t-field="o.date_deadline" t-options="{'widget': 'date'}"/>
                             </td>
-
                             <td style="padding: 4px; font-weight: bold; border: 1px solid #000;width: 20%;">
                                 AWB NO /
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight: 900; direction: rtl;">رقم
@@ -233,13 +268,9 @@
                                 <span t-if="o.sale_id" t-field="o.ref"/>
                             </td>
                         </tr>
-
-
                     </table>
 
-
-                    <!-- ===== products ===== -->
-
+                    <!-- ===== Products Table ===== -->
                     <table width="100%" style="border-collapse:collapse; margin-top:15px; font-size:14px;" border="2">
                         <thead style="background-color: #9e9d9d;">
                             <tr>
@@ -271,35 +302,28 @@
                         </thead>
                         <tbody>
                             <tr t-foreach="enumerate(o.move_ids)" t-as="line">
-                                <!-- SN -->
                                 <td style="text-align:center; padding:6px 4px;">
                                     <t t-esc="line[0] + 1"/>
                                 </td>
-
-                                <!-- Product -->
                                 <td style="text-align:left; padding:6px 4px;">
                                     <span t-field="line[1].product_id.default_code"/>
                                     -
                                     <span t-field="line[1].product_id.name"/>
                                 </td>
-
-                                <!-- Quantity -->
                                 <td style="text-align:left; padding:6px 4px;">
                                     <span t-field="line[1].product_uom_qty"/>
                                 </td>
-
-                                <!-- Unit -->
                                 <td style="text-align:left; padding:6px 4px;">
                                     <span t-field="line[1].product_uom.name"/>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                    <!-- ===== signature Table ===== -->
+
+                    <!-- ===== Signature Table ===== -->
                     <table width="100%" border="1"
                            style="border-collapse: collapse; font-size: 14px; margin-top: 15px;"
                            cellpadding="5">
-                        <!-- Row 1 -->
                         <tr>
                             <td width="33%" style="padding-left:3px;">
                                 <strong>Delivered by :</strong>
@@ -325,10 +349,7 @@
                                 </strong>
                                 <span t-esc="sum(line.product_uom_qty for line in o.move_ids)"/>
                             </td>
-
                         </tr>
-
-                        <!-- Row 2 -->
                         <tr>
                             <td style="padding-left:3px;">
                                 <strong>Name :</strong>
@@ -342,8 +363,6 @@
                                 <span>الاسم</span>
                             </td>
                         </tr>
-
-                        <!-- Row 3 -->
                         <tr>
                             <td style="padding-left:3px;">
                                 <strong>Signature :</strong>
@@ -367,14 +386,8 @@
                         </tr>
                     </table>
 
-
-                    <!-- ===== Totals and Notes Section ===== -->
-
-
                 </t>
             </t>
         </xpath>
-
     </template>
 </odoo>
-

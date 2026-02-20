@@ -176,15 +176,3 @@ class ProductStockLedgerLine(models.Model):
             FROM with_balance wb
             )
         """ % self._table)
-
-    def action_open_move(self):
-        """Drill down to the underlying stock move."""
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Stock Move',
-            'res_model': 'stock.move',
-            'res_id': self.move_id.id,
-            'view_mode': 'form',
-            'target': 'new',
-        }

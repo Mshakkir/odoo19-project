@@ -1,13 +1,17 @@
 <odoo>
 
     <!-- ══════════════════════════════════════════
-         LIST VIEW  (no header/button — data is always live)
+         LIST VIEW
     ══════════════════════════════════════════ -->
     <record id="view_product_ledger_line_list" model="ir.ui.view">
         <field name="name">product.stock.ledger.line.list.view</field>
         <field name="model">product.stock.ledger.line</field>
         <field name="arch" type="xml">
-            <list string="Product Stock Ledger" create="false" edit="false" delete="false">
+            <list string="Product Stock Ledger"
+                  create="false"
+                  edit="false"
+                  delete="false"
+                  open_form_view="false">
                 <field name="product_id"     string="Product"        width="180px"/>
                 <field name="warehouse_id"   string="Warehouse"      width="120px"/>
                 <field name="date"           string="Date"           widget="date" width="110px"/>
@@ -22,53 +26,6 @@
                 <field name="uom"            string="Unit"           width="60px"/>
                 <field name="invoice_status" string="Invoice Status" width="110px"/>
             </list>
-        </field>
-    </record>
-
-    <!-- ══════════════════════════════════════════
-         FORM VIEW  (drill-down detail)
-    ══════════════════════════════════════════ -->
-    <record id="view_product_ledger_line_form" model="ir.ui.view">
-        <field name="name">product.stock.ledger.line.form.view</field>
-        <field name="model">product.stock.ledger.line</field>
-        <field name="arch" type="xml">
-            <form string="Stock Ledger Line" create="false" edit="false">
-                <sheet>
-                    <div class="oe_title">
-                        <h1><field name="product_id" readonly="1"/></h1>
-                    </div>
-                    <group>
-                        <group string="Basic Information">
-                            <field name="warehouse_id"/>
-                            <field name="date" widget="date"/>
-                            <field name="voucher"/>
-                            <field name="move_type" string="Type"/>
-                        </group>
-                        <group string="Status">
-                            <field name="invoice_status"/>
-                            <field name="uom"/>
-                            <field name="balance"/>
-                        </group>
-                    </group>
-                    <group string="Particulars">
-                        <field name="particulars" nolabel="1" readonly="1"/>
-                    </group>
-                    <group>
-                        <group string="Received">
-                            <field name="rec_qty"/>
-                            <field name="rec_rate"/>
-                        </group>
-                        <group string="Issued">
-                            <field name="issue_qty"/>
-                            <field name="issue_rate"/>
-                        </group>
-                    </group>
-                    <footer>
-                        <button name="action_open_move" type="object"
-                                string="Open Stock Move" class="btn-secondary"/>
-                    </footer>
-                </sheet>
-            </form>
         </field>
     </record>
 
@@ -130,12 +87,12 @@
     </record>
 
     <!-- ══════════════════════════════════════════
-         WINDOW ACTION  (direct — no server action needed)
+         WINDOW ACTION  — list only, no form
     ══════════════════════════════════════════ -->
     <record id="action_product_stock_ledger_window" model="ir.actions.act_window">
         <field name="name">Product Stock Ledger</field>
         <field name="res_model">product.stock.ledger.line</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">list</field>
         <field name="view_id" ref="view_product_ledger_line_list"/>
         <field name="search_view_id" ref="view_product_ledger_line_search"/>
         <field name="context">{}</field>

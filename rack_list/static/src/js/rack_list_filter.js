@@ -53,8 +53,7 @@ class RackListFilterBar extends Component {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Custom Controller — extends ListController, adds filter methods
-// Template name matches the t-name in the XML file
+// Custom Controller
 // ─────────────────────────────────────────────────────────────────────────────
 
 class RackListController extends ListController {
@@ -64,31 +63,46 @@ class RackListController extends ListController {
         RackListFilterBar,
     };
 
-    applyRackFilters({ productFilter, locationId }) {
+    setup() {
+        super.setup();
+        // Store current custom domain so we can combine with search panel
+        this._rackDomain = [];
+    }
+
+    /**
+     * Reload the model with the given domain.
+     * In Odoo 17/18/19 the correct way to programmatically filter a list
+     * is to call this.model.load({ domain }) which bypasses the search model
+     * entirely and directly sets what records are fetched.
+     */
+    async applyRackFilters({ productFilter, locationId }) {
         const domain = [];
+
         if (productFilter) {
             domain.push("|",
                 ["product_name", "ilike", productFilter],
                 ["product_code", "ilike", productFilter]
             );
         }
+
         if (locationId) {
             domain.push(["location_id", "=", parseInt(locationId, 10)]);
         }
-        this.env.searchModel.setDomainParts({
-            rackListCustomFilter: { domain, facets: [] },
-        });
+
+        this._rackDomain = domain;
+        await this.model.load({ domain });
+        this.render(true);
     }
 
-    clearRackFilters() {
-        this.env.searchModel.setDomainParts({
-            rackListCustomFilter: { domain: [], facets: [] },
-        });
+    async clearRackFilters() {
+        this._rackDomain = [];
+        await this.model.load({ domain: [] });
+        this.render(true);
     }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Register — key matches js_class="rack_list_view" in the list arch
+// Register view
 // ─────────────────────────────────────────────────────────────────────────────
 
 registry.category("views").add("rack_list_view", {

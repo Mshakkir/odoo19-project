@@ -16,7 +16,7 @@
                 <t t-foreach="state.locations" t-as="loc" t-key="loc.id">
                     <option
                         t-att-value="loc.id"
-                        t-att-selected="String(state.locationId) === String(loc.id)"
+                        t-att-selected="state.locationId == loc.id"
                     >
                         <t t-esc="loc.name"/>
                     </option>
@@ -27,21 +27,7 @@
         </div>
     </t>
 
-    <!--
-        ── Rack List Controller Template ─────────────────────────────────────
-
-        t-inherit-mode="primary" creates a STANDALONE copy of the parent
-        template — it does NOT modify the original.
-
-        The parent template "web.ListView" is the correct name used by
-        Odoo 17/18/19 for the ListController template, as confirmed by
-        Odoo's own documentation example:
-          t-name="my_module.CustomKanbanView" t-inherit="web.KanbanView"
-        The equivalent for list is "web.ListView".
-
-        We insert RackListFilterBar BEFORE the <Layout> component,
-        which places it between the control panel and the list table.
-    -->
+    <!-- ── Rack List Controller Template ─────────────────────────────────── -->
     <t t-name="rack_list.ListController"
        t-inherit="web.ListView"
        t-inherit-mode="primary">

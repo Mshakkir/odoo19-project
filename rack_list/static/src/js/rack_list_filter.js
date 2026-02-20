@@ -18,7 +18,8 @@ export class RackListFilterBar extends Component {
         this.orm = useService("orm");
         this.state = useState({
             // Product
-            productFilter: "",
+            productFilter: "",        // display text in input
+            productId: null,          // selected product id (null = free text search)
             productSuggestions: [],
             productDropdownOpen: false,
             // Location
@@ -42,7 +43,6 @@ export class RackListFilterBar extends Component {
             }
         });
 
-        // Close dropdowns on outside click
         this.boundClose = (ev) => {
             const locEl = document.querySelector(".rack_loc_dropdown_wrap");
             if (locEl && !locEl.contains(ev.target)) {
@@ -68,6 +68,7 @@ export class RackListFilterBar extends Component {
     async onProductInput(ev) {
         const val = ev.target.value;
         this.state.productFilter = val;
+        this.state.productId = null; // clear any previously selected product id
 
         clearTimeout(this._debounceTimer);
 
@@ -77,51 +78,44 @@ export class RackListFilterBar extends Component {
             return;
         }
 
-        // Debounce 200ms
         this._debounceTimer = setTimeout(async () => {
             try {
                 const results = await this.orm.call(
-                    "rack.list",
-                    "search_products",
-                    [val.trim()],
-                    { limit: 15 }
+                    "rack.list", "search_products", [val.trim()]
                 );
                 this.state.productSuggestions = results;
                 this.state.productDropdownOpen = results.length > 0;
             } catch (e) {
                 console.error("[RackList] search_products error:", e);
-                this.state.productSuggestions = [];
-                this.state.productDropdownOpen = false;
             }
         }, 200);
     }
 
+    // When user clicks a suggestion — store the product ID, not just text
     selectProduct(suggestion) {
-        // Fill input with selected product label and close dropdown
         this.state.productFilter = suggestion.label;
+        this.state.productId = suggestion.id;   // ← key fix: store the ID
         this.state.productSuggestions = [];
         this.state.productDropdownOpen = false;
-        // Auto-apply immediately on selection
-        this.props.applyFilters({
-            productFilter: suggestion.label,
-            locationId: this.state.locationId,
-        });
+        // Apply immediately on selection
+        this._doApply();
     }
 
     clearProduct() {
         clearTimeout(this._debounceTimer);
         this.state.productFilter = "";
+        this.state.productId = null;
         this.state.productSuggestions = [];
         this.state.productDropdownOpen = false;
     }
 
-    // ── Keyboard shortcuts ─────────────────────────────────────────────────
+    // ── Keyboard ───────────────────────────────────────────────────────────
 
     onKeyDown(ev) {
         if (ev.key === "Enter") {
             this.state.productDropdownOpen = false;
             this.state.locationDropdownOpen = false;
-            this.onApply();
+            this._doApply();
         } else if (ev.key === "Escape") {
             if (this.state.productDropdownOpen) {
                 this.state.productDropdownOpen = false;
@@ -141,14 +135,14 @@ export class RackListFilterBar extends Component {
             } else {
                 this.state.locationDropdownOpen = false;
             }
-            this.onApply();
+            this._doApply();
         } else if (ev.key === "Escape") {
             ev.stopPropagation();
             this.state.locationDropdownOpen = false;
         }
     }
 
-    // ── Location dropdown ──────────────────────────────────────────────────
+    // ── Location ───────────────────────────────────────────────────────────
 
     onLocationSearchInput(ev) {
         const q = ev.target.value.toLowerCase();
@@ -180,11 +174,16 @@ export class RackListFilterBar extends Component {
 
     // ── Apply / Clear ──────────────────────────────────────────────────────
 
-    onApply() {
+    _doApply() {
         this.props.applyFilters({
             productFilter: this.state.productFilter.trim(),
+            productId: this.state.productId,        // pass selected product id
             locationId: this.state.locationId,
         });
+    }
+
+    onApply() {
+        this._doApply();
     }
 
     onClear() {
@@ -240,17 +239,24 @@ class RackListController extends ListController {
         this._rackDomain = [];
     }
 
-    async applyRackFilters({ productFilter, locationId }) {
+    async applyRackFilters({ productFilter, productId, locationId }) {
         const domain = [];
-        if (productFilter) {
+
+        if (productId) {
+            // User selected a specific product from autocomplete — filter by exact id
+            domain.push(["product_id", "=", productId]);
+        } else if (productFilter) {
+            // User typed free text without selecting — search by name/code
             domain.push("|",
                 ["product_code", "ilike", productFilter],
                 ["product_id.name", "ilike", productFilter]
             );
         }
+
         if (locationId) {
             domain.push(["location_id", "=", parseInt(locationId, 10)]);
         }
+
         this._rackDomain = domain;
         await this.model.load({ domain });
         this.render(true);

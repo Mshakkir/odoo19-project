@@ -5,15 +5,23 @@
     'description': """
         Adds a "Rack List" menu item in the Sales top bar that displays
         all products along with their exact storage locations and quantities.
+        Includes custom OWL search bar with product and location filters.
     """,
     'author': 'Custom',
     'category': 'Sales',
-    'depends': ['sale_management', 'stock'],
+    'depends': ['sale_management', 'stock', 'web'],
     'data': [
         'security/ir.model.access.csv',
         'views/rack_list_views.xml',
         'views/rack_list_menus.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'rack_list/static/src/css/rack_list.css',
+            'rack_list/static/src/xml/rack_list_filter.xml',
+            'rack_list/static/src/js/rack_list_filter.js',
+        ],
+    },
     'installable': True,
     'auto_install': False,
     'license': 'LGPL-3',

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Tree/List View -->
+    <!-- Standard List View -->
     <record id="view_rack_list_tree" model="ir.ui.view">
         <field name="name">rack.list.tree</field>
         <field name="model">rack.list</field>

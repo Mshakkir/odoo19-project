@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <!-- ── Filter Bar ─────────────────────────────────────────────────────── -->
+    <t t-name="rack_list.FilterBar">
+        <div class="rack_list_filter_bar">
+            <!-- Product name / code -->
+            <input
+                type="text"
+                class="rack_filter_input o_input"
+                placeholder="Product name or code"
+                t-att-value="state.productFilter"
+                t-on-input="onProductInput"
+            />
+            <!-- Location -->
+            <select class="rack_filter_select o_input" t-on-change="onLocationChange">
+                <option value="">Location</option>
+                <t t-foreach="state.locations" t-as="loc" t-key="loc.id">
+                    <option
+                        t-att-value="loc.id"
+                        t-att-selected="String(state.locationId) === String(loc.id)"
+                    >
+                        <t t-esc="loc.name"/>
+                    </option>
+                </t>
+            </select>
+            <!-- Buttons -->
+            <button class="btn btn-primary" t-on-click="onApply">Apply</button>
+            <button class="btn btn-secondary" t-on-click="onClear">Clear</button>
+        </div>
+    </t>
+
+    <!-- ── Extend the default ListView Controller template ────────────────── -->
+    <!--
+        The standard ListController template name is "web.ListView.Controller".
+        We inject the RackListFilterBar just before the Renderer, but only when
+        the model is rack.list (controlled by the `isRackList` getter).
+    -->
+    <t t-name="web.ListView.Controller" t-inherit="web.ListView.Controller" t-inherit-mode="extension">
+        <xpath expr="//t[@t-component='Renderer']" position="before">
+            <t t-if="isRackList">
+                <RackListFilterBar
+                    applyFilters.bind="applyRackFilters"
+                    clearFilters.bind="clearRackFilters"
+                />
+            </t>
+        </xpath>
+    </t>
+
+</templates>

@@ -1,0 +1,25 @@
+/* Rack List - Custom Filter Bar */
+
+.rack_list_filter_bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 16px;
+    background: #fff;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.rack_filter_input {
+    width: 220px;
+    min-width: 150px;
+}
+
+.rack_filter_select {
+    width: 220px;
+    min-width: 150px;
+}
+
+.rack_list_filter_bar .btn {
+    min-width: 80px;
+}

@@ -7,7 +7,7 @@
         <field name="name">product.stock.ledger.line.list.view</field>
         <field name="model">product.stock.ledger.line</field>
         <field name="arch" type="xml">
-            <list string="Product Stock Ledger" create="false" edit="false" delete="false" export_xlsx="true">
+            <list string="Product Stock Ledger" create="false" edit="false" delete="false">
                 <field name="product_id"     string="Product"        width="180px"/>
                 <field name="warehouse_id"   string="Warehouse"      width="120px"/>
                 <field name="date"           string="Date"           widget="date" width="110px"/>

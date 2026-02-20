@@ -1,23 +1,19 @@
 <odoo>
 
     <!-- ══════════════════════════════════════════
-         LIST VIEW
+         LIST VIEW  (no header/button — data is always live)
     ══════════════════════════════════════════ -->
     <record id="view_product_ledger_line_list" model="ir.ui.view">
         <field name="name">product.stock.ledger.line.list.view</field>
         <field name="model">product.stock.ledger.line</field>
         <field name="arch" type="xml">
-            <list string="Product Stock Ledger" create="false" edit="false" export_xlsx="true">
-                <header>
-                    <button name="action_refresh_ledger" type="object"
-                            string="Refresh Data" class="btn-primary" icon="fa-refresh"/>
-                </header>
+            <list string="Product Stock Ledger" create="false" edit="false" delete="false" export_xlsx="true">
                 <field name="product_id"     string="Product"        width="180px"/>
                 <field name="warehouse_id"   string="Warehouse"      width="120px"/>
-                <field name="date"           string="Date"           widget="date" width="125px"/>
+                <field name="date"           string="Date"           widget="date" width="110px"/>
                 <field name="voucher"        string="Voucher"        width="130px"/>
-                <field name="particulars"    string="Particulars"    width="250px"/>
-                <field name="type"           string="Type"           width="70px"/>
+                <field name="particulars"    string="Particulars"    width="260px"/>
+                <field name="move_type"      string="Type"           width="90px"/>
                 <field name="rec_qty"        string="Rec. Qty"       sum="Total Received" width="90px"/>
                 <field name="rec_rate"       string="Rec. Rate"      width="90px"/>
                 <field name="issue_qty"      string="Issue Qty"      sum="Total Issued"   width="90px"/>
@@ -30,7 +26,7 @@
     </record>
 
     <!-- ══════════════════════════════════════════
-         FORM VIEW
+         FORM VIEW  (drill-down detail)
     ══════════════════════════════════════════ -->
     <record id="view_product_ledger_line_form" model="ir.ui.view">
         <field name="name">product.stock.ledger.line.form.view</field>
@@ -46,7 +42,7 @@
                             <field name="warehouse_id"/>
                             <field name="date" widget="date"/>
                             <field name="voucher"/>
-                            <field name="type"/>
+                            <field name="move_type" string="Type"/>
                         </group>
                         <group string="Status">
                             <field name="invoice_status"/>
@@ -67,6 +63,10 @@
                             <field name="issue_rate"/>
                         </group>
                     </group>
+                    <footer>
+                        <button name="action_open_move" type="object"
+                                string="Open Stock Move" class="btn-secondary"/>
+                    </footer>
                 </sheet>
             </form>
         </field>
@@ -89,21 +89,20 @@
                 <separator/>
 
                 <filter name="filter_today" string="Today"
-                        domain="[('date', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00')),
-                                 ('date', '&lt;=', context_today().strftime('%Y-%m-%d 23:59:59'))]"/>
+                        domain="[('date', '=', context_today().strftime('%Y-%m-%d'))]"/>
                 <filter name="filter_this_week" string="This Week"
-                        domain="[('date', '&gt;=', (context_today() - relativedelta(weeks=1)).strftime('%Y-%m-%d 00:00:00'))]"/>
+                        domain="[('date', '&gt;=', (context_today() - relativedelta(weeks=1)).strftime('%Y-%m-%d'))]"/>
                 <filter name="filter_this_month" string="This Month"
-                        domain="[('date', '&gt;=', context_today().strftime('%Y-%m-01 00:00:00'))]"/>
+                        domain="[('date', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
 
                 <separator/>
 
                 <filter name="filter_receipts" string="Receipts"
-                        domain="[('type', '=', 'Receipts')]"/>
+                        domain="[('move_type', '=', 'Receipts')]"/>
                 <filter name="filter_delivery" string="Delivery"
-                        domain="[('type', '=', 'Delivery')]"/>
+                        domain="[('move_type', '=', 'Delivery')]"/>
                 <filter name="filter_internal" string="Internal Transfer"
-                        domain="[('type', '=', 'Internal Transfer')]"/>
+                        domain="[('move_type', '=', 'Internal Transfer')]"/>
 
                 <separator/>
 
@@ -123,7 +122,7 @@
                 <filter name="group_by_date"           string="Date"
                         context="{'group_by': 'date:day'}"/>
                 <filter name="group_by_type"           string="Type"
-                        context="{'group_by': 'type'}"/>
+                        context="{'group_by': 'move_type'}"/>
                 <filter name="group_by_invoice_status" string="Invoice Status"
                         context="{'group_by': 'invoice_status'}"/>
             </search>
@@ -131,22 +130,7 @@
     </record>
 
     <!-- ══════════════════════════════════════════
-         SERVER ACTION — delete selected rows
-    ══════════════════════════════════════════ -->
-    <record id="action_delete_ledger_lines" model="ir.actions.server">
-        <field name="name">Delete</field>
-        <field name="model_id" ref="model_product_stock_ledger_line"/>
-        <field name="binding_model_id" ref="model_product_stock_ledger_line"/>
-        <field name="binding_view_types">list</field>
-        <field name="state">code</field>
-        <field name="code">
-if records:
-    records.unlink()
-        </field>
-    </record>
-
-    <!-- ══════════════════════════════════════════
-         WINDOW ACTION
+         WINDOW ACTION  (direct — no server action needed)
     ══════════════════════════════════════════ -->
     <record id="action_product_stock_ledger_window" model="ir.actions.act_window">
         <field name="name">Product Stock Ledger</field>
@@ -158,39 +142,24 @@ if records:
     </record>
 
     <!-- ══════════════════════════════════════════
-         SERVER ACTION — auto-generate on open
-    ══════════════════════════════════════════ -->
-    <record id="action_auto_generate_ledger" model="ir.actions.server">
-        <field name="name">Auto Generate Stock Ledger</field>
-        <field name="model_id" ref="model_product_stock_ledger_line"/>
-        <field name="state">code</field>
-        <field name="code">
-existing_records = model.search([], limit=1)
-if not existing_records:
-    model.generate_ledger()
-action = env.ref('product_stock_ledger.action_product_stock_ledger_window').read()[0]
-        </field>
-    </record>
-
-    <!-- ══════════════════════════════════════════
          MENU ITEMS
     ══════════════════════════════════════════ -->
     <menuitem id="menu_product_stock_ledger_inventory"
               name="Product Stock Ledger"
               parent="stock.menu_stock_root"
-              action="action_auto_generate_ledger"
+              action="action_product_stock_ledger_window"
               sequence="60"/>
 
     <menuitem id="menu_product_stock_ledger_purchase"
               name="Product Stock Ledger"
               parent="purchase.menu_purchase_root"
-              action="action_auto_generate_ledger"
+              action="action_product_stock_ledger_window"
               sequence="99"/>
 
     <menuitem id="menu_product_stock_ledger_sales"
               name="Product Stock Ledger"
               parent="sale.sale_menu_root"
-              action="action_auto_generate_ledger"
+              action="action_product_stock_ledger_window"
               sequence="99"/>
 
 </odoo>

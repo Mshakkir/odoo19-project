@@ -1,7 +1,7 @@
 {
     "name": "Product Stock Ledger (Custom)",
     "version": "1.0",
-    "author": "shakkir",
+    "author": "You",
     "category": "Inventory",
     "summary": "Product-wise stock ledger report with Purchase, Sales & Delivery Details",
     "depends": [

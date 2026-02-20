@@ -1,308 +1,278 @@
 /** @odoo-module **/
+/**
+ * Product Stock Ledger - Filter Bar
+ * Uses MutationObserver to detect when the ledger list view is rendered,
+ * then injects a plain HTML filter bar. No OWL patching — zero lifecycle risk.
+ */
 
-import { patch } from "@web/core/utils/patch";
-import { ListController } from "@web/views/list/list_controller";
+import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
-import { onMounted, onWillUnmount } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount } from "@odoo/owl";
 
-patch(ListController.prototype, {
-    setup() {
-        super.setup(...arguments);
+// ── Standalone OWL Component registered as a client action overlay ───────────
+// This is NOT patching anything — it's a clean sideline observer.
 
-        // Only activate for stock ledger model
-        if (this.props.resModel !== "product.stock.ledger.line") {
-            return;
-        }
+let _filterInstance = null; // singleton guard
 
-        this._notif = useService("notification");
-        this._filterEl = null;
-        this._acTimeout = null;
-        this._selectedProductId = null;
+function buildFilterBar(orm, notification) {
+    // Prevent duplicates
+    if (document.querySelector(".o_sl_filter_bar")) return;
 
-        onMounted(() => {
-            // Delay to let OWL finish rendering the list table
-            setTimeout(() => this._injectFilterBar(), 300);
-        });
+    const table = document.querySelector(".o_list_view .o_list_table");
+    if (!table) return;
 
-        onWillUnmount(() => {
-            this._removeFilterBar();
-        });
-    },
+    const today    = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    const dateTo   = today.toISOString().split("T")[0];
+    const dateFrom = firstDay.toISOString().split("T")[0];
+    const uid      = Date.now();
 
-    // ── Cleanup ─────────────────────────────────────────────────────────────
-    _removeFilterBar() {
-        if (this._filterEl) {
-            this._filterEl.remove();
-            this._filterEl = null;
-        }
-        if (this._acTimeout) {
-            clearTimeout(this._acTimeout);
-            this._acTimeout = null;
-        }
-    },
+    const bar = document.createElement("div");
+    bar.className = "o_sl_filter_bar";
+    bar.setAttribute("data-uid", uid);
+    bar.style.cssText = [
+        "width:100%", "background:#f8f9fa", "border-bottom:2px solid #dee2e6",
+        "padding:8px 16px", "box-sizing:border-box",
+        "display:flex", "align-items:flex-end", "gap:8px", "flex-wrap:wrap",
+    ].join(";");
 
-    // ── Inject the filter bar DOM above the list table ──────────────────────
-    _injectFilterBar() {
-        this._removeFilterBar();
+    bar.innerHTML = `
+        <div style="position:relative;min-width:160px;flex:1.5;">
+            <input id="sl_prod_${uid}" type="text" autocomplete="off"
+                placeholder="Product name or code"
+                class="o_input" style="width:100%;font-size:12px;padding:4px 8px;"/>
+            <div id="sl_ac_${uid}"
+                style="display:none;position:absolute;top:100%;left:0;right:0;z-index:9999;
+                       background:#fff;border:1px solid #ced4da;border-top:none;
+                       border-radius:0 0 4px 4px;max-height:220px;overflow-y:auto;
+                       box-shadow:0 4px 8px rgba(0,0,0,.12);"></div>
+        </div>
+        <div style="min-width:120px;flex:1;">
+            <select id="sl_wh_${uid}" class="o_input" style="width:100%;font-size:12px;padding:4px 6px;">
+                <option value="">Warehouse</option>
+            </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;min-width:210px;flex:1.5;">
+            <input id="sl_df_${uid}" type="date" value="${dateFrom}"
+                class="o_input" style="flex:1;font-size:12px;padding:4px 5px;"/>
+            <span style="color:#888;font-weight:bold;">→</span>
+            <input id="sl_dt_${uid}" type="date" value="${dateTo}"
+                class="o_input" style="flex:1;font-size:12px;padding:4px 5px;"/>
+        </div>
+        <div style="min-width:110px;flex:1;">
+            <input id="sl_vou_${uid}" type="text" placeholder="Voucher"
+                class="o_input" style="width:100%;font-size:12px;padding:4px 8px;"/>
+        </div>
+        <div style="min-width:110px;flex:1;">
+            <select id="sl_type_${uid}" class="o_input" style="width:100%;font-size:12px;padding:4px 6px;">
+                <option value="">Type</option>
+                <option value="Receipts">Receipts</option>
+                <option value="Delivery">Delivery</option>
+                <option value="Internal Transfer">Internal Transfer</option>
+            </select>
+        </div>
+        <div style="min-width:110px;flex:1;">
+            <select id="sl_inv_${uid}" class="o_input" style="width:100%;font-size:12px;padding:4px 6px;">
+                <option value="">Invoice Status</option>
+                <option value="Invoiced">Invoiced</option>
+                <option value="Not Invoiced">Not Invoiced</option>
+                <option value="To Invoice">To Invoice</option>
+            </select>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+            <button id="sl_apply_${uid}" class="btn btn-primary btn-sm" style="font-size:12px;">Apply</button>
+            <button id="sl_clear_${uid}" class="btn btn-secondary btn-sm" style="font-size:12px;">Clear</button>
+        </div>
+    `;
 
-        const table = document.querySelector(".o_list_table");
-        if (!table) {
-            // Table not rendered yet — retry once
-            setTimeout(() => this._injectFilterBar(), 200);
-            return;
-        }
+    // Insert bar above the list table
+    table.closest(".o_list_view").insertBefore(bar, table.closest(".o_list_view").firstChild);
 
-        // Prevent duplicate bars
-        if (document.querySelector(".o_ledger_filter_bar")) return;
-
-        const today      = new Date();
-        const firstDay   = new Date(today.getFullYear(), today.getMonth(), 1);
-        const dateTo     = today.toISOString().split("T")[0];
-        const dateFrom   = firstDay.toISOString().split("T")[0];
-        const uid        = Date.now();
-
-        const bar = document.createElement("div");
-        bar.className = "o_ledger_filter_bar";
-        bar.style.cssText = `
-            width:100%; background:#f8f9fa; border-bottom:2px solid #dee2e6;
-            padding:10px 16px; box-sizing:border-box;
-        `;
-        bar.innerHTML = `
-            <div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;">
-
-                <!-- Product autocomplete -->
-                <div style="position:relative;min-width:170px;flex:1;">
-                    <input id="lf_product_${uid}" type="text" autocomplete="off"
-                        placeholder="Product name or code"
-                        class="o_input" style="width:100%;font-size:12px;padding:4px 8px;"/>
-                    <div id="lf_ac_${uid}"
-                        style="display:none;position:absolute;top:100%;left:0;right:0;z-index:9999;
-                               background:#fff;border:1px solid #ced4da;border-top:none;
-                               border-radius:0 0 4px 4px;max-height:220px;overflow-y:auto;
-                               box-shadow:0 4px 8px rgba(0,0,0,.12);"></div>
-                </div>
-
-                <!-- Warehouse -->
-                <div style="min-width:130px;flex:1;">
-                    <select id="lf_wh_${uid}" class="o_input" style="width:100%;font-size:12px;padding:4px 6px;">
-                        <option value="">Warehouse</option>
-                    </select>
-                </div>
-
-                <!-- Date From → To -->
-                <div style="display:flex;align-items:center;gap:6px;min-width:220px;flex:1;">
-                    <input id="lf_df_${uid}" type="date" value="${dateFrom}"
-                        class="o_input" style="flex:1;font-size:12px;padding:4px 6px;"/>
-                    <span style="color:#6c757d;font-weight:bold;">→</span>
-                    <input id="lf_dt_${uid}" type="date" value="${dateTo}"
-                        class="o_input" style="flex:1;font-size:12px;padding:4px 6px;"/>
-                </div>
-
-                <!-- Voucher -->
-                <div style="min-width:120px;flex:1;">
-                    <input id="lf_voucher_${uid}" type="text" placeholder="Voucher"
-                        class="o_input" style="width:100%;font-size:12px;padding:4px 8px;"/>
-                </div>
-
-                <!-- Type -->
-                <div style="min-width:120px;flex:1;">
-                    <select id="lf_type_${uid}" class="o_input" style="width:100%;font-size:12px;padding:4px 6px;">
-                        <option value="">Type</option>
-                        <option value="Receipts">Receipts</option>
-                        <option value="Delivery">Delivery</option>
-                        <option value="Internal Transfer">Internal Transfer</option>
-                    </select>
-                </div>
-
-                <!-- Invoice Status -->
-                <div style="min-width:120px;flex:1;">
-                    <select id="lf_inv_${uid}" class="o_input" style="width:100%;font-size:12px;padding:4px 6px;">
-                        <option value="">Invoice Status</option>
-                        <option value="Invoiced">Invoiced</option>
-                        <option value="Not Invoiced">Not Invoiced</option>
-                        <option value="To Invoice">To Invoice</option>
-                    </select>
-                </div>
-
-                <!-- Buttons -->
-                <div style="display:flex;gap:8px;flex-shrink:0;">
-                    <button id="lf_apply_${uid}" class="btn btn-primary btn-sm" style="font-size:12px;">Apply</button>
-                    <button id="lf_clear_${uid}" class="btn btn-secondary btn-sm" style="font-size:12px;">Clear</button>
-                </div>
-            </div>
-        `;
-
-        table.parentElement.insertBefore(bar, table);
-        this._filterEl = bar;
-
-        this._loadWarehouses(uid);
-        this._bindProductAutocomplete(uid);
-        this._bindButtons(uid, dateFrom, dateTo);
-    },
-
-    // ── Load warehouse options ───────────────────────────────────────────────
-    async _loadWarehouses(uid) {
-        try {
-            const rows = await this.orm.searchRead("stock.warehouse", [], ["id", "name"], { limit: 100 });
-            const sel  = document.getElementById(`lf_wh_${uid}`);
+    // ── Load warehouses ──────────────────────────────────────────────────────
+    orm.searchRead("stock.warehouse", [], ["id", "name"], { limit: 100 })
+        .then(rows => {
+            const sel = document.getElementById(`sl_wh_${uid}`);
             if (!sel) return;
             rows.forEach(({ id, name }) => {
-                const opt = document.createElement("option");
-                opt.value = id;
-                opt.textContent = name;
-                sel.appendChild(opt);
+                const o = document.createElement("option");
+                o.value = id; o.textContent = name;
+                sel.appendChild(o);
             });
-        } catch (e) {
-            console.warn("Ledger filter: could not load warehouses", e);
-        }
-    },
+        })
+        .catch(e => console.warn("SL filter: warehouse load error", e));
 
     // ── Product autocomplete ─────────────────────────────────────────────────
-    _bindProductAutocomplete(uid) {
-        const input = document.getElementById(`lf_product_${uid}`);
-        const box   = document.getElementById(`lf_ac_${uid}`);
-        if (!input || !box) return;
+    let acTimer = null;
+    const prodInput = document.getElementById(`sl_prod_${uid}`);
+    const acBox     = document.getElementById(`sl_ac_${uid}`);
 
-        const hide = () => { box.style.display = "none"; box.innerHTML = ""; };
+    const hideAc = () => { acBox.style.display = "none"; acBox.innerHTML = ""; };
 
-        input.addEventListener("input", () => {
-            const q = input.value.trim();
-            this._selectedProductId = null;
-            input.removeAttribute("data-pid");
-
-            if (!q) { hide(); return; }
-            if (this._acTimeout) clearTimeout(this._acTimeout);
-
-            box.innerHTML = `<div style="padding:8px 12px;color:#6c757d;font-size:12px;">Searching…</div>`;
-            box.style.display = "block";
-
-            this._acTimeout = setTimeout(async () => {
-                try {
-                    const results = await this.orm.searchRead(
-                        "product.product",
-                        ["|", ["name", "ilike", q], ["default_code", "ilike", q]],
-                        ["id", "name", "display_name", "default_code"],
-                        { limit: 20, order: "default_code asc, name asc" }
-                    );
-                    box.innerHTML = "";
-                    if (!results.length) {
-                        box.innerHTML = `<div style="padding:8px 12px;color:#6c757d;font-size:12px;">No products found</div>`;
-                        box.style.display = "block";
-                        return;
-                    }
-                    results.forEach(p => {
-                        const div = document.createElement("div");
-                        div.style.cssText = "padding:7px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid #f0f0f0;display:flex;gap:8px;align-items:center;";
-                        div.setAttribute("data-pid", p.id);
-                        div.setAttribute("data-name", p.display_name || p.name);
-                        const badge = p.default_code
-                            ? `<span style="background:#e9ecef;color:#495057;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:600;">[${p.default_code}]</span>`
-                            : "";
-                        div.innerHTML = `${badge}<span>${p.display_name || p.name}</span>`;
-                        div.addEventListener("mouseenter", () => div.style.background = "#f0f7ff");
-                        div.addEventListener("mouseleave", () => div.style.background = "");
-                        div.addEventListener("mousedown", e => {
-                            e.preventDefault();
-                            this._selectedProductId = p.id;
-                            input.value = p.display_name || p.name;
-                            input.setAttribute("data-pid", p.id);
-                            hide();
-                        });
-                        box.appendChild(div);
-                    });
-                    box.style.display = "block";
-                } catch (err) {
-                    console.warn("Ledger autocomplete error:", err);
-                    hide();
-                }
-            }, 300);
-        });
-
-        input.addEventListener("blur", () => setTimeout(hide, 200));
-    },
-
-    // ── Apply / Clear buttons ────────────────────────────────────────────────
-    _bindButtons(uid, defaultDateFrom, defaultDateTo) {
-        const g = id => document.getElementById(id);
-        const applyBtn  = g(`lf_apply_${uid}`);
-        const clearBtn  = g(`lf_clear_${uid}`);
-        if (!applyBtn || !clearBtn) return;
-
-        applyBtn.addEventListener("click", () => {
-            const domain = [];
-
-            // Product
-            const prodInput = g(`lf_product_${uid}`);
-            const pid = prodInput && parseInt(prodInput.getAttribute("data-pid") || "0");
-            if (pid) {
-                domain.push(["product_id", "=", pid]);
-            } else if (prodInput && prodInput.value.trim()) {
-                domain.push(["|", ["product_id.name", "ilike", prodInput.value.trim()],
-                                   ["product_id.default_code", "ilike", prodInput.value.trim()]]);
-            }
-
-            // Warehouse
-            const wh = g(`lf_wh_${uid}`);
-            if (wh && wh.value) domain.push(["warehouse_id", "=", parseInt(wh.value)]);
-
-            // Dates
-            const df = g(`lf_df_${uid}`);
-            const dt = g(`lf_dt_${uid}`);
-            if (df && dt && df.value && dt.value) {
-                if (df.value > dt.value) {
-                    this._notif.add("Start date must be before end date", { type: "warning" });
+    prodInput.addEventListener("input", () => {
+        const q = prodInput.value.trim();
+        prodInput.removeAttribute("data-pid");
+        if (!q) { hideAc(); return; }
+        if (acTimer) clearTimeout(acTimer);
+        acBox.innerHTML = `<div style="padding:8px 12px;color:#6c757d;font-size:12px;">Searching…</div>`;
+        acBox.style.display = "block";
+        acTimer = setTimeout(() => {
+            orm.searchRead(
+                "product.product",
+                ["|", ["name","ilike",q], ["default_code","ilike",q]],
+                ["id","name","display_name","default_code"],
+                { limit: 20, order: "default_code asc, name asc" }
+            ).then(results => {
+                acBox.innerHTML = "";
+                if (!results.length) {
+                    acBox.innerHTML = `<div style="padding:8px 12px;color:#6c757d;font-size:12px;">No products found</div>`;
+                    acBox.style.display = "block";
                     return;
                 }
-                domain.push(["date", ">=", df.value]);
-                domain.push(["date", "<=", dt.value]);
-            } else if (df && df.value) {
-                domain.push(["date", ">=", df.value]);
-            } else if (dt && dt.value) {
-                domain.push(["date", "<=", dt.value]);
+                results.forEach(p => {
+                    const d = document.createElement("div");
+                    d.style.cssText = "padding:6px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid #f0f0f0;display:flex;gap:8px;align-items:center;";
+                    d.setAttribute("data-pid", p.id);
+                    const badge = p.default_code
+                        ? `<span style="background:#e9ecef;color:#495057;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:600;">[${p.default_code}]</span>`
+                        : "";
+                    d.innerHTML = `${badge}<span>${p.display_name || p.name}</span>`;
+                    d.addEventListener("mouseenter", () => d.style.background = "#f0f7ff");
+                    d.addEventListener("mouseleave", () => d.style.background = "");
+                    d.addEventListener("mousedown", e => {
+                        e.preventDefault();
+                        prodInput.value = p.display_name || p.name;
+                        prodInput.setAttribute("data-pid", p.id);
+                        hideAc();
+                    });
+                    acBox.appendChild(d);
+                });
+                acBox.style.display = "block";
+            }).catch(() => hideAc());
+        }, 300);
+    });
+    prodInput.addEventListener("blur", () => setTimeout(hideAc, 200));
+
+    // ── Apply / Clear ────────────────────────────────────────────────────────
+    const g = id => document.getElementById(id);
+
+    const getListRenderer = () => {
+        // Walk OWL component tree to find the list model
+        const listView = document.querySelector(".o_list_view");
+        if (!listView) return null;
+        let el = listView;
+        while (el) {
+            if (el.__owl__ && el.__owl__.component && el.__owl__.component.model) {
+                return el.__owl__.component;
+            }
+            el = el.firstElementChild;
+        }
+        return null;
+    };
+
+    const applyDomain = (domain) => {
+        const comp = getListRenderer();
+        if (comp && comp.model && comp.model.load) {
+            comp.model.load({ domain }).catch(e => console.warn("SL filter domain error:", e));
+        } else {
+            console.warn("SL filter: could not find list model component");
+        }
+    };
+
+    g(`sl_apply_${uid}`).addEventListener("click", () => {
+        const domain = [];
+
+        const pi = g(`sl_prod_${uid}`);
+        const pid = pi && parseInt(pi.getAttribute("data-pid") || "0");
+        if (pid) {
+            domain.push(["product_id", "=", pid]);
+        } else if (pi && pi.value.trim()) {
+            domain.push(["|",
+                ["product_id.name", "ilike", pi.value.trim()],
+                ["product_id.default_code", "ilike", pi.value.trim()]
+            ]);
+        }
+
+        const wh = g(`sl_wh_${uid}`);
+        if (wh && wh.value) domain.push(["warehouse_id", "=", parseInt(wh.value)]);
+
+        const df = g(`sl_df_${uid}`);
+        const dt = g(`sl_dt_${uid}`);
+        if (df && df.value) domain.push(["date", ">=", df.value]);
+        if (dt && dt.value) domain.push(["date", "<=", dt.value]);
+        if (df && dt && df.value && dt.value && df.value > dt.value) {
+            notification.add("Start date must be before end date", { type: "warning" });
+            return;
+        }
+
+        const vo = g(`sl_vou_${uid}`);
+        if (vo && vo.value.trim()) domain.push(["voucher", "ilike", vo.value.trim()]);
+
+        const ty = g(`sl_type_${uid}`);
+        if (ty && ty.value) domain.push(["move_type", "=", ty.value]);
+
+        const iv = g(`sl_inv_${uid}`);
+        if (iv && iv.value) domain.push(["invoice_status", "=", iv.value]);
+
+        applyDomain(domain);
+        notification.add("Filters applied", { type: "success" });
+    });
+
+    g(`sl_clear_${uid}`).addEventListener("click", () => {
+        const pi = g(`sl_prod_${uid}`);
+        if (pi) { pi.value = ""; pi.removeAttribute("data-pid"); }
+        const wh = g(`sl_wh_${uid}`); if (wh) wh.value = "";
+        const df = g(`sl_df_${uid}`); if (df) df.value = dateFrom;
+        const dt = g(`sl_dt_${uid}`); if (dt) dt.value = dateTo;
+        const vo = g(`sl_vou_${uid}`); if (vo) vo.value = "";
+        const ty = g(`sl_type_${uid}`); if (ty) ty.value = "";
+        const iv = g(`sl_inv_${uid}`); if (iv) iv.value = "";
+        applyDomain([]);
+        notification.add("Filters cleared", { type: "info" });
+    });
+}
+
+// ── MutationObserver service: watches for ledger list view appearing ──────────
+registry.category("services").add("stock_ledger_filter_observer", {
+    dependencies: ["orm", "notification"],
+    start(env, { orm, notification }) {
+        let observer = null;
+        let debounce = null;
+
+        const check = () => {
+            // Only inject when URL/action is the ledger model
+            const isLedger = !!document.querySelector(
+                ".o_list_view[class*='o_list']"
+            ) && !!document.querySelector(".o_list_table");
+
+            if (!isLedger) {
+                // Remove bar if navigated away
+                document.querySelector(".o_sl_filter_bar")?.remove();
+                return;
             }
 
-            // Voucher
-            const v = g(`lf_voucher_${uid}`);
-            if (v && v.value.trim()) domain.push(["voucher", "ilike", v.value.trim()]);
+            // Check if this list is the stock ledger (look for its unique columns)
+            // We detect by checking breadcrumb or the action in the URL
+            const breadcrumb = document.querySelector(".o_breadcrumb .o_last_breadcrumb_item");
+            if (!breadcrumb) return;
+            const title = breadcrumb.textContent.trim().toLowerCase();
+            if (!title.includes("stock ledger") && !title.includes("product stock ledger")) return;
 
-            // Type  (field is move_type in the SQL view)
-            const t = g(`lf_type_${uid}`);
-            if (t && t.value) domain.push(["move_type", "=", t.value]);
+            buildFilterBar(orm, notification);
+        };
 
-            // Invoice status
-            const inv = g(`lf_inv_${uid}`);
-            if (inv && inv.value) domain.push(["invoice_status", "=", inv.value]);
+        const scheduleCheck = () => {
+            if (debounce) clearTimeout(debounce);
+            debounce = setTimeout(check, 400);
+        };
 
-            // Push domain to OWL model
-            if (this.model && this.model.load) {
-                this.model.load({ domain }).catch(e => console.warn("Filter apply warning:", e));
-                this._notif.add("Filters applied", { type: "success" });
+        observer = new MutationObserver(scheduleCheck);
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        return {
+            destroy() {
+                if (observer) observer.disconnect();
+                document.querySelector(".o_sl_filter_bar")?.remove();
             }
-        });
-
-        clearBtn.addEventListener("click", () => {
-            const prodInput = g(`lf_product_${uid}`);
-            if (prodInput) { prodInput.value = ""; prodInput.removeAttribute("data-pid"); }
-            this._selectedProductId = null;
-
-            const wh  = g(`lf_wh_${uid}`);
-            const df  = g(`lf_df_${uid}`);
-            const dt  = g(`lf_dt_${uid}`);
-            const v   = g(`lf_voucher_${uid}`);
-            const t   = g(`lf_type_${uid}`);
-            const inv = g(`lf_inv_${uid}`);
-
-            if (wh)  wh.value  = "";
-            if (df)  df.value  = defaultDateFrom;
-            if (dt)  dt.value  = defaultDateTo;
-            if (v)   v.value   = "";
-            if (t)   t.value   = "";
-            if (inv) inv.value = "";
-
-            if (this.model && this.model.load) {
-                this.model.load({ domain: [] }).catch(e => console.warn("Filter clear warning:", e));
-                this._notif.add("Filters cleared", { type: "info" });
-            }
-        });
-    },
+        };
+    }
 });

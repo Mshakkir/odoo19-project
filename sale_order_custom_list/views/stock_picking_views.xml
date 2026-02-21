@@ -18,9 +18,8 @@
                           decoration-danger="state not in ('cancel', 'done') and scheduled_date &lt; current_date"
                           multi_edit="1">
 
-                        <!-- YOUR REQUESTED ORDER -->
-                        <!-- 1. Scheduled Date -->
-                        <field name="scheduled_date" string="Scheduled Date"/>
+                        <!-- 1. Scheduled Date (formatted DD/MM/YYYY) -->
+                        <field name="scheduled_date_formatted" string="Scheduled Date"/>
 
                         <!-- 2. Number (Reference) -->
                         <field name="name" string="Number" readonly="1" decoration-bf="1"/>
@@ -28,26 +27,17 @@
                         <!-- 3. Customer (Partner) -->
                         <field name="partner_id" string="Customer"/>
 
-                        <!-- 4. Warehouse / Location From -->
+                        <!-- 4. Source Location -->
                         <field name="location_id" string="Source Location" optional="show" groups="stock.group_stock_multi_locations"/>
 
                         <!-- 5. Source Document (Origin) -->
                         <field name="origin" string="Source Document" optional="show"/>
 
-                        <!-- 6. Contact / Delivery Address -->
+                        <!-- 6. Delivery Address -->
                         <field name="partner_id" string="Delivery Address" optional="show" context="{'show_address': 1}"/>
 
-                        <!-- 7-9. Weight, Volume fields if available -->
-<!--                        <field name="weight" string="Weight" optional="hide" groups="stock.group_stock_picking_weight"/>-->
-<!--                        <field name="shipping_weight" string="Shipping Weight" optional="hide" groups="delivery.group_delivery_invoice_address"/>-->
-
-                        <!-- 10. Carrier / Shipping Method -->
-<!--                        <field name="carrier_id" string="Carrier" optional="show" groups="delivery.group_delivery_invoice_address"/>-->
-
-                        <!-- 11. Responsible (Assigned To) -->
+                        <!-- 7. Responsible -->
                         <field name="user_id" string="Responsible" optional="show" widget="many2one_avatar_user"/>
-
-                        <!-- ADDITIONAL DEFAULT ODOO FIELDS -->
 
                         <!-- Backorder -->
                         <field name="backorder_id" string="Backorder" optional="hide"/>
@@ -68,8 +58,8 @@
                                decoration-warning="state == 'waiting'"
                                decoration-primary="state in ('confirmed', 'assigned')"/>
 
-                        <!-- Date Done -->
-                        <field name="date_done" string="Date Done" optional="hide"/>
+                        <!-- Date Done (formatted DD/MM/YYYY) -->
+                        <field name="date_done_formatted" string="Date Done" optional="hide"/>
 
                         <!-- Company -->
                         <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide"/>
@@ -115,7 +105,9 @@
 
                         <!-- Hidden technical fields -->
                         <field name="picking_type_code" column_invisible="1"/>
-<!--                        <field name="has_move_ids" column_invisible="1"/>-->
+                        <!-- Keep original date fields hidden for filtering/sorting -->
+                        <field name="scheduled_date" column_invisible="1"/>
+                        <field name="date_done" column_invisible="1"/>
 
                     </list>
                 </xpath>

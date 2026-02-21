@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <!-- No view overrides needed - filter bar is injected via OWL template patch -->
-</odoo>

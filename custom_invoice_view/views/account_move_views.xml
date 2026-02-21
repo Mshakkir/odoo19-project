@@ -17,7 +17,7 @@
 
                     <!-- YOUR REQUESTED ORDER -->
                     <!-- 1. Invoice Date -->
-                    <field name="invoice_date" string="Invoice Date" width="90px"/>
+                    <field name="invoice_date" string="Invoice Date" widget="date" options='{"format": "DD/MM/YYYY"}' width="110px"/>
 
                     <!-- 2. Invoice Number -->
                     <field name="name" string="Invoice Number" readonly="1" width="135px"/>
@@ -44,7 +44,7 @@
                     <field name="amount_residual" string="Amount Due" sum="Total Due" width="110px"/>
 
                     <!-- 10. Due Date -->
-                    <field name="invoice_date_due" string="Due Date" width="100px"/>
+                    <field name="invoice_date_due" string="Due Date" widget="date" options='{"format": "DD/MM/YYYY"}' width="110px"/>
 
                     <!-- 11. AWB Number (Shipping Ref) -->
                     <field name="awb_number" string="Shipping Ref #" width="110px"/>
@@ -74,7 +74,7 @@
                     <field name="amount_tax" string="Tax" sum="Total Tax" optional="hide" width="100px"/>
 
                     <!-- 17. Accounting Date -->
-                    <field name="date" string="Accounting Date" optional="hide" width="120px"/>
+                    <field name="date" string="Accounting Date" widget="date" options='{"format": "DD/MM/YYYY"}' optional="hide" width="120px"/>
 
                     <!-- 18. Journal -->
                     <field name="journal_id" string="Journal" optional="hide" width="120px"/>
@@ -126,7 +126,7 @@
                     <field name="activity_type_id" string="Next Activity Type" optional="hide" width="140px"/>
 
                     <!-- 33. Activity Date -->
-                    <field name="activity_date_deadline" string="Next Activity Deadline" optional="hide" width="150px"/>
+                    <field name="activity_date_deadline" string="Next Activity Deadline" widget="date" options='{"format": "DD/MM/YYYY"}' optional="hide" width="150px"/>
 
                     <!-- 34. Activity Summary -->
                     <field name="activity_summary" string="Activity Summary" optional="hide" width="150px"/>

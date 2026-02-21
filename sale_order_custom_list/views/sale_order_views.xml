@@ -17,9 +17,8 @@
                           decoration-muted="state == 'cancel'"
                           multi_edit="1">
 
-                        <!-- YOUR REQUESTED ORDER -->
-                        <!-- 1. Order Date -->
-                        <field name="date_order" string="Order Date" width="110px"/>
+                        <!-- 1. Order Date (formatted DD/MM/YYYY) -->
+                        <field name="date_order_formatted" string="Order Date" width="110px"/>
 
                         <!-- 2. Number (Order Reference) -->
                         <field name="name" string="Number" readonly="1" width="130px"/>
@@ -30,19 +29,17 @@
                         <!-- 4. Warehouse -->
                         <field name="warehouse_id" string="Warehouse" optional="show" groups="stock.group_stock_multi_warehouses" width="120px"/>
 
-                        <!-- 5. Customer Reference (Source Document) -->
+                        <!-- 5. Customer Reference -->
                         <field name="client_order_ref" string="Customer Reference" optional="show" width="130px"/>
 
                         <!-- 6. Salesperson -->
                         <field name="user_id" string="Salesperson" optional="show" widget="many2one_avatar_user" width="130px"/>
 
-                        <!-- 7. Total (Taxed Amount) -->
+                        <!-- 7. Total -->
                         <field name="amount_total" string="Total" optional="show" sum="Total" width="120px"/>
 
                         <!-- 8. Source Document -->
                         <field name="origin" string="Source Document" optional="hide" width="130px"/>
-
-                        <!-- ADDITIONAL DEFAULT ODOO FIELDS -->
 
                         <!-- 9. Status -->
                         <field name="state" string="Status" optional="show" widget="badge"
@@ -63,11 +60,11 @@
                         <!-- 12. Tax -->
                         <field name="amount_tax" string="Tax" sum="Total Tax" optional="hide" width="100px"/>
 
-                        <!-- 13. Delivery Date -->
-                        <field name="commitment_date" string="Delivery Date" optional="hide" width="120px"/>
+                        <!-- 13. Delivery Date (formatted DD/MM/YYYY) -->
+                        <field name="commitment_date_formatted" string="Delivery Date" optional="hide" width="120px"/>
 
-                        <!-- 14. Expiration -->
-                        <field name="validity_date" string="Expiration" optional="hide" width="110px"/>
+                        <!-- 14. Expiration (formatted DD/MM/YYYY) -->
+                        <field name="validity_date_formatted" string="Expiration" optional="hide" width="110px"/>
 
                         <!-- 15. Pricelist -->
                         <field name="pricelist_id" string="Pricelist" optional="hide" groups="product.group_sale_pricelist" width="120px"/>
@@ -160,6 +157,10 @@
 
                         <!-- Hidden technical fields -->
                         <field name="invoice_count" column_invisible="1"/>
+                        <!-- Keep original date fields hidden for filtering/sorting -->
+                        <field name="date_order" column_invisible="1"/>
+                        <field name="validity_date" column_invisible="1"/>
+                        <field name="commitment_date" column_invisible="1"/>
 
                     </list>
                 </xpath>
@@ -169,11 +170,3 @@
 
     </data>
 </odoo>
-
-
-
-
-
-
-
-

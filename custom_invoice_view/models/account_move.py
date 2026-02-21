@@ -12,6 +12,30 @@ class AccountMove(models.Model):
         store=True,
     )
 
+    invoice_date_formatted = fields.Char(
+        string='Invoice Date',
+        compute='_compute_formatted_dates',
+        store=False,
+    )
+
+    invoice_date_due_formatted = fields.Char(
+        string='Due Date',
+        compute='_compute_formatted_dates',
+        store=False,
+    )
+
+    @api.depends('invoice_date', 'invoice_date_due')
+    def _compute_formatted_dates(self):
+        for move in self:
+            move.invoice_date_formatted = (
+                move.invoice_date.strftime('%d/%m/%Y')
+                if move.invoice_date else ''
+            )
+            move.invoice_date_due_formatted = (
+                move.invoice_date_due.strftime('%d/%m/%Y')
+                if move.invoice_date_due else ''
+            )
+
     @api.depends('invoice_line_ids', 'invoice_line_ids.analytic_distribution')
     def _compute_analytic_account_id(self):
         """

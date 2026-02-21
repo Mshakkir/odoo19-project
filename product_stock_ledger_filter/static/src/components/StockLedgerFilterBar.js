@@ -3,7 +3,7 @@
 import { Component, useState, onMounted, onWillUnmount } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
-import { listView } from "@web/views/list/list_view";
+import { patch } from "@web/core/utils/patch";
 import { ListController } from "@web/views/list/list_controller";
 
 // ── Build domain from filter state ───────────────────────────────────────────
@@ -20,7 +20,7 @@ function buildDomain(f) {
 }
 
 // ── OWL Filter Bar Component ──────────────────────────────────────────────────
-class StockLedgerFilterBar extends Component {
+export class StockLedgerFilterBar extends Component {
     static template = "product_stock_ledger_filter.FilterBar";
     static props = {
         onApply: Function,
@@ -40,8 +40,7 @@ class StockLedgerFilterBar extends Component {
         });
 
         this._onKey = (ev) => {
-            // Only trigger if no modal/dialog is open
-            if (document.querySelector(".modal.show")) return;
+            if (document.querySelector(".modal.show, .o_dialog")) return;
             if (ev.key === "Enter")  this.apply();
             if (ev.key === "Escape") this.clear();
         };
@@ -63,47 +62,39 @@ class StockLedgerFilterBar extends Component {
     }
 }
 
-// ── Custom List Controller ────────────────────────────────────────────────────
-class StockLedgerListController extends ListController {
-    static components = {
-        ...ListController.components,
-        StockLedgerFilterBar,
-    };
-    static template = "product_stock_ledger_filter.StockLedgerListController";
+// ── Register component so template can reference it ───────────────────────────
+registry.category("owl_components").add("StockLedgerFilterBar", StockLedgerFilterBar);
 
+// ── Patch ListController ──────────────────────────────────────────────────────
+patch(ListController.prototype, {
     setup() {
         super.setup(...arguments);
+
+        if (this.model?.config?.resModel !== "product.stock.ledger") return;
+
         this.orm = useService("orm");
-        this.warehouses = useState({ list: [] });
+        this.slWarehouses = useState({ list: [] });
         this._loadWarehouses();
-    }
+    },
 
     async _loadWarehouses() {
         try {
             const rows = await this.orm.searchRead(
                 "stock.warehouse", [], ["id", "name"], { limit: 200 }
             );
-            this.warehouses.list = rows;
+            this.slWarehouses.list = rows;
         } catch (_) {
-            this.warehouses.list = [];
+            this.slWarehouses.list = [];
         }
-    }
+    },
 
-    onFilterApply(domain) {
+    onSLFilterApply(domain) {
         this.model.root.domain = domain;
         this.model.root.load().then(() => this.model.notify());
-    }
+    },
 
-    onFilterClear() {
+    onSLFilterClear() {
         this.model.root.domain = [];
         this.model.root.load().then(() => this.model.notify());
-    }
-}
-
-// ── Register as a named view type ────────────────────────────────────────────
-registry.category("views").add("stock_ledger_list", {
-    ...listView,
-    Controller: StockLedgerListController,
+    },
 });
-
-export { StockLedgerFilterBar, StockLedgerListController };

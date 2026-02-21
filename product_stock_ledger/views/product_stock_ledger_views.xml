@@ -7,24 +7,21 @@
         <field name="model">product.stock.ledger</field>
         <field name="arch" type="xml">
             <list string="Product Stock Ledger"
-                  create="false" edit="false" delete="false"
-                  decoration-success="move_type == 'IN'"
-                  decoration-danger="move_type == 'OUT'"
-                  decoration-muted="move_type == 'INT'">
+                  create="false" edit="false" delete="false">
 
-                <field name="product_id"     string="Product"        width="100px" optional="show"/>
-                <field name="warehouse_id"   string="Warehouse"      width="120px" optional="show"/>
-                <field name="date"           string="Date"           widget="date" width="110px" optional="show"/>
-                <field name="voucher"        string="Voucher"        width="130px" optional="show"/>
-                <field name="particulars"    string="Particulars"    width="260px" optional="show"/>
-                <field name="move_type"      string="Type"           width="90px"  optional="show"/>
-                <field name="rec_qty"        string="Rec. Qty"       sum="Total Received" width="90px" optional="show"/>
-                <field name="rec_rate"       string="Rec. Rate"      width="90px"  optional="show"/>
-                <field name="issue_qty"      string="Issue Qty"      sum="Total Issued"   width="90px" optional="show"/>
-                <field name="issue_rate"     string="Issue Rate"     width="90px"  optional="show"/>
-                <field name="balance"        string="Balance"        width="90px"  optional="show"/>
-                <field name="uom"            string="Unit"           width="60px"  optional="show"/>
-                <field name="invoice_status" string="Invoice Status" width="110px" optional="show"/>
+                <field name="product_id"     string="Product"        optional="show"/>
+                <field name="warehouse_id"   string="Warehouse"      optional="show"/>
+                <field name="date"           string="Date"           optional="show"/>
+                <field name="voucher"        string="Voucher"        optional="show"/>
+                <field name="particulars"    string="Particulars"    optional="show"/>
+                <field name="move_type"      string="Type"           optional="show"/>
+                <field name="rec_qty"        string="Rec. Qty"       sum="Total Received" optional="show"/>
+                <field name="rec_rate"       string="Rec. Rate"      optional="show"/>
+                <field name="issue_qty"      string="Issue Qty"      sum="Total Issued"   optional="show"/>
+                <field name="issue_rate"     string="Issue Rate"     optional="show"/>
+                <field name="balance"        string="Balance"        optional="show"/>
+                <field name="uom"            string="Unit"           optional="show"/>
+                <field name="invoice_status" string="Invoice Status" optional="show"/>
 
             </list>
         </field>
@@ -48,3 +45,63 @@
     </record>
 
 </odoo>
+
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+
+<!--    &lt;!&ndash; LIST VIEW &ndash;&gt;-->
+<!--    <record id="view_product_stock_ledger_list" model="ir.ui.view">-->
+<!--        <field name="name">product.stock.ledger.list</field>-->
+<!--        <field name="model">product.stock.ledger</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <list string="Product Stock Ledger"-->
+<!--                  create="false" edit="false" delete="false"-->
+<!--                  decoration-success="move_type == 'IN'"-->
+<!--                  decoration-danger="move_type == 'OUT'"-->
+<!--                  decoration-muted="move_type == 'INT'">-->
+
+<!--                <field name="product_id"     string="Product"        width="100px" optional="show"/>-->
+<!--                <field name="warehouse_id"   string="Warehouse"      width="120px" optional="show"/>-->
+<!--                <field name="date"           string="Date"           widget="date" width="110px" optional="show"/>-->
+<!--                <field name="voucher"        string="Voucher"        width="130px" optional="show"/>-->
+<!--                <field name="particulars"    string="Particulars"    width="260px" optional="show"/>-->
+<!--                <field name="move_type"      string="Type"           width="90px"  optional="show"/>-->
+<!--                <field name="rec_qty"        string="Rec. Qty"       sum="Total Received" width="90px" optional="show"/>-->
+<!--                <field name="rec_rate"       string="Rec. Rate"      width="90px"  optional="show"/>-->
+<!--                <field name="issue_qty"      string="Issue Qty"      sum="Total Issued"   width="90px" optional="show"/>-->
+<!--                <field name="issue_rate"     string="Issue Rate"     width="90px"  optional="show"/>-->
+<!--                <field name="balance"        string="Balance"        width="90px"  optional="show"/>-->
+<!--                <field name="uom"            string="Unit"           width="60px"  optional="show"/>-->
+<!--                <field name="invoice_status" string="Invoice Status" width="110px" optional="show"/>-->
+
+<!--            </list>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; WINDOW ACTION &ndash;&gt;-->
+<!--    <record id="action_product_stock_ledger_window" model="ir.actions.act_window">-->
+<!--        <field name="name">Product Stock Ledger</field>-->
+<!--        <field name="res_model">product.stock.ledger</field>-->
+<!--        <field name="view_mode">list</field>-->
+<!--        <field name="view_id" ref="view_product_stock_ledger_list"/>-->
+<!--        <field name="help" type="html">-->
+<!--            <p class="o_view_nocontent_smiling_face">-->
+<!--                No stock movements found.-->
+<!--            </p>-->
+<!--            <p>-->
+<!--                This ledger shows all confirmed stock moves with received quantity,-->
+<!--                issued quantity, and running balance per product and warehouse.-->
+<!--            </p>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--</odoo>-->

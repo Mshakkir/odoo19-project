@@ -10,7 +10,7 @@
                   create="false" edit="false" delete="false"
                   default_order="date desc">
 
-<!--                <field name="date"           invisible="1"/>-->
+
                 <field name="product_id"     string="Product"        optional="show" width="230px"/>
                 <field name="warehouse_id"   string="Warehouse"      optional="show" width="100px"/>
                 <field name="date_str"       string="Date"           optional="show" width="100px"/>

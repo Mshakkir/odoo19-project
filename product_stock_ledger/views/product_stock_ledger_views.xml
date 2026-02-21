@@ -7,21 +7,25 @@
         <field name="model">product.stock.ledger</field>
         <field name="arch" type="xml">
             <list string="Product Stock Ledger"
-                  create="false" edit="false" delete="false">
+                  create="false" edit="false" delete="false"
+                  default_order="date desc">
 
-                <field name="product_id"     string="Product"        optional="show"/>
-                <field name="warehouse_id"   string="Warehouse"      optional="show"/>
-                <field name="date"           string="Date"           optional="show"/>
-                <field name="voucher"        string="Voucher"        optional="show"/>
-                <field name="particulars"    string="Particulars"    optional="show"/>
-                <field name="move_type"      string="Type"           optional="show"/>
-                <field name="rec_qty"        string="Rec. Qty"       sum="Total Received" optional="show"/>
-                <field name="rec_rate"       string="Rec. Rate"      optional="show"/>
-                <field name="issue_qty"      string="Issue Qty"      sum="Total Issued"   optional="show"/>
-                <field name="issue_rate"     string="Issue Rate"     optional="show"/>
-                <field name="balance"        string="Balance"        optional="show"/>
-                <field name="uom"            string="Unit"           optional="show"/>
-                <field name="invoice_status" string="Invoice Status" optional="show"/>
+                <field name="product_id"     string="Product"        optional="show" width="200px"/>
+                <field name="warehouse_id"   string="Warehouse"      optional="show" width="100px"/>
+                <field name="date"           string="Date"           optional="show" width="120px"
+                                             widget="date" options="{'format': 'dd/MM/yy'}"/>
+                <field name="voucher"        string="Voucher"        optional="show" width="140px"/>
+                <field name="particulars"    string="Particulars"    optional="show" width="200px"/>
+                <field name="move_type"      string="Type"           optional="show" width="60px"/>
+                <field name="rec_qty"        string="Rec. Qty"       optional="show" width="90px"
+                                             sum="Total Received"/>
+                <field name="rec_rate"       string="Rec. Rate"      optional="show" width="90px"/>
+                <field name="issue_qty"      string="Issue Qty"      optional="show" width="90px"
+                                             sum="Total Issued"/>
+                <field name="issue_rate"     string="Issue Rate"     optional="show" width="90px"/>
+                <field name="balance"        string="Balance"        optional="show" width="90px"/>
+                <field name="uom"            string="Unit"           optional="show" width="60px"/>
+                <field name="invoice_status" string="Invoice Status" optional="show" width="120px"/>
 
             </list>
         </field>
@@ -33,6 +37,7 @@
         <field name="res_model">product.stock.ledger</field>
         <field name="view_mode">list</field>
         <field name="view_id" ref="view_product_stock_ledger_list"/>
+        <field name="context">{'search_default_group_date': 0}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No stock movements found.
@@ -55,6 +60,11 @@
 
 
 
+
+
+
+
+
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 
@@ -64,24 +74,21 @@
 <!--        <field name="model">product.stock.ledger</field>-->
 <!--        <field name="arch" type="xml">-->
 <!--            <list string="Product Stock Ledger"-->
-<!--                  create="false" edit="false" delete="false"-->
-<!--                  decoration-success="move_type == 'IN'"-->
-<!--                  decoration-danger="move_type == 'OUT'"-->
-<!--                  decoration-muted="move_type == 'INT'">-->
+<!--                  create="false" edit="false" delete="false">-->
 
-<!--                <field name="product_id"     string="Product"        width="100px" optional="show"/>-->
-<!--                <field name="warehouse_id"   string="Warehouse"      width="120px" optional="show"/>-->
-<!--                <field name="date"           string="Date"           widget="date" width="110px" optional="show"/>-->
-<!--                <field name="voucher"        string="Voucher"        width="130px" optional="show"/>-->
-<!--                <field name="particulars"    string="Particulars"    width="260px" optional="show"/>-->
-<!--                <field name="move_type"      string="Type"           width="90px"  optional="show"/>-->
-<!--                <field name="rec_qty"        string="Rec. Qty"       sum="Total Received" width="90px" optional="show"/>-->
-<!--                <field name="rec_rate"       string="Rec. Rate"      width="90px"  optional="show"/>-->
-<!--                <field name="issue_qty"      string="Issue Qty"      sum="Total Issued"   width="90px" optional="show"/>-->
-<!--                <field name="issue_rate"     string="Issue Rate"     width="90px"  optional="show"/>-->
-<!--                <field name="balance"        string="Balance"        width="90px"  optional="show"/>-->
-<!--                <field name="uom"            string="Unit"           width="60px"  optional="show"/>-->
-<!--                <field name="invoice_status" string="Invoice Status" width="110px" optional="show"/>-->
+<!--                <field name="product_id"     string="Product"        optional="show"/>-->
+<!--                <field name="warehouse_id"   string="Warehouse"      optional="show"/>-->
+<!--                <field name="date"           string="Date"           optional="show"/>-->
+<!--                <field name="voucher"        string="Voucher"        optional="show"/>-->
+<!--                <field name="particulars"    string="Particulars"    optional="show"/>-->
+<!--                <field name="move_type"      string="Type"           optional="show"/>-->
+<!--                <field name="rec_qty"        string="Rec. Qty"       sum="Total Received" optional="show"/>-->
+<!--                <field name="rec_rate"       string="Rec. Rate"      optional="show"/>-->
+<!--                <field name="issue_qty"      string="Issue Qty"      sum="Total Issued"   optional="show"/>-->
+<!--                <field name="issue_rate"     string="Issue Rate"     optional="show"/>-->
+<!--                <field name="balance"        string="Balance"        optional="show"/>-->
+<!--                <field name="uom"            string="Unit"           optional="show"/>-->
+<!--                <field name="invoice_status" string="Invoice Status" optional="show"/>-->
 
 <!--            </list>-->
 <!--        </field>-->
@@ -105,3 +112,6 @@
 <!--    </record>-->
 
 <!--</odoo>-->
+
+
+

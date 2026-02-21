@@ -1,12 +1,10 @@
 /** @odoo-module **/
 
 import { Component, useState, onMounted, onWillUnmount } from "@odoo/owl";
-import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { patch } from "@web/core/utils/patch";
 import { ListRenderer } from "@web/views/list/list_renderer";
 
-// ── Filter Bar Component ──────────────────────────────────────────────────────
 class StockLedgerFilterBar extends Component {
     static template = "product_stock_ledger.FilterBar";
     static props = { model: Object };
@@ -51,7 +49,11 @@ class StockLedgerFilterBar extends Component {
         this.state.product = q;
         this.state.productId = null;
         clearTimeout(this._acTimer);
-        if (!q.trim()) { this.state.acResults = []; this.state.acVisible = false; return; }
+        if (!q.trim()) {
+            this.state.acResults = [];
+            this.state.acVisible = false;
+            return;
+        }
         this._acTimer = setTimeout(async () => {
             try {
                 const res = await this.orm.searchRead(
@@ -61,11 +63,12 @@ class StockLedgerFilterBar extends Component {
                     { limit: 20, order: "default_code asc, name asc" }
                 );
                 this.state.acResults = res;
-                this.state.acVisible = !!res.length;
-            } catch(_) {}
+                this.state.acVisible = res.length > 0;
+            } catch (_) {}
         }, 280);
     }
 
+    // ✅ Fix 1: bound method instead of arrow in template
     selectProduct(p) {
         this.state.product = p.display_name;
         this.state.productId = p.id;
@@ -73,7 +76,9 @@ class StockLedgerFilterBar extends Component {
         this.state.acResults = [];
     }
 
-    hideAc() { setTimeout(() => { this.state.acVisible = false; }, 180); }
+    hideAc() {
+        setTimeout(() => { this.state.acVisible = false; }, 180);
+    }
 
     _buildDomain() {
         const s = this.state;
@@ -89,23 +94,41 @@ class StockLedgerFilterBar extends Component {
         return d;
     }
 
-    apply() {
-        const model = this.props.model;
+    // ✅ Fix 2: use model.load({domain}) instead of setting model.root.domain directly
+    async apply() {
         const domain = this._buildDomain();
-        model.root.domain = domain;
-        model.root.load().then(() => model.notify());
+        try {
+            await this.props.model.load({ domain });
+            this.props.model.notify();
+        } catch (e) {
+            // fallback: try root.load
+            try {
+                await this.props.model.root.load({ domain });
+                this.props.model.notify();
+            } catch (e2) {
+                console.warn("[SLFilter] apply failed:", e2);
+            }
+        }
     }
 
-    clear() {
+    async clear() {
         Object.assign(this.state, {
             product: "", productId: null, warehouseId: "",
             dateFrom: "", dateTo: "", voucher: "",
             moveType: "", invoiceStatus: "",
             acVisible: false, acResults: [],
         });
-        const model = this.props.model;
-        model.root.domain = [];
-        model.root.load().then(() => model.notify());
+        try {
+            await this.props.model.load({ domain: [] });
+            this.props.model.notify();
+        } catch (e) {
+            try {
+                await this.props.model.root.load({ domain: [] });
+                this.props.model.notify();
+            } catch (e2) {
+                console.warn("[SLFilter] clear failed:", e2);
+            }
+        }
     }
 
     _onKey(ev) {
@@ -122,9 +145,7 @@ class StockLedgerFilterBar extends Component {
     }
 }
 
-// ── CRITICAL: Patch ListRenderer to declare StockLedgerFilterBar ──────────────
-// OWL requires components used in a template to be in `static components` of
-// the rendering component. We patch ListRenderer to add it there.
+// ✅ Patch ListRenderer.components so OWL template can find the component
 patch(ListRenderer, {
     components: {
         ...ListRenderer.components,

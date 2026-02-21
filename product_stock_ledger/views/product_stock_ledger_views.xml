@@ -12,7 +12,7 @@
                   decoration-danger="move_type == 'OUT'"
                   decoration-muted="move_type == 'INT'">
 
-                <field name="product_id"     string="Product"        width="180px" optional="show"/>
+                <field name="product_id"     string="Product"        width="100px" optional="show"/>
                 <field name="warehouse_id"   string="Warehouse"      width="120px" optional="show"/>
                 <field name="date"           string="Date"           widget="date" width="110px" optional="show"/>
                 <field name="voucher"        string="Voucher"        width="130px" optional="show"/>

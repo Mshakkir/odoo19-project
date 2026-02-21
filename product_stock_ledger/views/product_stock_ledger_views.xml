@@ -10,10 +10,10 @@
                   create="false" edit="false" delete="false"
                   default_order="date desc">
 
-                <field name="date"           invisible="1"/>
+<!--                <field name="date"           invisible="1"/>-->
                 <field name="product_id"     string="Product"        optional="show" width="230px"/>
                 <field name="warehouse_id"   string="Warehouse"      optional="show" width="100px"/>
-                <field name="date_str"       string="Date"           optional="show" width="120px"/>
+                <field name="date_str"       string="Date"           optional="show" width="100px"/>
                 <field name="voucher"        string="Voucher"        optional="show" width="200px"/>
                 <field name="particulars"    string="Particulars"    optional="show" width="250px"/>
                 <field name="move_type"      string="Type"           optional="show" width="60px"/>

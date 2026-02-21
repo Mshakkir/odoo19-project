@@ -1,0 +1,124 @@
+/* ── Stock Ledger Filter Bar ────────────────────────────────────── */
+
+.o_sl_filter_bar {
+    width: 100%;
+    background: #f0f1f3;
+    border-bottom: 1px solid #d0d4d9;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.slf-wrap {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 7px 16px;
+}
+
+.slf-field        { display:flex; align-items:center; flex:1; min-width:110px; }
+.slf-prod-field   { flex:2; min-width:160px; position:relative; }
+.slf-sm-field     { flex:0 0 85px; min-width:80px; }
+.slf-md-field     { flex:0 0 130px; min-width:120px; }
+
+.slf-date-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1.5;
+    min-width: 220px;
+}
+.slf-date  { flex:1; }
+.slf-arrow { color:#999; font-size:12px; flex-shrink:0; }
+
+/* Inputs */
+.slf-input {
+    width: 100%;
+    height: 28px;
+    padding: 3px 8px;
+    font-size: 12.5px;
+    border: 1px solid #c8cdd3;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+}
+.slf-input:focus {
+    border-color: #017e84;
+    box-shadow: 0 0 0 2px rgba(1,126,132,.15);
+}
+select.slf-input {
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23666'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 20px;
+}
+
+/* Autocomplete */
+.slf-autocomplete {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: #fff;
+    border: 1px solid #c8cdd3;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    max-height: 220px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,.12);
+}
+.slf-ac-item {
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.slf-ac-item:hover { background: #f0f7ff; }
+.slf-ac-item:last-child { border-bottom: none; }
+.slf-badge {
+    background: #e9ecef;
+    color: #495057;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Buttons */
+.slf-actions { display:flex; gap:5px; flex-shrink:0; }
+.slf-btn {
+    height: 28px;
+    padding: 0 12px;
+    font-size: 12.5px;
+    font-weight: 600;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: background .15s;
+    white-space: nowrap;
+}
+.slf-btn-apply { background:#017e84; color:#fff; }
+.slf-btn-apply:hover { background:#015f64; }
+.slf-btn-clear { background:#e9ecef; color:#555; border:1px solid #c8cdd3; }
+.slf-btn-clear:hover { background:#dee2e6; }
+.slf-btn kbd {
+    font-size: 10px; padding: 1px 3px; border-radius: 3px;
+    background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.35);
+    font-family: inherit; color: inherit;
+}
+.slf-btn-clear kbd { background:rgba(0,0,0,.07); border-color:rgba(0,0,0,.12); }

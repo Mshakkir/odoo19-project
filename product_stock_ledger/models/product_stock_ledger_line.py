@@ -1,178 +1,297 @@
 # product_stock_ledger/models/product_stock_ledger_line.py
-from odoo import fields, models, tools
+from odoo import fields, models, api
+from datetime import datetime
 
 
 class ProductStockLedgerLine(models.Model):
     _name = 'product.stock.ledger.line'
-    _description = 'Product Stock Ledger (Live View)'
-    _auto = False          # no real table — backed by a PostgreSQL view
-    _order = 'date asc, move_id asc'
+    _description = 'Product Stock Ledger Lines'
+    _order = 'date asc'
 
-    # ── Fields ───────────────────────────────────────────────────────────────
-    move_id        = fields.Many2one('stock.move',      string='Move',      readonly=True)
-    product_id     = fields.Many2one('product.product', string='Product',   readonly=True)
-    warehouse_id   = fields.Many2one('stock.warehouse', string='Warehouse', readonly=True)
-    date           = fields.Date(string='Date',         readonly=True)
-    voucher        = fields.Char(string='Voucher',      readonly=True)
-    particulars    = fields.Char(string='Particulars',  readonly=True)
-    move_type      = fields.Char(string='Type',         readonly=True)
-    rec_qty        = fields.Float(string='Rec. Qty',    readonly=True)
-    rec_rate       = fields.Float(string='Rec. Rate',   readonly=True)
-    issue_qty      = fields.Float(string='Issue Qty',   readonly=True)
-    issue_rate     = fields.Float(string='Issue Rate',  readonly=True)
-    balance        = fields.Float(string='Balance',     readonly=True)
-    uom            = fields.Char(string='Unit',         readonly=True)
-    invoice_status = fields.Char(string='Invoice Status', readonly=True)
+    product_id = fields.Many2one('product.product', string='Product')
+    warehouse_id = fields.Many2one('stock.warehouse', string='Warehouse')
+    date = fields.Datetime(string='Date')
+    voucher = fields.Char(string='Voucher')
+    particulars = fields.Char(string='Particulars')
+    type = fields.Char(string='Type')
+    rec_qty = fields.Float(string='Rec. Qty')
+    rec_rate = fields.Float(string='Rec. Rate')
+    issue_qty = fields.Float(string='Issue Qty')
+    issue_rate = fields.Float(string='Issue Rate')
+    balance = fields.Float(string='Balance')
+    uom = fields.Char(string='Unit')
+    invoice_status = fields.Char(string='Invoice Status')
 
-    # ── SQL view ─────────────────────────────────────────────────────────────
-    def init(self):
-        # Drop old table if upgrading from stored-table version
-        self.env.cr.execute("""
-            DO $$ BEGIN
-                IF EXISTS (
-                    SELECT 1 FROM pg_class c
-                    JOIN pg_namespace n ON n.oid = c.relnamespace
-                    WHERE c.relname = 'product_stock_ledger_line' AND c.relkind = 'r'
-                ) THEN
-                    DROP TABLE product_stock_ledger_line CASCADE;
-                END IF;
-            END $$;
-        """)
-        tools.drop_view_if_exists(self.env.cr, self._table)
-        self.env.cr.execute("""
-            CREATE OR REPLACE VIEW %s AS (
+    def _get_invoice_status(self, move):
+        """Determine invoice status based on move type and related documents."""
+        status = 'Not Invoiced'
 
-            WITH
+        if move.picking_id:
+            picking = move.picking_id
 
-            /* 1. Classify every done stock move */
-            classified AS (
-                SELECT
-                    sm.id                                           AS move_id,
-                    sm.product_id,
-                    sm.date::date                                   AS date,
-                    COALESCE(sm.reference, sp.name, '')             AS voucher,
-                    sm.product_uom_qty                              AS qty,
+            # For incoming moves (Purchase)
+            if picking.picking_type_code == 'incoming':
+                po_lines = self.env['purchase.order.line'].search([
+                    ('move_ids', '=', move.id)
+                ])
 
-                    /* direction based on location usage */
-                    CASE
-                        WHEN dest.usage = 'internal'
-                         AND src.usage  <> 'internal'   THEN 'incoming'
-                        WHEN src.usage  = 'internal'
-                         AND dest.usage <> 'internal'   THEN 'outgoing'
-                        ELSE                                 'internal'
-                    END                                             AS move_type,
+                if po_lines:
+                    po = po_lines[0].order_id
+                    if po.invoice_status == 'invoiced':
+                        status = 'Invoiced'
+                    elif po.invoice_status == 'to invoice':
+                        status = 'To Invoice'
+                    else:
+                        status = 'Not Invoiced'
+                else:
+                    if picking.origin:
+                        purchase_orders = self.env['purchase.order'].search([
+                            ('name', '=', picking.origin)
+                        ])
+                        if purchase_orders:
+                            po = purchase_orders[0]
+                            if po.invoice_status == 'invoiced':
+                                status = 'Invoiced'
+                            elif po.invoice_status == 'to invoice':
+                                status = 'To Invoice'
+                            else:
+                                status = 'Not Invoiced'
+                    else:
+                        bill_lines = self.env['account.move.line'].search([
+                            ('move_id.move_type', 'in', ['in_invoice', 'in_refund']),
+                            ('move_id.state', '=', 'posted'),
+                            ('product_id', '=', move.product_id.id),
+                        ], limit=1)
+                        status = 'Invoiced' if bill_lines else 'Not Invoiced'
 
-                    /* warehouse: prefer dest location, fall back to src */
-                    COALESCE(
-                        (SELECT sw.id FROM stock_warehouse sw
-                          WHERE dest.complete_name LIKE sw.code || '/%%'
-                             OR dest.id = sw.lot_stock_id
-                          LIMIT 1),
-                        (SELECT sw.id FROM stock_warehouse sw
-                          WHERE src.complete_name LIKE sw.code || '/%%'
-                             OR src.id = sw.lot_stock_id
-                          LIMIT 1)
-                    )                                               AS warehouse_id,
+            # For outgoing moves (Sales)
+            elif picking.picking_type_code == 'outgoing':
+                so_lines = self.env['sale.order.line'].search([
+                    ('move_ids', '=', move.id)
+                ])
 
-                    /* particulars: partner + route */
-                    CONCAT(
-                        COALESCE(rp.name || ' - ', ''),
-                        src.complete_name, ' → ', dest.complete_name
-                    )                                               AS particulars,
+                if so_lines:
+                    so = so_lines[0].order_id
+                    if so.invoice_status == 'invoiced':
+                        status = 'Invoiced'
+                    elif so.invoice_status == 'to invoice':
+                        status = 'To Invoice'
+                    else:
+                        status = 'Not Invoiced'
+                else:
+                    if picking.origin:
+                        sales_orders = self.env['sale.order'].search([
+                            ('name', '=', picking.origin)
+                        ])
+                        if sales_orders:
+                            so = sales_orders[0]
+                            if so.invoice_status == 'invoiced':
+                                status = 'Invoiced'
+                            elif so.invoice_status == 'to invoice':
+                                status = 'To Invoice'
+                            else:
+                                status = 'Not Invoiced'
+                    else:
+                        invoice_lines = self.env['account.move.line'].search([
+                            ('move_id.move_type', 'in', ['out_invoice', 'out_refund']),
+                            ('move_id.state', '=', 'posted'),
+                            ('product_id', '=', move.product_id.id),
+                        ], limit=1)
+                        status = 'Invoiced' if invoice_lines else 'Not Invoiced'
 
-                    /* unit price — sm.price_unit only (standard_price is jsonb in v19) */
-                    COALESCE(sm.price_unit, 0.0)                   AS price_unit,
+            # For internal transfers
+            else:
+                status = 'Internal'
 
-                    /* uom */
-                    uu.name                                         AS uom,
+        return status
 
-                    /* picking context for invoice status */
-                    spt.code                                        AS picking_type_code,
-                    sm.purchase_line_id,
-                    sm.sale_line_id
+    def _get_warehouse_from_location(self, location):
+        """Get warehouse from location"""
+        if not location:
+            return False
 
-                FROM  stock_move          sm
-                JOIN  stock_location      src   ON src.id  = sm.location_id
-                JOIN  stock_location      dest  ON dest.id = sm.location_dest_id
-                JOIN  uom_uom             uu    ON uu.id   = sm.product_uom
-                LEFT JOIN stock_picking       sp   ON sp.id  = sm.picking_id
-                LEFT JOIN stock_picking_type  spt  ON spt.id = sp.picking_type_id
-                LEFT JOIN res_partner         rp   ON rp.id  = sp.partner_id
-                WHERE sm.state = 'done'
-            ),
+        # Try to find warehouse from location's warehouse_id
+        if hasattr(location, 'warehouse_id') and location.warehouse_id:
+            return location.warehouse_id
 
-            /* 2. Running balance per (product, warehouse) via window function */
-            with_balance AS (
-                SELECT
-                    c.*,
-                    SUM(
-                        CASE move_type
-                            WHEN 'incoming' THEN  qty
-                            WHEN 'outgoing' THEN -qty
-                            ELSE 0
-                        END
-                    ) OVER (
-                        PARTITION BY product_id, warehouse_id
-                        ORDER BY date, move_id
-                        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-                    )                                               AS balance
-                FROM classified c
+        # Search for warehouse that contains this location
+        warehouses = self.env['stock.warehouse'].search([])
+        for wh in warehouses:
+            if wh.view_location_id:
+                wh_locations = self.env['stock.location'].search([
+                    ('id', 'child_of', wh.view_location_id.id)
+                ])
+                if location.id in wh_locations.ids:
+                    return wh
+        return False
+
+    @api.model
+    def generate_ledger(self, product_id=None, warehouse_id=None, date_from=None, date_to=None):
+        """Generate stock ledger lines based on filters"""
+        domain = [('state', '=', 'done')]
+
+        if product_id:
+            domain.append(('product_id', '=', product_id))
+        if date_from:
+            domain.append(('date', '>=', date_from))
+        if date_to:
+            domain.append(('date', '<=', date_to))
+
+        wh = False
+        loc_ids = []
+        if warehouse_id:
+            wh = self.env['stock.warehouse'].browse(warehouse_id)
+            if wh.view_location_id:
+                loc_ids = self.env['stock.location'].search([
+                    ('id', 'child_of', wh.view_location_id.id)
+                ]).ids
+                domain += ['|', ('location_id', 'in', loc_ids), ('location_dest_id', 'in', loc_ids)]
+
+        moves = self.env['stock.move'].search(domain, order='date asc')
+
+        # Clear existing lines
+        self.search([]).unlink()
+
+        # Track balance per product-warehouse combination
+        balances = {}
+
+        lines_to_create = []
+        for mv in moves:
+            qty = mv.product_uom_qty or 0.0
+
+            # Determine warehouse for this move
+            move_warehouse = False
+            if warehouse_id:
+                move_warehouse = wh
+            else:
+                # Try to get warehouse from picking
+                if mv.picking_id and mv.picking_id.location_id:
+                    move_warehouse = self._get_warehouse_from_location(mv.picking_id.location_id)
+                if not move_warehouse and mv.picking_id and mv.picking_id.location_dest_id:
+                    move_warehouse = self._get_warehouse_from_location(mv.picking_id.location_dest_id)
+                # Fallback: try from move locations
+                if not move_warehouse:
+                    move_warehouse = self._get_warehouse_from_location(mv.location_dest_id)
+                if not move_warehouse:
+                    move_warehouse = self._get_warehouse_from_location(mv.location_id)
+
+            move_warehouse_id = move_warehouse.id if move_warehouse else False
+
+            # Create unique key for product-warehouse
+            key = (mv.product_id.id, move_warehouse_id)
+            if key not in balances:
+                balances[key] = 0.0
+
+            # Determine move type
+            if warehouse_id and wh and wh.view_location_id:
+                dest_in_wh = mv.location_dest_id.id in loc_ids
+                src_in_wh = mv.location_id.id in loc_ids
+
+                if dest_in_wh and not src_in_wh:
+                    move_type = 'incoming'
+                elif src_in_wh and not dest_in_wh:
+                    move_type = 'outgoing'
+                else:
+                    move_type = 'internal'
+            else:
+                if mv.location_dest_id.usage == 'internal' and mv.location_id.usage != 'internal':
+                    move_type = 'incoming'
+                elif mv.location_id.usage == 'internal' and mv.location_dest_id.usage != 'internal':
+                    move_type = 'outgoing'
+                else:
+                    move_type = 'internal'
+
+            # Determine rate
+            rate = 0.0
+            if move_type == 'incoming':
+                rate = getattr(mv, 'price_unit', 0.0) or mv.product_id.standard_price or 0.0
+            elif move_type == 'outgoing':
+                sale_line = False
+                if hasattr(mv, 'sale_line_id') and mv.sale_line_id:
+                    sale_line = mv.sale_line_id
+                elif mv.picking_id and mv.picking_id.origin:
+                    sale_line = self.env['sale.order.line'].search([
+                        ('order_id.name', '=', mv.picking_id.origin),
+                        ('product_id', '=', mv.product_id.id)
+                    ], limit=1)
+                if sale_line:
+                    rate = sale_line.price_unit
+                else:
+                    rate = mv.product_id.standard_price or 0.0
+            else:
+                rate = mv.product_id.standard_price or 0.0
+
+            # Calculate quantities
+            rec_qty = qty if move_type == 'incoming' else 0.0
+            issue_qty = qty if move_type == 'outgoing' else 0.0
+
+            if move_type == 'incoming':
+                balances[key] += rec_qty
+            elif move_type == 'outgoing':
+                balances[key] -= issue_qty
+
+            # Partner info
+            partner_name = (
+                    mv.partner_id.name
+                    or (mv.picking_id.partner_id.name if mv.picking_id and mv.picking_id.partner_id else '')
             )
+            particulars = f"{partner_name} - {mv.location_id.complete_name} → {mv.location_dest_id.complete_name}"
 
-            /* 3. Final output */
-            SELECT
-                wb.move_id                                          AS id,
-                wb.move_id,
-                wb.product_id,
-                wb.warehouse_id,
-                wb.date,
-                wb.voucher,
-                wb.particulars,
+            # Get invoice status
+            invoice_status = self._get_invoice_status(mv)
 
-                CASE wb.move_type
-                    WHEN 'incoming' THEN 'Receipts'
-                    WHEN 'outgoing' THEN 'Delivery'
-                    ELSE                 'Internal Transfer'
-                END                                                 AS move_type,
+            # Prepare line data
+            lines_to_create.append({
+                'product_id': mv.product_id.id,
+                'warehouse_id': move_warehouse_id,
+                'date': mv.date,
+                'voucher': mv.reference or mv.name or '',
+                'particulars': particulars,
+                'type': (
+                    'Receipts' if move_type == 'incoming'
+                    else 'Delivery' if move_type == 'outgoing'
+                    else 'Internal Transfer'
+                ),
+                'rec_qty': rec_qty,
+                'rec_rate': rate if rec_qty else 0.0,
+                'issue_qty': issue_qty,
+                'issue_rate': rate if issue_qty else 0.0,
+                'balance': balances[key],
+                'uom': mv.product_uom.name if mv.product_uom else mv.product_id.uom_id.name,
+                'invoice_status': invoice_status,
+            })
 
-                CASE WHEN wb.move_type = 'incoming' THEN wb.qty        ELSE 0 END AS rec_qty,
-                CASE WHEN wb.move_type = 'incoming' THEN wb.price_unit ELSE 0 END AS rec_rate,
-                CASE WHEN wb.move_type = 'outgoing' THEN wb.qty        ELSE 0 END AS issue_qty,
-                CASE WHEN wb.move_type = 'outgoing' THEN wb.price_unit ELSE 0 END AS issue_rate,
+        # Batch create all lines
+        if lines_to_create:
+            self.create(lines_to_create)
+        return True
 
-                wb.balance,
-                wb.uom,
+    def action_generate_all(self):
+        """Action to generate all ledger lines - called from button"""
+        self.generate_ledger()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Success',
+                'message': 'Stock Ledger Data Generated Successfully!',
+                'type': 'success',
+                'sticky': False,
+            }
+        }
 
-                /* Invoice status resolved from PO / SO */
-                CASE
-                    WHEN wb.picking_type_code = 'incoming' THEN
-                        CASE COALESCE(
-                            (SELECT po.invoice_status
-                               FROM purchase_order_line pol
-                               JOIN purchase_order po ON po.id = pol.order_id
-                              WHERE pol.id = wb.purchase_line_id
-                              LIMIT 1),
-                            'none')
-                            WHEN 'invoiced'   THEN 'Invoiced'
-                            WHEN 'to invoice' THEN 'To Invoice'
-                            ELSE                   'Not Invoiced'
-                        END
-                    WHEN wb.picking_type_code = 'outgoing' THEN
-                        CASE COALESCE(
-                            (SELECT so.invoice_status
-                               FROM sale_order_line sol
-                               JOIN sale_order so ON so.id = sol.order_id
-                              WHERE sol.id = wb.sale_line_id
-                              LIMIT 1),
-                            'none')
-                            WHEN 'invoiced'   THEN 'Invoiced'
-                            WHEN 'to invoice' THEN 'To Invoice'
-                            ELSE                   'Not Invoiced'
-                        END
-                    WHEN wb.picking_type_code = 'internal' THEN 'Internal'
-                    ELSE 'N/A'
-                END                                                 AS invoice_status
+    def action_refresh_ledger(self):
+        """Refresh ledger data"""
+        self.search([]).unlink()
+        self.generate_ledger()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Refreshed',
+                'message': 'Stock Ledger Data Refreshed Successfully!',
+                'type': 'success',
+                'sticky': False,
+            }
+        }
 
-            FROM with_balance wb
-            )
-        """ % self._table)

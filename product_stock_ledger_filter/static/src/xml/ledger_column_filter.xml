@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<templates xml:space="preserve">
-    <!-- Stock Ledger Column Filter Component Template -->
-    <t t-name="product_stock_ledger_filter.ColumnFilter">
-        <div class="ledger_column_filter_container">
-            <!-- Filter button and dropdown injected via JavaScript -->
-        </div>
-    </t>
-</templates>

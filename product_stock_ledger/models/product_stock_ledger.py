@@ -10,11 +10,12 @@ class ProductStockLedger(models.Model):
     _name = 'product.stock.ledger'
     _description = 'Product Stock Ledger'
     _auto = False
-    _order = 'product_id, date, id'
+    _order = 'date desc, id desc'
 
     product_id      = fields.Many2one('product.product', string='Product',         readonly=True)
     warehouse_id    = fields.Many2one('stock.warehouse',  string='Warehouse',       readonly=True)
-    date            = fields.Datetime(string='Date',      readonly=True)
+    date            = fields.Datetime(string='_Date_Raw',  readonly=True)
+    date_str        = fields.Char(string='Date',           readonly=True)
     voucher         = fields.Char(string='Voucher',       readonly=True)
     particulars     = fields.Char(string='Particulars',   readonly=True)
     move_type       = fields.Char(string='Type',          readonly=True)
@@ -175,6 +176,7 @@ ledger AS (
         sml.product_id                                       AS product_id,
         COALESCE(wh_src.warehouse_id, wh_dest.warehouse_id) AS warehouse_id,
         sm.date                                              AS date,
+        TO_CHAR(sm.date AT TIME ZONE 'UTC', 'DD/MM/YY')     AS date_str,
 
         COALESCE({so_name}, {po_name}, sp.name, sm.origin, {sm_ref}, '')
                                                              AS voucher,
@@ -297,10 +299,6 @@ SELECT * FROM ledger
 
 
 
-
-
-
-
 # from odoo import models, fields, tools
 # from odoo.exceptions import UserError
 #
@@ -308,8 +306,7 @@ SELECT * FROM ledger
 # class ProductStockLedger(models.Model):
 #     """
 #     SQL-backed read-only model (PostgreSQL VIEW).
-#     Compatible with Odoo 19 CE with or without stock_account / OdooMates accounting.
-#     Detects available tables/columns at install time and builds the VIEW accordingly.
+#     Compatible with Odoo 19 CE. Handles jsonb translated fields (name, complete_name).
 #     """
 #     _name = 'product.stock.ledger'
 #     _description = 'Product Stock Ledger'
@@ -353,23 +350,63 @@ SELECT * FROM ledger
 #         """, (table_name, col_name))
 #         return self.env.cr.fetchone()[0]
 #
+#     def _col_type(self, table_name, col_name):
+#         """Return the PostgreSQL data type of a column, or None if not found."""
+#         self.env.cr.execute("""
+#             SELECT data_type FROM information_schema.columns
+#             WHERE table_schema = 'public'
+#               AND table_name   = %s
+#               AND column_name  = %s
+#         """, (table_name, col_name))
+#         row = self.env.cr.fetchone()
+#         return row[0] if row else None
+#
+#     def _jsonb_to_text(self, col_expr):
+#         """
+#         Safely extract text from a jsonb translated field in Odoo 19.
+#         Odoo 19 stores translatable char fields as jsonb like: {"en_US": "Kilogram"}
+#         We use jsonb_each_text to get the first value when 'en_US' is missing.
+#         """
+#         return (
+#             "COALESCE("
+#             f"  ({col_expr})->>'en_US',"
+#             f"  (SELECT v FROM jsonb_each_text({col_expr}) AS t(k,v) LIMIT 1),"
+#             "  ''"
+#             ")"
+#         )
+#
 #     def init(self):
 #         tools.drop_view_if_exists(self.env.cr, self._table)
 #
 #         # ── Detect optional tables ────────────────────────────────────
-#         has_svl  = self._table_exists('stock_valuation_layer')
-#         has_so   = self._table_exists('sale_order')
-#         has_po   = self._table_exists('purchase_order')
+#         has_svl = self._table_exists('stock_valuation_layer')
+#         has_so  = self._table_exists('sale_order')
+#         has_po  = self._table_exists('purchase_order')
 #
-#         # ── Detect safe fallback columns ─────────────────────────────
-#         # stock_move.reference exists in Odoo 17+
-#         sm_ref   = 'sm.reference' if self._col_exists('stock_move', 'reference') else 'sm.origin'
-#         # sale_order.invoice_status
-#         so_inv   = 'so.invoice_status' if has_so and self._col_exists('sale_order', 'invoice_status') else "NULL::varchar"
-#         # purchase_order.invoice_status
-#         po_inv   = 'po.invoice_status' if has_po and self._col_exists('purchase_order', 'invoice_status') else "NULL::varchar"
+#         # ── uom_uom.name: jsonb or varchar? ──────────────────────────
+#         uom_name_type = self._col_type('uom_uom', 'name')
+#         if uom_name_type and 'json' in uom_name_type.lower():
+#             uom_name_sql = self._jsonb_to_text('uom_u.name')
+#         else:
+#             uom_name_sql = "COALESCE(uom_u.name::text, '')"
 #
-#         # ── Cost CTE (stock_valuation_layer when available) ───────────
+#         # ── stock_location.complete_name: jsonb or varchar? ───────────
+#         loc_cn_type = self._col_type('stock_location', 'complete_name')
+#         if loc_cn_type and 'json' in loc_cn_type.lower():
+#             sl_cn  = "(sl.complete_name->>'en_US')"
+#             root_cn = "(root.complete_name->>'en_US')"
+#         else:
+#             sl_cn   = "sl.complete_name"
+#             root_cn = "root.complete_name"
+#
+#         # ── stock_move.reference column ───────────────────────────────
+#         sm_ref = 'sm.reference' if self._col_exists('stock_move', 'reference') else 'sm.origin'
+#
+#         # ── invoice_status columns ────────────────────────────────────
+#         so_inv = 'so.invoice_status' if has_so and self._col_exists('sale_order', 'invoice_status') else "NULL::varchar"
+#         po_inv = 'po.invoice_status' if has_po and self._col_exists('purchase_order', 'invoice_status') else "NULL::varchar"
+#
+#         # ── Cost CTE ─────────────────────────────────────────────────
 #         if has_svl:
 #             cost_cte = """
 # move_cost AS (
@@ -390,7 +427,7 @@ SELECT * FROM ledger
 #             cost_join  = ""
 #             cost_field = "0::numeric"
 #
-#         # ── Sale order fragments ──────────────────────────────────────
+#         # ── Sale order ───────────────────────────────────────────────
 #         if has_so:
 #             so_join = "LEFT JOIN sale_order so ON so.name = sm.origin"
 #             so_name = "so.name"
@@ -400,7 +437,7 @@ SELECT * FROM ledger
 #             so_name = "NULL::varchar"
 #             so_cond = "FALSE"
 #
-#         # ── Purchase order fragments ──────────────────────────────────
+#         # ── Purchase order ───────────────────────────────────────────
 #         if has_po:
 #             po_join = "LEFT JOIN purchase_order po ON po.name = sm.origin"
 #             po_name = "po.name"
@@ -414,7 +451,7 @@ SELECT * FROM ledger
 # CREATE OR REPLACE VIEW product_stock_ledger AS
 #
 # WITH
-# -- 1. Map every internal location to its warehouse (distinct to avoid duplicate rows)
+# -- 1. Map every internal stock location to its warehouse
 # loc_warehouse AS (
 #     SELECT DISTINCT ON (sl.id)
 #         sl.id AS location_id,
@@ -422,8 +459,8 @@ SELECT * FROM ledger
 #     FROM stock_location sl
 #     JOIN stock_warehouse sw
 #         ON sl.id = sw.lot_stock_id
-#         OR sl.complete_name LIKE (
-#             SELECT complete_name || '/%'
+#         OR {sl_cn} LIKE (
+#             SELECT {root_cn} || '/%'
 #             FROM stock_location root
 #             WHERE root.id = sw.lot_stock_id
 #         )
@@ -432,7 +469,7 @@ SELECT * FROM ledger
 # ),
 # {cost_cte}
 #
-# -- 2. Main ledger
+# -- 2. Main ledger rows
 # ledger AS (
 #     SELECT
 #         sml.id                                               AS id,
@@ -440,14 +477,11 @@ SELECT * FROM ledger
 #         COALESCE(wh_src.warehouse_id, wh_dest.warehouse_id) AS warehouse_id,
 #         sm.date                                              AS date,
 #
-#         -- Voucher: SO name → PO name → picking name → move origin/reference
-#         COALESCE({so_name}, {po_name}, sp.name, sm.origin, {sm_ref})
+#         COALESCE({so_name}, {po_name}, sp.name, sm.origin, {sm_ref}, '')
 #                                                              AS voucher,
 #
-#         -- Particulars: move origin → move reference → picking name
-#         COALESCE(sm.origin, {sm_ref}, sp.name)               AS particulars,
+#         COALESCE(sm.origin, {sm_ref}, sp.name, '')           AS particulars,
 #
-#         -- Movement type
 #         CASE
 #             WHEN src_loc.usage = 'supplier'                          THEN 'IN'
 #             WHEN dest_loc.usage = 'customer'                         THEN 'OUT'
@@ -460,7 +494,6 @@ SELECT * FROM ledger
 #             ELSE 'INT'
 #         END                                                  AS move_type,
 #
-#         -- Received qty
 #         CASE
 #             WHEN dest_loc.usage = 'internal' AND src_loc.usage != 'internal'
 #                 THEN sml.quantity
@@ -469,7 +502,6 @@ SELECT * FROM ledger
 #             ELSE 0
 #         END                                                  AS rec_qty,
 #
-#         -- Received rate
 #         CASE
 #             WHEN dest_loc.usage = 'internal' AND src_loc.usage != 'internal'
 #                 THEN {cost_field}
@@ -478,21 +510,18 @@ SELECT * FROM ledger
 #             ELSE 0
 #         END                                                  AS rec_rate,
 #
-#         -- Issue qty
 #         CASE
 #             WHEN src_loc.usage = 'internal' AND dest_loc.usage != 'internal'
 #                 THEN sml.quantity
 #             ELSE 0
 #         END                                                  AS issue_qty,
 #
-#         -- Issue rate
 #         CASE
 #             WHEN src_loc.usage = 'internal' AND dest_loc.usage != 'internal'
 #                 THEN {cost_field}
 #             ELSE 0
 #         END                                                  AS issue_rate,
 #
-#         -- Running balance per product + warehouse
 #         SUM(
 #             CASE
 #                 WHEN dest_loc.usage = 'internal' AND src_loc.usage != 'internal'
@@ -510,14 +539,13 @@ SELECT * FROM ledger
 #             ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
 #         )                                                    AS balance,
 #
-#         uom_u.name                                           AS uom,
+#         {uom_name_sql}                                       AS uom,
 #
-#         -- Invoice status from SO or PO
-#         CASE
+#         COALESCE(CASE
 #             WHEN {so_cond} THEN {so_inv}
 #             WHEN {po_cond} THEN {po_inv}
 #             ELSE NULL
-#         END                                                  AS invoice_status,
+#         END, '')                                             AS invoice_status,
 #
 #         sm.id         AS move_id,
 #         sm.company_id AS company_id
@@ -564,3 +592,4 @@ SELECT * FROM ledger
 #
 #     def unlink(self):
 #         raise UserError('Stock Ledger records are read-only.')
+#

@@ -6,14 +6,10 @@ import { useService } from "@web/core/utils/hooks";
 import { patch } from "@web/core/utils/patch";
 import { ListRenderer } from "@web/views/list/list_renderer";
 
-// ─────────────────────────────────────────────────────────────────────
-// StockLedgerFilterBar OWL Component
-// ─────────────────────────────────────────────────────────────────────
+// ── Filter Bar Component ──────────────────────────────────────────────────────
 class StockLedgerFilterBar extends Component {
     static template = "product_stock_ledger.FilterBar";
-    static props = {
-        model: Object,
-    };
+    static props = { model: Object };
 
     setup() {
         this.orm = useService("orm");
@@ -30,7 +26,6 @@ class StockLedgerFilterBar extends Component {
             acResults: [],
             acVisible: false,
         });
-
         this._acTimer = null;
         this._boundKey = this._onKey.bind(this);
         onMounted(() => {
@@ -43,10 +38,12 @@ class StockLedgerFilterBar extends Component {
     }
 
     async _loadWarehouses() {
-        const rows = await this.orm.searchRead(
-            "stock.warehouse", [], ["id", "name"], { limit: 200 }
-        );
-        this.state.warehouses = rows;
+        try {
+            const rows = await this.orm.searchRead(
+                "stock.warehouse", [], ["id", "name"], { limit: 200 }
+            );
+            this.state.warehouses = rows;
+        } catch (_) {}
     }
 
     onProductInput(ev) {
@@ -55,17 +52,17 @@ class StockLedgerFilterBar extends Component {
         this.state.productId = null;
         clearTimeout(this._acTimer);
         if (!q.trim()) { this.state.acResults = []; this.state.acVisible = false; return; }
-        this.state.acVisible = true;
-        this.state.acResults = [{ id: -1, display_name: "Searching…", default_code: "" }];
         this._acTimer = setTimeout(async () => {
-            const res = await this.orm.searchRead(
-                "product.product",
-                ["|", ["name","ilike",q], ["default_code","ilike",q]],
-                ["id","display_name","default_code"],
-                { limit: 20, order: "default_code asc, name asc" }
-            );
-            this.state.acResults = res;
-            this.state.acVisible = !!res.length;
+            try {
+                const res = await this.orm.searchRead(
+                    "product.product",
+                    ["|", ["name","ilike",q], ["default_code","ilike",q]],
+                    ["id","display_name","default_code"],
+                    { limit: 20, order: "default_code asc, name asc" }
+                );
+                this.state.acResults = res;
+                this.state.acVisible = !!res.length;
+            } catch(_) {}
         }, 280);
     }
 
@@ -76,27 +73,25 @@ class StockLedgerFilterBar extends Component {
         this.state.acResults = [];
     }
 
-    hideAc() {
-        setTimeout(() => { this.state.acVisible = false; }, 180);
-    }
+    hideAc() { setTimeout(() => { this.state.acVisible = false; }, 180); }
 
     _buildDomain() {
         const s = this.state;
         const d = [];
-        if (s.productId)      d.push(["product_id", "=", s.productId]);
-        else if (s.product)   d.push(["product_id.display_name", "ilike", s.product]);
-        if (s.warehouseId)    d.push(["warehouse_id", "=", parseInt(s.warehouseId)]);
-        if (s.dateFrom)       d.push(["date", ">=", s.dateFrom + " 00:00:00"]);
-        if (s.dateTo)         d.push(["date", "<=", s.dateTo   + " 23:59:59"]);
-        if (s.voucher)        d.push(["voucher", "ilike", s.voucher]);
-        if (s.moveType)       d.push(["move_type", "=", s.moveType]);
-        if (s.invoiceStatus)  d.push(["invoice_status", "=", s.invoiceStatus]);
+        if (s.productId)     d.push(["product_id", "=", s.productId]);
+        else if (s.product)  d.push(["product_id.display_name", "ilike", s.product]);
+        if (s.warehouseId)   d.push(["warehouse_id", "=", parseInt(s.warehouseId)]);
+        if (s.dateFrom)      d.push(["date", ">=", s.dateFrom + " 00:00:00"]);
+        if (s.dateTo)        d.push(["date", "<=", s.dateTo   + " 23:59:59"]);
+        if (s.voucher)       d.push(["voucher", "ilike", s.voucher]);
+        if (s.moveType)      d.push(["move_type", "=", s.moveType]);
+        if (s.invoiceStatus) d.push(["invoice_status", "=", s.invoiceStatus]);
         return d;
     }
 
     apply() {
+        const model = this.props.model;
         const domain = this._buildDomain();
-        const model  = this.props.model;
         model.root.domain = domain;
         model.root.load().then(() => model.notify());
     }
@@ -116,7 +111,8 @@ class StockLedgerFilterBar extends Component {
     _onKey(ev) {
         if (document.querySelector(".o_dialog, .modal.show")) return;
         const active = document.activeElement;
-        const inBar  = this.__owl__.bdom?.el?.contains(active);
+        const barEl  = this.__owl__?.bdom?.el;
+        const inBar  = barEl && barEl.contains(active);
         if (!inBar) {
             const tag = active?.tagName;
             if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
@@ -126,22 +122,12 @@ class StockLedgerFilterBar extends Component {
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// Patch ListRenderer to inject filter bar above the table
-// when model is product.stock.ledger
-// ─────────────────────────────────────────────────────────────────────
-const patchedListRenderers = new WeakSet();
-
-patch(ListRenderer.prototype, {
-    setup() {
-        super.setup(...arguments);
-    },
-    get isStockLedger() {
-        return this.props?.list?.model?.config?.resModel === "product.stock.ledger";
+// ── CRITICAL: Patch ListRenderer to declare StockLedgerFilterBar ──────────────
+// OWL requires components used in a template to be in `static components` of
+// the rendering component. We patch ListRenderer to add it there.
+patch(ListRenderer, {
+    components: {
+        ...ListRenderer.components,
+        StockLedgerFilterBar,
     },
 });
-
-// Register the component globally so the XML template can reference it
-registry.category("owl_components").add("StockLedgerFilterBar", StockLedgerFilterBar);
-
-export { StockLedgerFilterBar };

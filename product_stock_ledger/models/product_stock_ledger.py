@@ -5,8 +5,7 @@ from odoo.exceptions import UserError
 class ProductStockLedger(models.Model):
     """
     SQL-backed read-only model (PostgreSQL VIEW).
-    Compatible with Odoo 19 CE with or without stock_account / OdooMates accounting.
-    Detects available tables/columns and their types at install time.
+    Compatible with Odoo 19 CE. Handles jsonb translated fields (name, complete_name).
     """
     _name = 'product.stock.ledger'
     _description = 'Product Stock Ledger'
@@ -61,19 +60,19 @@ class ProductStockLedger(models.Model):
         row = self.env.cr.fetchone()
         return row[0] if row else None
 
-    def _jsonb_text(self, expr, lang='en_US'):
+    def _jsonb_to_text(self, col_expr):
         """
-        Return SQL to extract plain text from a jsonb translated field.
-        Tries the user language key first, falls back to 'en_US', then
-        falls back to the first value in the JSON object.
-        expr should be the SQL column reference e.g. 'uom_u.name'
+        Safely extract text from a jsonb translated field in Odoo 19.
+        Odoo 19 stores translatable char fields as jsonb like: {"en_US": "Kilogram"}
+        We use jsonb_each_text to get the first value when 'en_US' is missing.
         """
-        return f"""COALESCE(
-            ({expr})->>'{lang}',
-            ({expr})->>'en_US',
-            ({expr})->>( SELECT key FROM jsonb_object_keys({expr}) LIMIT 1 ),
-            ''
-        )"""
+        return (
+            "COALESCE("
+            f"  ({col_expr})->>'en_US',"
+            f"  (SELECT v FROM jsonb_each_text({col_expr}) AS t(k,v) LIMIT 1),"
+            "  ''"
+            ")"
+        )
 
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
@@ -83,27 +82,26 @@ class ProductStockLedger(models.Model):
         has_so  = self._table_exists('sale_order')
         has_po  = self._table_exists('purchase_order')
 
-        # ── Check if uom_uom.name is jsonb (Odoo 17+ translated field) ──
+        # ── uom_uom.name: jsonb or varchar? ──────────────────────────
         uom_name_type = self._col_type('uom_uom', 'name')
         if uom_name_type and 'json' in uom_name_type.lower():
-            uom_name_sql = self._jsonb_text('uom_u.name')
+            uom_name_sql = self._jsonb_to_text('uom_u.name')
         else:
-            uom_name_sql = "COALESCE(uom_u.name, '')"
+            uom_name_sql = "COALESCE(uom_u.name::text, '')"
 
-        # ── Check if stock_location.complete_name is jsonb ───────────
-        loc_name_type = self._col_type('stock_location', 'complete_name')
-        if loc_name_type and 'json' in loc_name_type.lower():
-            # For LIKE matching we need text; extract en_US
-            loc_complete_name = "(root.complete_name->>'en_US')"
-            sl_complete_name  = "(sl.complete_name->>'en_US')"
+        # ── stock_location.complete_name: jsonb or varchar? ───────────
+        loc_cn_type = self._col_type('stock_location', 'complete_name')
+        if loc_cn_type and 'json' in loc_cn_type.lower():
+            sl_cn  = "(sl.complete_name->>'en_US')"
+            root_cn = "(root.complete_name->>'en_US')"
         else:
-            loc_complete_name = "root.complete_name"
-            sl_complete_name  = "sl.complete_name"
+            sl_cn   = "sl.complete_name"
+            root_cn = "root.complete_name"
 
-        # ── Fallback column: stock_move.reference ────────────────────
+        # ── stock_move.reference column ───────────────────────────────
         sm_ref = 'sm.reference' if self._col_exists('stock_move', 'reference') else 'sm.origin'
 
-        # ── sale/purchase invoice_status columns ─────────────────────
+        # ── invoice_status columns ────────────────────────────────────
         so_inv = 'so.invoice_status' if has_so and self._col_exists('sale_order', 'invoice_status') else "NULL::varchar"
         po_inv = 'po.invoice_status' if has_po and self._col_exists('purchase_order', 'invoice_status') else "NULL::varchar"
 
@@ -152,7 +150,7 @@ move_cost AS (
 CREATE OR REPLACE VIEW product_stock_ledger AS
 
 WITH
--- 1. Map every internal location to its warehouse
+-- 1. Map every internal stock location to its warehouse
 loc_warehouse AS (
     SELECT DISTINCT ON (sl.id)
         sl.id AS location_id,
@@ -160,8 +158,8 @@ loc_warehouse AS (
     FROM stock_location sl
     JOIN stock_warehouse sw
         ON sl.id = sw.lot_stock_id
-        OR {sl_complete_name} LIKE (
-            SELECT {loc_complete_name} || '/%'
+        OR {sl_cn} LIKE (
+            SELECT {root_cn} || '/%'
             FROM stock_location root
             WHERE root.id = sw.lot_stock_id
         )
@@ -170,7 +168,7 @@ loc_warehouse AS (
 ),
 {cost_cte}
 
--- 2. Main ledger
+-- 2. Main ledger rows
 ledger AS (
     SELECT
         sml.id                                               AS id,

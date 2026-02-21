@@ -10,37 +10,37 @@
         <field name="arch" type="xml">
             <search string="Product Stock Ledger">
 
-                <!-- Quick-search fields -->
                 <field name="product_id"   string="Product"/>
                 <field name="warehouse_id" string="Warehouse"/>
                 <field name="voucher"      string="Voucher"/>
                 <field name="particulars"  string="Particulars"/>
+                <field name="move_type"    string="Type"/>
 
-                <!-- Filters -->
                 <filter string="Received"      name="filter_received"
-                        domain="[('rec_qty','>',0)]"/>
+                        domain="[('rec_qty', '&gt;', 0)]"/>
                 <filter string="Issued"        name="filter_issued"
-                        domain="[('issue_qty','>',0)]"/>
+                        domain="[('issue_qty', '&gt;', 0)]"/>
                 <filter string="Internal Move" name="filter_internal"
-                        domain="[('move_type','=','INT')]"/>
-                <separator/>
-                <filter string="Today"         name="filter_today"
-                        domain="[('date','&gt;=',datetime.datetime.combine(context_today(),datetime.time(0,0,0))),
-                                 ('date','&lt;=',datetime.datetime.combine(context_today(),datetime.time(23,59,59)))]"/>
-                <filter string="This Month"    name="filter_month"
-                        domain="[('date','&gt;=', (context_today() + relativedelta(day=1)).strftime('%Y-%m-%d')),
-                                 ('date','&lt;=', (context_today() + relativedelta(day=31)).strftime('%Y-%m-%d'))]"/>
+                        domain="[('move_type', '=', 'INT')]"/>
 
-                <!-- Group By -->
+                <separator/>
+
+                <filter string="Today" name="filter_today"
+                        domain="[('date', '&gt;=', datetime.datetime.now().strftime('%Y-%m-%d 00:00:00')),
+                                 ('date', '&lt;=', datetime.datetime.now().strftime('%Y-%m-%d 23:59:59'))]"/>
+
+                <filter string="This Month" name="filter_month"
+                        domain="[('date', '&gt;=', (datetime.datetime.now()).strftime('%Y-%m-01 00:00:00'))]"/>
+
                 <group expand="0" string="Group By">
                     <filter string="Product"   name="group_product"
-                            context="{'group_by':'product_id'}"/>
+                            context="{'group_by': 'product_id'}"/>
                     <filter string="Warehouse" name="group_warehouse"
-                            context="{'group_by':'warehouse_id'}"/>
+                            context="{'group_by': 'warehouse_id'}"/>
                     <filter string="Type"      name="group_type"
-                            context="{'group_by':'move_type'}"/>
+                            context="{'group_by': 'move_type'}"/>
                     <filter string="Date"      name="group_date"
-                            context="{'group_by':'date:month'}"/>
+                            context="{'group_by': 'date:month'}"/>
                 </group>
 
             </search>
@@ -48,7 +48,7 @@
     </record>
 
     <!-- ══════════════════════════════════════════
-         LIST (TREE) VIEW
+         LIST VIEW
     ══════════════════════════════════════════ -->
     <record id="view_product_stock_ledger_list" model="ir.ui.view">
         <field name="name">product.stock.ledger.list</field>
@@ -66,11 +66,9 @@
                 <field name="voucher"        string="Voucher"        width="130px" optional="show"/>
                 <field name="particulars"    string="Particulars"    width="260px" optional="show"/>
                 <field name="move_type"      string="Type"           width="90px"  optional="show"/>
-                <field name="rec_qty"        string="Rec. Qty"       sum="Total Received"
-                                             width="90px"  optional="show"/>
+                <field name="rec_qty"        string="Rec. Qty"       sum="Total Received" width="90px" optional="show"/>
                 <field name="rec_rate"       string="Rec. Rate"      width="90px"  optional="show"/>
-                <field name="issue_qty"      string="Issue Qty"      sum="Total Issued"
-                                             width="90px"  optional="show"/>
+                <field name="issue_qty"      string="Issue Qty"      sum="Total Issued"   width="90px" optional="show"/>
                 <field name="issue_rate"     string="Issue Rate"     width="90px"  optional="show"/>
                 <field name="balance"        string="Balance"        width="90px"  optional="show"/>
                 <field name="uom"            string="Unit"           width="60px"  optional="show"/>
@@ -95,8 +93,8 @@
                 No stock movements found.
             </p>
             <p>
-                This ledger shows all confirmed stock moves with their
-                received quantity, issued quantity, and running balance.
+                This ledger shows all confirmed stock moves with received quantity,
+                issued quantity, and running balance per product and warehouse.
             </p>
         </field>
     </record>

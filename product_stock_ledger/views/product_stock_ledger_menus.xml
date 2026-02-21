@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════
+         MENU ITEMS
+    ══════════════════════════════════════════ -->
+
+    <!-- Under Inventory -->
+    <menuitem id="menu_product_stock_ledger_inventory"
+              name="Product Stock Ledger"
+              parent="stock.menu_stock_root"
+              action="action_product_stock_ledger_window"
+              sequence="60"/>
+
+    <!-- Under Purchase -->
+    <menuitem id="menu_product_stock_ledger_purchase"
+              name="Product Stock Ledger"
+              parent="purchase.menu_purchase_root"
+              action="action_product_stock_ledger_window"
+              sequence="99"/>
+
+    <!-- Under Sales -->
+    <menuitem id="menu_product_stock_ledger_sales"
+              name="Product Stock Ledger"
+              parent="sale.sale_menu_root"
+              action="action_product_stock_ledger_window"
+              sequence="99"/>
+
+</odoo>

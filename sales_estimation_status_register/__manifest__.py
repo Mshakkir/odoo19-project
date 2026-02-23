@@ -10,13 +10,14 @@
         * Filter by Type, Form Type, Bill Mode, Party
         * Filter by Confirmed / Cancelled Status
         * Date filters: Daily, Weekly, Monthly, Quarterly, Yearly, Custom
-        * Show Details in Tree View
+        * Show Details in Tree View with custom columns
         * Export to PDF and Excel
         * Ledger Currency Support
+        * Columns: Date, Vno, Warehouse, Customer Name, Address, Cell No, Sales Account
     """,
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',
-    'depends': ['sale', 'sales_register'],
+    'depends': ['sale'],
     'data': [
         'security/ir.model.access.csv',
         'wizard/sales_estimation_status_wizard_views.xml',

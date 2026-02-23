@@ -191,25 +191,6 @@ patch(ListController.prototype, {
         const viewType = this.getViewType();
         const timestamp = Date.now();
 
-        // Helper: format a Date object to dd/mm/yy
-        const formatDDMMYY = (date) => {
-            const dd = String(date.getDate()).padStart(2, '0');
-            const mm = String(date.getMonth() + 1).padStart(2, '0');
-            const yy = String(date.getFullYear()).slice(-2);
-            return `${dd}/${mm}/${yy}`;
-        };
-
-        // Helper: parse dd/mm/yy string to yyyy-mm-dd for Odoo domain
-        const parseDDMMYY = (str) => {
-            const parts = str.split('/');
-            if (parts.length !== 3) return '';
-            const dd = parts[0].padStart(2, '0');
-            const mm = parts[1].padStart(2, '0');
-            const yy = parts[2];
-            const fullYear = parseInt(yy) + 2000;
-            return `${fullYear}-${mm}-${dd}`;
-        };
-
         // Common field IDs
         const fromId = `purchase_date_from_${timestamp}`;
         const toId = `purchase_date_to_${timestamp}`;
@@ -229,8 +210,8 @@ patch(ListController.prototype, {
 
         const today = new Date();
         const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-        const dateFrom = formatDDMMYY(firstDay);
-        const dateTo = formatDDMMYY(today);
+        const dateFrom = this.formatDDMMYY(firstDay);
+        const dateTo = this.formatDDMMYY(today);
 
         // Build warehouse options
         const warehouseOptions = this._purchaseFilterData.warehouses
@@ -249,9 +230,15 @@ patch(ListController.prototype, {
                         <div class="filter_group date_group">
                             <label class="filter_label">Order Date:</label>
                             <div class="date_input_group">
-                                <input type="text" class="form-control date_input" id="${fromId}" value="${dateFrom}" placeholder="dd/mm/yy" maxlength="8" />
+                                <div class="date_picker_wrap">
+                                    <input type="text" class="form-control date_input purchase_fp_from" id="${fromId}" value="${dateFrom}" placeholder="dd/mm/yy" autocomplete="off" readonly />
+                                    <span class="date_cal_icon" data-target="${fromId}">&#128197;</span>
+                                </div>
                                 <span class="date_separator">→</span>
-                                <input type="text" class="form-control date_input" id="${toId}" value="${dateTo}" placeholder="dd/mm/yy" maxlength="8" />
+                                <div class="date_picker_wrap">
+                                    <input type="text" class="form-control date_input purchase_fp_to" id="${toId}" value="${dateTo}" placeholder="dd/mm/yy" autocomplete="off" readonly />
+                                    <span class="date_cal_icon" data-target="${toId}">&#128197;</span>
+                                </div>
                             </div>
                         </div>
 
@@ -348,9 +335,15 @@ patch(ListController.prototype, {
                         <div class="filter_group date_group">
                             <label class="filter_label">Bill Date:</label>
                             <div class="date_input_group">
-                                <input type="text" class="form-control date_input" id="${fromId}" value="${dateFrom}" placeholder="dd/mm/yy" maxlength="8" />
+                                <div class="date_picker_wrap">
+                                    <input type="text" class="form-control date_input purchase_fp_from" id="${fromId}" value="${dateFrom}" placeholder="dd/mm/yy" autocomplete="off" readonly />
+                                    <span class="date_cal_icon" data-target="${fromId}">&#128197;</span>
+                                </div>
                                 <span class="date_separator">→</span>
-                                <input type="text" class="form-control date_input" id="${toId}" value="${dateTo}" placeholder="dd/mm/yy" maxlength="8" />
+                                <div class="date_picker_wrap">
+                                    <input type="text" class="form-control date_input purchase_fp_to" id="${toId}" value="${dateTo}" placeholder="dd/mm/yy" autocomplete="off" readonly />
+                                    <span class="date_cal_icon" data-target="${toId}">&#128197;</span>
+                                </div>
                             </div>
                         </div>
 
@@ -543,6 +536,48 @@ patch(ListController.prototype, {
         });
     },
 
+    // Format a Date object → "dd/mm/yy"
+    formatDDMMYY(date) {
+        const dd = String(date.getDate()).padStart(2, '0');
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const yy = String(date.getFullYear()).slice(-2);
+        return `${dd}/${mm}/${yy}`;
+    },
+
+    // Parse "dd/mm/yy" → "yyyy-mm-dd" for Odoo domain
+    parseDDMMYY(str) {
+        if (!str) return '';
+        const parts = str.split('/');
+        if (parts.length !== 3) return '';
+        const dd = parts[0].padStart(2, '0');
+        const mm = parts[1].padStart(2, '0');
+        const yy = parts[2].padStart(2, '0');
+        const fullYear = 2000 + parseInt(yy, 10);
+        if (isNaN(fullYear)) return '';
+        return `${fullYear}-${mm}-${dd}`;
+    },
+
+    // Load Flatpickr from CDN (only once)
+    loadFlatpickr() {
+        return new Promise((resolve) => {
+            if (window.flatpickr) { resolve(); return; }
+            // Load CSS
+            if (!document.getElementById('flatpickr-css')) {
+                const link = document.createElement('link');
+                link.id = 'flatpickr-css';
+                link.rel = 'stylesheet';
+                link.href = 'https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css';
+                document.head.appendChild(link);
+            }
+            // Load JS
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js';
+            script.onload = () => resolve();
+            script.onerror = () => resolve(); // fail gracefully
+            document.head.appendChild(script);
+        });
+    },
+
     attachPurchaseFilterEvents(
         fromId, toId, warehouseId, vendorId, repId,
         orderRefId, vendorRefId, shippingRefId, amountId,
@@ -569,37 +604,47 @@ patch(ListController.prototype, {
 
         if (!dateFromInput || !dateToInput || !applyBtn || !clearBtn) return;
 
-        // Auto-format dd/mm/yy as user types (inserts slashes automatically)
-        const autoFormatDate = (input) => {
-            input.addEventListener('input', (e) => {
-                let val = e.target.value.replace(/[^0-9]/g, '');
-                if (val.length >= 3 && val.length <= 4) {
-                    val = val.slice(0, 2) + '/' + val.slice(2);
-                } else if (val.length >= 5) {
-                    val = val.slice(0, 2) + '/' + val.slice(2, 4) + '/' + val.slice(4, 6);
-                }
-                e.target.value = val;
+        // Initialize Flatpickr calendar pickers (dd/mm/yy format)
+        this.loadFlatpickr().then(() => {
+            if (!window.flatpickr) return;
+
+            const fpConfig = {
+                dateFormat: 'd/m/y',       // display: dd/mm/yy
+                allowInput: false,
+                disableMobile: true,
+            };
+
+            const fpFrom = flatpickr(dateFromInput, fpConfig);
+            const fpTo   = flatpickr(dateToInput,   fpConfig);
+
+            // Calendar icon clicks open the picker
+            document.querySelectorAll('.date_cal_icon').forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const targetId = icon.getAttribute('data-target');
+                    const targetEl = document.getElementById(targetId);
+                    if (targetEl && targetEl._flatpickr) {
+                        targetEl._flatpickr.open();
+                    }
+                });
             });
-        };
-        autoFormatDate(dateFromInput);
-        autoFormatDate(dateToInput);
+        });
 
         // Apply filter function
         const applyFilter = () => {
             try {
                 const dateFromRaw = dateFromInput.value;
-                const dateToRaw = dateToInput.value;
+                const dateToRaw   = dateToInput.value;
 
                 if (!dateFromRaw || !dateToRaw) {
                     this.notification.add("Please select both dates", { type: "warning" });
                     return;
                 }
 
-                const dateFrom = parseDDMMYY(dateFromRaw);
-                const dateTo = parseDDMMYY(dateToRaw);
+                const dateFrom = this.parseDDMMYY(dateFromRaw);
+                const dateTo   = this.parseDDMMYY(dateToRaw);
 
                 if (!dateFrom || !dateTo) {
-                    this.notification.add("Invalid date format. Use dd/mm/yy (e.g. 01/02/25)", { type: "warning" });
+                    this.notification.add("Invalid date format. Use dd/mm/yy", { type: "warning" });
                     return;
                 }
 
@@ -767,8 +812,18 @@ patch(ListController.prototype, {
             try {
                 const today = new Date();
                 const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-                dateFromInput.value = formatDDMMYY(firstDay);
-                dateToInput.value = formatDDMMYY(today);
+
+                // Reset via Flatpickr if available, else direct value set
+                if (dateFromInput._flatpickr) {
+                    dateFromInput._flatpickr.setDate(firstDay, true);
+                } else {
+                    dateFromInput.value = this.formatDDMMYY(firstDay);
+                }
+                if (dateToInput._flatpickr) {
+                    dateToInput._flatpickr.setDate(today, true);
+                } else {
+                    dateToInput.value = this.formatDDMMYY(today);
+                }
                 warehouseSelect.value = '';
                 vendorInput.value = '';
                 vendorValue.value = '';

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Sales Estimation Status Register – Wizard Form View
+         Mirrors the screenshot: Type | Filter across the top,
+         Options box left, date-filter tabs, From/To, Use Ledger Currency
+    ════════════════════════════════════════════════════════════════════ -->
+    <record id="view_sales_estimation_status_wizard_form" model="ir.ui.view">
+        <field name="name">sales.estimation.status.wizard.form</field>
+        <field name="model">sales.estimation.status.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Sales Estimation Status Register">
+                <sheet>
+
+                    <!-- Top bar: Type + Filter -->
+                    <div class="row mb-3">
+                        <div class="col-4 d-flex align-items-center">
+                            <label for="estimation_type" class="me-2 fw-bold" style="min-width:50px;">Type</label>
+                            <field name="estimation_type" class="w-100"/>
+                        </div>
+                        <div class="col-4 offset-4 d-flex align-items-center">
+                            <label for="date_filter" class="me-2 fw-bold" style="min-width:50px;">Filter</label>
+                            <field name="date_filter" class="w-100"/>
+                        </div>
+                    </div>
+
+                    <!-- Options box -->
+                    <group string="Options">
+                        <group>
+                            <!-- Form Type -->
+                            <div class="o_row">
+                                <label for="form_type" string="Form Type"/>
+                                <field name="form_type"/>
+                                <label for="bill_mode" string="Bill Mode" class="ms-4"/>
+                                <field name="bill_mode"/>
+                            </div>
+                            <!-- Party -->
+                            <field name="partner_id" string="Party"/>
+                        </group>
+                        <group>
+                            <!-- By Confirmed Status -->
+                            <div class="o_row">
+                                <field name="by_confirmed_status" string="By Confirmed Status"/>
+                            </div>
+                            <div class="o_row" invisible="not by_confirmed_status">
+                                <label for="confirmed" string="Confirmed"/>
+                                <field name="confirmed" string="Confirmed"/>
+                            </div>
+
+                            <!-- By Cancelled Status -->
+                            <div class="o_row">
+                                <field name="by_cancelled_status" string="By Cancelled Status"/>
+                            </div>
+                            <div class="o_row" invisible="not by_cancelled_status">
+                                <label for="cancelled" string="Cancelled"/>
+                                <field name="cancelled" string="Cancelled"/>
+                            </div>
+                        </group>
+                    </group>
+
+                    <!-- Date filter quick-buttons row -->
+                    <div class="row mt-2 mb-2">
+                        <div class="col-12">
+                            <div class="btn-group w-100" role="group">
+                                <button type="object" name="set_filter_daily"     class="btn btn-outline-secondary btn-sm" string="Daily"/>
+                                <button type="object" name="set_filter_one_week"  class="btn btn-outline-secondary btn-sm" string="One Week"/>
+                                <button type="object" name="set_filter_two_week"  class="btn btn-outline-secondary btn-sm" string="Two Week"/>
+                                <button type="object" name="_set_filter_one_month" class="btn btn-outline-secondary btn-sm" string="One Month"/>
+                                <button type="object" name="_set_filter_two_month" class="btn btn-outline-secondary btn-sm" string="Two Month"/>
+                                <button type="object" name="_set_filter_quarterly" class="btn btn-outline-secondary btn-sm" string="Quarterly"/>
+                                <button type="object" name="_set_filter_six_month" class="btn btn-outline-secondary btn-sm" string="Six Month"/>
+                                <button type="object" name="_set_filter_one_year"  class="btn btn-outline-secondary btn-sm" string="One Year"/>
+                                <button type="object" name="_set_filter_yearly"    class="btn btn-outline-secondary btn-sm" string="Yearly"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- From / To date -->
+                    <group>
+                        <group>
+                            <field name="date_from" string="From" required="1"/>
+                        </group>
+                        <group>
+                            <field name="date_to" string="To" required="1"/>
+                        </group>
+                    </group>
+
+                    <!-- Company (multicompany only) -->
+                    <group invisible="1">
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
+
+                    <!-- Use Ledger Currency -->
+                    <div class="row mt-3">
+                        <div class="col-4">
+                            <field name="use_ledger_currency" string="Use Ledger Currency"/>
+                        </div>
+                    </div>
+
+                </sheet>
+
+                <footer>
+                    <button name="action_show_report"
+                            string="Show Report (F5)"
+                            type="object"
+                            class="btn-primary"/>
+                    <button name="action_show_details"
+                            string="Show Details"
+                            type="object"
+                            class="btn-info"/>
+                    <button name="action_export_excel"
+                            string="Export Excel"
+                            type="object"
+                            class="btn-success"/>
+                    <button string="Exit"
+                            class="btn-danger"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Wizard Action -->
+    <record id="action_sales_estimation_status_wizard" model="ir.actions.act_window">
+        <field name="name">Sales Estimation Status Register</field>
+        <field name="res_model">sales.estimation.status.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- ── Menu Items ───────────────────────────────────────────────────────── -->
+    <!-- Root menu under the Sales app top-level -->
+    <menuitem id="menu_sales_estimation_root"
+              name="Sales Register"
+              parent="sale.sale_menu_root"
+              sequence="98"/>
+
+    <menuitem id="menu_sales_estimation_status_report"
+              name="Sales Estimation Report Status"
+              parent="menu_sales_estimation_root"
+              action="action_sales_estimation_status_wizard"
+              sequence="1"/>
+
+</odoo>

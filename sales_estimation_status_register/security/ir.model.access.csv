@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sales_estimation_status_wizard,sales.estimation.status.wizard,model_sales_estimation_status_wizard,base.group_user,1,1,1,1
+access_sales_estimation_status_details,sales.estimation.status.details,model_sales_estimation_status_details,base.group_user,1,1,1,1

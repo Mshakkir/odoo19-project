@@ -16,7 +16,7 @@
     """,
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',
-    'depends': ['sale'],
+    'depends': ['sale', 'sales_register'],
     'data': [
         'security/ir.model.access.csv',
         'wizard/sales_estimation_status_wizard_views.xml',

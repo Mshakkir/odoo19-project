@@ -14,67 +14,42 @@
                 <sheet>
 
                     <!-- Top bar: Type + Filter -->
-                    <div class="row mb-3">
-                        <div class="col-4 d-flex align-items-center">
-                            <label for="estimation_type" class="me-2 fw-bold" style="min-width:50px;">Type</label>
-                            <field name="estimation_type" class="w-100"/>
-                        </div>
-                        <div class="col-4 offset-4 d-flex align-items-center">
-                            <label for="date_filter" class="me-2 fw-bold" style="min-width:50px;">Filter</label>
-                            <field name="date_filter" class="w-100"/>
-                        </div>
-                    </div>
+                    <group>
+                        <group>
+                            <field name="estimation_type" string="Type"/>
+                        </group>
+                        <group>
+                            <field name="date_filter" string="Filter"/>
+                        </group>
+                    </group>
 
                     <!-- Options box -->
                     <group string="Options">
                         <group>
-                            <!-- Form Type -->
-                            <div class="o_row">
-                                <label for="form_type" string="Form Type"/>
-                                <field name="form_type"/>
-                                <label for="bill_mode" string="Bill Mode" class="ms-4"/>
-                                <field name="bill_mode"/>
-                            </div>
-                            <!-- Party -->
+                            <field name="form_type" string="Form Type"/>
+                            <field name="bill_mode" string="Bill Mode"/>
                             <field name="partner_id" string="Party"/>
                         </group>
                         <group>
-                            <!-- By Confirmed Status -->
-                            <div class="o_row">
-                                <field name="by_confirmed_status" string="By Confirmed Status"/>
-                            </div>
-                            <div class="o_row" invisible="not by_confirmed_status">
-                                <label for="confirmed" string="Confirmed"/>
-                                <field name="confirmed" string="Confirmed"/>
-                            </div>
+                            <field name="by_confirmed_status" string="By Confirmed Status"/>
+                            <field name="confirmed"
+                                   string="Confirmed"
+                                   invisible="not by_confirmed_status"/>
 
-                            <!-- By Cancelled Status -->
-                            <div class="o_row">
-                                <field name="by_cancelled_status" string="By Cancelled Status"/>
-                            </div>
-                            <div class="o_row" invisible="not by_cancelled_status">
-                                <label for="cancelled" string="Cancelled"/>
-                                <field name="cancelled" string="Cancelled"/>
-                            </div>
+                            <field name="by_cancelled_status" string="By Cancelled Status"/>
+                            <field name="cancelled"
+                                   string="Cancelled"
+                                   invisible="not by_cancelled_status"/>
                         </group>
                     </group>
 
-                    <!-- Date filter quick-buttons row -->
-                    <div class="row mt-2 mb-2">
-                        <div class="col-12">
-                            <div class="btn-group w-100" role="group">
-                                <button type="object" name="set_filter_daily"     class="btn btn-outline-secondary btn-sm" string="Daily"/>
-                                <button type="object" name="set_filter_one_week"  class="btn btn-outline-secondary btn-sm" string="One Week"/>
-                                <button type="object" name="set_filter_two_week"  class="btn btn-outline-secondary btn-sm" string="Two Week"/>
-                                <button type="object" name="_set_filter_one_month" class="btn btn-outline-secondary btn-sm" string="One Month"/>
-                                <button type="object" name="_set_filter_two_month" class="btn btn-outline-secondary btn-sm" string="Two Month"/>
-                                <button type="object" name="_set_filter_quarterly" class="btn btn-outline-secondary btn-sm" string="Quarterly"/>
-                                <button type="object" name="_set_filter_six_month" class="btn btn-outline-secondary btn-sm" string="Six Month"/>
-                                <button type="object" name="_set_filter_one_year"  class="btn btn-outline-secondary btn-sm" string="One Year"/>
-                                <button type="object" name="_set_filter_yearly"    class="btn btn-outline-secondary btn-sm" string="Yearly"/>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Date filter as horizontal radio (matches the tab-row in screenshot) -->
+                    <group string="Date Period">
+                        <field name="date_filter"
+                               widget="radio"
+                               string="Quick Filter"
+                               options="{'horizontal': true}"/>
+                    </group>
 
                     <!-- From / To date -->
                     <group>
@@ -87,16 +62,14 @@
                     </group>
 
                     <!-- Company (multicompany only) -->
-                    <group invisible="1">
-                        <field name="company_id" groups="base.group_multi_company"/>
-                    </group>
+                    <field name="company_id"
+                           groups="base.group_multi_company"
+                           invisible="1"/>
 
                     <!-- Use Ledger Currency -->
-                    <div class="row mt-3">
-                        <div class="col-4">
-                            <field name="use_ledger_currency" string="Use Ledger Currency"/>
-                        </div>
-                    </div>
+                    <group>
+                        <field name="use_ledger_currency" string="Use Ledger Currency"/>
+                    </group>
 
                 </sheet>
 
@@ -129,17 +102,12 @@
         <field name="target">new</field>
     </record>
 
-    <!-- ── Menu Items ───────────────────────────────────────────────────────── -->
-    <!-- Root menu under the Sales app top-level -->
-    <menuitem id="menu_sales_estimation_root"
-              name="Sales Register"
-              parent="sale.sale_menu_root"
-              sequence="98"/>
-
+    <!-- ── Menu Item ────────────────────────────────────────────────────────── -->
+    <!-- Placed under the existing "Sales Register" root from the sales_register module -->
     <menuitem id="menu_sales_estimation_status_report"
               name="Sales Estimation Report Status"
-              parent="menu_sales_estimation_root"
+              parent="sales_register.menu_sales_register_root"
               action="action_sales_estimation_status_wizard"
-              sequence="1"/>
+              sequence="2"/>
 
 </odoo>

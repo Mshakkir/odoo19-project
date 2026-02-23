@@ -20,11 +20,13 @@
                           decoration-success="state == 'purchase'"
                           default_order="date_order desc">
 
-                        <!-- Order Date -->
-                        <field name="date_order"
+                        <!-- Order Date (dd/mm/yy display) -->
+                        <field name="date_order" column_invisible="1"/>
+                        <field name="date_order_display"
                                string="Quotation Date"
                                optional="show"
-                               width="130px"/>
+                               readonly="1"
+                               width="110px"/>
 
                         <!-- Reference (PO Number) -->
                         <field name="name"
@@ -112,15 +114,19 @@
                                nolabel="1"
                                width="60px"/>
 
-                        <field name="date_approve"
+                        <field name="date_approve" column_invisible="1"/>
+                        <field name="date_approve_display"
                                string="Confirmation Date"
                                optional="hide"
-                               width="130px"/>
+                               readonly="1"
+                               width="110px"/>
 
-                        <field name="date_planned"
+                        <field name="date_planned" column_invisible="1"/>
+                        <field name="date_planned_display"
                                string="Expected Arrival"
                                optional="hide"
-                               width="130px"/>
+                               readonly="1"
+                               width="110px"/>
 
                         <field name="company_id"
                                readonly="1"
@@ -154,3 +160,165 @@
 
     </data>
 </odoo>
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <data>-->
+
+<!--        &lt;!&ndash; RFQ/Quotation List View &ndash;&gt;-->
+<!--        <record id="purchase_order_tree_inherit_custom_rfq" model="ir.ui.view">-->
+<!--            <field name="name">purchase.order.tree.inherit.custom.rfq</field>-->
+<!--            <field name="model">purchase.order</field>-->
+<!--            <field name="inherit_id" ref="purchase.purchase_order_kpis_tree"/>-->
+<!--            <field name="priority">100</field>-->
+<!--            <field name="arch" type="xml">-->
+
+<!--                &lt;!&ndash; IMPORTANT: Odoo 19 uses <list> not <tree> &ndash;&gt;-->
+<!--                <xpath expr="//list" position="replace">-->
+<!--                    <list string="Requests for Quotation"-->
+<!--                          multi_edit="1"-->
+<!--                          sample="1"-->
+<!--                          decoration-info="state in ('draft', 'sent')"-->
+<!--                          decoration-warning="state == 'to approve'"-->
+<!--                          decoration-success="state == 'purchase'"-->
+<!--                          default_order="date_order desc">-->
+
+<!--                        &lt;!&ndash; Order Date &ndash;&gt;-->
+<!--                        <field name="date_order"-->
+<!--                               string="Quotation Date"-->
+<!--                               optional="show"-->
+<!--                               width="130px"/>-->
+
+<!--                        &lt;!&ndash; Reference (PO Number) &ndash;&gt;-->
+<!--                        <field name="name"-->
+<!--                               string="Reference"-->
+<!--                               readonly="1"-->
+<!--                               width="130px"/>-->
+
+<!--                        &lt;!&ndash; Vendor &ndash;&gt;-->
+<!--                        <field name="partner_id"-->
+<!--                               string="Vendor"-->
+<!--                               width="150px"/>-->
+
+<!--                        &lt;!&ndash; Vendor Reference &ndash;&gt;-->
+<!--                        <field name="partner_ref"-->
+<!--                               string="Vendor Reference"-->
+<!--                               optional="show"-->
+<!--                               width="120px"/>-->
+
+<!--                        &lt;!&ndash; Warehouse &ndash;&gt;-->
+<!--                        <field name="picking_type_id"-->
+<!--                               string="Warehouse"-->
+<!--                               optional="show"-->
+<!--                               width="130px"/>-->
+
+<!--                        &lt;!&ndash; AWB Number (Shipping Reference) &ndash;&gt;-->
+<!--                        <field name="awb_number"-->
+<!--                               string="Shipping Ref #"-->
+<!--                               optional="show"-->
+<!--                               width="110px"/>-->
+
+<!--                        &lt;!&ndash; Untaxed Amount &ndash;&gt;-->
+<!--                        <field name="amount_untaxed"-->
+<!--                               string="Untaxed Amount"-->
+<!--                               widget="monetary"-->
+<!--                               sum="Total Untaxed"-->
+<!--                               optional="show"-->
+<!--                               width="120px"/>-->
+
+<!--                        &lt;!&ndash; Tax Amount &ndash;&gt;-->
+<!--                        <field name="amount_tax"-->
+<!--                               string="Tax Amount"-->
+<!--                               widget="monetary"-->
+<!--                               sum="Total Tax"-->
+<!--                               optional="show"-->
+<!--                               width="100px"/>-->
+
+<!--                        &lt;!&ndash; Total Amount &ndash;&gt;-->
+<!--                        <field name="amount_total"-->
+<!--                               string="Total Amount"-->
+<!--                               widget="monetary"-->
+<!--                               sum="Total"-->
+<!--                               optional="show"-->
+<!--                               width="120px"/>-->
+
+<!--                        &lt;!&ndash; Buyer &ndash;&gt;-->
+<!--                        <field name="user_id"-->
+<!--                               string="Buyer"-->
+<!--                               widget="many2one_avatar_user"-->
+<!--                               optional="show"-->
+<!--                               width="130px"/>-->
+
+<!--                        &lt;!&ndash; Status &ndash;&gt;-->
+<!--                        <field name="state"-->
+<!--                               string="Status"-->
+<!--                               widget="badge"-->
+<!--                               decoration-success="state == 'purchase'"-->
+<!--                               decoration-warning="state == 'to approve'"-->
+<!--                               decoration-info="state in ('draft', 'sent')"-->
+<!--                               optional="show"-->
+<!--                               width="90px"/>-->
+
+<!--                        &lt;!&ndash; Billing Status &ndash;&gt;-->
+<!--                        <field name="invoice_status"-->
+<!--                               string="Billing Status"-->
+<!--                               widget="badge"-->
+<!--                               decoration-success="invoice_status == 'invoiced'"-->
+<!--                               decoration-info="invoice_status == 'to invoice'"-->
+<!--                               optional="show"-->
+<!--                               width="110px"/>-->
+
+<!--                        &lt;!&ndash; Additional Hidden Fields &ndash;&gt;-->
+<!--                        <field name="priority"-->
+<!--                               optional="hide"-->
+<!--                               widget="priority"-->
+<!--                               nolabel="1"-->
+<!--                               width="60px"/>-->
+
+<!--                        <field name="date_approve"-->
+<!--                               string="Confirmation Date"-->
+<!--                               optional="hide"-->
+<!--                               width="130px"/>-->
+
+<!--                        <field name="date_planned"-->
+<!--                               string="Expected Arrival"-->
+<!--                               optional="hide"-->
+<!--                               width="130px"/>-->
+
+<!--                        <field name="company_id"-->
+<!--                               readonly="1"-->
+<!--                               options="{'no_create': True}"-->
+<!--                               groups="base.group_multi_company"-->
+<!--                               optional="hide"-->
+<!--                               width="120px"/>-->
+
+<!--                        <field name="activity_ids"-->
+<!--                               string="Next Activity"-->
+<!--                               widget="list_activity"-->
+<!--                               optional="hide"-->
+<!--                               width="100px"/>-->
+
+<!--                        <field name="origin"-->
+<!--                               string="Source Document"-->
+<!--                               optional="hide"-->
+<!--                               width="130px"/>-->
+
+<!--                        <field name="currency_id"-->
+<!--                               column_invisible="True"/>-->
+
+<!--                        <field name="activity_exception_decoration"-->
+<!--                               widget="activity_exception"/>-->
+
+<!--                    </list>-->
+<!--                </xpath>-->
+
+<!--            </field>-->
+<!--        </record>-->
+
+<!--    </data>-->
+<!--</odoo>-->

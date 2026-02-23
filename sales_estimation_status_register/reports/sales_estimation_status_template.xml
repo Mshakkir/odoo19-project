@@ -6,74 +6,107 @@
             <t t-call="web.external_layout">
                 <div class="page">
 
-                    <!-- Report Header -->
-                    <div class="text-center mb-4">
-                        <h2>Sales Estimation Status Register</h2>
-                        <h4>
-                            <t t-esc="docs.company_id.name"/>
-                        </h4>
-                        <p>
+                    <!-- Title -->
+                    <div class="text-center mb-3">
+                        <h2 style="color:#4472C4; margin-bottom:4px;">Sales Estimation Status Register</h2>
+                        <h4 style="margin-bottom:4px;"><t t-esc="docs.company_id.name"/></h4>
+                        <p style="margin-bottom:2px;">
                             Period:
-                            <strong>
-                                <t t-esc="docs.date_from" t-options='{"widget": "date"}'/>
-                            </strong>
+                            <strong><t t-esc="docs.date_from" t-options='{"widget":"date"}'/></strong>
                             to
-                            <strong>
-                                <t t-esc="docs.date_to" t-options='{"widget": "date"}'/>
-                            </strong>
+                            <strong><t t-esc="docs.date_to"   t-options='{"widget":"date"}'/></strong>
                         </p>
-                        <p>
+                        <p style="font-size:10px; color:#666; margin-bottom:2px;">
                             Type: <t t-esc="docs.estimation_type"/>
-                            | Filter: <t t-esc="docs.date_filter"/>
+                            &#160;|&#160; Filter: <t t-esc="docs.date_filter"/>
                             <t t-if="docs.partner_id">
-                                | Party: <t t-esc="docs.partner_id.name"/>
+                                &#160;|&#160; Party: <t t-esc="docs.partner_id.name"/>
+                            </t>
+                            <t t-if="docs.form_type">
+                                &#160;|&#160; Form Type: <t t-esc="docs.form_type"/>
                             </t>
                         </p>
                     </div>
 
-                    <!-- Data Table -->
                     <t t-set="estimation_data" t-value="docs._get_estimation_data()"/>
 
-                    <table class="table table-sm table-bordered" style="font-size:9px;">
-                        <thead style="background-color:#4472C4; color:white;">
+                    <table class="table table-sm table-bordered"
+                           style="font-size:7px; width:100%; table-layout:fixed; word-wrap:break-word;">
+                        <colgroup>
+                            <!-- New first 7 columns -->
+                            <col style="width:6%;"/>   <!-- Date -->
+                            <col style="width:5%;"/>   <!-- Vno -->
+                            <col style="width:7%;"/>   <!-- Warehouse -->
+                            <col style="width:8%;"/>   <!-- Customer Name -->
+                            <col style="width:9%;"/>   <!-- Address -->
+                            <col style="width:6%;"/>   <!-- Cell No -->
+                            <col style="width:8%;"/>   <!-- Sales Account -->
+                            <!-- Remaining columns -->
+                            <col style="width:4%;"/>   <!-- Type -->
+                            <col style="width:5%;"/>   <!-- Form Type -->
+                            <col style="width:5%;"/>   <!-- Bill Mode -->
+                            <col style="width:5%;"/>   <!-- Doc No -->
+                            <col style="width:6%;"/>   <!-- VAT/TRN -->
+                            <col style="width:8%;"/>   <!-- Product -->
+                            <col style="width:3%;"/>   <!-- Qty -->
+                            <col style="width:4%;"/>   <!-- Unit Price -->
+                            <col style="width:4%;"/>   <!-- Subtotal -->
+                            <col style="width:4%;"/>   <!-- Discount -->
+                            <col style="width:4%;"/>   <!-- Tax -->
+                            <col style="width:4%;"/>   <!-- Tax Amt -->
+                            <col style="width:4%;"/>   <!-- Total -->
+                            <col style="width:4%;"/>   <!-- Status -->
+                            <col style="width:3%;"/>   <!-- Currency -->
+                        </colgroup>
+                        <thead style="background-color:#4472C4; color:white; text-align:center;">
                             <tr>
                                 <th>Date</th>
+                                <th>Vno</th>
+                                <th>Warehouse</th>
+                                <th>Customer Name</th>
+                                <th>Address</th>
+                                <th>Cell No</th>
+                                <th>Sales Account</th>
                                 <th>Type</th>
                                 <th>Form Type</th>
                                 <th>Bill Mode</th>
-                                <th>Document No.</th>
-                                <th>Party</th>
+                                <th>Doc No.</th>
                                 <th>VAT/TRN</th>
                                 <th>Product</th>
-                                <th class="text-end">Qty</th>
-                                <th class="text-end">Unit Price</th>
-                                <th class="text-end">Subtotal</th>
-                                <th class="text-end">Discount</th>
+                                <th>Qty</th>
+                                <th>Unit Price</th>
+                                <th>Subtotal</th>
+                                <th>Discount</th>
                                 <th>Tax</th>
-                                <th class="text-end">Tax Amt</th>
-                                <th class="text-end">Total</th>
+                                <th>Tax Amt</th>
+                                <th>Total</th>
                                 <th>Status</th>
                                 <th>Currency</th>
                             </tr>
                         </thead>
                         <tbody>
                             <t t-foreach="estimation_data" t-as="line">
-                                <tr>
+                                <tr style="vertical-align:top;">
                                     <td><t t-esc="line['date']"/></td>
+                                    <td><t t-esc="line['vno']"/></td>
+                                    <td><t t-esc="line['warehouse']"/></td>
+                                    <td><t t-esc="line['customer_name']"/></td>
+                                    <td><t t-esc="line['address']"/></td>
+                                    <td><t t-esc="line['cell_no']"/></td>
+                                    <td><t t-esc="line['sales_account']"/></td>
                                     <td><t t-esc="line['estimation_type']"/></td>
                                     <td><t t-esc="line['form_type']"/></td>
                                     <td><t t-esc="line['bill_mode']"/></td>
                                     <td><t t-esc="line['document_number']"/></td>
-                                    <td><t t-esc="line['customer_name']"/></td>
                                     <td><t t-esc="line['customer_vat']"/></td>
                                     <td><t t-esc="line['product']"/></td>
-                                    <td class="text-end"><t t-esc="'%.2f' % line['quantity']"/></td>
-                                    <td class="text-end"><t t-esc="'%.2f' % line['unit_price']"/></td>
-                                    <td class="text-end"><t t-esc="'%.2f' % line['subtotal']"/></td>
-                                    <td class="text-end"><t t-esc="'%.2f' % line['discount']"/></td>
+                                    <td style="text-align:right;"><t t-esc="'%.2f' % (line['quantity'] or 0)"/></td>
+                                    <td style="text-align:right;"><t t-esc="'%.2f' % (line['unit_price'] or 0)"/></td>
+                                    <td style="text-align:right;"><t t-esc="'%.2f' % (line['subtotal'] or 0)"/></td>
+                                    <td style="text-align:right;"><t t-esc="'%.2f' % (line['discount'] or 0)"/></td>
                                     <td><t t-esc="line['taxes']"/></td>
-                                    <td class="text-end"><t t-esc="'%.2f' % line['tax_amount']"/></td>
-                                    <td class="text-end"><t t-esc="'%.2f' % line['total']"/></td>
+                                    <td style="text-align:right;"><t t-esc="'%.2f' % (line['tax_amount'] or 0)"/></td>
+                                    <td style="text-align:right;"><t t-esc="'%.2f' % (line['total'] or 0)"/></td>
                                     <td><t t-esc="line['state']"/></td>
                                     <td><t t-esc="line['currency']"/></td>
                                 </tr>
@@ -81,33 +114,28 @@
 
                             <!-- Totals row -->
                             <tr style="background-color:#D9E1F2; font-weight:bold;">
-                                <td colspan="10" class="text-end">TOTAL:</td>
-                                <td class="text-end">
-                                    <t t-esc="'%.2f' % sum(l['subtotal'] for l in estimation_data)"/>
+                                <td colspan="15" style="text-align:right;">TOTAL:</td>
+                                <td style="text-align:right;">
+                                    <t t-esc="'%.2f' % sum(l['subtotal'] or 0 for l in estimation_data)"/>
                                 </td>
-                                <td class="text-end">
-                                    <t t-esc="'%.2f' % sum(l['discount'] for l in estimation_data)"/>
+                                <td style="text-align:right;">
+                                    <t t-esc="'%.2f' % sum(l['discount'] or 0 for l in estimation_data)"/>
                                 </td>
                                 <td></td>
-                                <td class="text-end">
-                                    <t t-esc="'%.2f' % sum(l['tax_amount'] for l in estimation_data)"/>
+                                <td style="text-align:right;">
+                                    <t t-esc="'%.2f' % sum(l['tax_amount'] or 0 for l in estimation_data)"/>
                                 </td>
-                                <td class="text-end">
-                                    <t t-esc="'%.2f' % sum(l['total'] for l in estimation_data)"/>
+                                <td style="text-align:right;">
+                                    <t t-esc="'%.2f' % sum(l['total'] or 0 for l in estimation_data)"/>
                                 </td>
                                 <td colspan="2"></td>
                             </tr>
                         </tbody>
                     </table>
 
-                    <!-- Footer note -->
-                    <div class="mt-3" style="font-size:9px; color:#666;">
-                        <t t-if="docs.use_ledger_currency">
-                            * Amounts shown in Ledger Currency
-                        </t>
-                        <t t-else="">
-                            * Amounts shown in Transaction Currency
-                        </t>
+                    <div class="mt-2" style="font-size:8px; color:#888;">
+                        <t t-if="docs.use_ledger_currency">* Amounts in Ledger Currency</t>
+                        <t t-else="">* Amounts in Transaction Currency</t>
                     </div>
 
                 </div>

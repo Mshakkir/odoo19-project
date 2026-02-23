@@ -63,9 +63,9 @@
                     <div class="row mt-2 mb-2">
                         <div class="col-12">
                             <div class="btn-group w-100" role="group">
-                                <button type="object" name="_set_filter_daily"     class="btn btn-outline-secondary btn-sm" string="Daily"/>
-                                <button type="object" name="_set_filter_one_week"  class="btn btn-outline-secondary btn-sm" string="One Week"/>
-                                <button type="object" name="_set_filter_two_week"  class="btn btn-outline-secondary btn-sm" string="Two Week"/>
+                                <button type="object" name="set_filter_daily"     class="btn btn-outline-secondary btn-sm" string="Daily"/>
+                                <button type="object" name="set_filter_one_week"  class="btn btn-outline-secondary btn-sm" string="One Week"/>
+                                <button type="object" name="set_filter_two_week"  class="btn btn-outline-secondary btn-sm" string="Two Week"/>
                                 <button type="object" name="_set_filter_one_month" class="btn btn-outline-secondary btn-sm" string="One Month"/>
                                 <button type="object" name="_set_filter_two_month" class="btn btn-outline-secondary btn-sm" string="Two Month"/>
                                 <button type="object" name="_set_filter_quarterly" class="btn btn-outline-secondary btn-sm" string="Quarterly"/>

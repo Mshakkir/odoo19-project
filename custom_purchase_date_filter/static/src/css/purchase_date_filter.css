@@ -66,9 +66,9 @@
     border-radius: 4px 0 0 4px;
     border-right: none;
     font-size: 12px;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     background-color: #ffffff;
-    cursor: pointer;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    cursor: text;
 }
 
 .date_picker_wrap {
@@ -84,7 +84,7 @@
     background-color: #f0f0f0;
     font-size: 13px;
     cursor: pointer;
-    line-height: 1.4;
+    line-height: 1.5;
     transition: background-color 0.15s;
     user-select: none;
 }

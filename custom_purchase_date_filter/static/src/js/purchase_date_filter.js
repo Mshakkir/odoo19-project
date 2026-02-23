@@ -231,12 +231,12 @@ patch(ListController.prototype, {
                             <label class="filter_label">Order Date:</label>
                             <div class="date_input_group">
                                 <div class="date_picker_wrap">
-                                    <input type="text" class="form-control date_input purchase_fp_from" id="${fromId}" value="${dateFrom}" placeholder="dd/mm/yy" autocomplete="off" readonly />
+                                    <input type="text" class="form-control date_input" id="${fromId}" value="${dateFrom}" placeholder="dd/mm/yy" maxlength="8" autocomplete="off" />
                                     <span class="date_cal_icon" data-target="${fromId}">&#128197;</span>
                                 </div>
                                 <span class="date_separator">→</span>
                                 <div class="date_picker_wrap">
-                                    <input type="text" class="form-control date_input purchase_fp_to" id="${toId}" value="${dateTo}" placeholder="dd/mm/yy" autocomplete="off" readonly />
+                                    <input type="text" class="form-control date_input" id="${toId}" value="${dateTo}" placeholder="dd/mm/yy" maxlength="8" autocomplete="off" />
                                     <span class="date_cal_icon" data-target="${toId}">&#128197;</span>
                                 </div>
                             </div>
@@ -336,12 +336,12 @@ patch(ListController.prototype, {
                             <label class="filter_label">Bill Date:</label>
                             <div class="date_input_group">
                                 <div class="date_picker_wrap">
-                                    <input type="text" class="form-control date_input purchase_fp_from" id="${fromId}" value="${dateFrom}" placeholder="dd/mm/yy" autocomplete="off" readonly />
+                                    <input type="text" class="form-control date_input" id="${fromId}" value="${dateFrom}" placeholder="dd/mm/yy" maxlength="8" autocomplete="off" />
                                     <span class="date_cal_icon" data-target="${fromId}">&#128197;</span>
                                 </div>
                                 <span class="date_separator">→</span>
                                 <div class="date_picker_wrap">
-                                    <input type="text" class="form-control date_input purchase_fp_to" id="${toId}" value="${dateTo}" placeholder="dd/mm/yy" autocomplete="off" readonly />
+                                    <input type="text" class="form-control date_input" id="${toId}" value="${dateTo}" placeholder="dd/mm/yy" maxlength="8" autocomplete="off" />
                                     <span class="date_cal_icon" data-target="${toId}">&#128197;</span>
                                 </div>
                             </div>
@@ -536,7 +536,7 @@ patch(ListController.prototype, {
         });
     },
 
-    // Format a Date object → "dd/mm/yy"
+    // Format Date → "dd/mm/yy"
     formatDDMMYY(date) {
         const dd = String(date.getDate()).padStart(2, '0');
         const mm = String(date.getMonth() + 1).padStart(2, '0');
@@ -557,11 +557,10 @@ patch(ListController.prototype, {
         return `${fullYear}-${mm}-${dd}`;
     },
 
-    // Load Flatpickr from CDN (only once)
+    // Load Flatpickr from CDN once
     loadFlatpickr() {
         return new Promise((resolve) => {
             if (window.flatpickr) { resolve(); return; }
-            // Load CSS
             if (!document.getElementById('flatpickr-css')) {
                 const link = document.createElement('link');
                 link.id = 'flatpickr-css';
@@ -569,11 +568,10 @@ patch(ListController.prototype, {
                 link.href = 'https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css';
                 document.head.appendChild(link);
             }
-            // Load JS
             const script = document.createElement('script');
             script.src = 'https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js';
             script.onload = () => resolve();
-            script.onerror = () => resolve(); // fail gracefully
+            script.onerror = () => resolve();
             document.head.appendChild(script);
         });
     },
@@ -604,29 +602,56 @@ patch(ListController.prototype, {
 
         if (!dateFromInput || !dateToInput || !applyBtn || !clearBtn) return;
 
-        // Initialize Flatpickr calendar pickers (dd/mm/yy format)
+        // Auto-insert slashes as user types: turns "010226" → "01/02/26"
+        const autoSlash = (input) => {
+            input.addEventListener('keydown', (e) => {
+                // Allow: backspace, delete, tab, arrows
+                if (['Backspace','Delete','Tab','ArrowLeft','ArrowRight'].includes(e.key)) return;
+                // Only allow digits
+                if (!/^\d$/.test(e.key)) { e.preventDefault(); return; }
+            });
+            input.addEventListener('input', (e) => {
+                // Strip non-digits, then re-insert slashes
+                let digits = e.target.value.replace(/\D/g, '').slice(0, 6);
+                let formatted = digits;
+                if (digits.length > 2) formatted = digits.slice(0,2) + '/' + digits.slice(2);
+                if (digits.length > 4) formatted = digits.slice(0,2) + '/' + digits.slice(2,4) + '/' + digits.slice(4);
+                // Only update if changed (avoid cursor jump)
+                if (e.target.value !== formatted) e.target.value = formatted;
+            });
+        };
+        autoSlash(dateFromInput);
+        autoSlash(dateToInput);
+
+        // Flatpickr calendar pickers — "allowInput: true" lets typed text also work
         this.loadFlatpickr().then(() => {
             if (!window.flatpickr) return;
-
-            const fpConfig = {
-                dateFormat: 'd/m/y',       // display: dd/mm/yy
-                allowInput: false,
+            const fpCfg = {
+                dateFormat: 'd/m/y',
+                allowInput: true,
                 disableMobile: true,
-            };
-
-            const fpFrom = flatpickr(dateFromInput, fpConfig);
-            const fpTo   = flatpickr(dateToInput,   fpConfig);
-
-            // Calendar icon clicks open the picker
-            document.querySelectorAll('.date_cal_icon').forEach(icon => {
-                icon.addEventListener('click', () => {
-                    const targetId = icon.getAttribute('data-target');
-                    const targetEl = document.getElementById(targetId);
-                    if (targetEl && targetEl._flatpickr) {
-                        targetEl._flatpickr.open();
+                parseDate(dateStr, format) {
+                    // Parse dd/mm/yy typed by user
+                    const parts = dateStr.split('/');
+                    if (parts.length === 3) {
+                        return new Date(2000 + parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
                     }
+                    return new Date(dateStr);
+                },
+            };
+            flatpickr(dateFromInput, fpCfg);
+            flatpickr(dateToInput,   fpCfg);
+
+            // Calendar icon → open the picker
+            const filterEl = this._purchaseFilterElement;
+            if (filterEl) {
+                filterEl.querySelectorAll('.date_cal_icon').forEach(icon => {
+                    icon.addEventListener('click', () => {
+                        const el = document.getElementById(icon.getAttribute('data-target'));
+                        if (el && el._flatpickr) el._flatpickr.open();
+                    });
                 });
-            });
+            }
         });
 
         // Apply filter function
@@ -644,7 +669,7 @@ patch(ListController.prototype, {
                 const dateTo   = this.parseDDMMYY(dateToRaw);
 
                 if (!dateFrom || !dateTo) {
-                    this.notification.add("Invalid date format. Use dd/mm/yy", { type: "warning" });
+                    this.notification.add("Invalid date. Use dd/mm/yy format (e.g. 01/02/26)", { type: "warning" });
                     return;
                 }
 
@@ -813,7 +838,6 @@ patch(ListController.prototype, {
                 const today = new Date();
                 const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
 
-                // Reset via Flatpickr if available, else direct value set
                 if (dateFromInput._flatpickr) {
                     dateFromInput._flatpickr.setDate(firstDay, true);
                 } else {

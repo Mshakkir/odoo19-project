@@ -71,8 +71,11 @@ class SalesEstimationStatusWizard(models.TransientModel):
     )
 
     use_ledger_currency = fields.Boolean(string='Use Ledger Currency', default=False)
+
     company_id = fields.Many2one(
-        'res.company', string='Company', required=True,
+        'res.company',
+        string='Company',
+        required=True,
         default=lambda self: self.env.company,
     )
 
@@ -129,8 +132,6 @@ class SalesEstimationStatusWizard(models.TransientModel):
                 raise UserError(_('From Date must be before or equal to To Date.'))
 
     def _build_domain(self):
-        """Build clean, non-conflicting domain for sale.order search."""
-        # date_order is a Datetime field — use full day boundaries
         date_from_dt = datetime.combine(self.date_from, datetime.min.time())
         date_to_dt = datetime.combine(self.date_to, datetime.max.time())
 
@@ -140,25 +141,20 @@ class SalesEstimationStatusWizard(models.TransientModel):
             ('company_id', '=', self.company_id.id),
         ]
 
-        # Determine allowed states — start broad, then narrow
-        all_states = {'draft', 'sent', 'sale', 'done', 'cancel'}
-
         if self.form_type == 'quotation':
             allowed = {'draft', 'sent'}
         elif self.form_type == 'sale_order':
             allowed = {'sale', 'done'}
         else:
-            allowed = {'draft', 'sent', 'sale', 'done'}  # both, exclude cancel by default
+            allowed = {'draft', 'sent', 'sale', 'done'}
 
-        # Apply confirmed filter on top
         if self.by_confirmed_status and self.confirmed:
             allowed &= {'sale', 'done'}
 
-        # Apply cancelled filter
         if self.by_cancelled_status and self.cancelled:
             allowed = {'cancel'}
-        elif not (self.by_cancelled_status and self.cancelled):
-            allowed -= {'cancel'}
+        else:
+            allowed.discard('cancel')
 
         domain.append(('state', 'in', list(allowed)))
 
@@ -175,13 +171,12 @@ class SalesEstimationStatusWizard(models.TransientModel):
 
         data = []
         for order in orders:
-            # Bill mode filter in Python
             if self.bill_mode and self.bill_mode != 'both':
                 has_delay = False
                 if order.payment_term_id and order.payment_term_id.line_ids:
                     has_delay = any(
-                        getattr(l, 'nb_days', 0) > 0
-                        for l in order.payment_term_id.line_ids
+                        getattr(ln, 'nb_days', 0) > 0
+                        for ln in order.payment_term_id.line_ids
                     )
                 if self.bill_mode == 'cash' and has_delay:
                     continue
@@ -202,19 +197,30 @@ class SalesEstimationStatusWizard(models.TransientModel):
 
     def _build_row(self, order, line):
         if line:
-            taxes_str = ', '.join(line.tax_id.mapped('name')) if line.tax_id else ''
-            tax_amount = line.price_tax if hasattr(line, 'price_tax') else 0.0
-            subtotal = line.price_subtotal
-            total = line.price_total if hasattr(line, 'price_total') else subtotal + tax_amount
-            qty = line.product_uom_qty
-            unit_price = line.price_unit
-            product_name = line.product_id.name if line.product_id else (line.name or '')
-            discount_amount = (line.price_unit * line.product_uom_qty) * (line.discount / 100.0) if line.discount else 0.0
+            # --- FIX: Odoo 19 uses tax_ids (plural). Use try/except to be safe. ---
+            try:
+                taxes = line.tax_ids
+            except AttributeError:
+                try:
+                    taxes = line.tax_id
+                except AttributeError:
+                    taxes = False
+
+            taxes_str = ', '.join(taxes.mapped('name')) if taxes else ''
+            tax_amount = getattr(line, 'price_tax', 0.0) or 0.0
+            subtotal = getattr(line, 'price_subtotal', 0.0) or 0.0
+            price_total = getattr(line, 'price_total', None)
+            total = price_total if (price_total is not None) else (subtotal + tax_amount)
+            qty = getattr(line, 'product_uom_qty', 0.0) or 0.0
+            unit_price = getattr(line, 'price_unit', 0.0) or 0.0
+            product_name = (line.product_id.name if line.product_id else '') or (line.name or '')
+            discount_pct = getattr(line, 'discount', 0.0) or 0.0
+            discount_amount = (unit_price * qty) * (discount_pct / 100.0) if discount_pct else 0.0
         else:
             taxes_str = ''
-            tax_amount = order.amount_tax
-            subtotal = order.amount_untaxed
-            total = order.amount_total
+            tax_amount = order.amount_tax or 0.0
+            subtotal = order.amount_untaxed or 0.0
+            total = order.amount_total or 0.0
             qty = 0.0
             unit_price = 0.0
             product_name = ''
@@ -222,14 +228,16 @@ class SalesEstimationStatusWizard(models.TransientModel):
 
         state_label = dict(order._fields['state'].selection).get(order.state, order.state)
         form_label = 'Quotation' if order.state in ('draft', 'sent') else 'Sale Order'
-        type_label = dict(self._fields['estimation_type'].selection).get(self.estimation_type, self.estimation_type)
+        type_label = dict(self._fields['estimation_type'].selection).get(
+            self.estimation_type, self.estimation_type
+        )
 
         return {
             'date': order.date_order.date() if order.date_order else False,
             'estimation_type': type_label,
             'form_type': form_label,
             'bill_mode': order.payment_term_id.name if order.payment_term_id else 'Immediate',
-            'document_number': order.name,
+            'document_number': order.name or '',
             'customer_name': order.partner_id.name or '',
             'customer_vat': order.partner_id.vat or '',
             'product': product_name,
@@ -251,7 +259,7 @@ class SalesEstimationStatusWizard(models.TransientModel):
             '  • Set Form Type to "Both"\n'
             '  • Use a wider date range (One Year / Yearly)\n'
             '  • Uncheck "By Confirmed Status" and "By Cancelled Status"\n'
-            '  • Clear the Party filter'
+            '  • Clear the Party filter to include all customers'
         ))
 
     def action_show_report(self):
@@ -323,17 +331,16 @@ class SalesEstimationStatusWizard(models.TransientModel):
         workbook = xlsxwriter.Workbook(output, {'in_memory': True})
         ws = workbook.add_worksheet('Sales Estimation Status')
 
-        title_fmt = workbook.add_format({'bold': True, 'font_size': 14, 'align': 'center'})
-        header_fmt = workbook.add_format({
-            'bold': True, 'bg_color': '#4472C4', 'font_color': 'white',
-            'border': 1, 'align': 'center',
-        })
+        title_fmt = workbook.add_format({'bold': True, 'font_size': 14, 'align': 'center', 'valign': 'vcenter'})
+        header_fmt = workbook.add_format({'bold': True, 'bg_color': '#4472C4', 'font_color': 'white', 'border': 1, 'align': 'center', 'valign': 'vcenter'})
         date_fmt = workbook.add_format({'num_format': 'dd/mm/yyyy', 'border': 1})
         num_fmt = workbook.add_format({'num_format': '#,##0.00', 'border': 1})
         text_fmt = workbook.add_format({'border': 1})
         total_fmt = workbook.add_format({'bold': True, 'bg_color': '#D9E1F2', 'border': 1, 'num_format': '#,##0.00'})
         total_label_fmt = workbook.add_format({'bold': True, 'bg_color': '#D9E1F2', 'border': 1, 'align': 'right'})
 
+        ws.set_row(0, 22)
+        ws.set_row(4, 18)
         ws.merge_range('A1:Q1', 'SALES ESTIMATION STATUS REGISTER', title_fmt)
         ws.merge_range('A2:Q2', self.company_id.name, title_fmt)
         ws.merge_range('A3:Q3',
@@ -351,41 +358,45 @@ class SalesEstimationStatusWizard(models.TransientModel):
         row = 5
         totals = {k: 0.0 for k in ['subtotal', 'discount', 'tax_amount', 'total']}
         for rec in data:
-            date_val = rec['date']
+            date_val = rec.get('date')
             if date_val:
                 ws.write_datetime(row, 0, datetime.combine(date_val, datetime.min.time()), date_fmt)
             else:
                 ws.write(row, 0, '', text_fmt)
-            ws.write(row, 1, rec.get('estimation_type', ''), text_fmt)
-            ws.write(row, 2, rec.get('form_type', ''), text_fmt)
-            ws.write(row, 3, rec.get('bill_mode', ''), text_fmt)
-            ws.write(row, 4, rec.get('document_number', ''), text_fmt)
-            ws.write(row, 5, rec.get('customer_name', ''), text_fmt)
-            ws.write(row, 6, rec.get('customer_vat', ''), text_fmt)
-            ws.write(row, 7, rec.get('product', ''), text_fmt)
-            ws.write(row, 8, rec.get('quantity', 0), num_fmt)
-            ws.write(row, 9, rec.get('unit_price', 0), num_fmt)
-            ws.write(row, 10, rec.get('subtotal', 0), num_fmt)
-            ws.write(row, 11, rec.get('discount', 0), num_fmt)
-            ws.write(row, 12, rec.get('taxes', ''), text_fmt)
-            ws.write(row, 13, rec.get('tax_amount', 0), num_fmt)
-            ws.write(row, 14, rec.get('total', 0), num_fmt)
-            ws.write(row, 15, rec.get('state', ''), text_fmt)
-            ws.write(row, 16, rec.get('currency', ''), text_fmt)
+            ws.write(row, 1,  rec.get('estimation_type', ''),  text_fmt)
+            ws.write(row, 2,  rec.get('form_type', ''),        text_fmt)
+            ws.write(row, 3,  rec.get('bill_mode', ''),        text_fmt)
+            ws.write(row, 4,  rec.get('document_number', ''),  text_fmt)
+            ws.write(row, 5,  rec.get('customer_name', ''),    text_fmt)
+            ws.write(row, 6,  rec.get('customer_vat', ''),     text_fmt)
+            ws.write(row, 7,  rec.get('product', ''),          text_fmt)
+            ws.write(row, 8,  rec.get('quantity', 0),          num_fmt)
+            ws.write(row, 9,  rec.get('unit_price', 0),        num_fmt)
+            ws.write(row, 10, rec.get('subtotal', 0),          num_fmt)
+            ws.write(row, 11, rec.get('discount', 0),          num_fmt)
+            ws.write(row, 12, rec.get('taxes', ''),            text_fmt)
+            ws.write(row, 13, rec.get('tax_amount', 0),        num_fmt)
+            ws.write(row, 14, rec.get('total', 0),             num_fmt)
+            ws.write(row, 15, rec.get('state', ''),            text_fmt)
+            ws.write(row, 16, rec.get('currency', ''),         text_fmt)
             for k in totals:
                 totals[k] += rec.get(k, 0)
             row += 1
 
-        ws.write(row, 9, 'TOTAL:', total_label_fmt)
-        ws.write(row, 10, totals['subtotal'], total_fmt)
-        ws.write(row, 11, totals['discount'], total_fmt)
+        ws.write(row, 9,  'TOTAL:',            total_label_fmt)
+        ws.write(row, 10, totals['subtotal'],   total_fmt)
+        ws.write(row, 11, totals['discount'],   total_fmt)
+        ws.write(row, 12, '',                   total_label_fmt)
         ws.write(row, 13, totals['tax_amount'], total_fmt)
-        ws.write(row, 14, totals['total'], total_fmt)
+        ws.write(row, 14, totals['total'],      total_fmt)
 
         ws.set_column('A:A', 13)
-        ws.set_column('B:D', 14)
+        ws.set_column('B:B', 11)
+        ws.set_column('C:C', 13)
+        ws.set_column('D:D', 16)
         ws.set_column('E:E', 16)
-        ws.set_column('F:G', 24)
+        ws.set_column('F:F', 26)
+        ws.set_column('G:G', 16)
         ws.set_column('H:H', 30)
         ws.set_column('I:Q', 13)
 

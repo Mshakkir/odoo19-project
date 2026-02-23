@@ -165,49 +165,48 @@ class SalesEstimationStatusWizard(models.TransientModel):
         return domain
 
     def _get_address(self, partner):
-        """Build a single address string from partner fields."""
+        """Build a single address string from partner fields using safe access."""
         parts = []
-        if partner.street:
-            parts.append(partner.street)
-        if partner.street2:
-            parts.append(partner.street2)
-        if partner.city:
-            parts.append(partner.city)
-        if partner.state_id:
-            parts.append(partner.state_id.name)
-        if partner.country_id:
-            parts.append(partner.country_id.name)
+        for field in ['street', 'street2', 'city']:
+            val = getattr(partner, field, '') or ''
+            if val:
+                parts.append(val)
+        state = getattr(partner, 'state_id', False)
+        if state:
+            parts.append(state.name)
+        country = getattr(partner, 'country_id', False)
+        if country:
+            parts.append(country.name)
         return ', '.join(filter(None, parts))
 
     def _get_cell_no(self, partner):
-        """Return mobile first, then phone."""
-        return partner.mobile or partner.phone or ''
+        """Return mobile first, then phone — safe for any Odoo version."""
+        mobile = getattr(partner, 'mobile', None) or getattr(partner, 'phone', None) or ''
+        if not mobile:
+            mobile = getattr(partner, 'phone', '') or ''
+        return mobile
 
     def _get_sales_account(self, line):
         """Return the sales/income account for the product line."""
         if not line or not line.product_id:
             return ''
-        # Try product's income account first
         product = line.product_id
-        account = None
-        try:
-            account = product.property_account_income_id
-        except Exception:
-            pass
+        account = getattr(product, 'property_account_income_id', False) or False
         if not account:
-            try:
-                account = product.categ_id.property_account_income_categ_id
-            except Exception:
-                pass
-        return account.code + ' ' + account.name if account else ''
+            categ = getattr(product, 'categ_id', False)
+            if categ:
+                account = getattr(categ, 'property_account_income_categ_id', False) or False
+        if account:
+            code = getattr(account, 'code', '') or ''
+            name = getattr(account, 'name', '') or ''
+            return (code + ' ' + name).strip()
+        return ''
 
     def _get_warehouse(self, order):
         """Return warehouse name from the sale order."""
-        try:
-            if order.warehouse_id:
-                return order.warehouse_id.name
-        except Exception:
-            pass
+        warehouse = getattr(order, 'warehouse_id', False)
+        if warehouse:
+            return getattr(warehouse, 'name', '') or ''
         return ''
 
     def _get_estimation_data(self):

@@ -16,9 +16,9 @@
                       multi_edit="1">
 
                     <!-- COLUMN ORDER - PRIORITY ORDER -->
-                    <!-- 1. Invoice Date -->
-                    <field name="invoice_date" string="Bill Date" widget="date"
-                           options="{'format': 'dd/MM/yy'}" width="100px"/>
+                    <!-- 1. Invoice Date (formatted dd/mm/yy display) -->
+                    <field name="invoice_date" column_invisible="1"/>
+                    <field name="invoice_date_display" string="Bill Date" width="90px" readonly="1"/>
 
                     <!-- 2. Invoice Number (Bill Number) -->
                     <field name="name" string="Bill Number" readonly="1" width="140px"/>
@@ -41,9 +41,9 @@
                     <!-- 8. Amount Due -->
                     <field name="amount_residual" string="Amount Due" sum="Total Due" width="160px"/>
 
-                    <!-- 9. Due Date -->
-                    <field name="invoice_date_due" string="Due Date" widget="date"
-                           options="{'format': 'dd/MM/yy'}" width="110px"/>
+                    <!-- 9. Due Date (formatted dd/mm/yy display) -->
+                    <field name="invoice_date_due" column_invisible="1"/>
+                    <field name="invoice_date_due_display" string="Due Date" width="90px" readonly="1"/>
 
                     <!-- 10. Buyer - ALWAYS VISIBLE -->
                     <field name="buyer_id" string="Buyer" width="130px"/>
@@ -165,7 +165,6 @@ if records:
 
     </data>
 </odoo>
-
 
 
 

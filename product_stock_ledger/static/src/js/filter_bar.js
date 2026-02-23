@@ -5,18 +5,8 @@ import { useService } from "@web/core/utils/hooks";
 import { patch } from "@web/core/utils/patch";
 import { ListRenderer } from "@web/views/list/list_renderer";
 
-// ── Date helpers: dd/mm/yy ↔ YYYY-MM-DD ──────────────────────────────────────
-function displayToIso(val) {
-    // "21/02/26" → "2026-02-21"
-    const m = val.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
-    if (!m) return "";
-    let [, dd, mm, yy] = m;
-    const year = yy.length === 2 ? "20" + yy : yy;
-    return `${year}-${mm.padStart(2,"0")}-${dd.padStart(2,"0")}`;
-}
-
+// ── Date helpers ──────────────────────────────────────────────────────────────
 function autoFormat(raw) {
-    // Strip non-digits
     const d = raw.replace(/\D/g, "").slice(0, 6);
     if (d.length <= 2) return d;
     if (d.length <= 4) return d.slice(0,2) + "/" + d.slice(2);
@@ -25,6 +15,20 @@ function autoFormat(raw) {
 
 function isValidDisplay(val) {
     return /^\d{2}\/\d{2}\/\d{2}$/.test(val);
+}
+
+function displayToIso(val) {
+    // "21/02/26" → "2026-02-21"
+    const m = val.match(/^(\d{2})\/(\d{2})\/(\d{2})$/);
+    if (!m) return "";
+    return `20${m[3]}-${m[2]}-${m[1]}`;
+}
+
+function isoToDisplay(iso) {
+    // "2026-02-21" → "21/02/26"
+    const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m) return "";
+    return `${m[3]}/${m[2]}/${m[1].slice(2)}`;
 }
 
 // ── Filter Bar Component ──────────────────────────────────────────────────────
@@ -38,9 +42,9 @@ class StockLedgerFilterBar extends Component {
             product: "",
             productId: null,
             warehouseId: "",
-            dateFromDisplay: "",   // shown in input as dd/mm/yy
+            dateFromDisplay: "",
             dateToDisplay: "",
-            dateFrom: "",          // ISO for domain: YYYY-MM-DD
+            dateFrom: "",
             dateTo: "",
             voucher: "",
             moveType: "",
@@ -69,14 +73,13 @@ class StockLedgerFilterBar extends Component {
         } catch (_) {}
     }
 
-    // ── Date input handlers ───────────────────────────────────────────────────
+    // ── Date text input (manual typing) ──────────────────────────────────────
     onDateFromInput(ev) {
-        const formatted = autoFormat(ev.target.value);
-        this.state.dateFromDisplay = formatted;
-        ev.target.value = formatted;
-        this.state.dateFrom = isValidDisplay(formatted) ? displayToIso(formatted) : "";
+        const fmt = autoFormat(ev.target.value);
+        this.state.dateFromDisplay = fmt;
+        ev.target.value = fmt;
+        this.state.dateFrom = isValidDisplay(fmt) ? displayToIso(fmt) : "";
     }
-
     onDateFromBlur(ev) {
         if (ev.target.value && !isValidDisplay(ev.target.value)) {
             this.state.dateFromDisplay = "";
@@ -86,18 +89,44 @@ class StockLedgerFilterBar extends Component {
     }
 
     onDateToInput(ev) {
-        const formatted = autoFormat(ev.target.value);
-        this.state.dateToDisplay = formatted;
-        ev.target.value = formatted;
-        this.state.dateTo = isValidDisplay(formatted) ? displayToIso(formatted) : "";
+        const fmt = autoFormat(ev.target.value);
+        this.state.dateToDisplay = fmt;
+        ev.target.value = fmt;
+        this.state.dateTo = isValidDisplay(fmt) ? displayToIso(fmt) : "";
     }
-
     onDateToBlur(ev) {
         if (ev.target.value && !isValidDisplay(ev.target.value)) {
             this.state.dateToDisplay = "";
             this.state.dateTo = "";
             ev.target.value = "";
         }
+    }
+
+    // ── Calendar icon clicked → trigger the hidden date input ────────────────
+    openDateFrom(ev) {
+        // Find the sibling hidden date input and click it
+        const wrap = ev.currentTarget.closest(".slf-date-wrap");
+        const picker = wrap.querySelector(".slf-date-hidden");
+        if (picker) picker.showPicker ? picker.showPicker() : picker.click();
+    }
+
+    openDateTo(ev) {
+        const wrap = ev.currentTarget.closest(".slf-date-wrap");
+        const picker = wrap.querySelector(".slf-date-hidden");
+        if (picker) picker.showPicker ? picker.showPicker() : picker.click();
+    }
+
+    // ── Calendar picker selected a date ──────────────────────────────────────
+    onDateFromPicker(ev) {
+        const iso = ev.target.value;  // "2026-02-21"
+        this.state.dateFrom = iso;
+        this.state.dateFromDisplay = isoToDisplay(iso);
+    }
+
+    onDateToPicker(ev) {
+        const iso = ev.target.value;
+        this.state.dateTo = iso;
+        this.state.dateToDisplay = isoToDisplay(iso);
     }
 
     // ── Product autocomplete ──────────────────────────────────────────────────

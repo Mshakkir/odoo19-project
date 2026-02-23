@@ -42,27 +42,52 @@
                     </select>
                 </div>
 
-                <!-- Date From: text input forced to dd/mm/yy -->
+                <!-- Date From with calendar icon -->
                 <div class="slf-date-group">
-                    <input
-                        type="text"
-                        class="slf-input slf-date"
-                        placeholder="dd/mm/yy"
-                        maxlength="8"
-                        t-att-value="state.dateFromDisplay"
-                        t-on-input="onDateFromInput"
-                        t-on-blur="onDateFromBlur"
-                    />
+                    <div class="slf-date-wrap">
+                        <input
+                            type="text"
+                            class="slf-input slf-date-text"
+                            placeholder="dd/mm/yy"
+                            maxlength="8"
+                            t-att-value="state.dateFromDisplay"
+                            t-on-input="onDateFromInput"
+                            t-on-blur="onDateFromBlur"
+                        />
+                        <input
+                            type="date"
+                            class="slf-date-hidden"
+                            t-att-value="state.dateFrom"
+                            t-on-change="onDateFromPicker"
+                        />
+                        <span class="slf-cal-icon" t-on-click="openDateFrom" title="Pick date">
+                            📅
+                        </span>
+                    </div>
+
                     <span class="slf-arrow">→</span>
-                    <input
-                        type="text"
-                        class="slf-input slf-date"
-                        placeholder="dd/mm/yy"
-                        maxlength="8"
-                        t-att-value="state.dateToDisplay"
-                        t-on-input="onDateToInput"
-                        t-on-blur="onDateToBlur"
-                    />
+
+                    <!-- Date To with calendar icon -->
+                    <div class="slf-date-wrap">
+                        <input
+                            type="text"
+                            class="slf-input slf-date-text"
+                            placeholder="dd/mm/yy"
+                            maxlength="8"
+                            t-att-value="state.dateToDisplay"
+                            t-on-input="onDateToInput"
+                            t-on-blur="onDateToBlur"
+                        />
+                        <input
+                            type="date"
+                            class="slf-date-hidden"
+                            t-att-value="state.dateTo"
+                            t-on-change="onDateToPicker"
+                        />
+                        <span class="slf-cal-icon" t-on-click="openDateTo" title="Pick date">
+                            📅
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Voucher -->
@@ -105,7 +130,7 @@
         </div>
     </t>
 
-    <!-- Inject before the list renderer div, only for stock ledger model -->
+    <!-- Inject before the list renderer, only for stock ledger model -->
     <t t-name="web.ListRenderer" t-inherit="web.ListRenderer" t-inherit-mode="extension">
         <xpath expr="//div[hasclass('o_list_renderer')]" position="before">
             <t t-if="props.list and props.list.model and props.list.model.config and props.list.model.config.resModel === 'product.stock.ledger'">

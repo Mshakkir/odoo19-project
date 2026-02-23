@@ -1,4 +1,4 @@
-/* ── Stock Ledger Filter Bar ────────────────────────────────────── */
+/* ── Stock Ledger Filter Bar ─────────────────────────────────────── */
 
 .o_sl_filter_bar {
     width: 100%;
@@ -21,15 +21,60 @@
 .slf-sm-field     { flex:0 0 85px; min-width:80px; }
 .slf-md-field     { flex:0 0 130px; min-width:120px; }
 
+/* Date group: From → To */
 .slf-date-group {
     display: flex;
     align-items: center;
     gap: 4px;
     flex: 1.5;
-    min-width: 220px;
+    min-width: 240px;
 }
-.slf-date  { flex:1; }
-.slf-arrow { color:#999; font-size:12px; flex-shrink:0; }
+
+/* Each date field: text input + hidden picker + icon */
+.slf-date-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.slf-date-text {
+    width: 100%;
+    padding-right: 26px !important; /* room for icon */
+}
+
+/* Hidden native date input — sits behind the icon, invisible but clickable */
+.slf-date-hidden {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 24px;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    margin: 0;
+    z-index: 1;
+}
+
+/* Calendar emoji icon — sits on top */
+.slf-cal-icon {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 2;
+    line-height: 1;
+    user-select: none;
+    opacity: 0.65;
+    transition: opacity 0.15s;
+}
+.slf-cal-icon:hover { opacity: 1; }
+
+.slf-arrow { color:#999; font-size:12px; flex-shrink:0; padding: 0 2px; }
 
 /* Inputs */
 .slf-input {

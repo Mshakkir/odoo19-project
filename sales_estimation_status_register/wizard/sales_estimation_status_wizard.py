@@ -1,6 +1,6 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
-from datetime import timedelta
+from datetime import timedelta, datetime
 import base64
 import io
 import logging
@@ -17,7 +17,6 @@ class SalesEstimationStatusWizard(models.TransientModel):
     _name = 'sales.estimation.status.wizard'
     _description = 'Sales Estimation Status Register Wizard'
 
-    # ── Type & Filter ──────────────────────────────────────────────────────────
     estimation_type = fields.Selection([
         ('short', 'Short'),
         ('detailed', 'Detailed'),
@@ -35,20 +34,19 @@ class SalesEstimationStatusWizard(models.TransientModel):
         ('one_year', 'One Year'),
         ('yearly', 'Yearly'),
         ('custom', 'Custom'),
-    ], string='Filter', default='daily', required=True)
+    ], string='Filter', default='custom', required=True)
 
-    # ── Options ────────────────────────────────────────────────────────────────
     form_type = fields.Selection([
         ('quotation', 'Quotation'),
         ('sale_order', 'Sale Order'),
         ('both', 'Both'),
-    ], string='Form Type', default=False)
+    ], string='Form Type', default='both')
 
     bill_mode = fields.Selection([
         ('cash', 'Cash'),
         ('credit', 'Credit'),
         ('both', 'Both'),
-    ], string='Bill Mode', default=False)
+    ], string='Bill Mode', default='both')
 
     partner_id = fields.Many2one(
         'res.partner',
@@ -56,19 +54,15 @@ class SalesEstimationStatusWizard(models.TransientModel):
         domain=[('customer_rank', '>', 0)],
     )
 
-    # ── Confirmed Status ───────────────────────────────────────────────────────
-    by_confirmed_status = fields.Boolean(string='By Confirmed Status', default=True)
+    by_confirmed_status = fields.Boolean(string='By Confirmed Status', default=False)
     confirmed = fields.Boolean(string='Confirmed', default=False)
-
-    # ── Cancelled Status ───────────────────────────────────────────────────────
     by_cancelled_status = fields.Boolean(string='By Cancelled Status', default=False)
     cancelled = fields.Boolean(string='Cancelled', default=False)
 
-    # ── Date Range ─────────────────────────────────────────────────────────────
     date_from = fields.Date(
         string='From',
         required=True,
-        default=fields.Date.context_today,
+        default=lambda self: fields.Date.context_today(self).replace(day=1),
     )
     date_to = fields.Date(
         string='To',
@@ -76,21 +70,15 @@ class SalesEstimationStatusWizard(models.TransientModel):
         default=fields.Date.context_today,
     )
 
-    # ── Ledger Currency ────────────────────────────────────────────────────────
     use_ledger_currency = fields.Boolean(string='Use Ledger Currency', default=False)
-
     company_id = fields.Many2one(
-        'res.company',
-        string='Company',
-        required=True,
+        'res.company', string='Company', required=True,
         default=lambda self: self.env.company,
     )
 
-    # ── Date filter onchange ───────────────────────────────────────────────────
     @api.onchange('date_filter')
     def _onchange_date_filter(self):
         today = fields.Date.context_today(self)
-
         if self.date_filter == 'daily':
             self.date_from = today
             self.date_to = today
@@ -107,21 +95,23 @@ class SalesEstimationStatusWizard(models.TransientModel):
             else:
                 self.date_to = today.replace(month=today.month + 1, day=1) - timedelta(days=1)
         elif self.date_filter == 'two_month':
-            start_month = today.month - 1 if today.month > 1 else 11
-            start_year = today.year if today.month > 1 else today.year - 1
-            self.date_from = today.replace(year=start_year, month=start_month, day=1)
-            if today.month == 12:
-                self.date_to = today.replace(year=today.year + 1, month=1, day=1) - timedelta(days=1)
-            else:
-                self.date_to = today.replace(month=today.month + 1, day=1) - timedelta(days=1)
+            m = today.month - 2
+            y = today.year
+            if m <= 0:
+                m += 12
+                y -= 1
+            self.date_from = today.replace(year=y, month=m, day=1)
+            self.date_to = today
         elif self.date_filter == 'quarterly':
-            quarter_start_month = ((today.month - 1) // 3) * 3 + 1
-            self.date_from = today.replace(month=quarter_start_month, day=1)
-            end_month = quarter_start_month + 2
-            if end_month > 12:
-                self.date_to = today.replace(year=today.year + 1, month=end_month - 12, day=1) - timedelta(days=1)
+            qsm = ((today.month - 1) // 3) * 3 + 1
+            self.date_from = today.replace(month=qsm, day=1)
+            em = qsm + 2
+            if em == 12:
+                self.date_to = today.replace(month=12, day=31)
+            elif em > 12:
+                self.date_to = today.replace(year=today.year + 1, month=em - 12 + 1, day=1) - timedelta(days=1)
             else:
-                self.date_to = today.replace(month=end_month + 1, day=1) - timedelta(days=1) if end_month < 12 else today.replace(month=12, day=31)
+                self.date_to = today.replace(month=em + 1, day=1) - timedelta(days=1)
         elif self.date_filter == 'six_month':
             self.date_from = today - timedelta(days=180)
             self.date_to = today
@@ -131,116 +121,154 @@ class SalesEstimationStatusWizard(models.TransientModel):
         elif self.date_filter == 'yearly':
             self.date_from = today.replace(month=1, day=1)
             self.date_to = today.replace(month=12, day=31)
-        # 'custom' → user picks manually, do nothing
 
     @api.constrains('date_from', 'date_to')
     def _check_dates(self):
         for rec in self:
-            if rec.date_from > rec.date_to:
-                raise UserError(_('From Date must be before To Date.'))
+            if rec.date_from and rec.date_to and rec.date_from > rec.date_to:
+                raise UserError(_('From Date must be before or equal to To Date.'))
 
-    # ── Data gathering ─────────────────────────────────────────────────────────
     def _build_domain(self):
+        """Build clean, non-conflicting domain for sale.order search."""
+        # date_order is a Datetime field — use full day boundaries
+        date_from_dt = datetime.combine(self.date_from, datetime.min.time())
+        date_to_dt = datetime.combine(self.date_to, datetime.max.time())
+
         domain = [
-            ('date_order', '>=', self.date_from),
-            ('date_order', '<=', self.date_to),
+            ('date_order', '>=', date_from_dt),
+            ('date_order', '<=', date_to_dt),
             ('company_id', '=', self.company_id.id),
         ]
 
-        # Form type / state filter
+        # Determine allowed states — start broad, then narrow
+        all_states = {'draft', 'sent', 'sale', 'done', 'cancel'}
+
         if self.form_type == 'quotation':
-            domain.append(('state', 'in', ['draft', 'sent']))
+            allowed = {'draft', 'sent'}
         elif self.form_type == 'sale_order':
-            domain.append(('state', 'in', ['sale', 'done']))
+            allowed = {'sale', 'done'}
         else:
-            # both
-            pass
+            allowed = {'draft', 'sent', 'sale', 'done'}  # both, exclude cancel by default
 
-        # Confirmed / Cancelled filters
-        states = []
-        if self.by_confirmed_status:
-            if self.confirmed:
-                states += ['sale', 'done']
-            else:
-                states += ['draft', 'sent', 'sale', 'done']
-        if self.by_cancelled_status:
-            if self.cancelled:
-                states.append('cancel')
-            else:
-                if not self.by_confirmed_status:
-                    states += ['draft', 'sent', 'sale', 'done', 'cancel']
+        # Apply confirmed filter on top
+        if self.by_confirmed_status and self.confirmed:
+            allowed &= {'sale', 'done'}
 
-        if states:
-            domain.append(('state', 'in', list(set(states))))
+        # Apply cancelled filter
+        if self.by_cancelled_status and self.cancelled:
+            allowed = {'cancel'}
+        elif not (self.by_cancelled_status and self.cancelled):
+            allowed -= {'cancel'}
+
+        domain.append(('state', 'in', list(allowed)))
 
         if self.partner_id:
             domain.append(('partner_id', '=', self.partner_id.id))
 
+        _logger.info("Sales Estimation domain: %s | states: %s", domain, allowed)
         return domain
 
     def _get_estimation_data(self):
         domain = self._build_domain()
-        orders = self.env['sale.order'].search(domain, order='date_order, partner_id')
+        orders = self.env['sale.order'].search(domain, order='date_order asc, name asc')
+        _logger.info("Sales Estimation: %d orders found", len(orders))
 
         data = []
         for order in orders:
-            # Bill mode filter (payment term heuristic)
-            if self.bill_mode == 'cash':
-                if order.payment_term_id and 'credit' in (order.payment_term_id.name or '').lower():
+            # Bill mode filter in Python
+            if self.bill_mode and self.bill_mode != 'both':
+                has_delay = False
+                if order.payment_term_id and order.payment_term_id.line_ids:
+                    has_delay = any(
+                        getattr(l, 'nb_days', 0) > 0
+                        for l in order.payment_term_id.line_ids
+                    )
+                if self.bill_mode == 'cash' and has_delay:
                     continue
-            elif self.bill_mode == 'credit':
-                if not order.payment_term_id or 'cash' in (order.payment_term_id.name or '').lower():
+                if self.bill_mode == 'credit' and not has_delay:
                     continue
 
-            for line in order.order_line:
-                if not line.product_id:
-                    continue
+            lines = order.order_line.filtered(
+                lambda l: l.display_type not in ('line_section', 'line_note')
+            )
 
-                taxes_str = ', '.join(line.tax_id.mapped('name')) if line.tax_id else ''
-                tax_amount = line.price_subtotal * sum(line.tax_id.mapped('amount')) / 100 if line.tax_id else 0.0
-                total = line.price_subtotal + tax_amount
-                discount_amount = (line.price_unit * line.product_uom_qty) * (line.discount / 100) if line.discount else 0.0
+            if not lines:
+                data.append(self._build_row(order, None))
+            else:
+                for line in lines:
+                    data.append(self._build_row(order, line))
 
-                data.append({
-                    'date': order.date_order.date(),
-                    'estimation_type': dict(self._fields['estimation_type'].selection).get(self.estimation_type, ''),
-                    'form_type': 'Quotation' if order.state in ('draft', 'sent') else 'Sale Order',
-                    'bill_mode': order.payment_term_id.name if order.payment_term_id else '',
-                    'document_number': order.name,
-                    'customer_name': order.partner_id.name or '',
-                    'customer_vat': order.partner_id.vat or '',
-                    'product': line.product_id.name or '',
-                    'quantity': line.product_uom_qty,
-                    'unit_price': line.price_unit,
-                    'subtotal': line.price_subtotal,
-                    'discount': discount_amount,
-                    'taxes': taxes_str,
-                    'tax_amount': tax_amount,
-                    'total': total,
-                    'state': dict(order._fields['state'].selection).get(order.state, order.state),
-                    'currency': order.currency_id.name or '',
-                })
         return data
 
-    # ── Actions ────────────────────────────────────────────────────────────────
+    def _build_row(self, order, line):
+        if line:
+            taxes_str = ', '.join(line.tax_id.mapped('name')) if line.tax_id else ''
+            tax_amount = line.price_tax if hasattr(line, 'price_tax') else 0.0
+            subtotal = line.price_subtotal
+            total = line.price_total if hasattr(line, 'price_total') else subtotal + tax_amount
+            qty = line.product_uom_qty
+            unit_price = line.price_unit
+            product_name = line.product_id.name if line.product_id else (line.name or '')
+            discount_amount = (line.price_unit * line.product_uom_qty) * (line.discount / 100.0) if line.discount else 0.0
+        else:
+            taxes_str = ''
+            tax_amount = order.amount_tax
+            subtotal = order.amount_untaxed
+            total = order.amount_total
+            qty = 0.0
+            unit_price = 0.0
+            product_name = ''
+            discount_amount = 0.0
+
+        state_label = dict(order._fields['state'].selection).get(order.state, order.state)
+        form_label = 'Quotation' if order.state in ('draft', 'sent') else 'Sale Order'
+        type_label = dict(self._fields['estimation_type'].selection).get(self.estimation_type, self.estimation_type)
+
+        return {
+            'date': order.date_order.date() if order.date_order else False,
+            'estimation_type': type_label,
+            'form_type': form_label,
+            'bill_mode': order.payment_term_id.name if order.payment_term_id else 'Immediate',
+            'document_number': order.name,
+            'customer_name': order.partner_id.name or '',
+            'customer_vat': order.partner_id.vat or '',
+            'product': product_name,
+            'quantity': qty,
+            'unit_price': unit_price,
+            'subtotal': subtotal,
+            'discount': discount_amount,
+            'taxes': taxes_str,
+            'tax_amount': tax_amount,
+            'total': total,
+            'state': state_label,
+            'currency': order.currency_id.name or '',
+        }
+
+    def _no_data_error(self):
+        raise UserError(_(
+            'No data found for the selected criteria.\n\n'
+            'Suggestions:\n'
+            '  • Set Form Type to "Both"\n'
+            '  • Use a wider date range (One Year / Yearly)\n'
+            '  • Uncheck "By Confirmed Status" and "By Cancelled Status"\n'
+            '  • Clear the Party filter'
+        ))
+
     def action_show_report(self):
-        """Print PDF Report"""
         self.ensure_one()
         data = self._get_estimation_data()
         if not data:
-            raise UserError(_('No data found for the selected criteria.'))
+            self._no_data_error()
         return self.env.ref(
             'sales_estimation_status_register.action_report_sales_estimation_status'
         ).report_action(self)
 
     def action_show_details(self):
-        """Show details in tree view"""
         self.ensure_one()
         data = self._get_estimation_data()
         if not data:
-            raise UserError(_('No data found for the selected criteria.'))
+            self._no_data_error()
 
-        # Clear old records for this wizard
         self.env['sales.estimation.status.details'].search(
             [('wizard_id', '=', self.id)]
         ).unlink()
@@ -285,32 +313,11 @@ class SalesEstimationStatusWizard(models.TransientModel):
             'target': 'current',
         }
 
-    # ── Quick-filter shortcut buttons ─────────────────────────────────────────
-    def _set_filter(self, filter_value):
-        self.date_filter = filter_value
-        self._onchange_date_filter()
-        return {'type': 'ir.actions.act_window',
-                'res_model': self._name,
-                'res_id': self.id,
-                'view_mode': 'form',
-                'target': 'new'}
-
-    def _set_filter_daily(self):      return self._set_filter('daily')
-    def _set_filter_one_week(self):   return self._set_filter('one_week')
-    def _set_filter_two_week(self):   return self._set_filter('two_week')
-    def _set_filter_one_month(self):  return self._set_filter('one_month')
-    def _set_filter_two_month(self):  return self._set_filter('two_month')
-    def _set_filter_quarterly(self):  return self._set_filter('quarterly')
-    def _set_filter_six_month(self):  return self._set_filter('six_month')
-    def _set_filter_one_year(self):   return self._set_filter('one_year')
-    def _set_filter_yearly(self):     return self._set_filter('yearly')
-
     def action_export_excel(self):
-        """Export to Excel"""
         self.ensure_one()
         data = self._get_estimation_data()
         if not data:
-            raise UserError(_('No data found for the selected criteria.'))
+            self._no_data_error()
 
         output = io.BytesIO()
         workbook = xlsxwriter.Workbook(output, {'in_memory': True})
@@ -321,13 +328,15 @@ class SalesEstimationStatusWizard(models.TransientModel):
             'bold': True, 'bg_color': '#4472C4', 'font_color': 'white',
             'border': 1, 'align': 'center',
         })
-        date_fmt = workbook.add_format({'num_format': 'dd/mm/yyyy'})
-        num_fmt = workbook.add_format({'num_format': '#,##0.00'})
+        date_fmt = workbook.add_format({'num_format': 'dd/mm/yyyy', 'border': 1})
+        num_fmt = workbook.add_format({'num_format': '#,##0.00', 'border': 1})
+        text_fmt = workbook.add_format({'border': 1})
         total_fmt = workbook.add_format({'bold': True, 'bg_color': '#D9E1F2', 'border': 1, 'num_format': '#,##0.00'})
+        total_label_fmt = workbook.add_format({'bold': True, 'bg_color': '#D9E1F2', 'border': 1, 'align': 'right'})
 
-        ws.merge_range('A1:O1', 'SALES ESTIMATION STATUS REGISTER', title_fmt)
-        ws.merge_range('A2:O2', self.company_id.name, title_fmt)
-        ws.merge_range('A3:O3',
+        ws.merge_range('A1:Q1', 'SALES ESTIMATION STATUS REGISTER', title_fmt)
+        ws.merge_range('A2:Q2', self.company_id.name, title_fmt)
+        ws.merge_range('A3:Q3',
             f'Period: {self.date_from.strftime("%d/%m/%Y")} to {self.date_to.strftime("%d/%m/%Y")}',
             title_fmt)
 
@@ -342,39 +351,43 @@ class SalesEstimationStatusWizard(models.TransientModel):
         row = 5
         totals = {k: 0.0 for k in ['subtotal', 'discount', 'tax_amount', 'total']}
         for rec in data:
-            ws.write_datetime(row, 0, rec['date'], date_fmt)
-            ws.write(row, 1, rec['estimation_type'])
-            ws.write(row, 2, rec['form_type'])
-            ws.write(row, 3, rec['bill_mode'])
-            ws.write(row, 4, rec['document_number'])
-            ws.write(row, 5, rec['customer_name'])
-            ws.write(row, 6, rec['customer_vat'])
-            ws.write(row, 7, rec['product'])
-            ws.write(row, 8, rec['quantity'])
-            ws.write(row, 9, rec['unit_price'], num_fmt)
-            ws.write(row, 10, rec['subtotal'], num_fmt)
-            ws.write(row, 11, rec['discount'], num_fmt)
-            ws.write(row, 12, rec['taxes'])
-            ws.write(row, 13, rec['tax_amount'], num_fmt)
-            ws.write(row, 14, rec['total'], num_fmt)
-            ws.write(row, 15, rec['state'])
-            ws.write(row, 16, rec['currency'])
+            date_val = rec['date']
+            if date_val:
+                ws.write_datetime(row, 0, datetime.combine(date_val, datetime.min.time()), date_fmt)
+            else:
+                ws.write(row, 0, '', text_fmt)
+            ws.write(row, 1, rec.get('estimation_type', ''), text_fmt)
+            ws.write(row, 2, rec.get('form_type', ''), text_fmt)
+            ws.write(row, 3, rec.get('bill_mode', ''), text_fmt)
+            ws.write(row, 4, rec.get('document_number', ''), text_fmt)
+            ws.write(row, 5, rec.get('customer_name', ''), text_fmt)
+            ws.write(row, 6, rec.get('customer_vat', ''), text_fmt)
+            ws.write(row, 7, rec.get('product', ''), text_fmt)
+            ws.write(row, 8, rec.get('quantity', 0), num_fmt)
+            ws.write(row, 9, rec.get('unit_price', 0), num_fmt)
+            ws.write(row, 10, rec.get('subtotal', 0), num_fmt)
+            ws.write(row, 11, rec.get('discount', 0), num_fmt)
+            ws.write(row, 12, rec.get('taxes', ''), text_fmt)
+            ws.write(row, 13, rec.get('tax_amount', 0), num_fmt)
+            ws.write(row, 14, rec.get('total', 0), num_fmt)
+            ws.write(row, 15, rec.get('state', ''), text_fmt)
+            ws.write(row, 16, rec.get('currency', ''), text_fmt)
             for k in totals:
                 totals[k] += rec.get(k, 0)
             row += 1
 
-        ws.write(row, 9, 'TOTAL:', total_fmt)
+        ws.write(row, 9, 'TOTAL:', total_label_fmt)
         ws.write(row, 10, totals['subtotal'], total_fmt)
         ws.write(row, 11, totals['discount'], total_fmt)
         ws.write(row, 13, totals['tax_amount'], total_fmt)
         ws.write(row, 14, totals['total'], total_fmt)
 
-        ws.set_column('A:A', 12)
+        ws.set_column('A:A', 13)
         ws.set_column('B:D', 14)
         ws.set_column('E:E', 16)
-        ws.set_column('F:G', 22)
-        ws.set_column('H:H', 28)
-        ws.set_column('I:Q', 12)
+        ws.set_column('F:G', 24)
+        ws.set_column('H:H', 30)
+        ws.set_column('I:Q', 13)
 
         workbook.close()
         output.seek(0)

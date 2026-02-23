@@ -17,7 +17,8 @@
 
                     <!-- COLUMN ORDER - PRIORITY ORDER -->
                     <!-- 1. Invoice Date -->
-                    <field name="invoice_date" string="Bill Date" width="80px"/>
+                    <field name="invoice_date" string="Bill Date" widget="date"
+                           options="{'format': 'dd/MM/yy'}" width="100px"/>
 
                     <!-- 2. Invoice Number (Bill Number) -->
                     <field name="name" string="Bill Number" readonly="1" width="140px"/>
@@ -41,7 +42,8 @@
                     <field name="amount_residual" string="Amount Due" sum="Total Due" width="160px"/>
 
                     <!-- 9. Due Date -->
-                    <field name="invoice_date_due" string="Due Date" width="110px"/>
+                    <field name="invoice_date_due" string="Due Date" widget="date"
+                           options="{'format': 'dd/MM/yy'}" width="110px"/>
 
                     <!-- 10. Buyer - ALWAYS VISIBLE -->
                     <field name="buyer_id" string="Buyer" width="130px"/>
@@ -171,18 +173,6 @@ if records:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 <!--    <data>-->
@@ -192,7 +182,7 @@ if records:
 <!--            <field name="name">account.move.list.purchase.invoice.custom</field>-->
 <!--            <field name="model">account.move</field>-->
 <!--            <field name="mode">primary</field>-->
-<!--            <field name="priority">99</field>-->
+<!--            <field name="priority">16</field>-->
 <!--            <field name="arch" type="xml">-->
 <!--                <list string="Vendor Bills"-->
 <!--                      sample="1"-->
@@ -211,7 +201,7 @@ if records:
 <!--                    <field name="partner_id" string="Vendor" width="155px"/>-->
 
 <!--                    &lt;!&ndash; 4. Warehouse &ndash;&gt;-->
-<!--                    <field name="warehouse_id" string="Warehouse" width="120px"/>-->
+<!--                    <field name="analytic_account_id" string="Warehouse" width="120px"/>-->
 
 <!--                    &lt;!&ndash; 5. Source Document &ndash;&gt;-->
 <!--                    <field name="invoice_origin" string="Source Doc." width="110px"/>-->
@@ -328,9 +318,9 @@ if records:
 <!--            </field>-->
 <!--        </record>-->
 
-<!--        &lt;!&ndash; Override the default vendor bill action to use custom view &ndash;&gt;-->
+<!--        &lt;!&ndash; Override the default VENDOR BILL action to use custom view &ndash;&gt;-->
 <!--        <record id="account.action_move_in_invoice_type" model="ir.actions.act_window">-->
-<!--            <field name="view_ids" eval="[(6, 0, [ref('view_move_list_purchase_invoice_custom')])]"/>-->
+<!--            <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('view_move_list_purchase_invoice_custom')})]"/>-->
 <!--        </record>-->
 
 <!--        &lt;!&ndash; Action to Recompute Warehouse for existing bills &ndash;&gt;-->
@@ -341,10 +331,12 @@ if records:
 <!--            <field name="binding_view_types">list</field>-->
 <!--            <field name="state">code</field>-->
 <!--            <field name="code">-->
-<!--                if records:-->
-<!--                records._compute_warehouse_id()-->
+<!--if records:-->
+<!--    records._compute_warehouse_id()-->
 <!--            </field>-->
 <!--        </record>-->
 
 <!--    </data>-->
 <!--</odoo>-->
+
+

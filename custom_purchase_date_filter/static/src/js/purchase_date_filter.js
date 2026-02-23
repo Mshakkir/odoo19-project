@@ -605,8 +605,8 @@ patch(ListController.prototype, {
         // Auto-insert slashes as user types: turns "010226" → "01/02/26"
         const autoSlash = (input) => {
             input.addEventListener('keydown', (e) => {
-                // Allow: backspace, delete, tab, arrows
-                if (['Backspace','Delete','Tab','ArrowLeft','ArrowRight'].includes(e.key)) return;
+                // Allow: backspace, delete, tab, arrows, Enter
+                if (['Backspace','Delete','Tab','ArrowLeft','ArrowRight','Enter'].includes(e.key)) return;
                 // Only allow digits
                 if (!/^\d$/.test(e.key)) { e.preventDefault(); return; }
             });
@@ -809,9 +809,21 @@ patch(ListController.prototype, {
         // Click on Apply button
         applyBtn.addEventListener('click', applyFilter);
 
-        // Press Enter on any input field to apply filter
+        // Enter key on date inputs (use keydown since autoSlash uses keydown)
+        [dateFromInput, dateToInput].forEach(input => {
+            if (input) {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        applyFilter();
+                    }
+                });
+            }
+        });
+
+        // Press Enter on any other input field to apply filter
         const allInputs = [
-            dateFromInput, dateToInput, warehouseSelect, vendorInput, repInput,
+            warehouseSelect, vendorInput, repInput,
             orderRefInput, vendorRefInput, shippingRefInput, amountInput
         ];
 

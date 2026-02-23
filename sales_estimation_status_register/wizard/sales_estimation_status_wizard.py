@@ -164,6 +164,52 @@ class SalesEstimationStatusWizard(models.TransientModel):
         _logger.info("Sales Estimation domain: %s | states: %s", domain, allowed)
         return domain
 
+    def _get_address(self, partner):
+        """Build a single address string from partner fields."""
+        parts = []
+        if partner.street:
+            parts.append(partner.street)
+        if partner.street2:
+            parts.append(partner.street2)
+        if partner.city:
+            parts.append(partner.city)
+        if partner.state_id:
+            parts.append(partner.state_id.name)
+        if partner.country_id:
+            parts.append(partner.country_id.name)
+        return ', '.join(filter(None, parts))
+
+    def _get_cell_no(self, partner):
+        """Return mobile first, then phone."""
+        return partner.mobile or partner.phone or ''
+
+    def _get_sales_account(self, line):
+        """Return the sales/income account for the product line."""
+        if not line or not line.product_id:
+            return ''
+        # Try product's income account first
+        product = line.product_id
+        account = None
+        try:
+            account = product.property_account_income_id
+        except Exception:
+            pass
+        if not account:
+            try:
+                account = product.categ_id.property_account_income_categ_id
+            except Exception:
+                pass
+        return account.code + ' ' + account.name if account else ''
+
+    def _get_warehouse(self, order):
+        """Return warehouse name from the sale order."""
+        try:
+            if order.warehouse_id:
+                return order.warehouse_id.name
+        except Exception:
+            pass
+        return ''
+
     def _get_estimation_data(self):
         domain = self._build_domain()
         orders = self.env['sale.order'].search(domain, order='date_order asc, name asc')
@@ -196,8 +242,15 @@ class SalesEstimationStatusWizard(models.TransientModel):
         return data
 
     def _build_row(self, order, line):
+        # ── New custom fields ──────────────────────────────────────────────────
+        partner = order.partner_id
+        address = self._get_address(partner)
+        cell_no = self._get_cell_no(partner)
+        warehouse = self._get_warehouse(order)
+        sales_account = self._get_sales_account(line)
+
+        # ── Line-level fields ─────────────────────────────────────────────────
         if line:
-            # --- FIX: Odoo 19 uses tax_ids (plural). Use try/except to be safe. ---
             try:
                 taxes = line.tax_ids
             except AttributeError:
@@ -233,13 +286,20 @@ class SalesEstimationStatusWizard(models.TransientModel):
         )
 
         return {
+            # ── NEW columns (first) ───────────────────────────────────────────
             'date': order.date_order.date() if order.date_order else False,
+            'vno': order.name or '',
+            'warehouse': warehouse,
+            'customer_name': partner.name or '',
+            'address': address,
+            'cell_no': cell_no,
+            'sales_account': sales_account,
+            # ── Existing columns ──────────────────────────────────────────────
             'estimation_type': type_label,
             'form_type': form_label,
             'bill_mode': order.payment_term_id.name if order.payment_term_id else 'Immediate',
             'document_number': order.name or '',
-            'customer_name': order.partner_id.name or '',
-            'customer_vat': order.partner_id.vat or '',
+            'customer_vat': partner.vat or '',
             'product': product_name,
             'quantity': qty,
             'unit_price': unit_price,
@@ -286,11 +346,16 @@ class SalesEstimationStatusWizard(models.TransientModel):
             detail = self.env['sales.estimation.status.details'].create({
                 'wizard_id': self.id,
                 'date': rec.get('date'),
+                'vno': rec.get('vno', ''),
+                'warehouse': rec.get('warehouse', ''),
+                'customer_name': rec.get('customer_name', ''),
+                'address': rec.get('address', ''),
+                'cell_no': rec.get('cell_no', ''),
+                'sales_account': rec.get('sales_account', ''),
                 'estimation_type': rec.get('estimation_type', ''),
                 'form_type': rec.get('form_type', ''),
                 'bill_mode': rec.get('bill_mode', ''),
                 'document_number': rec.get('document_number', ''),
-                'customer_name': rec.get('customer_name', ''),
                 'customer_vat': rec.get('customer_vat', ''),
                 'product': rec.get('product', ''),
                 'quantity': rec.get('quantity', 0),
@@ -332,24 +397,29 @@ class SalesEstimationStatusWizard(models.TransientModel):
         ws = workbook.add_worksheet('Sales Estimation Status')
 
         title_fmt = workbook.add_format({'bold': True, 'font_size': 14, 'align': 'center', 'valign': 'vcenter'})
-        header_fmt = workbook.add_format({'bold': True, 'bg_color': '#4472C4', 'font_color': 'white', 'border': 1, 'align': 'center', 'valign': 'vcenter'})
+        header_fmt = workbook.add_format({'bold': True, 'bg_color': '#4472C4', 'font_color': 'white', 'border': 1, 'align': 'center', 'valign': 'vcenter', 'text_wrap': True})
         date_fmt = workbook.add_format({'num_format': 'dd/mm/yyyy', 'border': 1})
         num_fmt = workbook.add_format({'num_format': '#,##0.00', 'border': 1})
         text_fmt = workbook.add_format({'border': 1})
         total_fmt = workbook.add_format({'bold': True, 'bg_color': '#D9E1F2', 'border': 1, 'num_format': '#,##0.00'})
         total_label_fmt = workbook.add_format({'bold': True, 'bg_color': '#D9E1F2', 'border': 1, 'align': 'right'})
 
+        # 24 columns total (A to X)
+        last_col = 'X'
         ws.set_row(0, 22)
-        ws.set_row(4, 18)
-        ws.merge_range('A1:Q1', 'SALES ESTIMATION STATUS REGISTER', title_fmt)
-        ws.merge_range('A2:Q2', self.company_id.name, title_fmt)
-        ws.merge_range('A3:Q3',
+        ws.set_row(4, 30)
+        ws.merge_range(f'A1:{last_col}1', 'SALES ESTIMATION STATUS REGISTER', title_fmt)
+        ws.merge_range(f'A2:{last_col}2', self.company_id.name, title_fmt)
+        ws.merge_range(f'A3:{last_col}3',
             f'Period: {self.date_from.strftime("%d/%m/%Y")} to {self.date_to.strftime("%d/%m/%Y")}',
             title_fmt)
 
         headers = [
-            'Date', 'Type', 'Form Type', 'Bill Mode', 'Document No.',
-            'Party', 'VAT/TRN', 'Product', 'Qty', 'Unit Price',
+            # New first columns
+            'Date', 'Vno', 'Warehouse', 'Customer Name', 'Address', 'Cell No', 'Sales Account',
+            # Existing columns
+            'Type', 'Form Type', 'Bill Mode', 'Document No.',
+            'VAT/TRN', 'Product', 'Qty', 'Unit Price',
             'Subtotal', 'Discount', 'Tax', 'Tax Amount', 'Total', 'Status', 'Currency',
         ]
         for col, h in enumerate(headers):
@@ -357,48 +427,62 @@ class SalesEstimationStatusWizard(models.TransientModel):
 
         row = 5
         totals = {k: 0.0 for k in ['subtotal', 'discount', 'tax_amount', 'total']}
+
         for rec in data:
             date_val = rec.get('date')
             if date_val:
                 ws.write_datetime(row, 0, datetime.combine(date_val, datetime.min.time()), date_fmt)
             else:
                 ws.write(row, 0, '', text_fmt)
-            ws.write(row, 1,  rec.get('estimation_type', ''),  text_fmt)
-            ws.write(row, 2,  rec.get('form_type', ''),        text_fmt)
-            ws.write(row, 3,  rec.get('bill_mode', ''),        text_fmt)
-            ws.write(row, 4,  rec.get('document_number', ''),  text_fmt)
-            ws.write(row, 5,  rec.get('customer_name', ''),    text_fmt)
-            ws.write(row, 6,  rec.get('customer_vat', ''),     text_fmt)
-            ws.write(row, 7,  rec.get('product', ''),          text_fmt)
-            ws.write(row, 8,  rec.get('quantity', 0),          num_fmt)
-            ws.write(row, 9,  rec.get('unit_price', 0),        num_fmt)
-            ws.write(row, 10, rec.get('subtotal', 0),          num_fmt)
-            ws.write(row, 11, rec.get('discount', 0),          num_fmt)
-            ws.write(row, 12, rec.get('taxes', ''),            text_fmt)
-            ws.write(row, 13, rec.get('tax_amount', 0),        num_fmt)
-            ws.write(row, 14, rec.get('total', 0),             num_fmt)
-            ws.write(row, 15, rec.get('state', ''),            text_fmt)
-            ws.write(row, 16, rec.get('currency', ''),         text_fmt)
-            for k in totals:
-                totals[k] += rec.get(k, 0)
+
+            ws.write(row, 1,  rec.get('vno', ''),            text_fmt)
+            ws.write(row, 2,  rec.get('warehouse', ''),       text_fmt)
+            ws.write(row, 3,  rec.get('customer_name', ''),   text_fmt)
+            ws.write(row, 4,  rec.get('address', ''),         text_fmt)
+            ws.write(row, 5,  rec.get('cell_no', ''),         text_fmt)
+            ws.write(row, 6,  rec.get('sales_account', ''),   text_fmt)
+            ws.write(row, 7,  rec.get('estimation_type', ''), text_fmt)
+            ws.write(row, 8,  rec.get('form_type', ''),       text_fmt)
+            ws.write(row, 9,  rec.get('bill_mode', ''),       text_fmt)
+            ws.write(row, 10, rec.get('document_number', ''), text_fmt)
+            ws.write(row, 11, rec.get('customer_vat', ''),    text_fmt)
+            ws.write(row, 12, rec.get('product', ''),         text_fmt)
+            ws.write(row, 13, rec.get('quantity', 0),         num_fmt)
+            ws.write(row, 14, rec.get('unit_price', 0),       num_fmt)
+            ws.write(row, 15, rec.get('subtotal', 0),         num_fmt)
+            ws.write(row, 16, rec.get('discount', 0),         num_fmt)
+            ws.write(row, 17, rec.get('taxes', ''),           text_fmt)
+            ws.write(row, 18, rec.get('tax_amount', 0),       num_fmt)
+            ws.write(row, 19, rec.get('total', 0),            num_fmt)
+            ws.write(row, 20, rec.get('state', ''),           text_fmt)
+            ws.write(row, 21, rec.get('currency', ''),        text_fmt)
+
+            totals['subtotal']   += rec.get('subtotal', 0)
+            totals['discount']   += rec.get('discount', 0)
+            totals['tax_amount'] += rec.get('tax_amount', 0)
+            totals['total']      += rec.get('total', 0)
             row += 1
 
-        ws.write(row, 9,  'TOTAL:',            total_label_fmt)
-        ws.write(row, 10, totals['subtotal'],   total_fmt)
-        ws.write(row, 11, totals['discount'],   total_fmt)
-        ws.write(row, 12, '',                   total_label_fmt)
-        ws.write(row, 13, totals['tax_amount'], total_fmt)
-        ws.write(row, 14, totals['total'],      total_fmt)
+        ws.write(row, 14, 'TOTAL:',            total_label_fmt)
+        ws.write(row, 15, totals['subtotal'],   total_fmt)
+        ws.write(row, 16, totals['discount'],   total_fmt)
+        ws.write(row, 17, '',                   total_label_fmt)
+        ws.write(row, 18, totals['tax_amount'], total_fmt)
+        ws.write(row, 19, totals['total'],      total_fmt)
 
-        ws.set_column('A:A', 13)
-        ws.set_column('B:B', 11)
-        ws.set_column('C:C', 13)
-        ws.set_column('D:D', 16)
-        ws.set_column('E:E', 16)
-        ws.set_column('F:F', 26)
-        ws.set_column('G:G', 16)
-        ws.set_column('H:H', 30)
-        ws.set_column('I:Q', 13)
+        # Column widths
+        ws.set_column(0,  0,  12)  # Date
+        ws.set_column(1,  1,  14)  # Vno
+        ws.set_column(2,  2,  18)  # Warehouse
+        ws.set_column(3,  3,  24)  # Customer Name
+        ws.set_column(4,  4,  30)  # Address
+        ws.set_column(5,  5,  14)  # Cell No
+        ws.set_column(6,  6,  28)  # Sales Account
+        ws.set_column(7,  9,  13)  # Type, Form Type, Bill Mode
+        ws.set_column(10, 10, 14)  # Document No
+        ws.set_column(11, 11, 14)  # VAT/TRN
+        ws.set_column(12, 12, 28)  # Product
+        ws.set_column(13, 21, 12)  # numeric cols
 
         workbook.close()
         output.seek(0)

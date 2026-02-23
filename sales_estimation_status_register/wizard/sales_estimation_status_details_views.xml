@@ -5,24 +5,34 @@
         <field name="name">sales.estimation.status.details.tree</field>
         <field name="model">sales.estimation.status.details</field>
         <field name="arch" type="xml">
-            <list string="Sales Estimation Status Details" create="false" edit="false" delete="false">
-                <field name="date"/>
-                <field name="estimation_type"/>
-                <field name="form_type"/>
-                <field name="bill_mode"/>
-                <field name="document_number"/>
-                <field name="customer_name"/>
-                <field name="customer_vat"/>
-                <field name="product"/>
-                <field name="quantity"/>
-                <field name="unit_price"/>
-                <field name="subtotal" sum="Subtotal"/>
-                <field name="discount" sum="Discount"/>
-                <field name="taxes"/>
-                <field name="tax_amount" sum="Tax Amount"/>
-                <field name="total" sum="Total"/>
-                <field name="state"/>
-                <field name="currency"/>
+            <list string="Sales Estimation Status Details"
+                  create="false" edit="false" delete="false">
+
+                <!-- New first columns -->
+                <field name="date"          string="Date"/>
+                <field name="vno"           string="Vno"/>
+                <field name="warehouse"     string="Warehouse"/>
+                <field name="customer_name" string="Customer Name"/>
+                <field name="address"       string="Address"/>
+                <field name="cell_no"       string="Cell No"/>
+                <field name="sales_account" string="Sales Account"/>
+
+                <!-- Existing columns -->
+                <field name="estimation_type" string="Type"/>
+                <field name="form_type"       string="Form Type"/>
+                <field name="bill_mode"       string="Bill Mode"/>
+                <field name="document_number" string="Document No."/>
+                <field name="customer_vat"    string="VAT/TRN"/>
+                <field name="product"         string="Product"/>
+                <field name="quantity"        string="Qty"/>
+                <field name="unit_price"      string="Unit Price"/>
+                <field name="subtotal"        string="Subtotal"   sum="Subtotal"/>
+                <field name="discount"        string="Discount"   sum="Discount"/>
+                <field name="taxes"           string="Tax"/>
+                <field name="tax_amount"      string="Tax Amount" sum="Tax Amount"/>
+                <field name="total"           string="Total"      sum="Total"/>
+                <field name="state"           string="Status"/>
+                <field name="currency"        string="Currency"/>
             </list>
         </field>
     </record>

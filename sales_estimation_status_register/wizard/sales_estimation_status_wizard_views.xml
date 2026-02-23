@@ -22,19 +22,19 @@
                     <group string="Options">
                         <group>
                             <field name="form_type"  string="Form Type"/>
-                            <field name="bill_mode"  string="Bill Mode"/>
+<!--                            <field name="bill_mode"  string="Bill Mode"/>-->
                             <field name="partner_id" string="Party"/>
                         </group>
-                        <group>
-                            <field name="by_confirmed_status" string="By Confirmed Status"/>
-                            <field name="confirmed"
-                                   string="Confirmed"
-                                   invisible="not by_confirmed_status"/>
-                            <field name="by_cancelled_status" string="By Cancelled Status"/>
-                            <field name="cancelled"
-                                   string="Cancelled"
-                                   invisible="not by_cancelled_status"/>
-                        </group>
+<!--                        <group>-->
+<!--                            <field name="by_confirmed_status" string="By Confirmed Status"/>-->
+<!--                            <field name="confirmed"-->
+<!--                                   string="Confirmed"-->
+<!--                                   invisible="not by_confirmed_status"/>-->
+<!--                            <field name="by_cancelled_status" string="By Cancelled Status"/>-->
+<!--                            <field name="cancelled"-->
+<!--                                   string="Cancelled"-->
+<!--                                   invisible="not by_cancelled_status"/>-->
+<!--                        </group>-->
                     </group>
 
                     <!-- Date period quick-select (horizontal radio) -->
@@ -62,9 +62,9 @@
                            invisible="1"/>
 
                     <!-- Use Ledger Currency -->
-                    <group>
-                        <field name="use_ledger_currency" string="Use Ledger Currency"/>
-                    </group>
+<!--                    <group>-->
+<!--                        <field name="use_ledger_currency" string="Use Ledger Currency"/>-->
+<!--                    </group>-->
 
                 </sheet>
 
@@ -105,18 +105,12 @@
     ══════════════════════════════════════════════════════════════ -->
 
     <!-- Safe standalone root under the Sales app -->
-    <menuitem id="menu_sales_estimation_root"
-              name="Sales Register"
-              parent="sale.sale_menu_root"
-              sequence="99"
-              groups="sales_team.group_sale_salesman"/>
-
-    <!-- Sales Estimation Report Status submenu -->
+  <!-- ── Menu Item ────────────────────────────────────────────────────────── -->
+    <!-- Placed under the existing "Sales Register" root from the sales_register module -->
     <menuitem id="menu_sales_estimation_status_report"
               name="Sales Estimation Report Status"
-              parent="menu_sales_estimation_root"
+              parent="sales_register.menu_sales_register_root"
               action="action_sales_estimation_status_wizard"
-              sequence="10"
-              groups="sales_team.group_sale_salesman"/>
+              sequence="2"/>
 
 </odoo>

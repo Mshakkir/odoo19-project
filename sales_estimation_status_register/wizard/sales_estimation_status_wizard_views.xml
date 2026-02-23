@@ -102,17 +102,12 @@
         <field name="target">new</field>
     </record>
 
-    <!-- ── Menu Items ───────────────────────────────────────────────────────── -->
-    <!-- Root menu under the Sales app top-level -->
-    <menuitem id="menu_sales_estimation_root"
-              name="Sales Register"
-              parent="sale.sale_menu_root"
-              sequence="98"/>
-
+    <!-- ── Menu Item ────────────────────────────────────────────────────────── -->
+    <!-- Placed under the existing "Sales Register" root from the sales_register module -->
     <menuitem id="menu_sales_estimation_status_report"
               name="Sales Estimation Report Status"
-              parent="menu_sales_estimation_root"
+              parent="sales_register.menu_sales_register_root"
               action="action_sales_estimation_status_wizard"
-              sequence="1"/>
+              sequence="2"/>
 
 </odoo>

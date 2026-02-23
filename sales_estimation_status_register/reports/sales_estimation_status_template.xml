@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_sales_estimation_status_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+
+                    <!-- Report Header -->
+                    <div class="text-center mb-4">
+                        <h2>Sales Estimation Status Register</h2>
+                        <h4>
+                            <t t-esc="docs.company_id.name"/>
+                        </h4>
+                        <p>
+                            Period:
+                            <strong>
+                                <t t-esc="docs.date_from" t-options='{"widget": "date"}'/>
+                            </strong>
+                            to
+                            <strong>
+                                <t t-esc="docs.date_to" t-options='{"widget": "date"}'/>
+                            </strong>
+                        </p>
+                        <p>
+                            Type: <t t-esc="docs.estimation_type"/>
+                            | Filter: <t t-esc="docs.date_filter"/>
+                            <t t-if="docs.partner_id">
+                                | Party: <t t-esc="docs.partner_id.name"/>
+                            </t>
+                        </p>
+                    </div>
+
+                    <!-- Data Table -->
+                    <t t-set="estimation_data" t-value="docs._get_estimation_data()"/>
+
+                    <table class="table table-sm table-bordered" style="font-size:9px;">
+                        <thead style="background-color:#4472C4; color:white;">
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Form Type</th>
+                                <th>Bill Mode</th>
+                                <th>Document No.</th>
+                                <th>Party</th>
+                                <th>VAT/TRN</th>
+                                <th>Product</th>
+                                <th class="text-end">Qty</th>
+                                <th class="text-end">Unit Price</th>
+                                <th class="text-end">Subtotal</th>
+                                <th class="text-end">Discount</th>
+                                <th>Tax</th>
+                                <th class="text-end">Tax Amt</th>
+                                <th class="text-end">Total</th>
+                                <th>Status</th>
+                                <th>Currency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="estimation_data" t-as="line">
+                                <tr>
+                                    <td><t t-esc="line['date']"/></td>
+                                    <td><t t-esc="line['estimation_type']"/></td>
+                                    <td><t t-esc="line['form_type']"/></td>
+                                    <td><t t-esc="line['bill_mode']"/></td>
+                                    <td><t t-esc="line['document_number']"/></td>
+                                    <td><t t-esc="line['customer_name']"/></td>
+                                    <td><t t-esc="line['customer_vat']"/></td>
+                                    <td><t t-esc="line['product']"/></td>
+                                    <td class="text-end"><t t-esc="'%.2f' % line['quantity']"/></td>
+                                    <td class="text-end"><t t-esc="'%.2f' % line['unit_price']"/></td>
+                                    <td class="text-end"><t t-esc="'%.2f' % line['subtotal']"/></td>
+                                    <td class="text-end"><t t-esc="'%.2f' % line['discount']"/></td>
+                                    <td><t t-esc="line['taxes']"/></td>
+                                    <td class="text-end"><t t-esc="'%.2f' % line['tax_amount']"/></td>
+                                    <td class="text-end"><t t-esc="'%.2f' % line['total']"/></td>
+                                    <td><t t-esc="line['state']"/></td>
+                                    <td><t t-esc="line['currency']"/></td>
+                                </tr>
+                            </t>
+
+                            <!-- Totals row -->
+                            <tr style="background-color:#D9E1F2; font-weight:bold;">
+                                <td colspan="10" class="text-end">TOTAL:</td>
+                                <td class="text-end">
+                                    <t t-esc="'%.2f' % sum(l['subtotal'] for l in estimation_data)"/>
+                                </td>
+                                <td class="text-end">
+                                    <t t-esc="'%.2f' % sum(l['discount'] for l in estimation_data)"/>
+                                </td>
+                                <td></td>
+                                <td class="text-end">
+                                    <t t-esc="'%.2f' % sum(l['tax_amount'] for l in estimation_data)"/>
+                                </td>
+                                <td class="text-end">
+                                    <t t-esc="'%.2f' % sum(l['total'] for l in estimation_data)"/>
+                                </td>
+                                <td colspan="2"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Footer note -->
+                    <div class="mt-3" style="font-size:9px; color:#666;">
+                        <t t-if="docs.use_ledger_currency">
+                            * Amounts shown in Ledger Currency
+                        </t>
+                        <t t-else="">
+                            * Amounts shown in Transaction Currency
+                        </t>
+                    </div>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_sales_estimation_status_details_tree" model="ir.ui.view">
+        <field name="name">sales.estimation.status.details.tree</field>
+        <field name="model">sales.estimation.status.details</field>
+        <field name="arch" type="xml">
+            <list string="Sales Estimation Status Details" create="false" edit="false" delete="false">
+                <field name="date"/>
+                <field name="estimation_type"/>
+                <field name="form_type"/>
+                <field name="bill_mode"/>
+                <field name="document_number"/>
+                <field name="customer_name"/>
+                <field name="customer_vat"/>
+                <field name="product"/>
+                <field name="quantity"/>
+                <field name="unit_price"/>
+                <field name="subtotal" sum="Subtotal"/>
+                <field name="discount" sum="Discount"/>
+                <field name="taxes"/>
+                <field name="tax_amount" sum="Tax Amount"/>
+                <field name="total" sum="Total"/>
+                <field name="state"/>
+                <field name="currency"/>
+            </list>
+        </field>
+    </record>
+
+</odoo>

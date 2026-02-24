@@ -1,3 +1,4 @@
+from datetime import datetime, time
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
@@ -37,8 +38,7 @@ class PurchaseEstimationWizard(models.TransientModel):
         domain = [
             ('state', 'in', ['draft', 'sent', 'to approve', 'purchase', 'done']),
             ('date_order', '>=', fields.Datetime.to_datetime(self.date_from)),
-            ('date_order', '<=', fields.Datetime.combine(
-                self.date_to, fields.Datetime.max.time())),
+            ('date_order', '<=', datetime.combine(self.date_to, time.max)),
         ]
         if self.vendor_id:
             domain.append(('partner_id', '=', self.vendor_id.id))

@@ -64,7 +64,7 @@ class PurchaseEstimationWizard(models.TransientModel):
                 'customer': partner.name,
                 'address': address,
                 'cell_no': partner.phone or '',
-                'narration': order.notes or '',
+                'narration': order.description or '' if hasattr(order, 'description') else '',
                 'net_amount': order.amount_total,
                 'confirm_date': order.date_approve.date() if order.date_approve else False,
                 'required_date': order.date_planned.date() if order.date_planned else False,

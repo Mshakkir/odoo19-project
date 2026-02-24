@@ -19,8 +19,8 @@
                                    string="All Companies"/>
                             <field name="company_id"
                                    string="CGS By using"
-                                   attrs="{'invisible': [('all_companies', '=', True)],
-                                           'required': [('all_companies', '=', False)]}"/>
+                                   invisible="all_companies == True"
+                                   required="all_companies == False"/>
                         </group>
                         <group string="Date Range">
                             <field name="date_from" string="From"/>

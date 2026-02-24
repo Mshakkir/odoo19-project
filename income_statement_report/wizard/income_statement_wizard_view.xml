@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- ===================== WIZARD FORM VIEW ===================== -->
     <record id="view_income_statement_wizard_form" model="ir.ui.view">
         <field name="name">income.statement.wizard.form</field>
         <field name="model">income.statement.wizard</field>
@@ -11,30 +10,25 @@
                     <div class="oe_title">
                         <h2>Income Statement / Profit &amp; Loss</h2>
                     </div>
-
                     <group>
-                        <group string="Branch / Company">
-                            <field name="all_companies"
-                                   widget="boolean_toggle"
-                                   string="All Companies"/>
+                        <group string="Company / Branch">
+                            <field name="all_companies" widget="boolean_toggle"/>
                             <field name="company_id"
-                                   string="CGS By using"
                                    invisible="all_companies == True"
                                    required="all_companies == False"/>
                         </group>
-                        <group string="Date Range">
-                            <field name="date_from" string="From"/>
-                            <field name="date_to"   string="To"/>
+                        <group string="Period">
+                            <field name="date_from"/>
+                            <field name="date_to"/>
                         </group>
                     </group>
                 </sheet>
-
                 <footer>
                     <button name="action_show_report"
                             string="Show Report"
                             type="object"
                             class="btn-primary"
-                            icon="fa-play"/>
+                            icon="fa-print"/>
                     <button name="action_clear"
                             string="Clear"
                             type="object"
@@ -49,7 +43,6 @@
         </field>
     </record>
 
-    <!-- ===================== MENU ACTION ===================== -->
     <record id="action_income_statement_wizard" model="ir.actions.act_window">
         <field name="name">Income Statement</field>
         <field name="res_model">income.statement.wizard</field>
@@ -57,11 +50,9 @@
         <field name="target">new</field>
     </record>
 
-    <!-- ===================== MENU ITEMS ===================== -->
-    <!-- Top-level menu (change parent to existing accounting menu if preferred) -->
     <menuitem id="menu_income_statement_root"
               name="Financial Reports"
-              sequence="100"/>
+              sequence="105"/>
 
     <menuitem id="menu_income_statement"
               name="Income Statement"

@@ -3,7 +3,7 @@
 
     <menuitem
         id="menu_purchase_estimation_report"
-        name="Purchase Estimation Balance Register"
+        name="Purchase Estimation Report"
         parent="purchase.menu_purchase_root"
         action="purchase_estimation_report.action_purchase_estimation_wizard"
         sequence="50"/>

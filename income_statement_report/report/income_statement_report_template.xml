@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_income_statement_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+
+                    <!-- ===== HEADER ===== -->
+                    <div class="text-center mb-4">
+                        <h2 style="margin:0;">
+                            <strong>Income Statement (Profit &amp; Loss)</strong>
+                        </h2>
+                        <h4 style="margin:4px 0;">
+                            <t t-esc="docs.get('company_name', '')"/>
+                        </h4>
+                        <p style="margin:4px 0;">
+                            Period:
+                            <strong><t t-esc="docs.get('date_from')"/></strong>
+                            &amp;nbsp; to &amp;nbsp;
+                            <strong><t t-esc="docs.get('date_to')"/></strong>
+                        </p>
+                    </div>
+
+                    <!-- ===== INCOME SECTION ===== -->
+                    <table class="table table-sm table-bordered" style="width:100%;">
+                        <thead style="background-color:#4472C4; color:white;">
+                            <tr>
+                                <th style="width:10%;">Code</th>
+                                <th style="width:60%;">Account Name</th>
+                                <th style="width:30%; text-align:right;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Income -->
+                            <tr style="background-color:#D9E1F2;">
+                                <td colspan="3"><strong>INCOME / REVENUE</strong></td>
+                            </tr>
+                            <t t-foreach="docs.get('income_lines', [])" t-as="line">
+                                <tr>
+                                    <td><t t-esc="line.get('code','')"/></td>
+                                    <td><t t-esc="line.get('name','')"/></td>
+                                    <td style="text-align:right;">
+                                        <t t-esc="'{:,.2f}'.format(line.get('balance', 0.0))"/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <tr style="background-color:#E2EFDA; font-weight:bold;">
+                                <td colspan="2" style="text-align:right;">Total Income</td>
+                                <td style="text-align:right;">
+                                    <t t-esc="'{:,.2f}'.format(docs.get('total_income', 0.0))"/>
+                                </td>
+                            </tr>
+
+                            <!-- COGS -->
+                            <tr><td colspan="3" style="padding:4px;"></td></tr>
+                            <tr style="background-color:#FCE4D6;">
+                                <td colspan="3"><strong>COST OF GOODS SOLD (COGS)</strong></td>
+                            </tr>
+                            <t t-foreach="docs.get('cogs_lines', [])" t-as="line">
+                                <tr>
+                                    <td><t t-esc="line.get('code','')"/></td>
+                                    <td><t t-esc="line.get('name','')"/></td>
+                                    <td style="text-align:right;">
+                                        (<t t-esc="'{:,.2f}'.format(line.get('balance', 0.0))"/>)
+                                    </td>
+                                </tr>
+                            </t>
+                            <tr style="background-color:#FCE4D6; font-weight:bold;">
+                                <td colspan="2" style="text-align:right;">Total COGS</td>
+                                <td style="text-align:right;">
+                                    (<t t-esc="'{:,.2f}'.format(docs.get('total_cogs', 0.0))"/>)
+                                </td>
+                            </tr>
+
+                            <!-- Gross Profit -->
+                            <tr style="background-color:#C6EFCE; font-weight:bold; font-size:13px;">
+                                <td colspan="2" style="text-align:right;">GROSS PROFIT</td>
+                                <td style="text-align:right;">
+                                    <t t-esc="'{:,.2f}'.format(docs.get('gross_profit', 0.0))"/>
+                                </td>
+                            </tr>
+
+                            <!-- Expenses -->
+                            <tr><td colspan="3" style="padding:4px;"></td></tr>
+                            <tr style="background-color:#FFF2CC;">
+                                <td colspan="3"><strong>OPERATING EXPENSES</strong></td>
+                            </tr>
+                            <t t-foreach="docs.get('expense_lines', [])" t-as="line">
+                                <tr>
+                                    <td><t t-esc="line.get('code','')"/></td>
+                                    <td><t t-esc="line.get('name','')"/></td>
+                                    <td style="text-align:right;">
+                                        (<t t-esc="'{:,.2f}'.format(line.get('balance', 0.0))"/>)
+                                    </td>
+                                </tr>
+                            </t>
+                            <tr style="background-color:#FFF2CC; font-weight:bold;">
+                                <td colspan="2" style="text-align:right;">Total Expenses</td>
+                                <td style="text-align:right;">
+                                    (<t t-esc="'{:,.2f}'.format(docs.get('total_expenses', 0.0))"/>)
+                                </td>
+                            </tr>
+
+                            <!-- Net Profit -->
+                            <tr><td colspan="3" style="padding:4px;"></td></tr>
+                            <tr style="background-color:#4472C4; color:white; font-weight:bold; font-size:14px;">
+                                <td colspan="2" style="text-align:right;">NET PROFIT / (LOSS)</td>
+                                <td style="text-align:right;">
+                                    <t t-esc="'{:,.2f}'.format(docs.get('net_profit', 0.0))"/>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+
+                    <!-- ===== FOOTER NOTE ===== -->
+                    <div class="mt-4" style="font-size:11px; color:#666;">
+                        <em>* Figures are based on posted journal entries only.</em>
+                    </div>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

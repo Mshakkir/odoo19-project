@@ -58,7 +58,7 @@
                             <col style="width:4%;"/>   <!-- Status -->
                             <col style="width:3%;"/>   <!-- Currency -->
                         </colgroup>
-                        <thead style="background-color:#4472C4; color:white; text-align:center;">
+                        <thead style="background-color:#a3aabe; color:#1a1a2e; font-weight:bold; text-align:center;">
                             <tr>
                                 <th>Date</th>
                                 <th>Vno</th>

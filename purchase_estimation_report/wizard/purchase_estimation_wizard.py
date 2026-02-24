@@ -33,29 +33,34 @@ class PurchaseEstimationWizard(models.TransientModel):
     # Helpers
     # ------------------------------------------------------------------
 
-    def _get_rfq_lines(self):
-        """Return purchase.order (RFQ/estimations) records filtered by wizard params."""
+    def _get_orders(self):
         domain = [
             ('state', 'in', ['draft', 'sent', 'to approve', 'purchase', 'done']),
-            ('date_order', '>=', fields.Datetime.to_datetime(self.date_from)),
+            ('date_order', '>=', datetime.combine(self.date_from, time.min)),
             ('date_order', '<=', datetime.combine(self.date_to, time.max)),
         ]
         if self.vendor_id:
             domain.append(('partner_id', '=', self.vendor_id.id))
         return self.env['purchase.order'].search(domain, order='date_order asc')
 
-    def _build_line_vals(self, orders):
-        """Convert purchase orders to list-of-dict for report lines."""
+    def _build_lines(self, orders):
         vals = []
         for order in orders:
             partner = order.partner_id
-            address_parts = filter(None, [
-                partner.street,
-                partner.city,
+            address_parts = [
+                partner.street or '',
+                partner.city or '',
                 partner.state_id.name if partner.state_id else '',
                 partner.country_id.name if partner.country_id else '',
-            ])
-            address = ', '.join(address_parts)
+            ]
+            address = ', '.join(p for p in address_parts if p)
+
+            # Safe narration — try common field names
+            narration = ''
+            for fname in ('notes', 'description', 'narration'):
+                if fname in order._fields:
+                    narration = order[fname] or ''
+                    break
 
             vals.append({
                 'wizard_id': self.id,
@@ -64,7 +69,7 @@ class PurchaseEstimationWizard(models.TransientModel):
                 'customer': partner.name,
                 'address': address,
                 'cell_no': partner.phone or '',
-                'narration': order.description or '' if hasattr(order, 'description') else '',
+                'narration': narration,
                 'net_amount': order.amount_total,
                 'confirm_date': order.date_approve.date() if order.date_approve else False,
                 'required_date': order.date_planned.date() if order.date_planned else False,
@@ -76,18 +81,16 @@ class PurchaseEstimationWizard(models.TransientModel):
     # ------------------------------------------------------------------
 
     def action_show_details(self):
-        """Populate lines and open list view in a new window."""
         self.ensure_one()
         if self.date_from > self.date_to:
             raise UserError(_('Date From must be earlier than or equal to Date To.'))
 
-        # Clear old lines
+        # Clear old lines and rebuild
         self.line_ids.unlink()
+        orders = self._get_orders()
+        self.env['purchase.estimation.line'].create(self._build_lines(orders))
 
-        orders = self._get_rfq_lines()
-        line_vals = self._build_line_vals(orders)
-        self.env['purchase.estimation.line'].create(line_vals)
-
+        # Open full-page list view (target='current' replaces current page like image 2)
         return {
             'name': _('Purchase Estimation Balance Register'),
             'type': 'ir.actions.act_window',
@@ -97,38 +100,33 @@ class PurchaseEstimationWizard(models.TransientModel):
                 'purchase_estimation_report.view_purchase_estimation_line_list'
             ).id, 'list')],
             'domain': [('wizard_id', '=', self.id)],
-            'target': 'new',
+            'target': 'current',
             'context': {
-                'wizard_id': self.id,
                 'date_from': str(self.date_from),
                 'date_to': str(self.date_to),
                 'vendor_name': self.vendor_id.name if self.vendor_id else _('All Vendors'),
+                'create': False,
+                'edit': False,
+                'delete': False,
             },
         }
 
     def action_print_report(self):
-        """Generate PDF report."""
         self.ensure_one()
         if self.date_from > self.date_to:
             raise UserError(_('Date From must be earlier than or equal to Date To.'))
 
-        orders = self._get_rfq_lines()
+        orders = self._get_orders()
         if not orders:
             raise UserError(_('No records found for the selected criteria.'))
 
-        data = {
-            'date_from': str(self.date_from),
-            'date_to': str(self.date_to),
-            'vendor_name': self.vendor_id.name if self.vendor_id else _('All Vendors'),
-            'lines': self._build_line_vals(orders),
-        }
-        # Remove wizard_id key — not serialisable in report context
-        for line in data['lines']:
-            line.pop('wizard_id', None)
+        # Store lines on wizard so QWeb can read via docs
+        self.line_ids.unlink()
+        self.env['purchase.estimation.line'].create(self._build_lines(orders))
 
         return self.env.ref(
             'purchase_estimation_report.action_report_purchase_estimation'
-        ).report_action(self, data=data)
+        ).report_action(self)
 
     def action_cancel(self):
         return {'type': 'ir.actions.act_window_close'}

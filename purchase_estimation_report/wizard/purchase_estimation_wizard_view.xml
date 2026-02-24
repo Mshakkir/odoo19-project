@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Wizard Form View -->
+    <record id="view_purchase_estimation_wizard_form" model="ir.ui.view">
+        <field name="name">purchase.estimation.wizard.form</field>
+        <field name="model">purchase.estimation.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Purchase Estimation Balance Register">
+                <group>
+                    <group string="Filter Options">
+                        <field name="vendor_id" placeholder="All Vendors"/>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_show_details"
+                            string="Show Details"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-list"/>
+                    <button name="action_print_report"
+                            string="Print Report"
+                            type="object"
+                            class="btn-secondary"
+                            icon="fa-print"/>
+                    <button name="action_cancel"
+                            string="Cancel"
+                            type="object"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Wizard Action -->
+    <record id="action_purchase_estimation_wizard" model="ir.actions.act_window">
+        <field name="name">Purchase Estimation Balance Register</field>
+        <field name="res_model">purchase.estimation.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_purchase_estimation_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

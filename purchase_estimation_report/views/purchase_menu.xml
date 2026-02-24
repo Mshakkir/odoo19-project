@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Add menu item under Purchase > Reporting -->
+    <menuitem
+        id="menu_purchase_estimation_report"
+        name="Purchase Estimation Balance Register"
+        parent="purchase.menu_purchase_reporting"
+        action="purchase_estimation_report.action_purchase_estimation_wizard"
+        sequence="50"/>
+
+</odoo>

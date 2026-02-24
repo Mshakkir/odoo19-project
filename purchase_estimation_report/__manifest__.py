@@ -1,0 +1,20 @@
+{
+    'name': 'Purchase Estimation Balance Register',
+    'version': '19.0.1.0.0',
+    'category': 'Purchase',
+    'summary': 'Purchase Estimation Balance Register Report',
+    'description': 'Adds Purchase Estimation Balance Register report to the Purchase module.',
+    'author': 'Custom',
+    'depends': ['purchase'],
+    'data': [
+        'security/ir.model.access.csv',
+        'wizard/purchase_estimation_wizard_view.xml',
+        'views/purchase_estimation_list_view.xml',
+        'report/purchase_estimation_report_template.xml',
+        'report/purchase_estimation_report_action.xml',
+        'views/purchase_menu.xml',
+    ],
+    'installable': True,
+    'application': False,
+    'license': 'LGPL-3',
+}

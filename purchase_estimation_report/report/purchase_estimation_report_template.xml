@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_purchase_estimation_document">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <!-- Report Title -->
+                    <div class="row mb-4">
+                        <div class="col-12 text-center">
+                            <h4 class="mt-4">
+                                <strong>Purchase Estimation Balance Register</strong>
+                            </h4>
+                            <p class="mb-1">
+                                <t t-if="data.get('vendor_name') and data['vendor_name'] != 'All Vendors'">
+                                    Vendor: <strong><t t-esc="data['vendor_name']"/></strong> |
+                                </t>
+                                Period: <strong>
+                                    <t t-esc="data['date_from']"/>
+                                </strong> To <strong>
+                                    <t t-esc="data['date_to']"/>
+                                </strong>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Data Table -->
+                    <table class="table table-sm table-bordered o_main_table">
+                        <thead>
+                            <tr style="background-color:#4472C4; color:#ffffff;">
+                                <th class="text-center">Vno</th>
+                                <th class="text-center">Date</th>
+                                <th class="text-center">Vendor</th>
+                                <th class="text-center">Address</th>
+                                <th class="text-center">Cell No</th>
+                                <th class="text-center">Narration</th>
+                                <th class="text-right">Net Amount</th>
+                                <th class="text-center">Confirm Date</th>
+                                <th class="text-center">Required Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="data['lines']" t-as="line">
+                                <tr>
+                                    <td><t t-esc="line['vno']"/></td>
+                                    <td class="text-center"><t t-esc="line['date']"/></td>
+                                    <td><t t-esc="line['customer']"/></td>
+                                    <td><t t-esc="line['address']"/></td>
+                                    <td><t t-esc="line['cell_no']"/></td>
+                                    <td><t t-esc="line['narration']"/></td>
+                                    <td class="text-right">
+                                        <t t-esc="'{:,.2f}'.format(line['net_amount'])"/>
+                                    </td>
+                                    <td class="text-center"><t t-esc="line['confirm_date'] or ''"/></td>
+                                    <td class="text-center"><t t-esc="line['required_date'] or ''"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr style="background-color:#D9E1F2; font-weight:bold;">
+                                <td colspan="6" class="text-right">Total:</td>
+                                <td class="text-right">
+                                    <t t-esc="'{:,.2f}'.format(sum(l['net_amount'] for l in data['lines']))"/>
+                                </td>
+                                <td colspan="2"/>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

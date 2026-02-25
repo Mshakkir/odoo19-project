@@ -54,6 +54,10 @@ class CustomReconcileWizard(models.TransientModel):
         string='Difference', compute='_compute_totals',
         currency_field='currency_id'
     )
+    has_difference = fields.Boolean(
+        string='Has Difference', compute='_compute_totals',
+        help='True when abs(difference) > 0.01'
+    )
     currency_id = fields.Many2one(
         'res.currency', default=lambda self: self.env.company.currency_id
     )
@@ -90,6 +94,7 @@ class CustomReconcileWizard(models.TransientModel):
             wiz.total_debit = sum(wiz.line_ids.mapped('debit'))
             wiz.total_credit = sum(wiz.line_ids.mapped('credit'))
             wiz.difference = wiz.total_debit - wiz.total_credit
+            wiz.has_difference = abs(wiz.total_debit - wiz.total_credit) > 0.01
 
     @api.onchange('partner_id', 'account_id')
     def _onchange_partner_account(self):

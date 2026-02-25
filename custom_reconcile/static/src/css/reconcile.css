@@ -1,0 +1,85 @@
+/* ================================================================
+   Custom Reconciliation Module — Styles
+   ================================================================ */
+
+/* ── Reconcile Status Colors ───────────────────────────────────── */
+.o_field_widget[name="custom_reconcile_state"] .badge {
+    font-size: 0.85em;
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+/* ── Transaction Banner ─────────────────────────────────────────── */
+.o_form_view .alert.o_form_header {
+    border-left: 4px solid #0d6efd;
+    background: #f0f7ff;
+    padding: 12px 18px;
+    margin-bottom: 16px;
+    border-radius: 6px;
+}
+
+.o_form_view .alert.o_form_header table {
+    width: 100%;
+}
+
+.o_form_view .alert.o_form_header td {
+    padding: 2px 16px;
+    font-size: 0.95em;
+}
+
+/* ── Reconcile Wizard ───────────────────────────────────────────── */
+.custom_reconcile_wizard .o_notebook_headers {
+    border-bottom: 2px solid #0d6efd;
+}
+
+/* ── Status Badge Colors ────────────────────────────────────────── */
+.o_list_view tr.o_data_row td[name="custom_reconcile_state"] span.badge {
+    min-width: 90px;
+    text-align: center;
+}
+
+/* Open = Blue-info */
+.o_list_view tr[class*="o_info"] td[name="custom_reconcile_state"] span {
+    background-color: #0dcaf0 !important;
+    color: #000 !important;
+}
+
+/* Matched = Warning-yellow */
+.o_list_view tr[class*="o_warning"] td[name="custom_reconcile_state"] span {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+/* Reconciled = Green-success */
+.o_list_view tr[class*="o_success"] td[name="custom_reconcile_state"] span {
+    background-color: #198754 !important;
+    color: #fff !important;
+}
+
+/* ── Difference Amount ──────────────────────────────────────────── */
+.o_field_widget[name="difference"] .o_field_monetary {
+    font-weight: bold;
+}
+
+/* Danger if difference is significant */
+.o_field_widget[name="difference"][class*="text-danger"] .o_field_monetary {
+    color: #dc3545 !important;
+}
+
+/* Success if balanced */
+.o_field_widget[name="difference"][class*="text-success"] .o_field_monetary {
+    color: #198754 !important;
+}
+
+/* ── Reconcile Button Glow ──────────────────────────────────────── */
+.o_list_view .btn-primary.btn-sm:hover {
+    box-shadow: 0 0 6px rgba(13, 110, 253, 0.5);
+    transform: scale(1.03);
+    transition: all 0.15s ease;
+}
+
+/* ── Dashboard Header ───────────────────────────────────────────── */
+.o_action_manager .o_list_view thead th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}

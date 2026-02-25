@@ -61,7 +61,7 @@
                         </div>
 
                         <!-- REVENUE -->
-                        <table style="border:white;">
+                        <table>
                             <tr><td class="section-hdr" colspan="2">Revenue</td></tr>
                             <t t-foreach="form.get('sales_lines', [])" t-as="line">
                                 <tr>

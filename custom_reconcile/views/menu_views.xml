@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         MENU STRUCTURE
+         Accounting > Reconciliation (new submenu)
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- Top-level Accounting menu reference (already exists in Odoo) -->
+    <!-- We add items under Accounting > Accounting -->
+
+    <!-- Main Reconciliation submenu under Accounting > Accounting -->
+    <menuitem
+        id="menu_custom_reconcile_root"
+        name="Reconciliation"
+        parent="account.menu_finance_entries"
+        sequence="15"
+        groups="account.group_account_user"/>
+
+    <!-- Dashboard -->
+    <menuitem
+        id="menu_custom_reconcile_dashboard"
+        name="Reconciliation Dashboard"
+        parent="menu_custom_reconcile_root"
+        action="action_custom_reconcile_dashboard"
+        sequence="10"
+        groups="account.group_account_user"/>
+
+    <!-- Bank Transactions (Unreconciled) -->
+    <menuitem
+        id="menu_custom_bank_transactions"
+        name="Bank Transactions to Reconcile"
+        parent="menu_custom_reconcile_root"
+        action="action_custom_bank_transactions"
+        sequence="20"
+        groups="account.group_account_user"/>
+
+    <!-- All Bank Transactions -->
+    <menuitem
+        id="menu_custom_all_bank_transactions"
+        name="All Bank Transactions"
+        parent="menu_custom_reconcile_root"
+        action="action_custom_all_bank_transactions"
+        sequence="30"
+        groups="account.group_account_user"/>
+
+    <!-- Reconciliation History -->
+    <menuitem
+        id="menu_custom_reconcile_history"
+        name="Reconciliation History"
+        parent="menu_custom_reconcile_root"
+        action="action_custom_reconcile_history"
+        sequence="40"
+        groups="account.group_account_user"/>
+
+    <!-- ─── Configuration ───────────────────────────────────────────────── -->
+    <menuitem
+        id="menu_custom_reconcile_config"
+        name="Reconciliation Rules"
+        parent="account.account_account_menu"
+        action="action_custom_reconcile_model"
+        sequence="60"
+        groups="account.group_account_manager"/>
+
+</odoo>

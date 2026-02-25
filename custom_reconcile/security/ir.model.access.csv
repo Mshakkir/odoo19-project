@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_custom_reconcile_model_user,custom.reconcile.model user,model_custom_reconcile_model,account.group_account_user,1,0,0,0
+access_custom_reconcile_model_manager,custom.reconcile.model manager,model_custom_reconcile_model,account.group_account_manager,1,1,1,1
+access_custom_reconcile_model_line_user,custom.reconcile.model.line user,model_custom_reconcile_model_line,account.group_account_user,1,0,0,0
+access_custom_reconcile_model_line_manager,custom.reconcile.model.line manager,model_custom_reconcile_model_line,account.group_account_manager,1,1,1,1
+access_custom_reconcile_history_user,custom.reconcile.history user,model_custom_reconcile_history,account.group_account_user,1,0,0,0
+access_custom_reconcile_history_manager,custom.reconcile.history manager,model_custom_reconcile_history,account.group_account_manager,1,1,1,1
+access_custom_reconcile_wizard,custom.reconcile.wizard all,model_custom_reconcile_wizard,account.group_account_user,1,1,1,1
+access_custom_bank_reconcile_wizard,custom.bank.reconcile.wizard all,model_custom_bank_reconcile_wizard,account.group_account_user,1,1,1,1

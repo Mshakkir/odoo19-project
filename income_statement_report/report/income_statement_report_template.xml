@@ -6,26 +6,26 @@
 <div class="page" style="font-family: Arial, sans-serif; font-size: 11px; color: #000; padding: 0 10px;">
 
     <!-- ══════════════ COMPANY HEADER ══════════════ -->
-    <div style="margin-bottom: 10px;">
-        <div style="font-size: 14px; font-weight: bold;">
-            <t t-esc="form.get('company_name', '')"/>
-        </div>
-        <t t-if="form.get('company_name_ar')">
-            <div style="font-size: 13px; color: #CC8800; direction: rtl; text-align: left;">
-                <t t-esc="form.get('company_name_ar', '')"/>
-            </div>
-        </t>
-        <t t-if="form.get('vat')">
-            <div>VAT No : <t t-esc="form.get('vat', '')"/></div>
-        </t>
-        <t t-if="form.get('street')">
-            <div>
-                <t t-esc="form.get('street', '')"/>
-                <t t-if="form.get('city')">, <t t-esc="form.get('city', '')"/></t>
-                <t t-if="form.get('zip')">- <t t-esc="form.get('zip', '')"/></t>
-            </div>
-        </t>
-    </div>
+<!--    <div style="margin-bottom: 10px;">-->
+<!--        <div style="font-size: 14px; font-weight: bold;">-->
+<!--            <t t-esc="form.get('company_name', '')"/>-->
+<!--        </div>-->
+<!--        <t t-if="form.get('company_name_ar')">-->
+<!--            <div style="font-size: 13px; color: #CC8800; direction: rtl; text-align: left;">-->
+<!--                <t t-esc="form.get('company_name_ar', '')"/>-->
+<!--            </div>-->
+<!--        </t>-->
+<!--        <t t-if="form.get('vat')">-->
+<!--            <div>VAT No : <t t-esc="form.get('vat', '')"/></div>-->
+<!--        </t>-->
+<!--        <t t-if="form.get('street')">-->
+<!--            <div>-->
+<!--                <t t-esc="form.get('street', '')"/>-->
+<!--                <t t-if="form.get('city')">, <t t-esc="form.get('city', '')"/></t>-->
+<!--                <t t-if="form.get('zip')">- <t t-esc="form.get('zip', '')"/></t>-->
+<!--            </div>-->
+<!--        </t>-->
+<!--    </div>-->
 
     <!-- ══════════════ REPORT TITLE ══════════════ -->
     <div style="font-size: 12px; font-weight: bold; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 14px;">

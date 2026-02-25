@@ -3,110 +3,150 @@
     <template id="report_income_statement_template">
         <t t-call="web.html_container">
             <t t-call="web.external_layout">
-                <div class="page"
-                     style="font-family: Arial, sans-serif; font-size: 11px; color: #000; padding: 0 10px; padding-top:40px;">
+                <div class="page" style="font-family: Arial, sans-serif; font-size: 11px; color: #000; padding: 0 10px; padding-top: 40px;">
 
-                    <!-- ══════════════ REPORT TITLE ══════════════ -->
-                    <div style="font-size: 12px; font-weight: bold; padding-bottom: 6px; margin-bottom: 14px;">
-                        Income Statement [From
-                        <t t-esc="form.get('date_from', '')"/>
-                        To <t t-esc="form.get('date_to', '')"/>]
+                    <style>
+                        .is-report table, .is-report tr, .is-report td, .is-report th {
+                            border: none !important;
+                            border-left: none !important;
+                            border-right: none !important;
+                            border-top: none !important;
+                            border-bottom: none !important;
+                            box-shadow: none !important;
+                            outline: none !important;
+                        }
+                        .is-report table {
+                            width: 100%;
+                            border-collapse: collapse !important;
+                            margin-bottom: 4px;
+                        }
+                        .is-report .amt {
+                            text-align: right;
+                            width: 160px;
+                        }
+                        .is-report .section-hdr {
+                            color: #1F5C99;
+                            font-weight: bold;
+                            font-size: 11.5px;
+                            padding: 4px 0 2px 0;
+                        }
+                        .is-report .detail {
+                            padding: 2px 0 2px 10px;
+                        }
+                        .is-report .total-row td {
+                            font-weight: bold;
+                            border-top: 1px solid #000 !important;
+                            padding: 3px 0 8px 0;
+                        }
+                        .is-report .gross-row td {
+                            font-weight: bold;
+                            font-size: 12px;
+                            background-color: #E8E8E8;
+                            padding: 6px 4px;
+                        }
+                        .is-report .net-row td {
+                            font-weight: bold;
+                            font-size: 12px;
+                            border-top: 2px solid #000 !important;
+                            border-bottom: 2px solid #000 !important;
+                            padding: 6px 0;
+                        }
+                    </style>
+
+                    <div class="is-report">
+
+                        <!-- REPORT TITLE -->
+                        <div style="font-size: 12px; font-weight: bold; padding-bottom: 6px; margin-bottom: 14px;">
+                            Income Statement [From <t t-esc="form.get('date_from', '')"/> To <t t-esc="form.get('date_to', '')"/>]
+                        </div>
+
+                        <!-- REVENUE -->
+                        <table>
+                            <tr><td class="section-hdr" colspan="2">Revenue</td></tr>
+                            <t t-foreach="form.get('sales_lines', [])" t-as="line">
+                                <tr>
+                                    <td class="detail"><t t-esc="line.get('name', '')"/></td>
+                                    <td class="amt"><t t-esc="line.get('balance', '0.00')"/></td>
+                                </tr>
+                            </t>
+                            <t t-foreach="form.get('sales_return_lines', [])" t-as="line">
+                                <tr>
+                                    <td class="detail"><t t-esc="line.get('name', '')"/></td>
+                                    <td class="amt"><t t-esc="line.get('balance', '0.00')"/></td>
+                                </tr>
+                            </t>
+                            <tr class="total-row">
+                                <td>Total Revenue</td>
+                                <td class="amt"><t t-esc="form.get('total_revenue', '0.00')"/></td>
+                            </tr>
+                        </table>
+
+                        <div style="height: 8px;"/>
+
+                        <!-- COST OF SALES -->
+                        <table>
+                            <tr><td class="section-hdr" colspan="2">Cost of Sales</td></tr>
+                            <t t-foreach="form.get('cogs_lines', [])" t-as="line">
+                                <tr>
+                                    <td class="detail"><t t-esc="line.get('name', '')"/></td>
+                                    <td class="amt"><t t-esc="line.get('balance', '0.00')"/></td>
+                                </tr>
+                            </t>
+                            <tr class="total-row">
+                                <td>Total Cost of Sales</td>
+                                <td class="amt"><t t-esc="form.get('total_cost_of_sales', '0.00')"/></td>
+                            </tr>
+                        </table>
+
+                        <div style="height: 8px;"/>
+
+                        <!-- GROSS PROFIT -->
+                        <table>
+                            <tr class="gross-row">
+                                <td>Gross Profit</td>
+                                <td class="amt"><t t-esc="form.get('gross_profit', '0.00')"/></td>
+                            </tr>
+                        </table>
+
+                        <div style="height: 8px;"/>
+
+                        <!-- OTHER INCOME AND EXPENSES -->
+                        <table>
+                            <tr><td class="section-hdr" colspan="2">Other Income &amp; Expenses</td></tr>
+                            <t t-foreach="form.get('other_income_lines', [])" t-as="line">
+                                <tr>
+                                    <td class="detail"><t t-esc="line.get('name', '')"/></td>
+                                    <td class="amt"><t t-esc="line.get('balance', '0.00')"/></td>
+                                </tr>
+                            </t>
+                            <t t-foreach="form.get('other_expense_lines', [])" t-as="line">
+                                <tr>
+                                    <td class="detail"><t t-esc="line.get('name', '')"/></td>
+                                    <td class="amt"><t t-esc="line.get('balance', '0.00')"/></td>
+                                </tr>
+                            </t>
+                            <tr class="total-row">
+                                <td>Total Other Income &amp; Expenses</td>
+                                <td class="amt"><t t-esc="form.get('total_other', '0.00')"/></td>
+                            </tr>
+                        </table>
+
+                        <div style="height: 8px;"/>
+
+                        <!-- NET PROFIT -->
+                        <table>
+                            <tr class="net-row">
+                                <td>Net Profit</td>
+                                <td class="amt"><t t-esc="form.get('net_profit', '0.00')"/></td>
+                            </tr>
+                        </table>
+
+                        <!-- Footer -->
+                        <div style="margin-top: 24px; font-size: 9px; color: #888;">
+                            * Based on posted journal entries only.
+                        </div>
+
                     </div>
-
-                    <!-- ══════════════ REVENUE ══════════════ -->
-                    <table style="width:100%; border-collapse:collapse; border:none; margin-bottom:4px;">
-                        <tr>
-                            <td style="color:#1F5C99; font-weight:bold; font-size:11.5px; padding:4px 0 2px 0; border:none;" colspan="2">Revenue</td>
-                        </tr>
-                        <t t-foreach="form.get('sales_lines', [])" t-as="line">
-                            <tr>
-                                <td style="padding:2px 0 2px 6px; border:none;"><t t-esc="line.get('name', '')"/></td>
-                                <td style="text-align:right; width:160px; padding:2px 0; border:none;"><t t-esc="line.get('balance', '0.00')"/></td>
-                            </tr>
-                        </t>
-                        <t t-foreach="form.get('sales_return_lines', [])" t-as="line">
-                            <tr>
-                                <td style="padding:2px 0 2px 6px; border:none;"><t t-esc="line.get('name', '')"/></td>
-                                <td style="text-align:right; width:160px; padding:2px 0; border:none;"><t t-esc="line.get('balance', '0.00')"/></td>
-                            </tr>
-                        </t>
-                        <tr>
-                            <td style="font-weight:bold; border:none; border-top:1px solid #000 !important; padding:3px 0 8px 0;">Total Revenue</td>
-                            <td style="text-align:right; font-weight:bold; border:none; border-top:1px solid #000 !important; padding:3px 0 8px 0; width:160px;">
-                                <t t-esc="form.get('total_revenue', '0.00')"/>
-                            </td>
-                        </tr>
-                    </table>
-
-                    <!-- ══════════════ COST OF SALES ══════════════ -->
-                    <table style="width:100%; border-collapse:collapse; border:none; margin-bottom:4px;">
-                        <tr>
-                            <td style="color:#1F5C99; font-weight:bold; font-size:11.5px; padding:4px 0 2px 0; border:none;" colspan="2">Cost of Sales</td>
-                        </tr>
-                        <t t-foreach="form.get('cogs_lines', [])" t-as="line">
-                            <tr>
-                                <td style="padding:2px 0 2px 6px; border:none;"><t t-esc="line.get('name', '')"/></td>
-                                <td style="text-align:right; width:160px; padding:2px 0; border:none;"><t t-esc="line.get('balance', '0.00')"/></td>
-                            </tr>
-                        </t>
-                        <tr>
-                            <td style="font-weight:bold; border:none; border-top:1px solid #000 !important; padding:3px 0 8px 0;">Total Cost of Sales</td>
-                            <td style="text-align:right; font-weight:bold; border:none; border-top:1px solid #000 !important; padding:3px 0 8px 0; width:160px;">
-                                <t t-esc="form.get('total_cost_of_sales', '0.00')"/>
-                            </td>
-                        </tr>
-                    </table>
-
-                    <!-- ══════════════ GROSS PROFIT ══════════════ -->
-                    <table style="width:100%; border-collapse:collapse; border:none; margin-bottom:10px;">
-                        <tr style="background-color:#E8E8E8;">
-                            <td style="font-weight:bold; font-size:12px; padding:6px 4px; border:none;">Gross Profit</td>
-                            <td style="text-align:right; font-weight:bold; font-size:12px; padding:6px 4px; width:160px; border:none;">
-                                <t t-esc="form.get('gross_profit', '0.00')"/>
-                            </td>
-                        </tr>
-                    </table>
-
-                    <!-- ══════════════ OTHER INCOME & EXPENSES ══════════════ -->
-                    <table style="width:100%; border-collapse:collapse; border:none; margin-bottom:4px;">
-                        <tr>
-                            <td style="color:#1F5C99; font-weight:bold; font-size:11.5px; padding:4px 0 2px 0; border:none;" colspan="2">Other Income &amp; Expenses</td>
-                        </tr>
-                        <t t-foreach="form.get('other_income_lines', [])" t-as="line">
-                            <tr>
-                                <td style="padding:2px 0 2px 6px; border:none;"><t t-esc="line.get('name', '')"/></td>
-                                <td style="text-align:right; width:160px; padding:2px 0; border:none;"><t t-esc="line.get('balance', '0.00')"/></td>
-                            </tr>
-                        </t>
-                        <t t-foreach="form.get('other_expense_lines', [])" t-as="line">
-                            <tr>
-                                <td style="padding:2px 0 2px 6px; border:none;"><t t-esc="line.get('name', '')"/></td>
-                                <td style="text-align:right; width:160px; padding:2px 0; border:none;"><t t-esc="line.get('balance', '0.00')"/></td>
-                            </tr>
-                        </t>
-                        <tr>
-                            <td style="font-weight:bold; border:none; border-top:1px solid #000 !important; padding:3px 0 8px 0;">Total Other Income &amp; Expenses</td>
-                            <td style="text-align:right; font-weight:bold; border:none; border-top:1px solid #000 !important; padding:3px 0 8px 0; width:160px;">
-                                <t t-esc="form.get('total_other', '0.00')"/>
-                            </td>
-                        </tr>
-                    </table>
-
-                    <!-- ══════════════ NET PROFIT ══════════════ -->
-                    <table style="width:100%; border-collapse:collapse; border:none; margin-top:6px;">
-                        <tr>
-                            <td style="font-weight:bold; font-size:12px; border:none; border-top:2px solid #000 !important; border-bottom:2px solid #000 !important; padding:6px 0;">Net Profit</td>
-                            <td style="text-align:right; font-weight:bold; font-size:12px; border:none; border-top:2px solid #000 !important; border-bottom:2px solid #000 !important; padding:6px 0; width:160px;">
-                                <t t-esc="form.get('net_profit', '0.00')"/>
-                            </td>
-                        </tr>
-                    </table>
-
-                    <!-- Footer -->
-                    <div style="margin-top:24px; font-size:9px; color:#888;">
-                        * Based on posted journal entries only.
-                    </div>
-
                 </div>
             </t>
         </t>

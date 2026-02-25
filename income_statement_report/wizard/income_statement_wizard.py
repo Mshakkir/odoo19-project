@@ -179,8 +179,10 @@ class IncomeStatementReport(models.AbstractModel):
     @api.model
     def _get_report_values(self, docids, data=None):
         form = data.get('form', {}) if data else {}
+        docs = self.env['income.statement.wizard'].browse(docids)
         return {
             'doc_ids': docids,
             'doc_model': 'income.statement.wizard',
+            'docs': docs,
             'form': form,
         }

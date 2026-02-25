@@ -3,30 +3,29 @@
 <template id="report_income_statement_template">
 <t t-call="web.html_container">
 <t t-call="web.external_layout">
-<t t-set="o" t-value="form"/>
 <div class="page" style="font-family: Arial, sans-serif; font-size: 11px; color: #000;">
 
     <!-- ══════════════ COMPANY HEADER ══════════════ -->
     <div style="margin-bottom: 6px;">
         <div style="font-size: 15px; font-weight: bold;">
-            <t t-esc="o.get('company_name', '')"/>
+            <t t-esc="form.get('company_name', '')"/>
         </div>
         <div style="font-size: 13px; color: #CC8800; direction: rtl; text-align: left;">
-            <t t-esc="o.get('company_name_ar', '')"/>
+            <t t-esc="form.get('company_name_ar', '')"/>
         </div>
-        <div t-if="o.get('vat')">
-            VAT No : <t t-esc="o.get('vat', '')"/>
+        <div t-if="form.get('vat')">
+            VAT No : <t t-esc="form.get('vat', '')"/>
         </div>
-        <div t-if="o.get('street')">
-            <t t-esc="o.get('street', '')"/>
-            <t t-if="o.get('city')">, <t t-esc="o.get('city', '')"/></t>
-            <t t-if="o.get('zip')">&amp;nbsp;<t t-esc="o.get('zip', '')"/></t>
+        <div t-if="form.get('street')">
+            <t t-esc="form.get('street', '')"/>
+            <t t-if="form.get('city')">, <t t-esc="form.get('city', '')"/></t>
+            <t t-if="form.get('zip')">&amp;nbsp;<t t-esc="form.get('zip', '')"/></t>
         </div>
     </div>
 
     <!-- ══════════════ REPORT TITLE ══════════════ -->
     <div style="font-size: 12px; font-weight: bold; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 8px;">
-        Income Statement [From <t t-esc="o.get('date_from', '')"/> To <t t-esc="o.get('date_to', '')"/>]
+        Income Statement [From <t t-esc="form.get('date_from', '')"/> To <t t-esc="form.get('date_to', '')"/>]
     </div>
 
     <!-- ══════════════ REVENUE SECTION ══════════════ -->
@@ -38,14 +37,14 @@
             </td>
         </tr>
         <!-- Sales lines -->
-        <t t-foreach="o.get('sales_lines', [])" t-as="line">
+        <t t-foreach="form.get('sales_lines', [])" t-as="line">
             <tr>
                 <td style="padding: 2px 10px;"><t t-esc="line.get('name', '')"/></td>
                 <td style="text-align: right; padding: 2px;"><t t-esc="line.get('balance', '0.00')"/></td>
             </tr>
         </t>
         <!-- Sales Return lines -->
-        <t t-foreach="o.get('sales_return_lines', [])" t-as="line">
+        <t t-foreach="form.get('sales_return_lines', [])" t-as="line">
             <tr>
                 <td style="padding: 2px 10px;"><t t-esc="line.get('name', '')"/></td>
                 <td style="text-align: right; padding: 2px;"><t t-esc="line.get('balance', '0.00')"/></td>
@@ -55,7 +54,7 @@
         <tr style="font-weight: bold;">
             <td style="padding: 3px 10px; border-top: 1px solid #000;">Total Revenue</td>
             <td style="text-align: right; padding: 3px 2px; border-top: 1px solid #000;">
-                <t t-esc="o.get('total_revenue', '0.00')"/>
+                <t t-esc="form.get('total_revenue', '0.00')"/>
             </td>
         </tr>
     </table>
@@ -67,7 +66,7 @@
                 Cost of Sales
             </td>
         </tr>
-        <t t-foreach="o.get('cogs_lines', [])" t-as="line">
+        <t t-foreach="form.get('cogs_lines', [])" t-as="line">
             <tr>
                 <td style="padding: 2px 10px;"><t t-esc="line.get('name', '')"/></td>
                 <td style="text-align: right; padding: 2px;"><t t-esc="line.get('balance', '0.00')"/></td>
@@ -76,7 +75,7 @@
         <tr style="font-weight: bold;">
             <td style="padding: 3px 10px; border-top: 1px solid #000;">Total Cost of Sales</td>
             <td style="text-align: right; padding: 3px 2px; border-top: 1px solid #000;">
-                <t t-esc="o.get('total_cost_of_sales', '0.00')"/>
+                <t t-esc="form.get('total_cost_of_sales', '0.00')"/>
             </td>
         </tr>
     </table>
@@ -86,7 +85,7 @@
         <tr style="background-color: #F2F2F2;">
             <td style="padding: 5px 10px; font-weight: bold; font-size: 12px;">Gross Profit</td>
             <td style="text-align: right; padding: 5px 2px; font-weight: bold; font-size: 12px;">
-                <t t-esc="o.get('gross_profit', '0.00')"/>
+                <t t-esc="form.get('gross_profit', '0.00')"/>
             </td>
         </tr>
     </table>
@@ -98,7 +97,7 @@
                 Other Income &amp; Expenses
             </td>
         </tr>
-        <t t-foreach="o.get('other_expense_lines', [])" t-as="line">
+        <t t-foreach="form.get('other_expense_lines', [])" t-as="line">
             <tr>
                 <td style="padding: 2px 10px;"><t t-esc="line.get('name', '')"/></td>
                 <td style="text-align: right; padding: 2px;"><t t-esc="line.get('balance', '0.00')"/></td>
@@ -107,7 +106,7 @@
         <tr style="font-weight: bold;">
             <td style="padding: 3px 10px; border-top: 1px solid #000;">Total Other Income &amp; Expenses</td>
             <td style="text-align: right; padding: 3px 2px; border-top: 1px solid #000;">
-                <t t-esc="o.get('total_other', '0.00')"/>
+                <t t-esc="form.get('total_other', '0.00')"/>
             </td>
         </tr>
     </table>
@@ -119,7 +118,7 @@
                 Net Profit
             </td>
             <td style="text-align: right; padding: 5px 2px; font-weight: bold; font-size: 13px; border-top: 2px solid #000;">
-                <t t-esc="o.get('net_profit', '0.00')"/>
+                <t t-esc="form.get('net_profit', '0.00')"/>
             </td>
         </tr>
     </table>

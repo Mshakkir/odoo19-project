@@ -61,21 +61,21 @@
                         </div>
 
                         <!-- REVENUE -->
-                        <table>
-                            <tr style="border:white;"><td class="section-hdr" colspan="2">Revenue</td></tr>
+                        <table style="border:white;">
+                            <tr><td class="section-hdr" colspan="2">Revenue</td></tr>
                             <t t-foreach="form.get('sales_lines', [])" t-as="line">
-                                <tr style="border:white;">
+                                <tr>
                                     <td class="detail"><t t-esc="line.get('name', '')"/></td>
                                     <td class="amt"><t t-esc="line.get('balance', '0.00')"/></td>
                                 </tr>
                             </t>
-                            <t t-foreach="form.get('sales_return_lines', [])" t-as="line" style="border:white;">
-                                <tr style="border:white;">
+                            <t t-foreach="form.get('sales_return_lines', [])" t-as="line">
+                                <tr>
                                     <td class="detail"><t t-esc="line.get('name', '')"/></td>
                                     <td class="amt"><t t-esc="line.get('balance', '0.00')"/></td>
                                 </tr>
                             </t>
-                            <tr class="total-row" style="border:white;">
+                            <tr class="total-row">
                                 <td>Total Revenue</td>
                                 <td class="amt"><t t-esc="form.get('total_revenue', '0.00')"/></td>
                             </tr>

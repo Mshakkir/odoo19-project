@@ -65,14 +65,14 @@ class PurchaseEstimationWizard(models.TransientModel):
             vals.append({
                 'wizard_id': self.id,
                 'vno': order.name,
-                'date': order.date_order.date() if order.date_order else False,
+                'date': order.date_order.strftime('%d/%m/%y') if order.date_order else '',
                 'customer': partner.name,
                 'address': address,
                 'cell_no': partner.phone or '',
                 'narration': narration,
                 'net_amount': order.amount_total,
-                'confirm_date': order.date_approve.date() if order.date_approve else False,
-                'required_date': order.date_planned.date() if order.date_planned else False,
+                'confirm_date': order.date_approve.strftime('%d/%m/%y') if order.date_approve else '',
+                'required_date': order.date_planned.strftime('%d/%m/%y') if order.date_planned else '',
             })
         return vals
 

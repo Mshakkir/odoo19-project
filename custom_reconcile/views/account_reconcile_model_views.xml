@@ -126,12 +126,11 @@
                 <separator/>
                 <filter string="Archived" name="filter_archived"
                         domain="[('active', '=', False)]"/>
-                <group string="Group By">
-                    <filter string="Rule Type" name="group_type"
-                            context="{'group_by': 'rule_type'}"/>
-                    <filter string="Company" name="group_company"
-                            context="{'group_by': 'company_id'}"/>
-                </group>
+                <separator/>
+                <filter string="Group by Rule Type" name="group_type"
+                        context="{'group_by': 'rule_type'}"/>
+                <filter string="Group by Company" name="group_company"
+                        context="{'group_by': 'company_id'}"/>
             </search>
         </field>
     </record>

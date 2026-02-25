@@ -62,20 +62,20 @@
 
                         <!-- REVENUE -->
                         <table>
-                            <tr><td class="section-hdr" colspan="2">Revenue</td></tr>
+                            <tr style="border:white;"><td class="section-hdr" colspan="2">Revenue</td></tr>
                             <t t-foreach="form.get('sales_lines', [])" t-as="line">
-                                <tr>
+                                <tr style="border:white;">
                                     <td class="detail"><t t-esc="line.get('name', '')"/></td>
                                     <td class="amt"><t t-esc="line.get('balance', '0.00')"/></td>
                                 </tr>
                             </t>
-                            <t t-foreach="form.get('sales_return_lines', [])" t-as="line">
-                                <tr>
+                            <t t-foreach="form.get('sales_return_lines', [])" t-as="line" style="border:white;">
+                                <tr style="border:white;">
                                     <td class="detail"><t t-esc="line.get('name', '')"/></td>
                                     <td class="amt"><t t-esc="line.get('balance', '0.00')"/></td>
                                 </tr>
                             </t>
-                            <tr class="total-row">
+                            <tr class="total-row" style="border:white;">
                                 <td>Total Revenue</td>
                                 <td class="amt"><t t-esc="form.get('total_revenue', '0.00')"/></td>
                             </tr>

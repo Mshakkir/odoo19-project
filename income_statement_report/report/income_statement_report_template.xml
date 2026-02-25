@@ -4,7 +4,7 @@
         <t t-call="web.html_container">
             <t t-call="web.external_layout">
                 <div class="page"
-                     style="font-family: Arial, sans-serif; font-size: 11px; color: #000; padding: 0 10px;padding-top:20px;">
+                     style="font-family: Arial, sans-serif; font-size: 11px; color: #000; padding: 0 10px;padding-top:40px;">
 
                     <!-- ══════════════ COMPANY HEADER ══════════════ -->
                     <!--    <div style="margin-bottom: 10px;">-->

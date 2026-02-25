@@ -36,10 +36,11 @@ class IncomeStatementWizard(models.TransientModel):
                 raise ValidationError("'From' date must be earlier than 'To' date.")
 
     def _fmt(self, val):
+        """Format number with thousands separator and 2 decimals. Negatives show as -X.XX"""
         return '{:,.2f}'.format(val or 0.0)
 
     def _get_lines(self, account_types, company_ids):
-        """Return grouped account lines for the given account_types."""
+        """Return grouped account.move.line data for the given account_types."""
         if not account_types:
             return []
         domain = [
@@ -75,64 +76,83 @@ class IncomeStatementWizard(models.TransientModel):
             company = self.company_id or self.env.company
 
         # ── REVENUE ───────────────────────────────────────────────────────────
-        # Main sales: account_type = 'income' (credit-normal → negate balance)
+        # account_type='income': credit-normal → negate balance to get positive revenue
         sales_lines_raw = self._get_lines(['income'], company_ids)
         sales_total = sum(-l['balance'] for l in sales_lines_raw)
 
-        # Sales Returns / contra-revenue: account_type = 'income_other'
-        # These may have debit (positive balance) = actual return,
-        # or credit (negative balance) = not yet returned.
-        # We display the net absolute deduction value per line.
+        # Sales Return lines: these are accounts where customers return goods.
+        # In Odoo they are typically posted as debit on income accounts (credit notes).
+        # We look for any income account lines with net positive (debit) balance = returns.
+        # OR dedicated return accounts under income_other with positive balance.
+        # Strategy: use income_other account_type for dedicated Sales Return accounts.
         sales_return_lines_raw = self._get_lines(['income_other'], company_ids)
 
-        # Filter: lines with positive balance are actual debit (return from customer)
-        # Lines with negative balance are still credit-normal (other income, not returns)
+        # Split income_other into:
+        #   - Sales Returns: net debit balance (positive) → deduction from revenue
+        #   - Other Income:  net credit balance (negative) → non-operating income
         actual_return_lines = [l for l in sales_return_lines_raw if l['balance'] >= 0]
         other_income_lines_raw = [l for l in sales_return_lines_raw if l['balance'] < 0]
 
+        # Sales return total = sum of debit balances (already positive)
         sales_return_total = sum(l['balance'] for l in actual_return_lines)
         total_revenue = sales_total - sales_return_total
 
         # ── COST OF SALES ─────────────────────────────────────────────────────
-        # account_type = 'expense_direct_cost' (debit-normal → balance is positive)
+        # account_type='expense_direct_cost': debit-normal → balance is already positive
         cogs_lines_raw = self._get_lines(['expense_direct_cost'], company_ids)
         cogs_total = sum(l['balance'] for l in cogs_lines_raw)
         gross_profit = total_revenue - cogs_total
 
         # ── OTHER INCOME & EXPENSES ───────────────────────────────────────────
-        # Other Income: credit-normal (negative balance) → negate for display
-        other_income_total = sum(-l['balance'] for l in other_income_lines_raw)
+        # Other Income: credit-normal → balance is negative in DB.
+        # Display value = balance as-is (negative), matching target image showing -15.39
+        other_income_display_total = sum(l['balance'] for l in other_income_lines_raw)
 
-        # Other Expenses: account_type = 'expense' and 'expense_depreciation'
+        # Other Expenses: debit-normal → balance is positive
         other_expense_lines_raw = self._get_lines(
             ['expense', 'expense_depreciation'], company_ids
         )
         other_expense_total = sum(l['balance'] for l in other_expense_lines_raw)
 
-        # Net other = expenses minus other income (net deduction from gross profit)
-        total_other_net = other_expense_total - other_income_total
+        # Net deduction from gross profit:
+        # expenses are positive (increase cost), other_income is negative (reduces cost)
+        total_other_net = other_expense_total + other_income_display_total  # income is negative so this subtracts
+        # Displayed total: negate so it shows as negative (e.g. -13,274.60)
+        total_other_display = -(total_other_net)
+
         net_profit = gross_profit - total_other_net
 
-        # ── FORMAT FOR TEMPLATE ───────────────────────────────────────────────
-        def fmt_income_lines(lines):
-            """Credit-normal income accounts: negate balance → positive display."""
-            return [{'name': l['name'], 'code': l['code'],
-                     'balance': self._fmt(-l['balance'])} for l in lines]
+        # ── FORMAT LINES FOR TEMPLATE ─────────────────────────────────────────
 
-        def fmt_return_lines(lines):
-            """Sales return lines: already positive balance (debit)."""
-            return [{'name': l['name'], 'code': l['code'],
-                     'balance': self._fmt(l['balance'])} for l in lines]
+        # Sales: credit-normal → negate for positive display
+        sales_display = [
+            {'name': l['name'], 'code': l['code'], 'balance': self._fmt(-l['balance'])}
+            for l in sales_lines_raw
+        ]
 
-        def fmt_expense_lines(lines):
-            """Debit-normal expense accounts: balance is already positive."""
-            return [{'name': l['name'], 'code': l['code'],
-                     'balance': self._fmt(l['balance'])} for l in lines]
+        # Sales Returns: already positive debit balance → display as-is
+        sales_return_display = [
+            {'name': l['name'], 'code': l['code'], 'balance': self._fmt(l['balance'])}
+            for l in actual_return_lines
+        ]
 
-        def fmt_other_income_lines(lines):
-            """Other income: credit-normal → negate, display as negative (deduction)."""
-            return [{'name': l['name'], 'code': l['code'],
-                     'balance': self._fmt(l['balance'])} for l in lines]
+        # COGS: already positive → display as-is
+        cogs_display = [
+            {'name': l['name'], 'code': l['code'], 'balance': self._fmt(l['balance'])}
+            for l in cogs_lines_raw
+        ]
+
+        # Other Income: credit-normal → balance is negative in DB → display as-is (shows -15.39)
+        other_income_display = [
+            {'name': l['name'], 'code': l['code'], 'balance': self._fmt(l['balance'])}
+            for l in other_income_lines_raw
+        ]
+
+        # Other Expenses: positive → display as-is
+        other_expense_display = [
+            {'name': l['name'], 'code': l['code'], 'balance': self._fmt(l['balance'])}
+            for l in other_expense_lines_raw
+        ]
 
         return {
             # Company info
@@ -145,15 +165,15 @@ class IncomeStatementWizard(models.TransientModel):
             'date_from': str(self.date_from),
             'date_to': str(self.date_to),
 
-            # Revenue section
-            'sales_lines': fmt_income_lines(sales_lines_raw),
+            # Revenue
+            'sales_lines': sales_display,
             'sales_total': self._fmt(sales_total),
-            'sales_return_lines': fmt_return_lines(actual_return_lines),
+            'sales_return_lines': sales_return_display,
             'sales_return_total': self._fmt(sales_return_total),
             'total_revenue': self._fmt(total_revenue),
 
-            # Cost of Sales (lines positive, total shown as negative)
-            'cogs_lines': fmt_expense_lines(cogs_lines_raw),
+            # Cost of Sales (line values positive, total negative)
+            'cogs_lines': cogs_display,
             'cogs_total': self._fmt(cogs_total),
             'total_cost_of_sales': self._fmt(-cogs_total),
 
@@ -161,11 +181,9 @@ class IncomeStatementWizard(models.TransientModel):
             'gross_profit': self._fmt(gross_profit),
 
             # Other Income & Expenses
-            'other_income_lines': fmt_other_income_lines(other_income_lines_raw),
-            'other_income_total': self._fmt(other_income_total),
-            'other_expense_lines': fmt_expense_lines(other_expense_lines_raw),
-            'other_expense_total': self._fmt(other_expense_total),
-            'total_other': self._fmt(-total_other_net),
+            'other_income_lines': other_income_display,       # negative values e.g. -15.39
+            'other_expense_lines': other_expense_display,     # positive values e.g. 6,682.99
+            'total_other': self._fmt(total_other_display),    # negative total e.g. -13,274.60
 
             # Net Profit
             'net_profit': self._fmt(net_profit),

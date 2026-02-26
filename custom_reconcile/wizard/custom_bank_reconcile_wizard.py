@@ -256,28 +256,39 @@ class CustomBankReconcileWizard(models.TransientModel):
         label = self.new_entry_label or stmt_line.payment_ref or _('Bank Transaction')
         journal = self.new_entry_journal_id or stmt_line.journal_id
 
+        # Build the counterpart line
+        counterpart_line = {
+            'account_id': self.account_id.id,
+            'name': label,
+            'partner_id': self.partner_id.id if self.partner_id else False,
+            'debit': amount if self.transaction_type == 'credit' else 0.0,
+            'credit': amount if self.transaction_type == 'debit' else 0.0,
+        }
+
+        # Only add analytic_distribution if it is set AND the field exists on move line
+        if self.analytic_distribution:
+            try:
+                # Verify the field exists on account.move.line before using it
+                self.env['account.move.line']._fields.get('analytic_distribution')
+                counterpart_line['analytic_distribution'] = self.analytic_distribution
+            except Exception:
+                pass  # Skip analytic if not supported
+
+        # Bank account line
+        bank_line = {
+            'account_id': stmt_line.journal_id.default_account_id.id,
+            'name': label,
+            'partner_id': self.partner_id.id if self.partner_id else False,
+            'debit': amount if self.transaction_type == 'debit' else 0.0,
+            'credit': amount if self.transaction_type == 'credit' else 0.0,
+        }
+
         move_vals = {
             'move_type': 'entry',
             'journal_id': journal.id,
             'date': stmt_line.date,
             'ref': label,
-            'line_ids': [
-                (0, 0, {
-                    'account_id': self.account_id.id,
-                    'name': label,
-                    'partner_id': self.partner_id.id if self.partner_id else False,
-                    'debit': amount if self.transaction_type == 'credit' else 0.0,
-                    'credit': amount if self.transaction_type == 'debit' else 0.0,
-                    'analytic_distribution': self.analytic_distribution,
-                }),
-                (0, 0, {
-                    'account_id': stmt_line.journal_id.default_account_id.id,
-                    'name': label,
-                    'partner_id': self.partner_id.id if self.partner_id else False,
-                    'debit': amount if self.transaction_type == 'debit' else 0.0,
-                    'credit': amount if self.transaction_type == 'credit' else 0.0,
-                }),
-            ],
+            'line_ids': [(0, 0, counterpart_line), (0, 0, bank_line)],
         }
 
         new_move = self.env['account.move'].create(move_vals)

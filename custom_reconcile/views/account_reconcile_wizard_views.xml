@@ -110,7 +110,10 @@
                         <field name="account_id" required="reconcile_mode == 'new_entry'"/>
                         <field name="new_entry_label" required="reconcile_mode == 'new_entry'"/>
                         <field name="new_entry_journal_id"/>
-                        <field name="analytic_distribution" widget="analytic_distribution"/>
+                        <field name="analytic_distribution"
+       widget="json"
+       string="Analytic Distribution (JSON)"
+       help="Enter as JSON: {&quot;analytic_account_id&quot;: 100}"/>
                     </group>
 
                     <!-- Step 3c: Write-off -->

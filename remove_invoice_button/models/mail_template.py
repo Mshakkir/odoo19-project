@@ -15,13 +15,17 @@ class MailTemplate(models.Model):
     @api.model
     def _render_template(self, template_txt, model_name, res_ids,
                          post_process=False, engine='jinja2',
-                         minimal_qcontext=False, add_context=None):
-        """Override to remove invoice button from rendered content"""
+                         minimal_qcontext=False, **kwargs):
+        """Override to remove invoice button from rendered content
+
+        Uses **kwargs to accept any additional parameters that Odoo might pass
+        (add_context, options, or future parameters)
+        """
 
         results = super()._render_template(
             template_txt, model_name, res_ids,
             post_process=post_process, engine=engine,
-            minimal_qcontext=minimal_qcontext, add_context=add_context
+            minimal_qcontext=minimal_qcontext, **kwargs
         )
 
         if self.remove_invoice_button:

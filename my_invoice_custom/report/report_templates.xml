@@ -229,7 +229,7 @@
                                         </t>
                                     </td>
                                 </t>
-                                <!-- NEW QR CODE COLUMN HEADER -->
+                                <!-- QR CODE HEADER COLUMN -->
                                 <t t-if="o.move_type in ('out_invoice','out_refund')">
                                     <td style="padding:4px 8px; font-weight:bold; text-align:center; width:20%;border-left:1px solid #000000;">
                                         QR Code<br/>
@@ -327,16 +327,18 @@
                                         </t>
                                     </td>
                                 </t>
-                                <!-- NEW QR CODE DISPLAY COLUMN -->
+                                <!-- QR CODE DATA COLUMN -->
                                 <t t-if="o.move_type in ('out_invoice','out_refund')">
                                     <td style="padding:10px; vertical-align:middle; border-left:1px solid #000000; text-align:center; width:20%; height:140px;">
-                                        <t t-if="o.qr_code_image">
-                                            <img t-att-src="'data:image/png;base64,%s' % o.qr_code_image.decode('utf-8')"
-                                                 style="max-height:100%; max-width:100%; object-fit:contain; display:block; margin:0 auto;"/>
-                                        </t>
-                                        <t t-else="">
-                                            <span style="color:#999; font-size:10px;">No QR Code</span>
-                                        </t>
+                                        <div style="display:flex; align-items:center; justify-content:center; height:100%;">
+                                            <t t-if="o.qr_code_image">
+                                                <img t-att-src="'data:image/png;base64,%s' % o.qr_code_image.decode('utf-8')"
+                                                     style="max-height:130px; max-width:130px; object-fit:contain;"/>
+                                            </t>
+                                            <t t-else="">
+                                                <span style="color:#999; font-size:10px;">No QR Code</span>
+                                            </t>
+                                        </div>
                                     </td>
                                 </t>
                             </tr>

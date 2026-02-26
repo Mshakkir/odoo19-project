@@ -18,7 +18,6 @@ import { Component, onMounted } from "@odoo/owl";
  * red when absolute value > 0.01, green otherwise.
  */
 import { MonetaryField } from "@web/views/fields/monetary/monetary_field";
-import { formatMonetary } from "@web/views/fields/formatters";
 
 export class ReconcileDifferenceField extends MonetaryField {
     get className() {
@@ -31,7 +30,11 @@ export class ReconcileDifferenceField extends MonetaryField {
 }
 
 ReconcileDifferenceField.template = MonetaryField.template;
-registry.category("fields").add("reconcile_difference", ReconcileDifferenceField);
+
+// ✅ FIX: Odoo 18/19 requires { component: Class } object, not the class directly
+registry.category("fields").add("reconcile_difference", {
+    component: ReconcileDifferenceField,
+});
 
 
 // ── Reconcile Balance Widget ─────────────────────────────────────────────────
@@ -72,15 +75,12 @@ export class ReconcileBalanceWidget extends Component {
 }
 
 ReconcileBalanceWidget.template = "custom_reconcile.ReconcileBalanceWidget";
-ReconcileBalanceWidget.props = {};
 
-// ── Reconcile Success Confetti (lightweight) ──────────────────────────────────
-/**
- * Listens for the 'display_notification' client action with type 'success'
- * coming from our reconcile wizard and adds a subtle green flash to the page.
- */
-const actionService = registry.category("actions");
-const originalDisplayNotification = actionService.get("display_notification");
+// ✅ FIX: Odoo 18/19 OWL requires props to be defined as a static object or omitted
+ReconcileBalanceWidget.props = {
+    "*": { optional: true },
+};
+
 
 // ── Auto-format reconcile amounts in list view ────────────────────────────────
 /**

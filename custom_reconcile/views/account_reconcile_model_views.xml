@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- List View -->
+    <record id="view_custom_reconcile_model_list" model="ir.ui.view">
+        <field name="name">custom.reconcile.model.list</field>
+        <field name="model">custom.reconcile.model</field>
+        <field name="arch" type="xml">
+            <list string="Reconciliation Rules" decoration-muted="not active">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="rule_type"/>
+                <field name="auto_reconcile"/>
+                <field name="match_nature"/>
+                <field name="number_entries" string="Entries Matched"/>
+                <field name="active" column_invisible="True"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_custom_reconcile_model_form" model="ir.ui.view">
+        <field name="name">custom.reconcile.model.form</field>
+        <field name="model">custom.reconcile.model</field>
+        <field name="arch" type="xml">
+            <form string="Reconciliation Rule">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_reconcile_history"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-history">
+                            <field name="number_entries" widget="statinfo" string="Matched Entries"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Rule Name..."/></h1>
+                    </div>
+                    <group>
+                        <group string="Rule Settings">
+                            <field name="sequence"/>
+                            <field name="rule_type"/>
+                            <field name="active"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Auto Reconcile">
+                            <field name="auto_reconcile"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Matching Conditions" name="conditions">
+                            <group string="Journal">
+                                <field name="match_journal_ids" widget="many2many_tags"
+                                       domain="[('type', 'in', ['bank', 'cash'])]"/>
+                            </group>
+                            <group string="Amount">
+                                <field name="match_nature"/>
+                                <field name="match_amount"/>
+                                <field name="match_amount_min"
+                                       invisible="match_amount not in ['lower', 'greater', 'between']"
+                                       string="Amount / Min Amount"/>
+                                <field name="match_amount_max"
+                                       invisible="match_amount != 'between'"/>
+                            </group>
+                            <group string="Label / Reference">
+                                <field name="match_label"/>
+                                <field name="match_label_param"
+                                       invisible="not match_label"
+                                       placeholder="Enter text or regex..."/>
+                            </group>
+                            <group string="Partner">
+                                <field name="match_partner"/>
+                                <field name="match_partner_ids" widget="many2many_tags"
+                                       invisible="not match_partner"/>
+                                <field name="match_partner_category_ids" widget="many2many_tags"
+                                       invisible="not match_partner"/>
+                            </group>
+                        </page>
+                        <page string="Write-off Accounts" name="writeoff"
+                              invisible="rule_type not in ['writeoff_button', 'writeoff_suggestion']">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="account_id"/>
+                                    <field name="journal_id"/>
+                                    <field name="label"/>
+                                    <field name="amount_type"/>
+                                    <field name="amount" invisible="amount_type == 'regex'"/>
+                                    <field name="tax_ids" widget="many2many_tags"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Invoice Matching" name="invoice"
+                              invisible="rule_type != 'invoice_matching'">
+                            <group>
+                                <field name="allow_payment_tolerance"/>
+                                <field name="payment_tolerance_param"
+                                       invisible="not allow_payment_tolerance"
+                                       string="Max Tolerance (%)"/>
+                                <field name="past_months_limit" help="0 = no limit"/>
+                                <field name="matching_order"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_custom_reconcile_model_search" model="ir.ui.view">
+        <field name="name">custom.reconcile.model.search</field>
+        <field name="model">custom.reconcile.model</field>
+        <field name="arch" type="xml">
+            <search string="Search Reconciliation Rules">
+                <field name="name"/>
+                <filter string="Invoice Matching" name="filter_invoice"
+                        domain="[('rule_type', '=', 'invoice_matching')]"/>
+                <filter string="Write-off" name="filter_writeoff"
+                        domain="[('rule_type', '=', 'writeoff_button')]"/>
+                <filter string="Auto Reconcile" name="filter_auto"
+                        domain="[('auto_reconcile', '=', True)]"/>
+                <separator/>
+                <filter string="Archived" name="filter_archived"
+                        domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter string="Group by Rule Type" name="group_type"
+                        context="{'group_by': 'rule_type'}"/>
+                <filter string="Group by Company" name="group_company"
+                        context="{'group_by': 'company_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_custom_reconcile_model" model="ir.actions.act_window">
+        <field name="name">Reconciliation Rules</field>
+        <field name="res_model">custom.reconcile.model</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first reconciliation rule</p>
+            <p>Rules help automatically match bank transactions with invoices, bills, or write off small differences.</p>
+        </field>
+    </record>
+
+    <!-- History List -->
+    <record id="view_custom_reconcile_history_list" model="ir.ui.view">
+        <field name="name">custom.reconcile.history.list</field>
+        <field name="model">custom.reconcile.history</field>
+        <field name="arch" type="xml">
+            <list string="Reconciliation History">
+                <field name="date"/>
+                <field name="model_id"/>
+                <field name="reconciled_amount"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="state"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_custom_reconcile_history" model="ir.actions.act_window">
+        <field name="name">Reconciliation History</field>
+        <field name="res_model">custom.reconcile.history</field>
+        <field name="view_mode">list</field>
+    </record>
+
+</odoo>

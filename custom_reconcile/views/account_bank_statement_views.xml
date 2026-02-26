@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Bank Statement Line - Extended List View -->
+    <record id="view_custom_bank_stmt_line_list" model="ir.ui.view">
+        <field name="name">custom.account.bank.statement.line.list</field>
+        <field name="model">account.bank.statement.line</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <list string="Bank Transactions"
+                  decoration-success="custom_reconcile_state == 'reconciled'"
+                  decoration-warning="custom_reconcile_state == 'matched'"
+                  decoration-info="custom_reconcile_state == 'open'">
+                <field name="date"/>
+                <field name="journal_id"/>
+                <field name="payment_ref"/>
+                <field name="partner_id"/>
+                <field name="amount"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="custom_reconcile_state" string="Status"
+                       widget="badge"
+                       decoration-success="custom_reconcile_state == 'reconciled'"
+                       decoration-warning="custom_reconcile_state == 'matched'"
+                       decoration-info="custom_reconcile_state == 'open'"/>
+                <field name="reconcile_model_id" string="Rule Applied" optional="show"/>
+                <field name="is_reconciled" column_invisible="True"/>
+                <button name="action_open_reconcile_wizard"
+                        type="object"
+                        string="Reconcile"
+                        class="btn-primary btn-sm"
+                        invisible="custom_reconcile_state == 'reconciled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View Extension -->
+    <record id="view_custom_bank_stmt_line_form" model="ir.ui.view">
+        <field name="name">custom.account.bank.statement.line.form</field>
+        <field name="model">account.bank.statement.line</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <form string="Bank Transaction">
+                <header>
+                    <button name="action_open_reconcile_wizard"
+                            type="object"
+                            string="Reconcile"
+                            class="btn-primary"
+                            invisible="is_reconciled"/>
+                    <button name="action_apply_reconcile_rules"
+                            type="object"
+                            string="Auto-Apply Rules"
+                            invisible="is_reconciled"/>
+                    <field name="custom_reconcile_state"
+                           widget="statusbar"
+                           statusbar_visible="open,matched,reconciled"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Transaction Details">
+                            <field name="date"/>
+                            <field name="journal_id"/>
+                            <field name="payment_ref"/>
+                            <field name="amount"/>
+                            <field name="currency_id"/>
+                            <field name="partner_id"/>
+                            <field name="partner_name"/>
+                        </group>
+                        <group string="Reconciliation">
+                            <field name="is_reconciled"/>
+                            <field name="custom_reconcile_state"/>
+                            <field name="reconcile_model_id"/>
+                            <field name="suggested_partner_id"/>
+                            <field name="custom_writeoff_account_id"/>
+                            <field name="custom_writeoff_label"
+                                   invisible="not custom_writeoff_account_id"/>
+                        </group>
+                    </group>
+                    <group string="Matched Journal Items"
+                           invisible="not matched_move_line_ids">
+                        <field name="matched_move_line_ids" nolabel="1">
+                            <list>
+                                <field name="date"/>
+                                <field name="move_id"/>
+                                <field name="name"/>
+                                <field name="debit"/>
+                                <field name="credit"/>
+                                <field name="amount_residual"/>
+                                <field name="currency_id" column_invisible="True"/>
+                            </list>
+                        </field>
+                    </group>
+                    <group string="Notes">
+                        <field name="custom_notes" nolabel="1"
+                               placeholder="Internal notes about this reconciliation..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_custom_bank_stmt_line_search" model="ir.ui.view">
+        <field name="name">custom.account.bank.statement.line.search</field>
+        <field name="model">account.bank.statement.line</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <search string="Search Bank Transactions">
+                <field name="payment_ref"/>
+                <field name="partner_id"/>
+                <field name="journal_id"/>
+                <separator/>
+                <filter string="Open (Unreconciled)" name="open"
+                        domain="[('is_reconciled', '=', False)]"/>
+                <filter string="Reconciled" name="reconciled"
+                        domain="[('is_reconciled', '=', True)]"/>
+                <separator/>
+                <filter string="Money In" name="money_in"
+                        domain="[('amount', '>', 0)]"/>
+                <filter string="Money Out" name="money_out"
+                        domain="[('amount', '&lt;', 0)]"/>
+                <separator/>
+                <filter string="Group by Journal" name="group_journal"
+                        context="{'group_by': 'journal_id'}"/>
+                <filter string="Group by Status" name="group_state"
+                        context="{'group_by': 'custom_reconcile_state'}"/>
+                <filter string="Group by Date" name="group_date"
+                        context="{'group_by': 'date:month'}"/>
+                <filter string="Group by Partner" name="group_partner"
+                        context="{'group_by': 'partner_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action: Unreconciled Transactions -->
+    <record id="action_custom_bank_transactions" model="ir.actions.act_window">
+        <field name="name">Bank Transactions</field>
+        <field name="res_model">account.bank.statement.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_reconciled', '=', False)]</field>
+        <field name="context">{'search_default_open': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No pending bank transactions</p>
+            <p>All bank transactions have been reconciled.</p>
+        </field>
+    </record>
+
+    <!-- Action: All Bank Transactions -->
+    <record id="action_custom_all_bank_transactions" model="ir.actions.act_window">
+        <field name="name">All Bank Transactions</field>
+        <field name="res_model">account.bank.statement.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No bank transactions found</p>
+        </field>
+    </record>
+
+</odoo>

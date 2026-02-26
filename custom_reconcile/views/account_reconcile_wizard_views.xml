@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         BANK RECONCILIATION WIZARD VIEW
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <record id="view_custom_bank_reconcile_wizard_form" model="ir.ui.view">
+        <field name="name">custom.bank.reconcile.wizard.form</field>
+        <field name="model">custom.bank.reconcile.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reconcile Bank Transaction">
+                <sheet>
+
+                    <!-- Transaction Summary Banner -->
+                    <div class="alert alert-info o_form_header" role="alert">
+                        <table style="width:100%">
+                            <tr>
+                                <td><strong>Date:</strong>
+                                    <field name="transaction_date" readonly="1"/></td>
+                                <td><strong>Reference:</strong>
+                                    <field name="transaction_ref" readonly="1"/></td>
+                                <td><strong>Amount:</strong>
+                                    <field name="transaction_amount" readonly="1"
+                                           widget="monetary"
+                                           options="{'currency_field': 'currency_id'}"/>
+                                </td>
+                                <td><strong>Type:</strong>
+                                    <field name="transaction_type" readonly="1"/></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <field name="currency_id" invisible="1"/>
+                    <field name="statement_line_id" invisible="1"/>
+
+                    <!-- Step 1: Partner -->
+                    <group string="Step 1 — Assign Partner">
+                        <field name="partner_id" required="1"/>
+                        <field name="apply_rule_id"
+                               string="Quick Apply Rule (optional)"
+                               domain="[('active', '=', True)]"/>
+                    </group>
+
+                    <!-- Step 2: Reconcile Mode -->
+                    <group string="Step 2 — Choose How to Reconcile">
+                        <field name="reconcile_mode" widget="radio"/>
+                    </group>
+
+                    <!-- Step 3a: Match Invoice/Payment -->
+                    <group string="Step 3 — Select Matching Items"
+                           invisible="reconcile_mode not in ['match_invoice', 'match_payment']">
+                        <div colspan="2">
+                            <button name="action_auto_match"
+                                    type="object"
+                                    string="⚡ Auto-Select Best Match"
+                                    class="btn-secondary mb-2"/>
+                            <button name="action_load_candidates"
+                                    type="object"
+                                    string="🔄 Reload Candidates"
+                                    class="btn-secondary mb-2"/>
+                        </div>
+
+                        <div colspan="2">
+                            <field name="candidate_line_ids"
+                                   widget="many2many"
+                                   readonly="1"
+                                   nolabel="1">
+                                <list string="Available Items" decoration-info="1">
+                                    <field name="date"/>
+                                    <field name="move_id" string="Invoice/Bill"/>
+                                    <field name="name"/>
+                                    <field name="partner_id"/>
+                                    <field name="debit"/>
+                                    <field name="credit"/>
+                                    <field name="amount_residual" string="Outstanding"/>
+                                    <field name="currency_id" invisible="1"/>
+                                </list>
+                            </field>
+                        </div>
+
+                        <separator string="Selected for Matching" colspan="2"/>
+
+                        <div colspan="2">
+                            <field name="selected_line_ids"
+                                   widget="many2many"
+                                   nolabel="1">
+                                <list string="Selected Items" decoration-success="1">
+                                    <field name="date"/>
+                                    <field name="move_id" string="Invoice/Bill"/>
+                                    <field name="name"/>
+                                    <field name="amount_residual" string="Amount"/>
+                                    <field name="currency_id" invisible="1"/>
+                                </list>
+                            </field>
+                        </div>
+
+                        <!-- Totals Summary -->
+                        <group string="Summary" colspan="2">
+                            <field name="selected_total" readonly="1"/>
+                            <field name="remaining_amount" readonly="1"
+                                   decoration-danger="remaining_amount > 0.01"
+                                   decoration-success="remaining_amount &lt;= 0.01"/>
+                        </group>
+                    </group>
+
+                    <!-- Step 3b: New Journal Entry -->
+                    <group string="Step 3 — New Entry Details"
+                           invisible="reconcile_mode != 'new_entry'">
+                        <field name="account_id" required="reconcile_mode == 'new_entry'"/>
+                        <field name="new_entry_label" required="reconcile_mode == 'new_entry'"/>
+                        <field name="new_entry_journal_id"/>
+                        <field name="analytic_distribution"
+       widget="json"
+       string="Analytic Distribution (JSON)"
+       help="Enter as JSON: {&quot;analytic_account_id&quot;: 100}"/>
+                    </group>
+
+                    <!-- Step 3c: Write-off -->
+                    <group string="Step 3 — Write-off Details"
+                           invisible="reconcile_mode != 'writeoff'">
+                        <field name="writeoff_account_id"
+                               required="reconcile_mode == 'writeoff'"/>
+                        <field name="writeoff_label"
+                               required="reconcile_mode == 'writeoff'"/>
+                    </group>
+
+                </sheet>
+
+                <footer>
+                    <button name="action_validate"
+                            type="object"
+                            string="✔ Validate Reconciliation"
+                            class="btn-primary"/>
+                    <button name="action_cancel"
+                            type="object"
+                            string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         JOURNAL ITEM RECONCILIATION WIZARD VIEW
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <record id="view_custom_reconcile_wizard_form" model="ir.ui.view">
+        <field name="name">custom.reconcile.wizard.form</field>
+        <field name="model">custom.reconcile.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reconcile Journal Items">
+                <sheet>
+                    <div class="alert alert-info" role="alert" colspan="2">
+                        <strong>Partner Reconciliation</strong> — Select debit and credit
+                        journal items with matching amounts. Use the write-off option
+                        for small differences (e.g. currency rounding, discounts).
+                    </div>
+
+                    <field name="currency_id" invisible="1"/>
+
+                    <group string="Filter Lines">
+                        <field name="partner_id"/>
+                        <field name="account_id"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                        <button name="action_add_outstanding_lines"
+                                type="object"
+                                string="Load All Outstanding Lines"
+                                class="btn-secondary"/>
+                    </group>
+
+                    <!-- Items to Reconcile -->
+                    <notebook>
+                        <page string="All Selected Lines" name="all_lines">
+                            <field name="line_ids" nolabel="1"
+                                   domain="[('reconciled', '=', False),
+                                            ('parent_state', '=', 'posted')]">
+                                <list string="Journal Items">
+                                    <field name="date"/>
+                                    <field name="move_id" string="Entry"/>
+                                    <field name="name"/>
+                                    <field name="partner_id"/>
+                                    <field name="account_id"/>
+                                    <field name="debit"/>
+                                    <field name="credit"/>
+                                    <field name="amount_residual" string="Residual"/>
+                                    <field name="currency_id" invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Debit Lines" name="debit_lines">
+                            <field name="debit_move_line_ids" readonly="1" nolabel="1">
+                                <list>
+                                    <field name="date"/>
+                                    <field name="move_id"/>
+                                    <field name="name"/>
+                                    <field name="debit"/>
+                                    <field name="amount_residual"/>
+                                    <field name="currency_id" invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Credit Lines" name="credit_lines">
+                            <field name="credit_move_line_ids" readonly="1" nolabel="1">
+                                <list>
+                                    <field name="date"/>
+                                    <field name="move_id"/>
+                                    <field name="name"/>
+                                    <field name="credit"/>
+                                    <field name="amount_residual"/>
+                                    <field name="currency_id" invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+
+                    <!-- Totals -->
+                    <group string="Balance Summary">
+                        <field name="total_debit" readonly="1"/>
+                        <field name="total_credit" readonly="1"/>
+                        <field name="difference" readonly="1"
+                               decoration-danger="abs(difference) > 0.01"
+                               decoration-success="abs(difference) &lt;= 0.01"/>
+                    </group>
+
+                    <!-- Write-off Section -->
+                    <group string="Write-off for Difference"
+                           invisible="abs(difference) &lt;= 0.01">
+                        <field name="writeoff_is_active"/>
+                        <field name="writeoff_account_id"
+                               invisible="not writeoff_is_active"
+                               required="writeoff_is_active"/>
+                        <field name="writeoff_journal_id"
+                               invisible="not writeoff_is_active"/>
+                        <field name="writeoff_label"
+                               invisible="not writeoff_is_active"/>
+                        <field name="writeoff_date"
+                               invisible="not writeoff_is_active"/>
+                    </group>
+
+                </sheet>
+
+                <footer>
+                    <button name="action_reconcile"
+                            type="object"
+                            string="✔ Reconcile"
+                            class="btn-primary"/>
+                    <button name="action_cancel"
+                            type="object"
+                            string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

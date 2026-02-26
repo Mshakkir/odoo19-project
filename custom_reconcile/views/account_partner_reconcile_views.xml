@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         JOURNAL ITEMS — Action Button for Reconciliation
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- Server Action: Launch reconcile wizard from journal items list -->
+    <record id="action_custom_reconcile_from_lines" model="ir.actions.server">
+        <field name="name">Reconcile Selected Lines</field>
+        <field name="model_id" ref="account.model_account_move_line"/>
+        <field name="binding_model_id" ref="account.model_account_move_line"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.action_open_custom_reconcile_wizard()
+    action['type'] = 'ir.actions.act_window'
+    action
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         RECONCILIATION DASHBOARD VIEW
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <record id="view_custom_reconcile_dashboard" model="ir.ui.view">
+        <field name="name">custom.reconcile.dashboard</field>
+        <field name="model">account.bank.statement.line</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <list string="Reconciliation Dashboard"
+                  decoration-success="custom_reconcile_state == 'reconciled'"
+                  decoration-warning="custom_reconcile_state == 'matched'"
+                  decoration-danger="custom_reconcile_state == 'open'">
+                <field name="date"/>
+                <field name="journal_id" string="Bank"/>
+                <field name="partner_id"/>
+                <field name="payment_ref" string="Description"/>
+                <field name="amount" widget="monetary"
+                       options="{'currency_field': 'currency_id'}"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="custom_reconcile_state" string="Status"
+                       widget="badge"
+                       decoration-success="custom_reconcile_state == 'reconciled'"
+                       decoration-warning="custom_reconcile_state == 'matched'"
+                       decoration-danger="custom_reconcile_state == 'open'"/>
+                <field name="reconcile_model_id" string="Rule Applied" optional="show"/>
+                <field name="is_reconciled" invisible="1"/>
+                <button name="action_open_reconcile_wizard"
+                        type="object"
+                        string="Reconcile ▶"
+                        class="btn-primary btn-sm"
+                        invisible="custom_reconcile_state == 'reconciled'"/>
+                <button name="action_apply_reconcile_rules"
+                        type="object"
+                        string="Auto ✦"
+                        class="btn-secondary btn-sm"
+                        invisible="custom_reconcile_state == 'reconciled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action: Reconciliation Dashboard -->
+    <record id="action_custom_reconcile_dashboard" model="ir.actions.act_window">
+        <field name="name">Reconciliation Dashboard</field>
+        <field name="res_model">account.bank.statement.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_reconciled', '=', False)]</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_custom_reconcile_dashboard')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_custom_bank_stmt_line_form')})
+        ]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Everything is reconciled! 🎉
+            </p>
+            <p>No pending bank transactions. Import a bank statement to start reconciling.</p>
+        </field>
+    </record>
+
+</odoo>

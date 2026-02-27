@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Inherit purchase.order form to replace BOTH Print buttons with
+        the custom print preview dialog.
+
+        Original buttons in purchase.purchase_order_form:
+
+          1) <button name="print_quotation" string="Print" type="object"
+                     groups="base.group_user" data-hotkey="k"
+                     invisible="state == 'purchase'"/>
+             → shown for: draft, sent, to approve, cancel
+
+          2) <button name="870" string="Print" type="action"
+                     groups="base.group_user" data-hotkey="k"
+                     invisible="state != 'purchase'"/>
+             → shown only when state == 'purchase' (confirmed PO)
+
+        We replace both with a single button that calls our dialog
+        and picks the correct report server-side (Python).
+        Invisible only for 'cancel' state (no useful PDF to show).
+    -->
+    <record id="view_purchase_order_form_custom_print" model="ir.ui.view">
+        <field name="name">purchase.order.form.custom.print</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Replace the RFQ / draft Print button -->
+            <xpath expr="//button[@name='print_quotation']" position="replace">
+                <button name="action_custom_print_dialog"
+                        type="object"
+                        string="Print"
+                        groups="base.group_user"
+                        data-hotkey="k"
+                        invisible="state in ('purchase', 'cancel')"/>
+            </xpath>
+
+            <!-- Replace the confirmed PO Print button (type=action, name="870") -->
+            <xpath expr="//button[@name='870'][@data-hotkey='k']" position="replace">
+                <button name="action_custom_print_dialog"
+                        type="object"
+                        string="Print"
+                        groups="base.group_user"
+                        data-hotkey="k"
+                        invisible="state != 'purchase'"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

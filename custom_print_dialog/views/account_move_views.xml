@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Replace Print buttons on account.move form.
+        Works for ALL move types: invoices, bills, receipts, AND journal entries.
+    -->
+    <record id="view_move_form_custom_print" model="ir.ui.view">
+        <field name="name">account.move.form.custom.print</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Replace highlighted Print button (invoices/receipts posted, no PDF report yet) -->
+            <xpath expr="//button[@name='action_print_pdf'][hasclass('oe_highlight')]" position="replace">
+                <button name="action_custom_print_dialog"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'posted' or is_being_sent or invoice_pdf_report_id or move_type == 'entry'"
+                        string="Print"/>
+            </xpath>
+
+            <!-- Replace secondary Print button (invoices being sent or already has PDF) -->
+            <xpath expr="//button[@name='action_print_pdf'][not(hasclass('oe_highlight'))]" position="replace">
+                <button name="action_custom_print_dialog"
+                        type="object"
+                        invisible="state != 'posted' or (not is_being_sent and not invoice_pdf_report_id)"
+                        string="Print"/>
+            </xpath>
+
+            <!-- Add Print button for journal entries (after the Post button) -->
+            <xpath expr="//button[@name='action_post'][1]" position="after">
+                <button name="action_custom_print_dialog"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="move_type != 'entry' or state != 'posted'"
+                        string="Print"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

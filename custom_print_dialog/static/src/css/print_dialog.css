@@ -1,0 +1,94 @@
+/* ── Custom Print Dialog ─────────────────────────────────────────────────── */
+
+/* Remove default dialog padding so our panels go edge-to-edge */
+.cpd-dialog-content {
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+/* Full-height body */
+.cpd-body {
+    height: 82vh;
+    overflow: hidden;
+}
+
+/* ── Left: Preview panel ───────────────────────────────────────────────── */
+.cpd-preview-panel {
+    background: #525659;
+    min-width: 0;
+}
+
+.cpd-preview-toolbar {
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.cpd-iframe {
+    display: block;
+    border: none;
+    min-height: 0;
+    background: #525659;
+}
+
+/* ── Right: Settings panel ─────────────────────────────────────────────── */
+.cpd-settings-panel {
+    width: 310px;
+    min-width: 280px;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.cpd-settings-header {
+    flex-shrink: 0;
+}
+
+.cpd-settings-body {
+    font-size: 13px;
+}
+
+/* Section label */
+.cpd-group-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6c757d;
+    margin-bottom: 6px;
+}
+
+/* Radio rows */
+.cpd-radio-row {
+    transition: background 0.12s ease;
+}
+.cpd-radio-row:hover {
+    background: #f0f4ff;
+}
+
+/* Footer buttons */
+.cpd-settings-footer {
+    flex-shrink: 0;
+    background: #fafafa;
+}
+
+.cpd-settings-footer .btn {
+    font-size: 14px;
+    padding: 9px 16px;
+}
+
+/* ── Responsive: stack on small screens ──────────────────────────────────── */
+@media (max-width: 860px) {
+    .cpd-body {
+        flex-direction: column !important;
+        height: auto;
+    }
+    .cpd-settings-panel {
+        width: 100% !important;
+        min-width: unset !important;
+        border-left: none !important;
+        border-top: 1px solid #dee2e6;
+    }
+    .cpd-preview-panel {
+        height: 45vh;
+    }
+}
+

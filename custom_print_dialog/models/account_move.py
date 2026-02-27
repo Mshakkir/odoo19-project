@@ -5,10 +5,10 @@ from odoo import models
 # Map move_type to the Odoo standard report action external ID.
 # The dialog JS will call /report/pdf/<report_name>/<record_id> for preview.
 MOVE_TYPE_REPORT_MAP = {
-    "out_invoice": "account.report_invoice_with_payments",
+    "out_invoice": "account.report_invoice",
     "out_refund": "account.report_invoice",
     "out_receipt": "account.report_invoice",
-    "in_invoice": "account.report_invoice_with_payments",
+    "in_invoice": "account.report_invoice",
     "in_refund": "account.report_invoice",
     "in_receipt": "account.report_invoice",
     # Journal entries use the generic move report

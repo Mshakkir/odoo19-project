@@ -1,12 +1,13 @@
 {
-    'name': 'Custom Invoice Print Dialog',
-    'version': '19.0.1.0.0',
-    'summary': 'Replace Print button with a browser-style print dialog with preview',
+    'name': 'Custom Print Dialog',
+    'version': '19.0.2.0.0',
+    'summary': 'Replace Print button with a split-screen preview dialog (Invoices + Sale Orders)',
     'author': 'Custom',
-    'category': 'Accounting',
-    'depends': ['account'],
+    'category': 'Accounting/Sales',
+    'depends': ['account', 'sale'],
     'data': [
         'views/account_move_views.xml',
+        'views/sale_order_views.xml',
     ],
     'assets': {
         'web.assets_backend': [

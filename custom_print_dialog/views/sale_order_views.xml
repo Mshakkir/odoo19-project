@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Inherit sale.order form view to replace the Print button
+        with the custom print preview dialog.
+
+        Original button in sale.view_order_form:
+            <button string="Print" name="sale.action_report_saleorder"
+                    type="action" data-hotkey="i"
+                    invisible="state == 'sale'"/>
+
+        We replace it completely so both quotations (draft/sent)
+        AND confirmed orders (sale) get the dialog.
+        The original was invisible for 'sale' state — we keep that
+        logic but also add a separate one for the 'sale' state so
+        Print is always available when the record is posted/confirmed.
+    -->
+    <record id="view_sale_order_form_custom_print" model="ir.ui.view">
+        <field name="name">sale.order.form.custom.print</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Replace the original Print button (was invisible for state=='sale') -->
+            <xpath expr="//button[@name='sale.action_report_saleorder']" position="replace">
+                <!--
+                    Show for ALL states except cancel.
+                    Quotations (draft/sent): highlighted primary style.
+                    Confirmed orders (sale): standard style.
+                -->
+                <button name="action_custom_print_dialog"
+                        type="object"
+                        string="Print"
+                        data-hotkey="i"
+                        invisible="state == 'cancel'"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

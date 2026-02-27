@@ -92,3 +92,10 @@
     }
 }
 
+
+/* Hidden state for iframe while PDF is loading */
+.cpd-iframe--hidden {
+    visibility: hidden;
+    height: 0 !important;
+    flex-grow: 0 !important;
+}

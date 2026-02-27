@@ -3,21 +3,20 @@
 
     <t t-name="custom_print_dialog.PrintPreviewDialog">
         <!--
-            size="xl"  → wide enough for side-by-side panels
-            footer="false" → we control our own footer buttons inside the settings panel
+            OWL Rule: Component props CANNOT use t-att-*.
+            Use plain prop="expression" syntax instead.
+            "title" accepts a JS expression directly (no t-att needed).
         -->
-        <Dialog t-att-title="dialogTitle" size="'xl'" contentClass="'cpd-dialog-content p-0'" footer="false" onClose.bind="onClose">
+        <Dialog title="dialogTitle" size="'xl'" contentClass="'cpd-dialog-content p-0'" footer="false" onClose.bind="onClose">
 
             <div class="cpd-body d-flex" style="height: 82vh; overflow: hidden;">
 
-                <!-- ══════════════════════════════════════════════════════════
-                     LEFT PANEL — PDF preview rendered by the browser
-                     Uses the exact same PDF that Odoo's Print button produces.
-                ═══════════════════════════════════════════════════════════ -->
+                <!-- LEFT PANEL: PDF preview rendered by the browser -->
                 <div class="cpd-preview-panel d-flex flex-column flex-grow-1" style="min-width:0; background:#525659;">
 
-                    <!-- Toolbar strip above the iframe -->
-                    <div class="cpd-preview-toolbar d-flex align-items-center px-3 py-2 gap-2" style="background:#3c3f41; color:#ccc; font-size:13px; flex-shrink:0;">
+                    <!-- Toolbar -->
+                    <div class="cpd-preview-toolbar d-flex align-items-center px-3 py-2 gap-2"
+                         style="background:#3c3f41; color:#ccc; font-size:13px; flex-shrink:0;">
                         <i class="fa fa-file-pdf-o text-danger"/>
                         <span class="fw-semibold">Preview</span>
                         <span class="ms-auto text-muted small" t-if="!state.loading and !state.loadError">
@@ -25,11 +24,11 @@
                         </span>
                     </div>
 
-                    <!-- Loading state -->
+                    <!-- Loading spinner -->
                     <div t-if="state.loading" class="d-flex align-items-center justify-content-center flex-grow-1">
                         <div class="text-center text-white">
                             <i class="fa fa-spinner fa-spin fa-3x mb-3" style="color:#aaa;"/>
-                            <p style="color:#ccc;">Generating PDF preview…</p>
+                            <p style="color:#ccc;">Generating PDF preview...</p>
                         </div>
                     </div>
 
@@ -43,27 +42,24 @@
                     </div>
 
                     <!--
-                        The iframe src points to Odoo's standard PDF endpoint.
-                        Browsers render PDFs natively inside iframes (same as opening in a tab).
-                        The iframe is hidden while loading to avoid a flash.
+                        iframe: t-att-src / t-att-style are valid on plain HTML elements.
+                        We hide it while loading by toggling a CSS class.
                     -->
                     <iframe
                         t-ref="previewIframe"
                         t-att-src="pdfPreviewUrl"
                         t-on-load="onIframeLoad"
                         t-on-error="onIframeError"
-                        class="cpd-iframe border-0 w-100 flex-grow-1"
-                        t-att-style="state.loading ? 'visibility:hidden; height:0;' : 'visibility:visible; height:100%;'"
+                        t-att-class="state.loading ? 'cpd-iframe cpd-iframe--hidden border-0 w-100 flex-grow-1' : 'cpd-iframe border-0 w-100 flex-grow-1'"
                         title="PDF Preview"
                     />
                 </div>
 
-                <!-- ══════════════════════════════════════════════════════════
-                     RIGHT PANEL — Settings + action buttons
-                ═══════════════════════════════════════════════════════════ -->
-                <div class="cpd-settings-panel d-flex flex-column border-start" style="width:310px; min-width:280px; background:#fff;">
+                <!-- RIGHT PANEL: Settings + action buttons -->
+                <div class="cpd-settings-panel d-flex flex-column border-start"
+                     style="width:310px; min-width:280px; background:#fff;">
 
-                    <!-- Settings header -->
+                    <!-- Header -->
                     <div class="cpd-settings-header px-3 py-2 border-bottom" style="background:#f8f9fa; flex-shrink:0;">
                         <span class="fw-bold" style="font-size:14px;">
                             <i class="fa fa-print me-2 text-primary"/>
@@ -74,7 +70,7 @@
                     <!-- Scrollable settings body -->
                     <div class="cpd-settings-body flex-grow-1 overflow-auto px-3 py-3" style="font-size:13px;">
 
-                        <!-- ── Destination ───────────────────────────────── -->
+                        <!-- Destination -->
                         <div class="cpd-group mb-4">
                             <div class="cpd-group-label">Destination</div>
                             <div class="border rounded px-3 py-2 bg-light d-flex align-items-center gap-2">
@@ -83,12 +79,12 @@
                             </div>
                         </div>
 
-                        <!-- ── Pages ─────────────────────────────────────── -->
+                        <!-- Pages -->
                         <div class="cpd-group mb-4">
                             <div class="cpd-group-label">Pages</div>
                             <div class="border rounded bg-white">
-                                <!-- All pages -->
-                                <label class="cpd-radio-row border-bottom d-flex align-items-center gap-2 px-3 py-2 m-0" style="cursor:pointer;">
+                                <label class="cpd-radio-row border-bottom d-flex align-items-center gap-2 px-3 py-2 m-0"
+                                       style="cursor:pointer;">
                                     <input type="radio"
                                            name="cpd_pages"
                                            value="all"
@@ -97,8 +93,8 @@
                                            t-on-change="() => setPages('all')"/>
                                     <span>All</span>
                                 </label>
-                                <!-- Custom pages -->
-                                <label class="cpd-radio-row d-flex align-items-center gap-2 px-3 py-2 m-0" style="cursor:pointer;">
+                                <label class="cpd-radio-row d-flex align-items-center gap-2 px-3 py-2 m-0"
+                                       style="cursor:pointer;">
                                     <input type="radio"
                                            name="cpd_pages"
                                            value="custom"
@@ -107,21 +103,21 @@
                                            t-on-change="() => setPages('custom')"/>
                                     <span>Custom</span>
                                 </label>
-                                <!-- Custom range input -->
                                 <div t-if="state.selectedPages === 'custom'" class="px-3 pb-2">
                                     <input type="text"
                                            class="form-control form-control-sm"
-                                           placeholder="e.g. 1–3, 5"
+                                           placeholder="e.g. 1-3, 5"
                                            t-model="state.customPages"/>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- ── Layout ────────────────────────────────────── -->
+                        <!-- Layout -->
                         <div class="cpd-group mb-4">
                             <div class="cpd-group-label">Layout</div>
                             <div class="border rounded bg-white">
-                                <label class="cpd-radio-row border-bottom d-flex align-items-center gap-2 px-3 py-2 m-0" style="cursor:pointer;">
+                                <label class="cpd-radio-row border-bottom d-flex align-items-center gap-2 px-3 py-2 m-0"
+                                       style="cursor:pointer;">
                                     <input type="radio"
                                            name="cpd_layout"
                                            value="portrait"
@@ -131,7 +127,8 @@
                                     <i class="fa fa-file-o" style="width:14px;"/>
                                     <span>Portrait</span>
                                 </label>
-                                <label class="cpd-radio-row d-flex align-items-center gap-2 px-3 py-2 m-0" style="cursor:pointer;">
+                                <label class="cpd-radio-row d-flex align-items-center gap-2 px-3 py-2 m-0"
+                                       style="cursor:pointer;">
                                     <input type="radio"
                                            name="cpd_layout"
                                            value="landscape"
@@ -144,7 +141,7 @@
                             </div>
                         </div>
 
-                        <!-- ── Copies ────────────────────────────────────── -->
+                        <!-- Copies -->
                         <div class="cpd-group mb-3">
                             <div class="cpd-group-label">Copies</div>
                             <input type="number"
@@ -157,45 +154,40 @@
                         <hr class="my-3"/>
                         <div class="text-muted" style="font-size:12px; line-height:1.5;">
                             <i class="fa fa-info-circle me-1"/>
-                            Additional printer options (paper size, margins, colour) are available in your system's print dialog after clicking <strong>Print</strong>.
+                            Additional printer options are available in your system print dialog after clicking <strong>Print</strong>.
                         </div>
+
                     </div>
 
-                    <!-- ── Footer buttons ────────────────────────────────── -->
-                    <div class="cpd-settings-footer border-top p-3 d-flex flex-column gap-2" style="background:#fafafa; flex-shrink:0;">
+                    <!-- Footer buttons -->
+                    <div class="cpd-settings-footer border-top p-3 d-flex flex-column gap-2"
+                         style="background:#fafafa; flex-shrink:0;">
 
-                        <!--
-                            PRINT button → opens PDF in a new tab and triggers
-                            the browser's native Ctrl+P / system print dialog.
-                        -->
+                        <!-- Opens PDF in new tab + triggers system print dialog -->
                         <button class="btn btn-primary w-100" t-on-click="onPrint">
                             <i class="fa fa-print me-2"/>
                             Print
                         </button>
 
-                        <!--
-                            SAVE AS PDF button → downloads the PDF file to disk
-                            (same as Odoo's original Print button behaviour).
-                        -->
+                        <!-- Downloads PDF file to disk -->
                         <button class="btn btn-outline-primary w-100" t-on-click="onDownloadPDF">
                             <i class="fa fa-download me-2"/>
                             Save as PDF
                         </button>
 
-                        <!-- Cancel -->
                         <button class="btn btn-outline-secondary w-100" t-on-click="onClose">
                             Cancel
                         </button>
+
                     </div>
 
                 </div>
                 <!-- end right panel -->
 
             </div>
-            <!-- end body -->
+            <!-- end cpd-body -->
 
         </Dialog>
     </t>
 
 </templates>
-

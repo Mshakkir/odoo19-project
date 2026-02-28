@@ -233,7 +233,7 @@
                                 <!-- QR CODE HEADER COLUMN -->
                                 <t t-if="o.move_type in ('out_invoice','out_refund')">
                                     <td style="padding:4px 8px; font-weight:bold; text-align:center; width:25%;border-left:1px solid #000000;">
-                                        QR Code QR Code<br/>#160;
+                                        QR Code
                                         <span style="font-weight:550;font-size:11px; display:block;" class="ar">رمز الاستجابة السريعة</span>
                                     </td>
                                 </t>

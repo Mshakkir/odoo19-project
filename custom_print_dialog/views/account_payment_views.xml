@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Inherit account.payment form (account.view_account_payment_form).
+        The standard form has NO Print button.
+        We INSERT one in the header, visible only when the payment is
+        confirmed (state in_process or paid) so there is a journal entry
+        and therefore a printable receipt PDF.
+    -->
+    <record id="view_account_payment_form_custom_print" model="ir.ui.view">
+        <field name="name">account.payment.form.custom.print</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+
+            <!--
+                Insert Print button after the last header button (before the statusbar field).
+                Visible when state is 'in_process' or 'paid' — a confirmed payment
+                always has a journal entry and a printable receipt.
+                Hidden in 'draft' and 'cancel' states.
+            -->
+            <xpath expr="//header/field[@name='state']" position="before">
+                <button name="action_custom_print_dialog"
+                        type="object"
+                        string="Print Receipt"
+                        data-hotkey="i"
+                        groups="base.group_user"
+                        invisible="state not in ('in_process', 'paid')"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

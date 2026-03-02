@@ -397,7 +397,11 @@
                                 <!-- Third Column: AWB (only for invoice) or P.O (for credit note) -->
                                 <td style="border:1px solid #000000;padding:4px 8px;">
                                     <t t-if="o.move_type == 'out_invoice'">
-                                        <strong>Shipping Ref #</strong>
+                                        <strong>Shipping Ref #
+                                            <span style="float:right; font-weight:900; white-space:nowrap;" class="ar">
+                                                رقم المرجع:
+                                            </span>
+                                        </strong>
                                         &#160;
                                         <span t-if="o.awb_number" t-esc="o.awb_number"/>
                                         <span t-else="">-</span>
@@ -414,7 +418,11 @@
                                 </td>
                                 <t t-if="o.move_type == 'out_invoice'">
                                     <td style="border:1px solid #000000;padding:4px 8px;">
-                                        <strong>Delivery Date:</strong>
+                                        <strong>Delivery Date:
+                                            <span style="float:right; font-weight:900; white-space:nowrap;" class="ar">
+                                                تاريخ التسليم:
+                                            </span>
+                                        </strong>
                                         <t t-if="o.delivery_date">
                                             <span t-field="o.delivery_date" t-options="{'widget': 'date'}"/>
                                         </t>
@@ -427,7 +435,11 @@
                             <t t-if="o.move_type == 'out_invoice'">
                                 <tr style="background-color:#FFFFFF;">
                                     <td style="border:1px solid #000000; padding:4px; width:25%; word-break: break-word; overflow-wrap: break-word;">
-                                        <strong>Customer Ref #</strong>
+                                        <strong>Customer Ref #
+                                            <span style="float:right; font-weight:900; white-space:nowrap;" class="ar">
+                                                مرجع العميل:
+                                            </span>
+                                        </strong>
                                         &#160;
 
                                         <span t-if="o.ref"
@@ -437,12 +449,20 @@
                                     </td>
 
                                     <td style="border:1px solid #000000; padding:4px; width:25%;">
-                                        <strong>Payment Terms:</strong>
+                                        <strong>Payment Terms:
+                                            <span style="float:right; font-weight:900; white-space:nowrap;" class="ar">
+                                                شروط الدفع:
+                                            </span>
+                                        </strong>
                                         <t t-esc="o.invoice_payment_term_id.name or ''"/>
                                     </td>
 
                                     <td style="border:1px solid #000000; padding:4px; width:25%;">
-                                        <strong>DN #</strong>
+                                        <strong>DN #
+                                            <span style="float:right; font-weight:900; white-space:nowrap;" class="ar">
+                                                رقم المستند:
+                                            </span>
+                                        </strong>
                                         &#160;
 
                                         <!-- Auto fetch delivery order -->
@@ -467,7 +487,11 @@
                                     </td>
 
                                     <td style="border:1px solid #000000; padding:4px; width:25%;">
-                                        <strong>Delivery Terms:</strong>
+                                        <strong>Delivery Terms:
+                                            <span style="float:right; font-weight:900; white-space:nowrap;" class="ar">
+                                                شروط التسليم:
+                                            </span>
+                                        </strong>
                                         <t t-if="o.invoice_incoterm_id">
                                             <span t-esc="o.invoice_incoterm_id.code"/>
                                             <t t-if="o.incoterm_location">

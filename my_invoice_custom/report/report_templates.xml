@@ -234,7 +234,9 @@
                                 <t t-if="o.move_type in ('out_invoice','out_refund')">
                                     <td style="padding:4px 8px; font-weight:bold; text-align:center; width:150px;border-left:1px solid #000000;">
                                         QR Code
-                                        <span style="font-weight:550;font-size:11px; display:block;" class="ar">رمز الاستجابة السريعة</span>
+                                        <span style="font-weight:550;font-size:11px; display:block;" class="ar">رمز
+                                            الاستجابة السريعة
+                                        </span>
                                     </td>
                                 </t>
                             </tr>
@@ -293,7 +295,8 @@
                                             <t t-esc="o.partner_id.country_id.name"/>
                                             <br/>
                                         </t>
-                                        <strong>VAT NO: </strong><t t-esc="o.partner_id.vat or 'N/A'"/>
+                                        <strong>VAT NO:</strong>
+                                        <t t-esc="o.partner_id.vat or 'N/A'"/>
                                     </t>
                                 </td>
                                 <t t-if="o.partner_shipping_id and o.partner_shipping_id.id != o.partner_id.id">
@@ -330,7 +333,8 @@
                                     <td style="padding:0px; vertical-align:middle; border-left:1px solid #000000; text-align:center; width:150px; height:140px; aspect-ratio: 1;">
                                         <div style="display:flex; align-items:center; justify-content:center; height:100%; width:100%;">
                                             <t t-if="o.qr_code_image">
-                                                <img t-att-src="'data:image/png;base64,%s' % o.qr_code_image.decode('utf-8')" style="height:140px; width:140px; object-fit:contain; aspect-ratio: 1;"/>
+                                                <img t-att-src="'data:image/png;base64,%s' % o.qr_code_image.decode('utf-8')"
+                                                     style="height:140px; width:140px; object-fit:contain; aspect-ratio: 1;"/>
                                             </t>
                                             <t t-else="">
                                                 <span style="color:#999; font-size:10px;">No QR Code</span>
@@ -603,7 +607,9 @@
                                 <table width="100%"
                                        style="font-size:12px; border-collapse:collapse;border:1px solid #000000;">
                                     <tr>
-                                        <td style="padding:4px 6px;border:1px solid #000000;">Subtotal: <span style="float:right; font-weight:900;" class="ar">الإجمالي:</span></td>
+                                        <td style="padding:4px 6px;border:1px solid #000000;">Subtotal:
+                                            <span style="float:right; font-weight:900;" class="ar">الإجمالي:</span>
+                                        </td>
                                         <td style="text-align:right; padding:4px 6px;border:1px solid #000000;">
                                             <span t-esc="subtotal_before_discount"
                                                   t-options='{"widget":"float","precision":2}'/>
@@ -619,20 +625,26 @@
                                         </tr>
                                     </t>
                                     <tr>
-                                       <td style="padding:4px 6px;border:1px solid #000000;">Net Amount: <span style="float:right; font-weight:900;" class="ar">المبلغ الصافي:</span></td>
+                                        <td style="padding:4px 6px;border:1px solid #000000;">Net Amount:<span style="float:right; font-weight:900;" class="ar">المبلغ الصافي:</span>
+                                        </td>
                                         <td style="text-align:right; padding:4px 6px;border:1px solid #000000;">
                                             <span t-esc="o.amount_untaxed"
                                                   t-options='{"widget":"float","precision":2}'/>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td style="padding:4px 6px;border:1px solid #000000;">VAT Amount: <span style="float:right; font-weight:900;" class="ar">مبلغ الضريبة:</span></td>
+                                        <td style="padding:4px 6px;border:1px solid #000000;">VAT Amount:
+                                            <span style="float:right; font-weight:900;" class="ar">مبلغ الضريبة:</span>
+                                        </td>
                                         <td style="text-align:right; padding:4px 6px;border:1px solid #000000;">
                                             <span t-esc="o.amount_tax" t-options='{"widget":"float","precision":2}'/>
                                         </td>
                                     </tr>
                                     <tr style="background:#FFFFFF; font-weight:bold;">
-                                        <td style="padding:5px 6px;border:1px solid #000000;">Grand Total: <span style="float:right; font-weight:900;" class="ar">الإجمالي النهائي:</span></td>
+                                        <td style="padding:5px 6px;border:1px solid #000000;">Grand Total:
+                                            <span style="float:right; font-weight:900;" class="ar">الإجمالي النهائي:
+                                            </span>
+                                        </td>
                                         <td style="text-align:right; padding:5px 6px;border:1px solid #000000;">
                                             <span t-esc="o.amount_total" t-options='{"widget":"float","precision":2}'/>
                                         </td>

@@ -435,19 +435,19 @@
                             <t t-if="o.move_type == 'out_invoice'">
                                 <tr style="background-color:#FFFFFF;">
                                     <td style="border:1px solid #000000; padding:4px; width:25%; word-break: break-word; overflow-wrap: break-word;">
-                                        <strong>Customer Ref #
-                                            <span style="float:right; font-weight:900; white-space:nowrap;" class="ar">
-                                                مرجع العميل:
-                                            </span>
-                                        </strong>
+                                        <strong>Customer Ref # <span style="float:right; font-weight:900; white-space:nowrap;" class="ar">مرجع العميل:</span></strong>
                                         &#160;
 
-                                        <span t-if="o.ref"
-                                              t-esc="o.ref"
-                                              style="word-break: break-word; display: block; margin-top: 4px;"/>
-                                        <span t-else="">-</span>
+                                        <t t-if="o.ref">
+                                            <span t-esc="o.ref" style="word-break: break-word; display: block; margin-top: 4px;"/>
+                                        </t>
+                                        <t t-elif="o.client_order_ref">
+                                            <span t-esc="o.client_order_ref" style="word-break: break-word; display: block; margin-top: 4px;"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span>-</span>
+                                        </t>
                                     </td>
-
                                     <td style="border:1px solid #000000; padding:4px; width:25%;">
                                         <strong>Payment Terms:
                                             <span style="float:right; font-weight:900; white-space:nowrap;" class="ar">

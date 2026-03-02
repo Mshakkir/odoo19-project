@@ -608,7 +608,9 @@
                                        style="font-size:12px; border-collapse:collapse;border:1px solid #000000;">
                                     <tr>
                                         <td style="padding:4px 6px;border:1px solid #000000;">Subtotal:
-                                            <span style="float:right; font-weight:900;" class="ar">الإجمالي:</span>
+                                            <span style="float:right; font-weight:900; white-space:nowrap;" class="ar">
+                                                الإجمالي:
+                                            </span>
                                         </td>
                                         <td style="text-align:right; padding:4px 6px;border:1px solid #000000;">
                                             <span t-esc="subtotal_before_discount"
@@ -625,7 +627,10 @@
                                         </tr>
                                     </t>
                                     <tr>
-                                        <td style="padding:4px 6px;border:1px solid #000000;">Net Amount:<span style="float:right; font-weight:900;" class="ar">المبلغ الصافي:</span>
+                                        <td style="padding:4px 6px;border:1px solid #000000;">Net Amount:
+                                            <span style="float:right; font-weight:900; white-space:nowrap;" class="ar">
+                                                المبلغ الصافي:
+                                            </span>
                                         </td>
                                         <td style="text-align:right; padding:4px 6px;border:1px solid #000000;">
                                             <span t-esc="o.amount_untaxed"
@@ -634,7 +639,9 @@
                                     </tr>
                                     <tr>
                                         <td style="padding:4px 6px;border:1px solid #000000;">VAT Amount:
-                                            <span style="float:right; font-weight:900;" class="ar">مبلغ الضريبة:</span>
+                                            <span style="float:right; font-weight:900; white-space:nowrap;" class="ar">
+                                                مبلغ الضريبة:
+                                            </span>
                                         </td>
                                         <td style="text-align:right; padding:4px 6px;border:1px solid #000000;">
                                             <span t-esc="o.amount_tax" t-options='{"widget":"float","precision":2}'/>
@@ -642,7 +649,8 @@
                                     </tr>
                                     <tr style="background:#FFFFFF; font-weight:bold;">
                                         <td style="padding:5px 6px;border:1px solid #000000;">Grand Total:
-                                            <span style="float:right; font-weight:900;" class="ar">الإجمالي النهائي:
+                                            <span style="float:right; font-weight:900; white-space:nowrap;" class="ar">
+                                                الإجمالي النهائي:
                                             </span>
                                         </td>
                                         <td style="text-align:right; padding:5px 6px;border:1px solid #000000;">

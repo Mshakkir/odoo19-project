@@ -1,13 +1,7 @@
 <odoo>
-    <!-- Override the default delivery slip action to use our custom template -->
-    <record id="action_report_delivery_custom" model="ir.actions.report">
-        <field name="name">Delivery Note</field>
-        <field name="model">stock.picking</field>
-        <field name="report_type">qweb-pdf</field>
+    <!-- Override the existing default Odoo delivery slip to use our custom template -->
+    <record id="stock.action_report_delivery" model="ir.actions.report">
         <field name="report_name">custom_delivery_note.report_delivery_document_custom</field>
         <field name="report_file">custom_delivery_note.report_delivery_document_custom</field>
-        <field name="print_report_name">object.name</field>
-        <field name="binding_model_id" ref="stock.model_stock_picking"/>
-        <field name="binding_type">report</field>
     </record>
 </odoo>

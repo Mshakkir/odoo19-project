@@ -6,8 +6,8 @@
         <field name="inherit_id" ref="product.product_template_only_form_view"/>
         <field name="arch" type="xml">
 
-            <!-- Place Created Date in the left column, after qty_available (Quantity On Hand) -->
-            <xpath expr="//field[@name='qty_available']" position="after">
+            <!-- Insert Created Date after the Category field in General Information tab -->
+            <xpath expr="//page[@name='general_information']//field[@name='categ_id']" position="after">
                 <field
                     name="x_created_date"
                     string="Created Date"

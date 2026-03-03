@@ -1,23 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="product_template_tree_view_warehouse_qty" model="ir.ui.view">
-        <field name="name">product.template.tree.warehouse.qty</field>
+
+    <!-- LIST VIEW: Created Date before Product Name + warehouse columns -->
+    <record id="product_template_list_created_date" model="ir.ui.view">
+        <field name="name">product.template.list.created_date</field>
         <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_tree_view"/>
-        <field name="priority">100</field>
+        <field name="inherit_id" ref="stock.product_template_action_product"/>
         <field name="arch" type="xml">
-            <!-- Add Total Sales Price and Total Cost Price after uom_id (unit) -->
-            <xpath expr="//field[@name='uom_id']" position="after">
-                <field name="total_sales_price" string="Total Sales Price" optional="show" widget="monetary" column_invisible="0" sum="Total Sales Price"/>
-                <field name="total_cost_price" string="Total Cost Price" optional="show" widget="monetary" column_invisible="0" sum="Total Cost Price"/>
+
+            <!-- Created Date column BEFORE product name -->
+            <xpath expr="//list//field[@name='name']" position="before">
+                <field
+                    name="x_created_date"
+                    string="Created Date"
+                    widget="date"
+                    options="{'format': 'dd/MM/yy'}"
+                    readonly="1"
+                    optional="show"
+                />
             </xpath>
 
-            <!-- Add warehouse quantity columns after standard_price (cost) -->
-            <xpath expr="//field[@name='standard_price']" position="after">
-                <field name="qty_fyh_stock" string="FYH/Stock" optional="show" sum="FYH/Stock Total"/>
-                <field name="qty_bld_stock" string="BLD/Stock" optional="show" sum="BLD/Stock Total"/>
-                <field name="qty_dmm_stock" string="DMM-1/Stock" optional="show" sum="DMM-1/Stock Total"/>
+            <!-- Warehouse stock columns after Internal Reference -->
+            <xpath expr="//list//field[@name='default_code']" position="after">
+                <field name="qty_fyh_stock" string="FYH/Stock" optional="show"/>
+                <field name="qty_bld_stock" string="BLD/Stock" optional="show"/>
+                <field name="qty_dmm_stock" string="DMM-1/Stock" optional="show"/>
+            </xpath>
+
+            <!-- Total price columns after On Hand -->
+            <xpath expr="//list//field[@name='qty_available']" position="after">
+                <field name="total_sales_price" string="Total Sales Price" optional="show" sum="Total Sales Price"/>
+                <field name="total_cost_price" string="Total Cost Price" optional="show" sum="Total Cost Price"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- FORM VIEW: Created Date field after Category -->
+    <record id="product_template_form_view_created_date" model="ir.ui.view">
+        <field name="name">product.template.form.created_date</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='general_information']//field[@name='categ_id']" position="after">
+                <field
+                    name="x_created_date"
+                    string="Created Date"
+                    readonly="1"
+                    widget="date"
+                    options="{'format': 'dd/MM/yy'}"
+                />
             </xpath>
         </field>
     </record>
+
 </odoo>
+
+
+
+
+
+<!--<odoo>-->
+<!--    <record id="product_template_tree_view_warehouse_qty" model="ir.ui.view">-->
+<!--        <field name="name">product.template.tree.warehouse.qty</field>-->
+<!--        <field name="model">product.template</field>-->
+<!--        <field name="inherit_id" ref="product.product_template_tree_view"/>-->
+<!--        <field name="priority">100</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            &lt;!&ndash; Add Total Sales Price and Total Cost Price after uom_id (unit) &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='uom_id']" position="after">-->
+<!--                <field name="total_sales_price" string="Total Sales Price" optional="show" widget="monetary" column_invisible="0" sum="Total Sales Price"/>-->
+<!--                <field name="total_cost_price" string="Total Cost Price" optional="show" widget="monetary" column_invisible="0" sum="Total Cost Price"/>-->
+<!--            </xpath>-->
+
+<!--            &lt;!&ndash; Add warehouse quantity columns after standard_price (cost) &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='standard_price']" position="after">-->
+<!--                <field name="qty_fyh_stock" string="FYH/Stock" optional="show" sum="FYH/Stock Total"/>-->
+<!--                <field name="qty_bld_stock" string="BLD/Stock" optional="show" sum="BLD/Stock Total"/>-->
+<!--                <field name="qty_dmm_stock" string="DMM-1/Stock" optional="show" sum="DMM-1/Stock Total"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+<!--</odoo>-->
 

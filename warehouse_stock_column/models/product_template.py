@@ -39,6 +39,14 @@ class ProductTemplate(models.Model):
         help='Cost × On Hand Quantity'
     )
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        today = fields.Date.context_today(self)
+        for vals in vals_list:
+            if not vals.get('x_created_date'):
+                vals['x_created_date'] = today
+        return super().create(vals_list)
+
     @api.depends('product_variant_ids', 'product_variant_ids.stock_quant_ids',
                  'product_variant_ids.stock_quant_ids.quantity', 'product_variant_ids.stock_quant_ids.location_id')
     def _compute_warehouse_quantities(self):

@@ -1,5 +1,5 @@
 {
-    'name': 'Stock Picking Customer Reference',
+    'name': 'Delivery note add po',
     'version': '1.0',
     'summary': 'Show Sale Order Customer Reference in Delivery Order',
     'depends': ['stock', 'sale_management'],

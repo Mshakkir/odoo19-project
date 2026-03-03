@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- LIST VIEW: Created Date before Product Name + warehouse columns -->
+    <!-- LIST VIEW: Add Created Date column before Product Name -->
     <record id="product_template_list_created_date" model="ir.ui.view">
         <field name="name">product.template.list.created_date</field>
         <field name="model">product.template</field>
-        <field name="inherit_id" ref="stock.product_template_action_product"/>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
         <field name="arch" type="xml">
 
             <!-- Created Date column BEFORE product name -->
-            <xpath expr="//list//field[@name='name']" position="before">
+            <field name="name" position="before">
                 <field
                     name="x_created_date"
                     string="Created Date"
@@ -18,20 +18,30 @@
                     readonly="1"
                     optional="show"
                 />
-            </xpath>
+            </field>
+
+        </field>
+    </record>
+
+    <!-- LIST VIEW: Add warehouse stock + total price columns -->
+    <record id="product_template_list_warehouse_columns" model="ir.ui.view">
+        <field name="name">product.template.list.warehouse.columns</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
 
             <!-- Warehouse stock columns after Internal Reference -->
-            <xpath expr="//list//field[@name='default_code']" position="after">
+            <field name="default_code" position="after">
                 <field name="qty_fyh_stock" string="FYH/Stock" optional="show"/>
                 <field name="qty_bld_stock" string="BLD/Stock" optional="show"/>
                 <field name="qty_dmm_stock" string="DMM-1/Stock" optional="show"/>
-            </xpath>
+            </field>
 
             <!-- Total price columns after On Hand -->
-            <xpath expr="//list//field[@name='qty_available']" position="after">
+            <field name="qty_available" position="after">
                 <field name="total_sales_price" string="Total Sales Price" optional="show" sum="Total Sales Price"/>
                 <field name="total_cost_price" string="Total Cost Price" optional="show" sum="Total Cost Price"/>
-            </xpath>
+            </field>
 
         </field>
     </record>

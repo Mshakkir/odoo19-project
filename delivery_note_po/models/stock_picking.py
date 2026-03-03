@@ -5,8 +5,9 @@ class StockPicking(models.Model):
 
     sale_customer_reference = fields.Char(
         string="Customer Reference",
-        compute="_compute_sale_customer_reference",
-        store=True
+        related="sale_id.client_order_ref",
+        store=True,
+        readonly=True
     )
 
     def _compute_sale_customer_reference(self):

@@ -4,6 +4,20 @@ from odoo import models, fields, api
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
+    x_created_date = fields.Date(
+        string='Created Date',
+        readonly=True,
+        copy=False,
+        default=fields.Date.today,
+        help='Date when this product was created. Auto-filled on creation.',
+    )
+
+    x_created_date_display = fields.Char(
+        string='Created Date',
+        compute='_compute_created_date_display',
+        store=True,
+    )
+
     qty_fyh_stock = fields.Float(
         string='FYH/Stock',
         compute='_compute_warehouse_quantities',
@@ -28,7 +42,7 @@ class ProductTemplate(models.Model):
         compute='_compute_total_prices',
         digits='Product Price',
         store=True,
-        help='Sales Price × On Hand Quantity'
+        help='Sales Price x On Hand Quantity'
     )
 
     total_cost_price = fields.Float(
@@ -36,8 +50,16 @@ class ProductTemplate(models.Model):
         compute='_compute_total_prices',
         digits='Product Price',
         store=True,
-        help='Cost × On Hand Quantity'
+        help='Cost x On Hand Quantity'
     )
+
+    @api.depends('x_created_date')
+    def _compute_created_date_display(self):
+        for product in self:
+            if product.x_created_date:
+                product.x_created_date_display = product.x_created_date.strftime('%d/%m/%y')
+            else:
+                product.x_created_date_display = ''
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -65,7 +87,6 @@ class ProductTemplate(models.Model):
                     loc_name = quant.location_id.complete_name or ''
                     loc_name_upper = loc_name.upper()
 
-                    # Match warehouse location names from your system
                     if 'FYH/' in loc_name_upper or loc_name_upper.startswith('FYH'):
                         qty_fyh += quant.quantity
                     elif 'BLD/' in loc_name_upper or loc_name_upper.startswith('BLD'):
@@ -80,10 +101,7 @@ class ProductTemplate(models.Model):
     @api.depends('list_price', 'standard_price', 'qty_available')
     def _compute_total_prices(self):
         for product in self:
-            # Total Sales Price = Sales Price (list_price) × On Hand Quantity (qty_available)
             product.total_sales_price = product.list_price * product.qty_available
-
-            # Total Cost Price = Cost (standard_price) × On Hand Quantity (qty_available)
             product.total_cost_price = product.standard_price * product.qty_available
 
 
@@ -114,7 +132,7 @@ class ProductProduct(models.Model):
         compute='_compute_total_prices_variant',
         digits='Product Price',
         store=True,
-        help='Sales Price × On Hand Quantity'
+        help='Sales Price x On Hand Quantity'
     )
 
     total_cost_price = fields.Float(
@@ -122,7 +140,7 @@ class ProductProduct(models.Model):
         compute='_compute_total_prices_variant',
         digits='Product Price',
         store=True,
-        help='Cost × On Hand Quantity'
+        help='Cost x On Hand Quantity'
     )
 
     @api.depends('stock_quant_ids', 'stock_quant_ids.quantity', 'stock_quant_ids.location_id')
@@ -141,7 +159,6 @@ class ProductProduct(models.Model):
                 loc_name = quant.location_id.complete_name or ''
                 loc_name_upper = loc_name.upper()
 
-                # Match warehouse location names from your system
                 if 'FYH/' in loc_name_upper or loc_name_upper.startswith('FYH'):
                     qty_fyh += quant.quantity
                 elif 'BLD/' in loc_name_upper or loc_name_upper.startswith('BLD'):
@@ -156,9 +173,5 @@ class ProductProduct(models.Model):
     @api.depends('lst_price', 'standard_price', 'qty_available')
     def _compute_total_prices_variant(self):
         for product in self:
-            # Total Sales Price = Sales Price (lst_price) × On Hand Quantity (qty_available)
             product.total_sales_price = product.lst_price * product.qty_available
-
-            # Total Cost Price = Cost (standard_price) × On Hand Quantity (qty_available)
             product.total_cost_price = product.standard_price * product.qty_available
-

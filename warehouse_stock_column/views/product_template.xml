@@ -1,20 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- LIST VIEW: Add Created Date column before Product Name -->
+    <!-- LIST VIEW: Created Date column (dd/mm/yy) before Product Name -->
     <record id="product_template_list_created_date" model="ir.ui.view">
         <field name="name">product.template.list.created_date</field>
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_tree_view"/>
         <field name="arch" type="xml">
 
-            <!-- Created Date column BEFORE product name -->
             <field name="name" position="before">
                 <field
-                    name="x_created_date"
+                    name="x_created_date_display"
                     string="Created Date"
-                    widget="date"
-                    options="{'format': 'dd/MM/yy'}"
                     readonly="1"
                     optional="show"
                 />
@@ -23,7 +20,7 @@
         </field>
     </record>
 
-    <!-- LIST VIEW: Add warehouse stock + total price columns -->
+    <!-- LIST VIEW: Warehouse stock + total price columns -->
     <record id="product_template_list_warehouse_columns" model="ir.ui.view">
         <field name="name">product.template.list.warehouse.columns</field>
         <field name="model">product.template</field>
@@ -45,8 +42,6 @@
 
         </field>
     </record>
-
-
 
 </odoo>
 

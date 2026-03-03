@@ -6,12 +6,7 @@
         <field name="arch" type="xml">
 
             <xpath expr="//field[@name='origin']" position="after">
-                <!-- Clickable link to the Sales Order -->
-                <field name="sale_order_link_id"
-                       string="Sales Order"
-                       readonly="1"
-                       invisible="not sale_order_link_id"
-                       options="{'no_open': False}"/>
+
                 <!-- Customer Reference - editable, locked only when done/cancelled -->
                 <field name="sale_customer_reference"
                        string="Customer Reference"

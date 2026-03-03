@@ -11,10 +11,10 @@
                 <xpath expr="//field[@name='scheduled_date']" position="after">
                     <field name="delivery_note_number"
                            placeholder="Enter delivery note number..."
-                           invisible="picking_type_code != 'outgoing'"/>
+                           invisible="1"/>
                     <field name="awb_number"
                            placeholder="Enter shipping reference..."
-                           invisible="picking_type_code != 'outgoing'"/>
+                           invisible="1"/>
                 </xpath>
             </field>
         </record>

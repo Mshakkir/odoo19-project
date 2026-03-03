@@ -11,16 +11,34 @@ class StockPicking(models.Model):
         readonly=True,
     )
 
+    # Computed Many2one to the sale order — makes origin clickable
+    sale_order_link_id = fields.Many2one(
+        comodel_name='sale.order',
+        string="Sales Order",
+        compute="_compute_sale_customer_reference",
+        store=True,
+        readonly=True,
+    )
+
     @api.depends('sale_id', 'sale_id.client_order_ref', 'origin')
     def _compute_sale_customer_reference(self):
         for picking in self:
-            # First try via sale_id (direct Many2one set by sale_stock module)
+            ref = False
+            sale = False
+
+            # Method 1: via direct sale_id link (most reliable)
             if picking.sale_id:
-                picking.sale_customer_reference = picking.sale_id.client_order_ref or False
-            else:
-                # Fallback: search by origin field
-                sale = self.env['sale.order'].search(
+                sale = picking.sale_id
+                ref = picking.sale_id.client_order_ref or False
+
+            # Method 2: via origin field (works for existing/older records)
+            if not sale and picking.origin:
+                sale = self.env['sale.order'].sudo().search(
                     [('name', '=', picking.origin)],
                     limit=1
                 )
-                picking.sale_customer_reference = sale.client_order_ref if sale else False
+                if sale and sale.client_order_ref:
+                    ref = sale.client_order_ref
+
+            picking.sale_customer_reference = ref
+            picking.sale_order_link_id = sale.id if sale else False

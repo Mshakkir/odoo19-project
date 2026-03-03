@@ -5,19 +5,17 @@
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
 
-            <!-- Replace origin field to add clickable sale order link beside it -->
             <xpath expr="//field[@name='origin']" position="after">
-                <!-- Clickable link to the Sales Order (replaces plain text origin) -->
+                <!-- Clickable link to the Sales Order -->
                 <field name="sale_order_link_id"
                        string="Sales Order"
                        readonly="1"
                        invisible="not sale_order_link_id"
                        options="{'no_open': False}"/>
-                <!-- Customer Reference from the Sale Order -->
+                <!-- Customer Reference - editable, locked only when done/cancelled -->
                 <field name="sale_customer_reference"
                        string="Customer Reference"
-                       readonly="1"
-                       invisible="not sale_customer_reference"/>
+                       readonly="state in ['done', 'cancel']"/>
             </xpath>
 
         </field>

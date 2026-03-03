@@ -8,7 +8,7 @@ class StockPicking(models.Model):
         string="Customer Reference",
         compute="_compute_sale_customer_reference",
         store=True,
-        readonly=True,
+        readonly=False,   # Allow manual edits after compute populates it
     )
 
     # Computed Many2one to the sale order — makes origin clickable

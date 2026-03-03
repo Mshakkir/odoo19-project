@@ -1,7 +1,7 @@
 <odoo>
-    <!-- Override the existing default Odoo delivery slip to use our custom template -->
+    <!-- Override the existing default Odoo delivery slip to use our inherited template -->
     <record id="stock.action_report_delivery" model="ir.actions.report">
-        <field name="report_name">custom_delivery_note.report_delivery_document_custom</field>
-        <field name="report_file">custom_delivery_note.report_delivery_document_custom</field>
+        <field name="report_name">stock.report_delivery_document</field>
+        <field name="report_file">stock.report_delivery_document</field>
     </record>
 </odoo>

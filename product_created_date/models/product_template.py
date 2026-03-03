@@ -8,6 +8,7 @@ class ProductTemplate(models.Model):
         string='Created Date',
         readonly=True,
         copy=False,
+        default=fields.Date.today,
         help='Date when this product was created. Auto-filled on creation.',
     )
 

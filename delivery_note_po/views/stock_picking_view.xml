@@ -7,9 +7,10 @@
 
             <xpath expr="//field[@name='origin']" position="after">
 
-                <!-- Customer Reference - editable, locked only when done/cancelled -->
+                <!-- Customer Reference - editable with placeholder -->
                 <field name="sale_customer_reference"
                        string="Customer Reference"
+                       placeholder="Enter PO Number"
                        readonly="state in ['done', 'cancel']"/>
             </xpath>
 

@@ -2,19 +2,13 @@
 <templates xml:space="preserve">
 
     <t t-name="custom_print_dialog.PrintPreviewDialog">
-        <!--
-            OWL Rule: Component props CANNOT use t-att-*.
-            Use plain prop="expression" syntax instead.
-            "title" accepts a JS expression directly (no t-att needed).
-        -->
         <Dialog title="dialogTitle" size="'xl'" contentClass="'cpd-dialog-content p-0'" footer="false" onClose.bind="onClose">
 
             <div class="cpd-body d-flex" style="height: 82vh; overflow: hidden;">
 
-                <!-- LEFT PANEL: PDF preview rendered by the browser -->
+                <!-- ── LEFT: PDF Preview ──────────────────────────────────── -->
                 <div class="cpd-preview-panel d-flex flex-column flex-grow-1" style="min-width:0; background:#525659;">
 
-                    <!-- Toolbar -->
                     <div class="cpd-preview-toolbar d-flex align-items-center px-3 py-2 gap-2"
                          style="background:#3c3f41; color:#ccc; font-size:13px; flex-shrink:0;">
                         <i class="fa fa-file-pdf-o text-danger"/>
@@ -24,62 +18,112 @@
                         </span>
                     </div>
 
-                    <!-- Loading spinner -->
-                    <div t-if="state.loading" class="d-flex align-items-center justify-content-center flex-grow-1">
+                    <div t-if="state.loading"
+                         class="d-flex align-items-center justify-content-center flex-grow-1">
                         <div class="text-center text-white">
                             <i class="fa fa-spinner fa-spin fa-3x mb-3" style="color:#aaa;"/>
-                            <p style="color:#ccc;">Generating PDF preview...</p>
+                            <p style="color:#ccc;">Generating preview...</p>
                         </div>
                     </div>
 
-                    <!-- Error state -->
-                    <div t-elif="state.loadError" class="d-flex align-items-center justify-content-center flex-grow-1">
+                    <div t-elif="state.loadError"
+                         class="d-flex align-items-center justify-content-center flex-grow-1">
                         <div class="text-center text-white p-4">
                             <i class="fa fa-exclamation-triangle fa-3x mb-3 text-warning"/>
                             <p>Could not load the PDF preview.</p>
-                            <p class="small text-muted mb-3">Make sure the record is posted and a report template exists.</p>
+                            <p class="small" style="color:#aaa;">Make sure the record is posted.</p>
                         </div>
                     </div>
 
-                    <!--
-                        iframe: t-att-src / t-att-style are valid on plain HTML elements.
-                        We hide it while loading by toggling a CSS class.
-                    -->
                     <iframe
                         t-ref="previewIframe"
                         t-att-src="pdfPreviewUrl"
                         t-on-load="onIframeLoad"
                         t-on-error="onIframeError"
-                        t-att-class="state.loading ? 'cpd-iframe cpd-iframe--hidden border-0 w-100 flex-grow-1' : 'cpd-iframe border-0 w-100 flex-grow-1'"
+                        t-att-class="state.loading
+                            ? 'cpd-iframe cpd-iframe--hidden border-0 w-100 flex-grow-1'
+                            : 'cpd-iframe border-0 w-100 flex-grow-1'"
                         title="PDF Preview"
                     />
                 </div>
 
-                <!-- RIGHT PANEL: Settings + action buttons -->
+                <!-- ── RIGHT: Settings panel ──────────────────────────────── -->
                 <div class="cpd-settings-panel d-flex flex-column border-start"
-                     style="width:310px; min-width:280px; background:#fff;">
+                     style="width:320px; min-width:290px; background:#fff;">
 
                     <!-- Header -->
-                    <div class="cpd-settings-header px-3 py-2 border-bottom" style="background:#f8f9fa; flex-shrink:0;">
+                    <div class="cpd-settings-header px-3 py-2 border-bottom"
+                         style="background:#f8f9fa; flex-shrink:0;">
                         <span class="fw-bold" style="font-size:14px;">
                             <i class="fa fa-print me-2 text-primary"/>
                             Print
                         </span>
                     </div>
 
-                    <!-- Scrollable settings body -->
-                    <div class="cpd-settings-body flex-grow-1 overflow-auto px-3 py-3" style="font-size:13px;">
+                    <!-- Scrollable body -->
+                    <div class="cpd-settings-body flex-grow-1 overflow-auto px-3 py-3"
+                         style="font-size:13px;">
 
-                        <!-- Destination -->
-                        <div class="cpd-group mb-4">
+                        <!-- ══════════════════════════════════════════════════
+                             DESTINATION  (dropdown: Save as PDF / Save as XML)
+                        ══════════════════════════════════════════════════ -->
+                        <div class="cpd-group mb-3">
                             <div class="cpd-group-label">Destination</div>
-                            <div class="border rounded px-3 py-2 bg-light d-flex align-items-center gap-2">
-                                <i class="fa fa-file-pdf-o text-danger"/>
-                                <span>Save as PDF</span>
+                            <div class="input-group">
+                                <span class="input-group-text" style="background:#f8f9fa;">
+                                    <i t-att-class="saveButtonIcon + ' text-secondary'"/>
+                                </span>
+                                <select class="form-select"
+                                        t-on-change="(ev) => setFormat(ev.target.value)">
+                                    <option value="pdf"
+                                            t-att-selected="state.format === 'pdf'">
+                                        Save as PDF
+                                    </option>
+                                    <option value="xml"
+                                            t-att-selected="state.format === 'xml'">
+                                        Save as XML
+                                    </option>
+                                </select>
                             </div>
                         </div>
 
-                        <!-- Pages -->
+                        <!-- ══════════════════════════════════════════════════
+                             DESTINATION LOCATION
+                             Clicking the folder icon opens the OS Save dialog
+                             (File System Access API on Chrome/Edge,
+                              standard download fallback on Firefox/Safari).
+                        ══════════════════════════════════════════════════ -->
+                        <div class="cpd-group mb-4">
+                            <div class="cpd-group-label">Destination Location</div>
+                            <div class="input-group">
+                                <!-- Read-only path display -->
+                                <input type="text"
+                                       class="form-control"
+                                       readonly="1"
+                                       t-att-placeholder="locationPlaceholder"
+                                       t-att-value="state.savePath"
+                                       style="background:#fff; cursor:default;"/>
+                                <!-- Browse button -->
+                                <button class="btn btn-outline-secondary cpd-browse-btn"
+                                        type="button"
+                                        title="Choose save location"
+                                        t-on-click="onSave">
+                                    <i class="fa fa-folder-open-o"/>
+                                </button>
+                            </div>
+                            <div class="text-muted mt-1" style="font-size:11px; line-height:1.4;">
+                                <t t-if="state.savePath">
+                                    <i class="fa fa-check-circle text-success me-1"/>
+                                    Location selected
+                                </t>
+                                <t t-else="">
+                                    <i class="fa fa-info-circle me-1"/>
+                                    Click <i class="fa fa-folder-open-o mx-1"/> to choose where to save the file
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- ── PAGES ──────────────────────────────────────── -->
                         <div class="cpd-group mb-4">
                             <div class="cpd-group-label">Pages</div>
                             <div class="border rounded bg-white">
@@ -87,7 +131,6 @@
                                        style="cursor:pointer;">
                                     <input type="radio"
                                            name="cpd_pages"
-                                           value="all"
                                            class="form-check-input m-0 flex-shrink-0"
                                            t-att-checked="state.selectedPages === 'all'"
                                            t-on-change="() => setPages('all')"/>
@@ -97,7 +140,6 @@
                                        style="cursor:pointer;">
                                     <input type="radio"
                                            name="cpd_pages"
-                                           value="custom"
                                            class="form-check-input m-0 flex-shrink-0"
                                            t-att-checked="state.selectedPages === 'custom'"
                                            t-on-change="() => setPages('custom')"/>
@@ -112,7 +154,7 @@
                             </div>
                         </div>
 
-                        <!-- Layout -->
+                        <!-- ── LAYOUT ─────────────────────────────────────── -->
                         <div class="cpd-group mb-4">
                             <div class="cpd-group-label">Layout</div>
                             <div class="border rounded bg-white">
@@ -120,7 +162,6 @@
                                        style="cursor:pointer;">
                                     <input type="radio"
                                            name="cpd_layout"
-                                           value="portrait"
                                            class="form-check-input m-0 flex-shrink-0"
                                            t-att-checked="state.layout === 'portrait'"
                                            t-on-change="() => setLayout('portrait')"/>
@@ -131,7 +172,6 @@
                                        style="cursor:pointer;">
                                     <input type="radio"
                                            name="cpd_layout"
-                                           value="landscape"
                                            class="form-check-input m-0 flex-shrink-0"
                                            t-att-checked="state.layout === 'landscape'"
                                            t-on-change="() => setLayout('landscape')"/>
@@ -141,38 +181,36 @@
                             </div>
                         </div>
 
-                        <!-- Copies -->
+                        <!-- ── COPIES ─────────────────────────────────────── -->
                         <div class="cpd-group mb-3">
                             <div class="cpd-group-label">Copies</div>
                             <input type="number"
                                    class="form-control"
-                                   min="1"
-                                   max="99"
+                                   min="1" max="99"
                                    t-model.number="state.copies"/>
-                        </div>
-
-                        <hr class="my-3"/>
-                        <div class="text-muted" style="font-size:12px; line-height:1.5;">
-                            <i class="fa fa-info-circle me-1"/>
-                            Additional printer options are available in your system print dialog after clicking <strong>Print</strong>.
                         </div>
 
                     </div>
 
-                    <!-- Footer buttons -->
+                    <!-- ── Footer buttons ─────────────────────────────────── -->
                     <div class="cpd-settings-footer border-top p-3 d-flex flex-column gap-2"
                          style="background:#fafafa; flex-shrink:0;">
 
-                        <!-- Opens PDF in new tab + triggers system print dialog -->
-                        <button class="btn btn-primary w-100" t-on-click="onPrint">
-                            <i class="fa fa-print me-2"/>
-                            Print
+                        <!--
+                            Save button — opens the OS file picker (showSaveFilePicker
+                            on Chrome/Edge) then writes the file directly to the chosen
+                            location. Falls back to browser download on Firefox/Safari.
+                        -->
+                        <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
+                                t-on-click="onSave">
+                            <i t-att-class="saveButtonIcon"/>
+                            <span t-esc="saveButtonLabel"/>
                         </button>
 
-                        <!-- Downloads PDF file to disk -->
-                        <button class="btn btn-outline-primary w-100" t-on-click="onDownloadPDF">
-                            <i class="fa fa-download me-2"/>
-                            Save as PDF
+                        <!-- Print button — always available, sends to OS print dialog -->
+                        <button class="btn btn-outline-primary w-100" t-on-click="onPrint">
+                            <i class="fa fa-print me-2"/>
+                            Print
                         </button>
 
                         <button class="btn btn-outline-secondary w-100" t-on-click="onClose">
@@ -182,12 +220,212 @@
                     </div>
 
                 </div>
-                <!-- end right panel -->
-
             </div>
-            <!-- end cpd-body -->
 
         </Dialog>
     </t>
 
 </templates>
+
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<templates xml:space="preserve">-->
+
+<!--    <t t-name="custom_print_dialog.PrintPreviewDialog">-->
+<!--        &lt;!&ndash;-->
+<!--            OWL Rule: Component props CANNOT use t-att-*.-->
+<!--            Use plain prop="expression" syntax instead.-->
+<!--            "title" accepts a JS expression directly (no t-att needed).-->
+<!--        &ndash;&gt;-->
+<!--        <Dialog title="dialogTitle" size="'xl'" contentClass="'cpd-dialog-content p-0'" footer="false" onClose.bind="onClose">-->
+
+<!--            <div class="cpd-body d-flex" style="height: 82vh; overflow: hidden;">-->
+
+<!--                &lt;!&ndash; LEFT PANEL: PDF preview rendered by the browser &ndash;&gt;-->
+<!--                <div class="cpd-preview-panel d-flex flex-column flex-grow-1" style="min-width:0; background:#525659;">-->
+
+<!--                    &lt;!&ndash; Toolbar &ndash;&gt;-->
+<!--                    <div class="cpd-preview-toolbar d-flex align-items-center px-3 py-2 gap-2"-->
+<!--                         style="background:#3c3f41; color:#ccc; font-size:13px; flex-shrink:0;">-->
+<!--                        <i class="fa fa-file-pdf-o text-danger"/>-->
+<!--                        <span class="fw-semibold">Preview</span>-->
+<!--                        <span class="ms-auto text-muted small" t-if="!state.loading and !state.loadError">-->
+<!--                            PDF Report-->
+<!--                        </span>-->
+<!--                    </div>-->
+
+<!--                    &lt;!&ndash; Loading spinner &ndash;&gt;-->
+<!--                    <div t-if="state.loading" class="d-flex align-items-center justify-content-center flex-grow-1">-->
+<!--                        <div class="text-center text-white">-->
+<!--                            <i class="fa fa-spinner fa-spin fa-3x mb-3" style="color:#aaa;"/>-->
+<!--                            <p style="color:#ccc;">Generating PDF preview...</p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    &lt;!&ndash; Error state &ndash;&gt;-->
+<!--                    <div t-elif="state.loadError" class="d-flex align-items-center justify-content-center flex-grow-1">-->
+<!--                        <div class="text-center text-white p-4">-->
+<!--                            <i class="fa fa-exclamation-triangle fa-3x mb-3 text-warning"/>-->
+<!--                            <p>Could not load the PDF preview.</p>-->
+<!--                            <p class="small text-muted mb-3">Make sure the record is posted and a report template exists.</p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    &lt;!&ndash;-->
+<!--                        iframe: t-att-src / t-att-style are valid on plain HTML elements.-->
+<!--                        We hide it while loading by toggling a CSS class.-->
+<!--                    &ndash;&gt;-->
+<!--                    <iframe-->
+<!--                        t-ref="previewIframe"-->
+<!--                        t-att-src="pdfPreviewUrl"-->
+<!--                        t-on-load="onIframeLoad"-->
+<!--                        t-on-error="onIframeError"-->
+<!--                        t-att-class="state.loading ? 'cpd-iframe cpd-iframe&#45;&#45;hidden border-0 w-100 flex-grow-1' : 'cpd-iframe border-0 w-100 flex-grow-1'"-->
+<!--                        title="PDF Preview"-->
+<!--                    />-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; RIGHT PANEL: Settings + action buttons &ndash;&gt;-->
+<!--                <div class="cpd-settings-panel d-flex flex-column border-start"-->
+<!--                     style="width:310px; min-width:280px; background:#fff;">-->
+
+<!--                    &lt;!&ndash; Header &ndash;&gt;-->
+<!--                    <div class="cpd-settings-header px-3 py-2 border-bottom" style="background:#f8f9fa; flex-shrink:0;">-->
+<!--                        <span class="fw-bold" style="font-size:14px;">-->
+<!--                            <i class="fa fa-print me-2 text-primary"/>-->
+<!--                            Print-->
+<!--                        </span>-->
+<!--                    </div>-->
+
+<!--                    &lt;!&ndash; Scrollable settings body &ndash;&gt;-->
+<!--                    <div class="cpd-settings-body flex-grow-1 overflow-auto px-3 py-3" style="font-size:13px;">-->
+
+<!--                        &lt;!&ndash; Destination &ndash;&gt;-->
+<!--                        <div class="cpd-group mb-4">-->
+<!--                            <div class="cpd-group-label">Destination</div>-->
+<!--                            <div class="border rounded px-3 py-2 bg-light d-flex align-items-center gap-2">-->
+<!--                                <i class="fa fa-file-pdf-o text-danger"/>-->
+<!--                                <span>Save as PDF</span>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+<!--                        &lt;!&ndash; Pages &ndash;&gt;-->
+<!--                        <div class="cpd-group mb-4">-->
+<!--                            <div class="cpd-group-label">Pages</div>-->
+<!--                            <div class="border rounded bg-white">-->
+<!--                                <label class="cpd-radio-row border-bottom d-flex align-items-center gap-2 px-3 py-2 m-0"-->
+<!--                                       style="cursor:pointer;">-->
+<!--                                    <input type="radio"-->
+<!--                                           name="cpd_pages"-->
+<!--                                           value="all"-->
+<!--                                           class="form-check-input m-0 flex-shrink-0"-->
+<!--                                           t-att-checked="state.selectedPages === 'all'"-->
+<!--                                           t-on-change="() => setPages('all')"/>-->
+<!--                                    <span>All</span>-->
+<!--                                </label>-->
+<!--                                <label class="cpd-radio-row d-flex align-items-center gap-2 px-3 py-2 m-0"-->
+<!--                                       style="cursor:pointer;">-->
+<!--                                    <input type="radio"-->
+<!--                                           name="cpd_pages"-->
+<!--                                           value="custom"-->
+<!--                                           class="form-check-input m-0 flex-shrink-0"-->
+<!--                                           t-att-checked="state.selectedPages === 'custom'"-->
+<!--                                           t-on-change="() => setPages('custom')"/>-->
+<!--                                    <span>Custom</span>-->
+<!--                                </label>-->
+<!--                                <div t-if="state.selectedPages === 'custom'" class="px-3 pb-2">-->
+<!--                                    <input type="text"-->
+<!--                                           class="form-control form-control-sm"-->
+<!--                                           placeholder="e.g. 1-3, 5"-->
+<!--                                           t-model="state.customPages"/>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+<!--                        &lt;!&ndash; Layout &ndash;&gt;-->
+<!--                        <div class="cpd-group mb-4">-->
+<!--                            <div class="cpd-group-label">Layout</div>-->
+<!--                            <div class="border rounded bg-white">-->
+<!--                                <label class="cpd-radio-row border-bottom d-flex align-items-center gap-2 px-3 py-2 m-0"-->
+<!--                                       style="cursor:pointer;">-->
+<!--                                    <input type="radio"-->
+<!--                                           name="cpd_layout"-->
+<!--                                           value="portrait"-->
+<!--                                           class="form-check-input m-0 flex-shrink-0"-->
+<!--                                           t-att-checked="state.layout === 'portrait'"-->
+<!--                                           t-on-change="() => setLayout('portrait')"/>-->
+<!--                                    <i class="fa fa-file-o" style="width:14px;"/>-->
+<!--                                    <span>Portrait</span>-->
+<!--                                </label>-->
+<!--                                <label class="cpd-radio-row d-flex align-items-center gap-2 px-3 py-2 m-0"-->
+<!--                                       style="cursor:pointer;">-->
+<!--                                    <input type="radio"-->
+<!--                                           name="cpd_layout"-->
+<!--                                           value="landscape"-->
+<!--                                           class="form-check-input m-0 flex-shrink-0"-->
+<!--                                           t-att-checked="state.layout === 'landscape'"-->
+<!--                                           t-on-change="() => setLayout('landscape')"/>-->
+<!--                                    <i class="fa fa-file-o fa-rotate-90" style="width:14px;"/>-->
+<!--                                    <span>Landscape</span>-->
+<!--                                </label>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+<!--                        &lt;!&ndash; Copies &ndash;&gt;-->
+<!--                        <div class="cpd-group mb-3">-->
+<!--                            <div class="cpd-group-label">Copies</div>-->
+<!--                            <input type="number"-->
+<!--                                   class="form-control"-->
+<!--                                   min="1"-->
+<!--                                   max="99"-->
+<!--                                   t-model.number="state.copies"/>-->
+<!--                        </div>-->
+
+<!--                        <hr class="my-3"/>-->
+<!--                        <div class="text-muted" style="font-size:12px; line-height:1.5;">-->
+<!--                            <i class="fa fa-info-circle me-1"/>-->
+<!--                            Additional printer options are available in your system print dialog after clicking <strong>Print</strong>.-->
+<!--                        </div>-->
+
+<!--                    </div>-->
+
+<!--                    &lt;!&ndash; Footer buttons &ndash;&gt;-->
+<!--                    <div class="cpd-settings-footer border-top p-3 d-flex flex-column gap-2"-->
+<!--                         style="background:#fafafa; flex-shrink:0;">-->
+
+<!--                        &lt;!&ndash; Opens PDF in new tab + triggers system print dialog &ndash;&gt;-->
+<!--                        <button class="btn btn-primary w-100" t-on-click="onPrint">-->
+<!--                            <i class="fa fa-print me-2"/>-->
+<!--                            Print-->
+<!--                        </button>-->
+
+<!--                        &lt;!&ndash; Downloads PDF file to disk &ndash;&gt;-->
+<!--                        <button class="btn btn-outline-primary w-100" t-on-click="onDownloadPDF">-->
+<!--                            <i class="fa fa-download me-2"/>-->
+<!--                            Save as PDF-->
+<!--                        </button>-->
+
+<!--                        <button class="btn btn-outline-secondary w-100" t-on-click="onClose">-->
+<!--                            Cancel-->
+<!--                        </button>-->
+
+<!--                    </div>-->
+
+<!--                </div>-->
+<!--                &lt;!&ndash; end right panel &ndash;&gt;-->
+
+<!--            </div>-->
+<!--            &lt;!&ndash; end cpd-body &ndash;&gt;-->
+
+<!--        </Dialog>-->
+<!--    </t>-->
+
+<!--</templates>-->

@@ -22,6 +22,7 @@
     flex-direction: column;
     min-width: 120px;
 }
+.psf_date_group   { min-width: 155px; }
 .psf_product_group { min-width: 180px; }
 .psf_gt_group { min-width: 180px; }
 .psf_input,
@@ -44,6 +45,11 @@
 }
 .psf_input::placeholder {
     color: #adb5bd;
+}
+/* Date input letter-spacing to mimic dd/mm/yy rhythm */
+.psf_date_input {
+    letter-spacing: 0.03em;
+    font-variant-numeric: tabular-nums;
 }
 .psf_select {
     color: #6c757d;
@@ -127,7 +133,7 @@
 @media (max-width: 768px) {
     .psf_inner { flex-direction: column; align-items: stretch; }
     .psf_filters { flex-direction: column; }
-    .psf_group, .psf_product_group, .psf_gt_group { min-width: 100%; width: 100%; }
+    .psf_group, .psf_date_group, .psf_product_group, .psf_gt_group { min-width: 100%; width: 100%; }
     .psf_actions { width: 100%; }
     .psf_btn { flex: 1; justify-content: center; }
 }

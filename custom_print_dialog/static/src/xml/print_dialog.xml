@@ -63,7 +63,7 @@
                                     <i t-att-class="saveButtonIcon + (state.saving ? '' : ' text-danger')"/>
                                 </span>
                                 <select class="form-select"
-                                        t-on-change="(ev) => setFormat(ev.target.value)"
+                                        t-on-change="(ev) => this.setFormat(ev.target.value)"
                                         t-att-disabled="state.saving">
                                     <option value="pdf" t-att-selected="state.format === 'pdf'">Save as PDF</option>
                                     <option value="xml" t-att-selected="state.format === 'xml'">Save as XML</option>
@@ -116,13 +116,13 @@
                                 <label class="cpd-radio-row border-bottom d-flex align-items-center gap-2 px-3 py-2 m-0" style="cursor:pointer;">
                                     <input type="radio" name="cpd_pages" class="form-check-input m-0 flex-shrink-0"
                                            t-att-checked="state.selectedPages === 'all'"
-                                           t-on-change="() => setPages('all')"/>
+                                           t-on-change="() => this.setPages('all')"/>
                                     <span>All</span>
                                 </label>
                                 <label class="cpd-radio-row d-flex align-items-center gap-2 px-3 py-2 m-0" style="cursor:pointer;">
                                     <input type="radio" name="cpd_pages" class="form-check-input m-0 flex-shrink-0"
                                            t-att-checked="state.selectedPages === 'custom'"
-                                           t-on-change="() => setPages('custom')"/>
+                                           t-on-change="() => this.setPages('custom')"/>
                                     <span>Custom</span>
                                 </label>
                                 <div t-if="state.selectedPages === 'custom'" class="px-3 pb-2">
@@ -139,14 +139,14 @@
                                 <label class="cpd-radio-row border-bottom d-flex align-items-center gap-2 px-3 py-2 m-0" style="cursor:pointer;">
                                     <input type="radio" name="cpd_layout" class="form-check-input m-0 flex-shrink-0"
                                            t-att-checked="state.layout === 'portrait'"
-                                           t-on-change="() => setLayout('portrait')"/>
+                                           t-on-change="() => this.setLayout('portrait')"/>
                                     <i class="fa fa-file-o" style="width:14px;"/>
                                     <span>Portrait</span>
                                 </label>
                                 <label class="cpd-radio-row d-flex align-items-center gap-2 px-3 py-2 m-0" style="cursor:pointer;">
                                     <input type="radio" name="cpd_layout" class="form-check-input m-0 flex-shrink-0"
                                            t-att-checked="state.layout === 'landscape'"
-                                           t-on-change="() => setLayout('landscape')"/>
+                                           t-on-change="() => this.setLayout('landscape')"/>
                                     <i class="fa fa-file-o fa-rotate-90" style="width:14px;"/>
                                     <span>Landscape</span>
                                 </label>

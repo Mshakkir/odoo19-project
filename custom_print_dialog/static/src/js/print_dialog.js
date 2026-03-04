@@ -18,36 +18,35 @@ export class PrintPreviewDialog extends Component {
 
     setup() {
         this.notification = useService("notification");
+        this.rpc          = useService("rpc");
         this.iframeRef    = useRef("previewIframe");
 
         const report = this.props.reportName || "account.report_invoice";
         const id     = this.props.recordId;
 
-        // Standard Odoo URL — iframe preview + print
+        // Standard Odoo URL for iframe preview and print — always works
         this.pdfPreviewUrl = `/report/pdf/${report}/${id}`;
-
-        // Download URLs
-        this.pdfFetchUrl = `/report/pdf/${report}/${id}`;
-        this.xmlFetchUrl = `/custom_print/report/xml?report_name=${encodeURIComponent(report)}&record_id=${id}&download=true`;
+        // Standard Odoo download URL for PDF (with attachment header)
+        this.pdfDownloadUrl = `/report/pdf/${report}/${id}?download=true`;
 
         this.state = useState({
-            loading:      true,
-            loadError:    false,
+            loading:       true,
+            loadError:     false,
             selectedPages: "all",
-            customPages:  "",
-            layout:       "portrait",
-            copies:       1,
-            format:       "pdf",
-            fileHandle:   null,
-            savePath:     "",
-            saving:       false,
+            customPages:   "",
+            layout:        "portrait",
+            copies:        1,
+            format:        "pdf",
+            fileHandle:    null,
+            savePath:      "",
+            saving:        false,
         });
     }
 
     onIframeLoad()  { this.state.loading = false; this.state.loadError = false; }
     onIframeError() { this.state.loading = false; this.state.loadError = true; }
 
-    // ── Choose save location (folder icon) ───────────────────────────────────
+    // ── Choose save location ──────────────────────────────────────────────────
     async onChooseLocation() {
         const isXml = this.state.format === "xml";
         const ext   = isXml ? "xml" : "pdf";
@@ -72,65 +71,37 @@ export class PrintPreviewDialog extends Component {
         }
     }
 
-    // ── Fetch file as blob using XMLHttpRequest (works on HTTPS with sessions) ─
-    _fetchBlob(url) {
-        return new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open("GET", url, true);
-            xhr.responseType = "blob";
-            // withCredentials ensures the Odoo session cookie is sent on HTTPS
-            xhr.withCredentials = true;
-            xhr.onload = () => {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    resolve(xhr.response);
-                } else {
-                    reject(new Error(`Server returned ${xhr.status}: ${xhr.statusText}`));
-                }
-            };
-            xhr.onerror = () => reject(new Error("Network error — check your connection"));
-            xhr.send();
-        });
-    }
-
-    // ── Save as PDF / XML ────────────────────────────────────────────────────
+    // ── Save ─────────────────────────────────────────────────────────────────
     async onSave() {
         const isXml    = this.state.format === "xml";
         const ext      = isXml ? "xml" : "pdf";
-        const fetchUrl = isXml ? this.xmlFetchUrl : this.pdfFetchUrl;
         const fileName = `${this.props.recordName || "document"}.${ext}`;
 
         this.state.saving = true;
         try {
-            const blob = await this._fetchBlob(fetchUrl);
+            let blob;
 
-            // ── Chrome/Edge: write directly to chosen location ───────────────
-            if (this.state.fileHandle) {
-                try {
-                    const writable = await this.state.fileHandle.createWritable();
-                    await writable.write(blob);
-                    await writable.close();
-                    this.notification.add(
-                        `Saved to: ${this.state.fileHandle.name}`,
-                        { type: "success", sticky: false }
-                    );
-                    return;
-                } catch (err) {
-                    console.warn("createWritable failed, falling back:", err);
-                }
+            if (isXml) {
+                // XML: use Odoo's JSON-RPC (guaranteed to work on HTTPS — same
+                // session, no cross-origin issues, no custom controller needed)
+                const result = await this.rpc("/web/dataset/call_kw", {
+                    model:  "ir.actions.report",
+                    method: "get_xml_export",
+                    args:   [this.props.reportName, [this.props.recordId]],
+                    kwargs: {},
+                });
+                // result is a base64-encoded XML string returned by Python
+                const xmlString = result.xml_content || result;
+                blob = new Blob([xmlString], { type: "application/xml" });
+
+            } else {
+                // PDF: fetch from standard Odoo report URL
+                // Use XMLHttpRequest with withCredentials for HTTPS session cookie
+                blob = await this._xhrBlob(this.pdfDownloadUrl);
             }
 
-            // ── All browsers: blob URL anchor download ───────────────────────
-            // Creates object URL from already-fetched blob — no re-request,
-            // no "File wasn't available on site" error
-            const blobUrl = URL.createObjectURL(blob);
-            const link    = document.createElement("a");
-            link.href     = blobUrl;
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-            this.notification.add(`${ext.toUpperCase()} download started`, { type: "success" });
+            // Write to chosen location or trigger download
+            await this._writeBlob(blob, fileName);
 
         } catch (err) {
             console.error("Save failed:", err);
@@ -138,6 +109,51 @@ export class PrintPreviewDialog extends Component {
         } finally {
             this.state.saving = false;
         }
+    }
+
+    // XHR with credentials — works on HTTPS
+    _xhrBlob(url) {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.responseType = "blob";
+            xhr.withCredentials = true;
+            xhr.onload = () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    resolve(xhr.response);
+                } else {
+                    reject(new Error(`Server returned ${xhr.status}`));
+                }
+            };
+            xhr.onerror = () => reject(new Error("Network error"));
+            xhr.send();
+        });
+    }
+
+    // Write blob to fileHandle (Chrome) or trigger anchor download (all browsers)
+    async _writeBlob(blob, fileName) {
+        if (this.state.fileHandle) {
+            try {
+                const writable = await this.state.fileHandle.createWritable();
+                await writable.write(blob);
+                await writable.close();
+                this.notification.add(`Saved to: ${this.state.fileHandle.name}`,
+                    { type: "success" });
+                return;
+            } catch (err) {
+                console.warn("createWritable failed, using download:", err);
+            }
+        }
+        // Blob URL download — no re-request, no "File wasn't available" error
+        const blobUrl = URL.createObjectURL(blob);
+        const link    = document.createElement("a");
+        link.href     = blobUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+        this.notification.add(`Download started`, { type: "success" });
     }
 
     onPrint() {

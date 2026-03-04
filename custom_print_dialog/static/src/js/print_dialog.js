@@ -23,15 +23,13 @@ export class PrintPreviewDialog extends Component {
         const report = this.props.reportName || "account.report_invoice";
         const id     = this.props.recordId;
 
-        // ── Odoo's standard PDF URL for the iframe preview ───────────────────
-        // This always works for any report — it is the same URL Odoo uses
-        // internally when you click Print normally.
+        // Standard Odoo URL — used for iframe preview AND print
         this.pdfPreviewUrl = `/report/pdf/${report}/${id}`;
 
-        // ── Custom controller URLs for Save (query-param form, no dot issues) ─
-        const base          = `/custom_print/report/pdf?report_name=${encodeURIComponent(report)}&record_id=${id}`;
-        this.pdfDownloadUrl = `${base}&download=true`;
-        this.xmlDownloadUrl = `/custom_print/report/xml?report_name=${encodeURIComponent(report)}&record_id=${id}`;
+        // Standard Odoo download URL — used for actual file fetch
+        // This is guaranteed to work (same URL Odoo uses for its own Print button)
+        this.pdfFetchUrl  = `/report/pdf/${report}/${id}`;
+        this.xmlFetchUrl  = `/custom_print/report/xml?report_name=${encodeURIComponent(report)}&record_id=${id}`;
 
         this.state = useState({
             loading:       true,
@@ -40,64 +38,118 @@ export class PrintPreviewDialog extends Component {
             customPages:   "",
             layout:        "portrait",
             copies:        1,
-            format:        "pdf",   // "pdf" or "xml"
+            format:        "pdf",
+            // File handle chosen by user via showSaveFilePicker
+            fileHandle:    null,
             savePath:      "",
         });
     }
 
-    // ── Iframe events ─────────────────────────────────────────────────────────
     onIframeLoad()  { this.state.loading = false; this.state.loadError = false; }
     onIframeError() { this.state.loading = false; this.state.loadError = true; }
 
-    // ── Save with OS file picker ──────────────────────────────────────────────
-    async onSave() {
-        const isXml   = this.state.format === "xml";
-        const ext     = isXml ? "xml" : "pdf";
-        const mime    = isXml ? "application/xml" : "application/pdf";
-        const url     = isXml ? this.xmlDownloadUrl : this.pdfDownloadUrl;
-        const base    = `${this.props.recordName || "document"}.${ext}`;
+    // ── STEP 1: Choose location (folder icon) ─────────────────────────────────
+    // Only opens the OS file picker and stores the handle.
+    // Does NOT download anything yet.
+    async onChooseLocation() {
+        const isXml = this.state.format === "xml";
+        const ext   = isXml ? "xml" : "pdf";
+        const mime  = isXml ? "application/xml" : "application/pdf";
+        const name  = `${this.props.recordName || "document"}.${ext}`;
 
-        // Chrome/Edge 86+: native OS Save As dialog
         if (window.showSaveFilePicker) {
             try {
                 const handle = await window.showSaveFilePicker({
-                    suggestedName: base,
-                    types: [{ description: isXml ? "XML File" : "PDF Document",
-                               accept: { [mime]: [`.${ext}`] } }],
+                    suggestedName: name,
+                    types: [{
+                        description: isXml ? "XML File" : "PDF Document",
+                        accept: { [mime]: [`.${ext}`] },
+                    }],
                 });
-                this.state.savePath = handle.name;
-                const resp     = await fetch(url);
-                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                const blob     = await resp.blob();
-                const writable = await handle.createWritable();
-                await writable.write(blob);
-                await writable.close();
-                this.notification.add(
-                    `${ext.toUpperCase()} saved: ${handle.name}`,
-                    { type: "success", sticky: false }
-                );
-                return;
+                this.state.fileHandle = handle;
+                this.state.savePath   = handle.name;
             } catch (err) {
-                if (err.name === "AbortError") return;
-                console.warn("showSaveFilePicker failed, falling back:", err);
+                // User cancelled — do nothing
+                if (err.name !== "AbortError") {
+                    console.warn("File picker error:", err);
+                }
             }
+        } else {
+            // Firefox/Safari: can't pre-pick location, inform user
+            this.state.savePath = name;
+            this.notification.add(
+                "Your browser will save to the Downloads folder automatically.",
+                { type: "info", sticky: false }
+            );
         }
-
-        // Firefox / Safari fallback: standard anchor download
-        const link    = document.createElement("a");
-        link.href     = url;
-        link.download = base;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        this.state.savePath = base;
-        this.notification.add(
-            `${ext.toUpperCase()} download started`,
-            { type: "success", sticky: false }
-        );
     }
 
-    // Print: open the standard Odoo PDF URL in new tab → OS print dialog
+    // ── STEP 2: Save as PDF / XML button ─────────────────────────────────────
+    // Fetches the file and writes it to the chosen location (or downloads it).
+    async onSave() {
+        const isXml    = this.state.format === "xml";
+        const ext      = isXml ? "xml" : "pdf";
+        const fetchUrl = isXml ? this.xmlFetchUrl : this.pdfFetchUrl;
+        const fileName = `${this.props.recordName || "document"}.${ext}`;
+
+        // Show loading state on button
+        this.state.saving = true;
+
+        try {
+            // Fetch the file content from Odoo
+            const resp = await fetch(fetchUrl, { credentials: "same-origin" });
+            if (!resp.ok) {
+                throw new Error(`Server returned ${resp.status}: ${resp.statusText}`);
+            }
+            const blob = await resp.blob();
+
+            // ── If user pre-selected a location via showSaveFilePicker ────────
+            if (this.state.fileHandle) {
+                try {
+                    const writable = await this.state.fileHandle.createWritable();
+                    await writable.write(blob);
+                    await writable.close();
+                    this.notification.add(
+                        `Saved to: ${this.state.fileHandle.name}`,
+                        { type: "success", sticky: false }
+                    );
+                    return;
+                } catch (err) {
+                    console.warn("createWritable failed, falling back to download:", err);
+                    // Fall through to anchor download
+                }
+            }
+
+            // ── showSaveFilePicker not used / failed → anchor download ────────
+            // Creates a blob URL so the file content is served from memory,
+            // not from the server again — avoids "wasn't available on site" error.
+            const blobUrl = URL.createObjectURL(blob);
+            const link    = document.createElement("a");
+            link.href     = blobUrl;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            // Revoke after a short delay so the browser has time to start download
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+
+            this.notification.add(
+                `${ext.toUpperCase()} download started`,
+                { type: "success", sticky: false }
+            );
+
+        } catch (err) {
+            console.error("Save failed:", err);
+            this.notification.add(
+                `Save failed: ${err.message}`,
+                { type: "danger", sticky: false }
+            );
+        } finally {
+            this.state.saving = false;
+        }
+    }
+
+    // Print — open standard Odoo PDF in new tab → OS print dialog
     onPrint() {
         const win = window.open(this.pdfPreviewUrl, "_blank");
         if (!win) {
@@ -112,7 +164,7 @@ export class PrintPreviewDialog extends Component {
 
     onClose() { this.props.close(); }
 
-    // ── Computed helpers ──────────────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────────────
     get dialogTitle() {
         const label = this.props.docLabel || "Document";
         const name  = this.props.recordName || "";
@@ -120,16 +172,24 @@ export class PrintPreviewDialog extends Component {
     }
 
     get saveButtonLabel() {
+        if (this.state.saving) return "Saving...";
         return this.state.format === "xml" ? "Save as XML" : "Save as PDF";
     }
+
     get saveButtonIcon() {
+        if (this.state.saving) return "fa fa-spinner fa-spin";
         return this.state.format === "xml" ? "fa fa-code" : "fa fa-file-pdf-o";
     }
+
     get locationPlaceholder() {
         return `${this.props.recordName || "document"}.${this.state.format}`;
     }
 
-    setFormat(val) { this.state.format = val; this.state.savePath = ""; }
+    setFormat(val) {
+        this.state.format     = val;
+        this.state.savePath   = "";
+        this.state.fileHandle = null;
+    }
     setPages(val)  { this.state.selectedPages = val; }
     setLayout(val) { this.state.layout = val; }
 }

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Inherit stock.picking form (stock.view_picking_form).
+        Replaces BOTH existing Print buttons with the custom dialog.
+
+        Original buttons:
+          1) <button name="do_print_picking" string="Print" type="object"
+                     invisible="state != 'assigned'"/>
+             → Picking Operations sheet (ready to pick)
+
+          2) <button name="356" string="Print" type="action"
+                     invisible="state != 'done'"/>
+             → Delivery Slip / Receipt (after validation)
+
+        Python picks the correct report per state:
+          assigned → stock.report_picking
+          done     → stock.report_deliveryslip
+    -->
+    <record id="view_stock_picking_form_custom_print" model="ir.ui.view">
+        <field name="name">stock.picking.form.custom.print</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Replace do_print_picking (assigned state) -->
+            <xpath expr="//button[@name='do_print_picking']" position="replace">
+                <button name="action_custom_print_dialog"
+                        type="object"
+                        string="Print"
+                        groups="stock.group_stock_user"
+                        data-hotkey="o"
+                        invisible="state != 'assigned'"/>
+            </xpath>
+
+            <!-- Replace action 356 (done state) -->
+            <xpath expr="//button[@name='356'][@data-hotkey='o']" position="replace">
+                <button name="action_custom_print_dialog"
+                        type="object"
+                        string="Print"
+                        groups="base.group_user"
+                        data-hotkey="o"
+                        invisible="state != 'done'"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

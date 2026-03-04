@@ -10,6 +10,7 @@
         'views/account_payment_views.xml',
         'views/sale_order_views.xml',
         'views/purchase_order_views.xml',
+        'views/stock_picking_views.xml',
     ],
     'assets': {
         'web.assets_backend': [

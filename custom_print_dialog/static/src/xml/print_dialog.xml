@@ -2,7 +2,7 @@
 <templates xml:space="preserve">
 
     <t t-name="custom_print_dialog.PrintPreviewDialog">
-        <Dialog title="dialogTitle" size="'xl'" contentClass="'cpd-dialog-content p-0'" footer="false" onClose.bind="onClose">
+        <Dialog title="dialogTitle" size="'xl'" contentClass="'cpd-dialog-content p-0'" footer="false" close.bind="onClose">
 
             <div class="cpd-body d-flex" style="height: 82vh; overflow: hidden;">
 

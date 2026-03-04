@@ -48,37 +48,57 @@ patch(ListController.prototype, {
         }
     },
 
-    // Parse dd/mm/yy input -> "YYYY-MM-DD" for Odoo domain, or null
+    // Parse dd/mm/yy or dd/mm/yyyy -> { display: "dd/mm/yy", iso: "YYYY-MM-DD" } or null
     _psfParseDate(val) {
-        val = val.trim();
+        val = (val || "").trim();
         if (!val) return null;
-        // Accept dd/mm/yy or dd/mm/yyyy
         var m = val.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/);
         if (!m) return null;
         var day   = m[1].padStart(2, "0");
         var month = m[2].padStart(2, "0");
         var year  = m[3].length === 2 ? "20" + m[3] : m[3];
-        // Basic validity
         var d = new Date(year + "-" + month + "-" + day);
         if (isNaN(d.getTime())) return null;
-        return year + "-" + month + "-" + day;
+        var yy = year.slice(2);
+        return {
+            display: day + "/" + month + "/" + yy,   // dd/mm/yy  (matches x_created_date_display)
+            iso: year + "-" + month + "-" + day       // YYYY-MM-DD (for native input)
+        };
     },
 
-    // Auto-insert slashes as user types in date field (dd/mm/yy)
-    _psfDateMask(input) {
-        input.addEventListener("input", function(e) {
-            var v = input.value.replace(/[^\d]/g, "");
+    // Mask dd/mm/yy on text input and keep hidden native date input in sync
+    _psfDateMask(textInput, hiddenInput) {
+        textInput.addEventListener("input", function() {
+            var v = textInput.value.replace(/[^\d]/g, "");
             var out = "";
             if (v.length > 0) out += v.substring(0, 2);
             if (v.length >= 3) out += "/" + v.substring(2, 4);
-            if (v.length >= 5) out += "/" + v.substring(4, 8);
-            input.value = out;
+            if (v.length >= 5) out += "/" + v.substring(4, 6);
+            textInput.value = out;
+            // Sync hidden native picker
+            if (out.length === 8) {
+                var p = out.split("/");
+                if (p.length === 3) {
+                    hiddenInput.value = "20" + p[2] + "-" + p[1] + "-" + p[0];
+                }
+            } else {
+                hiddenInput.value = "";
+            }
         });
-        input.addEventListener("keydown", function(e) {
-            // Allow backspace to remove slash too
-            if (e.key === "Backspace" && input.value.slice(-1) === "/") {
-                input.value = input.value.slice(0, -1);
+        textInput.addEventListener("keydown", function(e) {
+            if (e.key === "Backspace" && textInput.value.slice(-1) === "/") {
+                textInput.value = textInput.value.slice(0, -1);
                 e.preventDefault();
+            }
+        });
+        // When user picks from calendar, update text input
+        hiddenInput.addEventListener("change", function() {
+            if (hiddenInput.value) {
+                var p = hiddenInput.value.split("-");
+                // p = [YYYY, MM, DD]
+                textInput.value = p[2] + "/" + p[1] + "/" + p[0].slice(2);
+            } else {
+                textInput.value = "";
             }
         });
     },
@@ -104,14 +124,36 @@ patch(ListController.prototype, {
 
             // --- Date From ---
             '    <div class="psf_group psf_date_group">',
-            '      <input type="text" id="psf_date_from_' + ts + '" class="psf_input psf_date_input"',
-            '             placeholder="Date From (dd/mm/yy)" maxlength="10" autocomplete="off"/>',
+            '      <div class="psf_date_wrap">',
+            '        <input type="text" id="psf_date_from_txt_' + ts + '" class="psf_input psf_date_input"',
+            '               placeholder="Date From (dd/mm/yy)" maxlength="8" autocomplete="off"/>',
+            '        <input type="date" id="psf_date_from_nat_' + ts + '" class="psf_date_native" tabindex="-1"/>',
+            '        <button type="button" class="psf_cal_btn" id="psf_cal_from_' + ts + '" title="Choose date">',
+            '          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"',
+            '               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">',
+            '            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>',
+            '            <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>',
+            '            <line x1="3" y1="10" x2="21" y2="10"/>',
+            '          </svg>',
+            '        </button>',
+            '      </div>',
             '    </div>',
 
             // --- Date To ---
             '    <div class="psf_group psf_date_group">',
-            '      <input type="text" id="psf_date_to_' + ts + '" class="psf_input psf_date_input"',
-            '             placeholder="Date To (dd/mm/yy)" maxlength="10" autocomplete="off"/>',
+            '      <div class="psf_date_wrap">',
+            '        <input type="text" id="psf_date_to_txt_' + ts + '" class="psf_input psf_date_input"',
+            '               placeholder="Date To (dd/mm/yy)" maxlength="8" autocomplete="off"/>',
+            '        <input type="date" id="psf_date_to_nat_' + ts + '" class="psf_date_native" tabindex="-1"/>',
+            '        <button type="button" class="psf_cal_btn" id="psf_cal_to_' + ts + '" title="Choose date">',
+            '          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"',
+            '               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">',
+            '            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>',
+            '            <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>',
+            '            <line x1="3" y1="10" x2="21" y2="10"/>',
+            '          </svg>',
+            '        </button>',
+            '      </div>',
             '    </div>',
 
             // --- Product ---
@@ -156,26 +198,36 @@ patch(ListController.prototype, {
 
         var get = function(id) { return document.getElementById(id); };
 
-        var dateFromInput = get("psf_date_from_" + ts);
-        var dateToInput   = get("psf_date_to_" + ts);
-        var productInput  = get("psf_product_" + ts);
-        var acBox         = get("psf_ac_" + ts);
-        var stockSelect   = get("psf_stock_" + ts);
-        var gtInput       = get("psf_gt_" + ts);
-        var ltInput       = get("psf_lt_" + ts);
-        var applyBtn      = get("psf_apply_" + ts);
-        var clearBtn      = get("psf_clear_" + ts);
+        var dateFromTxt  = get("psf_date_from_txt_" + ts);
+        var dateFromNat  = get("psf_date_from_nat_" + ts);
+        var calFromBtn   = get("psf_cal_from_" + ts);
+        var dateToTxt    = get("psf_date_to_txt_" + ts);
+        var dateToNat    = get("psf_date_to_nat_" + ts);
+        var calToBtn     = get("psf_cal_to_" + ts);
+        var productInput = get("psf_product_" + ts);
+        var acBox        = get("psf_ac_" + ts);
+        var stockSelect  = get("psf_stock_" + ts);
+        var gtInput      = get("psf_gt_" + ts);
+        var ltInput      = get("psf_lt_" + ts);
+        var applyBtn     = get("psf_apply_" + ts);
+        var clearBtn     = get("psf_clear_" + ts);
 
-        // Apply date masks
-        this._psfDateMask(dateFromInput);
-        this._psfDateMask(dateToInput);
+        // Wire up masks + calendar sync
+        this._psfDateMask(dateFromTxt, dateFromNat);
+        this._psfDateMask(dateToTxt,   dateToNat);
 
-        // Numeric-only validation for gt / lt inputs
+        // Calendar button opens native date picker
+        calFromBtn.addEventListener("click", function() {
+            try { dateFromNat.showPicker(); } catch(e) { dateFromNat.click(); }
+        });
+        calToBtn.addEventListener("click", function() {
+            try { dateToNat.showPicker(); } catch(e) { dateToNat.click(); }
+        });
+
+        // Numeric-only for qty inputs
         function numericOnly(el) {
             el.addEventListener("input", function() {
-                if (!/^-?\d*\.?\d*$/.test(this.value)) {
-                    this.value = this.value.slice(0, -1);
-                }
+                if (!/^-?\d*\.?\d*$/.test(this.value)) this.value = this.value.slice(0, -1);
             });
         }
         numericOnly(gtInput);
@@ -183,30 +235,29 @@ patch(ListController.prototype, {
 
         var self = this;
 
-        // Apply domain
         var doApply = function() {
             var domain = [];
             var errors = [];
 
-            // Date From
-            var dfVal = dateFromInput.value.trim();
-            if (dfVal) {
-                var dfParsed = self._psfParseDate(dfVal);
+            // Date From -> filter on x_created_date_display >= "dd/mm/yy"
+            var dfTxt = dateFromTxt.value.trim();
+            if (dfTxt) {
+                var dfParsed = self._psfParseDate(dfTxt);
                 if (!dfParsed) {
                     errors.push("Invalid 'Date From'. Use dd/mm/yy.");
                 } else {
-                    domain.push(["write_date", ">=", dfParsed + " 00:00:00"]);
+                    domain.push(["x_created_date_display", ">=", dfParsed.display]);
                 }
             }
 
-            // Date To
-            var dtVal = dateToInput.value.trim();
-            if (dtVal) {
-                var dtParsed = self._psfParseDate(dtVal);
+            // Date To -> filter on x_created_date_display <= "dd/mm/yy"
+            var dtTxt = dateToTxt.value.trim();
+            if (dtTxt) {
+                var dtParsed = self._psfParseDate(dtTxt);
                 if (!dtParsed) {
                     errors.push("Invalid 'Date To'. Use dd/mm/yy.");
                 } else {
-                    domain.push(["write_date", "<=", dtParsed + " 23:59:59"]);
+                    domain.push(["x_created_date_display", "<=", dtParsed.display]);
                 }
             }
 
@@ -234,15 +285,11 @@ patch(ListController.prototype, {
 
             // On Hand greater than
             var gt = parseFloat(gtInput.value);
-            if (gtInput.value.trim() && !isNaN(gt)) {
-                domain.push(["qty_available", ">", gt]);
-            }
+            if (gtInput.value.trim() && !isNaN(gt)) domain.push(["qty_available", ">", gt]);
 
             // On Hand less than
             var lt = parseFloat(ltInput.value);
-            if (ltInput.value.trim() && !isNaN(lt)) {
-                domain.push(["qty_available", "<", lt]);
-            }
+            if (ltInput.value.trim() && !isNaN(lt)) domain.push(["qty_available", "<", lt]);
 
             if (self.model && self.model.load) {
                 self.model.load({ domain: domain }).catch(function(err) {
@@ -252,10 +299,9 @@ patch(ListController.prototype, {
             }
         };
 
-        // Clear
         var doClear = function() {
-            dateFromInput.value = "";
-            dateToInput.value = "";
+            dateFromTxt.value = ""; dateFromNat.value = "";
+            dateToTxt.value   = ""; dateToNat.value   = "";
             productInput.value = "";
             productInput.removeAttribute("data-product-id");
             acBox.style.display = "none";
@@ -275,10 +321,9 @@ patch(ListController.prototype, {
         applyBtn.addEventListener("click", doApply);
         clearBtn.addEventListener("click", doClear);
 
-        // Keyboard shortcuts
         this._psfKeyHandler = function(e) {
             if (e.key === "Enter") {
-                var acOpen = acBox.style.display !== "none";
+                var acOpen   = acBox.style.display !== "none";
                 var acActive = acBox.querySelector(".psf_ac_item.active");
                 if (acOpen && acActive) return;
                 e.preventDefault();

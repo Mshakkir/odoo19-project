@@ -24,9 +24,8 @@ export class PrintPreviewDialog extends Component {
         const report = this.props.reportName || "account.report_invoice";
         const id     = this.props.recordId;
 
-        // Standard Odoo URL for iframe preview and print — always works
-        this.pdfPreviewUrl = `/report/pdf/${report}/${id}`;
-        // Standard Odoo download URL for PDF (with attachment header)
+        // Standard Odoo URL — iframe preview and print
+        this.pdfPreviewUrl  = `/report/pdf/${report}/${id}`;
         this.pdfDownloadUrl = `/report/pdf/${report}/${id}?download=true`;
 
         this.state = useState({
@@ -36,7 +35,7 @@ export class PrintPreviewDialog extends Component {
             customPages:   "",
             layout:        "portrait",
             copies:        1,
-            format:        "pdf",
+            format:        "pdf",     // "pdf" or "excel"
             fileHandle:    null,
             savePath:      "",
             saving:        false,
@@ -48,16 +47,18 @@ export class PrintPreviewDialog extends Component {
 
     // ── Choose save location ──────────────────────────────────────────────────
     async onChooseLocation() {
-        const isXml = this.state.format === "xml";
-        const ext   = isXml ? "xml" : "pdf";
-        const mime  = isXml ? "application/xml" : "application/pdf";
-        const name  = `${this.props.recordName || "document"}.${ext}`;
+        const isExcel = this.state.format === "excel";
+        const ext     = isExcel ? "xlsx" : "pdf";
+        const mime    = isExcel
+            ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            : "application/pdf";
+        const name    = `${this.props.recordName || "document"}.${ext}`;
 
         if (window.showSaveFilePicker) {
             try {
                 const handle = await window.showSaveFilePicker({
                     suggestedName: name,
-                    types: [{ description: isXml ? "XML File" : "PDF Document",
+                    types: [{ description: isExcel ? "Excel Workbook" : "PDF Document",
                                accept: { [mime]: [`.${ext}`] } }],
                 });
                 this.state.fileHandle = handle;
@@ -73,33 +74,20 @@ export class PrintPreviewDialog extends Component {
 
     // ── Save ─────────────────────────────────────────────────────────────────
     async onSave() {
-        const isXml    = this.state.format === "xml";
-        const ext      = isXml ? "xml" : "pdf";
+        const isExcel  = this.state.format === "excel";
+        const ext      = isExcel ? "xlsx" : "pdf";
         const fileName = `${this.props.recordName || "document"}.${ext}`;
 
         this.state.saving = true;
         try {
             let blob;
 
-            if (isXml) {
-                // XML: use Odoo's JSON-RPC (guaranteed to work on HTTPS — same
-                // session, no cross-origin issues, no custom controller needed)
-                const result = await this.orm.call(
-                    "ir.actions.report",
-                    "get_xml_export",
-                    [this.props.reportName, [this.props.recordId]]
-                );
-                // result is a base64-encoded XML string returned by Python
-                const xmlString = result.xml_content || result;
-                blob = new Blob([xmlString], { type: "application/xml" });
-
+            if (isExcel) {
+                blob = await this._generateExcel();
             } else {
-                // PDF: fetch from standard Odoo report URL
-                // Use XMLHttpRequest with withCredentials for HTTPS session cookie
                 blob = await this._xhrBlob(this.pdfDownloadUrl);
             }
 
-            // Write to chosen location or trigger download
             await this._writeBlob(blob, fileName);
 
         } catch (err) {
@@ -110,40 +98,59 @@ export class PrintPreviewDialog extends Component {
         }
     }
 
-    // XHR with credentials — works on HTTPS
+    // ── Generate Excel via ORM + SheetJS ─────────────────────────────────────
+    async _generateExcel() {
+        // 1. Fetch record data via ORM (JSON-RPC — works on HTTPS, no controller needed)
+        const rows = await this.orm.call(
+            "ir.actions.report",
+            "get_excel_export_data",
+            [this.props.reportName, [this.props.recordId]]
+        );
+        // rows = { headers: [...], rows: [[...], [...]] }
+
+        // 2. Build workbook with SheetJS (loaded from CDN in assets)
+        const XLSX = window.XLSX;
+        if (!XLSX) throw new Error("SheetJS (XLSX) not loaded");
+
+        const wb  = XLSX.utils.book_new();
+        const ws  = XLSX.utils.aoa_to_sheet([rows.headers, ...rows.rows]);
+        XLSX.utils.book_append_sheet(wb, ws, rows.sheet_name || "Report");
+
+        // 3. Return as Blob
+        const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+        return new Blob([wbout], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        });
+    }
+
+    // ── XHR with credentials (HTTPS safe) ────────────────────────────────────
     _xhrBlob(url) {
         return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
             xhr.open("GET", url, true);
-            xhr.responseType = "blob";
+            xhr.responseType    = "blob";
             xhr.withCredentials = true;
-            xhr.onload = () => {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    resolve(xhr.response);
-                } else {
-                    reject(new Error(`Server returned ${xhr.status}`));
-                }
-            };
+            xhr.onload  = () => xhr.status < 300
+                ? resolve(xhr.response)
+                : reject(new Error(`Server returned ${xhr.status}`));
             xhr.onerror = () => reject(new Error("Network error"));
             xhr.send();
         });
     }
 
-    // Write blob to fileHandle (Chrome) or trigger anchor download (all browsers)
+    // ── Write blob to disk ────────────────────────────────────────────────────
     async _writeBlob(blob, fileName) {
         if (this.state.fileHandle) {
             try {
                 const writable = await this.state.fileHandle.createWritable();
                 await writable.write(blob);
                 await writable.close();
-                this.notification.add(`Saved to: ${this.state.fileHandle.name}`,
-                    { type: "success" });
+                this.notification.add(`Saved: ${this.state.fileHandle.name}`, { type: "success" });
                 return;
             } catch (err) {
                 console.warn("createWritable failed, using download:", err);
             }
         }
-        // Blob URL download — no re-request, no "File wasn't available" error
         const blobUrl = URL.createObjectURL(blob);
         const link    = document.createElement("a");
         link.href     = blobUrl;
@@ -152,7 +159,7 @@ export class PrintPreviewDialog extends Component {
         link.click();
         document.body.removeChild(link);
         setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-        this.notification.add(`Download started`, { type: "success" });
+        this.notification.add("Download started", { type: "success" });
     }
 
     onPrint() {
@@ -174,16 +181,17 @@ export class PrintPreviewDialog extends Component {
 
     get saveButtonLabel() {
         if (this.state.saving) return "Saving...";
-        return this.state.format === "xml" ? "Save as XML" : "Save as PDF";
+        return this.state.format === "excel" ? "Save as Excel" : "Save as PDF";
     }
 
     get saveButtonIcon() {
         if (this.state.saving) return "fa fa-spinner fa-spin";
-        return this.state.format === "xml" ? "fa fa-code" : "fa fa-file-pdf-o";
+        return this.state.format === "excel" ? "fa fa-file-excel-o" : "fa fa-file-pdf-o";
     }
 
     get locationPlaceholder() {
-        return `${this.props.recordName || "document"}.${this.state.format}`;
+        const ext = this.state.format === "excel" ? "xlsx" : "pdf";
+        return `${this.props.recordName || "document"}.${ext}`;
     }
 
     setFormat(val) {

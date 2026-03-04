@@ -66,7 +66,7 @@
                                         t-on-change="(ev) => this.setFormat(ev.target.value)"
                                         t-att-disabled="state.saving">
                                     <option value="pdf" t-att-selected="state.format === 'pdf'">Save as PDF</option>
-                                    <option value="xml" t-att-selected="state.format === 'xml'">Save as XML</option>
+                                    <option value="excel" t-att-selected="state.format === 'excel'">Save as Excel</option>
                                 </select>
                             </div>
                         </div>

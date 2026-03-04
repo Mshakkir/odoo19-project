@@ -6,48 +6,63 @@ class IrActionsReport(models.Model):
     _inherit = "ir.actions.report"
 
     @api.model
-    def get_xml_export(self, report_name, record_ids):
+    def get_excel_export_data(self, report_name, record_ids):
         """
-        Called via JSON-RPC from the print dialog JS to generate XML content.
-        Returns XML as a string — avoids any HTTP controller routing issues.
+        Called via ORM RPC from the print dialog to get structured data for Excel.
+        Returns a dict with headers and rows that SheetJS uses to build the .xlsx.
+        Works for any report model — extracts field values from the record.
         """
         report_action = self.search([("report_name", "=", report_name)], limit=1)
+        if not report_action:
+            return {"headers": ["Error"], "rows": [["Report not found"]], "sheet_name": "Report"}
 
-        # Try native qweb-xml renderer (e.g. e-invoicing reports)
-        if report_action and report_action.report_type == "qweb-xml":
-            xml_bytes, _ctype = report_action._render_qweb_xml(report_name, record_ids)
-            return xml_bytes.decode("utf-8")
+        model_name = report_action.model
+        records    = self.env[model_name].browse(record_ids)
 
-        # Fallback: export record fields as structured XML
-        model_name = report_action.model if report_action else None
-        if not model_name:
-            return '<?xml version="1.0"?><error>XML export not available for this report</error>'
+        # Build column list — skip binary/relational fields and internal fields
+        SKIP_TYPES   = {"many2many", "one2many", "binary", "html", "serialized"}
+        SKIP_PREFIXES = ("message_", "activity_", "website_", "access_")
 
-        records = self.env[model_name].browse(record_ids)
-        xml_lines = ['<?xml version="1.0" encoding="UTF-8"?>', "<records>"]
+        fields_meta = [
+            (fname, field)
+            for fname, field in records._fields.items()
+            if field.type not in SKIP_TYPES
+            and not fname.startswith(SKIP_PREFIXES)
+            and not fname.startswith("_")
+        ]
+
+        headers = [field.string or fname for fname, field in fields_meta]
+        rows    = []
 
         for record in records:
-            xml_lines.append(f'  <record model="{model_name}" id="{record.id}">')
-            for field_name, field in record._fields.items():
-                if field.type in ("many2many", "one2many", "binary"):
-                    continue
+            row = []
+            for fname, field in fields_meta:
                 try:
-                    val = record[field_name]
-                    if hasattr(val, "name"):
-                        val = val.name or ""
-                    elif hasattr(val, "id"):
-                        val = str(val.id)
+                    val = record[fname]
+                    if val is False or val is None:
+                        val = ""
+                    elif field.type in ("many2one",):
+                        val = val.display_name if val else ""
+                    elif field.type == "date":
+                        val = str(val) if val else ""
+                    elif field.type == "datetime":
+                        val = str(val) if val else ""
+                    elif field.type == "boolean":
+                        val = "Yes" if val else "No"
+                    elif field.type in ("float", "monetary", "integer"):
+                        val = val  # keep numeric for Excel
                     else:
-                        val = str(val) if val is not False and val is not None else ""
-                    safe = (str(val)
-                            .replace("&", "&amp;")
-                            .replace("<", "&lt;")
-                            .replace(">", "&gt;")
-                            .replace('"', "&quot;"))
-                    xml_lines.append(f'    <field name="{field_name}">{safe}</field>')
+                        val = str(val)
                 except Exception:
-                    pass
-            xml_lines.append("  </record>")
+                    val = ""
+                row.append(val)
+            rows.append(row)
 
-        xml_lines.append("</records>")
-        return "\n".join(xml_lines)
+        # Use the record name or model as sheet name (max 31 chars for Excel)
+        sheet_name = (report_action.name or model_name)[:31]
+
+        return {
+            "headers":    headers,
+            "rows":       rows,
+            "sheet_name": sheet_name,
+        }

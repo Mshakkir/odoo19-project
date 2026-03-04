@@ -21,21 +21,27 @@ export class PrintPreviewDialog extends Component {
         this.iframeRef    = useRef("previewIframe");
 
         const report = this.props.reportName || "account.report_invoice";
-        this.pdfPreviewUrl  = `/custom_print/report/pdf/${report}/${this.props.recordId}`;
-        this.pdfDownloadUrl = `${this.pdfPreviewUrl}?download=true`;
-        this.xmlDownloadUrl = `/custom_print/report/xml/${report}/${this.props.recordId}`;
+        const id     = this.props.recordId;
+
+        // ── Odoo's standard PDF URL for the iframe preview ───────────────────
+        // This always works for any report — it is the same URL Odoo uses
+        // internally when you click Print normally.
+        this.pdfPreviewUrl = `/report/pdf/${report}/${id}`;
+
+        // ── Custom controller URLs for Save (query-param form, no dot issues) ─
+        const base          = `/custom_print/report/pdf?report_name=${encodeURIComponent(report)}&record_id=${id}`;
+        this.pdfDownloadUrl = `${base}&download=true`;
+        this.xmlDownloadUrl = `/custom_print/report/xml?report_name=${encodeURIComponent(report)}&record_id=${id}`;
 
         this.state = useState({
-            loading:        true,
-            loadError:      false,
-            selectedPages:  "all",
-            customPages:    "",
-            layout:         "portrait",
-            copies:         1,
-            // "pdf" or "xml"
-            format:         "pdf",
-            // Chosen save path shown in the location input (display only)
-            savePath:       "",
+            loading:       true,
+            loadError:     false,
+            selectedPages: "all",
+            customPages:   "",
+            layout:        "portrait",
+            copies:        1,
+            format:        "pdf",   // "pdf" or "xml"
+            savePath:      "",
         });
     }
 
@@ -43,89 +49,70 @@ export class PrintPreviewDialog extends Component {
     onIframeLoad()  { this.state.loading = false; this.state.loadError = false; }
     onIframeError() { this.state.loading = false; this.state.loadError = true; }
 
-    // ── File / folder picker ──────────────────────────────────────────────────
-    /**
-     * Uses the browser's native File System Access API (showSaveFilePicker)
-     * when available (Chrome/Edge 86+). Falls back to a standard anchor
-     * download for Firefox / Safari.
-     *
-     * This IS the "destination location" picker — the user sees a native
-     * OS save-dialog to choose folder + filename before the file is written.
-     */
+    // ── Save with OS file picker ──────────────────────────────────────────────
     async onSave() {
-        const isXml    = this.state.format === "xml";
-        const ext      = isXml ? "xml"  : "pdf";
-        const mime     = isXml ? "application/xml" : "application/pdf";
-        const url      = isXml ? this.xmlDownloadUrl : this.pdfDownloadUrl;
-        const baseName = `${this.props.recordName || "document"}.${ext}`;
+        const isXml   = this.state.format === "xml";
+        const ext     = isXml ? "xml" : "pdf";
+        const mime    = isXml ? "application/xml" : "application/pdf";
+        const url     = isXml ? this.xmlDownloadUrl : this.pdfDownloadUrl;
+        const base    = `${this.props.recordName || "document"}.${ext}`;
 
-        // ── Modern path: showSaveFilePicker (Chrome / Edge) ──────────────────
+        // Chrome/Edge 86+: native OS Save As dialog
         if (window.showSaveFilePicker) {
             try {
-                const fileHandle = await window.showSaveFilePicker({
-                    suggestedName: baseName,
-                    types: [{
-                        description: isXml ? "XML File" : "PDF Document",
-                        accept: { [mime]: [`.${ext}`] },
-                    }],
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: base,
+                    types: [{ description: isXml ? "XML File" : "PDF Document",
+                               accept: { [mime]: [`.${ext}`] } }],
                 });
-
-                // Show chosen path in the input field
-                this.state.savePath = fileHandle.name;
-
-                // Fetch the file content and write it
-                const response = await fetch(url);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const blob       = await response.blob();
-                const writable   = await fileHandle.createWritable();
+                this.state.savePath = handle.name;
+                const resp     = await fetch(url);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const blob     = await resp.blob();
+                const writable = await handle.createWritable();
                 await writable.write(blob);
                 await writable.close();
-
                 this.notification.add(
-                    `${ext.toUpperCase()} saved to: ${fileHandle.name}`,
+                    `${ext.toUpperCase()} saved: ${handle.name}`,
                     { type: "success", sticky: false }
                 );
                 return;
-
             } catch (err) {
-                // User cancelled the picker → AbortError, silently ignore
                 if (err.name === "AbortError") return;
-                // Any other error → fall through to anchor download
                 console.warn("showSaveFilePicker failed, falling back:", err);
             }
         }
 
-        // ── Fallback path: anchor download (Firefox / Safari) ────────────────
-        // Browser will show its own "Save As" dialog or download bar.
+        // Firefox / Safari fallback: standard anchor download
         const link    = document.createElement("a");
         link.href     = url;
-        link.download = baseName;
+        link.download = base;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        this.state.savePath = baseName;
+        this.state.savePath = base;
         this.notification.add(
             `${ext.toUpperCase()} download started`,
             { type: "success", sticky: false }
         );
     }
 
-    /** Print button — opens PDF in new tab and triggers OS print dialog */
+    // Print: open the standard Odoo PDF URL in new tab → OS print dialog
     onPrint() {
-        const printWin = window.open(this.pdfPreviewUrl, "_blank");
-        if (!printWin) {
+        const win = window.open(this.pdfPreviewUrl, "_blank");
+        if (!win) {
             this.notification.add(
                 "Pop-up blocked. Please allow pop-ups and try again.",
                 { type: "warning" }
             );
             return;
         }
-        printWin.onload = () => setTimeout(() => { printWin.focus(); printWin.print(); }, 600);
+        win.onload = () => setTimeout(() => { win.focus(); win.print(); }, 600);
     }
 
     onClose() { this.props.close(); }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // ── Computed helpers ──────────────────────────────────────────────────────
     get dialogTitle() {
         const label = this.props.docLabel || "Document";
         const name  = this.props.recordName || "";
@@ -135,19 +122,16 @@ export class PrintPreviewDialog extends Component {
     get saveButtonLabel() {
         return this.state.format === "xml" ? "Save as XML" : "Save as PDF";
     }
-
     get saveButtonIcon() {
         return this.state.format === "xml" ? "fa fa-code" : "fa fa-file-pdf-o";
     }
-
     get locationPlaceholder() {
-        const ext = this.state.format === "xml" ? "xml" : "pdf";
-        return `${this.props.recordName || "document"}.${ext}`;
+        return `${this.props.recordName || "document"}.${this.state.format}`;
     }
 
-    setFormat(val)  { this.state.format = val; this.state.savePath = ""; }
-    setPages(val)   { this.state.selectedPages = val; }
-    setLayout(val)  { this.state.layout = val; }
+    setFormat(val) { this.state.format = val; this.state.savePath = ""; }
+    setPages(val)  { this.state.selectedPages = val; }
+    setLayout(val) { this.state.layout = val; }
 }
 
 // ── Register client action ────────────────────────────────────────────────────
@@ -163,7 +147,6 @@ registry.category("actions").add(
         });
     }
 );
-
 
 
 

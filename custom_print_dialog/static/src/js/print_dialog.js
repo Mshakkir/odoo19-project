@@ -18,7 +18,7 @@ export class PrintPreviewDialog extends Component {
 
     setup() {
         this.notification = useService("notification");
-        this.rpc          = useService("rpc");
+        this.orm          = useService("orm");
         this.iframeRef    = useRef("previewIframe");
 
         const report = this.props.reportName || "account.report_invoice";
@@ -84,12 +84,11 @@ export class PrintPreviewDialog extends Component {
             if (isXml) {
                 // XML: use Odoo's JSON-RPC (guaranteed to work on HTTPS — same
                 // session, no cross-origin issues, no custom controller needed)
-                const result = await this.rpc("/web/dataset/call_kw", {
-                    model:  "ir.actions.report",
-                    method: "get_xml_export",
-                    args:   [this.props.reportName, [this.props.recordId]],
-                    kwargs: {},
-                });
+                const result = await this.orm.call(
+                    "ir.actions.report",
+                    "get_xml_export",
+                    [this.props.reportName, [this.props.recordId]]
+                );
                 // result is a base64-encoded XML string returned by Python
                 const xmlString = result.xml_content || result;
                 blob = new Blob([xmlString], { type: "application/xml" });

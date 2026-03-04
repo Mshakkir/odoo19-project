@@ -1,19 +1,10 @@
 # -*- coding: utf-8 -*-
 from odoo import models
 
-# Labels per picking_type_code
 PICKING_TYPE_LABEL = {
     "outgoing": "Delivery Order",
     "incoming": "Receipt",
     "internal": "Internal Transfer",
-}
-
-# Map state+type to the correct report
-# - assigned (ready)  → picking operations sheet  → stock.report_picking
-# - done              → delivery slip / receipt   → stock.report_deliveryslip
-PICKING_STATE_REPORT = {
-    "assigned": "stock.report_picking",
-    "done":     "stock.report_deliveryslip",
 }
 
 
@@ -24,19 +15,20 @@ class StockPicking(models.Model):
         """
         Opens the custom print preview dialog for a stock picking.
 
-        Replaces two original buttons:
-          - do_print_picking (object)  → state == 'assigned'
-            uses: stock.report_picking   (Picking Operations sheet)
-          - 356 (action)               → state == 'done'
-            uses: stock.report_deliveryslip  (Delivery Slip / Receipt)
+        report_action.xml overrides stock.action_report_delivery so that
+        its report_name = 'stock.report_delivery_document' (custom template).
+
+        Both assigned and done states use this same report.
+        For picking operations (assigned), the same delivery document is used.
         """
         self.ensure_one()
 
-        report_name = PICKING_STATE_REPORT.get(self.state, "stock.report_deliveryslip")
-        doc_label   = PICKING_TYPE_LABEL.get(
-            self.picking_type_code,
-            "Transfer"
-        )
+        # Your report_action.xml sets stock.action_report_delivery
+        # to use report_name = 'stock.report_delivery_document'
+        # This is correct for both assigned (ready) and done states.
+        report_name = "stock.report_delivery_document"
+
+        doc_label   = PICKING_TYPE_LABEL.get(self.picking_type_code, "Transfer")
         record_name = self.name or f"Transfer-{self.id}"
 
         return {

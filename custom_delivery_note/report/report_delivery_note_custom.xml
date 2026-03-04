@@ -315,7 +315,7 @@
                            style="border-collapse:collapse; font-size:14px; margin-top:15px; border:1px solid #000;"
                            cellpadding="5">
                         <tr>
-                            <td width="33%" style="padding-left:3px;">
+                            <td width="33%" style="padding-left:3px; border:1px solid #000;">
                                 <strong>Delivered by :</strong>
                                 Administrator
                                 <br/>
@@ -323,7 +323,7 @@
                                     سلمت بواسطة
                                 </span>
                             </td>
-                            <td width="33%" style="padding-left:3px;">
+                            <td width="33%" style="padding-left:3px; border:1px solid #000;">
                                 <strong>Received By :</strong>
                                 <br/>
                                 <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl;">
@@ -341,25 +341,25 @@
                             </td>
                         </tr>
                         <tr>
-                            <td style="padding-left:3px;">
+                            <td style="padding-left:3px; border:1px solid #000;">
                                 <strong>Name :</strong>
                                 Administrator
                                 <br/>
                                 <span>الاسم</span>
                             </td>
-                            <td style="padding-left:3px;">
+                            <td style="padding-left:3px; border:1px solid #000;">
                                 <strong>Name :</strong>
                                 <br/>
                                 <span>الاسم</span>
                             </td>
                         </tr>
                         <tr>
-                            <td style="padding-left:3px;">
+                            <td style="padding-left:3px; border:1px solid #000;">
                                 <strong>Signature :</strong>
                                 <br/>
                                 <span>التوقيع</span>
                             </td>
-                            <td style="padding-left:3px;">
+                            <td style="padding-left:3px; border:1px solid #000;">
                                 <strong>Signature :</strong>
                                 <br/>
                                 <span>التوقيع</span>

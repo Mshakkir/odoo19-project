@@ -23,34 +23,31 @@ export class PrintPreviewDialog extends Component {
         const report = this.props.reportName || "account.report_invoice";
         const id     = this.props.recordId;
 
-        // Standard Odoo URL — used for iframe preview AND print
+        // Standard Odoo URL — iframe preview + print
         this.pdfPreviewUrl = `/report/pdf/${report}/${id}`;
 
-        // Standard Odoo download URL — used for actual file fetch
-        // This is guaranteed to work (same URL Odoo uses for its own Print button)
-        this.pdfFetchUrl  = `/report/pdf/${report}/${id}`;
-        this.xmlFetchUrl  = `/custom_print/report/xml?report_name=${encodeURIComponent(report)}&record_id=${id}`;
+        // Download URLs
+        this.pdfFetchUrl = `/report/pdf/${report}/${id}`;
+        this.xmlFetchUrl = `/custom_print/report/xml?report_name=${encodeURIComponent(report)}&record_id=${id}&download=true`;
 
         this.state = useState({
-            loading:       true,
-            loadError:     false,
+            loading:      true,
+            loadError:    false,
             selectedPages: "all",
-            customPages:   "",
-            layout:        "portrait",
-            copies:        1,
-            format:        "pdf",
-            // File handle chosen by user via showSaveFilePicker
-            fileHandle:    null,
-            savePath:      "",
+            customPages:  "",
+            layout:       "portrait",
+            copies:       1,
+            format:       "pdf",
+            fileHandle:   null,
+            savePath:     "",
+            saving:       false,
         });
     }
 
     onIframeLoad()  { this.state.loading = false; this.state.loadError = false; }
     onIframeError() { this.state.loading = false; this.state.loadError = true; }
 
-    // ── STEP 1: Choose location (folder icon) ─────────────────────────────────
-    // Only opens the OS file picker and stores the handle.
-    // Does NOT download anything yet.
+    // ── Choose save location (folder icon) ───────────────────────────────────
     async onChooseLocation() {
         const isXml = this.state.format === "xml";
         const ext   = isXml ? "xml" : "pdf";
@@ -61,49 +58,52 @@ export class PrintPreviewDialog extends Component {
             try {
                 const handle = await window.showSaveFilePicker({
                     suggestedName: name,
-                    types: [{
-                        description: isXml ? "XML File" : "PDF Document",
-                        accept: { [mime]: [`.${ext}`] },
-                    }],
+                    types: [{ description: isXml ? "XML File" : "PDF Document",
+                               accept: { [mime]: [`.${ext}`] } }],
                 });
                 this.state.fileHandle = handle;
                 this.state.savePath   = handle.name;
             } catch (err) {
-                // User cancelled — do nothing
-                if (err.name !== "AbortError") {
-                    console.warn("File picker error:", err);
-                }
+                if (err.name !== "AbortError") console.warn("File picker error:", err);
             }
         } else {
-            // Firefox/Safari: can't pre-pick location, inform user
             this.state.savePath = name;
-            this.notification.add(
-                "Your browser will save to the Downloads folder automatically.",
-                { type: "info", sticky: false }
-            );
+            this.notification.add("Your browser will save to the Downloads folder.", { type: "info" });
         }
     }
 
-    // ── STEP 2: Save as PDF / XML button ─────────────────────────────────────
-    // Fetches the file and writes it to the chosen location (or downloads it).
+    // ── Fetch file as blob using XMLHttpRequest (works on HTTPS with sessions) ─
+    _fetchBlob(url) {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.responseType = "blob";
+            // withCredentials ensures the Odoo session cookie is sent on HTTPS
+            xhr.withCredentials = true;
+            xhr.onload = () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    resolve(xhr.response);
+                } else {
+                    reject(new Error(`Server returned ${xhr.status}: ${xhr.statusText}`));
+                }
+            };
+            xhr.onerror = () => reject(new Error("Network error — check your connection"));
+            xhr.send();
+        });
+    }
+
+    // ── Save as PDF / XML ────────────────────────────────────────────────────
     async onSave() {
         const isXml    = this.state.format === "xml";
         const ext      = isXml ? "xml" : "pdf";
         const fetchUrl = isXml ? this.xmlFetchUrl : this.pdfFetchUrl;
         const fileName = `${this.props.recordName || "document"}.${ext}`;
 
-        // Show loading state on button
         this.state.saving = true;
-
         try {
-            // Fetch the file content from Odoo
-            const resp = await fetch(fetchUrl, { credentials: "same-origin" });
-            if (!resp.ok) {
-                throw new Error(`Server returned ${resp.status}: ${resp.statusText}`);
-            }
-            const blob = await resp.blob();
+            const blob = await this._fetchBlob(fetchUrl);
 
-            // ── If user pre-selected a location via showSaveFilePicker ────────
+            // ── Chrome/Edge: write directly to chosen location ───────────────
             if (this.state.fileHandle) {
                 try {
                     const writable = await this.state.fileHandle.createWritable();
@@ -115,14 +115,13 @@ export class PrintPreviewDialog extends Component {
                     );
                     return;
                 } catch (err) {
-                    console.warn("createWritable failed, falling back to download:", err);
-                    // Fall through to anchor download
+                    console.warn("createWritable failed, falling back:", err);
                 }
             }
 
-            // ── showSaveFilePicker not used / failed → anchor download ────────
-            // Creates a blob URL so the file content is served from memory,
-            // not from the server again — avoids "wasn't available on site" error.
+            // ── All browsers: blob URL anchor download ───────────────────────
+            // Creates object URL from already-fetched blob — no re-request,
+            // no "File wasn't available on site" error
             const blobUrl = URL.createObjectURL(blob);
             const link    = document.createElement("a");
             link.href     = blobUrl;
@@ -130,33 +129,21 @@ export class PrintPreviewDialog extends Component {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            // Revoke after a short delay so the browser has time to start download
             setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-
-            this.notification.add(
-                `${ext.toUpperCase()} download started`,
-                { type: "success", sticky: false }
-            );
+            this.notification.add(`${ext.toUpperCase()} download started`, { type: "success" });
 
         } catch (err) {
             console.error("Save failed:", err);
-            this.notification.add(
-                `Save failed: ${err.message}`,
-                { type: "danger", sticky: false }
-            );
+            this.notification.add(`Save failed: ${err.message}`, { type: "danger" });
         } finally {
             this.state.saving = false;
         }
     }
 
-    // Print — open standard Odoo PDF in new tab → OS print dialog
     onPrint() {
         const win = window.open(this.pdfPreviewUrl, "_blank");
         if (!win) {
-            this.notification.add(
-                "Pop-up blocked. Please allow pop-ups and try again.",
-                { type: "warning" }
-            );
+            this.notification.add("Pop-up blocked. Please allow pop-ups.", { type: "warning" });
             return;
         }
         win.onload = () => setTimeout(() => { win.focus(); win.print(); }, 600);
@@ -164,7 +151,6 @@ export class PrintPreviewDialog extends Component {
 
     onClose() { this.props.close(); }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
     get dialogTitle() {
         const label = this.props.docLabel || "Document";
         const name  = this.props.recordName || "";
@@ -194,7 +180,6 @@ export class PrintPreviewDialog extends Component {
     setLayout(val) { this.state.layout = val; }
 }
 
-// ── Register client action ────────────────────────────────────────────────────
 registry.category("actions").add(
     "custom_print_dialog.open_print_dialog",
     async (env, action) => {
@@ -207,7 +192,6 @@ registry.category("actions").add(
         });
     }
 );
-
 
 
 

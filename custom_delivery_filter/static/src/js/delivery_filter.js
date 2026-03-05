@@ -187,8 +187,9 @@ patch(ListController.prototype, {
         const toId = `delivery_date_to_${timestamp}`;
         const numberId = `delivery_number_${timestamp}`;
         const partnerId = `delivery_partner_${timestamp}`;
-        const locationId = `delivery_location_${timestamp}`;
+        const customerRefId = `delivery_customer_ref_${timestamp}`;
         const sourceDocId = `delivery_source_doc_${timestamp}`;
+        const locationId = `delivery_location_${timestamp}`;
         const responsibleId = `delivery_responsible_${timestamp}`;
         const statusId = `delivery_status_${timestamp}`;
         const applyId = `delivery_apply_${timestamp}`;
@@ -196,8 +197,9 @@ patch(ListController.prototype, {
 
         const today = new Date();
         const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-        const dateFrom = firstDay.toISOString().split('T')[0];
-        const dateTo = today.toISOString().split('T')[0];
+        const pad = n => String(n).padStart(2, '0');
+        const dateFrom = `${pad(firstDay.getDate())}/${pad(firstDay.getMonth()+1)}/${String(firstDay.getFullYear()).slice(-2)}`;
+        const dateTo = `${pad(today.getDate())}/${pad(today.getMonth()+1)}/${String(today.getFullYear()).slice(-2)}`;
 
         // Build location options
         const locationOptions = this._deliveryFilterData.locations
@@ -207,13 +209,13 @@ patch(ListController.prototype, {
         const filterHTML = `
             <div class="delivery_filter_container">
                 <div class="date_filter_wrapper">
-                    <!-- Date Range Filter -->
+                    <!-- Date Range Filter (DD/MM/YY) -->
                     <div class="filter_group date_group">
                         <label class="filter_label">Scheduled Date:</label>
                         <div class="date_input_group">
-                            <input type="date" class="form-control date_input" id="${fromId}" value="${dateFrom}" placeholder="From" />
+                            <input type="text" class="form-control date_input" id="${fromId}" value="${dateFrom}" placeholder="DD/MM/YY" maxlength="8" />
                             <span class="date_separator">→</span>
-                            <input type="date" class="form-control date_input" id="${toId}" value="${dateTo}" placeholder="To" />
+                            <input type="text" class="form-control date_input" id="${toId}" value="${dateTo}" placeholder="DD/MM/YY" maxlength="8" />
                         </div>
                     </div>
 
@@ -239,19 +241,25 @@ patch(ListController.prototype, {
                         </div>
                     </div>
 
-                    <!-- Source Location Filter -->
+                    <!-- Customer Reference Filter -->
                     <div class="filter_group">
-                        <label class="filter_label">Source Location:</label>
-                        <select class="form-select filter_select" id="${locationId}">
-                            <option value="">Source Location</option>
-                            ${locationOptions}
-                        </select>
+                        <label class="filter_label">Customer Ref:</label>
+                        <input type="text" class="form-control filter_input" id="${customerRefId}" placeholder="Customer Ref..." />
                     </div>
 
                     <!-- Source Document Filter -->
                     <div class="filter_group">
                         <label class="filter_label">Source Doc:</label>
                         <input type="text" class="form-control filter_input" id="${sourceDocId}" placeholder="Source Doc..." />
+                    </div>
+
+                    <!-- Source Location Filter (after Source Document) -->
+                    <div class="filter_group">
+                        <label class="filter_label">Source Location:</label>
+                        <select class="form-select filter_select" id="${locationId}">
+                            <option value="">Source Location</option>
+                            ${locationOptions}
+                        </select>
                     </div>
 
                     <!-- Responsible Filter (Searchable) -->
@@ -305,7 +313,7 @@ patch(ListController.prototype, {
         this.setupDeliveryAutocomplete(responsibleId, this._deliveryFilterData.responsibles);
 
         this.attachDeliveryFilterEvents(
-            fromId, toId, numberId, partnerId, locationId,
+            fromId, toId, numberId, partnerId, customerRefId, locationId,
             sourceDocId, responsibleId, statusId,
             applyId, clearId, viewType
         );
@@ -382,7 +390,7 @@ patch(ListController.prototype, {
     },
 
     attachDeliveryFilterEvents(
-        fromId, toId, numberId, partnerId, locationId,
+        fromId, toId, numberId, partnerId, customerRefId, locationId,
         sourceDocId, responsibleId, statusId,
         applyId, clearId, viewType
     ) {
@@ -391,8 +399,9 @@ patch(ListController.prototype, {
         const numberInput = document.getElementById(numberId);
         const partnerValue = document.getElementById(`${partnerId}_value`);
         const partnerInput = document.getElementById(`${partnerId}_input`);
-        const locationSelect = document.getElementById(locationId);
+        const customerRefInput = document.getElementById(customerRefId);
         const sourceDocInput = document.getElementById(sourceDocId);
+        const locationSelect = document.getElementById(locationId);
         const responsibleValue = document.getElementById(`${responsibleId}_value`);
         const responsibleInput = document.getElementById(`${responsibleId}_input`);
         const statusSelect = document.getElementById(statusId);
@@ -401,14 +410,25 @@ patch(ListController.prototype, {
 
         if (!dateFromInput || !dateToInput || !applyBtn || !clearBtn) return;
 
+        // Parse DD/MM/YY to YYYY-MM-DD for Odoo domain
+        const parseDMY = (str) => {
+            const parts = str.trim().split('/');
+            if (parts.length !== 3) return null;
+            const [d, m, y] = parts;
+            const fullYear = parseInt(y) < 100 ? 2000 + parseInt(y) : parseInt(y);
+            const month = String(parseInt(m)).padStart(2, '0');
+            const day = String(parseInt(d)).padStart(2, '0');
+            return `${fullYear}-${month}-${day}`;
+        };
+
         // Apply filter function
         const applyFilter = () => {
             try {
-                const dateFrom = dateFromInput.value;
-                const dateTo = dateToInput.value;
+                const dateFrom = parseDMY(dateFromInput.value);
+                const dateTo = parseDMY(dateToInput.value);
 
                 if (!dateFrom || !dateTo) {
-                    this.notification.add("Please select both dates", { type: "warning" });
+                    this.notification.add("Please enter dates in DD/MM/YY format", { type: "warning" });
                     return;
                 }
 
@@ -432,14 +452,19 @@ patch(ListController.prototype, {
                     domain.push(['partner_id', '=', parseInt(partnerValue.value)]);
                 }
 
-                // Source Location filter
-                if (locationSelect.value) {
-                    domain.push(['location_id', '=', parseInt(locationSelect.value)]);
+                // Customer Reference filter
+                if (customerRefInput && customerRefInput.value.trim()) {
+                    domain.push(['sale_customer_reference', 'ilike', customerRefInput.value.trim()]);
                 }
 
                 // Source Document filter
                 if (sourceDocInput.value.trim()) {
                     domain.push(['origin', 'ilike', sourceDocInput.value.trim()]);
+                }
+
+                // Source Location filter
+                if (locationSelect.value) {
+                    domain.push(['location_id', '=', parseInt(locationSelect.value)]);
                 }
 
                 // Responsible filter
@@ -471,7 +496,7 @@ patch(ListController.prototype, {
         // Press Enter on any input field to apply filter
         const allInputs = [
             dateFromInput, dateToInput, numberInput, partnerInput,
-            locationSelect, sourceDocInput, responsibleInput, statusSelect
+            customerRefInput, sourceDocInput, locationSelect, responsibleInput, statusSelect
         ];
 
         allInputs.forEach(input => {
@@ -490,13 +515,15 @@ patch(ListController.prototype, {
             try {
                 const today = new Date();
                 const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-                dateFromInput.value = firstDay.toISOString().split('T')[0];
-                dateToInput.value = today.toISOString().split('T')[0];
+                const pad = n => String(n).padStart(2, '0');
+                dateFromInput.value = `${pad(firstDay.getDate())}/${pad(firstDay.getMonth()+1)}/${String(firstDay.getFullYear()).slice(-2)}`;
+                dateToInput.value = `${pad(today.getDate())}/${pad(today.getMonth()+1)}/${String(today.getFullYear()).slice(-2)}`;
                 numberInput.value = '';
                 partnerInput.value = '';
                 partnerValue.value = '';
-                locationSelect.value = '';
+                if (customerRefInput) customerRefInput.value = '';
                 sourceDocInput.value = '';
+                locationSelect.value = '';
                 responsibleInput.value = '';
                 responsibleValue.value = '';
                 statusSelect.value = '';
@@ -538,6 +565,7 @@ patch(ListController.prototype, {
 
 
 
+
 ///** @odoo-module **/
 //
 //import { Component, useState, onMounted, onWillUnmount } from "@odoo/owl";
@@ -558,6 +586,7 @@ patch(ListController.prototype, {
 //        this._deliveryFilterData = {
 //            locations: [],
 //            customers: [],
+//            vendors: [],
 //            responsibles: []
 //        };
 //
@@ -636,6 +665,14 @@ patch(ListController.prototype, {
 //                { limit: 500, order: 'name' }
 //            );
 //
+//            // Load vendors (suppliers)
+//            const vendors = await this.orm.searchRead(
+//                'res.partner',
+//                [['supplier_rank', '>', 0]],
+//                ['id', 'name'],
+//                { limit: 500, order: 'name' }
+//            );
+//
 //            // Load responsible users
 //            const responsibles = await this.orm.searchRead(
 //                'res.users',
@@ -647,6 +684,7 @@ patch(ListController.prototype, {
 //            this._deliveryFilterData = {
 //                locations: locations,
 //                customers: customers,
+//                vendors: vendors,
 //                responsibles: responsibles
 //            };
 //
@@ -671,6 +709,20 @@ patch(ListController.prototype, {
 //            }
 //        }
 //
+//        // Check picking_type_code in domain
+//        if (this.props.domain) {
+//            for (let condition of this.props.domain) {
+//                if (Array.isArray(condition) && condition[0] === 'picking_type_code') {
+//                    if (condition[2] === 'incoming') {
+//                        return 'incoming';
+//                    }
+//                    if (condition[2] === 'outgoing') {
+//                        return 'outgoing';
+//                    }
+//                }
+//            }
+//        }
+//
 //        // Default to all deliveries
 //        return 'all';
 //    },
@@ -692,11 +744,17 @@ patch(ListController.prototype, {
 //        const viewType = this.getDeliveryViewType();
 //        const timestamp = Date.now();
 //
+//        // Determine if we should show Customer or Vendor
+//        const isIncoming = viewType === 'incoming';
+//        const partnerLabel = isIncoming ? 'Vendor' : 'Customer';
+//        const partnerPlaceholder = isIncoming ? 'Vendor' : 'Customer';
+//        const partnerData = isIncoming ? this._deliveryFilterData.vendors : this._deliveryFilterData.customers;
+//
 //        // Field IDs
 //        const fromId = `delivery_date_from_${timestamp}`;
 //        const toId = `delivery_date_to_${timestamp}`;
 //        const numberId = `delivery_number_${timestamp}`;
-//        const customerId = `delivery_customer_${timestamp}`;
+//        const partnerId = `delivery_partner_${timestamp}`;
 //        const locationId = `delivery_location_${timestamp}`;
 //        const sourceDocId = `delivery_source_doc_${timestamp}`;
 //        const responsibleId = `delivery_responsible_${timestamp}`;
@@ -733,19 +791,19 @@ patch(ListController.prototype, {
 //                        <input type="text" class="form-control filter_input" id="${numberId}" placeholder="Number..." />
 //                    </div>
 //
-//                    <!-- Customer Filter (Searchable) -->
+//                    <!-- Partner Filter (Customer/Vendor based on view type) -->
 //                    <div class="filter_group autocomplete_group">
-//                        <label class="filter_label">Customer:</label>
+//                        <label class="filter_label">${partnerLabel}:</label>
 //                        <div class="autocomplete_wrapper">
 //                            <input
 //                                type="text"
 //                                class="form-control autocomplete_input"
-//                                id="${customerId}_input"
-//                                placeholder="Customer"
+//                                id="${partnerId}_input"
+//                                placeholder="${partnerPlaceholder}"
 //                                autocomplete="off"
 //                            />
-//                            <input type="hidden" id="${customerId}_value" />
-//                            <div class="autocomplete_dropdown" id="${customerId}_dropdown"></div>
+//                            <input type="hidden" id="${partnerId}_value" />
+//                            <div class="autocomplete_dropdown" id="${partnerId}_dropdown"></div>
 //                        </div>
 //                    </div>
 //
@@ -810,12 +868,12 @@ patch(ListController.prototype, {
 //        listTable.parentElement.insertBefore(filterDiv, listTable);
 //        this._deliveryFilterElement = filterDiv;
 //
-//        // Setup autocomplete
-//        this.setupDeliveryAutocomplete(customerId, this._deliveryFilterData.customers);
+//        // Setup autocomplete with appropriate data (vendors for incoming, customers for outgoing)
+//        this.setupDeliveryAutocomplete(partnerId, partnerData);
 //        this.setupDeliveryAutocomplete(responsibleId, this._deliveryFilterData.responsibles);
 //
 //        this.attachDeliveryFilterEvents(
-//            fromId, toId, numberId, customerId, locationId,
+//            fromId, toId, numberId, partnerId, locationId,
 //            sourceDocId, responsibleId, statusId,
 //            applyId, clearId, viewType
 //        );
@@ -892,15 +950,15 @@ patch(ListController.prototype, {
 //    },
 //
 //    attachDeliveryFilterEvents(
-//        fromId, toId, numberId, customerId, locationId,
+//        fromId, toId, numberId, partnerId, locationId,
 //        sourceDocId, responsibleId, statusId,
 //        applyId, clearId, viewType
 //    ) {
 //        const dateFromInput = document.getElementById(fromId);
 //        const dateToInput = document.getElementById(toId);
 //        const numberInput = document.getElementById(numberId);
-//        const customerValue = document.getElementById(`${customerId}_value`);
-//        const customerInput = document.getElementById(`${customerId}_input`);
+//        const partnerValue = document.getElementById(`${partnerId}_value`);
+//        const partnerInput = document.getElementById(`${partnerId}_input`);
 //        const locationSelect = document.getElementById(locationId);
 //        const sourceDocInput = document.getElementById(sourceDocId);
 //        const responsibleValue = document.getElementById(`${responsibleId}_value`);
@@ -937,9 +995,9 @@ patch(ListController.prototype, {
 //                    domain.push(['name', 'ilike', numberInput.value.trim()]);
 //                }
 //
-//                // Customer filter
-//                if (customerValue.value) {
-//                    domain.push(['partner_id', '=', parseInt(customerValue.value)]);
+//                // Partner filter (Customer or Vendor)
+//                if (partnerValue.value) {
+//                    domain.push(['partner_id', '=', parseInt(partnerValue.value)]);
 //                }
 //
 //                // Source Location filter
@@ -980,7 +1038,7 @@ patch(ListController.prototype, {
 //
 //        // Press Enter on any input field to apply filter
 //        const allInputs = [
-//            dateFromInput, dateToInput, numberInput, customerInput,
+//            dateFromInput, dateToInput, numberInput, partnerInput,
 //            locationSelect, sourceDocInput, responsibleInput, statusSelect
 //        ];
 //
@@ -1003,8 +1061,8 @@ patch(ListController.prototype, {
 //                dateFromInput.value = firstDay.toISOString().split('T')[0];
 //                dateToInput.value = today.toISOString().split('T')[0];
 //                numberInput.value = '';
-//                customerInput.value = '';
-//                customerValue.value = '';
+//                partnerInput.value = '';
+//                partnerValue.value = '';
 //                locationSelect.value = '';
 //                sourceDocInput.value = '';
 //                responsibleInput.value = '';

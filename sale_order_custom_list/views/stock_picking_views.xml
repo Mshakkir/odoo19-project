@@ -13,12 +13,13 @@
                 <xpath expr="//list" position="replace">
                     <list string="Delivery Orders"
                           sample="1"
+                          default_order="scheduled_date desc"
                           decoration-info="state == 'draft'"
                           decoration-muted="state == 'cancel'"
                           decoration-danger="state not in ('cancel', 'done') and scheduled_date &lt; current_date"
                           multi_edit="1">
 
-                        <!-- 1. Scheduled Date (formatted DD/MM/YYYY) -->
+                        <!-- 1. Scheduled Date (formatted DD/MM/YYYY) - sorted latest first -->
                         <field name="scheduled_date_formatted" string="Scheduled Date"/>
 
                         <!-- 2. Number (Reference) -->
@@ -27,16 +28,19 @@
                         <!-- 3. Customer (Partner) -->
                         <field name="partner_id" string="Customer"/>
 
-                        <!-- 4. Source Location -->
-                        <field name="location_id" string="Source Location" optional="show" groups="stock.group_stock_multi_locations"/>
+                        <!-- 4. Customer Reference -->
+                        <field name="sale_customer_reference" string="Customer Reference" optional="show"/>
 
                         <!-- 5. Source Document (Origin) -->
                         <field name="origin" string="Source Document" optional="show"/>
 
-                        <!-- 6. Delivery Address -->
+                        <!-- 6. Source Location (moved after Source Document) -->
+                        <field name="location_id" string="Source Location" optional="show" groups="stock.group_stock_multi_locations"/>
+
+                        <!-- 7. Delivery Address -->
                         <field name="partner_id" string="Delivery Address" optional="show" context="{'show_address': 1}"/>
 
-                        <!-- 7. Responsible -->
+                        <!-- 8. Responsible -->
                         <field name="user_id" string="Responsible" optional="show" widget="many2one_avatar_user"/>
 
                         <!-- Backorder -->
@@ -117,3 +121,128 @@
 
     </data>
 </odoo>
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <data>-->
+
+<!--        &lt;!&ndash; Custom Delivery Notes List View - Inherit and modify &ndash;&gt;-->
+<!--        <record id="view_picking_delivery_tree_custom" model="ir.ui.view">-->
+<!--            <field name="name">stock.picking.delivery.tree.custom</field>-->
+<!--            <field name="model">stock.picking</field>-->
+<!--            <field name="inherit_id" ref="stock.vpicktree"/>-->
+<!--            <field name="arch" type="xml">-->
+
+<!--                &lt;!&ndash; Replace all fields with new structure &ndash;&gt;-->
+<!--                <xpath expr="//list" position="replace">-->
+<!--                    <list string="Delivery Orders"-->
+<!--                          sample="1"-->
+<!--                          decoration-info="state == 'draft'"-->
+<!--                          decoration-muted="state == 'cancel'"-->
+<!--                          decoration-danger="state not in ('cancel', 'done') and scheduled_date &lt; current_date"-->
+<!--                          multi_edit="1">-->
+
+<!--                        &lt;!&ndash; 1. Scheduled Date (formatted DD/MM/YYYY) &ndash;&gt;-->
+<!--                        <field name="scheduled_date_formatted" string="Scheduled Date"/>-->
+
+<!--                        &lt;!&ndash; 2. Number (Reference) &ndash;&gt;-->
+<!--                        <field name="name" string="Number" readonly="1" decoration-bf="1"/>-->
+
+<!--                        &lt;!&ndash; 3. Customer (Partner) &ndash;&gt;-->
+<!--                        <field name="partner_id" string="Customer"/>-->
+
+<!--                        &lt;!&ndash; 4. Source Location &ndash;&gt;-->
+<!--                        <field name="location_id" string="Source Location" optional="show" groups="stock.group_stock_multi_locations"/>-->
+
+<!--                        &lt;!&ndash; 5. Source Document (Origin) &ndash;&gt;-->
+<!--                        <field name="origin" string="Source Document" optional="show"/>-->
+
+<!--                        &lt;!&ndash; 6. Delivery Address &ndash;&gt;-->
+<!--                        <field name="partner_id" string="Delivery Address" optional="show" context="{'show_address': 1}"/>-->
+
+<!--                        &lt;!&ndash; 7. Responsible &ndash;&gt;-->
+<!--                        <field name="user_id" string="Responsible" optional="show" widget="many2one_avatar_user"/>-->
+
+<!--                        &lt;!&ndash; Backorder &ndash;&gt;-->
+<!--                        <field name="backorder_id" string="Backorder" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Priority &ndash;&gt;-->
+<!--                        <field name="priority" string="Priority" optional="hide" widget="priority"/>-->
+
+<!--                        &lt;!&ndash; Picking Type &ndash;&gt;-->
+<!--                        <field name="picking_type_id" string="Operation Type" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Destination Location &ndash;&gt;-->
+<!--                        <field name="location_dest_id" string="Destination Location" optional="hide" groups="stock.group_stock_multi_locations"/>-->
+
+<!--                        &lt;!&ndash; Status &ndash;&gt;-->
+<!--                        <field name="state" string="Status" optional="show" widget="badge"-->
+<!--                               decoration-success="state == 'done'"-->
+<!--                               decoration-info="state == 'draft'"-->
+<!--                               decoration-warning="state == 'waiting'"-->
+<!--                               decoration-primary="state in ('confirmed', 'assigned')"/>-->
+
+<!--                        &lt;!&ndash; Date Done (formatted DD/MM/YYYY) &ndash;&gt;-->
+<!--                        <field name="date_done_formatted" string="Date Done" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Company &ndash;&gt;-->
+<!--                        <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Shipping Policy &ndash;&gt;-->
+<!--                        <field name="move_type" string="Shipping Policy" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Owner &ndash;&gt;-->
+<!--                        <field name="owner_id" string="Owner" optional="hide" groups="stock.group_tracking_owner"/>-->
+
+<!--                        &lt;!&ndash; Activity &ndash;&gt;-->
+<!--                        <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Activity State &ndash;&gt;-->
+<!--                        <field name="activity_state" string="Activity State" optional="hide" widget="badge"-->
+<!--                               decoration-success="activity_state == 'today'"-->
+<!--                               decoration-warning="activity_state == 'planned'"-->
+<!--                               decoration-danger="activity_state == 'overdue'"/>-->
+
+<!--                        &lt;!&ndash; Activity User &ndash;&gt;-->
+<!--                        <field name="activity_user_id" string="Responsible User" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Activity Type &ndash;&gt;-->
+<!--                        <field name="activity_type_id" string="Next Activity Type" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Activity Date &ndash;&gt;-->
+<!--                        <field name="activity_date_deadline" string="Next Activity Deadline" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Activity Summary &ndash;&gt;-->
+<!--                        <field name="activity_summary" string="Activity Summary" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Created By &ndash;&gt;-->
+<!--                        <field name="create_uid" string="Created by" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Created On &ndash;&gt;-->
+<!--                        <field name="create_date" string="Created on" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Last Updated By &ndash;&gt;-->
+<!--                        <field name="write_uid" string="Last Updated by" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Last Updated On &ndash;&gt;-->
+<!--                        <field name="write_date" string="Last Updated on" optional="hide"/>-->
+
+<!--                        &lt;!&ndash; Hidden technical fields &ndash;&gt;-->
+<!--                        <field name="picking_type_code" column_invisible="1"/>-->
+<!--                        &lt;!&ndash; Keep original date fields hidden for filtering/sorting &ndash;&gt;-->
+<!--                        <field name="scheduled_date" column_invisible="1"/>-->
+<!--                        <field name="date_done" column_invisible="1"/>-->
+
+<!--                    </list>-->
+<!--                </xpath>-->
+
+<!--            </field>-->
+<!--        </record>-->
+
+<!--    </data>-->
+<!--</odoo>-->

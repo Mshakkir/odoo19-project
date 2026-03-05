@@ -360,8 +360,9 @@ patch(ListController.prototype, {
             dropdown.classList.add('show');
         });
 
-        input.addEventListener('keypress', (e) => {
+        input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
+                e.preventDefault();
                 dropdown.classList.remove('show');
                 const applyBtn = document.querySelector('.apply_filter_btn');
                 if (applyBtn) {
@@ -538,7 +539,7 @@ patch(ListController.prototype, {
         // Click on Apply button
         applyBtn.addEventListener('click', applyFilter);
 
-        // Press Enter on any input field to apply filter
+        // Press Enter on any input/select field to apply filter (keydown is reliable across all element types)
         const allInputs = [
             dateFromInput, dateToInput, numberInput, partnerInput,
             customerRefInput, sourceDocInput, locationSelect, responsibleInput, statusSelect
@@ -546,7 +547,7 @@ patch(ListController.prototype, {
 
         allInputs.forEach(input => {
             if (input) {
-                input.addEventListener('keypress', (e) => {
+                input.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         applyFilter();

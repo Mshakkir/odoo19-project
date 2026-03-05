@@ -120,7 +120,8 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td style="padding: 8px; border: 1px solid #000; vertical-align: top;">
+                                        <!--                                        <td style="padding: 8px; border: 1px solid #000; vertical-align: top;">-->
+                                        <td style="padding: 8px; border: 1px solid #000; vertical-align: top; min-height: 100px; height: 100px;">
                                             <strong>
                                                 <span t-field="o.partner_id.name"/>
                                             </strong>
@@ -169,7 +170,9 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td style="padding: 8px; border: 1px solid #000; vertical-align: top;">
+                                        <!--                                        <td style="padding: 8px; border: 1px solid #000; vertical-align: top;">-->
+                                        <!--                                            <t t-if="o.partner_shipping_id">-->
+                                        <td style="padding: 8px; border: 1px solid #000; vertical-align: top; min-height: 100px; height: 100px;">
                                             <t t-if="o.partner_shipping_id">
                                                 <strong>
                                                     <span t-field="o.partner_shipping_id.name"/>
@@ -202,8 +205,11 @@
                                                 <strong>VAT NO:</strong>
                                                 <span t-field="o.partner_shipping_id.vat"/>
                                             </t>
+                                            <!--                                            <t t-else="">-->
+                                            <!--                                                <span style="color: #999;">—</span>-->
+                                            <!--                                            </t>-->
                                             <t t-else="">
-                                                <span style="color: #999;">—</span>
+                                                <span style="color: transparent;">&#160;</span>
                                             </t>
                                         </td>
                                     </tr>
@@ -239,7 +245,10 @@
                                     تاريخ التسليم
                                 </span>
                                 <br/>
-                                <span t-if="o.date_done" t-field="o.date_done" t-options="{'widget': 'date', 'format': 'dd/MM/yy'}"/><span t-if="not o.date_done" t-field="o.scheduled_date" t-options="{'widget': 'date', 'format': 'dd/MM/yy'}"/>
+                                <span t-if="o.date_done" t-field="o.date_done"
+                                      t-options="{'widget': 'date', 'format': 'dd/MM/yy'}"/>
+                                <span t-if="not o.date_done" t-field="o.scheduled_date"
+                                      t-options="{'widget': 'date', 'format': 'dd/MM/yy'}"/>
                             </td>
                             <td style="padding: 4px; font-weight: bold; border: 1px solid #000;width: 20%;">
                                 AWB NO /
@@ -261,7 +270,9 @@
                     </table>
 
                     <!-- ===== Products Table ===== -->
-                    <table width="100%" style="border-collapse:collapse; margin-top:15px; font-size:14px; border:1px solid #000;" border="1">
+                    <table width="100%"
+                           style="border-collapse:collapse; margin-top:15px; font-size:14px; border:1px solid #000;"
+                           border="1">
                         <thead>
                             <tr>
                                 <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3; width:25px; border:1px solid #000;">
@@ -270,19 +281,19 @@
                                         الرقم
                                     </span>
                                 </th>
-                                <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3; border:1px solid #000;">
+                                <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3;width:200px; border:1px solid #000;">
                                     Product/
                                     <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; font-size:13px;">
                                         المنتج
                                     </span>
                                 </th>
-                                <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3; width:50px; border:1px solid #000;">
+                                <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3; width:80px; border:1px solid #000;">
                                     Quantity/
                                     <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; font-size:13px;">
                                         الكمية
                                     </span>
                                 </th>
-                                <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3; width:50px; border:1px solid #000;">
+                                <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3; width:80px; border:1px solid #000;">
                                     Unit/
                                     <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; font-size:13px;">
                                         الوحدة
@@ -292,18 +303,18 @@
                         </thead>
                         <tbody>
                             <tr t-foreach="enumerate(o.move_ids)" t-as="line">
-                                <td style="text-align:center; padding:6px 4px; border:1px solid #000;">
+                                <td style="text-align:center; padding:6px 4px; border:1px solid #000; width:25px;">
                                     <t t-esc="line[0] + 1"/>
                                 </td>
-                                <td style="text-align:left; padding:6px 4px; border:1px solid #000;">
+                                <td style="text-align:left; padding:6px 4px; border:1px solid #000; width:200px;">
                                     <span t-field="line[1].product_id.default_code"/>
                                     -
                                     <span t-field="line[1].product_id.name"/>
                                 </td>
-                                <td style="text-align:left; padding:6px 4px; border:1px solid #000;">
+                                <td style="text-align:left; padding:6px 4px; border:1px solid #000;width:80px;">
                                     <span t-field="line[1].product_uom_qty"/>
                                 </td>
-                                <td style="text-align:left; padding:6px 4px; border:1px solid #000;">
+                                <td style="text-align:left; padding:6px 4px; border:1px solid #000;width:80px;">
                                     <span t-field="line[1].product_uom.name"/>
                                 </td>
                             </tr>

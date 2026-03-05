@@ -213,9 +213,31 @@ patch(ListController.prototype, {
                     <div class="filter_group date_group">
                         <label class="filter_label">Scheduled Date:</label>
                         <div class="date_input_group">
-                            <input type="text" class="form-control date_input" id="${fromId}" value="${dateFrom}" placeholder="DD/MM/YY" maxlength="8" />
+                            <div class="date_picker_wrapper">
+                                <input type="text" class="form-control date_input" id="${fromId}" value="${dateFrom}" placeholder="DD/MM/YY" maxlength="8" />
+                                <input type="date" class="date_hidden_picker" id="${fromId}_picker" tabindex="-1" />
+                                <button type="button" class="date_cal_btn" id="${fromId}_btn" title="Pick date">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    </svg>
+                                </button>
+                            </div>
                             <span class="date_separator">→</span>
-                            <input type="text" class="form-control date_input" id="${toId}" value="${dateTo}" placeholder="DD/MM/YY" maxlength="8" />
+                            <div class="date_picker_wrapper">
+                                <input type="text" class="form-control date_input" id="${toId}" value="${dateTo}" placeholder="DD/MM/YY" maxlength="8" />
+                                <input type="date" class="date_hidden_picker" id="${toId}_picker" tabindex="-1" />
+                                <button type="button" class="date_cal_btn" id="${toId}_btn" title="Pick date">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -420,6 +442,29 @@ patch(ListController.prototype, {
             const day = String(parseInt(d)).padStart(2, '0');
             return `${fullYear}-${month}-${day}`;
         };
+
+        // Wire calendar icon buttons to hidden date pickers
+        const setupCalendarPicker = (textInputId) => {
+            const textInput = document.getElementById(textInputId);
+            const picker = document.getElementById(`${textInputId}_picker`);
+            const btn = document.getElementById(`${textInputId}_btn`);
+            if (!textInput || !picker || !btn) return;
+
+            btn.addEventListener('click', () => {
+                const parsed = parseDMY(textInput.value);
+                if (parsed) picker.value = parsed;
+                picker.showPicker ? picker.showPicker() : picker.click();
+            });
+
+            picker.addEventListener('change', () => {
+                if (!picker.value) return;
+                const [y, m, d] = picker.value.split('-');
+                textInput.value = `${d}/${m}/${String(parseInt(y)).toString().slice(-2)}`;
+            });
+        };
+
+        setupCalendarPicker(fromId);
+        setupCalendarPicker(toId);
 
         // Apply filter function
         const applyFilter = () => {

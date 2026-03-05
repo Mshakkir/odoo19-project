@@ -49,14 +49,51 @@
     gap: 6px;
 }
 
+.date_picker_wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
 .date_input {
-    width: 110px;
-    padding: 6px 8px;
+    width: 90px;
+    padding: 6px 28px 6px 8px;
     border: 1px solid #ced4da;
     border-radius: 4px;
     font-size: 12px;
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     background-color: #ffffff;
+}
+
+.date_hidden_picker {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+    top: 100%;
+    left: 0;
+    border: none;
+    padding: 0;
+}
+
+.date_cal_btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    line-height: 1;
+}
+
+.date_cal_btn:hover {
+    color: #0d6efd;
 }
 
 .filter_input {
@@ -218,7 +255,7 @@
     }
 
     .date_input {
-        width: 100px;
+        width: 85px;
     }
 }
 

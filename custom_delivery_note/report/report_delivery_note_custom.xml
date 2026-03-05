@@ -281,7 +281,7 @@
                                         الرقم
                                     </span>
                                 </th>
-                                <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3;width:200px; border:1px solid #000;">
+                                <th style="text-align:center; padding:8px 4px; color:#080808; line-height:1.3;width:400px; border:1px solid #000;">
                                     Product/
                                     <span style="font-family: 'Tajawal', sans-serif; font-weight:900; direction: rtl; font-size:13px;">
                                         المنتج
@@ -306,7 +306,7 @@
                                 <td style="text-align:center; padding:6px 4px; border:1px solid #000; width:20px;">
                                     <t t-esc="line[0] + 1"/>
                                 </td>
-                                <td style="text-align:left; padding:6px 4px; border:1px solid #000; width:200px;">
+                                <td style="text-align:left; padding:6px 4px; border:1px solid #000; width:400px;">
                                     <span t-field="line[1].product_id.default_code"/>
                                     -
                                     <span t-field="line[1].product_id.name"/>

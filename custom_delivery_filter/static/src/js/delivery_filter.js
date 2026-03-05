@@ -364,10 +364,7 @@ patch(ListController.prototype, {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 dropdown.classList.remove('show');
-                const applyBtn = document.querySelector('.apply_filter_btn');
-                if (applyBtn) {
-                    applyBtn.click();
-                }
+                // Let the container capture listener handle applyFilter
             }
         });
 
@@ -539,22 +536,20 @@ patch(ListController.prototype, {
         // Click on Apply button
         applyBtn.addEventListener('click', applyFilter);
 
-        // Press Enter on any input/select field to apply filter (keydown is reliable across all element types)
-        const allInputs = [
-            dateFromInput, dateToInput, numberInput, partnerInput,
-            customerRefInput, sourceDocInput, locationSelect, responsibleInput, statusSelect
-        ];
-
-        allInputs.forEach(input => {
-            if (input) {
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        applyFilter();
-                    }
-                });
-            }
-        });
+        // Use a single capture-phase listener on the filter container so Odoo's
+        // own keydown handlers on the list view cannot intercept Enter first.
+        const filterContainer = document.querySelector('.delivery_filter_container');
+        if (filterContainer) {
+            filterContainer.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Close any open autocomplete dropdown first
+                    document.querySelectorAll('.autocomplete_dropdown.show').forEach(d => d.classList.remove('show'));
+                    applyFilter();
+                }
+            }, true); // capture: true — fires before any child or Odoo handler
+        }
 
         // Clear filter function
         const clearFilter = () => {

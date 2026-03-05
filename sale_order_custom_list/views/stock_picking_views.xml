@@ -20,28 +20,28 @@
                           multi_edit="1">
 
                         <!-- 1. Scheduled Date (formatted DD/MM/YYYY) - sorted latest first -->
-                        <field name="scheduled_date_formatted" string="Scheduled Date"/>
+                        <field name="scheduled_date_formatted" string="Scheduled Date" width="100px"/>
 
                         <!-- 2. Number (Reference) -->
-                        <field name="name" string="Number" readonly="1" decoration-bf="1"/>
+                        <field name="name" string="Number" readonly="1" decoration-bf="1" width="140px"/>
 
                         <!-- 3. Customer (Partner) -->
-                        <field name="partner_id" string="Customer"/>
+                        <field name="partner_id" string="Customer" width="200px"/>
 
                         <!-- 4. Customer Reference -->
-                        <field name="sale_customer_reference" string="Customer Reference" optional="show"/>
+                        <field name="sale_customer_reference" string="Customer Reference" optional="show" width="130px"/>
 
                         <!-- 5. Source Document (Origin) -->
-                        <field name="origin" string="Source Document" optional="show"/>
+                        <field name="origin" string="Source Document" optional="show" width="120px"/>
 
                         <!-- 6. Source Location (moved after Source Document) -->
-                        <field name="location_id" string="Source Location" optional="show" groups="stock.group_stock_multi_locations"/>
+                        <field name="location_id" string="Source Location" optional="show" groups="stock.group_stock_multi_locations" width="100px"/>
 
                         <!-- 7. Delivery Address -->
-                        <field name="partner_id" string="Delivery Address" optional="show" context="{'show_address': 1}"/>
+                        <field name="partner_id" string="Delivery Address" optional="show" context="{'show_address': 1}" width="200px"/>
 
                         <!-- 8. Responsible -->
-                        <field name="user_id" string="Responsible" optional="show" widget="many2one_avatar_user"/>
+                        <field name="user_id" string="Responsible" optional="show" widget="many2one_avatar_user" width="130px"/>
 
                         <!-- Backorder -->
                         <field name="backorder_id" string="Backorder" optional="hide"/>

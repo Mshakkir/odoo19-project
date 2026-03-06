@@ -3,30 +3,32 @@
     <data noupdate="0">
 
         <!--
-            Override the default invoice sending email template.
-            This removes the "View Invoice" portal button that Odoo injects
-            automatically above the email body when sending invoices.
+        ============================================================
+        FIX 1: Remove "View Invoice" button
+        ============================================================
+        The View Invoice button is rendered by Odoo's mail notification
+        layout when email_layout_xmlid is 'mail.mail_notification_paynow'.
 
-            The trick: we override the template's 'body_html' field and
-            set use_default_to=False + no portal URL reference,
-            so Odoo skips rendering the portal button block entirely.
-
-            How it works:
-            - Odoo adds the View Invoice button via the wrapper layout
-              in mail/views/mail_notification_layout.xml using
-              t-if="access_link" condition.
-            - By overriding the template to NOT pass access_token context,
-              the button simply won't render.
+        We override it to 'mail.mail_notification_light' which renders
+        only the body content - no portal/payment action buttons.
+        ============================================================
         -->
-
-        <!-- Step 1: Override the Invoice Sending mail template -->
         <record id="account.email_template_edi_invoice" model="mail.template">
-            <!-- 
-                Setting email_layout_xmlid to False / empty removes the
-                default Odoo wrapper layout that injects the View Invoice button.
-                Your custom body_html will render as-is without the button wrapper.
+
+            <field name="email_layout_xmlid">mail.mail_notification_light</field>
+
+            <!--
+            ============================================================
+            FIX 2: Auto-fill "To" field with customer email
+            ============================================================
+            partner_to tells Odoo which partner email to pre-fill.
+            object.partner_id is the customer on the invoice.
+            ============================================================
             -->
-            <field name="email_layout_xmlid">False</field>
+            <field name="partner_to">{{ object.partner_id.id }}</field>
+
+            <field name="use_default_to" eval="False"/>
+
         </record>
 
     </data>

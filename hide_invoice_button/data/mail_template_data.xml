@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!--
+            Override the default invoice sending email template.
+            This removes the "View Invoice" portal button that Odoo injects
+            automatically above the email body when sending invoices.
+
+            The trick: we override the template's 'body_html' field and
+            set use_default_to=False + no portal URL reference,
+            so Odoo skips rendering the portal button block entirely.
+
+            How it works:
+            - Odoo adds the View Invoice button via the wrapper layout
+              in mail/views/mail_notification_layout.xml using
+              t-if="access_link" condition.
+            - By overriding the template to NOT pass access_token context,
+              the button simply won't render.
+        -->
+
+        <!-- Step 1: Override the Invoice Sending mail template -->
+        <record id="account.email_template_edi_invoice" model="mail.template">
+            <!-- 
+                Setting email_layout_xmlid to False / empty removes the
+                default Odoo wrapper layout that injects the View Invoice button.
+                Your custom body_html will render as-is without the button wrapper.
+            -->
+            <field name="email_layout_xmlid">False</field>
+        </record>
+
+    </data>
+</odoo>

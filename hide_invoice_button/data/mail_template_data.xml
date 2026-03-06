@@ -3,32 +3,12 @@
     <data noupdate="0">
 
         <!--
-        ============================================================
-        FIX 1: Remove "View Invoice" button
-        ============================================================
-        The View Invoice button is rendered by Odoo's mail notification
-        layout when email_layout_xmlid is 'mail.mail_notification_paynow'.
-
-        We override it to 'mail.mail_notification_light' which renders
-        only the body content - no portal/payment action buttons.
-        ============================================================
+        FIX: Auto-fill "To" field with customer email when sending invoice.
+        Sets partner_to on the Invoice Sending template so Odoo pre-populates
+        the recipient field in the Send dialog.
         -->
         <record id="account.email_template_edi_invoice" model="mail.template">
-
-            <field name="email_layout_xmlid">mail.mail_notification_light</field>
-
-            <!--
-            ============================================================
-            FIX 2: Auto-fill "To" field with customer email
-            ============================================================
-            partner_to tells Odoo which partner email to pre-fill.
-            object.partner_id is the customer on the invoice.
-            ============================================================
-            -->
             <field name="partner_to">{{ object.partner_id.id }}</field>
-
-            <field name="use_default_to" eval="False"/>
-
         </record>
 
     </data>

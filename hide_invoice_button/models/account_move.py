@@ -1,49 +1,28 @@
 # -*- coding: utf-8 -*-
-from odoo import models, api
+from odoo import models
 
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    def _get_mail_template(self):
+    def _notify_get_action_link(self, link_type, **kwargs):
         """
-        Override to ensure the correct template is used and
-        partner_to is always populated with the customer email.
-        """
-        result = super()._get_mail_template()
-        return result
+        Override to suppress the 'View Invoice' button in email notifications.
 
-    def action_send_and_print(self, **kwargs):
-        """
-        Override to ensure:
-        1. The 'To' field is auto-filled with the customer email.
-        2. The context suppresses the portal access link (View Invoice button).
-        """
-        # Suppress portal access button by removing access_token from context
-        ctx = dict(self.env.context)
-        ctx['no_access_link'] = True          # tells mail layout: skip View Invoice button
-        ctx['mail_notify_force_send'] = False  # don't force send, show compose dialog
+        In Odoo 19, account_move.py (~line 5992) calls:
+            access_link = self._notify_get_action_link('view', access_token=self.access_token)
+            button_access = {'url': access_link} if access_link else {}
 
-        return super(AccountMove, self.with_context(ctx)).action_send_and_print(**kwargs)
-
-    def _prepare_invoice_pdf_report(self, invoice_data):
-        """Ensure partner email is always included."""
-        result = super()._prepare_invoice_pdf_report(invoice_data)
-        return result
-
-    def _send_invoice_to_journal(self):
-        """Override to suppress portal link."""
-        ctx = dict(self.env.context, no_access_link=True)
-        return super(AccountMove, self.with_context(ctx))._send_invoice_to_journal()
-
-    @api.model
-    def _get_default_invoice_email_values(self):
+        By returning an empty string for 'view' links on invoices/bills,
+        button_access becomes {} and Odoo skips rendering the View Invoice button.
         """
-        Ensure the partner email is always pre-filled in the send dialog.
-        This fixes the blank 'To' field issue.
-        """
-        res = super()._get_default_invoice_email_values() \
-            if hasattr(super(), '_get_default_invoice_email_values') else {}
-        if self.partner_id and self.partner_id.email:
-            res['partner_ids'] = [(4, self.partner_id.id)]
-        return res
+        # Only suppress the button for customer invoices and vendor bills
+        if link_type == 'view' and self.move_type in (
+            'out_invoice',   # Customer Invoice
+            'out_refund',    # Customer Credit Note
+            'in_invoice',    # Vendor Bill
+            'in_refund',     # Vendor Credit Note
+        ):
+            return ''
+
+        return super()._notify_get_action_link(link_type, **kwargs)

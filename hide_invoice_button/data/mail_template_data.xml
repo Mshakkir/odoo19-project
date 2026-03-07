@@ -4,13 +4,38 @@
 
         <record id="account.email_template_edi_invoice" model="mail.template">
 
-            <!-- Fix 1: Always show "SSAOC" as sender name regardless of which user sends -->
-            <field name="email_from">SSAOC &lt;{{ object.company_id.email or object.invoice_user_id.email_formatted }}&gt;</field>
+            <!-- Fix sender name: always show "SSAOC" regardless of which user sends -->
+            <field name="email_from">SSAOC &lt;{{ object.company_id.email or user.email }}&gt;</field>
 
-            <!-- Fix 2: Auto-fill "To" field with customer email -->
+            <!-- Fix: Auto-fill "To" field with customer email -->
             <field name="partner_to">{{ object.partner_id.id }}</field>
 
         </record>
 
     </data>
 </odoo>
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <data noupdate="0">-->
+
+<!--        <record id="account.email_template_edi_invoice" model="mail.template">-->
+
+<!--            &lt;!&ndash; Fix 1: Always show "SSAOC" as sender name regardless of which user sends &ndash;&gt;-->
+<!--            <field name="email_from">SSAOC &lt;{{ object.company_id.email or object.invoice_user_id.email_formatted }}&gt;</field>-->
+
+<!--            &lt;!&ndash; Fix 2: Auto-fill "To" field with customer email &ndash;&gt;-->
+<!--            <field name="partner_to">{{ object.partner_id.id }}</field>-->
+
+<!--        </record>-->
+
+<!--    </data>-->
+<!--</odoo>-->

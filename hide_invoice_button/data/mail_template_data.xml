@@ -2,13 +2,14 @@
 <odoo>
     <data noupdate="0">
 
-        <!--
-        FIX: Auto-fill "To" field with customer email when sending invoice.
-        Sets partner_to on the Invoice Sending template so Odoo pre-populates
-        the recipient field in the Send dialog.
-        -->
         <record id="account.email_template_edi_invoice" model="mail.template">
+
+            <!-- Fix 1: Always show "SSAOC" as sender name regardless of which user sends -->
+            <field name="email_from">SSAOC &lt;{{ object.company_id.email or object.invoice_user_id.email_formatted }}&gt;</field>
+
+            <!-- Fix 2: Auto-fill "To" field with customer email -->
             <field name="partner_to">{{ object.partner_id.id }}</field>
+
         </record>
 
     </data>

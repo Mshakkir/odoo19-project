@@ -10,7 +10,7 @@ class AccountPartnerLedger(models.TransientModel):
                                      help="It adds the currency column on "
                                           "report if the currency differs from "
                                           "the company currency.")
-    reconciled = fields.Boolean('Reconciled Entries')
+    reconciled = fields.Boolean('Reconciled Entries', default=True)
 
     def _get_report_data(self, data):
         data = self.pre_print_report(data)

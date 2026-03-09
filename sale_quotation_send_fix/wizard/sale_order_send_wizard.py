@@ -1,5 +1,4 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
 
 
 class SaleOrderSendWizard(models.TransientModel):
@@ -9,8 +8,6 @@ class SaleOrderSendWizard(models.TransientModel):
     order_id = fields.Many2one(
         'sale.order', string='Sale Order', required=True, ondelete='cascade'
     )
-
-    # Email fields
     mail_partner_ids = fields.Many2many(
         'res.partner',
         string='To',
@@ -39,16 +36,16 @@ class SaleOrderSendWizard(models.TransientModel):
         store=True,
         readonly=False,
     )
-    mail_attachments_widget = fields.Json(
-        string='Attachments',
-        compute='_compute_mail_attachments_widget',
-        store=True,
-        readonly=False,
-    )
+    # Required by html_mail widget
+    can_edit_body = fields.Boolean(default=True)
+    # Required by mail_composer_template_selector widget
+    model = fields.Char(default='sale.order')
+    res_ids = fields.Char(compute='_compute_res_ids')
 
-    # -------------------------------------------------------------------------
-    # Compute methods
-    # -------------------------------------------------------------------------
+    @api.depends('order_id')
+    def _compute_res_ids(self):
+        for wizard in self:
+            wizard.res_ids = str(wizard.order_id.ids)
 
     @api.depends('order_id')
     def _compute_template_id(self):
@@ -71,10 +68,14 @@ class SaleOrderSendWizard(models.TransientModel):
             order = wizard.order_id
             template = wizard.template_id
             if template:
-                subject = template._render_field(
-                    'subject', order.ids, compute_lang=True
-                )[order.id]
-                wizard.subject = subject
+                try:
+                    subject = template._render_field(
+                        'subject', order.ids, compute_lang=True
+                    )[order.id]
+                    wizard.subject = subject
+                except Exception:
+                    doc_type = 'Quotation' if order.state in ('draft', 'sent') else 'Order'
+                    wizard.subject = f"{order.company_id.name} {doc_type} (Ref {order.name})"
             else:
                 doc_type = 'Quotation' if order.state in ('draft', 'sent') else 'Order'
                 wizard.subject = f"{order.company_id.name} {doc_type} (Ref {order.name})"
@@ -85,73 +86,43 @@ class SaleOrderSendWizard(models.TransientModel):
             order = wizard.order_id
             template = wizard.template_id
             if template:
-                body = template._render_field(
-                    'body_html', order.ids, compute_lang=True,
-                    options={'post_process': True}
-                )[order.id]
-                wizard.body = body
+                try:
+                    body = template._render_field(
+                        'body_html', order.ids, compute_lang=True,
+                        options={'post_process': True}
+                    )[order.id]
+                    wizard.body = body
+                except Exception:
+                    wizard.body = False
             else:
                 wizard.body = False
 
-    @api.depends('order_id', 'template_id')
-    def _compute_mail_attachments_widget(self):
-        for wizard in self:
-            attachments = []
-            order = wizard.order_id
-            template = wizard.template_id
-
-            # Generate PDF report attachment
-            report = self.env.ref('sale.action_report_saleorder', raise_if_not_found=False)
-            if report:
-                try:
-                    pdf_content, _ = report._render_qweb_pdf([order.id])
-                    doc_type = 'Quotation' if order.state in ('draft', 'sent') else 'Order'
-                    filename = f"{doc_type}_{order.name}.pdf".replace('/', '_')
-                    attachments.append({
-                        'name': filename,
-                        'mimetype': 'application/pdf',
-                        'placeholder': False,
-                    })
-                except Exception:
-                    pass
-
-            wizard.mail_attachments_widget = attachments or False
-
-    # -------------------------------------------------------------------------
-    # Onchange
-    # -------------------------------------------------------------------------
-
     @api.onchange('template_id')
     def _onchange_template_id(self):
-        """Reload subject and body when template changes."""
         for wizard in self:
             order = wizard.order_id
             if wizard.template_id:
-                subject = wizard.template_id._render_field(
-                    'subject', order.ids, compute_lang=True
-                )[order.id]
-                body = wizard.template_id._render_field(
-                    'body_html', order.ids, compute_lang=True,
-                    options={'post_process': True}
-                )[order.id]
-                wizard.subject = subject
-                wizard.body = body
-
-    # -------------------------------------------------------------------------
-    # Action
-    # -------------------------------------------------------------------------
+                try:
+                    wizard.subject = wizard.template_id._render_field(
+                        'subject', order.ids, compute_lang=True
+                    )[order.id]
+                    wizard.body = wizard.template_id._render_field(
+                        'body_html', order.ids, compute_lang=True,
+                        options={'post_process': True}
+                    )[order.id]
+                except Exception:
+                    pass
 
     def action_send(self):
         """Send the email and mark quotation as sent."""
         self.ensure_one()
         order = self.order_id
 
-        # Validate analytic distribution
         order.filtered(
             lambda so: so.state in ('draft', 'sent')
         ).order_line._validate_analytic_distribution()
 
-        # Generate PDF and attach it
+        # Generate PDF attachment
         attachments = self.env['ir.attachment']
         report = self.env.ref('sale.action_report_saleorder', raise_if_not_found=False)
         if report:
@@ -171,15 +142,7 @@ class SaleOrderSendWizard(models.TransientModel):
             except Exception:
                 pass
 
-        # Send email via mail.thread
-        mail_values = {
-            'subject': self.subject,
-            'body_html': self.body,
-            'partner_ids': self.mail_partner_ids.ids,
-            'attachment_ids': attachments.ids,
-            'email_layout_xmlid': 'mail.mail_notification_layout_with_responsible_signature',
-        }
-
+        # Send via template or message_post
         template = self.template_id
         if template:
             template.send_mail(

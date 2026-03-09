@@ -7,13 +7,9 @@
         <field name="arch" type="xml">
             <form string="Send">
                 <field name="order_id" invisible="1"/>
-
-                <!-- Sending method checkboxes (matching invoice style) -->
-                <div class="m-0 d-flex gap-3 mb-2" id="send_options">
-                    <span class="o_form_label fw-bold">
-                        <i class="fa fa-check-square-o me-1"/> by Email
-                    </span>
-                </div>
+                <field name="can_edit_body" invisible="1"/>
+                <field name="model" invisible="1"/>
+                <field name="res_ids" invisible="1"/>
 
                 <!-- Mail composer -->
                 <group>
@@ -31,11 +27,7 @@
                     <field name="subject" placeholder="Subject..." required="1"/>
                 </group>
 
-                <field
-                    name="body"
-                    class="oe-bordered-editor"
-                    widget="html_mail"
-                />
+                <field name="body" widget="html" style="min-height: 300px;"/>
 
                 <footer>
                     <button
@@ -51,11 +43,6 @@
                         type="object"
                         class="btn-secondary"
                         data-hotkey="x"
-                    />
-                    <field
-                        name="template_id"
-                        widget="mail_composer_template_selector"
-                        invisible="1"
                     />
                 </footer>
             </form>

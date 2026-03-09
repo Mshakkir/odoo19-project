@@ -7,6 +7,7 @@
         <field name="arch" type="xml">
             <form string="Send">
                 <field name="order_id" invisible="1"/>
+                <field name="is_send_rfq" invisible="1"/>
                 <field name="can_edit_body" invisible="1"/>
                 <field name="model" invisible="1"/>
                 <field name="res_ids" invisible="1"/>

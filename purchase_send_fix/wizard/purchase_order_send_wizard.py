@@ -8,6 +8,10 @@ class PurchaseOrderSendWizard(models.TransientModel):
     order_id = fields.Many2one(
         'purchase.order', string='Purchase Order', required=True, ondelete='cascade'
     )
+    is_send_rfq = fields.Boolean(
+        string='Is RFQ Send',
+        help='True = Send RFQ, False = Send PO',
+    )
     mail_partner_ids = fields.Many2many(
         'res.partner',
         string='To',
@@ -36,7 +40,7 @@ class PurchaseOrderSendWizard(models.TransientModel):
         store=True,
         readonly=False,
     )
-    # Required by html widget / mail composer compatibility
+    # Required fields for widget compatibility
     can_edit_body = fields.Boolean(default=True)
     model = fields.Char(default='purchase.order')
     res_ids = fields.Char(compute='_compute_res_ids')
@@ -46,10 +50,10 @@ class PurchaseOrderSendWizard(models.TransientModel):
         for wizard in self:
             wizard.res_ids = str(wizard.order_id.ids)
 
-    @api.depends('order_id')
+    @api.depends('order_id', 'is_send_rfq')
     def _compute_template_id(self):
         for wizard in self:
-            # Standard purchase RFQ send template
+            # Both RFQ and PO use the same purchase template
             template = self.env.ref(
                 'purchase.email_template_edi_purchase',
                 raise_if_not_found=False
@@ -61,7 +65,6 @@ class PurchaseOrderSendWizard(models.TransientModel):
         for wizard in self:
             order = wizard.order_id
             partners = self.env['res.partner']
-            # Add vendor (partner_id) as recipient
             if order.partner_id:
                 partners |= order.partner_id
             wizard.mail_partner_ids = partners
@@ -120,7 +123,6 @@ class PurchaseOrderSendWizard(models.TransientModel):
                     pass
 
     def action_send(self):
-        """Send the email and mark PO/RFQ as sent."""
         self.ensure_one()
         order = self.order_id
 
@@ -171,7 +173,7 @@ class PurchaseOrderSendWizard(models.TransientModel):
                 subtype_xmlid='mail.mt_comment',
             )
 
-        # Mark as sent (state: draft -> sent)
+        # Mark RFQ as sent
         if order.state == 'draft':
             order.write({'state': 'sent'})
 

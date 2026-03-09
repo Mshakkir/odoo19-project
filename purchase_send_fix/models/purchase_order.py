@@ -5,18 +5,17 @@ class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
     def action_rfq_send(self):
-        """Override to open our custom send wizard (fixes missing view 303 error)."""
-        return self._open_send_wizard()
-
-    def action_send_rfq(self):
-        """Override alternative method name used in some Odoo versions."""
-        return self._open_send_wizard()
-
-    def _open_send_wizard(self):
+        """Override to open custom send wizard — fixes missing ir.ui.view(303) error.
+        Called for Send RFQ (send_rfq=True) and Send PO (send_rfq=False).
+        """
         self.ensure_one()
+
+        # Context tells us if this is RFQ send or PO send
+        is_send_rfq = self.env.context.get('send_rfq', True)
 
         wizard = self.env['purchase.order.send.wizard'].create({
             'order_id': self.id,
+            'is_send_rfq': is_send_rfq,
         })
 
         form_view = self.env.ref(
@@ -24,8 +23,10 @@ class PurchaseOrder(models.Model):
             raise_if_not_found=False,
         )
 
+        doc_label = _('Send RFQ') if is_send_rfq else _('Send PO')
+
         return {
-            'name': _('Send'),
+            'name': doc_label,
             'type': 'ir.actions.act_window',
             'view_mode': 'form',
             'res_model': 'purchase.order.send.wizard',

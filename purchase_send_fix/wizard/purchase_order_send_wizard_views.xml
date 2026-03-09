@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <record id="sale_order_send_wizard_form" model="ir.ui.view">
-        <field name="name">sale.order.send.wizard.form</field>
-        <field name="model">sale.order.send.wizard</field>
+    <record id="purchase_order_send_wizard_form" model="ir.ui.view">
+        <field name="name">purchase.order.send.wizard.form</field>
+        <field name="model">purchase.order.send.wizard</field>
         <field name="arch" type="xml">
             <form string="Send">
                 <field name="order_id" invisible="1"/>
@@ -27,7 +27,7 @@
                     <field name="subject" placeholder="Subject..." required="1"/>
                 </group>
 
-                <field name="body" widget="html" style="min-height: 300px;"/>
+                <field name="body" widget="html" style="min-height:300px;"/>
 
                 <footer>
                     <button
@@ -50,18 +50,3 @@
     </record>
 
 </odoo>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

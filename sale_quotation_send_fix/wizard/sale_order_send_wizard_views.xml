@@ -9,13 +9,10 @@
                 <field name="order_id" invisible="1"/>
 
                 <!-- Sending method checkboxes (matching invoice style) -->
-                <div class="m-0" id="send_options">
-                    <div class="d-flex gap-3 mb-2">
-                        <label class="fw-bold">
-                            <input type="checkbox" checked="1" disabled="1" class="me-1"/>
-                            by Email
-                        </label>
-                    </div>
+                <div class="m-0 d-flex gap-3 mb-2" id="send_options">
+                    <span class="o_form_label fw-bold">
+                        <i class="fa fa-check-square-o me-1"/> by Email
+                    </span>
                 </div>
 
                 <!-- Mail composer -->

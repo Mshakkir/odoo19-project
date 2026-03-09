@@ -53,11 +53,21 @@ class PurchaseOrderSendWizard(models.TransientModel):
     @api.depends('order_id', 'is_send_rfq')
     def _compute_template_id(self):
         for wizard in self:
-            # Both RFQ and PO use the same purchase template
-            template = self.env.ref(
-                'purchase.email_template_edi_purchase',
-                raise_if_not_found=False
-            )
+            if wizard.is_send_rfq:
+                template = self.env.ref(
+                    'purchase.email_template_edi_purchase',
+                    raise_if_not_found=False
+                )
+            else:
+                template = self.env.ref(
+                    'purchase.email_template_edi_purchase_done',
+                    raise_if_not_found=False
+                )
+                if not template:
+                    template = self.env.ref(
+                        'purchase.email_template_edi_purchase',
+                        raise_if_not_found=False
+                    )
             wizard.template_id = template
 
     @api.depends('order_id', 'template_id')

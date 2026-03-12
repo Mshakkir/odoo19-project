@@ -1,0 +1,93 @@
+<odoo>
+    <template id="restrict_checkout_country"
+              inherit_id="website_sale.address_form_fields">
+
+        <!-- ① Add "Short Address Code" field after Apartment / suite / etc. (street2) -->
+        <xpath expr="//input[@name='street2']" position="after">
+            <div class="mb-3">
+                <label class="form-label" for="short_address_code">
+                    Short Address Code
+                </label>
+                <input type="text"
+                       name="short_address_code"
+                       id="short_address_code"
+                       class="form-control"
+                       placeholder="Short Address Code"
+                       t-att-value="partner.short_address_code if partner and partner.short_address_code else ''"/>
+            </div>
+        </xpath>
+
+        <!-- ② Restrict Country dropdown to Saudi Arabia and Bahrain only -->
+        <xpath expr="//select[@name='country_id']" position="replace">
+            <div class="mb-3">
+                <label class="form-label" for="country_id">
+                    Country
+                </label>
+                <select name="country_id"
+                        id="country_id"
+                        class="form-select"
+                        required="required">
+                    <!-- Default option -->
+                    <option value=""
+                            disabled="disabled"
+                            t-att-selected="not partner.country_id if partner else True">
+                        Select Country
+                    </option>
+                    <!-- Saudi Arabia -->
+                    <option t-att-value="request.env.ref('base.sa').id"
+                            t-att-selected="partner.country_id.id == request.env.ref('base.sa').id if partner and partner.country_id else False">
+                        Saudi Arabia
+                    </option>
+                    <!-- Bahrain -->
+                    <option t-att-value="request.env.ref('base.bh').id"
+                            t-att-selected="partner.country_id.id == request.env.ref('base.bh').id if partner and partner.country_id else False">
+                        Bahrain
+                    </option>
+                </select>
+            </div>
+        </xpath>
+
+    </template>
+</odoo>
+
+
+
+
+
+
+
+
+
+<!--<odoo>-->
+<!--    <template id="restrict_checkout_country"-->
+<!--              inherit_id="website_sale.address_form_fields">-->
+<!--        <xpath expr="//select[@name='country_id']" position="replace">-->
+<!--            <div class="mb-3">-->
+<!--                <label class="form-label" for="country_id">-->
+<!--                    Country-->
+<!--                </label>-->
+<!--                <select name="country_id"-->
+<!--                        id="country_id"-->
+<!--                        class="form-select"-->
+<!--                        required="required">-->
+<!--                    &lt;!&ndash; Default option &ndash;&gt;-->
+<!--                    <option value=""-->
+<!--                            disabled="disabled"-->
+<!--                            t-att-selected="not partner.country_id if partner else True">-->
+<!--                        Select Country-->
+<!--                    </option>-->
+<!--                    &lt;!&ndash; Saudi Arabia &ndash;&gt;-->
+<!--                    <option t-att-value="request.env.ref('base.sa').id"-->
+<!--                            t-att-selected="partner.country_id.id == request.env.ref('base.sa').id if partner and partner.country_id else False">-->
+<!--                        Saudi Arabia-->
+<!--                    </option>-->
+<!--                    &lt;!&ndash; Bahrain &ndash;&gt;-->
+<!--                    <option t-att-value="request.env.ref('base.bh').id"-->
+<!--                            t-att-selected="partner.country_id.id == request.env.ref('base.bh').id if partner and partner.country_id else False">-->
+<!--                        Bahrain-->
+<!--                    </option>-->
+<!--                </select>-->
+<!--            </div>-->
+<!--        </xpath>-->
+<!--    </template>-->
+<!--</odoo>-->

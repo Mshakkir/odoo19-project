@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Whitelist short_address_code so that website_sale's form POST handler
+        does NOT strip it before saving. Without this, Odoo raises a 500 error
+        because unknown fields are blacklisted by default.
+    -->
+    <function model="ir.model.fields"
+              name="formbuilder_whitelist"
+              eval="['res.partner', ['short_address_code']]"/>
+</odoo>

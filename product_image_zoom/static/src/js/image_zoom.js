@@ -1,303 +1,319 @@
+/** @odoo-module **/
 /**
- * product_image_zoom/static/src/js/image_zoom.js
- * Odoo 19 CE — plain IIFE, no OWL patching required.
- *
- * KEY FIX: uses /web/image/<model>/<id>/image_1920 to load the
- *          original full-resolution image instead of the thumbnail.
+ * Product Image Zoom - Odoo 19 CE
+ * Opens full-resolution image_1920 in a lightbox when the product image is clicked.
  */
 
 (function () {
     "use strict";
 
-    function clamp(v, mn, mx) { return Math.min(mx, Math.max(mn, v)); }
+    /* ── tiny helpers ─────────────────────────────────────────────────────── */
+    function clamp(v, a, b) { return Math.min(b, Math.max(a, v)); }
 
-    function touchDist(t) {
-        var dx = t[0].clientX - t[1].clientX, dy = t[0].clientY - t[1].clientY;
-        return Math.sqrt(dx*dx + dy*dy);
+    function el(tag, cls) {
+        var n = document.createElement(tag);
+        if (cls) { n.className = cls; }
+        return n;
     }
 
-    // ── Full-resolution URL ────────────────────────────────────────────────────
-    // Odoo renders the ImageField as a small thumbnail (often image_128 or a
-    // resized blob). We rebuild the URL pointing to image_1920 so the lightbox
-    // shows the stored original image.
+    function btn(html) {
+        var b = el("div", "piz-btn");
+        b.innerHTML = html;
+        return b;
+    }
 
-    function getFullResUrl(imgEl) {
-        var src = (imgEl.getAttribute("src") || imgEl.src || "").split("?")[0];
+    /* ── build full-res URL ───────────────────────────────────────────────── */
+    function fullResUrl(imgEl) {
+        var src = imgEl.getAttribute("src") || imgEl.src || "";
 
-        // Case 1: already a /web/image/... URL → swap the field name
-        // e.g. /web/image/product.template/42/image_128
-        //   or /web/image/42/image_128
-        var m = src.match(/^(\/web\/image\/[^/]+\/\d+\/)([^/?#]+)/);
+        // Strip query string for matching
+        var base = src.split("?")[0];
+
+        // Pattern: /web/image/MODEL/ID/FIELD  or  /web/image/ID/FIELD
+        var m = base.match(/(\/web\/image\/(?:[^/]+\/)\d+\/)([^/?#]*)/);
         if (m) {
             return m[1] + "image_1920";
         }
 
-        // Case 2: data: URI or /web/image/... without field segment
-        // → try to build URL from record id in the page URL
-        var id = null;
+        // Try to get record id from page URL path  e.g. /odoo/.../products/42
+        var pid = null;
+        var pm = window.location.pathname.match(/\/(\d+)(?:\/|$)/);
+        if (pm) { pid = pm[1]; }
 
-        // Odoo 17+ URL style: /odoo/inventory/products/123
-        var pathM = window.location.pathname.match(/\/(\d+)(?:\/|$)/);
-        if (pathM) id = pathM[1];
-
-        // Also check hash/query ?id=123
-        if (!id) {
-            var hM = window.location.href.match(/[?&#]id=(\d+)/);
-            if (hM) id = hM[1];
+        if (!pid) {
+            var hm = window.location.search.match(/[?&]id=(\d+)/);
+            if (hm) { pid = hm[1]; }
         }
 
-        // Determine model (default product.template for inventory products)
-        var model = "product.template";
-        if (window.location.href.indexOf("product.product") !== -1) {
-            model = "product.product";
+        if (pid) {
+            return "/web/image/product.template/" + pid + "/image_1920";
         }
 
-        if (id) {
-            return "/web/image/" + model + "/" + id + "/image_1920";
-        }
-
-        // Fallback: strip size params and hope for the best
+        // Last resort: return original src
         return src;
     }
 
-    // ── Lightbox ───────────────────────────────────────────────────────────────
-
+    /* ── Lightbox ─────────────────────────────────────────────────────────── */
     function Lightbox(src) {
-        this.scale = 1;
-        this.tx = 0; this.ty = 0;
-        this.MIN = 0.3; this.MAX = 6;
-        this._drag = false;
-        this._lastX = 0; this._lastY = 0;
-        this._lastDist = null; this._lastTX = null; this._lastTY = null;
-        this._build(src);
-        this._bind();
-        document.body.appendChild(this.overlay);
-        this._prevOverflow = document.body.style.overflow;
+        this.scale  = 1;
+        this.tx     = 0;
+        this.ty     = 0;
+        this.MIN    = 0.2;
+        this.MAX    = 8;
+        this._dragging = false;
+        this._mx    = 0;
+        this._my    = 0;
+        this._td    = null;
+        this._ttx   = null;
+        this._tty   = null;
+        this._src   = src;
+
+        this._render();
+        this._listen();
+        document.body.appendChild(this.root);
+        this._savedOverflow = document.body.style.overflow;
         document.body.style.overflow = "hidden";
     }
 
-    Lightbox.prototype._build = function (src) {
-        this.overlay = mk("div", "piz-overlay");
-
-        this.stage = mk("div", "piz-stage");
-        this.overlay.appendChild(this.stage);
-
-        this.wrap = mk("div", "piz-img-wrap");
-        // Loading spinner text
-        this.wrap.innerHTML = '<div class="piz-loading">Loading…</div>';
-
-        this.img = new Image();
+    Lightbox.prototype._render = function () {
         var self = this;
-        this.img.onload = function () {
-            self.wrap.innerHTML = "";
-            self.wrap.appendChild(self.img);
-            self._applyTransform();
-        };
-        this.img.onerror = function () {
-            // Full-res failed → fall back to thumbnail src passed in
-            self.wrap.innerHTML = '<div class="piz-loading" style="color:#f66">Image load failed</div>';
-        };
-        this.img.src = src;
-        this.img.draggable = false;
 
+        // backdrop
+        this.root = el("div", "piz-root");
+
+        // stage (click outside → close)
+        this.stage = el("div", "piz-stage");
+        this.root.appendChild(this.stage);
+
+        // image wrapper
+        this.wrap = el("div", "piz-wrap");
         this.stage.appendChild(this.wrap);
 
-        // Close
-        this.closeBtn = mk("div", "piz-close");
+        // loading text
+        this.loader = el("div", "piz-loader");
+        this.loader.textContent = "Loading…";
+        this.wrap.appendChild(this.loader);
+
+        // image
+        this.image = new window.Image();
+        this.image.draggable = false;
+        this.image.onload = function () {
+            if (self.loader && self.loader.parentNode) {
+                self.loader.parentNode.removeChild(self.loader);
+            }
+            self.wrap.appendChild(self.image);
+            self._draw();
+        };
+        this.image.onerror = function () {
+            self.loader.textContent = "Could not load image.";
+            self.loader.style.color = "#f88";
+        };
+        this.image.src = this._src;
+
+        // close button
+        this.closeBtn = el("div", "piz-x");
         this.closeBtn.innerHTML = "&times;";
-        this.overlay.appendChild(this.closeBtn);
+        this.root.appendChild(this.closeBtn);
 
-        // Hint
-        var hint = mk("div", "piz-hint");
+        // hint
+        var hint = el("div", "piz-hint");
         hint.textContent = "Scroll to zoom  ·  Drag to pan  ·  Esc to close";
-        this.overlay.appendChild(hint);
+        this.root.appendChild(hint);
 
-        // Controls
-        this.controls = mk("div", "piz-controls");
-        this.btnOut   = mkBtn("&minus;");
-        this.pct      = mk("div", "piz-pct"); this.pct.textContent = "100%";
-        this.btnIn    = mkBtn("&plus;");
-        this.btnReset = mkBtn("&#8635;");
-        [this.btnOut, this.pct, this.btnIn, this.btnReset].forEach(function (n) {
-            self.controls.appendChild(n);
-        });
-        this.overlay.appendChild(this.controls);
+        // control bar
+        var bar     = el("div", "piz-bar");
+        this.bOut   = btn("\u2212");
+        this.label  = el("div", "piz-pct"); this.label.textContent = "100%";
+        this.bIn    = btn("+");
+        this.bReset = btn("\u21BA");
+        bar.appendChild(this.bOut);
+        bar.appendChild(this.label);
+        bar.appendChild(this.bIn);
+        bar.appendChild(this.bReset);
+        this.root.appendChild(bar);
 
-        this._applyTransform();
+        this._draw();
     };
 
-    Lightbox.prototype._bind = function () {
+    Lightbox.prototype._draw = function () {
+        var t = "translate(calc(-50% + " + this.tx + "px), calc(-50% + " + this.ty + "px)) scale(" + this.scale + ")";
+        this.wrap.style.transform = t;
+        this.label.textContent = Math.round(this.scale * 100) + "%";
+    };
+
+    Lightbox.prototype._zoom = function (d, ox, oy) {
+        var r   = this.stage.getBoundingClientRect();
+        var cx  = (ox !== undefined) ? ox : r.left + r.width  / 2;
+        var cy  = (oy !== undefined) ? oy : r.top  + r.height / 2;
+        var icx = r.left + r.width  / 2 + this.tx;
+        var icy = r.top  + r.height / 2 + this.ty;
+        var p   = this.scale;
+        this.scale = clamp(this.scale + d, this.MIN, this.MAX);
+        var ratio = this.scale / p;
+        this.tx = cx + ratio * (icx - cx) - (r.left + r.width  / 2);
+        this.ty = cy + ratio * (icy - cy) - (r.top  + r.height / 2);
+        this._draw();
+    };
+
+    Lightbox.prototype._reset = function () {
+        this.scale = 1; this.tx = 0; this.ty = 0;
+        this._draw();
+    };
+
+    Lightbox.prototype.close = function () {
+        var self = this;
+        document.removeEventListener("keydown", this._kh);
+        document.removeEventListener("mousemove", this._mmh);
+        document.removeEventListener("mouseup", this._muh);
+        document.body.style.overflow = this._savedOverflow;
+        this.root.style.opacity = "0";
+        this.root.style.transition = "opacity 0.15s";
+        setTimeout(function () {
+            if (self.root.parentNode) {
+                self.root.parentNode.removeChild(self.root);
+            }
+        }, 160);
+    };
+
+    Lightbox.prototype._listen = function () {
         var self = this;
 
+        // backdrop click
         this.stage.addEventListener("click", function (e) {
-            if (e.target === self.stage) self.destroy();
+            if (e.target === self.stage) { self.close(); }
         });
-        this.closeBtn.addEventListener("click", function () { self.destroy(); });
+        this.closeBtn.addEventListener("click", function () { self.close(); });
 
-        this._onKey = function (e) {
-            if (e.key === "Escape") self.destroy();
-            else if (e.key === "+" || e.key === "=") self._zoom(0.2);
-            else if (e.key === "-") self._zoom(-0.2);
-            else if (e.key === "0") self._reset();
+        // keyboard
+        this._kh = function (e) {
+            if      (e.key === "Escape")             { self.close(); }
+            else if (e.key === "+" || e.key === "=") { self._zoom(0.2); }
+            else if (e.key === "-")                  { self._zoom(-0.2); }
+            else if (e.key === "0")                  { self._reset(); }
         };
-        document.addEventListener("keydown", this._onKey);
+        document.addEventListener("keydown", this._kh);
 
+        // scroll zoom
         this.stage.addEventListener("wheel", function (e) {
             e.preventDefault();
             self._zoom(e.deltaY < 0 ? 0.15 : -0.15, e.clientX, e.clientY);
         }, { passive: false });
 
+        // mouse drag
         this.stage.addEventListener("mousedown", function (e) {
-            if (e.button !== 0) return;
-            self._drag = true;
-            self._lastX = e.clientX; self._lastY = e.clientY;
-            self.stage.classList.add("dragging");
+            if (e.button !== 0) { return; }
+            self._dragging = true;
+            self._mx = e.clientX;
+            self._my = e.clientY;
+            self.stage.style.cursor = "grabbing";
             e.preventDefault();
         });
-        document.addEventListener("mousemove", function (e) {
-            if (!self._drag) return;
-            self.tx += e.clientX - self._lastX;
-            self.ty += e.clientY - self._lastY;
-            self._lastX = e.clientX; self._lastY = e.clientY;
-            self._applyTransform();
-        });
-        document.addEventListener("mouseup", function () {
-            self._drag = false;
-            self.stage.classList.remove("dragging");
-        });
+        this._mmh = function (e) {
+            if (!self._dragging) { return; }
+            self.tx += e.clientX - self._mx;
+            self.ty += e.clientY - self._my;
+            self._mx = e.clientX;
+            self._my = e.clientY;
+            self._draw();
+        };
+        this._muh = function () {
+            self._dragging = false;
+            self.stage.style.cursor = "grab";
+        };
+        document.addEventListener("mousemove", this._mmh);
+        document.addEventListener("mouseup",   this._muh);
 
+        // touch
         this.stage.addEventListener("touchstart", function (e) {
             if (e.touches.length === 2) {
-                self._lastDist = touchDist(e.touches);
-                self._lastTX = null; self._lastTY = null;
+                var dx = e.touches[0].clientX - e.touches[1].clientX;
+                var dy = e.touches[0].clientY - e.touches[1].clientY;
+                self._td = Math.sqrt(dx*dx + dy*dy);
+                self._ttx = null;
             } else if (e.touches.length === 1) {
-                self._lastTX = e.touches[0].clientX;
-                self._lastTY = e.touches[0].clientY;
-                self._lastDist = null;
+                self._ttx = e.touches[0].clientX;
+                self._tty = e.touches[0].clientY;
+                self._td  = null;
             }
         }, { passive: true });
 
         this.stage.addEventListener("touchmove", function (e) {
             e.preventDefault();
-            if (e.touches.length === 2 && self._lastDist) {
-                var d = touchDist(e.touches);
-                self.scale = clamp(self.scale * (d / self._lastDist), self.MIN, self.MAX);
-                self._lastDist = d;
-                self._applyTransform();
-            } else if (e.touches.length === 1 && self._lastTX !== null) {
-                self.tx += e.touches[0].clientX - self._lastTX;
-                self.ty += e.touches[0].clientY - self._lastTY;
-                self._lastTX = e.touches[0].clientX;
-                self._lastTY = e.touches[0].clientY;
-                self._applyTransform();
+            if (e.touches.length === 2 && self._td !== null) {
+                var dx2 = e.touches[0].clientX - e.touches[1].clientX;
+                var dy2 = e.touches[0].clientY - e.touches[1].clientY;
+                var d   = Math.sqrt(dx2*dx2 + dy2*dy2);
+                self.scale = clamp(self.scale * (d / self._td), self.MIN, self.MAX);
+                self._td = d;
+                self._draw();
+            } else if (e.touches.length === 1 && self._ttx !== null) {
+                self.tx += e.touches[0].clientX - self._ttx;
+                self.ty += e.touches[0].clientY - self._tty;
+                self._ttx = e.touches[0].clientX;
+                self._tty = e.touches[0].clientY;
+                self._draw();
             }
         }, { passive: false });
 
         this.stage.addEventListener("touchend", function () {
-            self._lastDist = null; self._lastTX = null; self._lastTY = null;
+            self._td = null; self._ttx = null; self._tty = null;
         });
 
-        this.btnIn.addEventListener("click",    function (e) { e.stopPropagation(); self._zoom(0.25); });
-        this.btnOut.addEventListener("click",   function (e) { e.stopPropagation(); self._zoom(-0.25); });
-        this.btnReset.addEventListener("click", function (e) { e.stopPropagation(); self._reset(); });
+        // control buttons
+        this.bIn.addEventListener("click",    function (e) { e.stopPropagation(); self._zoom(0.25); });
+        this.bOut.addEventListener("click",   function (e) { e.stopPropagation(); self._zoom(-0.25); });
+        this.bReset.addEventListener("click", function (e) { e.stopPropagation(); self._reset(); });
     };
 
-    Lightbox.prototype._zoom = function (delta, ox, oy) {
-        var rect = this.stage.getBoundingClientRect();
-        var cx = (ox !== undefined) ? ox : rect.left + rect.width  / 2;
-        var cy = (oy !== undefined) ? oy : rect.top  + rect.height / 2;
-        var imgCX = rect.left + rect.width  / 2 + this.tx;
-        var imgCY = rect.top  + rect.height / 2 + this.ty;
-        var prev  = this.scale;
-        this.scale = clamp(this.scale + delta, this.MIN, this.MAX);
-        var ratio = this.scale / prev;
-        this.tx = cx + ratio * (imgCX - cx) - (rect.left + rect.width  / 2);
-        this.ty = cy + ratio * (imgCY - cy) - (rect.top  + rect.height / 2);
-        this._applyTransform();
-    };
+    /* ── click delegation ─────────────────────────────────────────────────── */
 
-    Lightbox.prototype._reset = function () {
-        this.scale = 1; this.tx = 0; this.ty = 0;
-        this._applyTransform();
-    };
-
-    Lightbox.prototype._applyTransform = function () {
-        this.wrap.style.transform =
-            "translate(calc(-50% + " + this.tx + "px), calc(-50% + " + this.ty + "px)) scale(" + this.scale + ")";
-        if (this.pct) this.pct.textContent = Math.round(this.scale * 100) + "%";
-    };
-
-    Lightbox.prototype.destroy = function () {
-        var self = this;
-        document.removeEventListener("keydown", this._onKey);
-        document.body.style.overflow = this._prevOverflow;
-        this.overlay.classList.add("piz-closing");
-        setTimeout(function () {
-            if (self.overlay.parentNode) self.overlay.parentNode.removeChild(self.overlay);
-        }, 160);
-    };
-
-    // ── DOM helpers ────────────────────────────────────────────────────────────
-
-    function mk(tag, cls) {
-        var n = document.createElement(tag);
-        if (cls) n.className = cls;
-        return n;
-    }
-    function mkBtn(html) {
-        var b = mk("div", "piz-btn"); b.innerHTML = html; return b;
-    }
-
-    // ── Click delegation ───────────────────────────────────────────────────────
-
-    function isInsideImageField(imgEl) {
-        var n = imgEl.parentElement;
-        for (var i = 0; i < 8; i++) {
-            if (!n) break;
-            if (n.classList && n.classList.contains("o_field_image")) return true;
+    function insideImageField(img) {
+        var n = img.parentElement;
+        for (var i = 0; i < 10; i++) {
+            if (!n) { return false; }
+            if (n.classList && n.classList.contains("o_field_image")) { return true; }
             n = n.parentElement;
         }
         return false;
     }
 
     function isPlaceholder(src) {
-        if (!src) return true;
-        if (src.indexOf("placeholder") !== -1) return true;
-        if (src.startsWith("data:") && src.length < 200) return true;
+        if (!src) { return true; }
+        if (src.indexOf("placeholder") !== -1) { return true; }
+        if (src.substring(0, 5) === "data:" && src.length < 300) { return true; }
         return false;
     }
 
     document.addEventListener("click", function (e) {
         var t = e.target;
-        if (!t || t.tagName !== "IMG") return;
-        if (!isInsideImageField(t)) return;
-        var thumb = t.src || t.getAttribute("src") || "";
-        if (isPlaceholder(thumb)) return;
-
+        if (!t || t.tagName !== "IMG") { return; }
+        if (!insideImageField(t))      { return; }
+        var src = t.getAttribute("src") || t.src || "";
+        if (isPlaceholder(src))        { return; }
         e.stopPropagation();
         e.preventDefault();
-
-        new Lightbox(getFullResUrl(t));
+        new Lightbox(fullResUrl(t));
     }, true);
 
-    // ── Cursor styling via MutationObserver ────────────────────────────────────
+    /* ── cursor ───────────────────────────────────────────────────────────── */
 
-    function applyCursor() {
-        document.querySelectorAll(".o_field_image img").forEach(function (img) {
-            img.style.cursor = "zoom-in";
-        });
+    function setCursor() {
+        var imgs = document.querySelectorAll(".o_field_image img");
+        for (var i = 0; i < imgs.length; i++) {
+            imgs[i].style.cursor = "zoom-in";
+        }
     }
 
-    new MutationObserver(function (muts) {
-        for (var i = 0; i < muts.length; i++) {
-            if (muts[i].addedNodes.length) { applyCursor(); break; }
+    new MutationObserver(function (ms) {
+        for (var i = 0; i < ms.length; i++) {
+            if (ms[i].addedNodes.length) { setCursor(); break; }
         }
     }).observe(document.body, { childList: true, subtree: true });
 
     if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", applyCursor);
+        document.addEventListener("DOMContentLoaded", setCursor);
     } else {
-        applyCursor();
+        setCursor();
     }
 
-})();
+}());

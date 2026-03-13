@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!--
-        Disable the Terms and Conditions block on the product page.
-        Source: odoo/tutorials 19.0 - website_airproof/data/presets.xml
-        The correct approach is deactivating the view, NOT using xpath.
-        Template id: website_sale.product_custom_text
-    -->
-    <record id="website_sale.product_custom_text" model="ir.ui.view">
-        <field name="active" eval="False"/>
-    </record>
+        Hide Terms & Conditions block from product page in Odoo 19 CE.
 
+        The "Terms and Conditions / 30-day money-back / Shipping" text comes
+        from the product's "Sales Description" field (description_sale).
+        It is rendered with: <div t-field="product.description_sale"/>
+
+        We replace that t-field node with nothing to hide it completely.
+        This xpath is stable across all Odoo 17/18/19 versions.
+    -->
+    <template id="hide_product_terms"
+              inherit_id="website_sale.product"
+              name="Hide Terms and Conditions">
+
+        <xpath expr="//*[@t-field='product.description_sale']/.." position="replace"/>
+
+    </template>
 </odoo>

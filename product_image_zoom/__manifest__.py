@@ -9,7 +9,8 @@
     'assets': {
         'web.assets_backend': [
             'product_image_zoom/static/src/css/image_zoom.css',
-            'product_image_zoom/static/src/js/image_zoom.js',
+            # Plain script — NOT an ES module. Must NOT have @odoo-module tag.
+            ('prepend', 'product_image_zoom/static/src/js/image_zoom.js'),
         ],
     },
     'installable': True,

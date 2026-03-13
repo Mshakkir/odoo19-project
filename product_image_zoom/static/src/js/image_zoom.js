@@ -1,4 +1,3 @@
-/** @odoo-module **/
 /**
  * Product Image Zoom - Odoo 19 CE
  * Opens full-resolution image_1920 in a lightbox when the product image is clicked.

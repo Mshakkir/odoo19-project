@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!--
-        Hide Terms & Conditions block from product page in Odoo 19 CE.
-
-        The "Terms and Conditions / 30-day money-back / Shipping" text comes
-        from the product's "Sales Description" field (description_sale).
-        It is rendered with: <div t-field="product.description_sale"/>
-
-        We replace that t-field node with nothing to hide it completely.
-        This xpath is stable across all Odoo 17/18/19 versions.
+        Hide Terms and Conditions from product page.
+        Exact template found at:
+        /opt/odoo19-project/odoo19/addons/website_sale/views/templates.xml:2530
+        id="website_sale.product_terms_and_conditions"
     -->
-    <template id="hide_product_terms"
-              inherit_id="website_sale.product"
-              name="Hide Terms and Conditions">
-
-        <xpath expr="//*[@t-field='product.description_sale']/.." position="replace"/>
-
+    <template id="hide_product_terms_and_conditions"
+              inherit_id="website_sale.product_terms_and_conditions"
+              name="Hide Terms and Conditions"
+              active="False">
+        <xpath expr="." position="replace">
+            <template/>
+        </xpath>
     </template>
+
 </odoo>

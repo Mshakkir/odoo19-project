@@ -2,17 +2,13 @@
 <odoo>
     <!--
         Hide Terms and Conditions from product page.
-        Exact template found at:
-        /opt/odoo19-project/odoo19/addons/website_sale/views/templates.xml:2530
-        id="website_sale.product_terms_and_conditions"
+        Source: templates.xml:2530 - standalone template called via t-call
+        Strategy: inherit and replace entire content with empty string
     -->
     <template id="hide_product_terms_and_conditions"
               inherit_id="website_sale.product_terms_and_conditions"
-              name="Hide Terms and Conditions"
-              active="False">
-        <xpath expr="." position="replace">
-            <template/>
-        </xpath>
+              name="Hide Terms and Conditions">
+        <xpath expr="//small" position="replace"/>
     </template>
 
 </odoo>

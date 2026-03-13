@@ -17,13 +17,10 @@
             </div>
         </xpath>
 
-        <!--
-            Replace the entire country wrapper div (label + select together)
-            so only ONE label appears. The parent template wraps both in a div.mb-3.
-        -->
+        <!-- Replace parent div of country select (label + select) to fix duplicate star -->
         <xpath expr="//select[@name='country_id']/.." position="replace">
             <div class="mb-3">
-                <label class="col-form-label" for="country_id">Country <span class="o_required_modifier">*</span></label>
+                <label class="col-form-label" for="country_id">Country *</label>
                 <select name="country_id"
                         id="country_id"
                         class="form-select"

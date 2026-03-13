@@ -142,3 +142,11 @@
     white-space: nowrap;
     pointer-events: none;
 }
+
+/* Loading indicator inside lightbox */
+.piz-loading {
+    color: rgba(255,255,255,0.6);
+    font-size: 15px;
+    padding: 60px 40px;
+    text-align: center;
+}

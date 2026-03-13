@@ -17,11 +17,11 @@
             </div>
         </xpath>
 
-        <!-- REMOVE the existing Country label (the one rendered by the original template) -->
-        <xpath expr="//label[@for='country_id']" position="replace"/>
-
-        <!-- REPLACE the country select with restricted options + single label -->
-        <xpath expr="//select[@name='country_id']" position="replace">
+        <!--
+            Replace the entire country wrapper div (label + select together)
+            so only ONE label appears. The parent template wraps both in a div.mb-3.
+        -->
+        <xpath expr="//select[@name='country_id']/.." position="replace">
             <div class="mb-3">
                 <label class="col-form-label" for="country_id">Country <span class="o_required_modifier">*</span></label>
                 <select name="country_id"

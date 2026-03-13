@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="hide_product_terms_and_conditions"
-              inherit_id="website_sale.product"
-              name="Hide Terms and Conditions">
+    <!--
+        Disable the Terms and Conditions block on the product page.
+        Source: odoo/tutorials 19.0 - website_airproof/data/presets.xml
+        The correct approach is deactivating the view, NOT using xpath.
+        Template id: website_sale.product_custom_text
+    -->
+    <record id="website_sale.product_custom_text" model="ir.ui.view">
+        <field name="active" eval="False"/>
+    </record>
 
-        <!--
-            The Terms and Conditions block (and share icons) live inside
-            div#o_product_terms_and_share in website_sale.product template.
-            Replacing it with an empty element removes it entirely from the page.
-        -->
-        <xpath expr="//div[@id='o_product_terms_and_share']" position="replace"/>
-
-    </template>
 </odoo>

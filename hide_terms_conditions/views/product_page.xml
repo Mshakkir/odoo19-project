@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="hide_product_terms_and_conditions"
+              inherit_id="website_sale.product"
+              name="Hide Terms and Conditions">
+
+        <!--
+            The Terms and Conditions block (and share icons) live inside
+            div#o_product_terms_and_share in website_sale.product template.
+            Replacing it with an empty element removes it entirely from the page.
+        -->
+        <xpath expr="//div[@id='o_product_terms_and_share']" position="replace"/>
+
+    </template>
+</odoo>

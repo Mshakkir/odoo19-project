@@ -17,29 +17,30 @@
             </div>
         </xpath>
 
-        <!-- Replace parent div of country select (label + select) to fix duplicate star -->
-        <xpath expr="//select[@name='country_id']/.." position="replace">
-            <div class="mb-3">
-                <label class="col-form-label" for="country_id">Country *</label>
-                <select name="country_id"
-                        id="country_id"
-                        class="form-select"
-                        required="required">
-                    <option value=""
-                            disabled="disabled"
-                            t-att-selected="not partner.country_id if partner else True">
-                        Select Country
-                    </option>
-                    <option t-att-value="request.env.ref('base.sa').id"
-                            t-att-selected="partner.country_id.id == request.env.ref('base.sa').id if partner and partner.country_id else False">
-                        Saudi Arabia
-                    </option>
-                    <option t-att-value="request.env.ref('base.bh').id"
-                            t-att-selected="partner.country_id.id == request.env.ref('base.bh').id if partner and partner.country_id else False">
-                        Bahrain
-                    </option>
-                </select>
-            </div>
+        <!--
+            Replace ONLY the select element itself (not the parent div).
+            This keeps the original label with its single star intact,
+            and only swaps the dropdown options.
+        -->
+        <xpath expr="//select[@name='country_id']" position="replace">
+            <select name="country_id"
+                    id="country_id"
+                    class="form-select"
+                    required="required">
+                <option value=""
+                        disabled="disabled"
+                        t-att-selected="not partner.country_id if partner else True">
+                    Select Country
+                </option>
+                <option t-att-value="request.env.ref('base.sa').id"
+                        t-att-selected="partner.country_id.id == request.env.ref('base.sa').id if partner and partner.country_id else False">
+                    Saudi Arabia
+                </option>
+                <option t-att-value="request.env.ref('base.bh').id"
+                        t-att-selected="partner.country_id.id == request.env.ref('base.bh').id if partner and partner.country_id else False">
+                    Bahrain
+                </option>
+            </select>
         </xpath>
 
     </template>

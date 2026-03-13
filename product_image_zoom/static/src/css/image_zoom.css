@@ -1,140 +1,144 @@
-/* Product Image Zoom - Lightbox Overlay */
+/* ── Product Image Zoom Lightbox ── */
 
+/* Make any image inside an OWL ImageField look clickable */
+.o_field_image img,
+.o_field_widget.o_field_image img {
+    cursor: zoom-in !important;
+    transition: opacity 0.15s;
+}
+.o_field_image img:hover {
+    opacity: 0.88;
+}
+
+/* Overlay backdrop */
 .piz-overlay {
     position: fixed;
     inset: 0;
-    z-index: 10000;
-    background: rgba(0, 0, 0, 0.85);
+    z-index: 99999;
+    background: rgba(0, 0, 0, 0.88);
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: zoom-out;
-    animation: piz-fade-in 0.2s ease;
+    animation: pizFadeIn 0.18s ease forwards;
 }
-
-@keyframes piz-fade-in {
+@keyframes pizFadeIn {
     from { opacity: 0; }
     to   { opacity: 1; }
 }
+.piz-overlay.piz-closing {
+    animation: pizFadeOut 0.15s ease forwards;
+}
+@keyframes pizFadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
 
-.piz-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
+/* Draggable image wrapper */
+.piz-stage {
+    position: absolute;
+    inset: 0;
     overflow: hidden;
-}
-
-.piz-image-wrapper {
-    position: relative;
     cursor: grab;
-    transition: none;
-    will-change: transform;
-    user-select: none;
 }
-
-.piz-image-wrapper.piz-dragging {
+.piz-stage.dragging {
     cursor: grabbing;
 }
 
-.piz-image-wrapper img {
+.piz-img-wrap {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: center center;
+    /* JS sets transform */
+    will-change: transform;
+    user-select: none;
+}
+.piz-img-wrap img {
     display: block;
     max-width: 90vw;
     max-height: 90vh;
     object-fit: contain;
     border-radius: 4px;
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 12px 60px rgba(0,0,0,0.7);
     pointer-events: none;
     user-select: none;
     -webkit-user-drag: none;
+    /* Offset so natural centre is at 0,0 (translate(-50%,-50%) applied via JS) */
+    transform: translate(-50%, -50%);
 }
 
 /* Close button */
 .piz-close {
     position: fixed;
-    top: 16px;
-    right: 20px;
-    z-index: 10001;
-    background: rgba(255,255,255,0.15);
-    border: 2px solid rgba(255,255,255,0.4);
-    color: #fff;
-    font-size: 22px;
-    line-height: 1;
-    width: 40px;
-    height: 40px;
+    top: 14px;
+    right: 18px;
+    z-index: 100001;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    border: 2px solid rgba(255,255,255,0.35);
+    color: #fff;
+    font-size: 20px;
+    line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: background 0.15s;
 }
-.piz-close:hover {
-    background: rgba(255,255,255,0.3);
-}
+.piz-close:hover { background: rgba(255,255,255,0.28); }
 
-/* Zoom controls */
+/* Bottom control bar */
 .piz-controls {
     position: fixed;
-    bottom: 24px;
+    bottom: 22px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 10001;
+    z-index: 100001;
     display: flex;
     align-items: center;
-    gap: 10px;
-    background: rgba(0,0,0,0.55);
-    backdrop-filter: blur(6px);
-    border-radius: 30px;
-    padding: 8px 18px;
+    gap: 8px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    border-radius: 28px;
+    padding: 7px 16px;
     color: #fff;
+    font-size: 13px;
+    pointer-events: all;
+}
+.piz-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.13);
+    border: 1px solid rgba(255,255,255,0.28);
+    color: #fff;
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.14s;
+    user-select: none;
+}
+.piz-btn:hover { background: rgba(255,255,255,0.28); }
+.piz-pct {
+    min-width: 46px;
+    text-align: center;
+    font-weight: 700;
     font-size: 13px;
 }
 
-.piz-btn {
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: #fff;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 18px;
-    line-height: 1;
-    transition: background 0.15s;
-    user-select: none;
-}
-.piz-btn:hover {
-    background: rgba(255,255,255,0.3);
-}
-
-.piz-zoom-label {
-    min-width: 44px;
-    text-align: center;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-}
-
-/* Hint tooltip */
+/* Hint bar */
 .piz-hint {
     position: fixed;
-    top: 16px;
+    top: 14px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 10001;
-    color: rgba(255,255,255,0.55);
-    font-size: 12px;
-    pointer-events: none;
+    z-index: 100001;
+    color: rgba(255,255,255,0.45);
+    font-size: 11.5px;
     white-space: nowrap;
-}
-
-/* Make product image clickable */
-.o_field_image img,
-.o_product_image img {
-    cursor: zoom-in !important;
+    pointer-events: none;
 }

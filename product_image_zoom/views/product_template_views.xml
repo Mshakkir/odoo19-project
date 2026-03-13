@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <!--
-        No XML changes are required to the product form.
-        The JavaScript widget patch automatically attaches the zoom
-        lightbox to ALL ImageField instances (including image_1920)
-        across the backend via the asset bundle.
-    -->
-</odoo>

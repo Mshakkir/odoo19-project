@@ -1,21 +1,15 @@
 {
     'name': 'Product Image Zoom',
     'version': '19.0.1.0.0',
-    'summary': 'Adds zoom popup functionality to product images in inventory',
-    'description': """
-        Clicking the product image on the product form opens a full-size
-        lightbox popup with pinch/scroll zoom and pan support.
-    """,
+    'summary': 'Click product image to open full-size zoomable lightbox',
     'category': 'Inventory',
     'author': 'Custom',
     'depends': ['product', 'stock'],
-    'data': [
-        'views/product_template_views.xml',
-    ],
+    'data': [],
     'assets': {
         'web.assets_backend': [
             'product_image_zoom/static/src/css/image_zoom.css',
-            'product_image_zoom/static/src/js/image_zoom_widget.js',
+            'product_image_zoom/static/src/js/image_zoom.js',
         ],
     },
     'installable': True,

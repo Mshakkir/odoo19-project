@@ -14,6 +14,7 @@
                     readonly="1"
                     optional="show"
                     width="90px"
+                    style="text-align: center;"
                 />
             </field>
         </field>
@@ -28,46 +29,41 @@
 
             <field name="name" position="attributes">
                 <attribute name="width">200px</attribute>
+                <attribute name="style">text-align: center;</attribute>
             </field>
             <field name="default_code" position="attributes">
                 <attribute name="width">120px</attribute>
+                <attribute name="style">text-align: center;</attribute>
             </field>
             <field name="list_price" position="attributes">
                 <attribute name="width">100px</attribute>
+                <attribute name="style">text-align: center;</attribute>
             </field>
-
-            <!--
-                standard_price (Cost): only Administrators and users
-                with the custom "Can See Cost Price" group can see this.
-            -->
             <field name="standard_price" position="attributes">
                 <attribute name="width">100px</attribute>
                 <attribute name="groups">base.group_system,product_location_column.group_can_see_cost_price</attribute>
+                <attribute name="style">text-align: center;</attribute>
             </field>
-
             <field name="uom_id" position="attributes">
                 <attribute name="width">80px</attribute>
+                <attribute name="style">text-align: center;</attribute>
+            </field>
+            <field name="qty_available" position="attributes">
+                <attribute name="width">90px</attribute>
+                <attribute name="style">text-align: center;</attribute>
             </field>
 
             <!-- Warehouse stock columns after Internal Reference -->
             <field name="default_code" position="after">
-                <field name="qty_fyh_stock" string="FYH/Stock" optional="show" sum="FYH/Stock" width="90px"/>
-                <field name="qty_bld_stock" string="BLD/Stock" optional="show" sum="BLD/Stock" width="90px"/>
-                <field name="qty_dmm_stock" string="DMM-1/Stock" optional="show" sum="DMM-1/Stock" width="100px"/>
-            </field>
-
-            <field name="qty_available" position="attributes">
-                <attribute name="width">90px</attribute>
+                <field name="qty_fyh_stock"  string="FYH/Stock"   optional="show" sum="FYH/Stock"   width="90px"  style="text-align: center;"/>
+                <field name="qty_bld_stock"  string="BLD/Stock"   optional="show" sum="BLD/Stock"   width="90px"  style="text-align: center;"/>
+                <field name="qty_dmm_stock"  string="DMM-1/Stock" optional="show" sum="DMM-1/Stock" width="100px" style="text-align: center;"/>
             </field>
 
             <!-- Total price columns after On Hand -->
             <field name="qty_available" position="after">
-                <field name="total_sales_price" string="Total Sales Price" optional="show" sum="Total Sales Price" width="120px"/>
-                <!--
-                    total_cost_price: only Administrators and users
-                    with the custom "Can See Cost Price" group can see this.
-                -->
-                <field name="total_cost_price" string="Total Cost Price" optional="show" sum="Total Cost Price" width="120px"
+                <field name="total_sales_price" string="Total Sales Price" optional="show" sum="Total Sales Price" width="120px" style="text-align: center;"/>
+                <field name="total_cost_price"  string="Total Cost Price"  optional="show" sum="Total Cost Price"  width="120px" style="text-align: center;"
                        groups="base.group_system,product_location_column.group_can_see_cost_price"/>
             </field>
 
@@ -75,9 +71,6 @@
     </record>
 
 </odoo>
-
-
-
 
 
 
@@ -93,7 +86,6 @@
 <!--        <field name="model">product.template</field>-->
 <!--        <field name="inherit_id" ref="product.product_template_tree_view"/>-->
 <!--        <field name="arch" type="xml">-->
-
 <!--            <field name="name" position="before">-->
 <!--                <field-->
 <!--                    name="x_created_date_display"-->
@@ -103,18 +95,16 @@
 <!--                    width="90px"-->
 <!--                />-->
 <!--            </field>-->
-
 <!--        </field>-->
 <!--    </record>-->
 
-<!--    &lt;!&ndash; LIST VIEW: Warehouse stock + total price columns + widths on all columns &ndash;&gt;-->
+<!--    &lt;!&ndash; LIST VIEW: Warehouse stock + total price columns &ndash;&gt;-->
 <!--    <record id="product_template_list_warehouse_columns" model="ir.ui.view">-->
 <!--        <field name="name">product.template.list.warehouse.columns</field>-->
 <!--        <field name="model">product.template</field>-->
 <!--        <field name="inherit_id" ref="product.product_template_tree_view"/>-->
 <!--        <field name="arch" type="xml">-->
 
-<!--            &lt;!&ndash; Set width on default base columns &ndash;&gt;-->
 <!--            <field name="name" position="attributes">-->
 <!--                <attribute name="width">200px</attribute>-->
 <!--            </field>-->
@@ -124,9 +114,16 @@
 <!--            <field name="list_price" position="attributes">-->
 <!--                <attribute name="width">100px</attribute>-->
 <!--            </field>-->
+
+<!--            &lt;!&ndash;-->
+<!--                standard_price (Cost): only Administrators and users-->
+<!--                with the custom "Can See Cost Price" group can see this.-->
+<!--            &ndash;&gt;-->
 <!--            <field name="standard_price" position="attributes">-->
 <!--                <attribute name="width">100px</attribute>-->
+<!--                <attribute name="groups">base.group_system,product_location_column.group_can_see_cost_price</attribute>-->
 <!--            </field>-->
+
 <!--            <field name="uom_id" position="attributes">-->
 <!--                <attribute name="width">80px</attribute>-->
 <!--            </field>-->
@@ -138,7 +135,6 @@
 <!--                <field name="qty_dmm_stock" string="DMM-1/Stock" optional="show" sum="DMM-1/Stock" width="100px"/>-->
 <!--            </field>-->
 
-<!--            &lt;!&ndash; On Hand + Forecasted width &ndash;&gt;-->
 <!--            <field name="qty_available" position="attributes">-->
 <!--                <attribute name="width">90px</attribute>-->
 <!--            </field>-->
@@ -146,13 +142,23 @@
 <!--            &lt;!&ndash; Total price columns after On Hand &ndash;&gt;-->
 <!--            <field name="qty_available" position="after">-->
 <!--                <field name="total_sales_price" string="Total Sales Price" optional="show" sum="Total Sales Price" width="120px"/>-->
-<!--                <field name="total_cost_price" string="Total Cost Price" optional="show" sum="Total Cost Price" width="120px"/>-->
+<!--                &lt;!&ndash;-->
+<!--                    total_cost_price: only Administrators and users-->
+<!--                    with the custom "Can See Cost Price" group can see this.-->
+<!--                &ndash;&gt;-->
+<!--                <field name="total_cost_price" string="Total Cost Price" optional="show" sum="Total Cost Price" width="120px"-->
+<!--                       groups="base.group_system,product_location_column.group_can_see_cost_price"/>-->
 <!--            </field>-->
 
 <!--        </field>-->
 <!--    </record>-->
 
 <!--</odoo>-->
+
+
+
+
+
 
 
 

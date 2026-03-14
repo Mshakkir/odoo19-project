@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <record id="group_can_see_cost_price" model="res.groups">
-        <field name="name">Can See Cost Price</field>
-    </record>
-</odoo>

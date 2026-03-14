@@ -122,7 +122,7 @@ patch(FormController.prototype, {
 
         var loader = _el("div", "piz-loader");
         loader.textContent = "Loading…";
-        wrap.appendChild(loader);
+        stage.appendChild(loader);
 
         var closeBtn = _el("div", "piz-x");
         closeBtn.innerHTML = "&times;";

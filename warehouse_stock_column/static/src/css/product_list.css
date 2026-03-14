@@ -1,0 +1,6 @@
+/* Center all column data and headers in the product list view */
+.o_list_view_center_columns .o_data_cell,
+.o_list_view_center_columns .o_column_sortable,
+.o_list_view_center_columns thead th {
+    text-align: center !important;
+}

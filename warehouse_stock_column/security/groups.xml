@@ -2,5 +2,6 @@
 <odoo>
     <record id="group_can_see_cost_price" model="res.groups">
         <field name="name">Can See Cost Price</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_system'))]"/>
     </record>
 </odoo>

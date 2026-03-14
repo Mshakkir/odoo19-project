@@ -32,7 +32,7 @@
     ],
     'assets': {
         'web.assets_backend': [
-            'custom_reconcile/static/src/css/reconcile.css',
+            'custom_reconcile/static/src/scss/reconcile.scss',
             'custom_reconcile/static/src/js/reconcile_widget.js',
         ],
     },

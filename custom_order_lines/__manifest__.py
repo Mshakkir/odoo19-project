@@ -50,7 +50,7 @@
     ],
     'assets': {
         'web.assets_backend': [
-            'custom_order_lines/static/src/css/stock_icon.css',
+            'custom_order_lines/static/src/scss/stock_icon.scss',
         ],
     },
     'installable': True,

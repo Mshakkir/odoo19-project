@@ -10,7 +10,7 @@
     ],
     'assets': {
         'web.assets_backend': [
-            'product_location_column/static/src/css/product_list.css',
+            'product_location_column/static/src/scss/product_list.scss',
         ],
     },
     'installable': True,

@@ -33,7 +33,7 @@
     ],
     'assets': {
         'web.assets_backend': [
-            'invoice_shortcuts_banner/static/src/css/shortcuts_banner.css',
+            'invoice_shortcuts_banner/static/src/scss/shortcuts_banner.scss',
         ],
     },
     'installable': True,

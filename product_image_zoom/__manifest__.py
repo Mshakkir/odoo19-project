@@ -8,7 +8,7 @@
     'data': [],
     'assets': {
         'web.assets_backend': [
-            'product_image_zoom/static/src/css/image_zoom.css',
+            'product_image_zoom/static/src/scss/image_zoom.scss',
             'product_image_zoom/static/src/js/image_zoom.js',
         ],
     },

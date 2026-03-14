@@ -23,7 +23,7 @@
         'web.assets_backend': [
             'custom_purchase_date_filter/static/src/js/purchase_date_filter.js',
             'custom_purchase_date_filter/static/src/xml/purchase_date_filter.xml',
-            'custom_purchase_date_filter/static/src/css/purchase_date_filter.css',
+            'custom_purchase_date_filter/static/src/scss/purchase_date_filter.scss',
         ],
     },
     'installable': True,

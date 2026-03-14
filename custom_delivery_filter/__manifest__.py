@@ -22,7 +22,7 @@
         'web.assets_backend': [
             'custom_delivery_filter/static/src/js/delivery_filter.js',
             'custom_delivery_filter/static/src/xml/delivery_filter.xml',
-            'custom_delivery_filter/static/src/css/delivery_filter.css',
+            'custom_delivery_filter/static/src/scss/delivery_filter.scss',
         ],
     },
     'installable': True,

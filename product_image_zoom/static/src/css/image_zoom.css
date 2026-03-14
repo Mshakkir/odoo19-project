@@ -6,7 +6,7 @@
 }
 .o_field_image img:hover { opacity: 0.85; }
 
-/* ── Backdrop — covers full viewport ── */
+/* Full-screen backdrop */
 .piz-root {
     position: fixed;
     top: 0;
@@ -15,6 +15,9 @@
     height: 100vh;
     z-index: 99999;
     background: rgba(0, 0, 0, 0.88);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     animation: pizIn 0.18s ease;
 }
 @keyframes pizIn {
@@ -22,7 +25,7 @@
     to   { opacity: 1; }
 }
 
-/* ── Stage — same full viewport, handles events ── */
+/* Stage fills root, used for drag/wheel events and backdrop click */
 .piz-stage {
     position: absolute;
     top: 0;
@@ -31,45 +34,46 @@
     height: 100%;
     cursor: grab;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* ── Image wrapper — positioned at exact centre of stage ── */
+/* Wrap sits at centre (via flexbox above), JS only adds translate offset + scale */
 .piz-wrap {
     position: absolute;
     top: 50%;
     left: 50%;
-    /* JS applies: translate(calc(-50% + tx), calc(-50% + ty)) scale(s) */
     transform-origin: center center;
     will-change: transform;
     user-select: none;
+    /* JS sets: translate(calc(-50% + tx), calc(-50% + ty)) scale(s) */
 }
 
-/* Image itself — offset so its centre sits at the wrapper origin */
+/* No transform on img — centering is handled entirely by wrap */
 .piz-wrap img {
     display: block;
-    max-width: 90vw;
-    max-height: 90vh;
+    max-width: 88vw;
+    max-height: 88vh;
     object-fit: contain;
     border-radius: 4px;
     box-shadow: 0 16px 64px rgba(0, 0, 0, 0.7);
     pointer-events: none;
     user-select: none;
     -webkit-user-drag: none;
-    transform: translate(-50%, -50%);
+    /* Shift img so its centre aligns with wrap's top-left origin point */
+    margin-left: -50%;
+    margin-top: -50%;
 }
 
-/* Loading text — also centred */
+/* Loading text */
 .piz-loader {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     color: rgba(255, 255, 255, 0.6);
     font-size: 15px;
     white-space: nowrap;
 }
 
-/* ── Close button ── */
+/* Close button */
 .piz-x {
     position: fixed;
     top: 14px;
@@ -91,7 +95,7 @@
 }
 .piz-x:hover { background: rgba(255, 255, 255, 0.28); }
 
-/* ── Hint ── */
+/* Hint */
 .piz-hint {
     position: fixed;
     top: 16px;
@@ -104,7 +108,7 @@
     pointer-events: none;
 }
 
-/* ── Bottom control bar ── */
+/* Bottom control bar */
 .piz-bar {
     position: fixed;
     bottom: 22px;
@@ -120,7 +124,6 @@
     padding: 7px 18px;
     color: #fff;
 }
-
 .piz-btn {
     width: 30px;
     height: 30px;
@@ -137,7 +140,6 @@
     user-select: none;
 }
 .piz-btn:hover { background: rgba(255, 255, 255, 0.28); }
-
 .piz-pct {
     min-width: 48px;
     text-align: center;

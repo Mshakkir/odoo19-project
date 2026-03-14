@@ -17,7 +17,7 @@
     ],
     'assets': {
         'web.assets_backend': [
-            'rack_list/static/src/scss/rack_list.scss',
+            'rack_list/static/src/css/rack_list.css',
             'rack_list/static/src/xml/rack_list_filter.xml',
             'rack_list/static/src/js/rack_list_filter.js',
         ],

@@ -15,7 +15,7 @@
     'assets': {
         'web.assets_backend': [
             'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
-            'custom_print_dialog/static/src/scss/print_dialog.scss',
+            'custom_print_dialog/static/src/css/print_dialog.css',
             'custom_print_dialog/static/src/xml/print_dialog.xml',
             'custom_print_dialog/static/src/js/print_dialog.js',
         ],

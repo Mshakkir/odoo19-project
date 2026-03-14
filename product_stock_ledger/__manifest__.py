@@ -11,7 +11,7 @@
     ],
     'assets': {
         'web.assets_backend': [
-            'product_stock_ledger/static/src/scss/filter_bar.scss',
+            'product_stock_ledger/static/src/css/filter_bar.css',
             'product_stock_ledger/static/src/xml/filter_bar.xml',
             'product_stock_ledger/static/src/js/filter_bar.js',
         ],

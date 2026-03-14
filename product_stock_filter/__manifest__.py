@@ -9,7 +9,7 @@
     'assets': {
         'web.assets_backend': [
             'product_stock_filter/static/src/xml/product_stock_filter.xml',
-            'product_stock_filter/static/src/scss/product_stock_filter.scss',
+            'product_stock_filter/static/src/css/product_stock_filter.css',
             'product_stock_filter/static/src/js/product_stock_filter.js',
         ],
     },

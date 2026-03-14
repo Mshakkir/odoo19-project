@@ -6,68 +6,72 @@
 }
 .o_field_image img:hover { opacity: 0.85; }
 
-/* Full-screen backdrop */
+/* Full-screen backdrop — uses vw/vh and ignores any parent offset */
 .piz-root {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 99999;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 999999 !important;
     background: rgba(0, 0, 0, 0.88);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     animation: pizIn 0.18s ease;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
 }
 @keyframes pizIn {
     from { opacity: 0; }
     to   { opacity: 1; }
 }
 
-/* Stage fills root, used for drag/wheel events and backdrop click */
+/* Stage fills root exactly */
 .piz-stage {
     position: absolute;
     top: 0;
     left: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
     height: 100%;
     cursor: grab;
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
-/* Wrap sits at centre (via flexbox above), JS only adds translate offset + scale */
+/* Wrap is pinned to exact centre of stage via top/left 50% */
 .piz-wrap {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform-origin: center center;
+    transform-origin: 0 0;
     will-change: transform;
     user-select: none;
     /* JS sets: translate(calc(-50% + tx), calc(-50% + ty)) scale(s) */
 }
 
-/* No transform on img — centering is handled entirely by wrap */
+/* Image — no transform, no margin tricks, just block display */
 .piz-wrap img {
     display: block;
-    max-width: 88vw;
-    max-height: 88vh;
+    max-width: 80vw;
+    max-height: 80vh;
+    width: auto;
+    height: auto;
     object-fit: contain;
     border-radius: 4px;
     box-shadow: 0 16px 64px rgba(0, 0, 0, 0.7);
     pointer-events: none;
     user-select: none;
     -webkit-user-drag: none;
-    /* Shift img so its centre aligns with wrap's top-left origin point */
-    margin-left: -50%;
-    margin-top: -50%;
 }
 
 /* Loading text */
 .piz-loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     color: rgba(255, 255, 255, 0.6);
     font-size: 15px;
     white-space: nowrap;
@@ -75,10 +79,10 @@
 
 /* Close button */
 .piz-x {
-    position: fixed;
+    position: absolute;
     top: 14px;
     right: 18px;
-    z-index: 100001;
+    z-index: 1000001;
     width: 38px;
     height: 38px;
     border-radius: 50%;
@@ -97,11 +101,11 @@
 
 /* Hint */
 .piz-hint {
-    position: fixed;
+    position: absolute;
     top: 16px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 100001;
+    z-index: 1000001;
     color: rgba(255, 255, 255, 0.4);
     font-size: 11.5px;
     white-space: nowrap;
@@ -110,11 +114,11 @@
 
 /* Bottom control bar */
 .piz-bar {
-    position: fixed;
+    position: absolute;
     bottom: 22px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 100001;
+    z-index: 1000001;
     display: flex;
     align-items: center;
     gap: 8px;

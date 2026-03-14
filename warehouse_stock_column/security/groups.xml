@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <!--
-        Custom group: users in this group CAN see Cost and Total Cost Price columns.
-        Assign this group to Managers/Admins who need cost visibility.
-        Do NOT assign it to warehouse users.
-    -->
     <record id="group_can_see_cost_price" model="res.groups">
         <field name="name">Can See Cost Price</field>
-        <field name="category_id" ref="base.module_category_inventory_inventory"/>
-        <field name="comment">Users in this group can see Cost and Total Cost Price columns in the product list.</field>
     </record>
-
 </odoo>

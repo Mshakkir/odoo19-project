@@ -1,34 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- LIST VIEW: Created Date column before Product Name -->
-    <record id="product_template_list_created_date" model="ir.ui.view">
-        <field name="name">product.template.list.created_date</field>
+    <!--
+        REPLACES both:
+          - the old product_template.xml (warehouse/total price columns)
+          - the new product_views.xml (cost hiding)
+        Put this file as views/product_views.xml and DELETE any other
+        view XML file that touches product.template list/form.
+    -->
+
+    <!-- ============================================================
+         LIST VIEW — all custom columns + cost hiding in ONE view
+    ============================================================ -->
+    <record id="product_template_list_custom" model="ir.ui.view">
+        <field name="name">product.template.list.custom</field>
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_tree_view"/>
         <field name="arch" type="xml">
 
+            <!-- 1. Created Date column BEFORE Product Name -->
             <field name="name" position="before">
-                <field
-                    name="x_created_date_display"
-                    string="Created Date"
-                    readonly="1"
-                    optional="show"
-                    width="90px"
-                />
+                <field name="x_created_date_display"
+                       string="Created Date"
+                       readonly="1"
+                       optional="show"
+                       width="90px"/>
             </field>
 
-        </field>
-    </record>
-
-    <!-- LIST VIEW: Warehouse stock + total price columns + widths on all columns -->
-    <record id="product_template_list_warehouse_columns" model="ir.ui.view">
-        <field name="name">product.template.list.warehouse.columns</field>
-        <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_tree_view"/>
-        <field name="arch" type="xml">
-
-            <!-- Set width on default base columns -->
+            <!-- 2. Widths on existing base columns -->
             <field name="name" position="attributes">
                 <attribute name="width">200px</attribute>
             </field>
@@ -42,44 +41,53 @@
                 <attribute name="width">80px</attribute>
             </field>
 
-            <!-- Hide standard_price (Cost) column from restricted group -->
+            <!-- 3. Hide Cost (standard_price) column from restricted group -->
             <field name="standard_price" position="attributes">
                 <attribute name="width">100px</attribute>
                 <attribute name="groups">!hide_cost_fields.group_hide_cost</attribute>
             </field>
 
-            <!-- Warehouse stock columns after Internal Reference -->
+            <!-- 4. Warehouse stock columns AFTER Internal Reference -->
             <field name="default_code" position="after">
-                <field name="qty_fyh_stock" string="FYH/Stock" optional="show" sum="FYH/Stock" width="90px"/>
-                <field name="qty_bld_stock" string="BLD/Stock" optional="show" sum="BLD/Stock" width="90px"/>
+                <field name="qty_fyh_stock" string="FYH/Stock"   optional="show" sum="FYH/Stock"   width="90px"/>
+                <field name="qty_bld_stock" string="BLD/Stock"   optional="show" sum="BLD/Stock"   width="90px"/>
                 <field name="qty_dmm_stock" string="DMM-1/Stock" optional="show" sum="DMM-1/Stock" width="100px"/>
             </field>
 
-            <!-- On Hand + Forecasted width -->
+            <!-- 5. On Hand width -->
             <field name="qty_available" position="attributes">
                 <attribute name="width">90px</attribute>
             </field>
 
-            <!-- Total price columns after On Hand -->
-            <!-- total_sales_price: visible to all -->
-            <!-- total_cost_price: hidden from restricted group -->
+            <!-- 6. Total price columns AFTER On Hand -->
+            <!--    total_sales_price: visible to all -->
+            <!--    total_cost_price:  hidden from restricted group -->
             <field name="qty_available" position="after">
-                <field name="total_sales_price" string="Total Sales Price" optional="show" sum="Total Sales Price" width="120px"/>
-                <field name="total_cost_price" string="Total Cost Price" optional="show" sum="Total Cost Price" width="120px"
+                <field name="total_sales_price"
+                       string="Total Sales Price"
+                       optional="show"
+                       sum="Total Sales Price"
+                       width="120px"/>
+                <field name="total_cost_price"
+                       string="Total Cost Price"
+                       optional="show"
+                       sum="Total Cost Price"
+                       width="120px"
                        groups="!hide_cost_fields.group_hide_cost"/>
             </field>
 
         </field>
     </record>
 
-    <!-- PRODUCT FORM VIEW: Hide Cost field from restricted group -->
+    <!-- ============================================================
+         FORM VIEW — hide Cost field from restricted group
+    ============================================================ -->
     <record id="product_template_form_hide_cost" model="ir.ui.view">
         <field name="name">product.template.form.hide.cost</field>
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_form_view"/>
         <field name="arch" type="xml">
 
-            <!-- Hide the Cost field using groups attribute directly on the field -->
             <field name="standard_price" position="attributes">
                 <attribute name="groups">!hide_cost_fields.group_hide_cost</attribute>
             </field>
@@ -88,3 +96,100 @@
     </record>
 
 </odoo>
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+
+<!--    &lt;!&ndash; LIST VIEW: Created Date column before Product Name &ndash;&gt;-->
+<!--    <record id="product_template_list_created_date" model="ir.ui.view">-->
+<!--        <field name="name">product.template.list.created_date</field>-->
+<!--        <field name="model">product.template</field>-->
+<!--        <field name="inherit_id" ref="product.product_template_tree_view"/>-->
+<!--        <field name="arch" type="xml">-->
+
+<!--            <field name="name" position="before">-->
+<!--                <field-->
+<!--                    name="x_created_date_display"-->
+<!--                    string="Created Date"-->
+<!--                    readonly="1"-->
+<!--                    optional="show"-->
+<!--                    width="90px"-->
+<!--                />-->
+<!--            </field>-->
+
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; LIST VIEW: Warehouse stock + total price columns + widths on all columns &ndash;&gt;-->
+<!--    <record id="product_template_list_warehouse_columns" model="ir.ui.view">-->
+<!--        <field name="name">product.template.list.warehouse.columns</field>-->
+<!--        <field name="model">product.template</field>-->
+<!--        <field name="inherit_id" ref="product.product_template_tree_view"/>-->
+<!--        <field name="arch" type="xml">-->
+
+<!--            &lt;!&ndash; Set width on default base columns &ndash;&gt;-->
+<!--            <field name="name" position="attributes">-->
+<!--                <attribute name="width">200px</attribute>-->
+<!--            </field>-->
+<!--            <field name="default_code" position="attributes">-->
+<!--                <attribute name="width">120px</attribute>-->
+<!--            </field>-->
+<!--            <field name="list_price" position="attributes">-->
+<!--                <attribute name="width">100px</attribute>-->
+<!--            </field>-->
+<!--            <field name="uom_id" position="attributes">-->
+<!--                <attribute name="width">80px</attribute>-->
+<!--            </field>-->
+
+<!--            &lt;!&ndash; Hide standard_price (Cost) column from restricted group &ndash;&gt;-->
+<!--            <field name="standard_price" position="attributes">-->
+<!--                <attribute name="width">100px</attribute>-->
+<!--                <attribute name="groups">!hide_cost_fields.group_hide_cost</attribute>-->
+<!--            </field>-->
+
+<!--            &lt;!&ndash; Warehouse stock columns after Internal Reference &ndash;&gt;-->
+<!--            <field name="default_code" position="after">-->
+<!--                <field name="qty_fyh_stock" string="FYH/Stock" optional="show" sum="FYH/Stock" width="90px"/>-->
+<!--                <field name="qty_bld_stock" string="BLD/Stock" optional="show" sum="BLD/Stock" width="90px"/>-->
+<!--                <field name="qty_dmm_stock" string="DMM-1/Stock" optional="show" sum="DMM-1/Stock" width="100px"/>-->
+<!--            </field>-->
+
+<!--            &lt;!&ndash; On Hand + Forecasted width &ndash;&gt;-->
+<!--            <field name="qty_available" position="attributes">-->
+<!--                <attribute name="width">90px</attribute>-->
+<!--            </field>-->
+
+<!--            &lt;!&ndash; Total price columns after On Hand &ndash;&gt;-->
+<!--            &lt;!&ndash; total_sales_price: visible to all &ndash;&gt;-->
+<!--            &lt;!&ndash; total_cost_price: hidden from restricted group &ndash;&gt;-->
+<!--            <field name="qty_available" position="after">-->
+<!--                <field name="total_sales_price" string="Total Sales Price" optional="show" sum="Total Sales Price" width="120px"/>-->
+<!--                <field name="total_cost_price" string="Total Cost Price" optional="show" sum="Total Cost Price" width="120px"-->
+<!--                       groups="!hide_cost_fields.group_hide_cost"/>-->
+<!--            </field>-->
+
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; PRODUCT FORM VIEW: Hide Cost field from restricted group &ndash;&gt;-->
+<!--    <record id="product_template_form_hide_cost" model="ir.ui.view">-->
+<!--        <field name="name">product.template.form.hide.cost</field>-->
+<!--        <field name="model">product.template</field>-->
+<!--        <field name="inherit_id" ref="product.product_template_form_view"/>-->
+<!--        <field name="arch" type="xml">-->
+
+<!--            &lt;!&ndash; Hide the Cost field using groups attribute directly on the field &ndash;&gt;-->
+<!--            <field name="standard_price" position="attributes">-->
+<!--                <attribute name="groups">!hide_cost_fields.group_hide_cost</attribute>-->
+<!--            </field>-->
+
+<!--        </field>-->
+<!--    </record>-->
+
+<!--</odoo>-->

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ============================================================
+             PRODUCT FORM VIEW — Hide "Cost" field
+             The 'groups' attribute on attrs uses 'invisible' condition
+             based on whether the user belongs to group_hide_cost.
+             In Odoo 17+/19, we use groups="..." on the field directly
+             to SHOW only to specific groups, OR we use an inherited
+             view with invisible domain tied to user group.
+        ============================================================ -->
+
+        <!-- APPROACH A: Hide cost field in Product Form (General Info tab) -->
+        <record id="product_template_form_hide_cost" model="ir.ui.view">
+            <field name="name">product.template.form.hide.cost</field>
+            <field name="model">product.template</field>
+            <!-- Inherit from the standard product form -->
+            <field name="inherit_id"
+                   ref="product.product_template_form_view"/>
+            <field name="groups_id"
+                   eval="[(4, ref('hide_cost_fields.group_hide_cost'))]"/>
+            <field name="arch" type="xml">
+
+                <!-- Hide the Cost field -->
+                <xpath expr="//field[@name='standard_price']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <!-- Hide the Cost label/decoration that sits next to it -->
+                <!-- Target the parent widget cell if needed -->
+
+            </field>
+        </record>
+
+
+        <!-- ============================================================
+             PRODUCT LIST VIEW — Hide "Cost" and "Total Cost Price" columns
+        ============================================================ -->
+        <record id="product_template_list_hide_cost" model="ir.ui.view">
+            <field name="name">product.template.list.hide.cost</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id"
+                   ref="product.product_template_tree_view"/>
+            <field name="groups_id"
+                   eval="[(4, ref('hide_cost_fields.group_hide_cost'))]"/>
+            <field name="arch" type="xml">
+
+                <!-- Hide Cost column -->
+                <xpath expr="//field[@name='standard_price']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+            </field>
+        </record>
+
+
+        <!-- ============================================================
+             STOCK / INVENTORY LIST VIEW
+             The second screenshot shows an Inventory-specific list view
+             (Product Stock Ledger / Inventory > Products list).
+             We also patch that view here.
+        ============================================================ -->
+        <record id="stock_product_list_hide_cost" model="ir.ui.view">
+            <field name="name">stock.product.template.list.hide.cost</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id"
+                   ref="stock.product_template_action_product"/>
+            <field name="groups_id"
+                   eval="[(4, ref('hide_cost_fields.group_hide_cost'))]"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='standard_price']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+            </field>
+        </record>
+
+
+        <!-- ============================================================
+             ALTERNATIVE / SAFER APPROACH using ir.rule on field level:
+             In Odoo 19 CE you can also control field visibility via
+             field access rights in ir.model.fields — see README note.
+        ============================================================ -->
+
+    </data>
+</odoo>

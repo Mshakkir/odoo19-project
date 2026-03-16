@@ -8,13 +8,6 @@
         ============================================================ -->
         <record id="group_hide_cost" model="res.groups">
             <field name="name">Cannot See Cost Price</field>
-            <!-- Placed under the Inventory category -->
-            <field name="category_id"
-                   ref="base.module_category_inventory_inventory"/>
-            <field name="comment">
-                Users in this group will NOT see the Cost field
-                or Total Cost Price column on products.
-            </field>
         </record>
 
     </data>

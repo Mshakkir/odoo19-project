@@ -8,8 +8,8 @@
         in the product form and list view from users who belong
         to the 'Cannot See Cost' group.
     """,
-    'author': 'Your Company',
-    'depends': ['product', 'stock'],
+    'author': 'SSAOCO',
+    'depends': ['product', 'stock', 'warehouse_stock_column'],
     'data': [
         'security/hide_cost_security.xml',
         'views/product_views.xml',

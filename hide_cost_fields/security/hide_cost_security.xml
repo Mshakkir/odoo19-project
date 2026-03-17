@@ -14,21 +14,3 @@
 
     </data>
 </odoo>
-
-
-
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-<!--    <data>-->
-
-<!--        &lt;!&ndash; ============================================================-->
-<!--             NEW GROUP: Users who CANNOT see cost fields-->
-<!--             Add restricted users to this group in Settings > Users-->
-<!--        ============================================================ &ndash;&gt;-->
-<!--        <record id="group_hide_cost" model="res.groups">-->
-<!--            <field name="name">Cannot See Cost Price</field>-->
-<!--        </record>-->
-
-<!--    </data>-->
-<!--</odoo>-->

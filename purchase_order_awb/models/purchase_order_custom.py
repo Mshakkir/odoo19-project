@@ -14,9 +14,11 @@ class PurchaseOrder(models.Model):
         'res.partner',
         string='Delivery Address',
         help='Delivery address for this purchase order',
-        domain="[('type', 'in', ['delivery', 'other', 'contact']), ('company_id', '=', company_id)]",
         copy=True,
     )
+
+    def _get_own_company_partner_id(self):
+        return self.env.company.partner_id.id
 
 
 

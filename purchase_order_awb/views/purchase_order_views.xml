@@ -13,9 +13,9 @@
                     <field
                         name="delivery_address_id"
                         string="Delivery Address"
-                        domain="[('type', 'in', ['delivery', 'other', 'contact']), ('company_id', '=', company_id)]"
-                        context="{'show_address': 1}"
-                        options="{'no_create': True}"
+                        domain="[('parent_id', '=', current_company_id), ('type', '=', 'delivery')]"
+                        context="{'show_address': 1, 'default_type': 'delivery', 'default_parent_id': current_company_id}"
+                        options="{'no_create': False}"
                     />
                 </field>
 

@@ -41,17 +41,66 @@ class PurchaseOrderLine(models.Model):
     def _prepare_stock_moves(self, picking):
         """
         Override to set the destination location from the line's warehouse.
-        This ensures the receipt (picking) shows the correct destination.
+        This ensures the receipt shows the correct destination before validation.
         """
         values = super()._prepare_stock_moves(picking)
 
         if self.warehouse_id and values:
-            dest_location = self.warehouse_id.lot_stock_id
+            dest_location_id = self.warehouse_id.lot_stock_id.id
             for move_vals in values:
-                move_vals['location_dest_id'] = dest_location.id
+                move_vals['location_dest_id'] = dest_location_id
                 move_vals['warehouse_id'] = self.warehouse_id.id
 
         return values
+
+
+class StockMove(models.Model):
+    _inherit = 'stock.move'
+
+    def _action_assign(self):
+        """
+        Override to correct location_dest_id on move lines created during
+        reservation, so the 'Store To' location is correct before validation.
+        """
+        res = super()._action_assign()
+        self._fix_purchase_dest_locations()
+        return res
+
+    def _action_done(self, cancel_backorder=False):
+        """
+        Override to force the correct destination location on all move lines
+        just before Odoo finalises the transfer. This prevents Odoo from
+        reverting 'Store To' to the picking-level location after validation.
+        """
+        self._fix_purchase_dest_locations()
+        return super()._action_done(cancel_backorder=cancel_backorder)
+
+    def _fix_purchase_dest_locations(self):
+        """
+        For every move originating from a PO line that has a warehouse_id,
+        force the move and all its move lines (detailed operations / 'Store To')
+        to use that warehouse's stock location as the destination.
+
+        This runs at both reservation (_action_assign) and validation (_action_done)
+        time to prevent Odoo from overwriting the correct location.
+        """
+        for move in self:
+            po_line = move.purchase_line_id
+            if not po_line or not po_line.warehouse_id:
+                continue
+
+            correct_dest = po_line.warehouse_id.lot_stock_id
+
+            # Fix the move-level destination
+            if move.location_dest_id != correct_dest:
+                move.location_dest_id = correct_dest.id
+
+            # Fix every move line's 'Store To' destination
+            wrong_lines = move.move_line_ids.filtered(
+                lambda ml: ml.location_dest_id != correct_dest
+            )
+            if wrong_lines:
+                wrong_lines.write({'location_dest_id': correct_dest.id})
 
 
 class PurchaseOrder(models.Model):
@@ -81,7 +130,10 @@ class PurchaseOrder(models.Model):
         ).mapped('warehouse_id')
 
         if len(warehouses_in_order) <= 1:
-            return super()._create_picking()
+            result = super()._create_picking()
+            # Even for single-warehouse POs fix the picking/move destinations
+            self._fix_single_warehouse_picking()
+            return result
 
         StockPicking = self.env['stock.picking']
 
@@ -93,9 +145,7 @@ class PurchaseOrder(models.Model):
                 continue
 
             # Group lines by their warehouse
-            lines_by_warehouse = defaultdict(
-                self.env['purchase.order.line'].browse
-            )
+            lines_by_warehouse = defaultdict(lambda: self.env['purchase.order.line'])
             for line in storable_lines:
                 wh = line.warehouse_id or order.picking_type_id.warehouse_id
                 lines_by_warehouse[wh] |= line
@@ -109,10 +159,8 @@ class PurchaseOrder(models.Model):
                 if not lines:
                     continue
 
-                # Use the warehouse's IN picking type so location_dest_id defaults correctly
                 picking_type = warehouse.in_type_id
 
-                # Reuse an open picking for this warehouse if one exists
                 existing_picking = order.picking_ids.filtered(
                     lambda p: p.picking_type_id.warehouse_id == warehouse
                     and p.state not in ['done', 'cancel']
@@ -120,25 +168,24 @@ class PurchaseOrder(models.Model):
 
                 if existing_picking:
                     picking = existing_picking[0]
+                    if picking.location_dest_id != warehouse.lot_stock_id:
+                        picking.location_dest_id = warehouse.lot_stock_id.id
                 else:
                     picking_vals = {
                         'picking_type_id': picking_type.id,
                         'partner_id': order.partner_id.id,
                         'scheduled_date': order.date_order,
                         'origin': order.name,
-                        # Destination = this warehouse's stock location
                         'location_dest_id': warehouse.lot_stock_id.id,
-                        # Source = supplier
                         'location_id': supplier_location.id,
                         'company_id': order.company_id.id,
                         'purchase_id': order.id,
                     }
                     picking = StockPicking.create(picking_vals)
 
-                # Create stock moves for lines belonging to this warehouse
                 for line in lines:
                     moves = line._create_stock_moves(picking)
-                    # Ensure each move also points to the right destination
+                    # Lock destination on moves right after creation
                     moves.write({
                         'location_dest_id': warehouse.lot_stock_id.id,
                         'warehouse_id': warehouse.id,
@@ -148,6 +195,27 @@ class PurchaseOrder(models.Model):
 
         return True
 
+    def _fix_single_warehouse_picking(self):
+        """
+        For POs with a single custom warehouse, correct the picking and move
+        destination locations after the standard _create_picking runs, since
+        the standard flow uses the PO-level picking_type_id which may point
+        to a different warehouse than the line's warehouse_id.
+        """
+        for order in self:
+            for picking in order.picking_ids.filtered(
+                lambda p: p.state not in ['done', 'cancel']
+            ):
+                for move in picking.move_ids:
+                    po_line = move.purchase_line_id
+                    if not po_line or not po_line.warehouse_id:
+                        continue
+                    correct_dest = po_line.warehouse_id.lot_stock_id
+                    if move.location_dest_id != correct_dest:
+                        move.location_dest_id = correct_dest.id
+                    if picking.location_dest_id != correct_dest:
+                        picking.location_dest_id = correct_dest.id
+
     def _get_destination_location(self):
         """Override to use line-specific warehouse location for single-warehouse orders"""
         self.ensure_one()
@@ -155,7 +223,6 @@ class PurchaseOrder(models.Model):
         if len(warehouses) == 1:
             return warehouses.lot_stock_id.id
         return super()._get_destination_location()
-
 
 
 

@@ -41,7 +41,6 @@ class PurchaseOrderLine(models.Model):
     def _prepare_stock_moves(self, picking):
         """
         Override to set the destination location from the line's warehouse.
-        This ensures the receipt shows the correct destination before validation.
         """
         values = super()._prepare_stock_moves(picking)
 
@@ -54,13 +53,81 @@ class PurchaseOrderLine(models.Model):
         return values
 
 
+class StockPicking(models.Model):
+    _inherit = 'stock.picking'
+
+    def button_validate(self):
+        """
+        Override button_validate to force correct per-line warehouse destinations
+        BEFORE the validation chain runs (including stock_final_location_fix).
+
+        We use _sequence = high priority by placing our fix at the START of
+        button_validate, so even if stock_final_location_fix overrides inside
+        _action_done, we patch move lines again after super() completes.
+
+        Strategy: fix BEFORE super() so quant writes use correct location,
+        then fix AFTER super() to correct any overrides by other modules
+        (specifically stock_final_location_fix which logs it overrides to FYH/Stock).
+        """
+        # Step 1: Fix before validation so quants are written to correct location
+        self._force_po_line_warehouse_destinations()
+
+        # Step 2: Run the full validation chain (includes stock_final_location_fix override)
+        result = super().button_validate()
+
+        # Step 3: Fix again AFTER all overrides — this corrects stock_final_location_fix
+        # which runs inside _action_done and stamps the wrong location on move lines
+        self._force_po_line_warehouse_destinations()
+
+        return result
+
+    def _force_po_line_warehouse_destinations(self):
+        """
+        For every move in this picking that originates from a PO line with
+        a warehouse_id, force the move and all its move lines to use that
+        warehouse's stock location as the destination.
+
+        This intentionally runs both before and after super().button_validate()
+        to neutralise any other module (e.g. stock_final_location_fix) that
+        overrides the destination during _action_done.
+        """
+        for picking in self:
+            for move in picking.move_ids:
+                po_line = move.purchase_line_id
+                if not po_line or not po_line.warehouse_id:
+                    continue
+
+                correct_dest = po_line.warehouse_id.lot_stock_id
+
+                # Fix move-level destination
+                if move.location_dest_id != correct_dest:
+                    move.location_dest_id = correct_dest.id
+
+                # Fix all move lines (the 'Store To' rows in Detailed Operations)
+                wrong_lines = move.move_line_ids.filtered(
+                    lambda ml: ml.location_dest_id != correct_dest
+                )
+                if wrong_lines:
+                    wrong_lines.write({'location_dest_id': correct_dest.id})
+
+    def action_confirm(self):
+        """
+        Override to handle batch confirmation when multiple warehouses are involved.
+        """
+        if self.env.context.get('multi_warehouse_separate_confirm') and len(self) > 1:
+            for picking in self:
+                super(StockPicking, picking).action_confirm()
+            return True
+        return super().action_confirm()
+
+
 class StockMove(models.Model):
     _inherit = 'stock.move'
 
     def _action_assign(self):
         """
-        Override to correct location_dest_id on move lines created during
-        reservation, so the 'Store To' location is correct before validation.
+        Fix destinations at reservation time so 'Store To' is correct
+        when user opens Detailed Operations before validating.
         """
         res = super()._action_assign()
         self._fix_purchase_dest_locations()
@@ -68,21 +135,17 @@ class StockMove(models.Model):
 
     def _action_done(self, cancel_backorder=False):
         """
-        Override to force the correct destination location on all move lines
-        just before Odoo finalises the transfer. This prevents Odoo from
-        reverting 'Store To' to the picking-level location after validation.
+        Fix destinations immediately before Odoo writes quants/SVLs.
+        Note: stock_final_location_fix also runs here and may override again —
+        that is handled by the post-super() call in button_validate above.
         """
         self._fix_purchase_dest_locations()
         return super()._action_done(cancel_backorder=cancel_backorder)
 
     def _fix_purchase_dest_locations(self):
         """
-        For every move originating from a PO line that has a warehouse_id,
-        force the move and all its move lines (detailed operations / 'Store To')
-        to use that warehouse's stock location as the destination.
-
-        This runs at both reservation (_action_assign) and validation (_action_done)
-        time to prevent Odoo from overwriting the correct location.
+        Core fix: trace each move to its purchase_line_id.warehouse_id and
+        force location_dest_id on the move and all its move_line_ids.
         """
         for move in self:
             po_line = move.purchase_line_id
@@ -91,11 +154,9 @@ class StockMove(models.Model):
 
             correct_dest = po_line.warehouse_id.lot_stock_id
 
-            # Fix the move-level destination
             if move.location_dest_id != correct_dest:
                 move.location_dest_id = correct_dest.id
 
-            # Fix every move line's 'Store To' destination
             wrong_lines = move.move_line_ids.filtered(
                 lambda ml: ml.location_dest_id != correct_dest
             )
@@ -131,7 +192,6 @@ class PurchaseOrder(models.Model):
 
         if len(warehouses_in_order) <= 1:
             result = super()._create_picking()
-            # Even for single-warehouse POs fix the picking/move destinations
             self._fix_single_warehouse_picking()
             return result
 
@@ -144,7 +204,6 @@ class PurchaseOrder(models.Model):
             if not storable_lines:
                 continue
 
-            # Group lines by their warehouse
             lines_by_warehouse = defaultdict(lambda: self.env['purchase.order.line'])
             for line in storable_lines:
                 wh = line.warehouse_id or order.picking_type_id.warehouse_id
@@ -185,7 +244,6 @@ class PurchaseOrder(models.Model):
 
                 for line in lines:
                     moves = line._create_stock_moves(picking)
-                    # Lock destination on moves right after creation
                     moves.write({
                         'location_dest_id': warehouse.lot_stock_id.id,
                         'warehouse_id': warehouse.id,
@@ -198,9 +256,7 @@ class PurchaseOrder(models.Model):
     def _fix_single_warehouse_picking(self):
         """
         For POs with a single custom warehouse, correct the picking and move
-        destination locations after the standard _create_picking runs, since
-        the standard flow uses the PO-level picking_type_id which may point
-        to a different warehouse than the line's warehouse_id.
+        destination locations after the standard _create_picking runs.
         """
         for order in self:
             for picking in order.picking_ids.filtered(

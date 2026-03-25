@@ -86,19 +86,26 @@
                 </xpath>
 
                 <!-- =========================================================
-                     FIX 2: Add "Total (SAR)" column in invoice lines list
-                     From base view: price_subtotal is inside
-                     invoice_line_ids > list[@name='journal_items']
-                     We add our column right after price_subtotal
+                     FIX 2: Show total in company currency (SAR) below
+                     the USD total in the totals section — like PO form
+                     Shows: Total: $150.00
+                                   (562.50 SR)
+                     Target: amount_residual field in the totals footer
                      ========================================================= -->
-                <xpath expr="//field[@name='invoice_line_ids']/list[@name='journal_items']/field[@name='price_subtotal']" position="after">
-                    <field
-                        name="total_company_currency"
-                        string="Total (SAR)"
-                        optional="show"
-                        readonly="1"
-                        column_invisible="parent.currency_id == parent.company_currency_id"
-                    />
+                <xpath expr="//field[@name='amount_residual']" position="before">
+                    <div class="d-flex justify-content-between"
+                         invisible="currency_id == company_currency_id or move_type not in ('in_invoice', 'in_refund', 'in_receipt', 'out_invoice', 'out_refund', 'out_receipt')">
+                        <field name="amount_total_company_currency_label" invisible="1"/>
+                        <span class="o_td_label"/>
+                        <field
+                            name="amount_total_in_company_currency"
+                            nolabel="1"
+                            widget="monetary"
+                            options="{'currency_field': 'company_currency_id'}"
+                            readonly="1"
+                            class="text-muted fst-italic"
+                        />
+                    </div>
                 </xpath>
 
             </field>

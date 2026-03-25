@@ -251,62 +251,59 @@ class AccountMove(models.Model):
                     self.delivery_address_id = po.delivery_address_id
 
 
-class AccountMoveLine(models.Model):
-    _inherit = 'account.move.line'
+
+
+class AccountMoveCompanyCurrency(models.Model):
+    _inherit = 'account.move'
 
     # -------------------------------------------------------
-    # FIX 2: Total amount in company currency per invoice line
+    # FIX 2: Total amount in company currency shown below
+    # the USD total — like the Purchase Order form
+    # e.g. Total: $150.00
+    #              (562.50 SR)
     # -------------------------------------------------------
-    total_company_currency = fields.Monetary(
-        string='Total (SAR)',
-        compute='_compute_total_company_currency',
+    amount_total_in_company_currency = fields.Monetary(
+        string='Total in Company Currency',
+        compute='_compute_amount_total_in_company_currency',
         store=True,
         currency_field='company_currency_id',
-        help='Total amount converted to company currency (SAR)'
-    )
-
-    company_currency_id = fields.Many2one(
-        related='company_id.currency_id',
-        string='Company Currency',
-        store=False,
-        readonly=True,
+        help='Invoice total converted to company currency (SAR)'
     )
 
     @api.depends(
-        'price_subtotal',
+        'amount_total',
         'currency_id',
         'company_currency_id',
-        'move_id.invoice_date',
-        'move_id.date',
-        'move_id.company_id',
+        'invoice_date',
+        'date',
+        'company_id',
     )
-    def _compute_total_company_currency(self):
+    def _compute_amount_total_in_company_currency(self):
         """
-        Convert line total (price_subtotal) from invoice currency to company currency.
-        price_subtotal is in invoice currency (e.g. USD).
-        We convert it to company currency (e.g. SAR).
+        Convert amount_total from invoice currency (USD) to
+        company currency (SAR) — displayed below the total
+        like the Purchase Order form shows (562.50 SR).
         """
-        for line in self:
-            company = line.company_id
-            invoice_currency = line.currency_id
+        for move in self:
+            company = move.company_id
+            invoice_currency = move.currency_id
             company_currency = company.currency_id
 
             if not invoice_currency or not company_currency:
-                line.total_company_currency = line.price_subtotal
+                move.amount_total_in_company_currency = move.amount_total
                 continue
 
             if invoice_currency == company_currency:
-                line.total_company_currency = line.price_subtotal
+                move.amount_total_in_company_currency = move.amount_total
             else:
-                rate_date = line.move_id.invoice_date or line.move_id.date or fields.Date.today()
+                rate_date = move.invoice_date or move.date or fields.Date.today()
                 converted = invoice_currency._convert(
-                    line.price_subtotal,
+                    move.amount_total,
                     company_currency,
                     company,
                     rate_date,
                 )
-                line.total_company_currency = converted
-
+                move.amount_total_in_company_currency = converted
 
 
 

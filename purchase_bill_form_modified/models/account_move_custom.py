@@ -316,8 +316,6 @@ class AccountMoveLine(models.Model):
 
 
 
-
-
 # from odoo import models, fields, api
 # from odoo.exceptions import UserError
 #

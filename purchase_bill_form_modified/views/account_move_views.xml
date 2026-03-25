@@ -66,36 +66,38 @@
                 </xpath>
 
                 <!-- =========================================================
-                     FIX 1: Replace the default currency rate display
-                     Original shows: "1 SAR = 0.266667 USD"
-                     We replace with: "1 USD = 3.75 SAR"
+                     FIX 1: Hide the original "1 SAR = 0.266667 USD" display
+                     and replace with "1 USD = 3.750000 SAR"
+                     Target: the specific currency_conversion_div in header_right_group
                      ========================================================= -->
-                <xpath expr="//field[@name='currency_id']" position="after">
-                    <!-- Hide the original rate display widget by overriding its container -->
-                    <field name="currency_rate_label"
-                        invisible="currency_id == False or currency_id == company_currency_id or move_type not in ('in_invoice', 'in_refund', 'in_receipt', 'out_invoice', 'out_refund')"
-                        readonly="1"
-                        string=" "
-                        nolabel="1"
-                        widget="char"
-                        style="color: #666; font-style: italic;"
-                    />
-                    <!-- Hidden field needed for compute dependency -->
-                    <field name="currency_rate_display" invisible="1"/>
+                <xpath expr="//div[@name='currency_conversion_div']" position="replace">
+                    <div name="currency_conversion_div" class="d-flex gap-1 text-muted"
+                         invisible="currency_id == company_currency_id">
+                        <!-- Our custom label: "1 USD = 3.750000 SAR" -->
+                        <field name="currency_rate_label"
+                            invisible="currency_id == company_currency_id"
+                            readonly="1"
+                            nolabel="1"
+                            widget="char"
+                        />
+                        <!-- Hidden fields needed for compute -->
+                        <field name="currency_rate_display" invisible="1"/>
+                    </div>
                 </xpath>
 
                 <!-- =========================================================
-                     FIX 2: Add "Total (SAR)" column in invoice lines
-                     Odoo 19 uses <list> tag instead of <tree>
-                     We target price_subtotal inside invoice_line_ids list
+                     FIX 2: Add "Total (SAR)" column in invoice lines list
+                     From base view: price_subtotal is inside
+                     invoice_line_ids > list[@name='journal_items']
+                     We add our column right after price_subtotal
                      ========================================================= -->
-                <xpath expr="//field[@name='invoice_line_ids']//field[@name='price_subtotal']" position="after">
+                <xpath expr="//field[@name='invoice_line_ids']/list[@name='journal_items']/field[@name='price_subtotal']" position="after">
                     <field
                         name="total_company_currency"
                         string="Total (SAR)"
                         optional="show"
                         readonly="1"
-                        invisible="parent.currency_id == parent.company_currency_id"
+                        column_invisible="parent.currency_id == parent.company_currency_id"
                     />
                 </xpath>
 

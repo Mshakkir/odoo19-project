@@ -95,7 +95,6 @@
                 <xpath expr="//field[@name='amount_residual']" position="before">
                     <div class="d-flex justify-content-between"
                          invisible="currency_id == company_currency_id or move_type not in ('in_invoice', 'in_refund', 'in_receipt', 'out_invoice', 'out_refund', 'out_receipt')">
-                        <field name="amount_total_company_currency_label" invisible="1"/>
                         <span class="o_td_label"/>
                         <field
                             name="amount_total_in_company_currency"

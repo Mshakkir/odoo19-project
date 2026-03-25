@@ -65,11 +65,50 @@
                         force_save="1"/>
                 </xpath>
 
+                <!-- =========================================================
+                     FIX 1: Replace the default currency rate display
+                     Original shows: "1 SAR = 0.266667 USD"
+                     We replace with: "1 USD = 3.75 SAR"
+                     ========================================================= -->
+                <xpath expr="//field[@name='currency_id']" position="after">
+                    <!-- Hide the original rate display widget by overriding its container -->
+                    <field name="currency_rate_label"
+                        invisible="currency_id == False or currency_id == company_currency_id or move_type not in ('in_invoice', 'in_refund', 'in_receipt', 'out_invoice', 'out_refund')"
+                        readonly="1"
+                        string=" "
+                        nolabel="1"
+                        widget="char"
+                        style="color: #666; font-style: italic;"
+                    />
+                    <!-- Hidden field needed for compute dependency -->
+                    <field name="currency_rate_display" invisible="1"/>
+                </xpath>
+
+                <!-- =========================================================
+                     FIX 2: Add "Total (SAR)" column in invoice lines
+                     Shown only when invoice currency differs from company currency
+                     ========================================================= -->
+                <xpath expr="//field[@name='invoice_line_ids']/tree//field[@name='price_subtotal']" position="after">
+                    <field
+                        name="total_company_currency"
+                        string="Total (SAR)"
+                        optional="show"
+                        readonly="1"
+                        invisible="parent.currency_id == parent.company_currency_id"
+                    />
+                </xpath>
+
             </field>
         </record>
 
     </data>
 </odoo>
+
+
+
+
+
+
 
 
 
@@ -87,6 +126,20 @@
 <!--            <field name="model">account.move</field>-->
 <!--            <field name="inherit_id" ref="account.view_move_form"/>-->
 <!--            <field name="arch" type="xml">-->
+
+<!--                &lt;!&ndash; Add Delivery Address after Bill Reference field (ref) &ndash;&gt;-->
+<!--                <field name="ref" position="after">-->
+<!--                    <field-->
+<!--                        name="delivery_address_id"-->
+<!--                        string="Delivery Address"-->
+<!--                        invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"-->
+<!--                        domain="[('parent_id', '=', current_company_id), ('type', '=', 'delivery')]"-->
+<!--                        context="{'show_address': 1, 'default_type': 'delivery', 'default_parent_id': current_company_id}"-->
+<!--                        options="{'no_create': False}"-->
+<!--                        readonly="state != 'draft'"-->
+<!--                        force_save="1"-->
+<!--                    />-->
+<!--                </field>-->
 
 <!--                &lt;!&ndash; Add new fields after Auto-Complete field &ndash;&gt;-->
 <!--                <xpath expr="//field[@name='purchase_vendor_bill_id']" position="after">-->
@@ -112,7 +165,7 @@
 <!--                        string="Shipping Ref#"-->
 <!--                        force_save="1"/>-->
 
-<!--                    &lt;!&ndash; NEW: Deliver To field &ndash;&gt;-->
+<!--                    &lt;!&ndash; Deliver To field &ndash;&gt;-->
 <!--                    <field name="deliver_to"-->
 <!--                        invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"-->
 <!--                        domain="[('code', '=', 'incoming'), ('warehouse_id.company_id', '=', company_id)]"-->
@@ -121,7 +174,7 @@
 <!--                        string="Deliver To"-->
 <!--                        force_save="1"/>-->
 
-<!--                    &lt;!&ndash; NEW: Buyer field &ndash;&gt;-->
+<!--                    &lt;!&ndash; Buyer field &ndash;&gt;-->
 <!--                    <field name="buyer_id"-->
 <!--                        invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"-->
 <!--                        domain="[('share', '=', False)]"-->
@@ -136,3 +189,4 @@
 
 <!--    </data>-->
 <!--</odoo>-->
+

@@ -88,22 +88,19 @@
                 <!-- =========================================================
                      FIX 2: Show total in company currency (SAR) below
                      the USD total — like PO form
-                     Shows: Total:       $150.00
-                            (562.50 SR)
-                            Amount Due:  $150.00
+                     Inject after tax_totals inside oe_subtotal_footer group
                      ========================================================= -->
-                <xpath expr="//field[@name='amount_residual']" position="before">
-                    <div class="d-flex justify-content-end mb-1"
-                         invisible="currency_id == company_currency_id or move_type not in ('in_invoice', 'in_refund', 'in_receipt', 'out_invoice', 'out_refund', 'out_receipt')">
-                        <field
-                            name="amount_total_in_company_currency"
-                            nolabel="1"
-                            widget="monetary"
-                            options="{'currency_field': 'company_currency_id'}"
-                            readonly="1"
-                            class="text-muted fst-italic"
-                        />
-                    </div>
+                <xpath expr="//field[@name='tax_totals']" position="after">
+                    <field
+                        name="amount_total_in_company_currency"
+                        nolabel="1"
+                        widget="monetary"
+                        options="{'currency_field': 'company_currency_id'}"
+                        readonly="1"
+                        class="text-muted fst-italic text-end"
+                        invisible="currency_id == company_currency_id or move_type not in ('in_invoice', 'in_refund', 'in_receipt', 'out_invoice', 'out_refund', 'out_receipt')"
+                        colspan="2"
+                    />
                 </xpath>
 
             </field>

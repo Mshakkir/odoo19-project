@@ -82,27 +82,35 @@ class AccountMove(models.Model):
         """
         Compute rate as: 1 [invoice_currency] = X [company_currency]
         Example: 1 USD = 3.75 SAR
+        Uses inverse_company_rate from res.currency.rate which is
+        'SAR per Unit' (how many SAR = 1 foreign currency unit)
         """
         for move in self:
             company_currency = move.company_id.currency_id
             invoice_currency = move.currency_id
             if invoice_currency and company_currency and invoice_currency != company_currency:
-                # Get the rate date
                 rate_date = move.invoice_date or move.date or fields.Date.today()
-                # currency_id.rate gives: 1 company_currency = X invoice_currency (unit per SAR)
-                # We want: 1 invoice_currency = X company_currency (SAR per unit)
-                # So we compute: 1 / (unit_per_SAR) = SAR_per_unit
-                rate = invoice_currency._get_rates(move.company_id, rate_date)
-                unit_per_company = rate.get(invoice_currency.id, 1.0)
-                if unit_per_company:
-                    sar_per_unit = 1.0 / unit_per_company
+                # Find the most recent rate record on or before rate_date
+                rate_record = self.env['res.currency.rate'].search([
+                    ('currency_id', '=', invoice_currency.id),
+                    ('company_id', '=', move.company_id.id),
+                    ('name', '<=', str(rate_date)),
+                ], order='name desc', limit=1)
+
+                if rate_record and rate_record.inverse_company_rate:
+                    # inverse_company_rate = SAR per 1 USD (what we want to display)
+                    sar_per_unit = rate_record.inverse_company_rate
                 else:
-                    sar_per_unit = 1.0
+                    # Fallback: compute from currency rate
+                    rate = invoice_currency._get_rates(move.company_id, rate_date)
+                    unit_per_sar = rate.get(invoice_currency.id, 1.0)
+                    sar_per_unit = (1.0 / unit_per_sar) if unit_per_sar else 1.0
+
                 move.currency_rate_display = sar_per_unit
                 move.currency_rate_label = "1 %s = %.6f %s" % (
                     invoice_currency.name,
                     sar_per_unit,
-                    company_currency.name
+                    company_currency.name,
                 )
             else:
                 move.currency_rate_display = 1.0
@@ -298,8 +306,6 @@ class AccountMoveLine(models.Model):
                     rate_date,
                 )
                 line.total_company_currency = converted
-
-
 
 
 

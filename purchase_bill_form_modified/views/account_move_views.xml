@@ -86,9 +86,10 @@
 
                 <!-- =========================================================
                      FIX 2: Add "Total (SAR)" column in invoice lines
-                     Shown only when invoice currency differs from company currency
+                     Odoo 19 uses <list> tag instead of <tree>
+                     We target price_subtotal inside invoice_line_ids list
                      ========================================================= -->
-                <xpath expr="//field[@name='invoice_line_ids']/tree//field[@name='price_subtotal']" position="after">
+                <xpath expr="//field[@name='invoice_line_ids']//field[@name='price_subtotal']" position="after">
                     <field
                         name="total_company_currency"
                         string="Total (SAR)"

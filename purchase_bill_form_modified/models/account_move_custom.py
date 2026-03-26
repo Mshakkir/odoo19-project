@@ -59,62 +59,69 @@ class AccountMove(models.Model):
     )
 
     # -------------------------------------------------------
-    # FIX 1: Currency rate display as "1 USD = X SAR"
-    # Computed field: how many company currency units per 1 invoice currency unit
+    # FIX 1: Editable currency rate "1 USD = [3.750000] SAR"
+    # Auto-filled from system rate, manually editable per bill
     # -------------------------------------------------------
-    currency_rate_display = fields.Float(
+    manual_currency_rate = fields.Float(
         string='Currency Rate',
-        compute='_compute_currency_rate_display',
-        store=False,
         digits=(12, 6),
-        help='Exchange rate: 1 [invoice currency] = X [company currency]'
+        store=True,
+        copy=False,
+        help='Exchange rate: how many SAR = 1 invoice currency. '
+             'Auto-filled from system rate but can be changed manually.',
     )
 
-    currency_rate_label = fields.Char(
-        string='Currency Rate Label',
-        compute='_compute_currency_rate_display',
+    currency_rate_prefix = fields.Char(
+        compute='_compute_currency_rate_affixes',
         store=False,
-        help='Display label for exchange rate'
+    )
+    currency_rate_suffix = fields.Char(
+        compute='_compute_currency_rate_affixes',
+        store=False,
     )
 
-    @api.depends('currency_id', 'company_id', 'invoice_date', 'date')
-    def _compute_currency_rate_display(self):
-        """
-        Compute rate as: 1 [invoice_currency] = X [company_currency]
-        Example: 1 USD = 3.75 SAR
-        Uses inverse_company_rate from res.currency.rate which is
-        'SAR per Unit' (how many SAR = 1 foreign currency unit)
-        """
+    @api.depends('currency_id', 'company_id')
+    def _compute_currency_rate_affixes(self):
+        for move in self:
+            company_currency = move.company_id.currency_id
+            invoice_currency = move.currency_id
+            if invoice_currency and company_currency and invoice_currency != company_currency:
+                move.currency_rate_prefix = "1 %s =" % invoice_currency.name
+                move.currency_rate_suffix = company_currency.name
+            else:
+                move.currency_rate_prefix = ""
+                move.currency_rate_suffix = ""
+
+    def _get_system_rate(self, invoice_currency, company_id, rate_date):
+        """Get SAR per 1 unit of invoice_currency from system rates."""
+        rate_record = self.env['res.currency.rate'].search([
+            ('currency_id', '=', invoice_currency.id),
+            ('company_id', '=', company_id),
+            ('name', '<=', str(rate_date)),
+        ], order='name desc', limit=1)
+        if rate_record and rate_record.inverse_company_rate:
+            return rate_record.inverse_company_rate
+        else:
+            rate = invoice_currency._get_rates(
+                self.env['res.company'].browse(company_id),
+                rate_date
+            )
+            unit_per_sar = rate.get(invoice_currency.id, 1.0)
+            return (1.0 / unit_per_sar) if unit_per_sar else 1.0
+
+    @api.onchange('currency_id', 'invoice_date', 'date')
+    def _onchange_currency_auto_fill_rate(self):
+        """Auto-fill rate from system when currency or date changes."""
         for move in self:
             company_currency = move.company_id.currency_id
             invoice_currency = move.currency_id
             if invoice_currency and company_currency and invoice_currency != company_currency:
                 rate_date = move.invoice_date or move.date or fields.Date.today()
-                # Find the most recent rate record on or before rate_date
-                rate_record = self.env['res.currency.rate'].search([
-                    ('currency_id', '=', invoice_currency.id),
-                    ('company_id', '=', move.company_id.id),
-                    ('name', '<=', str(rate_date)),
-                ], order='name desc', limit=1)
-
-                if rate_record and rate_record.inverse_company_rate:
-                    # inverse_company_rate = SAR per 1 USD (what we want to display)
-                    sar_per_unit = rate_record.inverse_company_rate
-                else:
-                    # Fallback: compute from currency rate
-                    rate = invoice_currency._get_rates(move.company_id, rate_date)
-                    unit_per_sar = rate.get(invoice_currency.id, 1.0)
-                    sar_per_unit = (1.0 / unit_per_sar) if unit_per_sar else 1.0
-
-                move.currency_rate_display = sar_per_unit
-                move.currency_rate_label = "1 %s = %.6f %s" % (
-                    invoice_currency.name,
-                    sar_per_unit,
-                    company_currency.name,
+                move.manual_currency_rate = self._get_system_rate(
+                    invoice_currency, move.company_id.id, rate_date
                 )
             else:
-                move.currency_rate_display = 1.0
-                move.currency_rate_label = ""
+                move.manual_currency_rate = 1.0
 
     @api.depends('po_number', 'goods_receipt_number', 'deliver_to')
     def _compute_warehouse_id(self):

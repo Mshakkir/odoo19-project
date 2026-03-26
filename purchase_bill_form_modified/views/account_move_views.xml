@@ -66,22 +66,29 @@
                 </xpath>
 
                 <!-- =========================================================
-                     FIX 1: Hide the original "1 SAR = 0.266667 USD" display
-                     and replace with "1 USD = 3.750000 SAR"
-                     Target: the specific currency_conversion_div in header_right_group
+                     FIX 1: Replace "1 SAR = 0.266667 USD" with
+                     editable "1 USD = [3.750000] SAR"
+                     Auto-filled from system rate, manually editable
                      ========================================================= -->
                 <xpath expr="//div[@name='currency_conversion_div']" position="replace">
-                    <div name="currency_conversion_div" class="d-flex gap-1 text-muted"
+                    <div name="currency_conversion_div" class="o_row text-muted"
                          invisible="currency_id == company_currency_id">
-                        <!-- Our custom label: "1 USD = 3.750000 SAR" -->
-                        <field name="currency_rate_label"
-                            invisible="currency_id == company_currency_id"
-                            readonly="1"
+                        <span class="oe_inline">
+                            <field name="currency_rate_prefix"
+                                nolabel="1" readonly="1" widget="char" class="oe_inline"/>
+                        </span>
+                        <field name="manual_currency_rate"
                             nolabel="1"
-                            widget="char"
+                            widget="float"
+                            digits="[12,6]"
+                            readonly="state != 'draft'"
+                            class="oe_inline"
+                            style="max-width: 100px;"
                         />
-                        <!-- Hidden fields needed for compute -->
-                        <field name="currency_rate_display" invisible="1"/>
+                        <span class="oe_inline">
+                            <field name="currency_rate_suffix"
+                                nolabel="1" readonly="1" widget="char" class="oe_inline"/>
+                        </span>
                     </div>
                 </xpath>
 

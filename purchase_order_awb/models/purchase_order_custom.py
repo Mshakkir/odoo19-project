@@ -31,7 +31,6 @@ class PurchaseOrder(models.Model):
              'Auto-filled from system rate but can be changed manually.',
     )
 
-    # Prefix/suffix labels around the editable float
     currency_rate_prefix = fields.Char(
         compute='_compute_currency_rate_affixes',
         store=False,
@@ -41,10 +40,15 @@ class PurchaseOrder(models.Model):
         store=False,
     )
 
+    company_currency_id = fields.Many2one(
+        related='company_id.currency_id',
+        string='Company Currency',
+        store=False,
+        readonly=True,
+    )
+
     # -------------------------------------------------------
-    # Company currency total — recomputed using manual rate
-    # Overrides the built-in total so (1,875.00 SR) reflects
-    # the manually entered rate immediately
+    # Company currency total using manual rate
     # -------------------------------------------------------
     amount_total_company_currency = fields.Monetary(
         string='Total in Company Currency',
@@ -52,13 +56,6 @@ class PurchaseOrder(models.Model):
         store=True,
         currency_field='company_currency_id',
         help='Order total converted using the manual currency rate',
-    )
-
-    company_currency_id = fields.Many2one(
-        related='company_id.currency_id',
-        string='Company Currency',
-        store=False,
-        readonly=True,
     )
 
     @api.depends('currency_id', 'company_id')
@@ -75,18 +72,12 @@ class PurchaseOrder(models.Model):
 
     @api.depends('amount_total', 'manual_currency_rate', 'currency_id', 'company_id')
     def _compute_amount_total_company_currency(self):
-        """
-        Compute total in company currency (SAR) using manual_currency_rate.
-        Formula: amount_total (USD) * manual_currency_rate = total in SAR
-        Falls back to system rate if manual rate is 0.
-        """
         for order in self:
             company_currency = order.company_id.currency_id
             order_currency = order.currency_id
             if order_currency and company_currency and order_currency != company_currency:
                 rate = order.manual_currency_rate
                 if not rate:
-                    # Fallback to system rate
                     rate_date = order.date_order.date() if order.date_order else fields.Date.today()
                     rate = order._get_system_rate(order_currency, order.company_id.id, rate_date)
                 order.amount_total_company_currency = order.amount_total * rate
@@ -100,7 +91,6 @@ class PurchaseOrder(models.Model):
             ('company_id', '=', company_id),
             ('name', '<=', str(rate_date)),
         ], order='name desc', limit=1)
-
         if rate_record and rate_record.inverse_company_rate:
             return rate_record.inverse_company_rate
         else:
@@ -113,10 +103,6 @@ class PurchaseOrder(models.Model):
 
     @api.onchange('currency_id', 'date_order')
     def _onchange_currency_auto_fill_rate(self):
-        """
-        When currency or date changes, auto-fill rate from system.
-        User can still override it manually after this.
-        """
         for order in self:
             company_currency = order.company_id.currency_id
             order_currency = order.currency_id
@@ -127,6 +113,21 @@ class PurchaseOrder(models.Model):
                 )
             else:
                 order.manual_currency_rate = 1.0
+
+    def _compute_tax_totals(self):
+        """
+        Override to remove company currency conversion data from tax_totals.
+        This prevents the built-in (1,875.00 SR) line from appearing
+        in the tax_totals widget — we show our own manual-rate total instead.
+        """
+        super()._compute_tax_totals()
+        for order in self:
+            if order.tax_totals and isinstance(order.tax_totals, dict):
+                # Remove the company currency fields that drive the built-in
+                # currency conversion row in the JS widget
+                order.tax_totals.pop('company_currency_id', None)
+                order.tax_totals.pop('amount_total_company_currency', None)
+                order.tax_totals.pop('amount_untaxed_company_currency', None)
 
     def _get_own_company_partner_id(self):
         return self.env.company.partner_id.id

@@ -8,7 +8,7 @@
             <field name="inherit_id" ref="purchase.purchase_order_form"/>
             <field name="arch" type="xml">
 
-                <!-- Add Delivery Address field right after partner_id (Vendor) field -->
+                <!-- Add Delivery Address field right after partner_id -->
                 <field name="partner_id" position="after">
                     <field
                         name="delivery_address_id"
@@ -19,7 +19,7 @@
                     />
                 </field>
 
-                <!-- Add AWB Number field right after date_planned div -->
+                <!-- Add AWB, Incoterm, Payment Terms after date_planned div -->
                 <xpath expr="//div[@name='date_planned_div']" position="after">
                     <label for="awb_number" string="Shipping Ref#"/>
                     <field name="awb_number" nolabel="1" placeholder="Enter AWB Number (e.g., 1234567890)" readonly="state in ('cancel', 'purchase')"/>
@@ -52,34 +52,33 @@
                 </xpath>
 
                 <!-- =========================================================
-                     Hide the built-in company currency amounts shown by
-                     tax_totals widget (both next to Untaxed Amount and
-                     the (1,875.00 SR) below Total).
-                     Replace with a single clean line using manual_currency_rate.
-                     NOTE: This field is display-only on purchase.order and
-                     does NOT affect any accounting journal entries.
+                     Replace oe_subtotal_footer group entirely.
+                     - Keep tax_totals for USD Untaxed/Total display
+                     - Add our manual-rate SAR total below
+                     - The built-in (1,875 SR) line inside tax_totals widget
+                       is hidden via the company_currency_id trick:
+                       passing False makes the widget skip currency conversion row
                      ========================================================= -->
-
-                <!-- Step 1: Override tax_totals to suppress built-in currency display -->
-                <xpath expr="//field[@name='tax_totals']" position="replace">
-                    <field name="tax_totals"
-                        widget="account-tax-totals-field"
-                        nolabel="1"
-                        readonly="1"
-                        options="{'readonly': True, 'company_currency_id': False}"
-                    />
-                    <!-- Our manual-rate based total — shown only when foreign currency -->
-                    <div class="text-muted fst-italic text-end"
-                         invisible="currency_id == company_currency_id">
-                        <field name="amount_total_company_currency"
+                <xpath expr="//group[@class='oe_subtotal_footer']" position="replace">
+                    <group class="oe_subtotal_footer">
+                        <field name="tax_totals"
+                            widget="account-tax-totals-field"
+                            nolabel="1"
+                            readonly="1"
+                            context="{'company_currency_id': False}"
+                        />
+                        <field name="company_currency_id" invisible="1"/>
+                        <div class="o_td_label" invisible="currency_id == company_currency_id"/>
+                        <field
+                            name="amount_total_company_currency"
                             nolabel="1"
                             widget="monetary"
                             options="{'currency_field': 'company_currency_id'}"
                             readonly="1"
-                            class="oe_inline"
+                            class="text-muted fst-italic"
+                            invisible="currency_id == company_currency_id"
                         />
-                        <field name="company_currency_id" invisible="1"/>
-                    </div>
+                    </group>
                 </xpath>
 
             </field>

@@ -67,8 +67,19 @@ class AccountMove(models.Model):
         digits=(12, 6),
         store=True,
         copy=False,
+        compute='_compute_manual_currency_rate',
+        inverse='_inverse_manual_currency_rate',
+        readonly=False,
         help='Exchange rate: how many SAR = 1 invoice currency. '
              'Auto-filled from system rate but can be changed manually.',
+    )
+
+    # Internal stored field to preserve manual overrides
+    manual_currency_rate_stored = fields.Float(
+        string='Currency Rate (Stored)',
+        digits=(12, 6),
+        store=True,
+        copy=False,
     )
 
     currency_rate_prefix = fields.Char(
@@ -109,19 +120,46 @@ class AccountMove(models.Model):
             unit_per_sar = rate.get(invoice_currency.id, 1.0)
             return (1.0 / unit_per_sar) if unit_per_sar else 1.0
 
-    @api.onchange('currency_id', 'invoice_date', 'date')
-    def _onchange_currency_auto_fill_rate(self):
-        """Auto-fill rate from system when currency or date changes."""
+    @api.depends('currency_id', 'company_id', 'invoice_date', 'date',
+                 'manual_currency_rate_stored')
+    def _compute_manual_currency_rate(self):
+        """
+        Show stored rate if manually set (non-zero),
+        otherwise auto-compute from system rates.
+        This ensures value always shows on record load.
+        """
         for move in self:
             company_currency = move.company_id.currency_id
             invoice_currency = move.currency_id
             if invoice_currency and company_currency and invoice_currency != company_currency:
-                rate_date = move.invoice_date or move.date or fields.Date.today()
-                move.manual_currency_rate = self._get_system_rate(
-                    invoice_currency, move.company_id.id, rate_date
-                )
+                if move.manual_currency_rate_stored:
+                    # User has manually set a rate — use it
+                    move.manual_currency_rate = move.manual_currency_rate_stored
+                else:
+                    # Auto-fill from system rate
+                    rate_date = move.invoice_date or move.date or fields.Date.today()
+                    move.manual_currency_rate = self._get_system_rate(
+                        invoice_currency, move.company_id.id, rate_date
+                    )
             else:
                 move.manual_currency_rate = 1.0
+
+    def _inverse_manual_currency_rate(self):
+        """Save user's manual rate into the stored field."""
+        for move in self:
+            move.manual_currency_rate_stored = move.manual_currency_rate
+
+    @api.onchange('currency_id', 'invoice_date', 'date')
+    def _onchange_currency_auto_fill_rate(self):
+        """Reset stored rate when currency or date changes so system rate is used."""
+        for move in self:
+            company_currency = move.company_id.currency_id
+            invoice_currency = move.currency_id
+            if invoice_currency and company_currency and invoice_currency != company_currency:
+                # Clear stored so compute picks up fresh system rate
+                move.manual_currency_rate_stored = 0.0
+            else:
+                move.manual_currency_rate_stored = 0.0
 
     @api.depends('po_number', 'goods_receipt_number', 'deliver_to')
     def _compute_warehouse_id(self):

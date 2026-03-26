@@ -35,27 +35,24 @@
 
                 <!-- =========================================================
                      Editable currency rate under currency_id field
-                     Shows: 1 USD = [3.750000] SAR
-                     Auto-filled from system rate, manually editable
-                     Only shown when order currency != company currency
+                     Shows: 1 USD = [3.750000] SAR  — all on one line
+                     Targets the visible currency_id (multi_currency group)
                      ========================================================= -->
-                <xpath expr="//field[@name='currency_id']" position="after">
-                    <div class="d-flex gap-1 text-muted align-items-center"
-                         invisible="currency_id == False or currency_rate_prefix == ''">
-                        <!-- "1 USD =" -->
-                        <field name="currency_rate_prefix"
-                            nolabel="1" readonly="1" widget="char" class="w-auto"/>
-                        <!-- Editable float value -->
+                <xpath expr="//field[@name='currency_id'][@groups='base.group_multi_currency']" position="after">
+                    <label for="manual_currency_rate" string=" "
+                        invisible="currency_rate_prefix == ''"/>
+                    <div class="o_row"
+                         invisible="currency_rate_prefix == ''">
+                        <span><field name="currency_rate_prefix" nolabel="1" readonly="1" widget="char" class="oe_inline"/></span>
                         <field name="manual_currency_rate"
                             nolabel="1"
                             widget="float"
                             digits="[12,6]"
                             readonly="state in ('cancel', 'purchase')"
-                            class="w-auto"
+                            class="oe_inline"
+                            style="max-width: 100px;"
                         />
-                        <!-- "SAR" -->
-                        <field name="currency_rate_suffix"
-                            nolabel="1" readonly="1" widget="char" class="w-auto"/>
+                        <span><field name="currency_rate_suffix" nolabel="1" readonly="1" widget="char" class="oe_inline"/></span>
                     </div>
                 </xpath>
 

@@ -23,20 +23,13 @@
                 <xpath expr="//div[@name='date_planned_div']" position="after">
                     <label for="awb_number" string="Shipping Ref#"/>
                     <field name="awb_number" nolabel="1" placeholder="Enter AWB Number (e.g., 1234567890)" readonly="state in ('cancel', 'purchase')"/>
-
-                    <!-- Add Incoterm field -->
                     <label for="incoterm_id" string="Incoterm"/>
                     <field name="incoterm_id" nolabel="1"/>
-
-                    <!-- Add Payment Terms field -->
                     <label for="payment_term_id" string="Payment Terms"/>
                     <field name="payment_term_id" nolabel="1" readonly="invoice_status == 'invoiced' or locked" options="{'no_create': True}"/>
                 </xpath>
 
-                <!-- =========================================================
-                     Editable currency rate under currency_id field
-                     Shows: 1 USD = [3.750000] SAR  — all on one line
-                     ========================================================= -->
+                <!-- Editable currency rate under currency_id field -->
                 <xpath expr="//field[@name='currency_id'][@groups='base.group_multi_currency']" position="after">
                     <label for="manual_currency_rate" string=" "
                         invisible="currency_rate_prefix == ''"/>
@@ -59,24 +52,34 @@
                 </xpath>
 
                 <!-- =========================================================
-                     Hide built-in company currency total from tax_totals widget
-                     and replace with our field computed using manual_currency_rate
+                     Hide the built-in company currency amounts shown by
+                     tax_totals widget (both next to Untaxed Amount and
+                     the (1,875.00 SR) below Total).
+                     Replace with a single clean line using manual_currency_rate.
+                     NOTE: This field is display-only on purchase.order and
+                     does NOT affect any accounting journal entries.
                      ========================================================= -->
-                <xpath expr="//field[@name='tax_totals']" position="attributes">
-                    <attribute name="options">{"hide_currency_conversion": true}</attribute>
-                </xpath>
 
-                <xpath expr="//field[@name='tax_totals']" position="after">
-                    <field
-                        name="amount_total_company_currency"
+                <!-- Step 1: Override tax_totals to suppress built-in currency display -->
+                <xpath expr="//field[@name='tax_totals']" position="replace">
+                    <field name="tax_totals"
+                        widget="account-tax-totals-field"
                         nolabel="1"
-                        widget="monetary"
-                        options="{'currency_field': 'company_currency_id'}"
                         readonly="1"
-                        class="text-muted fst-italic"
-                        invisible="currency_id == company_currency_id"
+                        options="{'readonly': True, 'company_currency_id': False}"
                     />
-                    <field name="company_currency_id" invisible="1"/>
+                    <!-- Our manual-rate based total — shown only when foreign currency -->
+                    <div class="text-muted fst-italic text-end"
+                         invisible="currency_id == company_currency_id">
+                        <field name="amount_total_company_currency"
+                            nolabel="1"
+                            widget="monetary"
+                            options="{'currency_field': 'company_currency_id'}"
+                            readonly="1"
+                            class="oe_inline"
+                        />
+                        <field name="company_currency_id" invisible="1"/>
+                    </div>
                 </xpath>
 
             </field>

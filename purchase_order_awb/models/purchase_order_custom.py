@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 
+
 class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
@@ -18,63 +19,78 @@ class PurchaseOrder(models.Model):
     )
 
     # -------------------------------------------------------
-    # Currency rate display: "1 USD = 3.750000 SAR"
-    # Shows how many company currency units = 1 order currency
+    # Manually editable currency rate field
+    # Auto-filled from system rate but can be changed by user
+    # Stored so the user's manual value is preserved
     # -------------------------------------------------------
-    currency_rate_label = fields.Char(
+    manual_currency_rate = fields.Float(
         string='Currency Rate',
-        compute='_compute_currency_rate_label',
-        store=False,
-        help='Exchange rate: 1 [order currency] = X [company currency]'
-    )
-
-    currency_rate_display = fields.Float(
-        string='Currency Rate Value',
-        compute='_compute_currency_rate_label',
-        store=False,
         digits=(12, 6),
+        store=True,
+        copy=False,
+        help='Exchange rate: how many SAR = 1 order currency. '
+             'Auto-filled from system rate but can be changed manually.',
     )
 
-    @api.depends('currency_id', 'company_id', 'date_order')
-    def _compute_currency_rate_label(self):
+    # Prefix/suffix labels around the editable float
+    currency_rate_prefix = fields.Char(
+        compute='_compute_currency_rate_affixes',
+        store=False,
+    )
+    currency_rate_suffix = fields.Char(
+        compute='_compute_currency_rate_affixes',
+        store=False,
+    )
+
+    @api.depends('currency_id', 'company_id')
+    def _compute_currency_rate_affixes(self):
+        for order in self:
+            company_currency = order.company_id.currency_id
+            order_currency = order.currency_id
+            if order_currency and company_currency and order_currency != company_currency:
+                order.currency_rate_prefix = "1 %s =" % order_currency.name
+                order.currency_rate_suffix = company_currency.name
+            else:
+                order.currency_rate_prefix = ""
+                order.currency_rate_suffix = ""
+
+    def _get_system_rate(self, order_currency, company_id, rate_date):
+        """Get SAR per 1 unit of order_currency from system rates."""
+        rate_record = self.env['res.currency.rate'].search([
+            ('currency_id', '=', order_currency.id),
+            ('company_id', '=', company_id),
+            ('name', '<=', str(rate_date)),
+        ], order='name desc', limit=1)
+
+        if rate_record and rate_record.inverse_company_rate:
+            return rate_record.inverse_company_rate
+        else:
+            rate = order_currency._get_rates(
+                self.env['res.company'].browse(company_id),
+                rate_date
+            )
+            unit_per_sar = rate.get(order_currency.id, 1.0)
+            return (1.0 / unit_per_sar) if unit_per_sar else 1.0
+
+    @api.onchange('currency_id', 'date_order')
+    def _onchange_currency_auto_fill_rate(self):
         """
-        Compute rate as: 1 [order currency] = X [company currency]
-        Example: 1 USD = 3.750000 SAR
-        Uses inverse_company_rate from res.currency.rate
+        When currency or date changes, auto-fill rate from system.
+        User can still override it manually after this.
         """
         for order in self:
             company_currency = order.company_id.currency_id
             order_currency = order.currency_id
             if order_currency and company_currency and order_currency != company_currency:
                 rate_date = order.date_order.date() if order.date_order else fields.Date.today()
-                # Find most recent rate on or before rate_date
-                rate_record = self.env['res.currency.rate'].search([
-                    ('currency_id', '=', order_currency.id),
-                    ('company_id', '=', order.company_id.id),
-                    ('name', '<=', str(rate_date)),
-                ], order='name desc', limit=1)
-
-                if rate_record and rate_record.inverse_company_rate:
-                    sar_per_unit = rate_record.inverse_company_rate
-                else:
-                    # Fallback: compute from currency rate
-                    rate = order_currency._get_rates(order.company_id, rate_date)
-                    unit_per_sar = rate.get(order_currency.id, 1.0)
-                    sar_per_unit = (1.0 / unit_per_sar) if unit_per_sar else 1.0
-
-                order.currency_rate_display = sar_per_unit
-                order.currency_rate_label = "1 %s = %.6f %s" % (
-                    order_currency.name,
-                    sar_per_unit,
-                    company_currency.name,
+                order.manual_currency_rate = self._get_system_rate(
+                    order_currency, order.company_id.id, rate_date
                 )
             else:
-                order.currency_rate_display = 1.0
-                order.currency_rate_label = ""
+                order.manual_currency_rate = 1.0
 
     def _get_own_company_partner_id(self):
         return self.env.company.partner_id.id
-
 
 
 

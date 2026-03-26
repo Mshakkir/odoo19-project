@@ -2,11 +2,11 @@
 <odoo>
     <data>
         <!-- Inherit Purchase Order Form -->
-        <record id="purchase_order_form_awb" model="ir.ui.view">
+        <record id="purchase_order_form_awb" model="ir.ui.view"/>
             <field name="name">purchase.order.form.awb</field>
             <field name="model">purchase.order</field>
             <field name="inherit_id" ref="purchase.purchase_order_form"/>
-            <field name="arch" type="xml">
+            <field name="arch" type="xml"/>
 
                 <!-- Add Delivery Address field right after partner_id (Vendor) field -->
                 <field name="partner_id" position="after">
@@ -56,10 +56,26 @@
                     </div>
                 </xpath>
 
-            </field>
-        </record>
+                <!-- =========================================================
+                     Override tax_totals to hide built-in company currency
+                     total, then show our field using manual_currency_rate
+                     ========================================================= -->
+                <xpath expr="//field[@name='tax_totals']" position="attributes">
+                    <attribute name="options">{"hide_currency_conversion": true}</attribute>
+                </xpath>
 
-        <!-- Tree view adjustment if needed -->
+                <xpath expr="//field[@name='tax_totals']" position="after">
+                    <field
+                        name="amount_total_company_currency"
+                        nolabel="1"
+                        widget="monetary"
+                        options="{'currency_field': 'company_currency_id'}"
+                        readonly="1"
+                        class="text-muted fst-italic"
+                        invisible="currency_id == company_currency_id"
+                    />
+                    <field name="company_currency_id" invisible="1"/>
+                </xpath>
         <record id="purchase_order_tree_awb" model="ir.ui.view">
             <field name="name">purchase.order.tree.awb</field>
             <field name="model">purchase.order</field>

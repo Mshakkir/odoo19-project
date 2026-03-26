@@ -21,7 +21,6 @@ class PurchaseOrder(models.Model):
     # -------------------------------------------------------
     # Manually editable currency rate field
     # Auto-filled from system rate but can be changed by user
-    # Stored so the user's manual value is preserved
     # -------------------------------------------------------
     manual_currency_rate = fields.Float(
         string='Currency Rate',
@@ -42,6 +41,26 @@ class PurchaseOrder(models.Model):
         store=False,
     )
 
+    # -------------------------------------------------------
+    # Company currency total — recomputed using manual rate
+    # Overrides the built-in total so (1,875.00 SR) reflects
+    # the manually entered rate immediately
+    # -------------------------------------------------------
+    amount_total_company_currency = fields.Monetary(
+        string='Total in Company Currency',
+        compute='_compute_amount_total_company_currency',
+        store=True,
+        currency_field='company_currency_id',
+        help='Order total converted using the manual currency rate',
+    )
+
+    company_currency_id = fields.Many2one(
+        related='company_id.currency_id',
+        string='Company Currency',
+        store=False,
+        readonly=True,
+    )
+
     @api.depends('currency_id', 'company_id')
     def _compute_currency_rate_affixes(self):
         for order in self:
@@ -53,6 +72,26 @@ class PurchaseOrder(models.Model):
             else:
                 order.currency_rate_prefix = ""
                 order.currency_rate_suffix = ""
+
+    @api.depends('amount_total', 'manual_currency_rate', 'currency_id', 'company_id')
+    def _compute_amount_total_company_currency(self):
+        """
+        Compute total in company currency (SAR) using manual_currency_rate.
+        Formula: amount_total (USD) * manual_currency_rate = total in SAR
+        Falls back to system rate if manual rate is 0.
+        """
+        for order in self:
+            company_currency = order.company_id.currency_id
+            order_currency = order.currency_id
+            if order_currency and company_currency and order_currency != company_currency:
+                rate = order.manual_currency_rate
+                if not rate:
+                    # Fallback to system rate
+                    rate_date = order.date_order.date() if order.date_order else fields.Date.today()
+                    rate = order._get_system_rate(order_currency, order.company_id.id, rate_date)
+                order.amount_total_company_currency = order.amount_total * rate
+            else:
+                order.amount_total_company_currency = order.amount_total
 
     def _get_system_rate(self, order_currency, company_id, rate_date):
         """Get SAR per 1 unit of order_currency from system rates."""

@@ -102,23 +102,6 @@ class PurchaseOrder(models.Model):
             else:
                 order.manual_currency_rate = 1.0
 
-    def _compute_tax_totals(self):
-        """
-        Override to suppress the built-in company currency conversion row
-        shown by the account-tax-totals-field JS widget.
-        We set the currency keys to False so the widget skips rendering them.
-        Our own amount_total_company_currency field is shown instead.
-        """
-        super()._compute_tax_totals()
-        for order in self:
-            if order.tax_totals and isinstance(order.tax_totals, dict):
-                vals = dict(order.tax_totals)
-                # Setting to False makes the JS widget skip the currency row
-                vals['company_currency_id'] = False
-                vals['amount_total_company_currency'] = False
-                vals['amount_untaxed_company_currency'] = False
-                order.tax_totals = vals
-
     def _get_own_company_partner_id(self):
         return self.env.company.partner_id.id
 

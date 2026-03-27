@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+import copy
 
 
 class PurchaseOrder(models.Model):
@@ -18,17 +19,12 @@ class PurchaseOrder(models.Model):
         copy=True,
     )
 
-    # -------------------------------------------------------
-    # Manually editable currency rate field
-    # Auto-filled from system rate but can be changed by user
-    # -------------------------------------------------------
     manual_currency_rate = fields.Float(
         string='Currency Rate',
         digits=(12, 6),
         store=True,
         copy=False,
-        help='Exchange rate: how many SAR = 1 order currency. '
-             'Auto-filled from system rate but can be changed manually.',
+        help='Exchange rate: how many SAR = 1 order currency.',
     )
 
     currency_rate_prefix = fields.Char(
@@ -47,15 +43,11 @@ class PurchaseOrder(models.Model):
         readonly=True,
     )
 
-    # -------------------------------------------------------
-    # Company currency total using manual rate
-    # -------------------------------------------------------
     amount_total_company_currency = fields.Monetary(
         string='Total in Company Currency',
         compute='_compute_amount_total_company_currency',
         store=True,
         currency_field='company_currency_id',
-        help='Order total converted using the manual currency rate',
     )
 
     @api.depends('currency_id', 'company_id')
@@ -85,7 +77,6 @@ class PurchaseOrder(models.Model):
                 order.amount_total_company_currency = order.amount_total
 
     def _get_system_rate(self, order_currency, company_id, rate_date):
-        """Get SAR per 1 unit of order_currency from system rates."""
         rate_record = self.env['res.currency.rate'].search([
             ('currency_id', '=', order_currency.id),
             ('company_id', '=', company_id),
@@ -93,13 +84,11 @@ class PurchaseOrder(models.Model):
         ], order='name desc', limit=1)
         if rate_record and rate_record.inverse_company_rate:
             return rate_record.inverse_company_rate
-        else:
-            rate = order_currency._get_rates(
-                self.env['res.company'].browse(company_id),
-                rate_date
-            )
-            unit_per_sar = rate.get(order_currency.id, 1.0)
-            return (1.0 / unit_per_sar) if unit_per_sar else 1.0
+        rate = order_currency._get_rates(
+            self.env['res.company'].browse(company_id), rate_date
+        )
+        unit_per_sar = rate.get(order_currency.id, 1.0)
+        return (1.0 / unit_per_sar) if unit_per_sar else 1.0
 
     @api.onchange('currency_id', 'date_order')
     def _onchange_currency_auto_fill_rate(self):
@@ -116,18 +105,20 @@ class PurchaseOrder(models.Model):
 
     def _compute_tax_totals(self):
         """
-        Override to remove company currency conversion data from tax_totals.
-        This prevents the built-in (1,875.00 SR) line from appearing
-        in the tax_totals widget — we show our own manual-rate total instead.
+        Override to remove company currency conversion data from
+        the tax_totals JSON so the JS widget does NOT render the
+        built-in (1,875.00 SR) line. We show our own field instead.
         """
         super()._compute_tax_totals()
         for order in self:
             if order.tax_totals and isinstance(order.tax_totals, dict):
-                # Remove the company currency fields that drive the built-in
-                # currency conversion row in the JS widget
-                order.tax_totals.pop('company_currency_id', None)
-                order.tax_totals.pop('amount_total_company_currency', None)
-                order.tax_totals.pop('amount_untaxed_company_currency', None)
+                # Make a mutable copy and strip company currency keys
+                totals = copy.deepcopy(order.tax_totals)
+                totals.pop('company_currency_id', None)
+                totals.pop('amount_total_company_currency', None)
+                totals.pop('amount_untaxed_company_currency', None)
+                # Reassign to trigger field update
+                order.tax_totals = totals
 
     def _get_own_company_partner_id(self):
         return self.env.company.partner_id.id

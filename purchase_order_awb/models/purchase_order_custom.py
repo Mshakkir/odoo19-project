@@ -120,7 +120,7 @@ class PurchaseOrder(models.Model):
                 order.tax_totals = vals
 
     def _get_own_company_partner_id(self):
-        return self.env.company.partner_id.i
+        return self.env.company.partner_id.id
 
 
 

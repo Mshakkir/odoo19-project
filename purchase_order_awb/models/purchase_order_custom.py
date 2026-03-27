@@ -1,4 +1,4 @@
-ffrom odoo import models, fields, api
+from odoo import models, fields, api
 
 
 class PurchaseOrder(models.Model):

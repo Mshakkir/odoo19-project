@@ -1,5 +1,4 @@
-from odoo import models, fields, api
-import copy
+ffrom odoo import models, fields, api
 
 
 class PurchaseOrder(models.Model):
@@ -105,20 +104,20 @@ class PurchaseOrder(models.Model):
 
     def _compute_tax_totals(self):
         """
-        Override to remove company currency conversion data from
-        the tax_totals JSON so the JS widget does NOT render the
-        built-in (1,875.00 SR) line. We show our own field instead.
+        Override to suppress the built-in company currency conversion row
+        shown by the account-tax-totals-field JS widget.
+        We set the currency keys to False so the widget skips rendering them.
+        Our own amount_total_company_currency field is shown instead.
         """
         super()._compute_tax_totals()
         for order in self:
             if order.tax_totals and isinstance(order.tax_totals, dict):
-                # Make a mutable copy and strip company currency keys
-                totals = copy.deepcopy(order.tax_totals)
-                totals.pop('company_currency_id', None)
-                totals.pop('amount_total_company_currency', None)
-                totals.pop('amount_untaxed_company_currency', None)
-                # Reassign to trigger field update
-                order.tax_totals = totals
+                vals = dict(order.tax_totals)
+                # Setting to False makes the JS widget skip the currency row
+                vals['company_currency_id'] = False
+                vals['amount_total_company_currency'] = False
+                vals['amount_untaxed_company_currency'] = False
+                order.tax_totals = vals
 
     def _get_own_company_partner_id(self):
         return self.env.company.partner_id.id

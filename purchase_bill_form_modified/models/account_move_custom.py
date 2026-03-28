@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import models, ffrom odoo import models, fields, api
 from odoo.exceptions import UserError
 
 
@@ -126,17 +126,14 @@ class AccountMove(models.Model):
         """
         Show stored rate if manually set (non-zero),
         otherwise auto-compute from system rates.
-        This ensures value always shows on record load.
         """
         for move in self:
             company_currency = move.company_id.currency_id
             invoice_currency = move.currency_id
             if invoice_currency and company_currency and invoice_currency != company_currency:
                 if move.manual_currency_rate_stored:
-                    # User has manually set a rate — use it
                     move.manual_currency_rate = move.manual_currency_rate_stored
                 else:
-                    # Auto-fill from system rate
                     rate_date = move.invoice_date or move.date or fields.Date.today()
                     move.manual_currency_rate = self._get_system_rate(
                         invoice_currency, move.company_id.id, rate_date
@@ -145,9 +142,22 @@ class AccountMove(models.Model):
                 move.manual_currency_rate = 1.0
 
     def _inverse_manual_currency_rate(self):
-        """Save user's manual rate into the stored field."""
+        """Save user's manual rate into the stored field
+        AND write to invoice_currency_rate so accounting entries use it."""
         for move in self:
             move.manual_currency_rate_stored = move.manual_currency_rate
+            # Write manual rate into Odoo's built-in rate field
+            # invoice_currency_rate = unit_per_company = 1 / (SAR per USD)
+            # e.g. manual=4.0 → invoice_currency_rate = 0.25
+            if move.manual_currency_rate and move.currency_id != move.company_id.currency_id:
+                move.invoice_currency_rate = 1.0 / move.manual_currency_rate
+
+    @api.onchange('manual_currency_rate')
+    def _onchange_manual_currency_rate(self):
+        """Update invoice_currency_rate immediately when manual rate changes."""
+        for move in self:
+            if move.manual_currency_rate and move.currency_id != move.company_id.currency_id:
+                move.invoice_currency_rate = 1.0 / move.manual_currency_rate
 
     @api.onchange('currency_id', 'invoice_date', 'date')
     def _onchange_currency_auto_fill_rate(self):
@@ -157,11 +167,35 @@ class AccountMove(models.Model):
             company_currency = move.company_id.currency_id
             invoice_currency = move.currency_id
             if invoice_currency and company_currency and invoice_currency != company_currency:
-                # Only reset if no manual rate has been stored yet
                 if not move.manual_currency_rate_stored:
                     move.manual_currency_rate_stored = 0.0
             else:
                 move.manual_currency_rate_stored = 0.0
+
+    def _apply_manual_rate_to_accounting(self):
+        """
+        Write manual_currency_rate into invoice_currency_rate before posting.
+        invoice_currency_rate = how many invoice_currency = 1 company_currency
+        e.g. 1 SAR = 0.25 USD when rate is 4.0 SAR/USD
+        So: invoice_currency_rate = 1 / manual_currency_rate
+        """
+        for move in self:
+            if (move.manual_currency_rate
+                    and move.currency_id
+                    and move.currency_id != move.company_id.currency_id):
+                move.invoice_currency_rate = 1.0 / move.manual_currency_rate
+
+    def action_post(self):
+        """Apply manual currency rate to journal entries before posting."""
+        self._apply_manual_rate_to_accounting()
+        return super().action_post()
+
+    def write(self, vals):
+        """When manual rate changes on saved record, update invoice_currency_rate."""
+        res = super().write(vals)
+        if 'manual_currency_rate_stored' in vals or 'manual_currency_rate' in vals:
+            self._apply_manual_rate_to_accounting()
+        return res
 
     @api.depends('po_number', 'goods_receipt_number', 'deliver_to')
     def _compute_warehouse_id(self):
@@ -218,6 +252,7 @@ class AccountMove(models.Model):
             if hasattr(purchase_order, 'manual_currency_rate') and purchase_order.manual_currency_rate:
                 self.manual_currency_rate_stored = purchase_order.manual_currency_rate
                 self.manual_currency_rate = purchase_order.manual_currency_rate
+                self.invoice_currency_rate = 1.0 / purchase_order.manual_currency_rate
                 self.manual_currency_rate = purchase_order.manual_currency_rate
 
             pickings = self.env['stock.picking'].search([
@@ -258,6 +293,7 @@ class AccountMove(models.Model):
             if hasattr(po, 'manual_currency_rate') and po.manual_currency_rate:
                 self.manual_currency_rate_stored = po.manual_currency_rate
                 self.manual_currency_rate = po.manual_currency_rate
+                self.invoice_currency_rate = 1.0 / po.manual_currency_rate
                 self.manual_currency_rate = po.manual_currency_rate
 
             pickings = self.env['stock.picking'].search([
@@ -313,7 +349,10 @@ class AccountMove(models.Model):
                 if hasattr(po, 'manual_currency_rate') and po.manual_currency_rate:
                     self.manual_currency_rate_stored = po.manual_currency_rate
                     self.manual_currency_rate = po.manual_currency_rate
+                    self.invoice_currency_rate = 1.0 / po.manual_currency_rate
                     self.manual_currency_rate = po.manual_currency_rate
+
+
 
 
 class AccountMoveCompanyCurrency(models.Model):
@@ -340,8 +379,8 @@ class AccountMoveCompanyCurrency(models.Model):
         'invoice_date',
         'date',
         'company_id',
-        'manual_currency_rate',  # recompute when manual rate changes
-        'manual_currency_rate_stored',  # recompute when stored rate changes
+        'manual_currency_rate',       # recompute when manual rate changes
+        'manual_currency_rate_stored', # recompute when stored rate changes
     )
     def _compute_amount_total_in_company_currency(self):
         """

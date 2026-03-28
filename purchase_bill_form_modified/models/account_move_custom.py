@@ -151,13 +151,15 @@ class AccountMove(models.Model):
 
     @api.onchange('currency_id', 'invoice_date', 'date')
     def _onchange_currency_auto_fill_rate(self):
-        """Reset stored rate when currency or date changes so system rate is used."""
+        """Reset stored rate when currency or date changes so system rate is used.
+        But only reset if not coming from a PO selection (stored rate is 0)."""
         for move in self:
             company_currency = move.company_id.currency_id
             invoice_currency = move.currency_id
             if invoice_currency and company_currency and invoice_currency != company_currency:
-                # Clear stored so compute picks up fresh system rate
-                move.manual_currency_rate_stored = 0.0
+                # Only reset if no manual rate has been stored yet
+                if not move.manual_currency_rate_stored:
+                    move.manual_currency_rate_stored = 0.0
             else:
                 move.manual_currency_rate_stored = 0.0
 
@@ -215,6 +217,8 @@ class AccountMove(models.Model):
             # Auto-fill currency rate from PO's manual rate
             if hasattr(purchase_order, 'manual_currency_rate') and purchase_order.manual_currency_rate:
                 self.manual_currency_rate_stored = purchase_order.manual_currency_rate
+                self.manual_currency_rate = purchase_order.manual_currency_rate
+                self.manual_currency_rate = purchase_order.manual_currency_rate
 
             pickings = self.env['stock.picking'].search([
                 ('purchase_id', '=', purchase_order.id),
@@ -253,6 +257,8 @@ class AccountMove(models.Model):
             # Auto-fill currency rate from PO's manual rate
             if hasattr(po, 'manual_currency_rate') and po.manual_currency_rate:
                 self.manual_currency_rate_stored = po.manual_currency_rate
+                self.manual_currency_rate = po.manual_currency_rate
+                self.manual_currency_rate = po.manual_currency_rate
 
             pickings = self.env['stock.picking'].search([
                 ('purchase_id', '=', po.id),
@@ -306,6 +312,8 @@ class AccountMove(models.Model):
                 # Auto-fill currency rate from PO's manual rate
                 if hasattr(po, 'manual_currency_rate') and po.manual_currency_rate:
                     self.manual_currency_rate_stored = po.manual_currency_rate
+                    self.manual_currency_rate = po.manual_currency_rate
+                    self.manual_currency_rate = po.manual_currency_rate
 
 
 class AccountMoveCompanyCurrency(models.Model):

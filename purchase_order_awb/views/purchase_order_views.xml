@@ -47,10 +47,6 @@
                     </div>
                 </xpath>
 
-                <!-- Add our manual-rate SAR total after tax_totals.
-                     The built-in (1,875 SR) line is suppressed by
-                     _compute_tax_totals override in Python which strips
-                     company_currency_id from the tax_totals JSON dict. -->
                 <xpath expr="//field[@name='tax_totals']" position="after">
                     <field name="company_currency_id" invisible="1"/>
                     <div class="o_td_label"

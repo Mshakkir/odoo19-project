@@ -7,7 +7,6 @@
     'depends': ['purchase', 'stock', 'account'],
     'data': [
         'views/purchase_order_views.xml',
-        'views/assets.xml',
     ],
     'assets': {
         'web.assets_backend': [

@@ -172,29 +172,19 @@ class AccountMove(models.Model):
             else:
                 move.manual_currency_rate_stored = 0.0
 
-    def _apply_manual_rate_to_accounting(self):
-        """
-        Write manual_currency_rate into invoice_currency_rate before posting.
-        invoice_currency_rate = how many invoice_currency = 1 company_currency
-        e.g. 1 SAR = 0.25 USD when rate is 4.0 SAR/USD
-        So: invoice_currency_rate = 1 / manual_currency_rate
-        """
-        for move in self:
-            if (move.manual_currency_rate
-                    and move.currency_id
-                    and move.currency_id != move.company_id.currency_id):
-                move.invoice_currency_rate = 1.0 / move.manual_currency_rate
-
     def action_post(self):
         """Apply manual currency rate to journal entries before posting."""
-        self._apply_manual_rate_to_accounting()
+        self._sync_manual_rate_to_invoice_rate()
         return super().action_post()
 
     def write(self, vals):
         """When manual rate changes on saved record, update invoice_currency_rate."""
         res = super().write(vals)
-        if 'manual_currency_rate_stored' in vals or 'manual_currency_rate' in vals:
-            self._apply_manual_rate_to_accounting()
+        if any(k in vals for k in [
+            'manual_currency_rate', 'manual_currency_rate_stored',
+            'currency_id', 'invoice_date',
+        ]):
+            self._sync_manual_rate_to_invoice_rate()
         return res
 
     @api.depends('po_number', 'goods_receipt_number', 'deliver_to')
@@ -352,7 +342,38 @@ class AccountMove(models.Model):
                     self.invoice_currency_rate = 1.0 / po.manual_currency_rate
                     self.manual_currency_rate = po.manual_currency_rate
 
+    def _sync_manual_rate_to_invoice_rate(self):
+        """
+        Push manual_currency_rate into Odoo's invoice_currency_rate.
+        invoice_currency_rate = units of invoice currency per 1 company currency
+        e.g. if 1 USD = 4 SAR → invoice_currency_rate = 1/4 = 0.25
+        This makes journal entries use our manual rate for SAR amounts.
+        """
+        for move in self:
+            company_currency = move.company_id.currency_id
+            invoice_currency = move.currency_id
+            if (invoice_currency and company_currency
+                    and invoice_currency != company_currency
+                    and move.manual_currency_rate
+                    and move.manual_currency_rate > 0):
+                # Write directly to invoice_currency_rate
+                move.invoice_currency_rate = 1.0 / move.manual_currency_rate
 
+    def write(self, vals):
+        """Sync manual rate to invoice_currency_rate on every save."""
+        result = super().write(vals)
+        # Only sync when manual rate fields or currency fields changed
+        if any(k in vals for k in [
+            'manual_currency_rate', 'manual_currency_rate_stored',
+            'currency_id', 'invoice_date',
+        ]):
+            self._sync_manual_rate_to_invoice_rate()
+        return result
+
+    def action_post(self):
+        """Sync manual rate to invoice_currency_rate before posting."""
+        self._sync_manual_rate_to_invoice_rate()
+        return super().action_post()
 
 
 class AccountMoveCompanyCurrency(models.Model):
@@ -379,8 +400,8 @@ class AccountMoveCompanyCurrency(models.Model):
         'invoice_date',
         'date',
         'company_id',
-        'manual_currency_rate',       # recompute when manual rate changes
-        'manual_currency_rate_stored', # recompute when stored rate changes
+        'manual_currency_rate',  # recompute when manual rate changes
+        'manual_currency_rate_stored',  # recompute when stored rate changes
     )
     def _compute_amount_total_in_company_currency(self):
         """

@@ -1,66 +1,70 @@
 /** @odoo-module **/
 
 /**
- * Hide the built-in company currency conversion row (1,875.00 SR)
- * from the tax_totals widget on Purchase Order forms.
+ * Hide the built-in company currency conversion row from tax_totals widget
+ * on Purchase Order form using direct DOM manipulation via MutationObserver.
  *
- * We use a MutationObserver to watch for the widget rendering
- * and hide the currency row after it renders, since the widget
- * is rendered by JavaScript after page load.
+ * The tax_totals widget renders a table. The company currency row
+ * in Odoo 19 is rendered inside the OWL component as a <tr> with
+ * class "o_tax_totals_line" containing the company currency amount.
+ * We use MutationObserver to catch it after OWL renders it.
  */
 
-import { onMounted, onPatched } from "@odoo/owl";
-import { patch } from "@web/core/utils/patch";
-import { FormController } from "@web/views/form/form_controller";
-
-function hidePOCurrencyRow(el) {
-    if (!el) return;
-    // Find all tax total tables inside purchase order form
-    const form = el.closest?.(".o_purchase_order") || el.querySelector?.(".o_purchase_order");
+function hideCompanyCurrencyRow() {
+    // Only act on purchase order pages
+    const form = document.querySelector(".o_purchase_order");
     if (!form) return;
 
-    // The currency conversion row is the last tr inside the tax totals table
-    // It contains the company currency amount like (1,875.00 SR)
-    const taxTotalsField = form.querySelector("[name='tax_totals']");
-    if (!taxTotalsField) return;
+    const taxTotalsEl = form.querySelector("[name='tax_totals']");
+    if (!taxTotalsEl) return;
 
-    // Target rows containing currency conversion data
-    // Odoo renders these as rows with class containing 'currency' or as the last row
-    const rows = taxTotalsField.querySelectorAll("tr");
-    rows.forEach((row) => {
-        const text = row.textContent || "";
-        // Hide rows that contain SAR symbol or company currency symbol
-        // The built-in row shows values like "(1,875.00 ﷼)" or "1,875.00 SR"
-        if (
-            row.classList.contains("o_tax_total_currency") ||
-            row.classList.contains("o_currency_row") ||
-            row.dataset?.currencyConversion ||
-            (text.includes("﷼") && !row.closest(".o_field_monetary[name='amount_total_company_currency']"))
-        ) {
-            row.style.display = "none";
+    // Get all table rows in the tax totals widget
+    const allRows = taxTotalsEl.querySelectorAll("tr, .o_tax_totals_line");
+    allRows.forEach((row) => {
+        const text = row.innerText || row.textContent || "";
+        // The built-in company currency row shows bracketed amount like (1,875.00 ﷼)
+        // Match rows that ONLY contain a bracketed amount (company currency conversion)
+        if (/^\s*\([\d,\s.]+\s*[^\)]*\)\s*$/.test(text.trim())) {
+            row.style.cssText = "display: none !important;";
         }
     });
 
-    // Also hide any standalone div/span with currency conversion
-    const currencyDivs = taxTotalsField.querySelectorAll(
-        ".o_currency_conversion, .o_tax_currency_conversion, [class*='currency_conversion']"
-    );
-    currencyDivs.forEach((el) => (el.style.display = "none"));
+    // Also try direct class-based hiding for known Odoo 19 classes
+    const knownClasses = [
+        ".o_tax_totals_foreign_currency",
+        ".o_tax_total_company_currency",
+        "[class*='company_currency']",
+        "[class*='foreign_currency']",
+        "[class*='currency_conversion']",
+    ];
+    knownClasses.forEach((selector) => {
+        taxTotalsEl.querySelectorAll(selector).forEach((el) => {
+            el.style.cssText = "display: none !important;";
+        });
+    });
 }
 
-// Patch FormController to run hide logic after each render on purchase.order
-patch(FormController.prototype, {
-    setup() {
-        super.setup(...arguments);
-        onMounted(() => {
-            if (this.props.resModel === "purchase.order") {
-                hidePOCurrencyRow(this.__owl__.bdom?.el || document.querySelector(".o_purchase_order"));
-            }
-        });
-        onPatched(() => {
-            if (this.props.resModel === "purchase.order") {
-                hidePOCurrencyRow(this.__owl__.bdom?.el || document.querySelector(".o_purchase_order"));
-            }
-        });
-    },
+// Run on initial page load
+document.addEventListener("DOMContentLoaded", () => {
+    // Use MutationObserver to catch OWL re-renders
+    const observer = new MutationObserver(() => {
+        hideCompanyCurrencyRow();
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+    });
+
+    // Also run immediately in case already rendered
+    hideCompanyCurrencyRow();
 });
+
+// Also run after Owl component updates via a periodic check
+// (fallback for cases where MutationObserver misses the update)
+let checkCount = 0;
+const interval = setInterval(() => {
+    hideCompanyCurrencyRow();
+    checkCount++;
+    if (checkCount > 20) clearInterval(interval); // Stop after 20 attempts
+}, 500);

@@ -296,23 +296,21 @@ class AccountMove(models.Model):
                     self.delivery_address_id = po.delivery_address_id
 
 
-
-
 class AccountMoveCompanyCurrency(models.Model):
     _inherit = 'account.move'
 
     # -------------------------------------------------------
     # FIX 2: Total amount in company currency shown below
-    # the USD total — like the Purchase Order form
-    # e.g. Total: $150.00
-    #              (562.50 SR)
+    # the USD total — uses manual_currency_rate when set
+    # e.g. Total: $500.00
+    #              2,000.00 SR  (when rate = 4.0)
     # -------------------------------------------------------
     amount_total_in_company_currency = fields.Monetary(
         string='Total in Company Currency',
         compute='_compute_amount_total_in_company_currency',
         store=True,
         currency_field='company_currency_id',
-        help='Invoice total converted to company currency (SAR)'
+        help='Invoice total converted to company currency (SAR) using manual rate'
     )
 
     @api.depends(
@@ -322,12 +320,15 @@ class AccountMoveCompanyCurrency(models.Model):
         'invoice_date',
         'date',
         'company_id',
+        'manual_currency_rate',  # recompute when manual rate changes
+        'manual_currency_rate_stored',  # recompute when stored rate changes
     )
     def _compute_amount_total_in_company_currency(self):
         """
         Convert amount_total from invoice currency (USD) to
-        company currency (SAR) — displayed below the total
-        like the Purchase Order form shows (562.50 SR).
+        company currency (SAR) using manual_currency_rate.
+        Formula: amount_total * manual_currency_rate = SAR total
+        Falls back to system rate if manual rate is 0.
         """
         for move in self:
             company = move.company_id
@@ -341,14 +342,20 @@ class AccountMoveCompanyCurrency(models.Model):
             if invoice_currency == company_currency:
                 move.amount_total_in_company_currency = move.amount_total
             else:
-                rate_date = move.invoice_date or move.date or fields.Date.today()
-                converted = invoice_currency._convert(
-                    move.amount_total,
-                    company_currency,
-                    company,
-                    rate_date,
-                )
-                move.amount_total_in_company_currency = converted
+                # Use manual rate if set, otherwise fall back to system rate
+                rate = move.manual_currency_rate
+                if rate:
+                    move.amount_total_in_company_currency = move.amount_total * rate
+                else:
+                    # Fallback: use system currency conversion
+                    rate_date = move.invoice_date or move.date or fields.Date.today()
+                    converted = invoice_currency._convert(
+                        move.amount_total,
+                        company_currency,
+                        company,
+                        rate_date,
+                    )
+                    move.amount_total_in_company_currency = converted
 
 
 

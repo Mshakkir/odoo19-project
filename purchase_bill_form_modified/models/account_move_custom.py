@@ -212,6 +212,10 @@ class AccountMove(models.Model):
             if hasattr(purchase_order, 'delivery_address_id') and purchase_order.delivery_address_id:
                 self.delivery_address_id = purchase_order.delivery_address_id
 
+            # Auto-fill currency rate from PO's manual rate
+            if hasattr(purchase_order, 'manual_currency_rate') and purchase_order.manual_currency_rate:
+                self.manual_currency_rate_stored = purchase_order.manual_currency_rate
+
             pickings = self.env['stock.picking'].search([
                 ('purchase_id', '=', purchase_order.id),
                 ('picking_type_id.code', '=', 'incoming'),
@@ -245,6 +249,10 @@ class AccountMove(models.Model):
 
             if hasattr(po, 'delivery_address_id') and po.delivery_address_id:
                 self.delivery_address_id = po.delivery_address_id
+
+            # Auto-fill currency rate from PO's manual rate
+            if hasattr(po, 'manual_currency_rate') and po.manual_currency_rate:
+                self.manual_currency_rate_stored = po.manual_currency_rate
 
             pickings = self.env['stock.picking'].search([
                 ('purchase_id', '=', po.id),
@@ -294,6 +302,10 @@ class AccountMove(models.Model):
 
                 if hasattr(po, 'delivery_address_id') and po.delivery_address_id:
                     self.delivery_address_id = po.delivery_address_id
+
+                # Auto-fill currency rate from PO's manual rate
+                if hasattr(po, 'manual_currency_rate') and po.manual_currency_rate:
+                    self.manual_currency_rate_stored = po.manual_currency_rate
 
 
 class AccountMoveCompanyCurrency(models.Model):

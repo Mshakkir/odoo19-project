@@ -7,10 +7,12 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
-                <!-- Add client_order_ref and AWB field below Payment Terms -->
+                <!-- Add client_order_ref, AWB, and Currency fields below Payment Terms -->
                 <xpath expr="//field[@name='payment_term_id']" position="after">
                     <field name="client_order_ref" placeholder="Enter Customer Reference / PO Number..."/>
                     <field name="awb_number" placeholder="Enter AWB number..."/>
+                    <label for="currency_id"/>
+                    <field name="currency_id" options="{'no_create': True}" readonly="state in ['cancel', 'sale']"/>
                 </xpath>
 
                 <!-- Hide Pricelist field -->

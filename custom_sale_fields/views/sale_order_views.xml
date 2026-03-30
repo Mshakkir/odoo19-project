@@ -35,13 +35,16 @@
                     </group>
                 </xpath>
 
-                <!-- Show Total in Company Currency below the main total -->
-                <xpath expr="//field[@name='amount_total']" position="after">
-                    <field name="amount_total_company_currency"
-                           widget="monetary"
-                           options="{'currency_field': 'company_currency_id'}"
-                           invisible="currency_id == company_currency_id"
-                           readonly="1"/>
+                <!-- Show Total in Company Currency inside the subtotal footer -->
+                <xpath expr="//div[hasclass('oe_subtotal_footer')]" position="inside">
+                    <div class="oe_subtotal_footer_separator"
+                         invisible="currency_id == company_currency_id">
+                        <field name="amount_total_company_currency"
+                               widget="monetary"
+                               options="{'currency_field': 'company_currency_id'}"
+                               readonly="1"/>
+                        <field name="company_currency_id" invisible="1"/>
+                    </div>
                 </xpath>
 
             </field>

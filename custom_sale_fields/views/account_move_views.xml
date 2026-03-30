@@ -38,15 +38,6 @@
                            invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
                     <field name="payment_reference" placeholder="Enter payment reference.."
                            invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
-
-                    <!-- Total in Company Currency -->
-                    <label for="amount_total_company_currency" string="Total (Company Currency)"
-                           invisible="currency_id == company_currency_id or move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
-                    <field name="amount_total_company_currency"
-                           widget="monetary"
-                           options="{'currency_field': 'company_currency_id'}"
-                           readonly="1"
-                           invisible="currency_id == company_currency_id or move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
                 </xpath>
 
             </field>

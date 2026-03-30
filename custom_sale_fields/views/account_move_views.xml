@@ -38,20 +38,15 @@
                            invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
                     <field name="payment_reference" placeholder="Enter payment reference.."
                            invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
-                </xpath>
 
-                <!-- Show Total in Company Currency in the invoice totals area -->
-                <xpath expr="//div[@class='clearfix']" position="before">
-                    <div invisible="currency_id == company_currency_id or move_type not in ('out_invoice', 'out_refund', 'out_receipt')"
-                         class="text-end pe-3 pb-1 text-muted">
-                        <field name="amount_total_company_currency"
-                               widget="monetary"
-                               options="{'currency_field': 'company_currency_id'}"
-                               readonly="1"
-                               nolabel="1"
-                               class="fw-bold"/>
-                        <field name="company_currency_id" invisible="1"/>
-                    </div>
+                    <!-- Total in Company Currency -->
+                    <label for="amount_total_company_currency" string="Total (Company Currency)"
+                           invisible="currency_id == company_currency_id or move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
+                    <field name="amount_total_company_currency"
+                           widget="monetary"
+                           options="{'currency_field': 'company_currency_id'}"
+                           readonly="1"
+                           invisible="currency_id == company_currency_id or move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
                 </xpath>
 
             </field>

@@ -8,41 +8,34 @@
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
 
-                <!-- Add client_order_ref and AWB field below Payment Terms -->
+                <!-- Add client_order_ref, AWB, and Manual Currency Rate below Payment Terms -->
                 <xpath expr="//field[@name='payment_term_id']" position="after">
                     <field name="client_order_ref" placeholder="Enter Customer Reference / PO Number..."/>
                     <field name="awb_number" placeholder="Enter AWB number..."/>
-                </xpath>
-
-                <!-- Add Manual Currency Rate row below pricelist (only visible when currency differs) -->
-                <xpath expr="//field[@name='pricelist_id']" position="after">
                     <field name="company_currency_id" invisible="1"/>
                     <field name="currency_rate_prefix" invisible="1"/>
                     <field name="currency_rate_suffix" invisible="1"/>
-                    <group invisible="currency_id == company_currency_id">
-                        <label for="manual_currency_rate" string=" "/>
-                        <div class="o_field_widget">
-                            <span>
-                                <field name="currency_rate_prefix" readonly="1" class="o_field_char"/>
-                                <field name="manual_currency_rate"
-                                       widget="float"
-                                       digits="[12,6]"
-                                       class="o_field_float"
-                                       style="width: 100px; display: inline-block;"/>
-                                <field name="currency_rate_suffix" readonly="1" class="o_field_char"/>
-                            </span>
-                        </div>
-                    </group>
+                    <label for="manual_currency_rate" string=" "
+                           invisible="currency_id == company_currency_id"/>
+                    <div invisible="currency_id == company_currency_id">
+                        <field name="currency_rate_prefix" readonly="1" class="oe_inline"/>
+                        <field name="manual_currency_rate"
+                               widget="float"
+                               digits="[12,6]"
+                               class="oe_inline"
+                               style="width:100px;"/>
+                        <field name="currency_rate_suffix" readonly="1" class="oe_inline"/>
+                    </div>
                 </xpath>
 
-                <!-- Show Total in Company Currency inside the subtotal footer -->
-                <xpath expr="//div[hasclass('oe_subtotal_footer')]" position="inside">
-                    <div class="oe_subtotal_footer_separator"
-                         invisible="currency_id == company_currency_id">
+                <!-- Show Total in Company Currency inside the sale_total group -->
+                <xpath expr="//group[@name='sale_total']" position="inside">
+                    <div invisible="currency_id == company_currency_id" class="mt-1">
                         <field name="amount_total_company_currency"
                                widget="monetary"
                                options="{'currency_field': 'company_currency_id'}"
-                               readonly="1"/>
+                               readonly="1"
+                               nolabel="1"/>
                         <field name="company_currency_id" invisible="1"/>
                     </div>
                 </xpath>

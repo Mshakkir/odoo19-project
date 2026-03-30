@@ -8,13 +8,23 @@
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
 
-                <!-- Add client_order_ref, AWB, and Manual Currency Rate below Payment Terms -->
+                <!-- Add client_order_ref, AWB, Currency selector and Manual Currency Rate below Payment Terms -->
                 <xpath expr="//field[@name='payment_term_id']" position="after">
                     <field name="client_order_ref" placeholder="Enter Customer Reference / PO Number..."/>
                     <field name="awb_number" placeholder="Enter AWB number..."/>
                     <field name="company_currency_id" invisible="1"/>
                     <field name="currency_rate_prefix" invisible="1"/>
                     <field name="currency_rate_suffix" invisible="1"/>
+                    <label for="sale_currency_id" string="Currency"/>
+                    <div>
+                        <field name="sale_currency_id"
+                               options="{'no_create': True}"
+                               readonly="state in ['cancel', 'sale']"
+                               style="width:150px;"
+                               class="oe_inline"/>
+                        <span> </span>
+                        <button name="_inverse_currency_id" string="" invisible="1"/>
+                    </div>
                     <label for="manual_currency_rate" string=" "
                            invisible="currency_id == company_currency_id"/>
                     <div invisible="currency_id == company_currency_id">

@@ -10,6 +10,40 @@ class SaleOrder(models.Model):
         copy=False
     )
 
+    # ── Override currency_id to make it directly selectable ─────────────────
+    currency_id = fields.Many2one(
+        'res.currency',
+        string='Currency',
+        required=True,
+        ondelete='restrict',
+        store=True,
+        readonly=False,
+        compute='_compute_currency_id',
+        inverse='_inverse_currency_id',
+        help='Select the currency for this sale order.',
+    )
+
+    sale_currency_id = fields.Many2one(
+        'res.currency',
+        string='Manual Currency',
+        store=True,
+        copy=True,
+    )
+
+    @api.depends('pricelist_id', 'sale_currency_id', 'company_id')
+    def _compute_currency_id(self):
+        for order in self:
+            if order.sale_currency_id:
+                order.currency_id = order.sale_currency_id
+            elif order.pricelist_id:
+                order.currency_id = order.pricelist_id.currency_id
+            else:
+                order.currency_id = order.company_id.currency_id
+
+    def _inverse_currency_id(self):
+        for order in self:
+            order.sale_currency_id = order.currency_id
+
     # ── Manual Currency Rate Fields ──────────────────────────────────────────
     manual_currency_rate = fields.Float(
         string='Currency Rate',
@@ -86,7 +120,7 @@ class SaleOrder(models.Model):
         return (1.0 / unit_per_sar) if unit_per_sar else 1.0
 
     # ── Auto-fill Rate on Currency / Date Change ─────────────────────────────
-    @api.onchange('currency_id', 'date_order')
+    @api.onchange('currency_id', 'sale_currency_id', 'date_order')
     def _onchange_currency_auto_fill_rate(self):
         for order in self:
             company_currency = order.company_id.currency_id

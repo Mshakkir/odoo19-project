@@ -14,7 +14,7 @@
                     <field name="awb_number" placeholder="Enter AWB number..."/>
                 </xpath>
 
-                <!-- Replace the invisible currency_id with a visible one + manual rate row below it -->
+                <!-- Replace the invisible currency_id with a visible field + manual rate row -->
                 <xpath expr="//field[@name='currency_id'][@invisible='1']" position="replace">
                     <label for="currency_id" string="Currency" groups="!product.group_product_pricelist"/>
                     <field name="currency_id"
@@ -22,7 +22,7 @@
                            readonly="state in ['cancel', 'sale']"
                            groups="!product.group_product_pricelist"/>
 
-                    <!-- Manual currency rate row — only shown when currency differs from company currency -->
+                    <!-- Manual currency rate row - shown only when currency differs from company currency -->
                     <label for="manual_currency_rate" string=" "
                            invisible="currency_rate_prefix == ''"
                            groups="!product.group_product_pricelist"/>
@@ -47,12 +47,14 @@
                     </div>
                 </xpath>
 
-                <!-- Hide Pricelist label -->
+                <!-- Hide Pricelist: remove label -->
                 <xpath expr="//label[@for='pricelist_id']" position="replace"/>
-                <!-- Hide Pricelist field + Update Prices button row -->
+
+                <!-- Hide Pricelist: remove the field+button o_row (group_product_pricelist group) -->
                 <xpath expr="//div[contains(@class,'o_row')][field[@name='pricelist_id']]" position="replace"/>
-                <!-- Hide the fallback pricelist_id field (non-pricelist group) -->
-                <xpath expr="//field[@name='pricelist_id'][not(@groups)]" position="replace"/>
+
+                <!-- Hide Pricelist: remove the invisible fallback field (groups="!product.group_product_pricelist") -->
+                <xpath expr="//field[@name='pricelist_id'][@groups='!product.group_product_pricelist']" position="replace"/>
 
                 <!-- Add converted total in company currency below tax_totals -->
                 <xpath expr="//field[@name='tax_totals']" position="after">

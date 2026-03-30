@@ -15,7 +15,12 @@
                       decoration-muted="state == 'cancel'"
                       multi_edit="1">
 
-                    <!-- YOUR REQUESTED ORDER -->
+                    <!-- Hidden technical fields -->
+                    <field name="move_type" column_invisible="1"/>
+                    <field name="invoice_date" column_invisible="1"/>
+                    <field name="invoice_date_due" column_invisible="1"/>
+                    <field name="company_currency_id" column_invisible="1"/>
+
                     <!-- 1. Invoice Date (formatted DD/MM/YYYY) -->
                     <field name="invoice_date_formatted" string="Invoice Date" width="110px"/>
 
@@ -28,7 +33,7 @@
                     <!-- 4. Warehouse (Analytic Account from Invoice Lines) -->
                     <field name="analytic_account_id" string="Warehouse" width="120px"/>
 
-                    <!-- 5. Source Document (like Sales Order) -->
+                    <!-- 5. Source Document -->
                     <field name="invoice_origin" string="Source Document" width="110px"/>
 
                     <!-- 6. Reference -->
@@ -37,16 +42,26 @@
                     <!-- 7. Salesperson -->
                     <field name="invoice_user_id" string="Salesperson" widget="many2one_avatar_user" width="120px"/>
 
-                    <!-- 8. Total -->
-                    <field name="amount_total" string="Total" sum="Total Amount" width="100px"/>
+                    <!-- 8. Total (Company Currency = SAR) -->
+                    <field name="amount_total_company_currency"
+                           string="Total"
+                           sum="Total Amount"
+                           widget="monetary"
+                           options="{'currency_field': 'company_currency_id'}"
+                           width="110px"/>
 
-                    <!-- 9. Amount Due -->
-                    <field name="amount_residual" string="Amount Due" sum="Total Due" width="110px"/>
+                    <!-- 9. Amount Due (Company Currency = SAR) -->
+                    <field name="amount_residual_company_currency"
+                           string="Amount Due"
+                           sum="Total Due"
+                           widget="monetary"
+                           options="{'currency_field': 'company_currency_id'}"
+                           width="120px"/>
 
                     <!-- 10. Due Date (formatted DD/MM/YYYY) -->
                     <field name="invoice_date_due_formatted" string="Due Date" width="110px"/>
 
-                    <!-- 11. AWB Number (Shipping Ref) -->
+                    <!-- 11. AWB Number -->
                     <field name="awb_number" string="Shipping Ref #" width="110px"/>
 
                     <!-- 12. Delivery Note Number -->
@@ -65,13 +80,23 @@
                            decoration-danger="payment_state in ('not_paid', 'in_payment')"
                            width="110px"/>
 
-                    <!-- ADDITIONAL OPTIONAL FIELDS (Hidden by default) -->
+                    <!-- OPTIONAL HIDDEN COLUMNS -->
 
-                    <!-- 15. Tax Excluded Amount -->
-                    <field name="amount_untaxed" string="Tax Excluded" sum="Total Untaxed" optional="hide" width="120px"/>
+                    <!-- 15. Tax Excluded (Company Currency) -->
+                    <field name="amount_untaxed_company_currency"
+                           string="Tax Excluded"
+                           sum="Total Untaxed"
+                           widget="monetary"
+                           options="{'currency_field': 'company_currency_id'}"
+                           optional="hide" width="120px"/>
 
-                    <!-- 16. Tax -->
-                    <field name="amount_tax" string="Tax" sum="Total Tax" optional="hide" width="100px"/>
+                    <!-- 16. Tax (Company Currency) -->
+                    <field name="amount_tax_company_currency"
+                           string="Tax"
+                           sum="Total Tax"
+                           widget="monetary"
+                           options="{'currency_field': 'company_currency_id'}"
+                           optional="hide" width="100px"/>
 
                     <!-- 17. Accounting Date -->
                     <field name="date" string="Accounting Date" optional="hide" width="120px"/>
@@ -100,7 +125,7 @@
                     <!-- 25. Invoice Incoterm -->
                     <field name="invoice_incoterm_id" string="Incoterm" optional="hide" width="100px"/>
 
-                    <!-- 26. Narration/Terms and Conditions -->
+                    <!-- 26. Narration -->
                     <field name="narration" string="Terms and Conditions" optional="hide" width="180px"/>
 
                     <!-- 27. Invoice Source Email -->
@@ -134,10 +159,10 @@
                     <!-- 35. Message -->
                     <field name="message_needaction" string="Action Needed" optional="hide" width="110px"/>
 
-                    <!-- 36. Sales Team (if CRM installed) -->
+                    <!-- 36. Sales Team -->
                     <field name="team_id" string="Sales Team" optional="hide" width="120px"/>
 
-                    <!-- 37. Campaign (if marketing installed) -->
+                    <!-- 37. Campaign -->
                     <field name="campaign_id" string="Campaign" optional="hide" groups="base.group_no_one" width="120px"/>
 
                     <!-- 38. Medium -->
@@ -145,12 +170,6 @@
 
                     <!-- 39. Source -->
                     <field name="source_id" string="Source" optional="hide" groups="base.group_no_one" width="100px"/>
-
-                    <!-- Hidden technical fields -->
-                    <field name="move_type" column_invisible="1"/>
-                    <!-- Keep original date fields hidden for sorting/filtering -->
-                    <field name="invoice_date" column_invisible="1"/>
-                    <field name="invoice_date_due" column_invisible="1"/>
 
                 </list>
             </field>
@@ -163,3 +182,176 @@
 
     </data>
 </odoo>
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <data>-->
+
+<!--        &lt;!&ndash; Custom Sales Invoice List View &ndash;&gt;-->
+<!--        <record id="view_move_list_invoice_custom" model="ir.ui.view">-->
+<!--            <field name="name">account.move.list.invoice.custom</field>-->
+<!--            <field name="model">account.move</field>-->
+<!--            <field name="mode">primary</field>-->
+<!--            <field name="priority">16</field>-->
+<!--            <field name="arch" type="xml">-->
+<!--                <list string="Invoices"-->
+<!--                      sample="1"-->
+<!--                      decoration-info="state == 'draft'"-->
+<!--                      decoration-muted="state == 'cancel'"-->
+<!--                      multi_edit="1">-->
+
+<!--                    &lt;!&ndash; YOUR REQUESTED ORDER &ndash;&gt;-->
+<!--                    &lt;!&ndash; 1. Invoice Date (formatted DD/MM/YYYY) &ndash;&gt;-->
+<!--                    <field name="invoice_date_formatted" string="Invoice Date" width="110px"/>-->
+
+<!--                    &lt;!&ndash; 2. Invoice Number &ndash;&gt;-->
+<!--                    <field name="name" string="Invoice Number" readonly="1" width="135px"/>-->
+
+<!--                    &lt;!&ndash; 3. Customer &ndash;&gt;-->
+<!--                    <field name="partner_id" string="Customer" width="160px"/>-->
+
+<!--                    &lt;!&ndash; 4. Warehouse (Analytic Account from Invoice Lines) &ndash;&gt;-->
+<!--                    <field name="analytic_account_id" string="Warehouse" width="120px"/>-->
+
+<!--                    &lt;!&ndash; 5. Source Document (like Sales Order) &ndash;&gt;-->
+<!--                    <field name="invoice_origin" string="Source Document" width="110px"/>-->
+
+<!--                    &lt;!&ndash; 6. Reference &ndash;&gt;-->
+<!--                    <field name="client_order_ref" string="Reference" width="100px"/>-->
+
+<!--                    &lt;!&ndash; 7. Salesperson &ndash;&gt;-->
+<!--                    <field name="invoice_user_id" string="Salesperson" widget="many2one_avatar_user" width="120px"/>-->
+
+<!--                    &lt;!&ndash; 8. Total &ndash;&gt;-->
+<!--                    <field name="amount_total" string="Total" sum="Total Amount" width="100px"/>-->
+
+<!--                    &lt;!&ndash; 9. Amount Due &ndash;&gt;-->
+<!--                    <field name="amount_residual" string="Amount Due" sum="Total Due" width="110px"/>-->
+
+<!--                    &lt;!&ndash; 10. Due Date (formatted DD/MM/YYYY) &ndash;&gt;-->
+<!--                    <field name="invoice_date_due_formatted" string="Due Date" width="110px"/>-->
+
+<!--                    &lt;!&ndash; 11. AWB Number (Shipping Ref) &ndash;&gt;-->
+<!--                    <field name="awb_number" string="Shipping Ref #" width="110px"/>-->
+
+<!--                    &lt;!&ndash; 12. Delivery Note Number &ndash;&gt;-->
+<!--                    <field name="delivery_note_number" string="Delivery Note #" width="135px"/>-->
+
+<!--                    &lt;!&ndash; 13. Status &ndash;&gt;-->
+<!--                    <field name="state" string="Status" widget="badge"-->
+<!--                           decoration-success="state == 'posted'"-->
+<!--                           decoration-info="state == 'draft'"-->
+<!--                           width="90px"/>-->
+
+<!--                    &lt;!&ndash; 14. Payment Status &ndash;&gt;-->
+<!--                    <field name="payment_state" string="Payment Status" widget="badge"-->
+<!--                           decoration-success="payment_state == 'paid'"-->
+<!--                           decoration-warning="payment_state == 'partial'"-->
+<!--                           decoration-danger="payment_state in ('not_paid', 'in_payment')"-->
+<!--                           width="110px"/>-->
+
+<!--                    &lt;!&ndash; ADDITIONAL OPTIONAL FIELDS (Hidden by default) &ndash;&gt;-->
+
+<!--                    &lt;!&ndash; 15. Tax Excluded Amount &ndash;&gt;-->
+<!--                    <field name="amount_untaxed" string="Tax Excluded" sum="Total Untaxed" optional="hide" width="120px"/>-->
+
+<!--                    &lt;!&ndash; 16. Tax &ndash;&gt;-->
+<!--                    <field name="amount_tax" string="Tax" sum="Total Tax" optional="hide" width="100px"/>-->
+
+<!--                    &lt;!&ndash; 17. Accounting Date &ndash;&gt;-->
+<!--                    <field name="date" string="Accounting Date" optional="hide" width="120px"/>-->
+
+<!--                    &lt;!&ndash; 18. Journal &ndash;&gt;-->
+<!--                    <field name="journal_id" string="Journal" optional="hide" width="120px"/>-->
+
+<!--                    &lt;!&ndash; 19. Payment Terms &ndash;&gt;-->
+<!--                    <field name="invoice_payment_term_id" string="Payment Terms" optional="hide" width="140px"/>-->
+
+<!--                    &lt;!&ndash; 20. Currency &ndash;&gt;-->
+<!--                    <field name="currency_id" string="Currency" optional="hide" width="80px"/>-->
+
+<!--                    &lt;!&ndash; 21. Company &ndash;&gt;-->
+<!--                    <field name="company_id" string="Company" groups="base.group_multi_company" optional="hide" width="120px"/>-->
+
+<!--                    &lt;!&ndash; 22. Fiscal Position &ndash;&gt;-->
+<!--                    <field name="fiscal_position_id" string="Fiscal Position" optional="hide" width="130px"/>-->
+
+<!--                    &lt;!&ndash; 23. Bank Account &ndash;&gt;-->
+<!--                    <field name="partner_bank_id" string="Recipient Bank" optional="hide" width="150px"/>-->
+
+<!--                    &lt;!&ndash; 24. Delivery Address &ndash;&gt;-->
+<!--                    <field name="partner_shipping_id" string="Delivery Address" optional="hide" width="150px"/>-->
+
+<!--                    &lt;!&ndash; 25. Invoice Incoterm &ndash;&gt;-->
+<!--                    <field name="invoice_incoterm_id" string="Incoterm" optional="hide" width="100px"/>-->
+
+<!--                    &lt;!&ndash; 26. Narration/Terms and Conditions &ndash;&gt;-->
+<!--                    <field name="narration" string="Terms and Conditions" optional="hide" width="180px"/>-->
+
+<!--                    &lt;!&ndash; 27. Invoice Source Email &ndash;&gt;-->
+<!--                    <field name="invoice_source_email" string="Source Email" optional="hide" width="150px"/>-->
+
+<!--                    &lt;!&ndash; 28. Auto Post &ndash;&gt;-->
+<!--                    <field name="auto_post" string="Auto Post" optional="hide" width="90px"/>-->
+
+<!--                    &lt;!&ndash; 29. Activity &ndash;&gt;-->
+<!--                    <field name="activity_ids" string="Next Activity" widget="list_activity" optional="hide" width="100px"/>-->
+
+<!--                    &lt;!&ndash; 30. Activity State &ndash;&gt;-->
+<!--                    <field name="activity_state" string="Activity State" optional="hide" widget="badge"-->
+<!--                           decoration-success="activity_state == 'today'"-->
+<!--                           decoration-warning="activity_state == 'planned'"-->
+<!--                           decoration-danger="activity_state == 'overdue'"-->
+<!--                           width="110px"/>-->
+
+<!--                    &lt;!&ndash; 31. Activity User &ndash;&gt;-->
+<!--                    <field name="activity_user_id" string="Responsible User" optional="hide" width="130px"/>-->
+
+<!--                    &lt;!&ndash; 32. Activity Type &ndash;&gt;-->
+<!--                    <field name="activity_type_id" string="Next Activity Type" optional="hide" width="140px"/>-->
+
+<!--                    &lt;!&ndash; 33. Activity Date &ndash;&gt;-->
+<!--                    <field name="activity_date_deadline" string="Next Activity Deadline" optional="hide" width="150px"/>-->
+
+<!--                    &lt;!&ndash; 34. Activity Summary &ndash;&gt;-->
+<!--                    <field name="activity_summary" string="Activity Summary" optional="hide" width="150px"/>-->
+
+<!--                    &lt;!&ndash; 35. Message &ndash;&gt;-->
+<!--                    <field name="message_needaction" string="Action Needed" optional="hide" width="110px"/>-->
+
+<!--                    &lt;!&ndash; 36. Sales Team (if CRM installed) &ndash;&gt;-->
+<!--                    <field name="team_id" string="Sales Team" optional="hide" width="120px"/>-->
+
+<!--                    &lt;!&ndash; 37. Campaign (if marketing installed) &ndash;&gt;-->
+<!--                    <field name="campaign_id" string="Campaign" optional="hide" groups="base.group_no_one" width="120px"/>-->
+
+<!--                    &lt;!&ndash; 38. Medium &ndash;&gt;-->
+<!--                    <field name="medium_id" string="Medium" optional="hide" groups="base.group_no_one" width="100px"/>-->
+
+<!--                    &lt;!&ndash; 39. Source &ndash;&gt;-->
+<!--                    <field name="source_id" string="Source" optional="hide" groups="base.group_no_one" width="100px"/>-->
+
+<!--                    &lt;!&ndash; Hidden technical fields &ndash;&gt;-->
+<!--                    <field name="move_type" column_invisible="1"/>-->
+<!--                    &lt;!&ndash; Keep original date fields hidden for sorting/filtering &ndash;&gt;-->
+<!--                    <field name="invoice_date" column_invisible="1"/>-->
+<!--                    <field name="invoice_date_due" column_invisible="1"/>-->
+
+<!--                </list>-->
+<!--            </field>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; Override the default SALES invoice action to use custom view &ndash;&gt;-->
+<!--        <record id="account.action_move_out_invoice_type" model="ir.actions.act_window">-->
+<!--            <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('view_move_list_invoice_custom')})]"/>-->
+<!--        </record>-->
+
+<!--    </data>-->
+<!--</odoo>-->

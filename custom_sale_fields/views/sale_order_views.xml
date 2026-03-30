@@ -7,18 +7,28 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
-                <!-- Add client_order_ref, AWB, and Currency fields below Payment Terms -->
+
+                <!-- Add client_order_ref and AWB fields below Payment Terms -->
                 <xpath expr="//field[@name='payment_term_id']" position="after">
                     <field name="client_order_ref" placeholder="Enter Customer Reference / PO Number..."/>
                     <field name="awb_number" placeholder="Enter AWB number..."/>
-                    <label for="currency_id"/>
-                    <field name="currency_id" options="{'no_create': True}" readonly="state in ['cancel', 'sale']"/>
                 </xpath>
 
-                <!-- Hide Pricelist field -->
+                <!-- Make the already-existing invisible currency_id field visible with a label -->
+                <xpath expr="//field[@name='currency_id'][@invisible='1']" position="replace">
+                    <label for="currency_id" string="Currency" groups="!product.group_product_pricelist"/>
+                    <field name="currency_id" options="{'no_create': True}"
+                           readonly="state in ['cancel', 'sale']"
+                           groups="!product.group_product_pricelist"/>
+                </xpath>
+
+                <!-- Hide Pricelist label -->
                 <xpath expr="//label[@for='pricelist_id']" position="replace"/>
+                <!-- Hide Pricelist field + Update Prices button row -->
                 <xpath expr="//div[contains(@class,'o_row')][field[@name='pricelist_id']]" position="replace"/>
-                <xpath expr="//field[@name='pricelist_id']" position="replace"/>
+                <!-- Hide the fallback pricelist_id field (non-pricelist group) -->
+                <xpath expr="//field[@name='pricelist_id'][not(@groups)]" position="replace"/>
+
             </field>
         </record>
 

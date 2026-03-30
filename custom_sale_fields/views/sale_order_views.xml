@@ -14,12 +14,37 @@
                     <field name="awb_number" placeholder="Enter AWB number..."/>
                 </xpath>
 
-                <!-- Make the already-existing invisible currency_id field visible with a label -->
+                <!-- Replace the invisible currency_id with a visible one + manual rate row below it -->
                 <xpath expr="//field[@name='currency_id'][@invisible='1']" position="replace">
                     <label for="currency_id" string="Currency" groups="!product.group_product_pricelist"/>
-                    <field name="currency_id" options="{'no_create': True}"
+                    <field name="currency_id"
+                           options="{'no_create': True}"
                            readonly="state in ['cancel', 'sale']"
                            groups="!product.group_product_pricelist"/>
+
+                    <!-- Manual currency rate row — only shown when currency differs from company currency -->
+                    <label for="manual_currency_rate" string=" "
+                           invisible="currency_rate_prefix == ''"
+                           groups="!product.group_product_pricelist"/>
+                    <div class="o_row"
+                         invisible="currency_rate_prefix == ''"
+                         groups="!product.group_product_pricelist">
+                        <span>
+                            <field name="currency_rate_prefix" nolabel="1" readonly="1"
+                                   widget="char" class="oe_inline"/>
+                        </span>
+                        <field name="manual_currency_rate"
+                               nolabel="1"
+                               widget="float"
+                               digits="[12,6]"
+                               readonly="state in ['cancel', 'sale']"
+                               class="oe_inline"
+                               style="max-width: 100px;"/>
+                        <span>
+                            <field name="currency_rate_suffix" nolabel="1" readonly="1"
+                                   widget="char" class="oe_inline"/>
+                        </span>
+                    </div>
                 </xpath>
 
                 <!-- Hide Pricelist label -->
@@ -28,6 +53,20 @@
                 <xpath expr="//div[contains(@class,'o_row')][field[@name='pricelist_id']]" position="replace"/>
                 <!-- Hide the fallback pricelist_id field (non-pricelist group) -->
                 <xpath expr="//field[@name='pricelist_id'][not(@groups)]" position="replace"/>
+
+                <!-- Add converted total in company currency below tax_totals -->
+                <xpath expr="//field[@name='tax_totals']" position="after">
+                    <field name="company_currency_id" invisible="1"/>
+                    <div class="o_td_label"
+                         invisible="currency_id == company_currency_id"/>
+                    <field name="amount_total_company_currency"
+                           nolabel="1"
+                           widget="monetary"
+                           options="{'currency_field': 'company_currency_id'}"
+                           readonly="1"
+                           class="text-muted fst-italic"
+                           invisible="currency_id == company_currency_id"/>
+                </xpath>
 
             </field>
         </record>

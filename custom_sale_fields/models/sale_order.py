@@ -135,7 +135,7 @@ class SaleOrder(models.Model):
 
     # ── Existing Methods ─────────────────────────────────────────────────────
     def _prepare_invoice(self):
-        """Override to pass PO Number, AWB, and delivery note to invoice"""
+        """Override to pass PO Number, AWB, delivery note, currency and manual rate to invoice"""
         invoice_vals = super()._prepare_invoice()
 
         if self.client_order_ref:
@@ -143,6 +143,13 @@ class SaleOrder(models.Model):
 
         if self.awb_number:
             invoice_vals['awb_number'] = self.awb_number
+
+        # ── Pass currency and manual rate to invoice ──────────────────────
+        if self.currency_id:
+            invoice_vals['currency_id'] = self.currency_id.id
+
+        if self.manual_currency_rate:
+            invoice_vals['manual_currency_rate'] = self.manual_currency_rate
 
         completed_pickings = self.picking_ids.filtered(
             lambda p: p.state == 'done' and p.picking_type_code == 'outgoing'

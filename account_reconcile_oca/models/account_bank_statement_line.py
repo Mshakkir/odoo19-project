@@ -19,13 +19,13 @@ class AccountBankStatementLine(models.Model):
     _name = "account.bank.statement.line"
     _inherit = ["account.bank.statement.line", "account.reconcile.abstract"]
 
-    reconcile_data_info = fields.Serialized(inverse="_inverse_reconcile_data_info")
+    reconcile_data_info = fields.Json(inverse="_inverse_reconcile_data_info")
     reconcile_mode = fields.Selection(
         selection=lambda self: self.env["account.journal"]
         ._fields["reconcile_mode"]
         .selection
     )
-    reconcile_data = fields.Serialized()
+    reconcile_data = fields.Json()
     manual_line_id = fields.Many2one(
         "account.move.line",
         store=False,

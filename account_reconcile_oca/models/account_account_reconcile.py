@@ -15,7 +15,7 @@ class AccountAccountReconcile(models.Model):
     _inherit = "account.reconcile.abstract"
     _auto = False
 
-    reconcile_data_info = fields.Serialized(inverse="_inverse_reconcile_data_info")
+    reconcile_data_info = fields.Json(inverse="_inverse_reconcile_data_info")
 
     partner_id = fields.Many2one("res.partner", readonly=True)
     account_id = fields.Many2one("account.account", readonly=True)
@@ -210,4 +210,4 @@ class AccountAccountReconcileData(models.TransientModel):
 
     user_id = fields.Many2one("res.users", required=True)
     reconcile_id = fields.Integer(required=True)
-    data = fields.Serialized()
+    data = fields.Json()

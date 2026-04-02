@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="action_purchase_sales_comparison_report" model="ir.actions.report">
-        <field name="name">Purchase Sales Comparison Report</field>
-        <field name="model">purchase.sales.comparison.wizard</field>
-        <field name="report_type">qweb-pdf</field>
-        <field name="report_name">purchase_sales_comparison_report.report_psc_pur_sal_comparison</field>
-        <field name="report_file">purchase_sales_comparison_report.report_psc_pur_sal_comparison</field>
-        <field name="print_report_name">'Purchase Sales Comparison Report'</field>
-        <field name="binding_model_id" ref="base.model_res_users" eval="False"/>
-        <field name="attachment_use">False</field>
-    </record>
+    <data>
+        <record id="action_purchase_sales_comparison_report" model="ir.actions.report">
+            <field name="name">Purchase Sales Comparison Report</field>
+            <field name="model">purchase.sales.comparison.wizard</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">purchase_sales_comparison_report.report_psc_pur_sal_comparison</field>
+            <field name="report_file">purchase_sales_comparison_report.report_psc_pur_sal_comparison</field>
+            <field name="print_report_name">'Purchase Sales Comparison Report'</field>
+            <field name="attachment_use">False</field>
+        </record>
+    </data>
 </odoo>

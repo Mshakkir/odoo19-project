@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
 from odoo.exceptions import UserError
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class PurchaseSalesComparisonWizard(models.TransientModel):
@@ -55,7 +58,6 @@ class PurchaseSalesComparisonWizard(models.TransientModel):
                 'diff_amount': line['diff_amount'],
             })
 
-        # Open full page window (not dialog)
         return {
             'type': 'ir.actions.act_window',
             'name': 'Purchase Sales Comparison Report',
@@ -65,11 +67,73 @@ class PurchaseSalesComparisonWizard(models.TransientModel):
             'view_id': self.env.ref(
                 'purchase_sales_comparison_report.view_psc_result_form'
             ).id,
-            'target': 'main',  # full page, not dialog
+            'target': 'main',
         }
+
+    def _get_manual_rate(self, record, company):
+        """
+        Get manual currency rate from PO/Invoice record.
+        Priority:
+          1. manual_currency_rate field on the record (from purchase_order_awb or similar module)
+          2. res.currency.rate table (inverse_company_rate)
+          3. Odoo built-in currency._convert()
+        Returns a multiplier: amount_in_foreign * rate = amount_in_company_currency
+        """
+        company_currency = company.currency_id
+        record_currency = getattr(record, 'currency_id', None) or company_currency
+
+        if record_currency == company_currency:
+            return 1.0
+
+        # 1. Manual rate set directly on the record
+        if hasattr(record, 'manual_currency_rate') and record.manual_currency_rate:
+            return float(record.manual_currency_rate)
+
+        # 2. Rate from res.currency.rate table
+        rate_date = None
+        if hasattr(record, 'date_approve') and record.date_approve:
+            rate_date = record.date_approve
+        elif hasattr(record, 'date_order') and record.date_order:
+            rate_date = record.date_order
+            if hasattr(rate_date, 'date'):
+                rate_date = rate_date.date()
+        elif hasattr(record, 'invoice_date') and record.invoice_date:
+            rate_date = record.invoice_date
+
+        if not rate_date:
+            rate_date = fields.Date.today()
+
+        rate_record = self.env['res.currency.rate'].search([
+            ('currency_id', '=', record_currency.id),
+            ('company_id', '=', company.id),
+            ('name', '<=', str(rate_date)),
+        ], order='name desc', limit=1)
+
+        if rate_record:
+            # inverse_company_rate = how many company currency per 1 foreign unit
+            if hasattr(rate_record, 'inverse_company_rate') and rate_record.inverse_company_rate:
+                return float(rate_record.inverse_company_rate)
+            # fallback: rate field = foreign per 1 company currency → invert it
+            if rate_record.rate:
+                return 1.0 / float(rate_record.rate)
+
+        # 3. Odoo built-in conversion as last resort
+        try:
+            converted = record_currency._convert(
+                1.0, company_currency, company, rate_date
+            )
+            return converted
+        except Exception:
+            return 1.0
+
+    def _apply_rate(self, amount, record, company):
+        """Convert amount from record currency to company currency."""
+        rate = self._get_manual_rate(record, company)
+        return amount * rate
 
     def _compute_lines(self):
         product_data = {}
+        company = self.env.company
 
         # ── 1. Purchase Order Lines ───────────────────────────────────────────
         pur_domain = [
@@ -89,16 +153,19 @@ class PurchaseSalesComparisonWizard(models.TransientModel):
             if pid not in product_data:
                 product_data[pid] = self._empty_row(line.product_id)
             product_data[pid]['pur_qty'] += line.product_qty
-            product_data[pid]['pur_total'] += line.price_subtotal
+            product_data[pid]['pur_total'] += self._apply_rate(
+                line.price_subtotal, line.order_id, company
+            )
 
-        # ── 2. Vendor Bill Lines (direct invoices not linked to PO) ──────────
+        # ── 2. Vendor Bill Lines (direct — not linked to PO) ─────────────────
         bill_domain = [
             ('move_id.move_type', '=', 'in_invoice'),
             ('move_id.state', '=', 'posted'),
             ('move_id.invoice_date', '>=', self.date_from),
             ('move_id.invoice_date', '<=', self.date_to),
-            ('purchase_line_id', '=', False),  # not already counted via PO
+            ('purchase_line_id', '=', False),
             ('product_id', '!=', False),
+            ('display_type', '=', 'product'),
         ]
         if self.product_filter == 'by_product' and self.product_id:
             bill_domain.append(('product_id', '=', self.product_id.id))
@@ -108,7 +175,9 @@ class PurchaseSalesComparisonWizard(models.TransientModel):
             if pid not in product_data:
                 product_data[pid] = self._empty_row(line.product_id)
             product_data[pid]['pur_qty'] += line.quantity
-            product_data[pid]['pur_total'] += line.price_subtotal
+            product_data[pid]['pur_total'] += self._apply_rate(
+                line.price_subtotal, line.move_id, company
+            )
 
         # ── 3. Sales Order Lines ─────────────────────────────────────────────
         sal_domain = [
@@ -128,16 +197,19 @@ class PurchaseSalesComparisonWizard(models.TransientModel):
             if pid not in product_data:
                 product_data[pid] = self._empty_row(line.product_id)
             product_data[pid]['sal_qty'] += line.product_uom_qty
-            product_data[pid]['sal_total'] += line.price_subtotal
+            product_data[pid]['sal_total'] += self._apply_rate(
+                line.price_subtotal, line.order_id, company
+            )
 
-        # ── 4. Customer Invoice Lines (direct invoices not linked to SO) ─────
+        # ── 4. Customer Invoice Lines (direct — not linked to SO) ────────────
         inv_domain = [
             ('move_id.move_type', '=', 'out_invoice'),
             ('move_id.state', '=', 'posted'),
             ('move_id.invoice_date', '>=', self.date_from),
             ('move_id.invoice_date', '<=', self.date_to),
-            ('sale_line_ids', '=', False),  # not already counted via SO
+            ('sale_line_ids', '=', False),
             ('product_id', '!=', False),
+            ('display_type', '=', 'product'),
         ]
         if self.product_filter == 'by_product' and self.product_id:
             inv_domain.append(('product_id', '=', self.product_id.id))
@@ -147,7 +219,9 @@ class PurchaseSalesComparisonWizard(models.TransientModel):
             if pid not in product_data:
                 product_data[pid] = self._empty_row(line.product_id)
             product_data[pid]['sal_qty'] += line.quantity
-            product_data[pid]['sal_total'] += line.price_subtotal
+            product_data[pid]['sal_total'] += self._apply_rate(
+                line.price_subtotal, line.move_id, company
+            )
 
         # ── Compute balance & diff ────────────────────────────────────────────
         result = []

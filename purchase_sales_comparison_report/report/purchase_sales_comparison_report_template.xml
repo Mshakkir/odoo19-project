@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_purchase_sales_comparison">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+
+                    <!-- Header -->
+                    <div class="row mb-2">
+                        <div class="col-12 text-center">
+                            <h3 style="font-weight:bold;">Purchase Sales Comparison Report</h3>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>From:</strong>
+                            <t t-esc="data.get('date_from')"/>
+                        </div>
+                        <div class="col-6 text-end">
+                            <strong>To:</strong>
+                            <t t-esc="data.get('date_to')"/>
+                        </div>
+                    </div>
+                    <t t-if="data.get('bill_mode') and data.get('bill_mode') != 'all'">
+                        <div class="row mb-2">
+                            <div class="col-12">
+                                <strong>Bill Mode:</strong>
+                                <t t-esc="data.get('bill_mode', '').capitalize()"/>
+                            </div>
+                        </div>
+                    </t>
+
+                    <!-- Table -->
+                    <table class="table table-sm table-bordered o_main_table" style="font-size:11px;">
+                        <thead>
+                            <tr style="background-color:#003366; color:white; font-weight:bold;">
+                                <th>Code</th>
+                                <th>Product</th>
+                                <th class="text-center">Unit</th>
+                                <th class="text-end">Pur.Qty</th>
+                                <th class="text-end">Pur.Total</th>
+                                <th class="text-end">Sal.Qty</th>
+                                <th class="text-end">Sal.Total</th>
+                                <th class="text-end">Balance Qty</th>
+                                <th class="text-end">Diff.Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-if="lines">
+                                <t t-foreach="lines" t-as="line">
+                                    <tr>
+                                        <td>
+                                            <t t-esc="line.get('code', '')"/>
+                                        </td>
+                                        <td>
+                                            <t t-esc="line.get('name', '')"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <t t-esc="line.get('uom', '')"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-esc="'%.2f' % line.get('pur_qty', 0.0)"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-esc="'%.2f' % line.get('pur_total', 0.0)"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-esc="'%.2f' % line.get('sal_qty', 0.0)"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-esc="'%.2f' % line.get('sal_total', 0.0)"/>
+                                        </td>
+                                        <td class="text-end"
+                                            t-attf-style="color: {{ 'red' if line.get('balance_qty', 0) &lt; 0 else 'black' }};">
+                                            <t t-esc="'%.2f' % line.get('balance_qty', 0.0)"/>
+                                        </td>
+                                        <td class="text-end"
+                                            t-attf-style="color: {{ 'red' if line.get('diff_amount', 0) &lt; 0 else 'black' }};">
+                                            <t t-esc="'%.2f' % line.get('diff_amount', 0.0)"/>
+                                        </td>
+                                    </tr>
+                                </t>
+
+                                <!-- Totals Row -->
+                                <tr style="font-weight:bold; background-color:#f0f0f0; border-top:2px solid #003366;">
+                                    <td colspan="3">
+                                        <strong>TOTAL</strong>
+                                    </td>
+                                    <td class="text-end">
+                                        <t t-esc="'%.2f' % sum(l.get('pur_qty', 0) for l in lines)"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <t t-esc="'%.2f' % sum(l.get('pur_total', 0) for l in lines)"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <t t-esc="'%.2f' % sum(l.get('sal_qty', 0) for l in lines)"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <t t-esc="'%.2f' % sum(l.get('sal_total', 0) for l in lines)"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <t t-esc="'%.2f' % sum(l.get('balance_qty', 0) for l in lines)"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <t t-esc="'%.2f' % sum(l.get('diff_amount', 0) for l in lines)"/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <t t-else="">
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted">
+                                        No data found for the selected criteria.
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

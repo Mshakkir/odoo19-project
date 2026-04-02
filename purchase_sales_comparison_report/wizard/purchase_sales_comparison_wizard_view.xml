@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_purchase_sales_comparison_wizard_form" model="ir.ui.view">
+        <field name="name">purchase.sales.comparison.wizard.form</field>
+        <field name="model">purchase.sales.comparison.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Purchase Sales Comparison Report">
+                <group>
+                    <group>
+                        <field name="form_type" widget="select"/>
+                        <separator string="Product"/>
+                        <field name="product_filter" widget="radio"/>
+                        <field name="product_id"
+                               attrs="{'invisible': [('product_filter', '!=', 'by_product')],
+                                       'required': [('product_filter', '=', 'by_product')]}"/>
+                    </group>
+                    <group>
+                        <field name="bill_mode" widget="select"/>
+                        <separator string="Date Range"/>
+                        <field name="date_from" string="From"/>
+                        <field name="date_to" string="To"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_show_report"
+                            string="Show Report"
+                            type="object"
+                            class="btn-primary"
+                            data-hotkey="f5"/>
+                    <button string="Exit"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_purchase_sales_comparison_wizard" model="ir.actions.act_window">
+        <field name="name">Purchase Sales Comparison Report</field>
+        <field name="res_model">purchase.sales.comparison.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_purchase_sales_comparison_wizard_form"/>
+    </record>
+</odoo>

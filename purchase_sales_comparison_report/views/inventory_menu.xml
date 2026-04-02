@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add menu item under Inventory > Reporting -->
+    <menuitem
+        id="menu_purchase_sales_comparison_report"
+        name="Purchase Sales Comparison"
+        parent="stock.menu_stock_reporting"
+        action="purchase_sales_comparison_report.action_purchase_sales_comparison_wizard"
+        sequence="20"/>
+</odoo>

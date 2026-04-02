@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <report
+        id="action_purchase_sales_comparison_report"
+        string="Purchase Sales Comparison Report"
+        model="purchase.sales.comparison.wizard"
+        report_type="qweb-pdf"
+        name="purchase_sales_comparison_report.report_purchase_sales_comparison"
+        file="purchase_sales_comparison_report.report_purchase_sales_comparison"
+        print_report_name="'Purchase Sales Comparison Report'"
+        attachment_use="False"
+    />
+</odoo>

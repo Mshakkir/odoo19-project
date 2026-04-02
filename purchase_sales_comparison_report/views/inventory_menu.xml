@@ -1,10 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add menu item under Inventory > Reporting -->
+    <!--
+        Create our own "Reporting" submenu under the Inventory root menu.
+        We avoid depending on stock.menu_stock_reporting which does not
+        exist in Odoo 19 CE, and instead hang our item under the Inventory
+        app root (stock.menu_stock_root) with a dedicated Reporting group.
+    -->
+    <menuitem
+        id="menu_psc_reporting_root"
+        name="Reporting"
+        parent="stock.menu_stock_root"
+        sequence="25"
+        groups="stock.group_stock_user,stock.group_stock_manager"/>
+
     <menuitem
         id="menu_purchase_sales_comparison_report"
         name="Purchase Sales Comparison"
-        parent="stock.menu_stock_reporting"
+        parent="menu_psc_reporting_root"
         action="purchase_sales_comparison_report.action_purchase_sales_comparison_wizard"
-        sequence="20"/>
+        sequence="10"/>
 </odoo>

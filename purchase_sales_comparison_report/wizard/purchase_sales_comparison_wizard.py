@@ -60,19 +60,7 @@ class PurchaseSalesComparisonWizard(models.TransientModel):
             'date_to': str(self.date_to),
         }
 
-        # Look up the ir.actions.report record by its report_name field
-        # (the 'name' attribute in the <report> tag in XML).
-        # This avoids relying on env.ref() which requires the XML id to be
-        # registered as an ir.model.data entry — which Odoo 19 may skip for
-        # <report> shorthand tags.
-        report_action = self.env['ir.actions.report'].search([
-            ('report_name', '=',
-             'purchase_sales_comparison_report.report_psc_pur_sal_comparison'),
-        ], limit=1)
-
-        if not report_action:
-            raise UserError(
-                'Report action not found. Please upgrade the module and try again.'
-            )
-
-        return report_action.report_action(self, data=data)
+        # Use env.ref() on the proper ir.actions.report record id
+        return self.env.ref(
+            'purchase_sales_comparison_report.action_purchase_sales_comparison_report'
+        ).report_action(self, data=data)

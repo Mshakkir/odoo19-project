@@ -1,25 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Inherit account.move.line list view to make Currency and Balance permanently visible -->
-    <record id="view_move_line_daybook_analytic_list_inherit" model="ir.ui.view">
-        <field name="name">account.move.line.daybook.analytic.list.inherit</field>
-        <field name="model">account.move.line</field>
-        <field name="inherit_id" ref="account.view_move_line_tree"/>
-        <field name="arch" type="xml">
-            <!-- Remove optional from currency_id so it is always shown -->
-            <xpath expr="//field[@name='currency_id']" position="attributes">
-                <attribute name="optional">show</attribute>
-                <attribute name="column_invisible">0</attribute>
-            </xpath>
-            <!-- Remove optional from balance so it is always shown -->
-            <xpath expr="//field[@name='balance']" position="attributes">
-                <attribute name="optional">show</attribute>
-                <attribute name="column_invisible">0</attribute>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- Wizard view: add analytic account field and Show Details button -->
     <record id="view_account_daybook_analytic_wizard_inherit" model="ir.ui.view">
         <field name="name">account.daybook.analytic.wizard.inherit</field>
         <field name="model">account.daybook.report</field>
@@ -40,32 +20,3 @@
         </field>
     </record>
 </odoo>
-
-
-
-
-
-
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<odoo>-->
-<!--    <record id="view_account_daybook_analytic_wizard_inherit" model="ir.ui.view">-->
-<!--        <field name="name">account.daybook.analytic.wizard.inherit</field>-->
-<!--        <field name="model">account.daybook.report</field>-->
-<!--        <field name="inherit_id" ref="om_account_daily_reports.account_report_daybook_view"/>-->
-<!--        <field name="arch" type="xml">-->
-
-<!--            &lt;!&ndash; Add analytic account selection field &ndash;&gt;-->
-<!--            <xpath expr="//field[@name='journal_ids']" position="after">-->
-<!--                <field name="analytic_account_ids" widget="many2many_tags"/>-->
-<!--            </xpath>-->
-
-<!--            &lt;!&ndash; Add Show Details button &ndash;&gt;-->
-<!--            <xpath expr="//footer" position="inside">-->
-<!--                <button name="action_show_details" string="Show Details"-->
-<!--                        type="object" class="btn-secondary"/>-->
-<!--            </xpath>-->
-
-<!--        </field>-->
-<!--    </record>-->
-<!--</odoo>-->

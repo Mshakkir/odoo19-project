@@ -3,7 +3,7 @@ from odoo import models, api
 
 
 class PurchaseSalesComparisonReport(models.AbstractModel):
-    _name = 'report.purchase_sales_comparison_report.report_purchase_sales_comparison'
+    _name = 'report.psc.pur_sal_comparison'
     _description = 'Purchase Sales Comparison Report'
 
     @api.model

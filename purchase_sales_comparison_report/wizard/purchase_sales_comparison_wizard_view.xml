@@ -57,7 +57,7 @@
                         <field name="line_ids" readonly="1" nolabel="1">
                             <list string="Comparison Lines"
                                   decoration-danger="diff_amount &lt; 0"
-                                  create="false" delete="false" editable="false">
+                                  create="false" delete="false">
                                 <field name="code" string="Code"/>
                                 <field name="product_name" string="Product"/>
                                 <field name="uom" string="Unit"/>

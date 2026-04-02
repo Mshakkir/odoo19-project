@@ -1,45 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_purchase_sales_comparison_wizard_form" model="ir.ui.view">
-        <field name="name">purchase.sales.comparison.wizard.form</field>
-        <field name="model">purchase.sales.comparison.wizard</field>
-        <field name="arch" type="xml">
-            <form string="Purchase Sales Comparison Report">
-                <group>
+    <data>
+        <!-- Wizard Input Form -->
+        <record id="view_purchase_sales_comparison_wizard_form" model="ir.ui.view">
+            <field name="name">purchase.sales.comparison.wizard.form</field>
+            <field name="model">purchase.sales.comparison.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Purchase Sales Comparison Report">
                     <group>
-                        <field name="form_type" widget="select"/>
-                        <separator string="Product"/>
-                        <field name="product_filter" widget="radio"/>
-                        <field name="product_id"
-                               invisible="product_filter != 'by_product'"
-                               required="product_filter == 'by_product'"/>
+                        <group>
+                            <field name="form_type"/>
+                            <separator string="Product"/>
+                            <field name="product_filter" widget="radio"/>
+                            <field name="product_id"
+                                   invisible="product_filter != 'by_product'"
+                                   required="product_filter == 'by_product'"/>
+                        </group>
+                        <group>
+                            <field name="bill_mode"/>
+                            <separator string="Date Range"/>
+                            <field name="date_from" string="From"/>
+                            <field name="date_to" string="To"/>
+                        </group>
                     </group>
-                    <group>
-                        <field name="bill_mode" widget="select"/>
-                        <separator string="Date Range"/>
-                        <field name="date_from" string="From"/>
-                        <field name="date_to" string="To"/>
-                    </group>
-                </group>
-                <footer>
-                    <button name="action_show_report"
-                            string="Show Report"
-                            type="object"
-                            class="btn-primary"
-                            data-hotkey="f5"/>
-                    <button string="Exit"
-                            class="btn-secondary"
-                            special="cancel"/>
-                </footer>
-            </form>
-        </field>
-    </record>
+                    <footer>
+                        <button name="action_show_report"
+                                string="Show Report"
+                                type="object"
+                                class="btn-primary"/>
+                        <button string="Exit"
+                                class="btn-secondary"
+                                special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
 
-    <record id="action_purchase_sales_comparison_wizard" model="ir.actions.act_window">
-        <field name="name">Purchase Sales Comparison Report</field>
-        <field name="res_model">purchase.sales.comparison.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-        <field name="view_id" ref="view_purchase_sales_comparison_wizard_form"/>
-    </record>
+        <!-- Result Form (opens after Show Report) -->
+        <record id="view_psc_result_form" model="ir.ui.view">
+            <field name="name">purchase.sales.comparison.result.form</field>
+            <field name="model">purchase.sales.comparison.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Purchase Sales Comparison Report">
+                    <div class="o_form_view">
+                        <!-- Info bar -->
+                        <div class="alert alert-info mb-3" style="font-size:13px;">
+                            <strong>Period: </strong>
+                            <field name="date_from" readonly="1" nolabel="1"/> —
+                            <field name="date_to" readonly="1" nolabel="1"/>
+                            &amp;nbsp;&amp;nbsp;
+                            <strong>Bill Mode: </strong>
+                            <field name="bill_mode" readonly="1" nolabel="1"/>
+                        </div>
+
+                        <!-- Results list -->
+                        <field name="line_ids" readonly="1" nolabel="1">
+                            <list string="Comparison Lines"
+                                  decoration-danger="diff_amount &lt; 0"
+                                  create="false" delete="false" editable="false">
+                                <field name="code" string="Code"/>
+                                <field name="product_name" string="Product"/>
+                                <field name="uom" string="Unit"/>
+                                <field name="pur_qty" string="Pur.Qty"/>
+                                <field name="pur_total" string="Pur.Total"/>
+                                <field name="sal_qty" string="Sal.Qty"/>
+                                <field name="sal_total" string="Sal.Total"/>
+                                <field name="balance_qty" string="Balance Qty"
+                                       decoration-danger="balance_qty &lt; 0"/>
+                                <field name="diff_amount" string="Diff.Amount"
+                                       decoration-danger="diff_amount &lt; 0"/>
+                            </list>
+                        </field>
+                    </div>
+                    <footer>
+                        <button string="Close"
+                                class="btn-secondary"
+                                special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Window Action -->
+        <record id="action_purchase_sales_comparison_wizard" model="ir.actions.act_window">
+            <field name="name">Purchase Sales Comparison Report</field>
+            <field name="res_model">purchase.sales.comparison.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="view_purchase_sales_comparison_wizard_form"/>
+        </record>
+    </data>
 </odoo>

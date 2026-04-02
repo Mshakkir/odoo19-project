@@ -11,8 +11,8 @@
                         <separator string="Product"/>
                         <field name="product_filter" widget="radio"/>
                         <field name="product_id"
-                               attrs="{'invisible': [('product_filter', '!=', 'by_product')],
-                                       'required': [('product_filter', '=', 'by_product')]}"/>
+                               invisible="product_filter != 'by_product'"
+                               required="product_filter == 'by_product'"/>
                     </group>
                     <group>
                         <field name="bill_mode" widget="select"/>

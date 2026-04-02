@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Wizard Input Form -->
+        <!-- Wizard Input Form (popup dialog) -->
         <record id="view_purchase_sales_comparison_wizard_form" model="ir.ui.view">
             <field name="name">purchase.sales.comparison.wizard.form</field>
             <field name="model">purchase.sales.comparison.wizard</field>
@@ -36,52 +36,59 @@
             </field>
         </record>
 
-        <!-- Result Form (opens after Show Report) -->
+        <!-- Result Form - full page -->
         <record id="view_psc_result_form" model="ir.ui.view">
             <field name="name">purchase.sales.comparison.result.form</field>
             <field name="model">purchase.sales.comparison.wizard</field>
             <field name="arch" type="xml">
                 <form string="Purchase Sales Comparison Report">
-                    <div class="o_form_view">
-                        <!-- Info bar -->
-                        <div class="alert alert-info mb-3" style="font-size:13px;">
-                            <strong>Period: </strong>
-                            <field name="date_from" readonly="1" nolabel="1"/> —
-                            <field name="date_to" readonly="1" nolabel="1"/>
-                            &amp;nbsp;&amp;nbsp;
-                            <strong>Bill Mode: </strong>
-                            <field name="bill_mode" readonly="1" nolabel="1"/>
+                    <sheet>
+                        <!-- Title bar -->
+                        <div class="oe_title mb-0">
+                            <h2>Purchase Sales Comparison Report</h2>
                         </div>
+
+                        <!-- Period / filters summary -->
+                        <group>
+                            <group string="Report Parameters">
+                                <field name="date_from" string="From" readonly="1"/>
+                                <field name="date_to" string="To" readonly="1"/>
+                                <field name="bill_mode" string="Bill Mode" readonly="1"/>
+                                <field name="form_type" string="Form Type" readonly="1"/>
+                            </group>
+                            <group string="Product Filter">
+                                <field name="product_filter" string="Filter" readonly="1"/>
+                                <field name="product_id" string="Product" readonly="1"
+                                       invisible="product_filter != 'by_product'"/>
+                            </group>
+                        </group>
+
+                        <separator string="Comparison Lines"/>
 
                         <!-- Results list -->
                         <field name="line_ids" readonly="1" nolabel="1">
                             <list string="Comparison Lines"
                                   decoration-danger="diff_amount &lt; 0"
                                   create="false" delete="false">
-                                <field name="code" string="Code"/>
+                                <field name="code" string="Code" optional="show"/>
                                 <field name="product_name" string="Product"/>
-                                <field name="uom" string="Unit"/>
-                                <field name="pur_qty" string="Pur.Qty"/>
-                                <field name="pur_total" string="Pur.Total"/>
-                                <field name="sal_qty" string="Sal.Qty"/>
-                                <field name="sal_total" string="Sal.Total"/>
-                                <field name="balance_qty" string="Balance Qty"
+                                <field name="uom" string="Unit" optional="show"/>
+                                <field name="pur_qty" string="Pur.Qty" sum="Total"/>
+                                <field name="pur_total" string="Pur.Total" sum="Total"/>
+                                <field name="sal_qty" string="Sal.Qty" sum="Total"/>
+                                <field name="sal_total" string="Sal.Total" sum="Total"/>
+                                <field name="balance_qty" string="Balance Qty" sum="Total"
                                        decoration-danger="balance_qty &lt; 0"/>
-                                <field name="diff_amount" string="Diff.Amount"
+                                <field name="diff_amount" string="Diff.Amount" sum="Total"
                                        decoration-danger="diff_amount &lt; 0"/>
                             </list>
                         </field>
-                    </div>
-                    <footer>
-                        <button string="Close"
-                                class="btn-secondary"
-                                special="cancel"/>
-                    </footer>
+                    </sheet>
                 </form>
             </field>
         </record>
 
-        <!-- Window Action -->
+        <!-- Window Action (opens wizard dialog) -->
         <record id="action_purchase_sales_comparison_wizard" model="ir.actions.act_window">
             <field name="name">Purchase Sales Comparison Report</field>
             <field name="res_model">purchase.sales.comparison.wizard</field>

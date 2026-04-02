@@ -24,13 +24,9 @@ class PurchaseSalesComparisonWizard(models.TransientModel):
     ], string='Product Filter', default='all', required=True)
 
     product_id = fields.Many2one('product.product', string='Product')
-
     date_from = fields.Date(string='From', required=True, default=fields.Date.context_today)
     date_to = fields.Date(string='To', required=True, default=fields.Date.context_today)
-
-    line_ids = fields.One2many(
-        'purchase.sales.comparison.line', 'wizard_id', string='Lines'
-    )
+    line_ids = fields.One2many('purchase.sales.comparison.line', 'wizard_id', string='Lines')
 
     @api.onchange('product_filter')
     def _onchange_product_filter(self):
@@ -42,13 +38,9 @@ class PurchaseSalesComparisonWizard(models.TransientModel):
         if self.date_from > self.date_to:
             raise UserError('From date cannot be greater than To date.')
 
-        # Clear old lines
         self.line_ids.unlink()
 
-        # Compute lines
         lines = self._compute_lines()
-
-        # Create transient line records
         for line in lines:
             self.env['purchase.sales.comparison.line'].create({
                 'wizard_id': self.id,
@@ -63,7 +55,7 @@ class PurchaseSalesComparisonWizard(models.TransientModel):
                 'diff_amount': line['diff_amount'],
             })
 
-        # Return action to open results window
+        # Open full page window (not dialog)
         return {
             'type': 'ir.actions.act_window',
             'name': 'Purchase Sales Comparison Report',
@@ -73,11 +65,13 @@ class PurchaseSalesComparisonWizard(models.TransientModel):
             'view_id': self.env.ref(
                 'purchase_sales_comparison_report.view_psc_result_form'
             ).id,
-            'target': 'new',
+            'target': 'main',  # full page, not dialog
         }
 
     def _compute_lines(self):
-        # Purchase lines
+        product_data = {}
+
+        # ── 1. Purchase Order Lines ───────────────────────────────────────────
         pur_domain = [
             ('order_id.state', 'in', ['purchase', 'done']),
             ('order_id.date_approve', '>=', self.date_from),
@@ -90,9 +84,33 @@ class PurchaseSalesComparisonWizard(models.TransientModel):
         elif self.bill_mode == 'unbilled':
             pur_domain.append(('qty_invoiced', '=', 0))
 
-        purchase_lines = self.env['purchase.order.line'].search(pur_domain)
+        for line in self.env['purchase.order.line'].search(pur_domain):
+            pid = line.product_id.id
+            if pid not in product_data:
+                product_data[pid] = self._empty_row(line.product_id)
+            product_data[pid]['pur_qty'] += line.product_qty
+            product_data[pid]['pur_total'] += line.price_subtotal
 
-        # Sales lines
+        # ── 2. Vendor Bill Lines (direct invoices not linked to PO) ──────────
+        bill_domain = [
+            ('move_id.move_type', '=', 'in_invoice'),
+            ('move_id.state', '=', 'posted'),
+            ('move_id.invoice_date', '>=', self.date_from),
+            ('move_id.invoice_date', '<=', self.date_to),
+            ('purchase_line_id', '=', False),  # not already counted via PO
+            ('product_id', '!=', False),
+        ]
+        if self.product_filter == 'by_product' and self.product_id:
+            bill_domain.append(('product_id', '=', self.product_id.id))
+
+        for line in self.env['account.move.line'].search(bill_domain):
+            pid = line.product_id.id
+            if pid not in product_data:
+                product_data[pid] = self._empty_row(line.product_id)
+            product_data[pid]['pur_qty'] += line.quantity
+            product_data[pid]['pur_total'] += line.price_subtotal
+
+        # ── 3. Sales Order Lines ─────────────────────────────────────────────
         sal_domain = [
             ('order_id.state', 'in', ['sale', 'done']),
             ('order_id.date_order', '>=', self.date_from),
@@ -105,24 +123,33 @@ class PurchaseSalesComparisonWizard(models.TransientModel):
         elif self.bill_mode == 'unbilled':
             sal_domain.append(('qty_invoiced', '=', 0))
 
-        sale_lines = self.env['sale.order.line'].search(sal_domain)
-
-        product_data = {}
-
-        for line in purchase_lines:
-            pid = line.product_id.id
-            if pid not in product_data:
-                product_data[pid] = self._empty_row(line.product_id)
-            product_data[pid]['pur_qty'] += line.product_qty
-            product_data[pid]['pur_total'] += line.price_subtotal
-
-        for line in sale_lines:
+        for line in self.env['sale.order.line'].search(sal_domain):
             pid = line.product_id.id
             if pid not in product_data:
                 product_data[pid] = self._empty_row(line.product_id)
             product_data[pid]['sal_qty'] += line.product_uom_qty
             product_data[pid]['sal_total'] += line.price_subtotal
 
+        # ── 4. Customer Invoice Lines (direct invoices not linked to SO) ─────
+        inv_domain = [
+            ('move_id.move_type', '=', 'out_invoice'),
+            ('move_id.state', '=', 'posted'),
+            ('move_id.invoice_date', '>=', self.date_from),
+            ('move_id.invoice_date', '<=', self.date_to),
+            ('sale_line_ids', '=', False),  # not already counted via SO
+            ('product_id', '!=', False),
+        ]
+        if self.product_filter == 'by_product' and self.product_id:
+            inv_domain.append(('product_id', '=', self.product_id.id))
+
+        for line in self.env['account.move.line'].search(inv_domain):
+            pid = line.product_id.id
+            if pid not in product_data:
+                product_data[pid] = self._empty_row(line.product_id)
+            product_data[pid]['sal_qty'] += line.quantity
+            product_data[pid]['sal_total'] += line.price_subtotal
+
+        # ── Compute balance & diff ────────────────────────────────────────────
         result = []
         for pid, row in sorted(product_data.items(), key=lambda x: x[1]['name']):
             row['balance_qty'] = row['pur_qty'] - row['sal_qty']

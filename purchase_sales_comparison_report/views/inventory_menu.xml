@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <menuitem
-            id="menu_psc_reporting_root"
-            name="Reporting"
-            parent="stock.menu_stock_root"
-            sequence="25"
-            groups="stock.group_stock_user,stock.group_stock_manager"/>
-
+        <!--
+            Place Purchase Sales Comparison directly under the Inventory app root.
+            We do NOT create a new parent menu (which would appear as a sidebar app).
+            Instead we add it as a direct child of stock.menu_stock_root so it
+            appears as a top-level menu item INSIDE the Inventory app.
+        -->
         <menuitem
             id="menu_purchase_sales_comparison_report"
             name="Purchase Sales Comparison"
-            parent="menu_psc_reporting_root"
+            parent="stock.menu_stock_root"
             action="purchase_sales_comparison_report.action_purchase_sales_comparison_wizard"
-            sequence="10"/>
+            sequence="99"
+            groups="stock.group_stock_user,stock.group_stock_manager"/>
     </data>
 </odoo>

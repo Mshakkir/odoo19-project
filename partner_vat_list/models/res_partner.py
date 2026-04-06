@@ -15,12 +15,9 @@ class ResPartner(models.Model):
     )
 
     # Quick summary fields for the form view
-    # FIX: Do NOT use store=True — triggers jsonb_path_query_first error
-    # on PostgreSQL < 12 which does not support that function signature
     vat_line_count = fields.Integer(
         compute='_compute_vat_line_count',
         string='VAT Rules Count',
-        store=False,
     )
 
     @api.depends('vat_line_ids')

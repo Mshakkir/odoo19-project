@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        No structural change needed on the Purchase Order form — the onchange
+        on purchase.order.line.product_id handles auto-applying taxes.
+    -->
+</odoo>

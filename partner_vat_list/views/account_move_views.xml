@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        No structural change needed on the Invoice/Bill form — the onchange
+        on account.move.line.product_id handles auto-applying taxes based on
+        move type (sale/purchase).
+    -->
+</odoo>

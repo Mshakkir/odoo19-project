@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        No structural change needed on the Sale Order form — the onchange
+        on sale.order.line.product_id handles auto-applying taxes.
+
+        This file is kept as a placeholder for any future UI tweaks,
+        e.g. displaying a partner vat badge on the order header.
+    -->
+</odoo>

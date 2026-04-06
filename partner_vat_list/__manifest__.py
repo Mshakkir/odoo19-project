@@ -1,32 +1,15 @@
 {
-    'name': 'Partner VAT List + Currency (Sales & Purchase)',
-    'version': '19.0.2.0.0',
-    'summary': 'Sales/Purchase VAT lists, Sales Currency and hide Pricelist on partner form. Auto-apply on orders/invoices.',
+    'name': 'Partner VAT List (Sales & Purchase)',
+    'version': '19.0.1.0.0',
+    'summary': 'Add Sales VAT and Purchase VAT dropdown lists on partner form, auto-apply on order/invoice lines',
     'description': '''
-        Features
-        --------
-        Partner Form → Sales & Purchase tab:
-
-        SALES section
-          • Sales VAT List  — many2many taxes (sale-type).  Auto-applied to Sale Order
-            and Customer Invoice lines when the partner is selected and a product is added.
-          • Sales Currency  — default res.currency for this customer.  Auto-applied to
-            the Sale Order currency (and manual rate auto-filled) when the partner is
-            selected.  Works together with the custom_sale_order module currency fields.
-          • Pricelist field is HIDDEN (replaced with invisible field).
-
-        PURCHASE section
-          • Purchase VAT List — many2many taxes (purchase-type).  Auto-applied to
-            Purchase Order and Vendor Bill lines when the partner is selected and a
-            product is added.
-
-        Dependencies
-        ------------
-        Requires: base, account, sale, purchase
-        Integrates with: custom_sale_order module (sale_currency_id, manual_currency_rate)
+        - Adds a "Sales VAT List" many2many field (account.tax) on the partner form → Sales & Purchase tab → Sales section
+        - Adds a "Purchase VAT List" many2many field (account.tax) on the partner form → Sales & Purchase tab → Purchase section
+        - When a customer/vendor is selected on Sale Order, Purchase Order, or Invoice, and a product is added to order lines,
+          the configured VAT taxes from the partner are automatically applied to the line instead of the product default taxes.
     ''',
     'author': 'Custom Development',
-    'category': 'Accounting/Sales',
+    'category': 'Accounting/Accounting',
     'depends': [
         'base',
         'account',

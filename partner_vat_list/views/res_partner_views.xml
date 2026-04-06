@@ -2,8 +2,9 @@
 <odoo>
     <!--
         Inherit the standard res.partner form view (base.view_partner_form)
-        to add Sales VAT List and Purchase VAT List fields in the
-        "Sales & Purchase" tab.
+        to add:
+          SALES section   → Sales VAT List + Sales Currency + Currency Rate
+          PURCHASE section → Purchase VAT List
     -->
     <record id="view_partner_form_vat_list" model="ir.ui.view">
         <field name="name">res.partner.form.vat.list</field>
@@ -11,8 +12,12 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
 
-            <!-- ── Sales section: add Sales VAT List after Salesperson ── -->
+            <!-- ══════════════════════════════════════════════════════════
+                 SALES section
+            ══════════════════════════════════════════════════════════ -->
             <xpath expr="//page[@name='sales_purchases']//group[@name='sale']" position="inside">
+
+                <!-- Sales VAT List -->
                 <field
                     name="sale_tax_ids"
                     widget="many2many_tags"
@@ -21,10 +26,50 @@
                     placeholder="Select sales VAT taxes..."
                     domain="[('type_tax_use', 'in', ('sale', 'all'))]"
                 />
+
+                <!-- Hidden helper fields needed for prefix/suffix compute + visibility -->
+                <field name="company_currency_id" invisible="1"/>
+                <field name="currency_rate_prefix"  invisible="1"/>
+                <field name="currency_rate_suffix"  invisible="1"/>
+
+                <!-- Sales Currency selector -->
+                <label for="sale_currency_id" string="Sales Currency"/>
+                <div>
+                    <field
+                        name="sale_currency_id"
+                        options="{'no_create': True}"
+                        style="width:150px;"
+                        class="oe_inline"
+                        placeholder="Default sales currency..."
+                    />
+                </div>
+
+                <!-- Currency Rate row — visible only when currency differs from company currency -->
+                <label
+                    for="manual_currency_rate"
+                    string=" "
+                    invisible="not sale_currency_id or sale_currency_id == company_currency_id"
+                />
+                <div invisible="not sale_currency_id or sale_currency_id == company_currency_id">
+                    <field name="currency_rate_prefix" readonly="1" class="oe_inline"/>
+                    <field
+                        name="manual_currency_rate"
+                        widget="float"
+                        digits="[12,6]"
+                        class="oe_inline"
+                        style="width:110px;"
+                    />
+                    <field name="currency_rate_suffix" readonly="1" class="oe_inline"/>
+                </div>
+
             </xpath>
 
-            <!-- ── Purchase section: add Purchase VAT List ── -->
+            <!-- ══════════════════════════════════════════════════════════
+                 PURCHASE section
+            ══════════════════════════════════════════════════════════ -->
             <xpath expr="//page[@name='sales_purchases']//group[@name='purchase']" position="inside">
+
+                <!-- Purchase VAT List -->
                 <field
                     name="purchase_tax_ids"
                     widget="many2many_tags"
@@ -33,6 +78,7 @@
                     placeholder="Select purchase VAT taxes..."
                     domain="[('type_tax_use', 'in', ('purchase', 'all'))]"
                 />
+
             </xpath>
 
         </field>

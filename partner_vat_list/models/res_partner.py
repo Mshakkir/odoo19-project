@@ -4,6 +4,14 @@ from odoo import fields, models
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
+    # ─── Customer Currency ────────────────────────────────────────────────────
+    sale_currency_id = fields.Many2one(
+        comodel_name='res.currency',
+        string='Customer Currency',
+        help='Manual currency to apply on Sales Orders for this customer. '
+             'Leave empty to use the default pricelist / company currency.',
+    )
+
     # ─── Sales VAT List ───────────────────────────────────────────────────────
     sale_tax_ids = fields.Many2many(
         comodel_name='account.tax',

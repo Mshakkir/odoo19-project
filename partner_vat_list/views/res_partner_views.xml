@@ -2,8 +2,8 @@
 <odoo>
     <!--
         Inherit the standard res.partner form view (base.view_partner_form)
-        to add Sales VAT List, Purchase VAT List and Customer Currency fields
-        in the "Sales & Purchase" tab.
+        to add Sales VAT List and Purchase VAT List fields in the
+        "Sales & Purchase" tab.
     -->
     <record id="view_partner_form_vat_list" model="ir.ui.view">
         <field name="name">res.partner.form.vat.list</field>
@@ -11,13 +11,8 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
 
-            <!-- ── Sales section: add Customer Currency + Sales VAT List ── -->
+            <!-- ── Sales section: add Sales VAT List after Salesperson ── -->
             <xpath expr="//page[@name='sales_purchases']//group[@name='sale']" position="inside">
-                <field
-                    name="sale_currency_id"
-                    string="Customer Currency"
-                    options="{'no_create_edit': True}"
-                />
                 <field
                     name="sale_tax_ids"
                     widget="many2many_tags"

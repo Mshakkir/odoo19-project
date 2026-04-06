@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         Inherit base res.partner form to add VAT List tab
+         External ID: base.view_partner_form
+         ============================================================ -->
+    <record id="view_partner_form_vat_list" model="ir.ui.view">
+        <field name="name">res.partner.form.vat.list</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Add a new "VAT / Tax Rules" tab inside the notebook -->
+            <!-- We insert BEFORE the last "Notes" page -->
+            <xpath expr="//page[@name='internal_notes']" position="before">
+                <page string="VAT / Tax Rules" name="vat_tax_rules">
+                    <div class="alert alert-info mb-2" role="alert">
+                        <i class="fa fa-info-circle me-1"/>
+                        <strong>Auto Tax Selection:</strong>
+                        Add tax rules below. When this partner is selected on a
+                        <strong>Sale Order</strong>, <strong>Purchase Order</strong>, or
+                        <strong>Invoice</strong>, the matching tax will be automatically
+                        applied when a product line is added.
+                        <br/>
+                        <strong>Priority:</strong> Specific Product &gt; Product Category &gt; Generic (no scope).
+                    </div>
+
+                    <field name="vat_line_ids"
+                           widget="one2many"
+                           context="{'default_partner_id': id}">
+                        <list string="VAT / Tax Rules" editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="tax_type"
+                                   widget="badge"
+                                   decoration-success="tax_type == 'sale'"
+                                   decoration-warning="tax_type == 'purchase'"/>
+                            <field name="tax_id"
+                                   domain="[('type_tax_use', '=', tax_type), ('active', '=', True)]"
+                                   options="{'no_create': True}"
+                                   required="1"/>
+                            <field name="tax_amount" string="Tax %" readonly="1"/>
+                            <field name="product_id"
+                                   optional="show"
+                                   string="Product (optional)"
+                                   options="{'no_create': True}"/>
+                            <field name="product_category_id"
+                                   optional="show"
+                                   string="Category (optional)"
+                                   options="{'no_create': True}"/>
+                            <field name="active" optional="hide"/>
+                        </list>
+                        <form string="VAT / Tax Rule">
+                            <sheet>
+                                <group>
+                                    <group string="Tax Information">
+                                        <field name="tax_type"/>
+                                        <field name="tax_id"
+                                               domain="[('type_tax_use', '=', tax_type), ('active', '=', True)]"
+                                               options="{'no_create': True}"
+                                               required="1"/>
+                                        <field name="tax_amount" readonly="1"/>
+                                    </group>
+                                    <group string="Scope (optional)">
+                                        <field name="product_id"
+                                               options="{'no_create': True}"
+                                               help="Leave blank to apply to all products"/>
+                                        <field name="product_category_id"
+                                               options="{'no_create': True}"
+                                               help="Leave blank = applies to all categories"/>
+                                        <field name="sequence"/>
+                                        <field name="active"/>
+                                    </group>
+                                </group>
+                                <div class="alert alert-secondary" role="alert">
+                                    If both <strong>Product</strong> and <strong>Category</strong>
+                                    are blank, this tax applies to <em>all products</em> for this partner.
+                                </div>
+                            </sheet>
+                        </form>
+                    </field>
+
+                    <!-- Summary badge -->
+                    <div class="mt-2" invisible="vat_line_count == 0">
+                        <span class="badge text-bg-success">
+                            <i class="fa fa-check me-1"/>
+                            <field name="vat_line_count" readonly="1"/> tax rule(s) configured
+                        </span>
+                    </div>
+                    <div class="mt-2" invisible="vat_line_count != 0">
+                        <span class="text-muted fst-italic">
+                            No VAT rules configured — default product taxes will be used.
+                        </span>
+                    </div>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

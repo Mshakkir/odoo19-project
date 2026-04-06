@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!--
-        Inherit the standard res.partner form view (base.view_partner_form)
-        Changes:
-          1. Add "Sales VAT List" (many2many taxes) in the Sales section
-          2. Add "Sales Currency" (res.currency) in the Sales section
-          3. Add "Purchase VAT List" (many2many taxes) in the Purchase section
-          4. Hide the "Pricelist" field (property_product_pricelist) from the partner form
-    -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         VIEW 1: Inherit base partner form
+         - Add Sales VAT List, Sales Currency (SALES section)
+         - Add Purchase VAT List (PURCHASE section)
+    ═══════════════════════════════════════════════════════════════════════ -->
     <record id="view_partner_form_vat_list" model="ir.ui.view">
         <field name="name">res.partner.form.vat.list</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
 
-            <!-- ══════════════════════════════════════════════════════════════
-                 SALES section — insert Sales VAT List + Sales Currency
-                 after the existing Salesperson (user_id) field
-            ═══════════════════════════════════════════════════════════════ -->
+            <!-- SALES section: Sales VAT List + Sales Currency -->
             <xpath expr="//page[@name='sales_purchases']//group[@name='sale']" position="inside">
-
-                <!-- Sales VAT List -->
                 <field
                     name="sale_tax_ids"
                     widget="many2many_tags"
@@ -29,24 +22,16 @@
                     placeholder="Select sales VAT taxes..."
                     domain="[('type_tax_use', 'in', ('sale', 'all'))]"
                 />
-
-                <!-- Sales Currency -->
                 <field
                     name="sale_currency_id"
                     string="Sales Currency"
                     options="{'no_create': True, 'no_open': True}"
                     placeholder="e.g. USD, EUR..."
-                    help="Default currency applied automatically when this customer is selected on a Sale Order or Customer Invoice."
                 />
-
             </xpath>
 
-            <!-- ══════════════════════════════════════════════════════════════
-                 PURCHASE section — insert Purchase VAT List
-            ═══════════════════════════════════════════════════════════════ -->
+            <!-- PURCHASE section: Purchase VAT List -->
             <xpath expr="//page[@name='sales_purchases']//group[@name='purchase']" position="inside">
-
-                <!-- Purchase VAT List -->
                 <field
                     name="purchase_tax_ids"
                     widget="many2many_tags"
@@ -55,18 +40,28 @@
                     placeholder="Select purchase VAT taxes..."
                     domain="[('type_tax_use', 'in', ('purchase', 'all'))]"
                 />
-
             </xpath>
 
-            <!-- ══════════════════════════════════════════════════════════════
-                 HIDE Pricelist field
-                 The pricelist field is injected by the sale module via its own
-                 inherited view. We replace it with an invisible version.
-            ═══════════════════════════════════════════════════════════════ -->
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         VIEW 2: Inherit the SALE module's partner view to hide Pricelist
+         property_product_pricelist is injected by sale module in its own
+         inherited view — we must target that view, not base.view_partner_form
+    ═══════════════════════════════════════════════════════════════════════ -->
+    <record id="view_partner_form_hide_pricelist" model="ir.ui.view">
+        <field name="name">res.partner.form.hide.pricelist</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="sale.res_partner_view_form_private_inherit_sale"/>
+        <field name="arch" type="xml">
+
             <xpath expr="//field[@name='property_product_pricelist']" position="replace">
+                <!-- Pricelist hidden intentionally by partner_vat_list module -->
                 <field name="property_product_pricelist" invisible="1"/>
             </xpath>
 
         </field>
     </record>
+
 </odoo>

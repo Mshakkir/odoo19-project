@@ -27,12 +27,3 @@ class ResPartner(models.Model):
         help='Default VAT taxes to apply automatically on Purchase Order and Vendor Bill lines '
              'when this partner is selected as vendor.',
     )
-
-    # ─── Sales Currency ───────────────────────────────────────────────────────
-    sale_currency_id = fields.Many2one(
-        comodel_name='res.currency',
-        string='Sales Currency',
-        store=True,
-        copy=True,
-        help='Default currency to apply on new Sale Orders for this customer.',
-    )

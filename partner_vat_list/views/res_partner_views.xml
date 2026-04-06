@@ -2,8 +2,11 @@
 <odoo>
     <!--
         Inherit the standard res.partner form view (base.view_partner_form)
-        to add Sales VAT List and Purchase VAT List fields in the
-        "Sales & Purchase" tab.
+        Changes:
+          1. Add "Sales VAT List" (many2many taxes) in the Sales section
+          2. Add "Sales Currency" (res.currency) in the Sales section
+          3. Add "Purchase VAT List" (many2many taxes) in the Purchase section
+          4. Hide the "Pricelist" field (property_product_pricelist) from the partner form
     -->
     <record id="view_partner_form_vat_list" model="ir.ui.view">
         <field name="name">res.partner.form.vat.list</field>
@@ -11,8 +14,13 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
 
-            <!-- ── Sales section: add Sales VAT List after Salesperson ── -->
+            <!-- ══════════════════════════════════════════════════════════════
+                 SALES section — insert Sales VAT List + Sales Currency
+                 after the existing Salesperson (user_id) field
+            ═══════════════════════════════════════════════════════════════ -->
             <xpath expr="//page[@name='sales_purchases']//group[@name='sale']" position="inside">
+
+                <!-- Sales VAT List -->
                 <field
                     name="sale_tax_ids"
                     widget="many2many_tags"
@@ -21,10 +29,24 @@
                     placeholder="Select sales VAT taxes..."
                     domain="[('type_tax_use', 'in', ('sale', 'all'))]"
                 />
+
+                <!-- Sales Currency -->
+                <field
+                    name="sale_currency_id"
+                    string="Sales Currency"
+                    options="{'no_create': True, 'no_open': True}"
+                    placeholder="e.g. USD, EUR..."
+                    help="Default currency applied automatically when this customer is selected on a Sale Order or Customer Invoice."
+                />
+
             </xpath>
 
-            <!-- ── Purchase section: add Purchase VAT List ── -->
+            <!-- ══════════════════════════════════════════════════════════════
+                 PURCHASE section — insert Purchase VAT List
+            ═══════════════════════════════════════════════════════════════ -->
             <xpath expr="//page[@name='sales_purchases']//group[@name='purchase']" position="inside">
+
+                <!-- Purchase VAT List -->
                 <field
                     name="purchase_tax_ids"
                     widget="many2many_tags"
@@ -33,6 +55,16 @@
                     placeholder="Select purchase VAT taxes..."
                     domain="[('type_tax_use', 'in', ('purchase', 'all'))]"
                 />
+
+            </xpath>
+
+            <!-- ══════════════════════════════════════════════════════════════
+                 HIDE Pricelist field
+                 The pricelist field is injected by the sale module via its own
+                 inherited view. We replace it with an invisible version.
+            ═══════════════════════════════════════════════════════════════ -->
+            <xpath expr="//field[@name='property_product_pricelist']" position="replace">
+                <field name="property_product_pricelist" invisible="1"/>
             </xpath>
 
         </field>

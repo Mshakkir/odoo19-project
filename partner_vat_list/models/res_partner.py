@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class ResPartner(models.Model):
@@ -27,3 +27,16 @@ class ResPartner(models.Model):
         help='Default VAT taxes to apply automatically on Purchase Order and Vendor Bill lines '
              'when this partner is selected as vendor.',
     )
+
+    # ─── Default Sales Currency ───────────────────────────────────────────────
+    sale_currency_id = fields.Many2one(
+        comodel_name='res.currency',
+        string='Sales Currency',
+        domain="[('active', '=', True)]",
+        help='Default currency that will be automatically applied when this partner is selected '
+             'on a Sale Order or Customer Invoice. Leave empty to use the company/pricelist default.',
+    )
+
+    # ─── Auto-apply currency to sale order when partner changes ──────────────
+    # (handled in sale_order.py via onchange)
+

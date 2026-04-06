@@ -11,10 +11,9 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add a new "VAT / Tax Rules" tab inside the notebook -->
-            <!-- We insert BEFORE the last "Notes" page -->
             <xpath expr="//page[@name='internal_notes']" position="before">
                 <page string="VAT / Tax Rules" name="vat_tax_rules">
+
                     <div class="alert alert-info mb-2" role="alert">
                         <i class="fa fa-info-circle me-1"/>
                         <strong>Auto Tax Selection:</strong>
@@ -29,14 +28,12 @@
                     <field name="vat_line_ids"
                            widget="one2many"
                            context="{'default_partner_id': id}">
+
                         <list string="VAT / Tax Rules" editable="bottom">
                             <field name="sequence" widget="handle"/>
-                            <field name="tax_type"
-                                   widget="badge"
-                                   decoration-success="tax_type == 'sale'"
-                                   decoration-warning="tax_type == 'purchase'"/>
+                            <field name="tax_type"/>
                             <field name="tax_id"
-                                   domain="[('type_tax_use', '=', tax_type), ('active', '=', True)]"
+                                   domain="[('type_tax_use', 'in', ['sale', 'purchase', 'all']), ('active', '=', True)]"
                                    options="{'no_create': True}"
                                    required="1"/>
                             <field name="tax_amount" string="Tax %" readonly="1"/>
@@ -50,13 +47,14 @@
                                    options="{'no_create': True}"/>
                             <field name="active" optional="hide"/>
                         </list>
+
                         <form string="VAT / Tax Rule">
                             <sheet>
                                 <group>
                                     <group string="Tax Information">
-                                        <field name="tax_type"/>
+                                        <field name="tax_type" widget="radio" options="{'horizontal': true}"/>
                                         <field name="tax_id"
-                                               domain="[('type_tax_use', '=', tax_type), ('active', '=', True)]"
+                                               domain="[('type_tax_use', 'in', ['sale', 'purchase', 'all']), ('active', '=', True)]"
                                                options="{'no_create': True}"
                                                required="1"/>
                                         <field name="tax_amount" readonly="1"/>
@@ -80,18 +78,12 @@
                         </form>
                     </field>
 
-                    <!-- Summary badge -->
-                    <div class="mt-2" invisible="vat_line_count == 0">
-                        <span class="badge text-bg-success">
-                            <i class="fa fa-check me-1"/>
-                            <field name="vat_line_count" readonly="1"/> tax rule(s) configured
-                        </span>
-                    </div>
-                    <div class="mt-2" invisible="vat_line_count != 0">
-                        <span class="text-muted fst-italic">
+                    <div class="mt-2">
+                        <span class="text-muted fst-italic" invisible="vat_line_ids">
                             No VAT rules configured — default product taxes will be used.
                         </span>
                     </div>
+
                 </page>
             </xpath>
 

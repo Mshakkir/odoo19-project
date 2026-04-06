@@ -28,7 +28,7 @@ class PartnerVatLine(models.Model):
         'account.tax',
         string='Tax / VAT',
         required=True,
-        domain="[('type_tax_use', '=', tax_type)]",
+        domain="[('active', '=', True)]",
     )
     tax_type = fields.Selection(
         selection=[('sale', 'Sales Tax'), ('purchase', 'Purchase Tax')],

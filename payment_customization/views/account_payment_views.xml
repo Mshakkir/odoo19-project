@@ -17,26 +17,27 @@
                     <attribute name="options">{'currency_field': 'currency_id'}</attribute>
                 </xpath>
 
-                <!-- Add 1 EUR = X SAR as a new row AFTER the amount_div, only when foreign currency -->
-                <xpath expr="//div[@name='amount_div']" position="after">
-                    <div name="manual_rate_div"
-                         invisible="currency_id == company_currency_id"
-                         style="display:flex; align-items:center; gap:6px; margin-top:4px; color:#6c757d; font-size:13px;">
+                <!-- Add  1 EUR = X SAR  row INSIDE amount_div, after currency_id -->
+                <xpath expr="//div[@name='amount_div']" position="inside">
+                    <span class="o_field_widget"
+                          invisible="currency_id == company_currency_id"
+                          style="display:flex; align-items:center; gap:4px; margin-left:8px; color:#6c757d; font-size:13px; white-space:nowrap;">
                         <span>1</span>
                         <field name="payment_currency_name"
                                readonly="1"
                                nolabel="1"
-                               style="font-weight:600; border:none; background:transparent; padding:0; min-width:32px;"/>
+                               style="font-weight:600; border:none; background:transparent; padding:0; min-width:30px;"/>
                         <span>=</span>
                         <field name="manual_currency_exchange_rate"
                                nolabel="1"
                                digits="[12,6]"
-                               style="width:120px;"/>
+                               invisible="currency_id == company_currency_id"
+                               style="width:100px;"/>
                         <field name="company_currency_name"
                                readonly="1"
                                nolabel="1"
-                               style="font-weight:600; border:none; background:transparent; padding:0; min-width:32px;"/>
-                    </div>
+                               style="font-weight:600; border:none; background:transparent; padding:0; min-width:30px;"/>
+                    </span>
                 </xpath>
 
                 <!-- Add new memo field and advance payment checkbox after partner_bank_id -->

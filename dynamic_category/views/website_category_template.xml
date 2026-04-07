@@ -4,13 +4,13 @@
         <t t-call="website.layout">
             <t t-set="page_name" t-value="'category_detail'"/>
 
-            <!-- Hero with Navbar (same style as Shop/Contact/Blog) -->
+            <!-- Fonts -->
             <link rel="preconnect" href="https://fonts.googleapis.com"/>
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
             <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&amp;display=swap" rel="stylesheet"/>
 
             <style>
-                /* ROOT + REVEAL + NAVBAR (copied from your shop page) */
+                /* Root + Reveal + Navbar (same as your other pages) */
                 .sh{--blue:#1576bd;--blue-dark:#0d5a94;--blue-light:#3d96d8;--ink:#0f1923;--white:#fff;font-family:'DM Sans',sans-serif;color:var(--ink)}
                 .sh *{box-sizing:border-box;margin:0;padding:0}
                 .sh-out{width:100vw;position:relative;left:50%;margin-left:-50vw;overflow:hidden;background:var(--white)}
@@ -19,7 +19,7 @@
                 .rv.in{opacity:1;transform:translate(0)}
 
                 /* Navbar */
-                .ap-nav{position:absolute;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:0 6%;height:70px;background:transparent;border-bottom:1px solid rgba(255,255,255,.08);transition:all 300ms ease}
+                .ap-nav{position:absolute;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:0 6%;height:70px;background:transparent;border-bottom:1px solid rgba(255,255,255,.08)}
                 .ap-nav.sticky{position:fixed;top:0;left:0;right:0;z-index:9999;height:60px;background:rgba(15,25,35,.97);border-bottom:1px solid rgba(21,118,189,.35);box-shadow:0 2px 24px rgba(0,0,0,.45);backdrop-filter:blur(12px);animation:apNavDrop 300ms ease forwards}
                 @keyframes apNavDrop{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
                 .ap-nav-logo{display:flex;align-items:center;flex-shrink:0}
@@ -38,18 +38,19 @@
                 .ap-nav-mob a{display:block;padding:12px 0;font-size:15px;color:rgba(255,255,255,.8);border-bottom:1px solid rgba(255,255,255,.07)}
                 @media(max-width:900px){.ap-nav-links{display:none}.ap-nav-ham{display:flex}}
 
-                /* Hero */
+                /* Hero - Fixed visibility with overlay */
                 .sh-hero{background:var(--ink);padding:0 6% 0;position:relative;overflow:hidden;min-height:620px}
                 .sh-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:44px 44px;pointer-events:none}
-                .sh-hero-stripe{position:absolute;top:-80px;right:-60px;width:460px;height:800px;background:var(--blue);opacity:.09;transform:rotate(18deg);pointer-events:none}
-                .sh-hero-wm{position:absolute;bottom:-20px;right:-8px;font-family:'Barlow Condensed',sans-serif;font-size:clamp(100px,14vw,200px);font-weight:800;text-transform:uppercase;letter-spacing:-.04em;color:rgba(255,255,255,.025);pointer-events:none}
+                .sh-hero-overlay{position:absolute;inset:0;background:linear-gradient(rgba(15,25,35,0.65), rgba(15,25,35,0.75));z-index:1}
+                .sh-hero-stripe{position:absolute;top:-80px;right:-60px;width:460px;height:800px;background:var(--blue);opacity:.09;transform:rotate(18deg);pointer-events:none;z-index:0}
+                .sh-hero-wm{position:absolute;bottom:-20px;right:-8px;font-family:'Barlow Condensed',sans-serif;font-size:clamp(100px,14vw,200px);font-weight:800;text-transform:uppercase;letter-spacing:-.04em;color:rgba(255,255,255,.025);pointer-events:none;z-index:0}
                 .sh-hero-content{position:relative;z-index:2;padding-top:calc(70px + 52px)}
                 .sh-hero-inner{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:flex-end}
                 .sh-hero-tag{font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--blue-light);display:flex;align-items:center;gap:8px;margin-bottom:18px}
                 .sh-hero-tag::before{content:'';width:22px;height:2px;background:var(--blue-light)}
                 .sh-hero-h{font-family:'Barlow Condensed',sans-serif;font-size:clamp(48px,7vw,88px);font-weight:800;text-transform:uppercase;letter-spacing:-.025em;line-height:.9;color:var(--white)}
                 .sh-hero-h span{color:var(--blue-light)}
-                .sh-hero-sub{font-size:15px;font-weight:300;line-height:1.78;color:rgba(255,255,255,.52);margin-top:22px;max-width:520px}
+                .sh-hero-sub{font-size:15px;font-weight:300;line-height:1.78;color:rgba(255,255,255,.85);margin-top:22px;max-width:520px}
                 .sh-hero-right{text-align:right}
                 .sh-hero-right-n{font-family:'Barlow Condensed',sans-serif;font-size:clamp(44px,6vw,68px);font-weight:800;letter-spacing:-.03em;color:var(--blue-light)}
                 .sh-hero-right-l{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.32)}
@@ -58,12 +59,79 @@
                     .sh-hero-inner{grid-template-columns:1fr}
                     .sh-hero-right{display:none}
                 }
+
+                /* Cards */
+                .cat-card{
+                    border:1px solid #e2e8f0;
+                    border-radius:8px;
+                    overflow:hidden;
+                    transition:all .3s ease;
+                    cursor:pointer;
+                    background:#fff;
+                    box-shadow:0 4px 15px rgba(0,0,0,.05);
+                }
+                .cat-card:hover{
+                    transform:translateY(-8px);
+                    box-shadow:0 20px 30px rgba(21,118,189,.15);
+                }
+                .cat-card img{
+                    width:100%;
+                    height:240px;
+                    object-fit:cover;
+                }
+                .cat-card-body{
+                    padding:20px;
+                    text-align:center;
+                }
+                .cat-card h3{
+                    font-size:19px;
+                    font-weight:600;
+                    margin-bottom:16px;
+                    color:#0f1923;
+                }
+                .cat-card .shop-btn{
+                    background:var(--blue);
+                    color:white;
+                    border:none;
+                    padding:10px 24px;
+                    border-radius:4px;
+                    font-size:13px;
+                    font-weight:600;
+                    letter-spacing:.05em;
+                    text-transform:uppercase;
+                    transition:all .2s;
+                }
+                .cat-card:hover .shop-btn{
+                    background:var(--blue-dark);
+                }
+
+                /* Modal */
+                .category-modal .modal-content{
+                    border-radius:12px;
+                    border:none;
+                    box-shadow:0 25px 50px -12px rgba(0,0,0,.4);
+                }
+                .category-modal .modal-header{
+                    border-bottom:1px solid #e2e8f0;
+                    padding:20px 28px;
+                }
+                .category-modal .modal-body{
+                    padding:0;
+                }
+                .modal-img{
+                    width:100%;
+                    height:320px;
+                    object-fit:cover;
+                }
+                .modal-info{
+                    padding:32px;
+                }
             </style>
 
             <div class="sh-out">
                 <div class="sh">
 
-                    <!-- Navbar -->
+                    <!-- Navbar (same as other pages) -->
                     <nav class="ap-nav" id="apNav">
                         <div class="ap-nav-logo">
                             <img src="/custom_theme_module/static/src/img/newlogo.png" alt="Airmixs Pneumatics" onerror="this.style.display='none';this.nextElementSibling.style.display='block';"/>
@@ -102,9 +170,10 @@
                         <a href="/contactus">Contact</a>
                     </div>
 
-                    <!-- Hero -->
+                    <!-- Hero with overlay for text visibility -->
                     <div class="sh-hero">
                         <div class="sh-hero-stripe"></div>
+                        <div class="sh-hero-overlay"></div>
                         <div class="sh-hero-wm">Category</div>
                         <div class="sh-hero-content">
                             <div class="sh-hero-inner rv">
@@ -121,61 +190,76 @@
                         </div>
                     </div>
 
-                    <!-- Breadcrumb (light background like your shop) -->
+                    <!-- Breadcrumb -->
                     <div style="background:#fff;padding:14px 6%;border-bottom:1px solid #e2e8f0;font-size:12.5px;color:#64748b">
                         <t t-foreach="main_category['breadcrumbs']" t-as="crumb">
-                            <t t-if="crumb['url']">
-                                <a t-att-href="crumb['url']" t-esc="crumb['name']" style="color:#64748b;text-decoration:none"/>
-                            </t>
-                            <t t-else="">
-                                <span t-esc="crumb['name']"/>
-                            </t>
+                            <a t-att-href="crumb['url']" t-esc="crumb['name']" style="color:#64748b;text-decoration:none"/>
                             <t t-if="not crumb_last"> › </t>
                         </t>
                     </div>
 
-                    <!-- Main Content Area - Child Categories Grid -->
-                    <div style="padding:60px 6% 80px;background:#fff">
+                    <!-- Child Categories Grid -->
+                    <div style="padding:70px 6% 100px;background:#fff">
                         <div style="max-width:1280px;margin:0 auto">
-                            <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:42px;font-weight:700;margin-bottom:40px;text-align:center">Explore Sub Categories</h2>
+                            <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:42px;font-weight:700;margin-bottom:50px;text-align:center;color:#0f1923">
+                                Explore Sub Categories
+                            </h2>
 
-                            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:30px">
+                            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:32px">
                                 <t t-foreach="child_categories" t-as="child">
-                                    <a t-att-href="child['shop_url']" style="text-decoration:none;color:inherit;display:block">
-                                        <div style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;transition:all .3s;box-shadow:0 4px 15px rgba(0,0,0,.05)">
-                                            <img t-att-src="child['image_url']" t-att-alt="child['name']" style="width:100%;height:220px;object-fit:cover"/>
-                                            <div style="padding:24px">
-                                                <h3 style="font-size:20px;font-weight:600;margin-bottom:8px" t-esc="child['name']"/>
-                                                <p style="font-size:14px;color:#64748b;line-height:1.5;margin-bottom:16px" t-esc="child['description']"/>
-                                                <div style="display:flex;justify-content:space-between;align-items:center">
-                                                    <span style="font-size:13px;color:#1576bd;font-weight:500">
-                                                        <t t-esc="child['product_count']"/> Products
-                                                    </span>
-                                                    <span style="color:#1576bd">→ Shop Now</span>
-                                                </div>
-                                            </div>
+                                    <div class="cat-card" data-bs-toggle="modal" data-bs-target="#catModal"
+                                         data-name="t-esc:child['name']"
+                                         data-desc="t-esc:child['description']"
+                                         data-img="t-att:child['image_url']"
+                                         data-count="t-esc:child['product_count']"
+                                         data-shop="t-att:child['shop_url']">
+                                        <img t-att-src="child['image_url']" t-att-alt="child['name']"/>
+                                        <div class="cat-card-body">
+                                            <h3 t-esc="child['name']"/>
+                                            <button class="shop-btn">Shop Now</button>
                                         </div>
-                                    </a>
+                                    </div>
                                 </t>
                             </div>
 
-                            <!-- Fallback if no child categories -->
                             <t t-if="not child_categories">
-                                <div style="text-align:center;padding:80px 20px;color:#64748b">
-                                    <p>No sub-categories found. Browse all products in this category.</p>
-                                    <a t-att-href="main_category['shop_url']" class="btn btn-primary" style="margin-top:20px">View All Products</a>
+                                <div style="text-align:center;padding:100px 20px;color:#64748b">
+                                    <p>No sub-categories found.</p>
+                                    <a t-att-href="main_category['shop_url']" class="btn btn-primary mt-3">Browse All Products</a>
                                 </div>
                             </t>
+                        </div>
+                    </div>
+
+                    <!-- Modal -->
+                    <div class="modal fade category-modal" id="catModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title fw-bold" id="modalTitle"></h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body p-0">
+                                    <img id="modalImage" class="modal-img" src="" alt=""/>
+                                    <div class="modal-info">
+                                        <p id="modalDesc" class="lead" style="color:#2d3d4f;line-height:1.7"></p>
+                                        <div id="modalCount" class="mb-4" style="font-weight:500;color:#1576bd"></div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <a id="modalShopBtn" href="#" class="btn btn-primary px-5">View All Products in this Category</a>
+                                    <button type="button" class="btn btn-secondary px-5" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                 </div>
             </div>
 
-            <!-- JavaScript for sticky nav + mobile menu -->
             <script>
                 (function(){
-                    // Scroll reveal
+                    // Scroll reveal &amp; sticky nav (same as your other pages)
                     var io = new IntersectionObserver(function(entries){
                         entries.forEach(function(e){
                             if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
@@ -183,7 +267,6 @@
                     }, {threshold:0.05});
                     document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
 
-                    // Sticky navbar
                     var nav = document.getElementById('apNav');
                     var hero = document.querySelector('.sh-hero');
                     var isSticky = false;
@@ -201,9 +284,29 @@
                     }
                     window.addEventListener('scroll', onScroll, {passive:true});
 
-                    // Mobile hamburger
                     document.getElementById('apHam').addEventListener('click', function(){
                         document.getElementById('apMob').classList.toggle('open');
+                    });
+
+                    // Dynamic Modal
+                    var catModal = new bootstrap.Modal(document.getElementById('catModal'));
+
+                    document.querySelectorAll('.cat-card').forEach(function(card){
+                        card.addEventListener('click', function(){
+                            var name = this.getAttribute('data-name');
+                            var desc = this.getAttribute('data-desc');
+                            var img = this.getAttribute('data-img');
+                            var count = this.getAttribute('data-count');
+                            var shopUrl = this.getAttribute('data-shop');
+
+                            document.getElementById('modalTitle').textContent = name;
+                            document.getElementById('modalDesc').innerHTML = desc;
+                            document.getElementById('modalImage').src = img;
+                            document.getElementById('modalCount').innerHTML = count > 0 ? count + ' Products Available' : '';
+                            document.getElementById('modalShopBtn').href = shopUrl;
+
+                            catModal.show();
+                        });
                     });
                 })();
             </script>

@@ -13,11 +13,7 @@
                     <attribute name="string">Payment Reference</attribute>
                 </xpath>
 
-                <!--
-                    Make the amount field use the currently selected currency_id
-                    dynamically (this ensures the currency symbol next to the
-                    amount updates as soon as partner_id changes via onchange).
-                -->
+                <!-- Make the amount field use the currently selected currency_id dynamically -->
                 <xpath expr="//field[@name='amount']" position="attributes">
                     <attribute name="options">{'currency_field': 'currency_id'}</attribute>
                 </xpath>
@@ -26,22 +22,12 @@
                 <xpath expr="//field[@name='currency_id']" position="after">
                     <field name="active_manual_currency_rate"
                            widget="boolean_toggle"
-                           attrs="{'invisible': [('currency_id', '=', False)]}"/>
+                           invisible="not currency_id"/>
                     <field name="manual_currency_exchange_rate"
                            string="Exchange Rate"
-                           attrs="{
-                               'invisible': ['|',
-                                   ('active_manual_currency_rate', '=', False),
-                                   ('currency_id', '=', False)
-                               ],
-                               'required': [
-                                   ('active_manual_currency_rate', '=', True),
-                                   ('currency_id', '!=', False)
-                               ]
-                           }"
-                           widget="monetary"
-                           options="{'currency_field': 'currency_id', 'field_digits': True}"
-                    />
+                           invisible="not active_manual_currency_rate or not currency_id"
+                           required="active_manual_currency_rate and currency_id != False"
+                           digits="[12, 6]"/>
                 </xpath>
 
                 <!-- Add new memo field and advance payment checkbox after partner_bank_id -->

@@ -21,24 +21,19 @@
                 <field name="debit" sum="Total Debit"/>
                 <field name="credit" sum="Total Credit"/>
                 <field name="balance"/>
-                <!-- Foreign currency amount -->
-                <field name="amount_currency" optional="show" string="Foreign Amount"/>
-                <field name="currency_id" optional="show" string="Currency"/>
-                <field name="manual_currency_exchange_rate" optional="show" string="Rate" digits="[12,6]"/>
-                <!-- SAR equivalent using manual rate -->
-                <field name="sar_amount" string="SAR Amount" optional="show" sum="Total SAR"/>
                 <field name="final_balance" sum="Final Balance Due"/>
+
+                <!-- Hidden fields needed for compute/currency -->
                 <field name="is_opening_balance" column_invisible="1"/>
                 <field name="company_currency_id" column_invisible="1"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="manual_currency_exchange_rate" column_invisible="1"/>
 
                 <button name="action_view_invoice" type="object"
-                        icon="fa-file-text-o"
-                        title="View Invoice/Bill"
+                        icon="fa-file-text-o" title="View Invoice/Bill"
                         invisible="is_opening_balance or not move_id"/>
-
                 <button name="action_view_journal_entry" type="object"
-                        icon="fa-book"
-                        title="View Journal Entry"
+                        icon="fa-book" title="View Journal Entry"
                         invisible="is_opening_balance or not move_id"/>
 
             </list>
@@ -56,9 +51,6 @@
                 <filter name="group_partner"
                         string="Group by Partner"
                         context="{'group_by': 'partner_id'}"/>
-                <filter name="has_foreign_currency"
-                        string="Foreign Currency Only"
-                        domain="[('currency_id', '!=', False)]"/>
             </search>
         </field>
     </record>

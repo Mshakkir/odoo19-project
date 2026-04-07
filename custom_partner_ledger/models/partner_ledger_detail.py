@@ -14,12 +14,17 @@ class PartnerLedgerDetail(models.TransientModel):
     account_id = fields.Many2one('account.account', string='Account', readonly=True)
     name = fields.Char(string='Label', readonly=True)
     ref = fields.Char(string='Reference', readonly=True)
+
+    # These store SAR-equivalent amounts (converted via manual rate when applicable)
     debit = fields.Monetary(string='Debit', readonly=True, currency_field='company_currency_id')
     credit = fields.Monetary(string='Credit', readonly=True, currency_field='company_currency_id')
     balance = fields.Monetary(string='Balance', readonly=True, currency_field='company_currency_id')
+
+    # Original foreign currency info (for reference, hidden in view)
     amount_currency = fields.Monetary(string='Amount Currency', readonly=True, currency_field='currency_id')
     currency_id = fields.Many2one('res.currency', string='Currency', readonly=True)
     company_currency_id = fields.Many2one('res.currency', string='Company Currency', readonly=True)
+
     reconcile_id = fields.Many2one('account.full.reconcile', string='Reconcile', readonly=True)
     move_state = fields.Selection([
         ('draft', 'Draft'),
@@ -27,61 +32,28 @@ class PartnerLedgerDetail(models.TransientModel):
     ], string='Status', readonly=True)
 
     is_opening_balance = fields.Boolean(string='Is Opening Balance', readonly=True)
-
     invoice_date_due = fields.Date(string='Due Date', readonly=True)
     po_number = fields.Char(string='PO Number', readonly=True)
 
-    # Manual exchange rate stored on the payment (1 foreign = X company currency)
+    # Store the rate used (for info / PDF display)
     manual_currency_exchange_rate = fields.Float(
-        string='Exchange Rate',
-        digits=(12, 6),
-        readonly=True,
-        default=1.0,
-    )
-
-    # SAR equivalent = amount_currency * manual_currency_exchange_rate
-    sar_amount = fields.Monetary(
-        string='SAR Amount',
-        readonly=True,
-        currency_field='company_currency_id',
-        compute='_compute_sar_amount',
-        store=False,
+        string='Exchange Rate', digits=(12, 6), readonly=True, default=1.0,
     )
 
     final_balance = fields.Monetary(
-        string='Final Balance',
-        readonly=True,
+        string='Final Balance', readonly=True,
         currency_field='company_currency_id',
-        compute='_compute_final_balance',
-        store=False,
+        compute='_compute_final_balance', store=False,
     )
-
-    @api.depends('amount_currency', 'manual_currency_exchange_rate', 'currency_id', 'company_currency_id')
-    def _compute_sar_amount(self):
-        for rec in self:
-            # Only show SAR amount when payment is in a foreign currency and has a manual rate
-            if (rec.currency_id and rec.company_currency_id
-                    and rec.currency_id != rec.company_currency_id
-                    and rec.manual_currency_exchange_rate
-                    and rec.amount_currency):
-                rec.sar_amount = abs(rec.amount_currency) * rec.manual_currency_exchange_rate
-            else:
-                rec.sar_amount = 0.0
 
     @api.depends('partner_id', 'balance')
     def _compute_final_balance(self):
         records_by_partner = {}
         for record in self:
-            if record.partner_id not in records_by_partner:
-                records_by_partner[record.partner_id] = []
-            records_by_partner[record.partner_id].append(record)
-
+            records_by_partner.setdefault(record.partner_id, []).append(record)
         for record in self:
-            if record.partner_id in records_by_partner:
-                last_record = records_by_partner[record.partner_id][-1]
-                record.final_balance = record.balance if record == last_record else 0.0
-            else:
-                record.final_balance = 0.0
+            last = records_by_partner.get(record.partner_id, [])
+            record.final_balance = record.balance if last and record == last[-1] else 0.0
 
     def action_view_invoice(self):
         self.ensure_one()
@@ -93,7 +65,6 @@ class PartnerLedgerDetail(models.TransientModel):
             'res_model': 'account.move',
             'res_id': self.move_id.id,
             'view_mode': 'form',
-            'view_id': False,
             'target': 'current',
         }
 
@@ -183,15 +154,33 @@ class PartnerLedgerDetail(models.TransientModel):
 
             running_balance = opening_balance
             for line in partner_lines:
-                running_balance += line.debit - line.credit
-
-                # Fetch manual_currency_exchange_rate from the linked payment if available
+                # Get manual exchange rate from linked payment
                 manual_rate = 1.0
                 payment = self.env['account.payment'].search(
                     [('move_id', '=', line.move_id.id)], limit=1
                 )
-                if payment and hasattr(payment, 'manual_currency_exchange_rate'):
-                    manual_rate = payment.manual_currency_exchange_rate or 1.0
+                if payment and hasattr(payment, 'manual_currency_exchange_rate') \
+                        and payment.manual_currency_exchange_rate:
+                    manual_rate = payment.manual_currency_exchange_rate
+
+                is_foreign = (
+                    line.currency_id
+                    and line.currency_id != company_currency
+                    and manual_rate != 1.0
+                    and line.amount_currency
+                )
+
+                if is_foreign:
+                    # Convert using manual rate: 1 foreign = manual_rate SAR
+                    raw_amount = abs(line.amount_currency)
+                    converted = raw_amount * manual_rate
+                    debit_val = converted if line.amount_currency > 0 else 0.0
+                    credit_val = converted if line.amount_currency < 0 else 0.0
+                else:
+                    debit_val = line.debit
+                    credit_val = line.credit
+
+                running_balance += debit_val - credit_val
 
                 vals = {
                     'partner_id': partner.id,
@@ -201,8 +190,8 @@ class PartnerLedgerDetail(models.TransientModel):
                     'account_id': line.account_id.id,
                     'name': line.name or line.move_id.name,
                     'ref': line.move_id.ref or line.ref,
-                    'debit': line.debit,
-                    'credit': line.credit,
+                    'debit': debit_val,
+                    'credit': credit_val,
                     'balance': running_balance,
                     'company_currency_id': company_currency.id,
                     'reconcile_id': line.full_reconcile_id.id if line.full_reconcile_id else False,
@@ -213,7 +202,7 @@ class PartnerLedgerDetail(models.TransientModel):
                     'manual_currency_exchange_rate': manual_rate,
                 }
 
-                if line.currency_id and line.currency_id != company_currency:
+                if amount_currency and line.currency_id and line.currency_id != company_currency:
                     vals.update({
                         'amount_currency': line.amount_currency,
                         'currency_id': line.currency_id.id,
@@ -236,7 +225,6 @@ class PartnerLedgerDetail(models.TransientModel):
             domain.append(('journal_id', 'in', journal_ids))
         if not reconciled:
             domain.append(('full_reconcile_id', '=', False))
-
         lines = self.env['account.move.line'].search(domain)
         return sum(lines.mapped('debit')) - sum(lines.mapped('credit'))
 

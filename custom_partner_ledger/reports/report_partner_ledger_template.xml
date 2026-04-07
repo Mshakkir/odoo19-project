@@ -28,13 +28,13 @@
                     <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 25px; padding: 15px 0;">
                         <table style="width: 100%; border-collapse: collapse; border:none; margin-bottom: 0px;">
                             <tr style="border:2px solid white;">
-                                <td style="width: 50%; padding: 10px 0px; text-align: left; vertical-align: middle; border: none;padding-bottom:0px;">
+                                <td style="width: 50%; padding: 10px 0px; text-align: left; vertical-align: middle; border: none; padding-bottom:0px;">
                                     <div style="color: #8B1538; font-size: 14px; font-weight: bold; text-transform: uppercase;">
                                         SAMEER SHARAF AL OTAIBI TRADING COMPANY
                                     </div>
                                 </td>
                                 <td style="width: 50%; padding: 10px 0px; text-align: right; vertical-align: middle; border: none;">
-                                    <div style="color: #8B1538; font-size: 16px; font-weight: 900; direction: rtl;padding-bottom:0px;" class="ar">
+                                    <div style="color: #8B1538; font-size: 16px; font-weight: 900; direction: rtl; padding-bottom:0px;" class="ar">
                                         شركة سمير شرف العتيبي التجارية
                                     </div>
                                 </td>
@@ -123,7 +123,7 @@
                         </div>
                     </div>
 
-                    <!-- Partner Ledger Table -->
+                    <!-- Partner Ledger Table - original columns, values already SAR-converted -->
                     <table class="table table-sm table-bordered ledger-table"
                            style="margin-bottom: 15px; width: 100%; border-collapse: collapse;">
                         <thead>
@@ -137,10 +137,6 @@
                                 <th style="padding: 6px; text-align: right; border: 1px solid #ddd;">Debit</th>
                                 <th style="padding: 6px; text-align: right; border: 1px solid #ddd;">Credit</th>
                                 <th style="padding: 6px; text-align: right; border: 1px solid #ddd;">Balance</th>
-                                <!-- SAR Amount column: shown when line has a manual rate -->
-                                <th style="padding: 6px; text-align: right; border: 1px solid #ddd; background-color: #e8f4e8;">
-                                    SAR Amount
-                                </th>
                                 <th t-if="data['form']['amount_currency']"
                                     style="padding: 6px; text-align: right; border: 1px solid #ddd;">Currency</th>
                             </tr>
@@ -168,7 +164,6 @@
                                         <strong t-esc="sum_partner(data, o, 'debit - credit')"
                                                 t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
-                                    <td style="padding: 10px; border: 1px solid #ddd;"/>
                                     <td t-if="data['form']['amount_currency']" style="padding: 10px; border: 1px solid #ddd;"/>
                                 </tr>
 
@@ -192,31 +187,20 @@
                                     <td style="padding: 5px; border: 1px solid #ddd;">
                                         <span t-esc="line['po_number']"/>
                                     </td>
+                                    <!-- Debit: SAR-converted value already in line['debit'] -->
                                     <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">
                                         <span t-esc="line['debit']"
                                               t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
+                                    <!-- Credit: SAR-converted value already in line['credit'] -->
                                     <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">
                                         <span t-esc="line['credit']"
                                               t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
+                                    <!-- Balance: SAR-converted running balance -->
                                     <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">
                                         <span t-esc="line['progress']"
                                               t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                    </td>
-                                    <!-- SAR Amount: show value if manual rate exists, else dash -->
-                                    <td class="text-end" style="padding: 5px; border: 1px solid #ddd; background-color: #f6fff6;">
-                                        <t t-if="line.get('sar_amount')">
-                                            <span t-esc="line['sar_amount']"
-                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
-                                            <br/>
-                                            <small style="color:#888; font-size:10px;">
-                                                @ <t t-esc="'%.4f' % (line.get('manual_currency_exchange_rate') or 0)"/>
-                                            </small>
-                                        </t>
-                                        <t t-else="">
-                                            <span style="color:#ccc;">—</span>
-                                        </t>
                                     </td>
                                     <td class="text-end" t-if="data['form']['amount_currency']"
                                         style="padding: 5px; border: 1px solid #ddd;">

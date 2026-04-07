@@ -24,8 +24,7 @@
                     <field name="currency_id" column_invisible="1"/>
                     <field name="amount"
                            widget="monetary"
-                           options="{'currency_field': 'currency_id'}"
-                           sum="Total"/>
+                           options="{'currency_field': 'currency_id'}"/>
 
                     <!--
                         amount_company_currency: the amount converted to company currency

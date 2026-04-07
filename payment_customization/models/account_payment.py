@@ -19,14 +19,15 @@ class AccountPayment(models.Model):
         help='Check this box if this is an advance payment'
     )
 
-    # Manual currency exchange rate toggle
-    active_manual_currency_rate = fields.Boolean(
-        string='Use Manual Rate',
-        default=False,
+    # Expose company currency so the view can compare currency_id == company_currency_id
+    company_currency_id = fields.Many2one(
+        'res.currency',
+        related='company_id.currency_id',
+        string='Company Currency',
+        store=False,
     )
 
-    # Stores: how many units of company_currency = 1 unit of payment currency
-    # i.e.  1 EUR = X SAR  →  store X
+    # Manual exchange rate: 1 [payment currency] = X [company currency]
     manual_currency_exchange_rate = fields.Float(
         string='Exchange Rate',
         digits=(12, 6),
@@ -34,14 +35,14 @@ class AccountPayment(models.Model):
         help='Rate: 1 [payment currency] = ? [company currency]'
     )
 
-    # Read-only helper fields to drive the "1 EUR = X SAR" label in the view
+    # Helper char fields to show currency names in the rate label
     payment_currency_name = fields.Char(
         compute='_compute_currency_display',
-        string='Payment Currency',
+        string='Payment Currency Name',
     )
     company_currency_name = fields.Char(
         compute='_compute_currency_display',
-        string='Company Currency',
+        string='Company Currency Name',
     )
 
     @api.depends('currency_id', 'company_id')
@@ -76,14 +77,17 @@ class AccountPayment(models.Model):
         company_currency = self.company_id.currency_id
         if self.currency_id and self.currency_id != company_currency:
             rate = self.env['res.currency']._get_conversion_rate(
-                self.currency_id,       # from payment currency
-                company_currency,       # to company currency
+                self.currency_id,
+                company_currency,
                 self.company_id,
                 self.date or fields.Date.today(),
             )
             self.manual_currency_exchange_rate = rate if rate else 1.0
         else:
             self.manual_currency_exchange_rate = 1.0
+
+
+
 
 
 

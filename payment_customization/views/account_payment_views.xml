@@ -17,35 +17,27 @@
                     <attribute name="options">{'currency_field': 'currency_id'}</attribute>
                 </xpath>
 
-                <!-- Replace the currency_id field to add the rate row below it -->
-                <xpath expr="//field[@name='currency_id']" position="after">
-
-                    <!-- Toggle: Use Manual Rate -->
-                    <field name="active_manual_currency_rate"
-                           widget="boolean_toggle"
-                           invisible="not currency_id"
-                           nolabel="1"/>
-
-                    <!-- Rate row styled as:  1 EUR = [input] SAR -->
-                    <div invisible="not active_manual_currency_rate or not currency_id"
-                         style="display:flex; align-items:center; gap:6px; margin-top:2px;">
-                        <span style="color:#6c757d; font-size:13px;">1</span>
+                <!-- Add  1 EUR = X SAR  row INSIDE amount_div, after currency_id -->
+                <xpath expr="//div[@name='amount_div']" position="inside">
+                    <span class="o_field_widget"
+                          invisible="currency_id == company_currency_id"
+                          style="display:flex; align-items:center; gap:4px; margin-left:8px; color:#6c757d; font-size:13px; white-space:nowrap;">
+                        <span>1</span>
                         <field name="payment_currency_name"
                                readonly="1"
                                nolabel="1"
-                               style="width:45px; font-weight:600; border:none; background:transparent; padding:0;"/>
-                        <span style="color:#6c757d; font-size:13px;">=</span>
+                               style="font-weight:600; border:none; background:transparent; padding:0; min-width:30px;"/>
+                        <span>=</span>
                         <field name="manual_currency_exchange_rate"
                                nolabel="1"
                                digits="[12,6]"
-                               required="active_manual_currency_rate and currency_id != False"
-                               style="width:110px;"/>
+                               invisible="currency_id == company_currency_id"
+                               style="width:100px;"/>
                         <field name="company_currency_name"
                                readonly="1"
                                nolabel="1"
-                               style="width:45px; font-weight:600; border:none; background:transparent; padding:0;"/>
-                    </div>
-
+                               style="font-weight:600; border:none; background:transparent; padding:0; min-width:30px;"/>
+                    </span>
                 </xpath>
 
                 <!-- Add new memo field and advance payment checkbox after partner_bank_id -->

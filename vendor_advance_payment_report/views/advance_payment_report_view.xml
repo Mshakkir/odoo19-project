@@ -15,8 +15,31 @@
                     <field name="journal_name"/>
                     <field name="payment_method"/>
                     <field name="vendor_name"/>
-                    <field name="amount" sum="Total Amount"/>
+
+                    <!--
+                        amount: shown in the payment's original currency (e.g. USD 100.00)
+                        The monetary widget reads currency_id to format/display correctly.
+                        sum aggregation on monetary fields groups by currency automatically in Odoo 17+.
+                    -->
                     <field name="currency_id" column_invisible="1"/>
+                    <field name="amount"
+                           widget="monetary"
+                           options="{'currency_field': 'currency_id'}"
+                           sum="Total"/>
+
+                    <!--
+                        amount_company_currency: the amount converted to company currency
+                        using the exchange rate recorded on the payment.
+                        Useful when payments are in mixed currencies — the sum here
+                        always totals in a single currency (company currency).
+                    -->
+                    <field name="company_currency_id" column_invisible="1"/>
+                    <field name="amount_company_currency"
+                           widget="monetary"
+                           options="{'currency_field': 'company_currency_id'}"
+                           string="Amount (Company Currency)"
+                           sum="Total (Company Currency)"/>
+
                     <field name="payment_id" column_invisible="1"/>
                     <button name="action_open_payment"
                             type="object"
@@ -27,7 +50,7 @@
             </field>
         </record>
 
-        <!-- Advance Payment Report Action (for direct access if needed) -->
+        <!-- Advance Payment Report Action -->
         <record id="action_advance_payment_report" model="ir.actions.act_window">
             <field name="name">Advance Payment Report</field>
             <field name="res_model">advance.payment.report</field>
@@ -36,4 +59,51 @@
         </record>
     </data>
 </odoo>
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <data>-->
+<!--        &lt;!&ndash; Advance Payment Report List View &ndash;&gt;-->
+<!--        <record id="view_advance_payment_report_list" model="ir.ui.view">-->
+<!--            <field name="name">advance.payment.report.list</field>-->
+<!--            <field name="model">advance.payment.report</field>-->
+<!--            <field name="arch" type="xml">-->
+<!--                <list string="Advance Payment Report"-->
+<!--                      create="false"-->
+<!--                      edit="false"-->
+<!--                      delete="false">-->
+<!--                    <field name="date"/>-->
+<!--                    <field name="receipt_number"/>-->
+<!--                    <field name="journal_name"/>-->
+<!--                    <field name="payment_method"/>-->
+<!--                    <field name="vendor_name"/>-->
+<!--                    <field name="amount" sum="Total Amount"/>-->
+<!--                    <field name="currency_id" column_invisible="1"/>-->
+<!--                    <field name="payment_id" column_invisible="1"/>-->
+<!--                    <button name="action_open_payment"-->
+<!--                            type="object"-->
+<!--                            string="View Payment"-->
+<!--                            class="btn-primary"-->
+<!--                            icon="fa-eye"/>-->
+<!--                </list>-->
+<!--            </field>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; Advance Payment Report Action (for direct access if needed) &ndash;&gt;-->
+<!--        <record id="action_advance_payment_report" model="ir.actions.act_window">-->
+<!--            <field name="name">Advance Payment Report</field>-->
+<!--            <field name="res_model">advance.payment.report</field>-->
+<!--            <field name="view_mode">list</field>-->
+<!--            <field name="view_id" ref="view_advance_payment_report_list"/>-->
+<!--        </record>-->
+<!--    </data>-->
+<!--</odoo>-->
 

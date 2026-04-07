@@ -26,6 +26,22 @@ class MultiReceiptWizard(models.TransientModel):
         'res.currency', string='Currency',
         default=lambda self: self.env.company.currency_id)
 
+    # Company currency for view comparison (invisible field)
+    company_currency_id = fields.Many2one(
+        'res.currency', string='Company Currency',
+        compute='_compute_currency_names', store=False)
+
+    # Manual exchange rate: 1 [vendor currency] = X [company currency]
+    manual_currency_exchange_rate = fields.Float(
+        string='Exchange Rate', digits=(12, 6), default=1.0,
+        help='Rate: 1 [vendor currency] = ? [company currency]')
+
+    # Label helpers for the rate row display
+    payment_currency_name = fields.Char(
+        compute='_compute_currency_names', string='Vendor Currency Name')
+    company_currency_name = fields.Char(
+        compute='_compute_currency_names', string='Company Currency Name')
+
     payment_method_line_id = fields.Many2one(
         'account.payment.method.line', string='Payment Method',
         domain="[('journal_id', '=', journal_id)]")
@@ -73,6 +89,17 @@ class MultiReceiptWizard(models.TransientModel):
         return self.env.company.currency_id
 
     # -------------------------------------------------------
+    # Computes for currency display
+    # -------------------------------------------------------
+    @api.depends('currency_id')
+    def _compute_currency_names(self):
+        company_currency = self.env.company.currency_id
+        for rec in self:
+            rec.payment_currency_name = rec.currency_id.name or ''
+            rec.company_currency_name = company_currency.name or ''
+            rec.company_currency_id = company_currency
+
+    # -------------------------------------------------------
     # Onchanges
     # -------------------------------------------------------
     @api.onchange('vendor_id')
@@ -82,6 +109,21 @@ class MultiReceiptWizard(models.TransientModel):
         self.auto_distribute = False
         # Auto-set currency from vendor
         self.currency_id = self._get_vendor_currency(self.vendor_id)
+
+    @api.onchange('currency_id')
+    def _onchange_currency_id_rate(self):
+        """Auto-fill manual rate from Odoo live rate when currency changes."""
+        company_currency = self.env.company.currency_id
+        if self.currency_id and self.currency_id != company_currency:
+            rate = self.env['res.currency']._get_conversion_rate(
+                self.currency_id,
+                company_currency,
+                self.env.company,
+                self.receipt_date or fields.Date.today(),
+            )
+            self.manual_currency_exchange_rate = rate if rate else 1.0
+        else:
+            self.manual_currency_exchange_rate = 1.0
 
     @api.onchange('auto_distribute')
     def _onchange_auto_distribute(self):

@@ -17,21 +17,25 @@
                     <attribute name="options">{'currency_field': 'currency_id'}</attribute>
                 </xpath>
 
-                <!-- Add 1 EUR = X SAR as a new row AFTER the amount_div, only when foreign currency -->
-                <xpath expr="//div[@name='amount_div']" position="after">
-                    <div name="manual_rate_div"
-                         invisible="currency_id == company_currency_id"
-                         style="display:flex; align-items:center; gap:6px; margin-top:4px; color:#6c757d; font-size:13px;">
-                        <span>1</span>
+                <!-- Add rate row as a proper group row AFTER the amount label+div,
+                     before the date field, so it slots into group1 without breaking layout -->
+                <xpath expr="//field[@name='date']" position="before">
+                    <label for="manual_currency_exchange_rate"
+                           string="Exchange Rate"
+                           invisible="currency_id == company_currency_id"/>
+                    <div invisible="currency_id == company_currency_id"
+                         class="o_row"
+                         style="display:flex; align-items:center; gap:6px;">
+                        <span style="color:#6c757d; font-size:13px;">1</span>
                         <field name="payment_currency_name"
                                readonly="1"
                                nolabel="1"
                                style="font-weight:600; border:none; background:transparent; padding:0; min-width:32px;"/>
-                        <span>=</span>
+                        <span style="color:#6c757d; font-size:13px;">=</span>
                         <field name="manual_currency_exchange_rate"
                                nolabel="1"
                                digits="[12,6]"
-                               style="width:120px;"/>
+                               style="width:110px;"/>
                         <field name="company_currency_name"
                                readonly="1"
                                nolabel="1"

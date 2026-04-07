@@ -187,7 +187,9 @@ class PartnerLedgerDetail(models.TransientModel):
 
                 # Fetch manual_currency_exchange_rate from the linked payment if available
                 manual_rate = 1.0
-                payment = line.move_id.payment_id
+                payment = self.env['account.payment'].search(
+                    [('move_id', '=', line.move_id.id)], limit=1
+                )
                 if payment and hasattr(payment, 'manual_currency_exchange_rate'):
                     manual_rate = payment.manual_currency_exchange_rate or 1.0
 
@@ -237,7 +239,6 @@ class PartnerLedgerDetail(models.TransientModel):
 
         lines = self.env['account.move.line'].search(domain)
         return sum(lines.mapped('debit')) - sum(lines.mapped('credit'))
-
 
 
 

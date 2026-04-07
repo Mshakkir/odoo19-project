@@ -73,12 +73,11 @@ class AdvancePaymentReportWizard(models.TransientModel):
 
         company_currency = self.env.company.currency_id
 
-        # Build domain
+        # Build domain - fetch advance vendor payments only
         domain = [
             ('date', '>=', self.date_from),
             ('date', '<=', self.date_to),
             ('is_advance_payment', '=', True),
-            # Only vendor (outbound) payments
             ('payment_type', '=', 'outbound'),
         ]
 
@@ -98,14 +97,27 @@ class AdvancePaymentReportWizard(models.TransientModel):
             if payment.payment_method_line_id:
                 payment_method_name = payment.payment_method_line_id.name
 
-            # amount: the original payment amount in payment currency (as entered by user)
-            # e.g. $100 USD — this is what payment.amount holds
+            # Original amount in payment currency (e.g. 100 USD — as entered by user)
             payment_amount = payment.amount
 
-            # amount_company_currency: converted to company currency using the rate on payment date
-            # payment.amount_company_currency_signed is always in company currency (signed)
-            # We use abs() because outbound payments are negative in signed field
-            amount_in_company_currency = abs(payment.amount_company_currency_signed)
+            # Company currency amount using the MANUAL exchange rate set on the payment form.
+            # manual_currency_exchange_rate stores: 1 [payment_currency] = X [company_currency]
+            # So: amount_in_company_currency = payment.amount * manual_currency_exchange_rate
+            #
+            # When payment currency == company currency, manual_currency_exchange_rate = 1.0
+            # so this formula is always safe regardless of currency.
+            manual_rate = payment.manual_currency_exchange_rate or 1.0
+            amount_in_company_currency = payment_amount * manual_rate
+
+            _logger.info(
+                "Payment %s | %s %s | rate %s | company currency %s %s",
+                payment.name,
+                payment_amount,
+                payment.currency_id.name,
+                manual_rate,
+                amount_in_company_currency,
+                company_currency.name,
+            )
 
             report_lines.append({
                 'date': payment.date,
@@ -113,8 +125,10 @@ class AdvancePaymentReportWizard(models.TransientModel):
                 'journal_name': payment.journal_id.name or '',
                 'payment_method': payment_method_name,
                 'vendor_name': payment.partner_id.name or '',
+                # Original payment currency amount
                 'amount': payment_amount,
                 'currency_id': payment.currency_id.id,
+                # Company currency amount = amount x manual rate
                 'amount_company_currency': amount_in_company_currency,
                 'company_currency_id': company_currency.id,
                 'payment_id': payment.id,

@@ -348,6 +348,17 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
             )
             rec.summary = table
 
+    def _table_exists(self, table_name):
+        """Check if a PostgreSQL table exists in the public schema."""
+        self.env.cr.execute("""
+            SELECT EXISTS (
+                SELECT 1 FROM information_schema.tables
+                WHERE table_schema = 'public'
+                  AND table_name = %s
+            )
+        """, (table_name,))
+        return self.env.cr.fetchone()[0]
+
     def action_confirm_delete(self):
         """Delete stock moves and all related records."""
         self.ensure_one()
@@ -362,19 +373,27 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 
         cr = self.env.cr
 
-        # 1. Delete stock valuation layers
-        cr.execute(
-            "DELETE FROM stock_valuation_layer WHERE stock_move_id = ANY(%s)",
-            (move_ids,)
-        )
+        # 1. Delete stock valuation layers (only if table exists — CE may not have it)
+        if self._table_exists('stock_valuation_layer'):
+            cr.execute(
+                "DELETE FROM stock_valuation_layer WHERE stock_move_id = ANY(%s)",
+                (move_ids,)
+            )
 
-        # 2. Delete stock move lines
+        # 2. Delete stock account move line links (if table exists)
+        if self._table_exists('stock_move_account_move_line_rel'):
+            cr.execute(
+                "DELETE FROM stock_move_account_move_line_rel WHERE stock_move_id = ANY(%s)",
+                (move_ids,)
+            )
+
+        # 3. Delete stock move lines
         cr.execute(
             "DELETE FROM stock_move_line WHERE move_id = ANY(%s)",
             (move_ids,)
         )
 
-        # 3. Delete stock moves
+        # 4. Delete stock moves
         cr.execute(
             "DELETE FROM stock_move WHERE id = ANY(%s)",
             (move_ids,)

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_account_payment_list_custom" model="ir.ui.view">
+            <field name="name">account.payment.list.custom</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_tree"/>
+            <field name="arch" type="xml">
+
+                <!-- 1. Date: display as dd/mm/yy -->
+                <xpath expr="//field[@name='date']" position="attributes">
+                    <attribute name="options">{"date_format": "dd/MM/yy"}</attribute>
+                </xpath>
+
+                <!-- 2. Replace amount_company_currency_signed (system-rate based)
+                        with amount_manual_company_currency (manual-rate based).
+                        We keep the same string "Amount" and sum="Total" so the
+                        column header and footer total are unchanged visually. -->
+                <xpath expr="//field[@name='amount_company_currency_signed']" position="replace">
+                    <field name="amount_manual_company_currency"
+                           widget="monetary"
+                           string="Amount"
+                           sum="Total"
+                           readonly="1"/>
+                </xpath>
+
+            </field>
+        </record>
+    </data>
+</odoo>

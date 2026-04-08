@@ -3,3 +3,5 @@ access_product_stock_ledger_user,product.stock.ledger.user,model_product_stock_l
 access_product_stock_ledger_manager,product.stock.ledger.manager,model_product_stock_ledger,stock.group_stock_manager,1,0,0,0
 access_product_stock_ledger_purchase,product.stock.ledger.purchase,model_product_stock_ledger,purchase.group_purchase_user,1,0,0,0
 access_product_stock_ledger_sales,product.stock.ledger.sales,model_product_stock_ledger,sales_team.group_sale_salesman,1,0,0,0
+access_stock_ledger_delete_wizard_manager,stock.ledger.delete.wizard.manager,model_product_stock_ledger_delete_wizard,stock.group_stock_manager,1,1,1,1
+access_stock_ledger_delete_wizard_user,stock.ledger.delete.wizard.user,model_product_stock_ledger_delete_wizard,stock.group_stock_user,1,1,1,0

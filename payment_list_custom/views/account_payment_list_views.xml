@@ -7,15 +7,17 @@
             <field name="inherit_id" ref="account.view_account_payment_tree"/>
             <field name="arch" type="xml">
 
-                <!-- 1. Date: display as dd/mm/yy -->
-                <xpath expr="//field[@name='date']" position="attributes">
-                    <attribute name="options">{"date_format": "dd/MM/yy"}</attribute>
+                <!-- 1. Replace the Date field with date_display (computed Char: dd/mm/yy).
+                        position="replace" swaps it in-place so column order is unchanged. -->
+                <xpath expr="//field[@name='date']" position="replace">
+                    <field name="date_display"
+                           string="Date"
+                           readonly="1"/>
                 </xpath>
 
                 <!-- 2. Replace amount_company_currency_signed (system-rate based)
                         with amount_manual_company_currency (manual-rate based).
-                        We keep the same string "Amount" and sum="Total" so the
-                        column header and footer total are unchanged visually. -->
+                        Keeps the same "Amount" label and sum="Total" footer. -->
                 <xpath expr="//field[@name='amount_company_currency_signed']" position="replace">
                     <field name="amount_manual_company_currency"
                            widget="monetary"

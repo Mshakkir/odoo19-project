@@ -48,7 +48,7 @@
 .ap-nav-links{display:flex;align-items:center;gap:4px;list-style:none}
 .ap-nav-links a{display:block;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:.03em;color:rgba(255,255,255,.82);text-decoration:none;transition:color 180ms;white-space:nowrap}
 .ap-nav-links a:hover{color:var(--white)}
-.ap-nav-links a.active{color:var(--blue-light);border-bottom:2px solid var(--blue-light);padding-bottom:6px}
+.ap-nav-links border-bottom:2px solid var(--blue-light);padding-bottom:6px}
 .ap-nav-actions{display:flex;align-items:center;gap:14px;flex-shrink:0}
 .ap-nav-cart{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid rgba(255,255,255,.28);color:var(--white);text-decoration:none;transition:border-color 180ms,background 180ms}
 .ap-nav-cart:hover{border-color:var(--blue-light);background:rgba(21,118,189,.2)}
@@ -59,7 +59,6 @@
 .ap-nav-mob.open{display:block}
 .ap-nav-mob a{display:block;padding:12px 0;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;color:rgba(255,255,255,.8);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.07)}
 .ap-nav-mob a:last-child{border-bottom:none}
-.ap-nav-mob a.active{color:var(--blue-light)}
 @media(max-width:900px){.ap-nav-links{display:none}.ap-nav-ham{display:flex}}
 
 /* ══ HERO ══ */
@@ -320,7 +319,7 @@
       </div>
       <div class="cd-hero-right">
         <div class="cd-hero-right-n"><t t-esc="len(child_categories)"/></div>
-        <div class="cd-hero-right-l">Sub<br/>Categories</div>
+        <div class="cd-hero-right-l">Sub<br>Categories</div>
       </div>
     </div>
 
@@ -363,7 +362,7 @@
   </div>
   <div class="cd-intro-right">
     <h2 class="cd-intro-h rv" style="transition-delay:.06s">
-      Explore<br/><em><t t-esc="main_category['name']"/></em>
+      Explore<br><em><t t-esc="main_category['name']"/></em>
     </h2>
     <!-- Description kept here only -->
     <p class="cd-intro-desc rv" style="transition-delay:.12s">
@@ -380,7 +379,7 @@
 <div class="cd-sub">
   <div class="cd-sub-head">
     <div class="rv-l">
-      <h2 class="cd-sub-h">Browse<br/><em>Sub-Categories</em></h2>
+      <h2 class="cd-sub-h">Browse<br><em>Sub-Categories</em></h2>
     </div>
     <div class="rv-r" style="transition-delay:.08s">
       <div class="cd-sub-count">

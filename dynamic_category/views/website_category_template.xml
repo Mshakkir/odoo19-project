@@ -319,7 +319,7 @@
       </div>
       <div class="cd-hero-right">
         <div class="cd-hero-right-n"><t t-esc="len(child_categories)"/></div>
-        <div class="cd-hero-right-l">Sub<br>Categories</div>
+        <div class="cd-hero-right-l">Sub<br/>Categories</div>
       </div>
     </div>
 
@@ -362,7 +362,7 @@
   </div>
   <div class="cd-intro-right">
     <h2 class="cd-intro-h rv" style="transition-delay:.06s">
-      Explore<br><em><t t-esc="main_category['name']"/></em>
+      Explore<br/><em><t t-esc="main_category['name']"/></em>
     </h2>
     <!-- Description kept here only -->
     <p class="cd-intro-desc rv" style="transition-delay:.12s">
@@ -379,7 +379,7 @@
 <div class="cd-sub">
   <div class="cd-sub-head">
     <div class="rv-l">
-      <h2 class="cd-sub-h">Browse<br><em>Sub-Categories</em></h2>
+      <h2 class="cd-sub-h">Browse<br/><em>Sub-Categories</em></h2>
     </div>
     <div class="rv-r" style="transition-delay:.08s">
       <div class="cd-sub-count">

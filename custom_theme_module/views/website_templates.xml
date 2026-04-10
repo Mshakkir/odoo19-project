@@ -18,7 +18,8 @@
                     request.httprequest.path.startswith('/category/') or
                     request.httprequest.path.startswith('/blog/') or
                     request.httprequest.path == '/distributors' or
-                    request.httprequest.path == '/contactus'
+                    request.httprequest.path == '/contactus' or
+                    request.httprequest.path.startswith('/page/')
                 "/>
 
                 <t t-if="not hide_header">
@@ -192,7 +193,8 @@
                     request.httprequest.path.startswith('/category/') or
                     request.httprequest.path.startswith('/blog/') or
                     request.httprequest.path == '/distributors' or
-                    request.httprequest.path == '/contactus'
+                    request.httprequest.path == '/contactus' or
+                    request.httprequest.path.startswith('/page/')
                 "/>
 
                 <t t-if="not hide_footer">

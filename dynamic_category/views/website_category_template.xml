@@ -73,7 +73,6 @@
 .cd-hero-tag::before{content:'';width:22px;height:2px;background:var(--blue-light);display:block}
 .cd-hero-h{font-family:'Barlow Condensed',sans-serif;font-size:clamp(44px,6.5vw,84px);font-weight:800;text-transform:uppercase;letter-spacing:-.025em;line-height:.9;color:var(--white)}
 .cd-hero-h span{display:block;color:var(--blue-light)}
-.cd-hero-desc{font-size:15px;font-weight:300;line-height:1.78;color:rgba(255,255,255,.82);margin-top:20px;max-width:520px}
 .cd-hero-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;padding-bottom:4px;flex-shrink:0}
 .cd-hero-right-n{font-family:'Barlow Condensed',sans-serif;font-size:clamp(40px,5.5vw,64px);font-weight:800;letter-spacing:-.03em;line-height:1;color:var(--blue-light)}
 .cd-hero-right-l{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.32);text-align:right}
@@ -166,7 +165,6 @@
 .cd-card-num{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--line);margin-bottom:10px;transition:color 200ms}
 .cd-card:hover .cd-card-num{color:var(--blue)}
 .cd-card-name{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:.01em;color:var(--ink);line-height:1.05;margin-bottom:10px}
-.cd-card-desc{font-size:13px;font-weight:300;line-height:1.65;color:var(--ink3);flex:1}
 .cd-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
 .cd-card-count{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
 .cd-card-count span{color:var(--blue);font-weight:600}
@@ -311,7 +309,7 @@
           <t t-esc="main_category['name']"/>
           <span>Components</span>
         </h1>
-        <p class="cd-hero-desc"><t t-esc="main_category['description']"/></p>
+        <!-- REMOVED: description from hero (now shown only in intro section below) -->
         <div class="cd-hero-actions">
           <a t-att-href="main_category['shop_url']" class="cd-btn-p">
             Shop This Category
@@ -367,7 +365,10 @@
     <h2 class="cd-intro-h rv" style="transition-delay:.06s">
       Explore<br/><em><t t-esc="main_category['name']"/></em>
     </h2>
-
+    <!-- Description kept here only -->
+    <p class="cd-intro-desc rv" style="transition-delay:.12s">
+      <t t-esc="main_category['description']"/>
+    </p>
     <a t-att-href="main_category['shop_url']" class="cd-intro-shop rv" style="transition-delay:.18s">
       Browse All Products
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -405,7 +406,17 @@
           </t>
 
           <div class="cd-card-body">
-
+            <!-- REMOVED: cd-card-num index badge -->
+            <div class="cd-card-name"><t t-esc="child['name']"/></div>
+            <!-- REMOVED: cd-card-desc description -->
+            <div class="cd-card-footer">
+              <div class="cd-card-count">
+                <span><t t-esc="child['product_count']"/></span> Products
+              </div>
+              <div class="cd-card-arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </div>
+            </div>
           </div>
         </a>
       </t>

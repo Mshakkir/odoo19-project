@@ -1,10 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="report_general_ledger_analytic">
-        <t t-call="accounting_pdf_reports.report_general_ledger">
-            <t t-set="analytic_account_ids" t-value="analytic_account_ids"/>
-        </t>
+
+    <!-- Report action that uses our custom report class with rate conversion -->
+    <record id="action_report_general_ledger_analytic" model="ir.actions.report">
+        <field name="name">General Ledger (Analytic)</field>
+        <field name="model">account.report.general.ledger</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">analytic_general_ledger.report_general_ledger_analytic</field>
+        <field name="report_file">analytic_general_ledger.report_general_ledger_analytic</field>
+        <field name="binding_model_id" ref="accounting_pdf_reports.model_account_report_general_ledger"/>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+
+    <!-- Report template: inherit the original and pass analytic context -->
+    <template id="report_general_ledger_analytic"
+              inherit_id="accounting_pdf_reports.report_general_ledger">
+        <!-- No structural changes needed: our Python class overrides _get_account_move_entry
+             which is called by the parent template, so rate conversion happens automatically -->
     </template>
 
-
 </odoo>
+
+
+
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <template id="report_general_ledger_analytic">-->
+<!--        <t t-call="accounting_pdf_reports.report_general_ledger">-->
+<!--            <t t-set="analytic_account_ids" t-value="analytic_account_ids"/>-->
+<!--        </t>-->
+<!--    </template>-->
+
+
+<!--</odoo>-->

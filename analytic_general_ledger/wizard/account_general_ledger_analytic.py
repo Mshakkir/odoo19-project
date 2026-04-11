@@ -99,7 +99,7 @@ class AccountReportGeneralLedgerAnalytic(models.TransientModel):
                 m.name AS move_name,
                 m.id AS move_id,
                 j.code AS journal_code,
-                acc.code AS account_code,
+                acc.account_code AS account_code,
                 acc.name AS account_name,
                 l.analytic_distribution,
                 p.name AS partner_name,
@@ -118,7 +118,7 @@ class AccountReportGeneralLedgerAnalytic(models.TransientModel):
             LEFT JOIN account_payment pay ON pay.move_id = m.id
             LEFT JOIN res_company comp ON m.company_id = comp.id
             WHERE {where} {analytic_filter}
-            ORDER BY acc.code, l.date, l.id
+            ORDER BY acc.account_code, l.date, l.id
         """
 
         cr.execute(sql, params)

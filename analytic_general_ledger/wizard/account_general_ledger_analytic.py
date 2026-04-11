@@ -57,82 +57,100 @@ class AccountReportGeneralLedgerAnalytic(models.TransientModel):
 
     def _get_converted_lines(self):
         """
-        Query account.move.line joined with account.payment to get
-        manual_currency_exchange_rate and return rows with converted amounts.
+        Use ORM to fetch account.move.line records, then raw SQL only for
+        payment rate — avoids any dependency on DB column names of account_account.
         """
-        cr = self.env.cr
-
-        domain_parts = [
-            "l.date >= %s",
-            "l.date <= %s",
-            "m.state = 'posted'",
+        domain = [
+            ('date', '>=', self.date_from),
+            ('date', '<=', self.date_to),
+            ('parent_state', '=', 'posted'),
         ]
-        params = [self.date_from, self.date_to]
-
         if self.account_ids:
-            domain_parts.append("l.account_id IN %s")
-            params.append(tuple(self.account_ids.ids))
-
+            domain.append(('account_id', 'in', self.account_ids.ids))
         if self.journal_ids:
-            domain_parts.append("l.journal_id IN %s")
-            params.append(tuple(self.journal_ids.ids))
+            domain.append(('journal_id', 'in', self.journal_ids.ids))
 
-        if self.target_move == 'posted':
-            # already added above
-            pass
+        all_lines = self.env['account.move.line'].search(domain, order='account_id, date, id')
 
-        where = " AND ".join(domain_parts)
-
-        # Analytic filter
-        analytic_filter = ""
+        # Analytic filter (Python-side, safe)
         if self.analytic_account_ids:
-            conditions = [
-                f"l.analytic_distribution LIKE '%%\"{aid}\"%%'"
-                for aid in self.analytic_account_ids.ids
-            ]
-            analytic_filter = " AND (" + " OR ".join(conditions) + ")"
+            selected_ids = set(self.analytic_account_ids.ids)
+            filtered = []
+            for line in all_lines:
+                if line.analytic_distribution:
+                    try:
+                        dist = line.analytic_distribution if isinstance(line.analytic_distribution, dict) \
+                            else json.loads(line.analytic_distribution)
+                        if selected_ids & set(int(k) for k in dist.keys()):
+                            filtered.append(line)
+                    except Exception:
+                        pass
+            all_lines = self.env['account.move.line'].browse([l.id for l in filtered])
 
-        sql = f"""
-            SELECT
-                l.id AS lid,
-                l.date AS ldate,
-                m.name AS move_name,
-                m.id AS move_id,
-                j.code AS journal_code,
-                acc.account_code AS account_code,
-                acc.name AS account_name,
-                l.analytic_distribution,
-                p.name AS partner_name,
-                l.name AS label,
-                COALESCE(l.debit, 0.0) AS debit,
-                COALESCE(l.credit, 0.0) AS credit,
-                COALESCE(l.debit, 0.0) - COALESCE(l.credit, 0.0) AS balance,
-                COALESCE(pay.manual_currency_exchange_rate, 0.0) AS rate,
-                pay.currency_id AS payment_currency_id,
-                comp.currency_id AS company_currency_id
-            FROM account_move_line l
-            JOIN account_move m ON l.move_id = m.id
-            JOIN account_journal j ON l.journal_id = j.id
-            JOIN account_account acc ON l.account_id = acc.id
-            LEFT JOIN res_partner p ON l.partner_id = p.id
-            LEFT JOIN account_payment pay ON pay.move_id = m.id
-            LEFT JOIN res_company comp ON m.company_id = comp.id
-            WHERE {where} {analytic_filter}
-            ORDER BY acc.account_code, l.date, l.id
-        """
+        if not all_lines:
+            return []
 
-        cr.execute(sql, params)
-        rows = cr.dictfetchall()
+        # Fetch manual exchange rates for all involved moves in one SQL query
+        # Only need move_id -> (rate, payment_currency_id, company_currency_id)
+        move_ids = list(set(all_lines.mapped('move_id').ids))
+        rate_map = {}  # move_id -> rate multiplier (1.0 if no conversion needed)
 
-        # Apply manual exchange rate conversion
-        for row in rows:
-            rate = row.get('rate', 0.0)
-            pay_cur = row.get('payment_currency_id')
-            comp_cur = row.get('company_currency_id')
-            if rate and rate > 0.0 and pay_cur and comp_cur and pay_cur != comp_cur:
-                row['debit'] = row['debit'] * rate
-                row['credit'] = row['credit'] * rate
-                row['balance'] = row['balance'] * rate
+        if move_ids:
+            cr = self.env.cr
+            cr.execute("""
+                SELECT
+                    pay.move_id,
+                    COALESCE(pay.manual_currency_exchange_rate, 0.0) AS rate,
+                    pay.currency_id AS pay_cur,
+                    comp.currency_id AS comp_cur
+                FROM account_payment pay
+                JOIN account_move m ON m.id = pay.move_id
+                JOIN res_company comp ON comp.id = m.company_id
+                WHERE pay.move_id IN %s
+            """, (tuple(move_ids),))
+            for row in cr.dictfetchall():
+                rate = row['rate']
+                if rate and rate > 0.0 and row['pay_cur'] and row['comp_cur'] \
+                        and row['pay_cur'] != row['comp_cur']:
+                    rate_map[row['move_id']] = rate
+                else:
+                    rate_map[row['move_id']] = 1.0
+
+        # Build result rows using ORM field access (no raw column name issues)
+        rows = []
+        for line in all_lines:
+            rate = rate_map.get(line.move_id.id, 1.0)
+            debit = line.debit * rate
+            credit = line.credit * rate
+            balance = debit - credit
+
+            # Analytic distribution as string for display
+            analytic_str = ''
+            if line.analytic_distribution:
+                try:
+                    dist = line.analytic_distribution if isinstance(line.analytic_distribution, dict) \
+                        else json.loads(line.analytic_distribution)
+                    analytic_ids = [int(k) for k in dist.keys()]
+                    analytic_str = ', '.join(
+                        self.env['account.analytic.account'].browse(analytic_ids).mapped('name')
+                    )
+                except Exception:
+                    pass
+
+            rows.append({
+                'ldate': line.date,
+                'move_name': line.move_id.name or '',
+                'move_id': line.move_id.id,
+                'journal_code': line.journal_id.code or '',
+                'account_code': line.account_id.code or '',
+                'account_name': line.account_id.name or '',
+                'analytic_distribution': analytic_str,
+                'partner_name': line.partner_id.name or '',
+                'label': line.name or '',
+                'debit': debit,
+                'credit': credit,
+                'balance': balance,
+            })
 
         return rows
 
@@ -164,13 +182,13 @@ class AccountReportGeneralLedgerAnalytic(models.TransientModel):
             line_vals.append({
                 'wizard_id': self.id,
                 'date': row['ldate'],
-                'move_name': row['move_name'] or '',
-                'journal_code': row['journal_code'] or '',
-                'account_code': row['account_code'] or '',
-                'account_name': row['account_name'] or '',
-                'analytic_distribution': str(row.get('analytic_distribution') or ''),
-                'partner_name': row['partner_name'] or '',
-                'label': row['label'] or '',
+                'move_name': row['move_name'],
+                'journal_code': row['journal_code'],
+                'account_code': row['account_code'],
+                'account_name': row['account_name'],
+                'analytic_distribution': row['analytic_distribution'],
+                'partner_name': row['partner_name'],
+                'label': row['label'],
                 'debit': row['debit'],
                 'credit': row['credit'],
                 'balance': balance_tracker[acc],

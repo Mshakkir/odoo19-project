@@ -21,4 +21,4 @@ class PurchaseOrderLine(models.Model):
             taxes = commercial.purchase_tax_ids.filtered(
                 lambda t: not t.company_id or t.company_id == company
             )
-            self.taxes_id = taxes
+            self.tax_ids = taxes

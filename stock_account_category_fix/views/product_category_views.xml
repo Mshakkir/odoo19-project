@@ -25,15 +25,7 @@
                             domain="[('company_id', 'in', [current_company_id, False])]"
                             string="Stock Output Account"/>
                     </group>
-                    <group invisible="property_valuation != 'real_time'">
-                        <div colspan="2">
-                            <button
-                                name="%(stock_account.action_stock_account_config)d"
-                                type="action"
-                                string="Set other input/output accounts on specific locations"
-                                class="btn-link"/>
-                        </div>
-                    </group>
+
                 </xpath>
             </field>
         </record>

@@ -2,11 +2,6 @@
     'name': 'Stock Account Category Fix',
     'version': '19.0.1.0.0',
     'summary': 'Fixes missing Account Stock Properties in Product Category form',
-    'description': """
-        Adds the missing Account Stock Properties section to the
-        Product Category form view when Inventory Valuation is set
-        to Perpetual (at invoicing).
-    """,
     'author': 'Custom',
     'category': 'Inventory',
     'depends': ['stock_account'],

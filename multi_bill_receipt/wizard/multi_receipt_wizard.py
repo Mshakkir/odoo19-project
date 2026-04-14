@@ -16,7 +16,7 @@ class MultiReceiptWizard(models.TransientModel):
         string='Receipt Date', required=True,
         default=fields.Date.context_today)
     receipt_amount = fields.Monetary(
-        string='Receipt Amount', required=True, currency_field='currency_id')
+        string='Payment Amount', required=True, currency_field='currency_id')
     journal_id = fields.Many2one(
         'account.journal', string='Receipt Journal', required=True,
         domain=[('type', 'in', ['bank', 'cash'])])

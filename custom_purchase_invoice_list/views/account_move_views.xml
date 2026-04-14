@@ -24,7 +24,7 @@
                     <field name="name" string="Bill Number" readonly="1" width="140px"/>
 
                     <!-- 3. Vendor -->
-                    <field name="partner_id" string="Vendor" width="155px"/>
+                    <field name="partner_id" string="Vendor" width="200px"/>
 
                     <!-- 4. Warehouse -->
                     <field name="analytic_account_id" string="Warehouse" width="120px"/>
@@ -68,7 +68,7 @@
                     <field name="invoice_date_due_display" string="Due Date" width="90px" readonly="1"/>
 
                     <!-- 12. Buyer -->
-                    <field name="buyer_id" string="Buyer" width="130px"/>
+                    <field name="buyer_id" string="Buyer" width="90px"/>
 
 
                     <!-- 13. Status -->

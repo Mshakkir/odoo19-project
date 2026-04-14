@@ -3,13 +3,25 @@
     <data>
 
         <!-- ============================================================
-             HEADER: replace Odoo default header entirely.
-             Show custom navbar only on pages NOT in the hide list.
+             HEADER: hidden on all specified pages.
+             Uses only != and 'and' — no list literals (QWeb safe).
              ============================================================ -->
         <template id="hide_default_header" inherit_id="website.layout" name="Custom Header">
             <xpath expr="//header[@id='top']" position="replace">
 
-                <t t-if="request.httprequest.path not in ['/', '/about-us', '/shop', '/distributors', '/contactus', '/mail-subscribe', '/contactus-thank-you'] and not request.httprequest.path.startswith('/shop/') and not request.httprequest.path.startswith('/category/') and not request.httprequest.path.startswith('/blog/') and not request.httprequest.path.startswith('/page/')">
+                <t t-if="
+                    request.httprequest.path != '/'
+                    and request.httprequest.path != '/about-us'
+                    and request.httprequest.path != '/shop'
+                    and request.httprequest.path != '/distributors'
+                    and request.httprequest.path != '/contactus'
+                    and request.httprequest.path != '/mail-subscribe'
+                    and request.httprequest.path != '/contactus-thank-you'
+                    and not request.httprequest.path.startswith('/shop/')
+                    and not request.httprequest.path.startswith('/category/')
+                    and not request.httprequest.path.startswith('/blog/')
+                    and not request.httprequest.path.startswith('/page/')
+                ">
 
                     <!-- Top Bar -->
                     <div class="top_bar">
@@ -169,13 +181,25 @@
         </template>
 
         <!-- ============================================================
-             FOOTER: replace Odoo default footer.
-             Show custom footer only on pages NOT in the hide list.
+             FOOTER: hidden on all specified pages.
+             Uses only != and 'and' — no list literals (QWeb safe).
              ============================================================ -->
         <template id="custom_layout_footer" inherit_id="website.layout" name="Custom Footer">
             <xpath expr="//footer" position="replace">
 
-                <t t-if="request.httprequest.path not in ['/', '/about-us', '/shop', '/distributors', '/contactus', '/mail-subscribe', '/contactus-thank-you'] and not request.httprequest.path.startswith('/shop/') and not request.httprequest.path.startswith('/category/') and not request.httprequest.path.startswith('/blog/') and not request.httprequest.path.startswith('/page/')">
+                <t t-if="
+                    request.httprequest.path != '/'
+                    and request.httprequest.path != '/about-us'
+                    and request.httprequest.path != '/shop'
+                    and request.httprequest.path != '/distributors'
+                    and request.httprequest.path != '/contactus'
+                    and request.httprequest.path != '/mail-subscribe'
+                    and request.httprequest.path != '/contactus-thank-you'
+                    and not request.httprequest.path.startswith('/shop/')
+                    and not request.httprequest.path.startswith('/category/')
+                    and not request.httprequest.path.startswith('/blog/')
+                    and not request.httprequest.path.startswith('/page/')
+                ">
 
                     <div id="footer" class="oe_structure oe_structure_solo">
                         <footer class="modern_ecommerce_footer">

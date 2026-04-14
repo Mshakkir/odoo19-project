@@ -356,13 +356,12 @@
 
         <!-- ============================================================
              DIRECT OVERRIDE: /contactus-thank-you
-             Injects CSS to hide header/footer on this page.
-             Using a <style> block inside the template body is the safe
-             approach when the template uses t-call and has no own
-             <header>/<footer> elements to xpath into.
+             Both templates use t-call="website.layout" wrapping a
+             div#wrap. We inject a <style> inside div#wrap which is
+             the only reliable xpath target in these templates.
              ============================================================ -->
         <template id="hide_contactus_thanks_header" inherit_id="website.contactus_thanks" name="Hide Header Footer - Contact Thanks">
-            <xpath expr="//t[@t-call='website.layout']" position="before">
+            <xpath expr="//div[@id='wrap']" position="before">
                 <style>
                     header#top, .top_bar, nav.main_navbar,
                     footer#footer, #footer, .o_footer,
@@ -373,10 +372,10 @@
 
         <!-- ============================================================
              DIRECT OVERRIDE: /mail-subscribe
-             Same approach — CSS injected before the layout t-call.
+             Same approach — CSS injected before div#wrap.
              ============================================================ -->
         <template id="hide_mail_subscribe_header" inherit_id="website.mail-subscribe" name="Hide Header Footer - Mail Subscribe">
-            <xpath expr="//t[@t-call='website.layout']" position="before">
+            <xpath expr="//div[@id='wrap']" position="before">
                 <style>
                     header#top, .top_bar, nav.main_navbar,
                     footer#footer, #footer, .o_footer,

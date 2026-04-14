@@ -4,7 +4,7 @@
 
         <!-- ============================================================
              HEADER: hidden on all specified pages.
-             Uses only != and 'and' — no list literals (QWeb safe).
+             Uses only != and 'and' — QWeb safe syntax.
              ============================================================ -->
         <template id="hide_default_header" inherit_id="website.layout" name="Custom Header">
             <xpath expr="//header[@id='top']" position="replace">
@@ -89,6 +89,42 @@
                     </nav>
 
                 </t>
+
+                <!-- ======================================================
+                     CSS FALLBACK: hides any remaining header/footer/navbar
+                     on /mail-subscribe and /contactus-thank-you even if
+                     they render through a different template path.
+                     This runs on EVERY page but only takes effect on those
+                     two URLs via JavaScript class injection.
+                     ====================================================== -->
+                <script>
+                    (function() {
+                        var path = window.location.pathname;
+                        var hidePages = [
+                            '/',
+                            '/about-us',
+                            '/shop',
+                            '/distributors',
+                            '/contactus',
+                            '/mail-subscribe',
+                            '/contactus-thank-you'
+                        ];
+                        var hidePrefix = ['/shop/', '/category/', '/blog/', '/page/'];
+
+                        var shouldHide = hidePages.indexOf(path) !== -1 ||
+                            hidePrefix.some(function(p) { return path.indexOf(p) === 0; });
+
+                        if (shouldHide) {
+                            var style = document.createElement('style');
+                            style.innerHTML =
+                                'header, #top, .o_main_navbar, nav.main_navbar, .top_bar,' +
+                                'footer, #footer, .o_footer, .o_footer_copyright { ' +
+                                '  display: none !important; ' +
+                                '}';
+                            document.head.appendChild(style);
+                        }
+                    })();
+                </script>
 
                 <style>
                     .main_navbar { background:#fff; border-bottom:1px solid #e0e0e0; position:sticky; top:0; z-index:100; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
@@ -182,7 +218,6 @@
 
         <!-- ============================================================
              FOOTER: hidden on all specified pages.
-             Uses only != and 'and' — no list literals (QWeb safe).
              ============================================================ -->
         <template id="custom_layout_footer" inherit_id="website.layout" name="Custom Footer">
             <xpath expr="//footer" position="replace">

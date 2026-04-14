@@ -3,28 +3,14 @@
     <data>
 
         <!-- ============================================================
-             HEADER (top bar + navbar) — hidden on:
-               / | /about-us | /shop | /shop/* | /category/* | /blog/* | /distributors | /contactus
-             Shown on all other pages.
+             HEADER: replace Odoo default header entirely.
+             Show custom navbar only on pages NOT in the hide list.
              ============================================================ -->
-        <template id="hide_default_header" inherit_id="website.layout" name="Hide Default Header">
+        <template id="hide_default_header" inherit_id="website.layout" name="Custom Header">
             <xpath expr="//header[@id='top']" position="replace">
 
-                <t t-set="hide_header" t-value="
-                    request.httprequest.path == '/' or
-                    request.httprequest.path == '/about-us' or
-                    request.httprequest.path == '/shop' or
-                    request.httprequest.path.startswith('/shop/') or
-                    request.httprequest.path.startswith('/category/') or
-                    request.httprequest.path.startswith('/blog/') or
-                    request.httprequest.path == '/distributors' or
-                    request.httprequest.path == '/contactus' or
-                    request.httprequest.path.startswith('/page/') or
-                    request.httprequest.path == '/mail-subscribe' or
-                    request.httprequest.path == '/contactus-thank-you'
-                "/>
+                <t t-if="request.httprequest.path not in ['/', '/about-us', '/shop', '/distributors', '/contactus', '/mail-subscribe', '/contactus-thank-you'] and not request.httprequest.path.startswith('/shop/') and not request.httprequest.path.startswith('/category/') and not request.httprequest.path.startswith('/blog/') and not request.httprequest.path.startswith('/page/')">
 
-                <t t-if="not hide_header">
                     <!-- Top Bar -->
                     <div class="top_bar">
                         <div class="container">
@@ -67,7 +53,7 @@
                                 <img src="/custom_theme_module/static/src/img/newlogo.png" alt="Airmixs Logo" class="logo_image"/>
                             </a>
                             <ul class="nav_menu" id="navMenu">
-                                <li><a href="/" class="nav_link active">Home</a></li>
+                                <li><a href="/" class="nav_link">Home</a></li>
                                 <li><a href="/about-us" class="nav_link">About</a></li>
                                 <li><a href="/shop" class="nav_link">Shop</a></li>
                                 <li><a href="/category" class="nav_link">Categories</a></li>
@@ -76,9 +62,8 @@
                                 <li><a href="/contactus" class="nav_link">Contact</a></li>
                             </ul>
                             <div class="nav_right_section">
-                                <a href="/shop/cart" class="cart_icon" aria-label="Shopping Cart"
-                                   onclick="window.location.href='/shop/cart'; return false;">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events: none;">
+                                <a href="/shop/cart" class="cart_icon" aria-label="Shopping Cart">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events:none;">
                                         <circle cx="9" cy="21" r="1"></circle>
                                         <circle cx="20" cy="21" r="1"></circle>
                                         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
@@ -90,6 +75,7 @@
                             </div>
                         </div>
                     </nav>
+
                 </t>
 
                 <style>
@@ -100,7 +86,7 @@
                     .nav_menu { display:flex; list-style:none; margin:0; padding:0; gap:2rem; flex:1; justify-content:center; }
                     .nav_link { text-decoration:none; color:#333; font-weight:500; transition:color 0.3s ease; }
                     .nav_right_section { display:flex; align-items:center; gap:1.5rem; flex-shrink:0; }
-                    .cart_icon { display:inline-flex; align-items:center; justify-content:center; padding:8px 12px; cursor:pointer; text-decoration:none; color:#333; background-color:#fff; border:none; border-radius:6px; transition:all 0.3s ease; position:relative; z-index:10; line-height:1; }
+                    .cart_icon { display:inline-flex; align-items:center; justify-content:center; padding:8px 12px; cursor:pointer; text-decoration:none; color:#333; background:#fff; border:none; border-radius:6px; transition:all 0.3s ease; position:relative; z-index:10; line-height:1; }
                     .cart_icon svg { width:24px; height:24px; pointer-events:none; display:block; }
                     .mobile_toggle { display:none; flex-direction:column; gap:6px; background:none; border:none; cursor:pointer; padding:8px; }
                     .mobile_toggle span { width:24px; height:2px; background-color:#333; transition:all 0.3s ease; display:block; }
@@ -178,48 +164,35 @@
                         }
                     });
                 </script>
+
             </xpath>
         </template>
 
         <!-- ============================================================
-             FOOTER — hidden on same pages as header above
+             FOOTER: replace Odoo default footer.
+             Show custom footer only on pages NOT in the hide list.
              ============================================================ -->
-        <template id="custom_layout_footer" inherit_id="website.layout" name="Modern Footer Layout">
+        <template id="custom_layout_footer" inherit_id="website.layout" name="Custom Footer">
             <xpath expr="//footer" position="replace">
 
-                <t t-set="hide_footer" t-value="
-                    request.httprequest.path == '/' or
-                    request.httprequest.path == '/about-us' or
-                    request.httprequest.path == '/shop' or
-                    request.httprequest.path.startswith('/shop/') or
-                    request.httprequest.path.startswith('/category/') or
-                    request.httprequest.path.startswith('/blog/') or
-                    request.httprequest.path == '/distributors' or
-                    request.httprequest.path == '/contactus' or
-                    request.httprequest.path.startswith('/page/') or
-                    request.httprequest.path == '/mail-subscribe' or
-                    request.httprequest.path == '/contactus-thank-you'
-                "/>
+                <t t-if="request.httprequest.path not in ['/', '/about-us', '/shop', '/distributors', '/contactus', '/mail-subscribe', '/contactus-thank-you'] and not request.httprequest.path.startswith('/shop/') and not request.httprequest.path.startswith('/category/') and not request.httprequest.path.startswith('/blog/') and not request.httprequest.path.startswith('/page/')">
 
-                <t t-if="not hide_footer">
                     <div id="footer" class="oe_structure oe_structure_solo">
                         <footer class="modern_ecommerce_footer">
+
                             <div class="footer-top">
                                 <div class="container">
                                     <div class="row">
+
                                         <!-- Column 1: Company Info -->
                                         <div class="col-lg-4 col-md-6 col-sm-12 footer-column">
                                             <div class="footer-logo">
                                                 <a href="/" class="logo">
-                                                    <img id="footlogo" src="/custom_theme_module/static/src/img/newlogo.png"
-                                                         alt="Airmixs Logo" class="logo_image"/>
+                                                    <img id="footlogo" src="/custom_theme_module/static/src/img/newlogo.png" alt="Airmixs Logo" class="logo_image"/>
                                                 </a>
                                             </div>
                                             <div class="footer-description">
-                                                <p>Airmixs is a trusted supplier of pneumatic and industrial automation
-                                                    solutions. We specialize in delivering reliable components, technical
-                                                    expertise, and dependable service to keep your operations running
-                                                    efficiently.</p>
+                                                <p>Airmixs is a trusted supplier of pneumatic and industrial automation solutions. We specialize in delivering reliable components, technical expertise, and dependable service to keep your operations running efficiently.</p>
                                             </div>
                                         </div>
 
@@ -254,8 +227,7 @@
                                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                                     <input type="hidden" name="list_id" value="1"/>
                                                     <div class="input-group">
-                                                        <input type="email" name="email" class="form-control newsletter-input"
-                                                               placeholder="Enter your email" required="required"/>
+                                                        <input type="email" name="email" class="form-control newsletter-input" placeholder="Enter your email" required="required"/>
                                                         <button type="submit" class="btn btn-subscribe">Subscribe</button>
                                                     </div>
                                                 </form>
@@ -270,11 +242,12 @@
                                                 </div>
                                             </div>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Footer Middle - Trust Features -->
+                            <!-- Footer Middle -->
                             <div class="footer-middle">
                                 <div class="container">
                                     <div class="footer-features">
@@ -312,8 +285,10 @@
                                     </div>
                                 </div>
                             </div>
+
                         </footer>
                     </div>
+
                 </t>
 
             </xpath>

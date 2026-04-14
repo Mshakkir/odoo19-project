@@ -355,32 +355,26 @@
 
 
         <!-- ============================================================
-             DIRECT OVERRIDE: /contactus-thank-you
-             Both templates use t-call="website.layout" wrapping a
-             div#wrap. We inject a <style> inside div#wrap which is
-             the only reliable xpath target in these templates.
+             /contactus-thank-you and /mail-subscribe header+footer hide
+             These pages have duplicate template keys causing xpath issues.
+             Solution: inject JS+CSS via website.layout that checks
+             window.location.pathname at runtime — always works.
              ============================================================ -->
-        <template id="hide_contactus_thanks_header" inherit_id="website.contactus_thanks" name="Hide Header Footer - Contact Thanks">
-            <xpath expr="//div[@id='wrap']" position="before">
-                <style>
-                    header#top, .top_bar, nav.main_navbar,
-                    footer#footer, #footer, .o_footer,
-                    .o_footer_copyright { display: none !important; }
-                </style>
-            </xpath>
-        </template>
-
-        <!-- ============================================================
-             DIRECT OVERRIDE: /mail-subscribe
-             Same approach — CSS injected before div#wrap.
-             ============================================================ -->
-        <template id="hide_mail_subscribe_header" inherit_id="website.mail-subscribe" name="Hide Header Footer - Mail Subscribe">
-            <xpath expr="//div[@id='wrap']" position="before">
-                <style>
-                    header#top, .top_bar, nav.main_navbar,
-                    footer#footer, #footer, .o_footer,
-                    .o_footer_copyright { display: none !important; }
-                </style>
+        <template id="hide_special_pages_header_footer" inherit_id="website.layout" name="Hide Header Footer Special Pages">
+            <xpath expr="//head" position="inside">
+                <script>
+                    (function(){
+                        var p = window.location.pathname;
+                        if(p === '/mail-subscribe' || p === '/contactus-thank-you'){
+                            var s = document.createElement('style');
+                            s.textContent =
+                                'header#top,.top_bar,nav.main_navbar,' +
+                                'footer#footer,#footer,.o_footer,' +
+                                '.o_footer_copyright{display:none!important}';
+                            document.head.appendChild(s);
+                        }
+                    })();
+                </script>
             </xpath>
         </template>
 

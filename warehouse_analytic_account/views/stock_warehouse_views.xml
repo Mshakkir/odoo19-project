@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         Warehouse form: add Analytic Account field in the header area
+         next to the Short Name / Address group.
+    ============================================================ -->
+    <record id="view_warehouse_form_analytic" model="ir.ui.view">
+        <field name="name">stock.warehouse.form.analytic</field>
+        <field name="model">stock.warehouse</field>
+        <field name="inherit_id" ref="stock.view_warehouse"/>
+        <field name="arch" type="xml">
+
+            <!-- Insert after the address field -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field
+                    name="analytic_account_id"
+                    string="Analytic Account"
+                    options="{'no_create_edit': False}"
+                    placeholder="e.g. FS Kondotty"
+                />
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

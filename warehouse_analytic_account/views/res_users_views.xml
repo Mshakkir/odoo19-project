@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Show the resolved warehouse analytic account on the User form.
+        We inherit from the standard res.users form (base.view_users_form)
+        which is always present in Odoo 19 CE.
+        The field is placed after property_warehouse_id which is injected
+        by the stock module into that same form.
+    -->
+    <record id="view_users_form_warehouse_analytic" model="ir.ui.view">
+        <field name="name">res.users.form.warehouse.analytic</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+
+            <!--
+                property_warehouse_id is added by stock into the base form.
+                We look for it and insert our read-only computed field after it.
+                If for any reason the field is not found the view falls back
+                gracefully because position="after" on a missing xpath is
+                ignored in Odoo (no hard crash).
+            -->
+            <xpath expr="//field[@name='property_warehouse_id']" position="after">
+                <field
+                    name="warehouse_analytic_account_id"
+                    string="Warehouse Analytic Account"
+                    readonly="1"
+                />
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

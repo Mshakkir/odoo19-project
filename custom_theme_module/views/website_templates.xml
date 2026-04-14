@@ -353,8 +353,398 @@
             </xpath>
         </template>
 
+
+        <!-- ============================================================
+             DIRECT OVERRIDE: /contactus-thank-you
+             website.contactus_thanks does NOT inherit website.layout
+             so we target it directly to strip its header and footer.
+             ============================================================ -->
+        <template id="hide_contactus_thanks_header" inherit_id="website.contactus_thanks" name="Hide Header Footer - Contact Thanks">
+            <xpath expr="//header" position="replace"/>
+            <xpath expr="//footer" position="replace"/>
+        </template>
+
+        <!-- ============================================================
+             DIRECT OVERRIDE: /mail-subscribe
+             website.mail-subscribe does NOT inherit website.layout
+             so we target it directly to strip its header and footer.
+             ============================================================ -->
+        <template id="hide_mail_subscribe_header" inherit_id="website.mail-subscribe" name="Hide Header Footer - Mail Subscribe">
+            <xpath expr="//header" position="replace"/>
+            <xpath expr="//footer" position="replace"/>
+        </template>
+
     </data>
 </odoo>
+
+
+
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <data>-->
+
+<!--        &lt;!&ndash; ============================================================-->
+<!--             HEADER: hidden on all specified pages.-->
+<!--             Uses only != and 'and' — QWeb safe syntax.-->
+<!--             ============================================================ &ndash;&gt;-->
+<!--        <template id="hide_default_header" inherit_id="website.layout" name="Custom Header">-->
+<!--            <xpath expr="//header[@id='top']" position="replace">-->
+
+<!--                <t t-if="-->
+<!--                    request.httprequest.path != '/'-->
+<!--                    and request.httprequest.path != '/about-us'-->
+<!--                    and request.httprequest.path != '/shop'-->
+<!--                    and request.httprequest.path != '/distributors'-->
+<!--                    and request.httprequest.path != '/contactus'-->
+<!--                    and request.httprequest.path != '/mail-subscribe'-->
+<!--                    and request.httprequest.path != '/contactus-thank-you'-->
+<!--                    and not request.httprequest.path.startswith('/shop/')-->
+<!--                    and not request.httprequest.path.startswith('/category/')-->
+<!--                    and not request.httprequest.path.startswith('/blog/')-->
+<!--                    and not request.httprequest.path.startswith('/page/')-->
+<!--                ">-->
+
+<!--                    &lt;!&ndash; Top Bar &ndash;&gt;-->
+<!--                    <div class="top_bar">-->
+<!--                        <div class="container">-->
+<!--                            <div class="contact_info">-->
+<!--                                <a href="mailto:info@airmixs.com" class="contact_item">-->
+<!--                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">-->
+<!--                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>-->
+<!--                                        <polyline points="22,6 12,13 2,6"></polyline>-->
+<!--                                    </svg>-->
+<!--                                    <span>info@airmixs.com</span>-->
+<!--                                </a>-->
+<!--                            </div>-->
+<!--                            <div class="social_links">-->
+<!--                                <a href="https://www.facebook.com/profile.php?id=61587015567366" class="social_link" aria-label="Facebook" target="_blank" rel="noopener">-->
+<!--                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>-->
+<!--                                </a>-->
+<!--                                <a href="https://x.com/airmixs" class="social_link" aria-label="Twitter" target="_blank" rel="noopener">-->
+<!--                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>-->
+<!--                                </a>-->
+<!--                                <a href="https://www.instagram.com/airmixs_pneumatics/" class="social_link" aria-label="Instagram" target="_blank" rel="noopener">-->
+<!--                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>-->
+<!--                                </a>-->
+<!--                                <a href="https://www.linkedin.com/in/airmixs-pneumatics-a637893a7/" class="social_link" aria-label="LinkedIn" target="_blank" rel="noopener">-->
+<!--                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>-->
+<!--                                </a>-->
+<!--                                <a href="https://www.youtube.com/channel/UCQnRca12eAT02kWkIYlpJSA" class="social_link" aria-label="YouTube" target="_blank" rel="noopener">-->
+<!--                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23 7s-.2-1.4-.8-2a3 3 0 0 0-2.1-.8C17.1 4 12 4 12 4h0s-5.1 0-8.1.2a3 3 0 0 0-2.1.8c-.6.6-.8 2-.8 2S1 8.6 1 10.2v1.6c0 1.6.1 3.2.1 3.2s.2 1.4.8 2a3.6 3.6 0 0 0 2.3.8c1.7.2 7.7.2 7.7.2s5.1 0 8.1-.2a3 3 0 0 0 2.1-.8c.6-.6.8-2 .8-2s.1-1.6.1-3.2v-1.6C23.1 8.6 23 7 23 7zM9.8 14.8V8.8l5.2 3-5.2 3z"></path></svg>-->
+<!--                                </a>-->
+<!--                                <a href="https://pin.it/1TR24GtB0" class="social_link" aria-label="Pinterest" target="_blank" rel="noopener">-->
+<!--                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.6 19.3c-.1-.8-.2-2 .1-2.9.2-.8 1.3-5.2 1.3-5.2s-.3-.7-.3-1.7c0-1.6.9-2.8 2.1-2.8 1 0 1.5.8 1.5 1.7 0 1-.6 2.5-.9 3.9-.3 1.1.6 2 1.7 2 2 0 3.5-2.1 3.5-5.1 0-2.7-1.9-4.5-4.7-4.5-3.2 0-5.1 2.4-5.1 4.9 0 1 .4 2 .9 2.5.1.1.1.2.1.4-.1.4-.3 1.3-.4 1.5-.1.2-.2.3-.4.2-1.5-.7-2.4-2.9-2.4-4.7 0-3.8 2.8-7.3 8-7.3 4.2 0 7.4 3 7.4 7 0 4.2-2.6 7.5-6.2 7.5-1.2 0-2.3-.6-2.7-1.3l-.7 2.7c-.2.9-.8 2.1-1.2 2.8A10 10 0 0 0 12 22a10 10 0 0 0 0-20z"></path></svg>-->
+<!--                                </a>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    &lt;!&ndash; Main Navbar &ndash;&gt;-->
+<!--                    <nav class="main_navbar">-->
+<!--                        <div class="container">-->
+<!--                            <a href="/" class="logo">-->
+<!--                                <img src="/custom_theme_module/static/src/img/newlogo.png" alt="Airmixs Logo" class="logo_image"/>-->
+<!--                            </a>-->
+<!--                            <ul class="nav_menu" id="navMenu">-->
+<!--                                <li><a href="/" class="nav_link">Home</a></li>-->
+<!--                                <li><a href="/about-us" class="nav_link">About</a></li>-->
+<!--                                <li><a href="/shop" class="nav_link">Shop</a></li>-->
+<!--                                <li><a href="/category" class="nav_link">Categories</a></li>-->
+<!--                                <li><a href="/blog" class="nav_link">Blogs</a></li>-->
+<!--                                <li><a href="/distributors" class="nav_link">Distributors</a></li>-->
+<!--                                <li><a href="/contactus" class="nav_link">Contact</a></li>-->
+<!--                            </ul>-->
+<!--                            <div class="nav_right_section">-->
+<!--                                <a href="/shop/cart" class="cart_icon" aria-label="Shopping Cart">-->
+<!--                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events:none;">-->
+<!--                                        <circle cx="9" cy="21" r="1"></circle>-->
+<!--                                        <circle cx="20" cy="21" r="1"></circle>-->
+<!--                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>-->
+<!--                                    </svg>-->
+<!--                                </a>-->
+<!--                                <button class="mobile_toggle" onclick="toggleMenu()" aria-label="Toggle Menu" type="button">-->
+<!--                                    <span></span><span></span><span></span>-->
+<!--                                </button>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </nav>-->
+
+<!--                </t>-->
+
+<!--                &lt;!&ndash; ======================================================-->
+<!--                     CSS FALLBACK: hides any remaining header/footer/navbar-->
+<!--                     on /mail-subscribe and /contactus-thank-you even if-->
+<!--                     they render through a different template path.-->
+<!--                     This runs on EVERY page but only takes effect on those-->
+<!--                     two URLs via JavaScript class injection.-->
+<!--                     ====================================================== &ndash;&gt;-->
+<!--                <script>-->
+<!--                    (function() {-->
+<!--                        var path = window.location.pathname;-->
+<!--                        var hidePages = [-->
+<!--                            '/',-->
+<!--                            '/about-us',-->
+<!--                            '/shop',-->
+<!--                            '/distributors',-->
+<!--                            '/contactus',-->
+<!--                            '/mail-subscribe',-->
+<!--                            '/contactus-thank-you'-->
+<!--                        ];-->
+<!--                        var hidePrefix = ['/shop/', '/category/', '/blog/', '/page/'];-->
+
+<!--                        var shouldHide = hidePages.indexOf(path) !== -1 ||-->
+<!--                            hidePrefix.some(function(p) { return path.indexOf(p) === 0; });-->
+
+<!--                        if (shouldHide) {-->
+<!--                            var style = document.createElement('style');-->
+<!--                            style.innerHTML =-->
+<!--                                'header, #top, .o_main_navbar, nav.main_navbar, .top_bar,' +-->
+<!--                                'footer, #footer, .o_footer, .o_footer_copyright { ' +-->
+<!--                                '  display: none !important; ' +-->
+<!--                                '}';-->
+<!--                            document.head.appendChild(style);-->
+<!--                        }-->
+<!--                    })();-->
+<!--                </script>-->
+
+<!--                <style>-->
+<!--                    .main_navbar { background:#fff; border-bottom:1px solid #e0e0e0; position:sticky; top:0; z-index:100; box-shadow:0 2px 4px rgba(0,0,0,0.1); }-->
+<!--                    .main_navbar .container { display:flex; align-items:center; justify-content:space-between; padding:15px 20px; }-->
+<!--                    .logo { flex-shrink:0; text-decoration:none; }-->
+<!--                    .logo_image { height:50px; width:auto; }-->
+<!--                    .nav_menu { display:flex; list-style:none; margin:0; padding:0; gap:2rem; flex:1; justify-content:center; }-->
+<!--                    .nav_link { text-decoration:none; color:#333; font-weight:500; transition:color 0.3s ease; }-->
+<!--                    .nav_right_section { display:flex; align-items:center; gap:1.5rem; flex-shrink:0; }-->
+<!--                    .cart_icon { display:inline-flex; align-items:center; justify-content:center; padding:8px 12px; cursor:pointer; text-decoration:none; color:#333; background:#fff; border:none; border-radius:6px; transition:all 0.3s ease; position:relative; z-index:10; line-height:1; }-->
+<!--                    .cart_icon svg { width:24px; height:24px; pointer-events:none; display:block; }-->
+<!--                    .mobile_toggle { display:none; flex-direction:column; gap:6px; background:none; border:none; cursor:pointer; padding:8px; }-->
+<!--                    .mobile_toggle span { width:24px; height:2px; background-color:#333; transition:all 0.3s ease; display:block; }-->
+<!--                    .mobile_toggle.active span:nth-child(1) { transform:rotate(45deg) translateY(10px); }-->
+<!--                    .mobile_toggle.active span:nth-child(2) { opacity:0; }-->
+<!--                    .mobile_toggle.active span:nth-child(3) { transform:rotate(-45deg) translateY(-10px); }-->
+<!--                    .top_bar { background:#f9f9f9; border-bottom:1px solid #e0e0e0; padding:12px 0; font-size:14px; }-->
+<!--                    .top_bar .container { display:flex; justify-content:space-between; align-items:center; padding:0 20px; }-->
+<!--                    .contact_info { display:flex; gap:2rem; }-->
+<!--                    .contact_item { display:flex; align-items:center; gap:8px; color:#666; text-decoration:none; transition:color 0.3s ease; }-->
+<!--                    .contact_item:hover { color:#1576bd; }-->
+<!--                    .social_links { display:flex; gap:1rem; }-->
+<!--                    .social_link { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; color:#666; text-decoration:none; transition:all 0.3s ease; }-->
+<!--                    .social_link:hover { background-color:#1576bd; color:#fff; }-->
+<!--                    @media (max-width:768px) {-->
+<!--                        .nav_menu { position:absolute; top:100%; left:0; right:0; background:#fff; flex-direction:column; gap:0; padding:1rem 0; border-bottom:1px solid #e0e0e0; display:none; box-shadow:0 4px 6px rgba(0,0,0,0.1); }-->
+<!--                        .nav_menu.active { display:flex; }-->
+<!--                        .nav_menu li { border-bottom:1px solid #f0f0f0; }-->
+<!--                        .nav_menu li:last-child { border-bottom:none; }-->
+<!--                        .nav_link { display:block; padding:12px 20px; }-->
+<!--                        .mobile_toggle { display:flex; }-->
+<!--                        .top_bar .container { flex-direction:column; gap:1rem; }-->
+<!--                        .contact_info { flex-direction:column; gap:0.5rem; width:100%; }-->
+<!--                        .contact_item { font-size:12px; }-->
+<!--                        .social_links { justify-content:center; }-->
+<!--                    }-->
+<!--                    @media (max-width:480px) {-->
+<!--                        .main_navbar .container { padding:12px 15px; }-->
+<!--                        .logo_image { height:40px; }-->
+<!--                        .nav_right_section { gap:1rem; }-->
+<!--                    }-->
+<!--                </style>-->
+
+<!--                <script>-->
+<!--                    function toggleMenu() {-->
+<!--                        var menu = document.getElementById('navMenu');-->
+<!--                        var toggle = document.querySelector('.mobile_toggle');-->
+<!--                        if (menu) {-->
+<!--                            menu.classList.toggle('active');-->
+<!--                            if (toggle) toggle.classList.toggle('active');-->
+<!--                            document.body.style.overflow = menu.classList.contains('active') ? 'hidden' : '';-->
+<!--                        }-->
+<!--                    }-->
+<!--                    document.addEventListener('click', function(e) {-->
+<!--                        var menu = document.getElementById('navMenu');-->
+<!--                        var toggle = document.querySelector('.mobile_toggle');-->
+<!--                        var navbar = document.querySelector('.main_navbar');-->
+<!--                        if (menu &amp;&amp; toggle &amp;&amp; navbar &amp;&amp;-->
+<!--                            !menu.contains(e.target) &amp;&amp;-->
+<!--                            !toggle.contains(e.target) &amp;&amp;-->
+<!--                            !navbar.contains(e.target)) {-->
+<!--                            menu.classList.remove('active');-->
+<!--                            toggle.classList.remove('active');-->
+<!--                            document.body.style.overflow = '';-->
+<!--                        }-->
+<!--                    });-->
+<!--                    document.addEventListener('DOMContentLoaded', function() {-->
+<!--                        document.querySelectorAll('.nav_link').forEach(function(link) {-->
+<!--                            link.addEventListener('click', function() {-->
+<!--                                var menu = document.getElementById('navMenu');-->
+<!--                                var toggle = document.querySelector('.mobile_toggle');-->
+<!--                                if (menu &amp;&amp; window.innerWidth &lt;= 768) {-->
+<!--                                    menu.classList.remove('active');-->
+<!--                                    if (toggle) toggle.classList.remove('active');-->
+<!--                                    document.body.style.overflow = '';-->
+<!--                                }-->
+<!--                            });-->
+<!--                        });-->
+<!--                        var cartIcon = document.querySelector('.cart_icon');-->
+<!--                        if (cartIcon) {-->
+<!--                            cartIcon.addEventListener('click', function(e) {-->
+<!--                                e.preventDefault();-->
+<!--                                window.location.href = '/shop/cart';-->
+<!--                            });-->
+<!--                        }-->
+<!--                    });-->
+<!--                </script>-->
+
+<!--            </xpath>-->
+<!--        </template>-->
+
+<!--        &lt;!&ndash; ============================================================-->
+<!--             FOOTER: hidden on all specified pages.-->
+<!--             ============================================================ &ndash;&gt;-->
+<!--        <template id="custom_layout_footer" inherit_id="website.layout" name="Custom Footer">-->
+<!--            <xpath expr="//footer" position="replace">-->
+
+<!--                <t t-if="-->
+<!--                    request.httprequest.path != '/'-->
+<!--                    and request.httprequest.path != '/about-us'-->
+<!--                    and request.httprequest.path != '/shop'-->
+<!--                    and request.httprequest.path != '/distributors'-->
+<!--                    and request.httprequest.path != '/contactus'-->
+<!--                    and request.httprequest.path != '/mail-subscribe'-->
+<!--                    and request.httprequest.path != '/contactus-thank-you'-->
+<!--                    and not request.httprequest.path.startswith('/shop/')-->
+<!--                    and not request.httprequest.path.startswith('/category/')-->
+<!--                    and not request.httprequest.path.startswith('/blog/')-->
+<!--                    and not request.httprequest.path.startswith('/page/')-->
+<!--                ">-->
+
+<!--                    <div id="footer" class="oe_structure oe_structure_solo">-->
+<!--                        <footer class="modern_ecommerce_footer">-->
+
+<!--                            <div class="footer-top">-->
+<!--                                <div class="container">-->
+<!--                                    <div class="row">-->
+
+<!--                                        &lt;!&ndash; Column 1: Company Info &ndash;&gt;-->
+<!--                                        <div class="col-lg-4 col-md-6 col-sm-12 footer-column">-->
+<!--                                            <div class="footer-logo">-->
+<!--                                                <a href="/" class="logo">-->
+<!--                                                    <img id="footlogo" src="/custom_theme_module/static/src/img/newlogo.png" alt="Airmixs Logo" class="logo_image"/>-->
+<!--                                                </a>-->
+<!--                                            </div>-->
+<!--                                            <div class="footer-description">-->
+<!--                                                <p>Airmixs is a trusted supplier of pneumatic and industrial automation solutions. We specialize in delivering reliable components, technical expertise, and dependable service to keep your operations running efficiently.</p>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+
+<!--                                        &lt;!&ndash; Column 2: Quick Links &ndash;&gt;-->
+<!--                                        <div class="col-lg-2 col-md-6 col-6 footer-column">-->
+<!--                                            <h4 class="footer-heading">Market Place</h4>-->
+<!--                                            <ul class="footer-links">-->
+<!--                                                <li><a href="/shop" class="footer-link">All Products</a></li>-->
+<!--                                                <li><a href="/shop" class="footer-link">New Arrivals</a></li>-->
+<!--                                                <li><a href="/shop/cart" class="footer-link">Cart</a></li>-->
+<!--                                                <li><a href="/blog" class="footer-link">Our Blogs</a></li>-->
+<!--                                            </ul>-->
+<!--                                        </div>-->
+
+<!--                                        &lt;!&ndash; Column 3: Support &ndash;&gt;-->
+<!--                                        <div class="col-lg-2 col-md-6 col-6 footer-column">-->
+<!--                                            <h4 class="footer-heading">Support</h4>-->
+<!--                                            <ul class="footer-links">-->
+<!--                                                <li><a href="/contactus" class="footer-link">Contact Us</a></li>-->
+<!--                                                <li><a href="/page/faq" class="footer-link">FAQ</a></li>-->
+<!--                                                <li><a href="/page/shipping" class="footer-link">Shipping Info</a></li>-->
+<!--                                                <li><a href="/page/returns" class="footer-link">Returns</a></li>-->
+<!--                                            </ul>-->
+<!--                                        </div>-->
+
+<!--                                        &lt;!&ndash; Column 4: Newsletter &ndash;&gt;-->
+<!--                                        <div class="col-lg-4 col-md-6 col-sm-12 footer-column">-->
+<!--                                            <h4 class="footer-heading">Newsletter</h4>-->
+<!--                                            <div class="footer-newsletter">-->
+<!--                                                <p>Subscribe to get special offers, free giveaways, and updates.</p>-->
+<!--                                                <form class="newsletter-form js_subscribe" method="post" action="/mail-subscribe">-->
+<!--                                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>-->
+<!--                                                    <input type="hidden" name="list_id" value="1"/>-->
+<!--                                                    <div class="input-group">-->
+<!--                                                        <input type="email" name="email" class="form-control newsletter-input" placeholder="Enter your email" required="required"/>-->
+<!--                                                        <button type="submit" class="btn btn-subscribe">Subscribe</button>-->
+<!--                                                    </div>-->
+<!--                                                </form>-->
+<!--                                            </div>-->
+<!--                                            <div class="footer-payment">-->
+<!--                                                <div class="footer-payment-title">We Accept</div>-->
+<!--                                                <div class="payment-icons">-->
+<!--                                                    <div class="payment-icon" title="Visa"><i class="fa fa-cc-visa fa-2x"></i></div>-->
+<!--                                                    <div class="payment-icon" title="Mastercard"><i class="fa fa-cc-mastercard fa-2x"></i></div>-->
+<!--                                                    <div class="payment-icon" title="PayPal"><i class="fa fa-cc-paypal fa-2x"></i></div>-->
+<!--                                                    <div class="payment-icon" title="American Express"><i class="fa fa-cc-amex fa-2x"></i></div>-->
+<!--                                                </div>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+
+<!--                            &lt;!&ndash; Footer Middle &ndash;&gt;-->
+<!--                            <div class="footer-middle">-->
+<!--                                <div class="container">-->
+<!--                                    <div class="footer-features">-->
+<!--                                        <div class="footer-feature">-->
+<!--                                            <div class="footer-feature-icon"><i class="fa fa-truck"></i></div>-->
+<!--                                            <div class="footer-feature-content"><h4>Free Shipping</h4><p>On orders over $50</p></div>-->
+<!--                                        </div>-->
+<!--                                        <div class="footer-feature">-->
+<!--                                            <div class="footer-feature-icon"><i class="fa fa-refresh"></i></div>-->
+<!--                                            <div class="footer-feature-content"><h4>Easy Returns</h4><p>30-day return policy</p></div>-->
+<!--                                        </div>-->
+<!--                                        <div class="footer-feature">-->
+<!--                                            <div class="footer-feature-icon"><i class="fa fa-lock"></i></div>-->
+<!--                                            <div class="footer-feature-content"><h4>Secure Payment</h4><p>100% secure transactions</p></div>-->
+<!--                                        </div>-->
+<!--                                        <div class="footer-feature">-->
+<!--                                            <div class="footer-feature-icon"><i class="fa fa-headphones"></i></div>-->
+<!--                                            <div class="footer-feature-content"><h4>24/7 Support</h4><p>Dedicated customer service</p></div>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+
+<!--                            &lt;!&ndash; Footer Bottom &ndash;&gt;-->
+<!--                            <div class="footer-bottom">-->
+<!--                                <div class="container">-->
+<!--                                    <div class="footer-bottom-content">-->
+<!--                                        <div class="footer-copyright">-->
+<!--                                            <p>©️ <span>Airmixs</span> <span t-esc="datetime.datetime.now().year"/> - All Rights Reserved</p>-->
+<!--                                        </div>-->
+<!--                                        <div class="footer-links-bottom">-->
+<!--                                            <a href="/page/privacy-policy">Privacy Policy</a>-->
+<!--                                            <a href="/page/terms-conditions">Terms &amp; Conditions</a>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+
+<!--                        </footer>-->
+<!--                    </div>-->
+
+<!--                </t>-->
+
+<!--            </xpath>-->
+<!--        </template>-->
+
+<!--    </data>-->
+<!--</odoo>-->
 
 
 

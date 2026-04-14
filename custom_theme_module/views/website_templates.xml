@@ -356,22 +356,33 @@
 
         <!-- ============================================================
              DIRECT OVERRIDE: /contactus-thank-you
-             website.contactus_thanks does NOT inherit website.layout
-             so we target it directly to strip its header and footer.
+             Injects CSS to hide header/footer on this page.
+             Using a <style> block inside the template body is the safe
+             approach when the template uses t-call and has no own
+             <header>/<footer> elements to xpath into.
              ============================================================ -->
         <template id="hide_contactus_thanks_header" inherit_id="website.contactus_thanks" name="Hide Header Footer - Contact Thanks">
-            <xpath expr="//header" position="replace"/>
-            <xpath expr="//footer" position="replace"/>
+            <xpath expr="//t[@t-call='website.layout']" position="before">
+                <style>
+                    header#top, .top_bar, nav.main_navbar,
+                    footer#footer, #footer, .o_footer,
+                    .o_footer_copyright { display: none !important; }
+                </style>
+            </xpath>
         </template>
 
         <!-- ============================================================
              DIRECT OVERRIDE: /mail-subscribe
-             website.mail-subscribe does NOT inherit website.layout
-             so we target it directly to strip its header and footer.
+             Same approach — CSS injected before the layout t-call.
              ============================================================ -->
         <template id="hide_mail_subscribe_header" inherit_id="website.mail-subscribe" name="Hide Header Footer - Mail Subscribe">
-            <xpath expr="//header" position="replace"/>
-            <xpath expr="//footer" position="replace"/>
+            <xpath expr="//t[@t-call='website.layout']" position="before">
+                <style>
+                    header#top, .top_bar, nav.main_navbar,
+                    footer#footer, #footer, .o_footer,
+                    .o_footer_copyright { display: none !important; }
+                </style>
+            </xpath>
         </template>
 
     </data>

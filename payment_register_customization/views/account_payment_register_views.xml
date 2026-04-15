@@ -19,28 +19,35 @@
                        invisible="not can_edit_wizard or (can_group_payments and not group_payment)"/>
             </xpath>
 
-            <!-- 3. Exchange Rate row — shown only when currencies differ -->
+            <!-- 3. Exchange Rate row — placed AFTER the amount field.
+                     <newline/> forces the group renderer onto a fresh row.
+                     label (colspan=1) + div (colspan=3) fills the full row.
+                     Visible only when payment currency ≠ company currency.  -->
             <xpath expr="//field[@name='amount']" position="after">
+                <newline/>
                 <label for="manual_currency_exchange_rate"
                        string="Exchange Rate"
                        invisible="currency_id == company_currency_id"/>
                 <div invisible="currency_id == company_currency_id"
-                     class="o_row"
                      style="display:flex; align-items:center; gap:6px;">
-                    <span style="color:#6c757d; font-size:13px;">1</span>
+                    <span style="color:#6c757d;">1</span>
                     <field name="payment_currency_name"
                            readonly="1"
                            nolabel="1"
-                           style="font-weight:600; border:none; background:transparent; padding:0; min-width:32px;"/>
-                    <span style="color:#6c757d; font-size:13px;">=</span>
+                           style="font-weight:600; border:none;
+                                  background:transparent; padding:0;
+                                  min-width:32px; width:auto;"/>
+                    <span style="color:#6c757d;">=</span>
                     <field name="manual_currency_exchange_rate"
                            nolabel="1"
                            digits="[12,6]"
-                           style="width:110px;"/>
+                           style="width:120px;"/>
                     <field name="company_currency_name"
                            readonly="1"
                            nolabel="1"
-                           style="font-weight:600; border:none; background:transparent; padding:0; min-width:32px;"/>
+                           style="font-weight:600; border:none;
+                                  background:transparent; padding:0;
+                                  min-width:32px; width:auto;"/>
                 </div>
             </xpath>
 

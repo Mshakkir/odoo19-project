@@ -38,16 +38,38 @@ class StockPicking(models.Model):
 
     @api.depends('location_id', 'location_dest_id', 'picking_type_id')
     def _compute_warehouses(self):
-        """Compute source and destination warehouses"""
+        """Compute source and destination warehouses.
+        Transit locations have no warehouse_id, so resolve dest warehouse
+        from the first path segment of the transit location name (e.g. FYH/...).
+        """
         for picking in self:
             picking_sudo = picking.sudo()
+
+            # --- Source warehouse ---
             if picking_sudo.location_id.warehouse_id:
                 picking.source_warehouse_id = picking_sudo.location_id.warehouse_id
             else:
                 picking.source_warehouse_id = False
 
+            # --- Destination warehouse ---
             if picking_sudo.location_dest_id.warehouse_id:
                 picking.dest_warehouse_id = picking_sudo.location_dest_id.warehouse_id
+            elif picking_sudo.location_dest_id.usage == 'transit':
+                # Transit locations: "FYH/Inter-warehouse transit/MAIN/input"
+                # First segment = destination warehouse code
+                transit_name = (picking_sudo.location_dest_id.complete_name
+                                or picking_sudo.location_dest_id.name or '')
+                first_segment = transit_name.split('/')[0].strip()
+                dest_wh = self.env['stock.warehouse'].sudo().search(
+                    [('code', '=ilike', first_segment)], limit=1
+                )
+                if not dest_wh:
+                    dest_wh = self.env['stock.warehouse'].sudo().search(
+                        [('name', 'ilike', first_segment)], limit=1
+                    )
+                picking.dest_warehouse_id = dest_wh or False
+                _logger.info('Transit dest resolved: "%s" -> warehouse: %s',
+                             first_segment, dest_wh.name if dest_wh else 'NOT FOUND')
             else:
                 picking.dest_warehouse_id = False
 
@@ -175,8 +197,9 @@ class StockPicking(models.Model):
         _logger.info('📋 action_confirm STARTING for: %s', self.name if self.name else 'NEW')
         _logger.info('=' * 80)
 
-        # CRITICAL FIX: Recompute is_inter_warehouse_transfer to ensure it's up-to-date
-        self._compute_is_inter_warehouse_transfer()
+        # Force recompute warehouses and inter-wh flag with sudo to avoid access errors
+        self.sudo()._compute_warehouses()
+        self.sudo()._compute_is_inter_warehouse_transfer()
 
         # Log picking details BEFORE confirm
         for picking in self:
@@ -347,17 +370,56 @@ class StockPicking(models.Model):
 
         return new_picking
 
+    def _resolve_warehouses_from_locations(self, picking):
+        """Fallback: resolve source/dest warehouses from location names when computed fields are empty."""
+        source_wh = picking.sudo().source_warehouse_id
+        dest_wh = picking.sudo().dest_warehouse_id
+
+        if not source_wh:
+            src_name = (picking.location_id.complete_name or picking.location_id.name or '').upper()
+            for code in ['FYH', 'BLD', 'DMM']:
+                if code in src_name:
+                    source_wh = self.env['stock.warehouse'].sudo().search(
+                        [('code', '=ilike', code)], limit=1)
+                    if source_wh:
+                        break
+
+        if not dest_wh:
+            # For transit dest: first segment of location name = dest warehouse code
+            dest_name = (picking.location_dest_id.complete_name or picking.location_dest_id.name or '')
+            first_seg = dest_name.split('/')[0].strip()
+            dest_wh = self.env['stock.warehouse'].sudo().search(
+                [('code', '=ilike', first_seg)], limit=1)
+            if not dest_wh:
+                dest_upper = dest_name.upper()
+                for code in ['FYH', 'BLD', 'DMM']:
+                    if code in dest_upper:
+                        dest_wh = self.env['stock.warehouse'].sudo().search(
+                            [('code', '=ilike', code)], limit=1)
+                        if dest_wh:
+                            break
+
+        _logger.info('Resolved warehouses - source: %s, dest: %s',
+                     source_wh.name if source_wh else 'None',
+                     dest_wh.name if dest_wh else 'None')
+        return source_wh, dest_wh
+
     def _notify_source_warehouse(self, picking):
         """Send notification to source warehouse users about new request"""
         _logger.info('=' * 80)
         _logger.info('📢 _notify_source_warehouse called for: %s', picking.name)
         _logger.info('=' * 80)
 
-        source_warehouse = picking.source_warehouse_id
-        dest_warehouse = picking.dest_warehouse_id
+        source_warehouse = picking.sudo().source_warehouse_id
+        dest_warehouse = picking.sudo().dest_warehouse_id
+
+        # Fallback: resolve from location names if computed fields are empty
+        if not source_warehouse or not dest_warehouse:
+            _logger.warning('Warehouse fields empty for %s - resolving from locations', picking.name)
+            source_warehouse, dest_warehouse = self._resolve_warehouses_from_locations(picking)
 
         if not source_warehouse or not dest_warehouse:
-            _logger.warning('Missing warehouse info for picking: %s', picking.name)
+            _logger.error('❌ Cannot resolve warehouses for picking: %s', picking.name)
             return
 
         _logger.info('📢 Starting source warehouse notification for picking: %s', picking.name)
@@ -434,8 +496,13 @@ class StockPicking(models.Model):
         _logger.info('📢 _notify_destination_warehouse called for: %s', receipt_picking.name)
         _logger.info('=' * 80)
 
-        source_warehouse = origin_picking.source_warehouse_id
-        dest_warehouse = origin_picking.dest_warehouse_id
+        source_warehouse = origin_picking.sudo().source_warehouse_id
+        dest_warehouse = origin_picking.sudo().dest_warehouse_id
+
+        # Fallback: resolve from location names if computed fields are empty
+        if not source_warehouse or not dest_warehouse:
+            _logger.warning('Warehouse fields empty for %s - resolving from locations', origin_picking.name)
+            source_warehouse, dest_warehouse = self._resolve_warehouses_from_locations(origin_picking)
 
         if not dest_warehouse:
             _logger.warning('No destination warehouse for picking: %s', receipt_picking.name)

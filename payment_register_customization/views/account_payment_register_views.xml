@@ -1,4 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
 
+    <record id="view_account_payment_register_form_custom" model="ir.ui.view">
+        <field name="name">account.payment.register.form.custom</field>
+        <field name="model">account.payment.register</field>
+        <field name="inherit_id" ref="account.view_account_payment_register_form"/>
+        <field name="arch" type="xml">
+
+            <!-- 1. Rename communication → Reference Number -->
+            <xpath expr="//field[@name='communication']" position="attributes">
+                <attribute name="string">Reference Number</attribute>
+            </xpath>
+
+            <!-- 2. Add Memo field after Reference Number -->
+            <xpath expr="//field[@name='communication']" position="after">
+                <field name="memo_new"
+                       placeholder="Add additional notes here..."
+                       invisible="not can_edit_wizard or (can_group_payments and not group_payment)"/>
+            </xpath>
+
+            <!-- 3. Replace the amount field with a wrapper group that stacks
+                     Amount on row-1 and Exchange Rate on row-2, both isolated
+                     from the surrounding two-column group layout. -->
+            <xpath expr="//field[@name='amount']" position="replace">
+                <group colspan="4" col="1"
+                       style="margin:0; padding:0; gap:0;">
+
+                    <!-- Row 1: Amount (keep original field) -->
+                    <group col="2" style="margin:0; padding:0;">
+                        <label for="amount" string="Amount"/>
+                        <field name="amount" nolabel="1"/>
+                    </group>
+
+                    <!-- Row 2: Exchange Rate — only when currency ≠ company currency -->
+                    <group col="2" style="margin:0; padding:0;"
+                           invisible="currency_id == company_currency_id">
+                        <label for="manual_currency_exchange_rate"
+                               string="Exchange Rate"/>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span style="color:#6c757d;">1</span>
+                            <field name="payment_currency_name"
+                                   readonly="1"
+                                   nolabel="1"
+                                   style="font-weight:600; border:none;
+                                          background:transparent; padding:0;
+                                          min-width:32px; width:auto;"/>
+                            <span style="color:#6c757d;">=</span>
+                            <field name="manual_currency_exchange_rate"
+                                   nolabel="1"
+                                   digits="[12,6]"
+                                   style="width:120px;"/>
+                            <field name="company_currency_name"
+                                   readonly="1"
+                                   nolabel="1"
+                                   style="font-weight:600; border:none;
+                                          background:transparent; padding:0;
+                                          min-width:32px; width:auto;"/>
+                        </div>
+                    </group>
+
+                </group>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>
 
 
 

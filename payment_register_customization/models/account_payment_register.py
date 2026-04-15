@@ -28,6 +28,12 @@ class AccountPaymentRegister(models.TransientModel):
         help='Rate: 1 [payment currency] = ? [company currency]'
     )
 
+    # ── Flag to mark rate as manually overridden ───────────────────────────────
+    is_manual_rate = fields.Boolean(
+        string='Manual Rate',
+        default=False,
+    )
+
     # ── Currency name helpers for the "1 USD = X SAR" label ───────────────────
     payment_currency_name = fields.Char(
         compute='_compute_currency_display',
@@ -56,8 +62,15 @@ class AccountPaymentRegister(models.TransientModel):
                 self.payment_date or fields.Date.today(),
             )
             self.manual_currency_exchange_rate = rate if rate else 1.0
+            self.is_manual_rate = False  # reset to auto when currency changes
         else:
             self.manual_currency_exchange_rate = 1.0
+            self.is_manual_rate = False
+
+    @api.onchange('manual_currency_exchange_rate')
+    def _onchange_manual_rate_typed(self):
+        """Mark as manually overridden when user edits the rate."""
+        self.is_manual_rate = True
 
     # ── Payment-value overrides ────────────────────────────────────────────────
 

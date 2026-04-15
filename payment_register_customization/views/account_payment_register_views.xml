@@ -19,37 +19,45 @@
                        invisible="not can_edit_wizard or (can_group_payments and not group_payment)"/>
             </xpath>
 
-            <!-- 3. Replace the amount field with a wrapper group that stacks
-                     Amount on row-1 and Exchange Rate on row-2, both isolated
-                     from the surrounding two-column group layout. -->
+            <!-- 3. Replace amount — stack Amount on row-1, Exchange Rate on row-2 -->
             <xpath expr="//field[@name='amount']" position="replace">
-                <group colspan="4" col="1"
-                       style="margin:0; padding:0; gap:0;">
+                <group colspan="4" col="1" style="margin:0; padding:0; gap:0;">
 
-                    <!-- Row 1: Amount (keep original field) -->
+                    <!-- Row 1: Amount (restored original field) -->
                     <group col="2" style="margin:0; padding:0;">
                         <label for="amount" string="Amount"/>
                         <field name="amount" nolabel="1"/>
                     </group>
 
-                    <!-- Row 2: Exchange Rate — only when currency ≠ company currency -->
+                    <!-- Row 2: Exchange Rate — only when payment currency ≠ company currency -->
                     <group col="2" style="margin:0; padding:0;"
                            invisible="currency_id == company_currency_id">
+
                         <label for="manual_currency_exchange_rate"
                                string="Exchange Rate"/>
+
                         <div style="display:flex; align-items:center; gap:6px;">
+
                             <span style="color:#6c757d;">1</span>
+
+                            <!-- Payment currency name e.g. "USD" -->
                             <field name="payment_currency_name"
                                    readonly="1"
                                    nolabel="1"
                                    style="font-weight:600; border:none;
                                           background:transparent; padding:0;
                                           min-width:32px; width:auto;"/>
+
                             <span style="color:#6c757d;">=</span>
+
+                            <!-- Fully editable — your own Float field, no Odoo lock -->
                             <field name="manual_currency_exchange_rate"
                                    nolabel="1"
+                                   readonly="0"
                                    digits="[12,6]"
                                    style="width:120px;"/>
+
+                            <!-- Company currency name e.g. "SAR" -->
                             <field name="company_currency_name"
                                    readonly="1"
                                    nolabel="1"

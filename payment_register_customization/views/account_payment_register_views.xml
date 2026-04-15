@@ -7,63 +7,66 @@
         <field name="inherit_id" ref="account.view_account_payment_register_form"/>
         <field name="arch" type="xml">
 
-            <!-- 1. Rename communication → Reference Number -->
+            <!-- 1. Disable dialog expand button -->
+            <xpath expr="//form" position="attributes">
+                <attribute name="options">{"size": "large"}</attribute>
+            </xpath>
+
+            <!-- 2. Rename communication → Reference Number -->
             <xpath expr="//field[@name='communication']" position="attributes">
                 <attribute name="string">Reference Number</attribute>
             </xpath>
 
-            <!-- 2. Add Memo field after Reference Number -->
+            <!-- 3. Add Memo field after Reference Number -->
             <xpath expr="//field[@name='communication']" position="after">
                 <field name="memo_new"
                        placeholder="Add additional notes here..."
                        invisible="not can_edit_wizard or (can_group_payments and not group_payment)"/>
             </xpath>
 
-            <!-- 3. Replace amount — stack Amount on row-1, Exchange Rate on row-2 -->
+            <!-- 4. Replace amount — Amount row + Exchange Rate row below -->
             <xpath expr="//field[@name='amount']" position="replace">
                 <group colspan="4" col="1" style="margin:0; padding:0; gap:0;">
 
-                    <!-- Row 1: Amount (restored original field) -->
+                    <!-- Row 1: Amount -->
                     <group col="2" style="margin:0; padding:0;">
                         <label for="amount" string="Amount"/>
                         <field name="amount" nolabel="1"/>
                     </group>
 
-                    <!-- Row 2: Exchange Rate — only when payment currency ≠ company currency -->
+                    <!-- Row 2: Exchange Rate -->
                     <group col="2" style="margin:0; padding:0;"
                            invisible="currency_id == company_currency_id">
 
                         <label for="manual_currency_exchange_rate"
                                string="Exchange Rate"/>
 
-                        <div style="display:flex; align-items:center; gap:6px;">
+                        <div style="display:flex; align-items:center; gap:6px; flex-wrap:nowrap;">
 
-                            <span style="color:#6c757d;">1</span>
+                            <span style="color:#6c757d; white-space:nowrap;">1</span>
 
-                            <!-- Payment currency name e.g. "USD" -->
                             <field name="payment_currency_name"
                                    readonly="1"
                                    nolabel="1"
                                    style="font-weight:600; border:none;
                                           background:transparent; padding:0;
-                                          min-width:32px; width:auto;"/>
+                                          min-width:32px; width:auto; flex-shrink:0;"/>
 
-                            <span style="color:#6c757d;">=</span>
+                            <span style="color:#6c757d; white-space:nowrap;">=</span>
 
-                            <!-- Fully editable — your own Float field, no Odoo lock -->
+                            <!-- Fixed width so value always visible in normal dialog -->
                             <field name="manual_currency_exchange_rate"
                                    nolabel="1"
                                    readonly="0"
                                    digits="[12,6]"
-                                   style="width:120px;"/>
+                                   style="width:110px; min-width:110px; flex-shrink:0;"/>
 
-                            <!-- Company currency name e.g. "SAR" -->
                             <field name="company_currency_name"
                                    readonly="1"
                                    nolabel="1"
                                    style="font-weight:600; border:none;
                                           background:transparent; padding:0;
-                                          min-width:32px; width:auto;"/>
+                                          min-width:32px; width:auto; flex-shrink:0;"/>
                         </div>
                     </group>
 

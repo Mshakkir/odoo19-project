@@ -40,13 +40,14 @@ class StockPicking(models.Model):
     def _compute_warehouses(self):
         """Compute source and destination warehouses"""
         for picking in self:
-            if picking.location_id.warehouse_id:
-                picking.source_warehouse_id = picking.location_id.warehouse_id
+            picking_sudo = picking.sudo()
+            if picking_sudo.location_id.warehouse_id:
+                picking.source_warehouse_id = picking_sudo.location_id.warehouse_id
             else:
                 picking.source_warehouse_id = False
 
-            if picking.location_dest_id.warehouse_id:
-                picking.dest_warehouse_id = picking.location_dest_id.warehouse_id
+            if picking_sudo.location_dest_id.warehouse_id:
+                picking.dest_warehouse_id = picking_sudo.location_dest_id.warehouse_id
             else:
                 picking.dest_warehouse_id = False
 
@@ -65,57 +66,37 @@ class StockPicking(models.Model):
                 _logger.info('   Source loc: %s', source_loc_name)
                 _logger.info('   Dest loc: %s', dest_loc_name)
 
-                # --- PRIMARY METHOD: Use warehouse_id on the location (Odoo native) ---
-                src_warehouse = picking.location_id.warehouse_id
-                # Transit locations don't belong to a warehouse via warehouse_id,
-                # so we identify the destination warehouse from the transit location name.
-                # The transit location is named like "FYH/Inter-warehouse transit/MAIN/input"
-                # meaning the FIRST segment is the destination warehouse short code.
-                dest_wh_from_transit = False
-                transit_name_upper = dest_loc_name.upper()
-                transit_segments = transit_name_upper.split('/')
-                dest_segment = transit_segments[0].strip() if transit_segments else ''
+                # Extract warehouse keywords from location names
+                source_upper = source_loc_name.upper()
+                dest_upper = dest_loc_name.upper()
 
-                # Use the same keyword set for both source and destination
-                wh_keyword_map = {
-                    'FYH': 'fyh',
-                    'BLD': 'bld',
-                    'DMM': 'dmm',
-                    'DAMMAM': 'dmm',
-                    'BALAD': 'bld',
-                }
-
-                dest_wh_key = None
-                for keyword, key in wh_keyword_map.items():
-                    if keyword in dest_segment:
-                        dest_wh_key = key
-                        break
-                # fallback: search full transit location name
-                if not dest_wh_key:
-                    for keyword, key in wh_keyword_map.items():
-                        if keyword in transit_name_upper:
-                            dest_wh_key = key
-                            break
-
+                # Identify source warehouse
                 source_wh_key = None
-                if src_warehouse:
-                    src_name_upper = (src_warehouse.name or '').upper()
-                    for keyword, key in wh_keyword_map.items():
-                        if keyword in src_name_upper:
-                            source_wh_key = key
-                            break
-                # fallback: parse source location name
-                if not source_wh_key:
-                    src_name_upper = source_loc_name.upper()
-                    for keyword, key in wh_keyword_map.items():
-                        if keyword in src_name_upper:
-                            source_wh_key = key
-                            break
+                # if 'MAIN' in source_upper:
+                #     source_wh_key = 'main'
+                # elif 'DAMMA' in source_upper or 'DAMMAM' in source_upper:
+                #     source_wh_key = 'damma'
+                # elif 'BALAD' in source_upper or 'BALADIYA' in source_upper:
+                #     source_wh_key = 'balad'
+                if 'FYH' in source_upper:
+                    source_wh_key = 'fyh'
+                elif 'DMM' in source_upper or 'DAMMAM' in source_upper:
+                    source_wh_key = 'dmm'
+                elif 'BLD' in source_upper or 'BALAD' in source_upper:
+                    source_wh_key = 'bld'
 
-                _logger.info('   Source key: %s (warehouse: %s), Dest key: %s',
-                             source_wh_key, src_warehouse.name if src_warehouse else 'None', dest_wh_key)
+                # Identify destination warehouse (use same keywords as source)
+                dest_wh_key = None
+                if 'FYH' in dest_upper:
+                    dest_wh_key = 'fyh'
+                elif 'DMM' in dest_upper or 'DAMMAM' in dest_upper:
+                    dest_wh_key = 'dmm'
+                elif 'BLD' in dest_upper or 'BALAD' in dest_upper:
+                    dest_wh_key = 'bld'
 
-                # Inter-warehouse if both identified and different
+                _logger.info('   Source key: %s, Dest key: %s', source_wh_key, dest_wh_key)
+
+                # Inter-warehouse if both have keys and they're different
                 if source_wh_key and dest_wh_key and source_wh_key != dest_wh_key:
                     is_inter_wh = True
                     _logger.info('   ✅ INTER-WAREHOUSE TRANSFER DETECTED')
@@ -123,7 +104,7 @@ class StockPicking(models.Model):
                     if not source_wh_key:
                         _logger.info('   ⚠️ Could not identify source warehouse')
                     elif not dest_wh_key:
-                        _logger.info('   ⚠️ Could not identify dest warehouse from transit: %s', dest_loc_name)
+                        _logger.info('   ⚠️ Could not identify dest warehouse')
                     else:
                         _logger.info('   ⚠️ Source and dest are same warehouse: %s == %s', source_wh_key, dest_wh_key)
 
@@ -634,7 +615,6 @@ class StockPicking(models.Model):
             import traceback
             _logger.error(traceback.format_exc())
             return self.env['res.users'].browse([])
-
 
 
 

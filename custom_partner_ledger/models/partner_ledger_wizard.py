@@ -21,24 +21,21 @@ class AccountPartnerLedgerCustom(models.TransientModel):
         digits=(12, 6),
         default=1.0,
         help='How many SAR (company currency) equal 1 unit of the foreign currency.\n'
-             'e.g. 1 INR = 24.000000 SAR',
+             'e.g. 1 USD = 3.750000 SAR',
     )
+    # NOTE: company_currency_id must be defined here so Odoo knows it belongs
+    # to this transient model and creates the column in the right table.
     company_currency_id = fields.Many2one(
         'res.currency',
         string='Company Currency',
-        compute='_compute_company_currency_id',
-        store=False,
+        default=lambda self: self.env.company.currency_id,
+        readonly=True,
     )
-    # ── Rate display string shown below the rate field ───────────────────────
+
     rate_display = fields.Char(
         string='Rate Preview',
         compute='_compute_rate_display',
     )
-
-    @api.depends_context('company')
-    def _compute_company_currency_id(self):
-        for rec in self:
-            rec.company_currency_id = self.env.company.currency_id
 
     @api.depends('manual_rate_currency_id', 'manual_currency_exchange_rate', 'company_currency_id')
     def _compute_rate_display(self):
@@ -52,7 +49,6 @@ class AccountPartnerLedgerCustom(models.TransientModel):
             else:
                 rec.rate_display = ''
 
-    # ── Actions ──────────────────────────────────────────────────────────────
     def _build_wizard_data(self):
         """Collect all wizard fields into a dict for downstream use."""
         return {
@@ -90,8 +86,6 @@ class AccountPartnerLedgerCustom(models.TransientModel):
             },
             'target': 'current',
         }
-
-
 
 
 

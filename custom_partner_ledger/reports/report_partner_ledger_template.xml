@@ -16,17 +16,6 @@
                         .ledger-table thead { display: table-header-group !important; }
                         .ledger-table tbody { display: table-row-group !important; }
                         .ledger-table tbody tr { page-break-inside: avoid !important; page-break-after: auto; }
-                        .rate-badge {
-                            display: inline-block;
-                            background: #f0f4ff;
-                            border: 1px solid #b0c0e8;
-                            border-radius: 4px;
-                            padding: 2px 7px;
-                            font-size: 10px;
-                            color: #3a5cbf;
-                            font-family: monospace;
-                            white-space: nowrap;
-                        }
                         @media print {
                             .page { padding-top: 10px !important; }
                             table { border-collapse: collapse !important; }
@@ -35,7 +24,7 @@
                         }
                     </style>
 
-                    <!-- ── Custom Header ── -->
+                    <!-- Custom Header -->
                     <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 25px; padding: 15px 0;">
                         <table style="width: 100%; border-collapse: collapse; border:none; margin-bottom: 0px;">
                             <tr style="border:2px solid white;">
@@ -74,7 +63,7 @@
                         </table>
                     </div>
 
-                    <!-- ── Report Title ── -->
+                    <!-- Report Title -->
                     <div class="row" style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 3px solid white; margin-top: 5px;">
                         <div class="col-8">
                             <h5 style="margin: 0; color: black; font-weight: bold;" t-esc="partner_type_info['report_title']"/>
@@ -87,7 +76,7 @@
                         </div>
                     </div>
 
-                    <!-- ── Partner Details Block ── -->
+                    <!-- Partner Details Block -->
                     <t t-foreach="docs" t-as="o">
                         <div style="margin-bottom: 8px; padding: 8px 12px; background-color: #f8f9fa; border-left: 3px solid #8B1538;">
                             <div>
@@ -110,7 +99,7 @@
                         </div>
                     </t>
 
-                    <!-- ── Report Parameters ── -->
+                    <!-- Report Parameters -->
                     <div class="report-params">
                         <div class="row" style="margin-bottom: 8px;">
                             <div class="col-4">
@@ -132,26 +121,9 @@
                                 </p>
                             </div>
                         </div>
-
-                        <!-- ── Exchange Rate Banner (shown only when a manual rate was applied) ── -->
-                        <t t-if="use_manual_rate and manual_currency">
-                            <div style="margin-bottom: 10px; padding: 8px 14px;
-                                        background: #eef3ff; border: 1px solid #b0c0e8;
-                                        border-radius: 5px; display: flex; align-items: center; gap: 16px;">
-                                <span style="font-weight: bold; color: #3a5cbf; font-size: 12px;">
-                                    &#x1F4B1; Exchange Rate Applied:
-                                </span>
-                                <span style="font-family: monospace; font-size: 13px; color: #222;">
-                                    1&#160;<t t-esc="manual_currency.name"/>&#160;=&#160;<t t-esc="'%.6f' % manual_rate"/>&#160;<t t-esc="company_currency.name"/>
-                                </span>
-                                <span style="font-size: 11px; color: #666;">
-                                    (Amounts in foreign currency have been converted to <t t-esc="company_currency.name"/>)
-                                </span>
-                            </div>
-                        </t>
                     </div>
 
-                    <!-- ── Partner Ledger Table ── -->
+                    <!-- Partner Ledger Table - original columns, values already SAR-converted -->
                     <table class="table table-sm table-bordered ledger-table"
                            style="margin-bottom: 15px; width: 100%; border-collapse: collapse;">
                         <thead>
@@ -165,9 +137,6 @@
                                 <th style="padding: 6px; text-align: right; border: 1px solid #ddd;">Debit</th>
                                 <th style="padding: 6px; text-align: right; border: 1px solid #ddd;">Credit</th>
                                 <th style="padding: 6px; text-align: right; border: 1px solid #ddd;">Balance</th>
-                                <!-- Rate column shown only when a manual rate is active -->
-                                <th t-if="use_manual_rate and manual_currency"
-                                    style="padding: 6px; text-align: center; border: 1px solid #ddd;">Rate Used</th>
                                 <th t-if="data['form']['amount_currency']"
                                     style="padding: 6px; text-align: right; border: 1px solid #ddd;">Currency</th>
                             </tr>
@@ -195,10 +164,7 @@
                                         <strong t-esc="sum_partner(data, o, 'debit - credit')"
                                                 t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
-                                    <td t-if="use_manual_rate and manual_currency"
-                                        style="padding: 10px; border: 1px solid #ddd;"/>
-                                    <td t-if="data['form']['amount_currency']"
-                                        style="padding: 10px; border: 1px solid #ddd;"/>
+                                    <td t-if="data['form']['amount_currency']" style="padding: 10px; border: 1px solid #ddd;"/>
                                 </tr>
 
                                 <!-- Transaction Lines -->
@@ -221,27 +187,21 @@
                                     <td style="padding: 5px; border: 1px solid #ddd;">
                                         <span t-esc="line['po_number']"/>
                                     </td>
+                                    <!-- Debit: SAR-converted value already in line['debit'] -->
                                     <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">
                                         <span t-esc="line['debit']"
                                               t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
+                                    <!-- Credit: SAR-converted value already in line['credit'] -->
                                     <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">
                                         <span t-esc="line['credit']"
                                               t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
+                                    <!-- Balance: SAR-converted running balance -->
                                     <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">
                                         <span t-esc="line['progress']"
                                               t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
                                     </td>
-
-                                    <!-- Per-line rate badge: shown in Rate column when manual rate is active -->
-                                    <td t-if="use_manual_rate and manual_currency"
-                                        style="padding: 5px; border: 1px solid #ddd; text-align: center;">
-                                        <t t-if="line.get('applied_rate_display')">
-                                            <span class="rate-badge" t-esc="line['applied_rate_display']"/>
-                                        </t>
-                                    </td>
-
                                     <td class="text-end" t-if="data['form']['amount_currency']"
                                         style="padding: 5px; border: 1px solid #ddd;">
                                         <t t-if="line['currency_id']">
@@ -254,7 +214,7 @@
                         </t>
                     </table>
 
-                    <!-- ── Footer ── -->
+                    <!-- Footer -->
                     <div class="row" style="margin-top: 30px; border-top: 2px solid #8B1538; padding-top: 15px; page-break-inside: avoid;">
                         <div class="col-6">
                             <small class="text-muted">
@@ -279,6 +239,9 @@
 </odoo>
 
 
+
+
+
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<odoo>-->
 
@@ -297,6 +260,17 @@
 <!--                        .ledger-table thead { display: table-header-group !important; }-->
 <!--                        .ledger-table tbody { display: table-row-group !important; }-->
 <!--                        .ledger-table tbody tr { page-break-inside: avoid !important; page-break-after: auto; }-->
+<!--                        .rate-badge {-->
+<!--                            display: inline-block;-->
+<!--                            background: #f0f4ff;-->
+<!--                            border: 1px solid #b0c0e8;-->
+<!--                            border-radius: 4px;-->
+<!--                            padding: 2px 7px;-->
+<!--                            font-size: 10px;-->
+<!--                            color: #3a5cbf;-->
+<!--                            font-family: monospace;-->
+<!--                            white-space: nowrap;-->
+<!--                        }-->
 <!--                        @media print {-->
 <!--                            .page { padding-top: 10px !important; }-->
 <!--                            table { border-collapse: collapse !important; }-->
@@ -305,7 +279,7 @@
 <!--                        }-->
 <!--                    </style>-->
 
-<!--                    &lt;!&ndash; Custom Header &ndash;&gt;-->
+<!--                    &lt;!&ndash; ── Custom Header ── &ndash;&gt;-->
 <!--                    <div class="header" style="border:2px solid white; border-radius: 6px; background: white; margin-bottom: 25px; padding: 15px 0;">-->
 <!--                        <table style="width: 100%; border-collapse: collapse; border:none; margin-bottom: 0px;">-->
 <!--                            <tr style="border:2px solid white;">-->
@@ -344,7 +318,7 @@
 <!--                        </table>-->
 <!--                    </div>-->
 
-<!--                    &lt;!&ndash; Report Title &ndash;&gt;-->
+<!--                    &lt;!&ndash; ── Report Title ── &ndash;&gt;-->
 <!--                    <div class="row" style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 3px solid white; margin-top: 5px;">-->
 <!--                        <div class="col-8">-->
 <!--                            <h5 style="margin: 0; color: black; font-weight: bold;" t-esc="partner_type_info['report_title']"/>-->
@@ -357,7 +331,7 @@
 <!--                        </div>-->
 <!--                    </div>-->
 
-<!--                    &lt;!&ndash; Partner Details Block &ndash;&gt;-->
+<!--                    &lt;!&ndash; ── Partner Details Block ── &ndash;&gt;-->
 <!--                    <t t-foreach="docs" t-as="o">-->
 <!--                        <div style="margin-bottom: 8px; padding: 8px 12px; background-color: #f8f9fa; border-left: 3px solid #8B1538;">-->
 <!--                            <div>-->
@@ -380,7 +354,7 @@
 <!--                        </div>-->
 <!--                    </t>-->
 
-<!--                    &lt;!&ndash; Report Parameters &ndash;&gt;-->
+<!--                    &lt;!&ndash; ── Report Parameters ── &ndash;&gt;-->
 <!--                    <div class="report-params">-->
 <!--                        <div class="row" style="margin-bottom: 8px;">-->
 <!--                            <div class="col-4">-->
@@ -402,9 +376,26 @@
 <!--                                </p>-->
 <!--                            </div>-->
 <!--                        </div>-->
+
+<!--                        &lt;!&ndash; ── Exchange Rate Banner (shown only when a manual rate was applied) ── &ndash;&gt;-->
+<!--                        <t t-if="use_manual_rate and manual_currency">-->
+<!--                            <div style="margin-bottom: 10px; padding: 8px 14px;-->
+<!--                                        background: #eef3ff; border: 1px solid #b0c0e8;-->
+<!--                                        border-radius: 5px; display: flex; align-items: center; gap: 16px;">-->
+<!--                                <span style="font-weight: bold; color: #3a5cbf; font-size: 12px;">-->
+<!--                                    &#x1F4B1; Exchange Rate Applied:-->
+<!--                                </span>-->
+<!--                                <span style="font-family: monospace; font-size: 13px; color: #222;">-->
+<!--                                    1&#160;<t t-esc="manual_currency.name"/>&#160;=&#160;<t t-esc="'%.6f' % manual_rate"/>&#160;<t t-esc="company_currency.name"/>-->
+<!--                                </span>-->
+<!--                                <span style="font-size: 11px; color: #666;">-->
+<!--                                    (Amounts in foreign currency have been converted to <t t-esc="company_currency.name"/>)-->
+<!--                                </span>-->
+<!--                            </div>-->
+<!--                        </t>-->
 <!--                    </div>-->
 
-<!--                    &lt;!&ndash; Partner Ledger Table - original columns, values already SAR-converted &ndash;&gt;-->
+<!--                    &lt;!&ndash; ── Partner Ledger Table ── &ndash;&gt;-->
 <!--                    <table class="table table-sm table-bordered ledger-table"-->
 <!--                           style="margin-bottom: 15px; width: 100%; border-collapse: collapse;">-->
 <!--                        <thead>-->
@@ -418,6 +409,9 @@
 <!--                                <th style="padding: 6px; text-align: right; border: 1px solid #ddd;">Debit</th>-->
 <!--                                <th style="padding: 6px; text-align: right; border: 1px solid #ddd;">Credit</th>-->
 <!--                                <th style="padding: 6px; text-align: right; border: 1px solid #ddd;">Balance</th>-->
+<!--                                &lt;!&ndash; Rate column shown only when a manual rate is active &ndash;&gt;-->
+<!--                                <th t-if="use_manual_rate and manual_currency"-->
+<!--                                    style="padding: 6px; text-align: center; border: 1px solid #ddd;">Rate Used</th>-->
 <!--                                <th t-if="data['form']['amount_currency']"-->
 <!--                                    style="padding: 6px; text-align: right; border: 1px solid #ddd;">Currency</th>-->
 <!--                            </tr>-->
@@ -445,7 +439,10 @@
 <!--                                        <strong t-esc="sum_partner(data, o, 'debit - credit')"-->
 <!--                                                t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
 <!--                                    </td>-->
-<!--                                    <td t-if="data['form']['amount_currency']" style="padding: 10px; border: 1px solid #ddd;"/>-->
+<!--                                    <td t-if="use_manual_rate and manual_currency"-->
+<!--                                        style="padding: 10px; border: 1px solid #ddd;"/>-->
+<!--                                    <td t-if="data['form']['amount_currency']"-->
+<!--                                        style="padding: 10px; border: 1px solid #ddd;"/>-->
 <!--                                </tr>-->
 
 <!--                                &lt;!&ndash; Transaction Lines &ndash;&gt;-->
@@ -468,21 +465,27 @@
 <!--                                    <td style="padding: 5px; border: 1px solid #ddd;">-->
 <!--                                        <span t-esc="line['po_number']"/>-->
 <!--                                    </td>-->
-<!--                                    &lt;!&ndash; Debit: SAR-converted value already in line['debit'] &ndash;&gt;-->
 <!--                                    <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">-->
 <!--                                        <span t-esc="line['debit']"-->
 <!--                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
 <!--                                    </td>-->
-<!--                                    &lt;!&ndash; Credit: SAR-converted value already in line['credit'] &ndash;&gt;-->
 <!--                                    <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">-->
 <!--                                        <span t-esc="line['credit']"-->
 <!--                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
 <!--                                    </td>-->
-<!--                                    &lt;!&ndash; Balance: SAR-converted running balance &ndash;&gt;-->
 <!--                                    <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">-->
 <!--                                        <span t-esc="line['progress']"-->
 <!--                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
 <!--                                    </td>-->
+
+<!--                                    &lt;!&ndash; Per-line rate badge: shown in Rate column when manual rate is active &ndash;&gt;-->
+<!--                                    <td t-if="use_manual_rate and manual_currency"-->
+<!--                                        style="padding: 5px; border: 1px solid #ddd; text-align: center;">-->
+<!--                                        <t t-if="line.get('applied_rate_display')">-->
+<!--                                            <span class="rate-badge" t-esc="line['applied_rate_display']"/>-->
+<!--                                        </t>-->
+<!--                                    </td>-->
+
 <!--                                    <td class="text-end" t-if="data['form']['amount_currency']"-->
 <!--                                        style="padding: 5px; border: 1px solid #ddd;">-->
 <!--                                        <t t-if="line['currency_id']">-->
@@ -495,7 +498,7 @@
 <!--                        </t>-->
 <!--                    </table>-->
 
-<!--                    &lt;!&ndash; Footer &ndash;&gt;-->
+<!--                    &lt;!&ndash; ── Footer ── &ndash;&gt;-->
 <!--                    <div class="row" style="margin-top: 30px; border-top: 2px solid #8B1538; padding-top: 15px; page-break-inside: avoid;">-->
 <!--                        <div class="col-6">-->
 <!--                            <small class="text-muted">-->
@@ -518,4 +521,5 @@
 <!--    </template>-->
 
 <!--</odoo>-->
+
 

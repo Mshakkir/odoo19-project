@@ -1,184 +1,3 @@
-# # -*- coding: utf-8 -*-
-# import time
-# from odoo import api, models, fields, _
-# from odoo.exceptions import UserError
-#
-#
-# class ReportPartnerLedgerCustom(models.AbstractModel):
-#     _inherit = 'report.accounting_pdf_reports.report_partnerledger'
-#     _description = 'Custom Partner Ledger Report'
-#
-#     def _lines(self, data, partner):
-#         full_account = []
-#         company_currency = self.env.company.currency_id
-#
-#         query_get_data = self.env['account.move.line'].with_context(
-#             data['form'].get('used_context', {})
-#         )._query_get()
-#
-#         reconcile_clause = "" if data['form']['reconciled'] else \
-#             ' AND "account_move_line".full_reconcile_id IS NULL '
-#
-#         params = [partner.id, tuple(data['computed']['move_state']),
-#                   tuple(data['computed']['account_ids'])] + query_get_data[2]
-#
-#         lang = self.env.context.get('lang') or 'en_US'
-#
-#         query = """
-#             SELECT "account_move_line".id, "account_move_line".date, j.code,
-#                    COALESCE(acc.name->>%s, acc.name->>'en_US', acc.name::text) as a_name,
-#                    "account_move_line".ref, m.name as move_name,
-#                    "account_move_line".name, "account_move_line".debit,
-#                    "account_move_line".credit, "account_move_line".amount_currency,
-#                    "account_move_line".currency_id, c.symbol AS currency_code,
-#                    m.invoice_date_due, m.client_order_ref as po_number,
-#                    p.manual_currency_exchange_rate,
-#                    lc.name as line_currency_name
-#             FROM """ + query_get_data[0] + """
-#             LEFT JOIN account_journal j ON ("account_move_line".journal_id = j.id)
-#             LEFT JOIN account_account acc ON ("account_move_line".account_id = acc.id)
-#             LEFT JOIN res_currency c ON ("account_move_line".currency_id = c.id)
-#             LEFT JOIN res_currency lc ON ("account_move_line".currency_id = lc.id)
-#             LEFT JOIN account_move m ON (m.id = "account_move_line".move_id)
-#             LEFT JOIN account_payment p ON (p.move_id = m.id)
-#             WHERE "account_move_line".partner_id = %s
-#                 AND m.state IN %s
-#                 AND "account_move_line".account_id IN %s AND """ + query_get_data[1] + reconcile_clause + """
-#             ORDER BY "account_move_line".date
-#         """
-#
-#         params_with_lang = [lang] + params
-#         self.env.cr.execute(query, tuple(params_with_lang))
-#         res = self.env.cr.dictfetchall()
-#
-#         sum_debit = 0.0
-#         sum_credit = 0.0
-#
-#         for r in res:
-#             manual_rate = r.get('manual_currency_exchange_rate') or 1.0
-#             amt_currency = r.get('amount_currency') or 0.0
-#             has_foreign = (
-#                 r.get('currency_id')
-#                 and manual_rate != 1.0
-#                 and amt_currency
-#             )
-#
-#             if has_foreign:
-#                 # Replace debit/credit with SAR-converted values
-#                 raw = abs(amt_currency)
-#                 converted = raw * manual_rate
-#                 r['debit'] = converted if amt_currency > 0 else 0.0
-#                 r['credit'] = converted if amt_currency < 0 else 0.0
-#
-#             sum_debit += r['debit']
-#             sum_credit += r['credit']
-#             r['progress'] = sum_debit - sum_credit
-#
-#             r['displayed_name'] = r['move_name'] if r['move_name'] else ''
-#             if r['ref']:
-#                 r['displayed_name'] = r['ref'] if not r['displayed_name'] \
-#                     else r['displayed_name'] + ' ' + r['ref']
-#             if r['name'] and r['name'] != '/':
-#                 r['displayed_name'] = r['name'] if not r['displayed_name'] \
-#                     else r['displayed_name'] + ' ' + r['name']
-#
-#             r['invoice_date_due'] = r['invoice_date_due'] if r['invoice_date_due'] else ''
-#             r['po_number'] = r['po_number'] if r['po_number'] else ''
-#
-#             if data['form']['amount_currency'] and r['currency_id']:
-#                 r['currency_id'] = self.env['res.currency'].browse(r['currency_id'])
-#
-#             full_account.append(r)
-#
-#         return full_account
-#
-#     def _sum_partner(self, data, partner, field):
-#         return super()._sum_partner(data, partner, field)
-#
-#     def _get_partner_type_info(self, data, docs):
-#         if not docs:
-#             return {
-#                 'has_customers': False, 'has_vendors': False,
-#                 'display_label': 'Partners', 'report_title': 'Partner Ledger Report', 'count': 0
-#             }
-#         account_ids = data.get('computed', {}).get('account_ids', [])
-#         if not account_ids:
-#             return {
-#                 'has_customers': False, 'has_vendors': False,
-#                 'display_label': 'Partners', 'report_title': 'Partner Ledger Report', 'count': len(docs)
-#             }
-#         accounts = self.env['account.account'].browse(account_ids)
-#         has_receivable = any(acc.account_type == 'asset_receivable' for acc in accounts)
-#         has_payable = any(acc.account_type == 'liability_payable' for acc in accounts)
-#         if has_receivable and has_payable:
-#             display_label, report_title = 'Customers & Vendors', 'Customer/Vendor Statement of Report'
-#         elif has_receivable:
-#             display_label, report_title = 'Customers', 'Customer Statement of Report'
-#         elif has_payable:
-#             display_label, report_title = 'Vendors', 'Vendor Statement of Report'
-#         else:
-#             display_label, report_title = 'Partners', 'Partner Ledger Report'
-#         return {
-#             'has_customers': has_receivable, 'has_vendors': has_payable,
-#             'display_label': display_label, 'report_title': report_title, 'count': len(docs)
-#         }
-#
-#     def _get_partner_label(self, data, partner):
-#         account_ids = data.get('computed', {}).get('account_ids', [])
-#         if not account_ids:
-#             return 'Partner'
-#         move_lines = self.env['account.move.line'].search([
-#             ('partner_id', '=', partner.id),
-#             ('account_id', 'in', account_ids)
-#         ], limit=1)
-#         if move_lines:
-#             if move_lines.account_id.account_type == 'asset_receivable':
-#                 return 'Customer'
-#             elif move_lines.account_id.account_type == 'liability_payable':
-#                 return 'Vendor'
-#         return 'Partner'
-#
-#     @api.model
-#     def _get_report_values(self, docids, data=None):
-#         res = super()._get_report_values(docids, data)
-#         partner_type_info = self._get_partner_type_info(data, res.get('docs', []))
-#         res.update({
-#             'custom_title': 'Customized Partner Ledger',
-#             'report_date': fields.Date.today(),
-#             'partner_type_info': partner_type_info,
-#             'get_partner_label': self._get_partner_label,
-#         })
-#         return res
-#
-#     def _get_partner_opening_balance(self, data, partner):
-#         query_get_data = self.env['account.move.line'].with_context(
-#             data['form'].get('used_context', {})
-#         )._query_get()
-#         reconcile_clause = "" if data['form']['reconciled'] else \
-#             ' AND "account_move_line".full_reconcile_id IS NULL '
-#         date_from = data['form'].get('date_from')
-#         date_clause = ""
-#         params = [partner.id, tuple(data['computed']['move_state']),
-#                   tuple(data['computed']['account_ids'])]
-#         if date_from:
-#             date_clause = ' AND "account_move_line".date < %s '
-#             params.append(date_from)
-#         params.extend(query_get_data[2])
-#         query = """
-#             SELECT COALESCE(SUM(debit), 0.0) as total_debit,
-#                    COALESCE(SUM(credit), 0.0) as total_credit
-#             FROM """ + query_get_data[0] + """, account_move AS m
-#             WHERE "account_move_line".partner_id = %s
-#                 AND m.id = "account_move_line".move_id
-#                 AND m.state IN %s
-#                 AND account_id IN %s
-#                 """ + date_clause + """
-#                 AND """ + query_get_data[1] + reconcile_clause
-#         self.env.cr.execute(query, tuple(params))
-#         result = self.env.cr.fetchone()
-#         return (result[0] - result[1]) if result else 0.0
-#
-
 # -*- coding: utf-8 -*-
 import time
 from odoo import api, models, fields, _
@@ -189,29 +8,9 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
     _inherit = 'report.accounting_pdf_reports.report_partnerledger'
     _description = 'Custom Partner Ledger Report'
 
-    # ── Helper: effective rate for a single query-result row ────────────────
-    def _effective_rate_for_row(self, r, use_manual, manual_rate, manual_currency_id):
-        """
-        Returns the exchange rate to apply to a query result row dict.
-        Priority: wizard global rate > payment rate > 1.0
-        """
-        # Wizard override (only when currency matches)
-        if use_manual and manual_rate and manual_currency_id:
-            if r.get('currency_id') and r['currency_id'] == manual_currency_id:
-                return manual_rate
-
-        # Per-payment rate already fetched in query
-        payment_rate = r.get('manual_currency_exchange_rate') or 1.0
-        return payment_rate
-
     def _lines(self, data, partner):
         full_account = []
         company_currency = self.env.company.currency_id
-
-        # Wizard-level rate info (stored in data['form'] via _get_report_values)
-        use_manual = data['form'].get('use_manual_rate', False)
-        manual_rate = data['form'].get('manual_currency_exchange_rate', 1.0)
-        manual_currency_id = data['form'].get('manual_rate_currency_id', False)
 
         query_get_data = self.env['account.move.line'].with_context(
             data['form'].get('used_context', {})
@@ -232,7 +31,6 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
                    "account_move_line".name, "account_move_line".debit,
                    "account_move_line".credit, "account_move_line".amount_currency,
                    "account_move_line".currency_id, c.symbol AS currency_code,
-                   c.name AS currency_name,
                    m.invoice_date_due, m.client_order_ref as po_number,
                    p.manual_currency_exchange_rate,
                    lc.name as line_currency_name
@@ -257,29 +55,20 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
         sum_credit = 0.0
 
         for r in res:
-            effective_rate = self._effective_rate_for_row(r, use_manual, manual_rate, manual_currency_id)
+            manual_rate = r.get('manual_currency_exchange_rate') or 1.0
             amt_currency = r.get('amount_currency') or 0.0
-
             has_foreign = (
                 r.get('currency_id')
-                and effective_rate != 1.0
+                and manual_rate != 1.0
                 and amt_currency
             )
 
             if has_foreign:
+                # Replace debit/credit with SAR-converted values
                 raw = abs(amt_currency)
-                converted = raw * effective_rate
+                converted = raw * manual_rate
                 r['debit'] = converted if amt_currency > 0 else 0.0
                 r['credit'] = converted if amt_currency < 0 else 0.0
-                # Store the rate that was actually applied, for the template
-                r['applied_rate'] = effective_rate
-                r['applied_rate_display'] = (
-                    f"1 {r.get('currency_name') or ''} = "
-                    f"{effective_rate:.6f} {company_currency.name}"
-                )
-            else:
-                r['applied_rate'] = 1.0
-                r['applied_rate_display'] = ''
 
             sum_debit += r['debit']
             sum_credit += r['credit']
@@ -353,31 +142,11 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
     def _get_report_values(self, docids, data=None):
         res = super()._get_report_values(docids, data)
         partner_type_info = self._get_partner_type_info(data, res.get('docs', []))
-
-        # Surface wizard-level rate fields into the template context
-        use_manual = data['form'].get('use_manual_rate', False)
-        manual_rate = data['form'].get('manual_currency_exchange_rate', 1.0)
-        manual_currency_id = data['form'].get('manual_rate_currency_id', False)
-        manual_currency = (
-            self.env['res.currency'].browse(manual_currency_id)
-            if manual_currency_id else False
-        )
-        company_currency = self.env.company.currency_id
-
         res.update({
             'custom_title': 'Customized Partner Ledger',
             'report_date': fields.Date.today(),
             'partner_type_info': partner_type_info,
             'get_partner_label': self._get_partner_label,
-            # ── rate info for header display ──
-            'use_manual_rate': use_manual,
-            'manual_rate': manual_rate,
-            'manual_currency': manual_currency,
-            'company_currency': company_currency,
-            'rate_display': (
-                f"1 {manual_currency.name} = {manual_rate:.6f} {company_currency.name}"
-                if use_manual and manual_currency else ''
-            ),
         })
         return res
 
@@ -408,3 +177,5 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
         self.env.cr.execute(query, tuple(params))
         result = self.env.cr.fetchone()
         return (result[0] - result[1]) if result else 0.0
+
+

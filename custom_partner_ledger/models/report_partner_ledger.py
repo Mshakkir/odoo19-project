@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import time
 from odoo import api, models, fields, _
+# -*- coding: utf-8 -*-
+import time
+from odoo import api, models, fields, _
 from odoo.exceptions import UserError
 
 
@@ -55,7 +58,6 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
         sum_credit = 0.0
 
         for r in res:
-            manual_rate = r.get('manual_currency_exchange_rate') or 1.0
             amt_currency = r.get('amount_currency') or 0.0
             has_foreign = (
                 r.get('currency_id')
@@ -64,21 +66,22 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
             )
 
             if has_foreign:
-                # Show the raw foreign currency amount instead of converting to SAR.
-                # Debit / credit are expressed in the foreign currency's absolute amount.
+                # Show the raw foreign currency amount instead of converting to company currency.
                 raw = abs(amt_currency)
                 r['debit'] = raw if amt_currency > 0 else 0.0
                 r['credit'] = raw if amt_currency < 0 else 0.0
+                sum_debit += r['debit']
+                sum_credit += r['credit']
+                r['progress'] = sum_debit - sum_credit
                 # Mark that this line uses a foreign currency for the template
                 r['is_foreign_currency'] = True
                 r['display_currency_symbol'] = r.get('currency_code') or ''
             else:
                 r['is_foreign_currency'] = False
                 r['display_currency_symbol'] = company_currency.symbol or ''
-
-            sum_debit += r['debit']
-            sum_credit += r['credit']
-            r['progress'] = sum_debit - sum_credit
+                sum_debit += r['debit']
+                sum_credit += r['credit']
+                r['progress'] = sum_debit - sum_credit
 
             r['displayed_name'] = r['move_name'] if r['move_name'] else ''
             if r['ref']:
@@ -97,6 +100,57 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
             full_account.append(r)
 
         return full_account
+
+    def _get_partner_summary(self, data, partner):
+        """
+        Returns a dict with debit/credit/balance totals for the partner summary row.
+        If ALL lines for this partner use the same foreign currency, returns totals
+        in that foreign currency (so the summary matches the transaction lines).
+        Otherwise falls back to company currency via sum_partner().
+        """
+        lines = self._lines(data, partner)
+        company_currency = self.env.company.currency_id
+
+        if not lines:
+            return {
+                'debit': 0.0,
+                'credit': 0.0,
+                'balance': 0.0,
+                'currency_symbol': company_currency.symbol or '',
+                'is_foreign': False,
+            }
+
+        # Check if every line is the same foreign currency
+        foreign_symbols = set()
+        for line in lines:
+            if line.get('is_foreign_currency'):
+                foreign_symbols.add(line.get('display_currency_symbol', ''))
+            else:
+                # Mixed or company-currency line present — fall back to company currency
+                foreign_symbols = set()
+                break
+
+        if len(foreign_symbols) == 1:
+            # All lines are in the same foreign currency — sum them in that currency
+            symbol = foreign_symbols.pop()
+            total_debit = sum(l['debit'] for l in lines)
+            total_credit = sum(l['credit'] for l in lines)
+            return {
+                'debit': total_debit,
+                'credit': total_credit,
+                'balance': total_debit - total_credit,
+                'currency_symbol': symbol,
+                'is_foreign': True,
+            }
+        else:
+            # Mixed currencies or company currency — use standard sum_partner (company currency)
+            return {
+                'debit': self._sum_partner(data, partner, 'debit'),
+                'credit': self._sum_partner(data, partner, 'credit'),
+                'balance': self._sum_partner(data, partner, 'debit - credit'),
+                'currency_symbol': company_currency.symbol or '',
+                'is_foreign': False,
+            }
 
     def _sum_partner(self, data, partner, field):
         return super()._sum_partner(data, partner, field)
@@ -153,6 +207,7 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
             'report_date': fields.Date.today(),
             'partner_type_info': partner_type_info,
             'get_partner_label': self._get_partner_label,
+            'get_partner_summary': self._get_partner_summary,  # NEW: expose to template
         })
         return res
 
@@ -183,7 +238,6 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
         self.env.cr.execute(query, tuple(params))
         result = self.env.cr.fetchone()
         return (result[0] - result[1]) if result else 0.0
-
 
 
 

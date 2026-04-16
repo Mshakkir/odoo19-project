@@ -146,8 +146,12 @@
                             </tr>
                         </thead>
                         <t t-foreach="docs" t-as="o">
+                            <!-- FIX: Compute partner summary once using the new helper.
+                                 This returns amounts in foreign currency when all lines
+                                 use the same foreign currency, otherwise company currency. -->
+                            <t t-set="p_summary" t-value="get_partner_summary(data, o)"/>
                             <tbody>
-                                <!-- Partner Header Row -->
+                                <!-- Partner Header Row (summary totals) -->
                                 <tr style="background-color: #f8f9fa; border-top: 2px solid #8B1538;">
                                     <td colspan="6" style="padding: 10px; border: 1px solid #ddd;">
                                         <strong t-esc="get_partner_label(data, o)"/>:
@@ -156,18 +160,46 @@
                                         <strong t-esc="o.name"/>
                                         <span t-if="o.vat" class="text-muted"> (VAT: <t t-esc="o.vat"/>)</span>
                                     </td>
+
+                                    <!-- Debit summary -->
                                     <td class="text-end" style="padding: 10px; border: 1px solid #ddd;">
-                                        <strong t-esc="sum_partner(data, o, 'debit')"
-                                                t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        <t t-if="p_summary['is_foreign']">
+                                            <strong>
+                                                <span t-esc="p_summary['currency_symbol']"/>&#160;<span t-esc="'%.2f' % p_summary['debit']"/>
+                                            </strong>
+                                        </t>
+                                        <t t-else="">
+                                            <strong t-esc="p_summary['debit']"
+                                                    t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </t>
                                     </td>
+
+                                    <!-- Credit summary -->
                                     <td class="text-end" style="padding: 10px; border: 1px solid #ddd;">
-                                        <strong t-esc="sum_partner(data, o, 'credit')"
-                                                t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        <t t-if="p_summary['is_foreign']">
+                                            <strong>
+                                                <span t-esc="p_summary['currency_symbol']"/>&#160;<span t-esc="'%.2f' % p_summary['credit']"/>
+                                            </strong>
+                                        </t>
+                                        <t t-else="">
+                                            <strong t-esc="p_summary['credit']"
+                                                    t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </t>
                                     </td>
+
+                                    <!-- Balance summary -->
                                     <td class="text-end" style="padding: 10px; border: 1px solid #ddd;">
-                                        <strong t-esc="sum_partner(data, o, 'debit - credit')"
-                                                t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        <t t-if="p_summary['is_foreign']">
+                                            <strong>
+                                                <span t-esc="p_summary['currency_symbol']"/>&#160;<span t-esc="'%.2f' % p_summary['balance']"/>
+                                            </strong>
+                                        </t>
+                                        <t t-else="">
+                                            <strong t-esc="p_summary['balance']"
+                                                    t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </t>
                                     </td>
+
                                     <td t-if="data['form']['amount_currency']" style="padding: 10px; border: 1px solid #ddd;"/>
                                 </tr>
 
@@ -192,7 +224,7 @@
                                         <span t-esc="line['po_number']"/>
                                     </td>
 
-                                    <!-- Debit: show foreign currency amount with its own symbol, else SAR -->
+                                    <!-- Debit: show foreign currency amount with its own symbol, else company currency -->
                                     <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">
                                         <t t-if="line.get('is_foreign_currency') and line['debit']">
                                             <span t-esc="line['display_currency_symbol']"/>&#160;<span t-esc="'%.2f' % line['debit']"/>
@@ -203,7 +235,7 @@
                                         </t>
                                     </td>
 
-                                    <!-- Credit: show foreign currency amount with its own symbol, else SAR -->
+                                    <!-- Credit: show foreign currency amount with its own symbol, else company currency -->
                                     <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">
                                         <t t-if="line.get('is_foreign_currency') and line['credit']">
                                             <span t-esc="line['display_currency_symbol']"/>&#160;<span t-esc="'%.2f' % line['credit']"/>
@@ -214,10 +246,15 @@
                                         </t>
                                     </td>
 
-                                    <!-- Balance: running total, always in SAR (mixed-currency balance stays in company currency) -->
+                                    <!-- Balance: show foreign currency symbol+amount when foreign, else company currency -->
                                     <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">
-                                        <span t-esc="line['progress']"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        <t t-if="line.get('is_foreign_currency')">
+                                            <span t-esc="line['display_currency_symbol']"/>&#160;<span t-esc="'%.2f' % line['progress']"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span t-esc="line['progress']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </t>
                                     </td>
 
                                     <td class="text-end" t-if="data['form']['amount_currency']"

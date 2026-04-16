@@ -27,11 +27,11 @@
                 <field name="debit" sum="Total Debit"/>
                 <field name="credit" sum="Total Credit"/>
                 <!--
-                    Balance is always in company currency (SAR) regardless of line currency
+                    FIX: Balance and Final Balance now use display_currency_id
+                    so foreign currency lines show the foreign currency symbol
                 -->
-                <field name="balance" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
-                <field name="final_balance" sum="Final Balance Due"
-                       widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                <field name="balance" widget="monetary" options="{'currency_field': 'display_currency_id'}"/>
+                <field name="final_balance" widget="monetary" options="{'currency_field': 'display_currency_id'}"/>
 
                 <!-- Hidden fields needed for compute/currency -->
                 <field name="is_opening_balance" column_invisible="1"/>

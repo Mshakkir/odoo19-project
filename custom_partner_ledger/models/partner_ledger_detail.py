@@ -15,17 +15,19 @@ class PartnerLedgerDetail(models.TransientModel):
     name = fields.Char(string='Label', readonly=True)
     ref = fields.Char(string='Reference', readonly=True)
 
-    # These store SAR-equivalent amounts (company currency) — used for Balance column only
+    # Debit/Credit displayed in foreign currency (if applicable) or company currency
     debit = fields.Monetary(string='Debit', readonly=True, currency_field='display_currency_id')
     credit = fields.Monetary(string='Credit', readonly=True, currency_field='display_currency_id')
-    balance = fields.Monetary(string='Balance', readonly=True, currency_field='company_currency_id')
+
+    # Balance and Final Balance also displayed in foreign currency (if applicable) or company currency
+    balance = fields.Monetary(string='Balance', readonly=True, currency_field='display_currency_id')
 
     # Original foreign currency info
     amount_currency = fields.Monetary(string='Amount Currency', readonly=True, currency_field='currency_id')
     currency_id = fields.Many2one('res.currency', string='Currency', readonly=True)
     company_currency_id = fields.Many2one('res.currency', string='Company Currency', readonly=True)
 
-    # The currency used to display debit/credit: foreign currency if applicable, else company currency
+    # The currency used to display debit/credit/balance: foreign currency if applicable, else company currency
     display_currency_id = fields.Many2one(
         'res.currency', string='Display Currency', readonly=True,
         help="Foreign currency for this line (if any), otherwise company currency."
@@ -47,7 +49,7 @@ class PartnerLedgerDetail(models.TransientModel):
 
     final_balance = fields.Monetary(
         string='Final Balance', readonly=True,
-        currency_field='company_currency_id',
+        currency_field='display_currency_id',
         compute='_compute_final_balance', store=False,
     )
 
@@ -159,6 +161,7 @@ class PartnerLedgerDetail(models.TransientModel):
                         'manual_currency_exchange_rate': 1.0,
                     })
 
+            # FIX: running balance tracks in the line's own currency (foreign or company)
             running_balance = opening_balance
             for line in partner_lines:
                 # Detect foreign currency
@@ -174,13 +177,14 @@ class PartnerLedgerDetail(models.TransientModel):
                     debit_val = raw if line.amount_currency > 0 else 0.0
                     credit_val = raw if line.amount_currency < 0 else 0.0
                     display_currency = line.currency_id
+                    # FIX: running balance in foreign currency
+                    running_balance += line.amount_currency
                 else:
                     debit_val = line.debit
                     credit_val = line.credit
                     display_currency = company_currency
-
-                # Running balance stays in company currency (SAR) for consistency
-                running_balance += line.debit - line.credit
+                    # Running balance in company currency
+                    running_balance += line.debit - line.credit
 
                 vals = {
                     'partner_id': partner.id,

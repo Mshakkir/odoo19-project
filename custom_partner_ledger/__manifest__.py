@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# -*- coding: utf-8 -*-
-=======
->>>>>>> 7a9559528c12bb143e2c23e9d004216edc7e9e72
 {
     'name': 'Custom Partner Ledger Report',
     'version': '19.0.1.0.0',
@@ -30,4 +26,3 @@
     'application': False,
     'auto_install': False,
 }
--*- coding: utf-8 -*-

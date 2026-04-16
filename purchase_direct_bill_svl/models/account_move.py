@@ -48,18 +48,17 @@ class AccountMove(models.Model):
 
     def _is_storable_product(self, product):
         """
-        Check if product is storable in Odoo 19.
-        In Odoo 17+, storable products use detailed_type='product'
+        Check if product needs stock valuation in Odoo 19.
+        Odoo 19 CE: 'Goods' type with Track Inventory = storable equivalent.
         """
         if not product:
             return False
 
-        # Odoo 19 / 17+ way
+        # Odoo 19: type='consu' (Goods) with tracking, or type='product'
         if hasattr(product, 'detailed_type'):
-            return product.detailed_type == 'product'
+            return product.detailed_type in ('product', 'consu')
 
-        # Odoo 16 and below fallback
-        return product.type == 'product'
+        return product.type in ('product', 'consu')
 
     def _is_auto_valuation(self, product):
         """

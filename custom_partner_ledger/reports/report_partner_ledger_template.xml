@@ -147,7 +147,7 @@
                         </thead>
                         <t t-foreach="docs" t-as="o">
                             <tbody>
-                                <!-- Partner Header Row -->
+                                <!-- Partner Header Row (summary totals, always in company currency) -->
                                 <tr style="background-color: #f8f9fa; border-top: 2px solid #8B1538;">
                                     <td colspan="6" style="padding: 10px; border: 1px solid #ddd;">
                                         <strong t-esc="get_partner_label(data, o)"/>:
@@ -192,7 +192,7 @@
                                         <span t-esc="line['po_number']"/>
                                     </td>
 
-                                    <!-- Debit: show foreign currency amount with its own symbol, else SAR -->
+                                    <!-- Debit: show foreign currency amount with its own symbol, else company currency -->
                                     <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">
                                         <t t-if="line.get('is_foreign_currency') and line['debit']">
                                             <span t-esc="line['display_currency_symbol']"/>&#160;<span t-esc="'%.2f' % line['debit']"/>
@@ -203,7 +203,7 @@
                                         </t>
                                     </td>
 
-                                    <!-- Credit: show foreign currency amount with its own symbol, else SAR -->
+                                    <!-- Credit: show foreign currency amount with its own symbol, else company currency -->
                                     <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">
                                         <t t-if="line.get('is_foreign_currency') and line['credit']">
                                             <span t-esc="line['display_currency_symbol']"/>&#160;<span t-esc="'%.2f' % line['credit']"/>
@@ -214,10 +214,15 @@
                                         </t>
                                     </td>
 
-                                    <!-- Balance: running total, always in SAR (mixed-currency balance stays in company currency) -->
+                                    <!-- FIX: Balance — show foreign currency symbol+amount when foreign, else company currency -->
                                     <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">
-                                        <span t-esc="line['progress']"
-                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        <t t-if="line.get('is_foreign_currency')">
+                                            <span t-esc="line['display_currency_symbol']"/>&#160;<span t-esc="'%.2f' % line['progress']"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span t-esc="line['progress']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                                        </t>
                                     </td>
 
                                     <td class="text-end" t-if="data['form']['amount_currency']"

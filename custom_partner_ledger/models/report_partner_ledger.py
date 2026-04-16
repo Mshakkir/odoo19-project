@@ -55,7 +55,6 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
         sum_credit = 0.0
 
         for r in res:
-            manual_rate = r.get('manual_currency_exchange_rate') or 1.0
             amt_currency = r.get('amount_currency') or 0.0
             has_foreign = (
                 r.get('currency_id')
@@ -64,21 +63,23 @@ class ReportPartnerLedgerCustom(models.AbstractModel):
             )
 
             if has_foreign:
-                # Show the raw foreign currency amount instead of converting to SAR.
-                # Debit / credit are expressed in the foreign currency's absolute amount.
+                # Show the raw foreign currency amount instead of converting to company currency.
                 raw = abs(amt_currency)
                 r['debit'] = raw if amt_currency > 0 else 0.0
                 r['credit'] = raw if amt_currency < 0 else 0.0
+                # FIX: running balance accumulates in foreign currency for foreign lines
+                sum_debit += r['debit']
+                sum_credit += r['credit']
+                r['progress'] = sum_debit - sum_credit
                 # Mark that this line uses a foreign currency for the template
                 r['is_foreign_currency'] = True
                 r['display_currency_symbol'] = r.get('currency_code') or ''
             else:
                 r['is_foreign_currency'] = False
                 r['display_currency_symbol'] = company_currency.symbol or ''
-
-            sum_debit += r['debit']
-            sum_credit += r['credit']
-            r['progress'] = sum_debit - sum_credit
+                sum_debit += r['debit']
+                sum_credit += r['credit']
+                r['progress'] = sum_debit - sum_credit
 
             r['displayed_name'] = r['move_name'] if r['move_name'] else ''
             if r['ref']:

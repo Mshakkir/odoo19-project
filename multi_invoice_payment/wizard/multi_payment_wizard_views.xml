@@ -111,7 +111,7 @@
                                    placeholder="Select customer..."/>
                             <field name="payment_date"/>
                             <!-- Payment Amount row -->
-                            <label for="payment_amount"/>
+                            <label for="payment_amount" string="Receipt Amount"/>
                             <div class="o_row">
                                 <field name="payment_amount" widget="monetary"
                                        options="{'currency_field': 'currency_id'}"/>

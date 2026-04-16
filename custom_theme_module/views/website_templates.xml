@@ -353,8 +353,35 @@
             </xpath>
         </template>
 
+
+        <!-- ============================================================
+             /contactus-thank-you and /mail-subscribe header+footer hide
+             These pages have duplicate template keys causing xpath issues.
+             Solution: inject JS+CSS via website.layout that checks
+             window.location.pathname at runtime — always works.
+             ============================================================ -->
+        <template id="hide_special_pages_header_footer" inherit_id="website.layout" name="Hide Header Footer Special Pages">
+            <xpath expr="//head" position="inside">
+                <script>
+                    (function(){
+                        var p = window.location.pathname;
+                        if(p === '/mail-subscribe' || p === '/contactus-thank-you'){
+                            var s = document.createElement('style');
+                            s.textContent =
+                                'header#top,.top_bar,nav.main_navbar,' +
+                                'footer#footer,#footer,.o_footer,' +
+                                '.o_footer_copyright{display:none!important}';
+                            document.head.appendChild(s);
+                        }
+                    })();
+                </script>
+            </xpath>
+        </template>
+
     </data>
 </odoo>
+
+
 
 
 

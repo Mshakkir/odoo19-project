@@ -11,8 +11,8 @@
         <field name="priority">100</field>
         <field name="arch" type="xml">
             <form string="Settings">
-                <app string="Vendor Bill Cost" name="purchase_bill_update_cost">
-                    <block title="Product Cost Update">
+                <app string="Accounting" name="account">
+                    <block title="Vendor Bill - Product Cost Update">
                         <setting string="Update Product Cost on Bill Confirmation"
                                  help="When enabled, posting a vendor bill will automatically update the product's cost price (Standard Price) with the unit price from the bill line.">
                             <field name="auto_update_cost_on_bill" widget="boolean_toggle"/>

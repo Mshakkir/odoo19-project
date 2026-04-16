@@ -1,37 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!--
+        Odoo 19 CE: Standalone res.config.settings view using the new
+        <app>/<block>/<setting> DSL. Odoo automatically merges all
+        res.config.settings views — no xpath or inherit_id needed.
+    -->
     <record id="res_config_settings_view_purchase_bill_cost" model="ir.ui.view">
         <field name="name">res.config.settings.view.purchase.bill.cost</field>
         <field name="model">res.config.settings</field>
-        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="priority">100</field>
         <field name="arch" type="xml">
-            <!--
-                Odoo 19 CE: Append our custom setting block at the end of
-                the settings container. The purchase module's view ID changed
-                in v19, so we safely inject into the base settings form.
-            -->
-            <xpath expr="//form/div[hasclass('o_settings_container')]" position="inside">
-                <div class="app_settings_block"
-                     string="Vendor Bill Cost Update"
-                     data-string="Vendor Bill Cost Update"
-                     data-key="purchase_bill_update_cost">
-                    <h2>Vendor Bill Cost Update</h2>
-                    <div class="row mt16 o_settings_subtab">
-                        <div class="col-12 col-lg-6 o_setting_box" id="auto_update_cost_on_bill_box">
-                            <div class="o_setting_left_pane">
-                                <field name="auto_update_cost_on_bill" widget="boolean_toggle"/>
-                            </div>
-                            <div class="o_setting_right_pane">
-                                <label for="auto_update_cost_on_bill"/>
-                                <div class="text-muted">
-                                    Automatically update the product's cost price when a
-                                    vendor bill is confirmed.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </xpath>
+            <form string="Settings">
+                <app string="Vendor Bill Cost" name="purchase_bill_update_cost">
+                    <block title="Product Cost Update">
+                        <setting string="Update Product Cost on Bill Confirmation"
+                                 help="When enabled, posting a vendor bill will automatically update the product's cost price (Standard Price) with the unit price from the bill line.">
+                            <field name="auto_update_cost_on_bill" widget="boolean_toggle"/>
+                        </setting>
+                    </block>
+                </app>
+            </form>
         </field>
     </record>
 </odoo>

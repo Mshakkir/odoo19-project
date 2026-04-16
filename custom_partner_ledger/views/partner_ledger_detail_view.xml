@@ -18,10 +18,20 @@
                 <field name="name"/>
                 <field name="ref"/>
                 <field name="po_number"/>
+                <!--
+                    Debit and Credit use display_currency_id:
+                    - Foreign currency lines → shows the foreign currency symbol + amount
+                    - Company currency lines → shows SAR symbol + amount
+                -->
+                <field name="display_currency_id" column_invisible="1"/>
                 <field name="debit" sum="Total Debit"/>
                 <field name="credit" sum="Total Credit"/>
-                <field name="balance"/>
-                <field name="final_balance" sum="Final Balance Due"/>
+                <!--
+                    Balance is always in company currency (SAR) regardless of line currency
+                -->
+                <field name="balance" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                <field name="final_balance" sum="Final Balance Due"
+                       widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
 
                 <!-- Hidden fields needed for compute/currency -->
                 <field name="is_opening_balance" column_invisible="1"/>
@@ -56,4 +66,69 @@
     </record>
 
 </odoo>
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+
+<!--    &lt;!&ndash; List View &ndash;&gt;-->
+<!--    <record id="view_partner_ledger_detail_tree" model="ir.ui.view">-->
+<!--        <field name="name">partner.ledger.detail.list</field>-->
+<!--        <field name="model">partner.ledger.detail</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <list string="Partner Ledger Details" default_order="partner_id asc, date asc"-->
+<!--                  decoration-muted="is_opening_balance">-->
+
+<!--                <field name="partner_id"/>-->
+<!--                <field name="date"/>-->
+<!--                <field name="invoice_date_due"/>-->
+<!--                <field name="move_id" optional="hide"/>-->
+<!--                <field name="journal_id"/>-->
+<!--                <field name="account_id"/>-->
+<!--                <field name="name"/>-->
+<!--                <field name="ref"/>-->
+<!--                <field name="po_number"/>-->
+<!--                <field name="debit" sum="Total Debit"/>-->
+<!--                <field name="credit" sum="Total Credit"/>-->
+<!--                <field name="balance"/>-->
+<!--                <field name="final_balance" sum="Final Balance Due"/>-->
+
+<!--                &lt;!&ndash; Hidden fields needed for compute/currency &ndash;&gt;-->
+<!--                <field name="is_opening_balance" column_invisible="1"/>-->
+<!--                <field name="company_currency_id" column_invisible="1"/>-->
+<!--                <field name="currency_id" column_invisible="1"/>-->
+<!--                <field name="manual_currency_exchange_rate" column_invisible="1"/>-->
+
+<!--                <button name="action_view_invoice" type="object"-->
+<!--                        icon="fa-file-text-o" title="View Invoice/Bill"-->
+<!--                        invisible="is_opening_balance or not move_id"/>-->
+<!--                <button name="action_view_journal_entry" type="object"-->
+<!--                        icon="fa-book" title="View Journal Entry"-->
+<!--                        invisible="is_opening_balance or not move_id"/>-->
+
+<!--            </list>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Search View &ndash;&gt;-->
+<!--    <record id="view_partner_ledger_detail_search" model="ir.ui.view">-->
+<!--        <field name="name">partner.ledger.detail.search</field>-->
+<!--        <field name="model">partner.ledger.detail</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <search>-->
+<!--                <field name="partner_id"/>-->
+<!--                <field name="journal_id"/>-->
+<!--                <filter name="group_partner"-->
+<!--                        string="Group by Partner"-->
+<!--                        context="{'group_by': 'partner_id'}"/>-->
+<!--            </search>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--</odoo>-->
 

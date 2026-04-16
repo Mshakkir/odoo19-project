@@ -49,16 +49,19 @@ class AccountMove(models.Model):
     def _is_storable_product(self, product):
         """
         Check if product needs stock valuation in Odoo 19.
-        Odoo 19 CE: 'Goods' type with Track Inventory = storable equivalent.
+        In Odoo 19 CE, only type='product' (Storable Product) gets SVL.
+        type='consu' is consumable and does NOT get stock valuation.
         """
         if not product:
             return False
 
-        # Odoo 19: type='consu' (Goods) with tracking, or type='product'
+        # Odoo 19 CE: storable products have type='product'
+        # 'consu' = consumable (no stock valuation)
+        # Check detailed_type first if available (some versions expose it)
         if hasattr(product, 'detailed_type'):
-            return product.detailed_type in ('product', 'consu')
+            return product.detailed_type == 'product'
 
-        return product.type in ('product', 'consu')
+        return product.type == 'product'
 
     def _is_auto_valuation(self, product):
         """
@@ -68,9 +71,32 @@ class AccountMove(models.Model):
         if not categ:
             return False
 
-        # Check property_valuation on category
         valuation = categ.property_valuation
         return valuation == 'real_time'
+
+    def _get_svl_model(self):
+        """
+        Safely retrieve the stock.valuation.layer model.
+        Raises UserError with a clear message if not available.
+        """
+        try:
+            svl_model = self.env['stock.valuation.layer']
+            # Force a simple check to confirm the model is truly accessible
+            svl_model.search_count([('id', '=', 0)])
+            return svl_model
+        except KeyError:
+            raise UserError(_(
+                'stock.valuation.layer model not found.\n\n'
+                'Your installed "WMS Accounting" (stock_account) appears to be '
+                'a third-party module that does not provide this model.\n\n'
+                'Please ensure the OFFICIAL Odoo stock_account module is '
+                'installed, or contact your Odoo provider.'
+            ))
+        except Exception as e:
+            raise UserError(_(
+                'Cannot access stock.valuation.layer: %s\n\n'
+                'Please ensure stock_account module is correctly installed.'
+            ) % str(e))
 
     def _create_svl_for_direct_bill(self):
         """
@@ -78,18 +104,8 @@ class AccountMove(models.Model):
         for direct vendor bills without PO.
         Compatible with Odoo 19 CE.
         """
-
-        # --- Safety Check: Ensure stock.valuation.layer exists ---
-        # Use self.env.registry instead of self.env for reliable model check
-        if 'stock.valuation.layer' not in self.env.registry:
-            raise UserError(_(
-                'stock.valuation.layer model not found.\n'
-                'Please ensure the following modules are installed:\n'
-                '- stock_account\n'
-                '- stock_landed_costs'
-            ))
-
-        svl_model = self.env['stock.valuation.layer']
+        # --- Safety Check: Ensure stock.valuation.layer is accessible ---
+        svl_model = self._get_svl_model()
         stock_move_model = self.env['stock.move']
 
         # Get supplier location
@@ -121,17 +137,20 @@ class AccountMove(models.Model):
             if not self._is_storable_product(product):
                 _logger.info(
                     'Skipping product %s - not a storable product '
-                    '(detailed_type=%s)',
+                    '(type=%s, detailed_type=%s)',
                     product.name,
-                    getattr(product, 'detailed_type', product.type)
+                    product.type,
+                    getattr(product, 'detailed_type', 'N/A')
                 )
                 continue
 
             # --- Check 3: Must use automated/perpetual valuation ---
             if not self._is_auto_valuation(product):
                 _logger.info(
-                    'Skipping product %s - not using automated valuation',
-                    product.name
+                    'Skipping product %s - not using automated valuation '
+                    '(property_valuation=%s)',
+                    product.name,
+                    product.categ_id.property_valuation
                 )
                 continue
 
@@ -163,9 +182,11 @@ class AccountMove(models.Model):
                 'name': _('Direct Bill: %s') % self.name,
                 'product_id': product.id,
                 'product_uom_qty': quantity,
-                'product_uom': line.product_uom_id.id
+                'product_uom': (
+                    line.product_uom_id.id
                     if line.product_uom_id
-                    else product.uom_id.id,
+                    else product.uom_id.id
+                ),
                 'location_id': supplier_location.id,
                 'location_dest_id': dest_location.id,
                 'state': 'done',
@@ -179,9 +200,11 @@ class AccountMove(models.Model):
             self.env['stock.move.line'].sudo().create({
                 'move_id': stock_move.id,
                 'product_id': product.id,
-                'product_uom_id': line.product_uom_id.id
+                'product_uom_id': (
+                    line.product_uom_id.id
                     if line.product_uom_id
-                    else product.uom_id.id,
+                    else product.uom_id.id
+                ),
                 'qty_done': quantity,
                 'location_id': supplier_location.id,
                 'location_dest_id': dest_location.id,
@@ -190,6 +213,8 @@ class AccountMove(models.Model):
 
             # --- Create Stock Valuation Layer (SVL) ---
             total_value = unit_cost * quantity
+
+            # Build SVL vals — account_move_id links SVL to this bill (Odoo 19)
             svl_vals = {
                 'product_id': product.id,
                 'quantity': quantity,
@@ -203,6 +228,11 @@ class AccountMove(models.Model):
                     'Direct Bill %s - %s'
                 ) % (self.name, product.name),
             }
+
+            # Link to account move if the field exists in this Odoo version
+            if 'account_move_id' in self.env['stock.valuation.layer']._fields:
+                svl_vals['account_move_id'] = self.id
+
             svl = svl_model.sudo().create(svl_vals)
 
             _logger.info(
@@ -217,12 +247,13 @@ class AccountMove(models.Model):
 
             # --- Update AVCO cost ---
             elif costing_method == 'average':
-                # Recalculate average cost
                 existing_qty = product.qty_available - quantity
                 existing_value = existing_qty * product.standard_price
-                new_avg = (existing_value + total_value) / (
-                    existing_qty + quantity
-                ) if (existing_qty + quantity) > 0 else unit_cost
+                new_avg = (
+                    (existing_value + total_value) / (existing_qty + quantity)
+                    if (existing_qty + quantity) > 0
+                    else unit_cost
+                )
                 product.sudo().write({'standard_price': new_avg})
 
             svl_created_count += 1
@@ -243,17 +274,21 @@ class AccountMove(models.Model):
             raise UserError(_(
                 'No Stock Valuation Layers were created!\n\n'
                 'Please check:\n'
-                '1. Products are set as "Storable Product"\n'
-                '2. Product Category Inventory Valuation = '
-                '"Perpetual (at invoicing)"\n'
-                '3. stock_account module is installed'
+                '1. Products are set as "Storable Product" '
+                '(type must be "product", not "consu")\n'
+                '2. Product Category → Inventory Valuation = '
+                '"Automated (Perpetual)"\n'
+                '3. Product Category → Costing Method is set '
+                '(Standard, Average, or FIFO)\n'
+                '4. stock_account (official Odoo module) is installed\n\n'
+                'Tip: In Odoo 19 CE, "Goods" with tracking is NOT the same '
+                'as a Storable Product for SVL purposes.'
             ))
 
     def _get_incoming_location(self, line):
         """
         Get the correct incoming stock location for the product.
         """
-        # Try warehouse default location
         warehouse = self.env['stock.warehouse'].search([
             ('company_id', '=', self.company_id.id)
         ], limit=1)
@@ -261,7 +296,6 @@ class AccountMove(models.Model):
         if warehouse and warehouse.lot_stock_id:
             return warehouse.lot_stock_id
 
-        # Fallback: search for internal location
         internal_location = self.env['stock.location'].search([
             ('usage', '=', 'internal'),
             ('company_id', '=', self.company_id.id),
@@ -270,7 +304,6 @@ class AccountMove(models.Model):
         if internal_location:
             return internal_location
 
-        # Last fallback
         return self.env.ref(
             'stock.stock_location_stock',
             raise_if_not_found=True

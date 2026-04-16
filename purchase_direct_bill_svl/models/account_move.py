@@ -81,7 +81,8 @@ class AccountMove(models.Model):
         """
 
         # --- Safety Check: Ensure stock.valuation.layer exists ---
-        if 'stock.valuation.layer' not in self.env:
+        # Use self.env.registry instead of self.env for reliable model check
+        if 'stock.valuation.layer' not in self.env.registry:
             raise UserError(_(
                 'stock.valuation.layer model not found.\n'
                 'Please ensure the following modules are installed:\n'

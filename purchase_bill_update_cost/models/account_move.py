@@ -83,8 +83,6 @@ class AccountMove(models.Model):
                     new_cost=unit_price_in_company_currency,
                     currency=self.company_id.currency_id.name,
                 ),
-                message_type='comment',
-                subtype_xmlid='mail.mt_note',
             )
 
             _logger.info(

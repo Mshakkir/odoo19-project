@@ -157,12 +157,14 @@ class StockPicking(models.Model):
             else:
                 _logger.info('⚠️ Picking %s skipped - conditions not met', picking.name)
 
-        # Call parent validation
-        res = super(StockPicking, self).button_validate()
+        # Call parent validation with sudo to allow cross-warehouse validation
+        res = super(StockPicking, self.sudo()).button_validate()
 
         # Create auto receipts and notify
         for picking in pickings_to_automate:
-            if picking.state == 'done' and not picking.auto_receipt_created:
+            # Use sudo() to check state - the current user may not own this picking
+            picking_sudo = picking.sudo()
+            if picking_sudo.state == 'done':
                 try:
                     _logger.info('🚀 Starting automation for picking: %s', picking.name)
                     _logger.info('   Source warehouse: %s',

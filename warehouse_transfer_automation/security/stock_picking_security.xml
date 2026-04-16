@@ -5,9 +5,21 @@
         <!-- STOCK PICKING ACCESS RULES -->
         <!-- ========================================== -->
 
-        <!-- FYH Warehouse: See only FYH operations -->
+        <!--
+            Logic for each warehouse rule:
+            A user should see a picking if ANY of these are true:
+            1. The operation type belongs to their warehouse  (covers all own transfers)
+            2. The source location belongs to their warehouse (outgoing / requests they supply)
+            3. The dest location belongs to their warehouse   (incoming / receipts they receive)
+            4. It is an inter-WH request CREATED by their warehouse:
+               dest is transit AND picking_type belongs to their warehouse
+            5. It is an auto-receipt CREATED FOR their warehouse:
+               source is transit AND operation type belongs to their warehouse
+        -->
+
+        <!-- FYH Warehouse -->
         <record id="stock_picking_fyh_warehouse_rule" model="ir.rule">
-            <field name="name">FYH Warehouse: See only FYH operations</field>
+            <field name="name">FYH Warehouse: See own and inter-warehouse transfers</field>
             <field name="model_id" ref="stock.model_stock_picking"/>
             <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_fyh_warehouse'))]"/>
             <field name="domain_force">[
@@ -15,8 +27,12 @@
                 ('picking_type_id.warehouse_id.name', 'in', ['JED-Fyh', 'FYH']),
                 ('location_id.warehouse_id.name', 'in', ['JED-Fyh', 'FYH']),
                 ('location_dest_id.warehouse_id.name', 'in', ['JED-Fyh', 'FYH']),
-                '&amp;', ('location_id.usage', '=', 'transit'), ('location_dest_id.warehouse_id.name', 'in', ['JED-Fyh', 'FYH']),
-                '&amp;', ('location_dest_id.usage', '=', 'transit'), ('source_warehouse_id.name', 'in', ['JED-Fyh', 'FYH'])
+                '&amp;',
+                    ('location_dest_id.usage', '=', 'transit'),
+                    ('picking_type_id.warehouse_id.name', 'in', ['JED-Fyh', 'FYH']),
+                '&amp;',
+                    ('location_id.usage', '=', 'transit'),
+                    ('picking_type_id.warehouse_id.name', 'in', ['JED-Fyh', 'FYH'])
             ]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -24,9 +40,9 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
-        <!-- DMM Warehouse: See only DMM operations -->
+        <!-- DMM Warehouse -->
         <record id="stock_picking_dmm_warehouse_rule" model="ir.rule">
-            <field name="name">DMM Warehouse: See only DMM operations</field>
+            <field name="name">DMM Warehouse: See own and inter-warehouse transfers</field>
             <field name="model_id" ref="stock.model_stock_picking"/>
             <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_dmm_warehouse'))]"/>
             <field name="domain_force">[
@@ -34,8 +50,12 @@
                 ('picking_type_id.warehouse_id.name', 'in', ['DMM-Wh1', 'DMM', 'DAMMAM']),
                 ('location_id.warehouse_id.name', 'in', ['DMM-Wh1', 'DMM', 'DAMMAM']),
                 ('location_dest_id.warehouse_id.name', 'in', ['DMM-Wh1', 'DMM', 'DAMMAM']),
-                '&amp;', ('location_id.usage', '=', 'transit'), ('location_dest_id.warehouse_id.name', 'in', ['DMM-Wh1', 'DMM', 'DAMMAM']),
-                '&amp;', ('location_dest_id.usage', '=', 'transit'), ('source_warehouse_id.name', 'in', ['DMM-Wh1', 'DMM', 'DAMMAM'])
+                '&amp;',
+                    ('location_dest_id.usage', '=', 'transit'),
+                    ('picking_type_id.warehouse_id.name', 'in', ['DMM-Wh1', 'DMM', 'DAMMAM']),
+                '&amp;',
+                    ('location_id.usage', '=', 'transit'),
+                    ('picking_type_id.warehouse_id.name', 'in', ['DMM-Wh1', 'DMM', 'DAMMAM'])
             ]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -43,9 +63,9 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
-        <!-- BLD Warehouse: See only BLD operations -->
+        <!-- BLD Warehouse -->
         <record id="stock_picking_bld_warehouse_rule" model="ir.rule">
-            <field name="name">BLD Warehouse: See only BLD operations</field>
+            <field name="name">BLD Warehouse: See own and inter-warehouse transfers</field>
             <field name="model_id" ref="stock.model_stock_picking"/>
             <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_bld_warehouse'))]"/>
             <field name="domain_force">[
@@ -53,8 +73,12 @@
                 ('picking_type_id.warehouse_id.name', 'in', ['JED-Bld', 'BLD', 'BALADIYA', 'BALAD']),
                 ('location_id.warehouse_id.name', 'in', ['JED-Bld', 'BLD', 'BALADIYA', 'BALAD']),
                 ('location_dest_id.warehouse_id.name', 'in', ['JED-Bld', 'BLD', 'BALADIYA', 'BALAD']),
-                '&amp;', ('location_id.usage', '=', 'transit'), ('location_dest_id.warehouse_id.name', 'in', ['JED-Bld', 'BLD', 'BALADIYA', 'BALAD']),
-                '&amp;', ('location_dest_id.usage', '=', 'transit'), ('source_warehouse_id.name', 'in', ['JED-Bld', 'BLD', 'BALADIYA', 'BALAD'])
+                '&amp;',
+                    ('location_dest_id.usage', '=', 'transit'),
+                    ('picking_type_id.warehouse_id.name', 'in', ['JED-Bld', 'BLD', 'BALADIYA', 'BALAD']),
+                '&amp;',
+                    ('location_id.usage', '=', 'transit'),
+                    ('picking_type_id.warehouse_id.name', 'in', ['JED-Bld', 'BLD', 'BALADIYA', 'BALAD'])
             ]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -63,7 +87,7 @@
         </record>
 
         <!-- ========================================== -->
-        <!-- STOCK LOCATION ACCESS RULES - RELAXED -->
+        <!-- STOCK LOCATION ACCESS RULES -->
         <!-- ========================================== -->
 
         <!-- ALL Stock Users: Can see all locations (read-only) -->
@@ -83,10 +107,10 @@
         </record>
 
         <!-- ========================================== -->
-        <!-- OPERATION TYPE ACCESS RULES - RELAXED -->
+        <!-- OPERATION TYPE ACCESS RULES -->
         <!-- ========================================== -->
 
-        <!-- ALL Stock Users: Can see all operation types (read-only for others) -->
+        <!-- ALL Stock Users: Can see all operation types (read-only) -->
         <record id="stock_picking_type_all_warehouses_read" model="ir.rule">
             <field name="name">All Warehouse Users: See all operation types (read-only)</field>
             <field name="model_id" ref="stock.model_stock_picking_type"/>
@@ -101,5 +125,140 @@
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
         </record>
+
+        <!-- ========================================== -->
+        <!-- STOCK WAREHOUSE ACCESS RULES -->
+        <!-- ========================================== -->
+
+        <!-- ALL warehouse users can read stock.warehouse (needed for computed fields) -->
+        <record id="stock_warehouse_all_read" model="ir.rule">
+            <field name="name">All Warehouse Users: Read all warehouses</field>
+            <field name="model_id" ref="stock.model_stock_warehouse"/>
+            <field name="groups" eval="[
+                (4, ref('warehouse_transfer_automation.group_fyh_warehouse')),
+                (4, ref('warehouse_transfer_automation.group_dmm_warehouse')),
+                (4, ref('warehouse_transfer_automation.group_bld_warehouse'))
+            ]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
     </data>
 </odoo>
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--    <data noupdate="0">-->
+<!--        &lt;!&ndash; ========================================== &ndash;&gt;-->
+<!--        &lt;!&ndash; STOCK PICKING ACCESS RULES &ndash;&gt;-->
+<!--        &lt;!&ndash; ========================================== &ndash;&gt;-->
+
+<!--        &lt;!&ndash; FYH Warehouse: See only FYH operations &ndash;&gt;-->
+<!--        <record id="stock_picking_fyh_warehouse_rule" model="ir.rule">-->
+<!--            <field name="name">FYH Warehouse: See only FYH operations</field>-->
+<!--            <field name="model_id" ref="stock.model_stock_picking"/>-->
+<!--            <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_fyh_warehouse'))]"/>-->
+<!--            <field name="domain_force">[-->
+<!--                '|', '|', '|', '|',-->
+<!--                ('picking_type_id.warehouse_id.name', 'in', ['JED-Fyh', 'FYH']),-->
+<!--                ('location_id.warehouse_id.name', 'in', ['JED-Fyh', 'FYH']),-->
+<!--                ('location_dest_id.warehouse_id.name', 'in', ['JED-Fyh', 'FYH']),-->
+<!--                '&amp;', ('location_id.usage', '=', 'transit'), ('location_dest_id.warehouse_id.name', 'in', ['JED-Fyh', 'FYH']),-->
+<!--                '&amp;', ('location_dest_id.usage', '=', 'transit'), ('source_warehouse_id.name', 'in', ['JED-Fyh', 'FYH'])-->
+<!--            ]</field>-->
+<!--            <field name="perm_read" eval="True"/>-->
+<!--            <field name="perm_write" eval="True"/>-->
+<!--            <field name="perm_create" eval="True"/>-->
+<!--            <field name="perm_unlink" eval="True"/>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; DMM Warehouse: See only DMM operations &ndash;&gt;-->
+<!--        <record id="stock_picking_dmm_warehouse_rule" model="ir.rule">-->
+<!--            <field name="name">DMM Warehouse: See only DMM operations</field>-->
+<!--            <field name="model_id" ref="stock.model_stock_picking"/>-->
+<!--            <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_dmm_warehouse'))]"/>-->
+<!--            <field name="domain_force">[-->
+<!--                '|', '|', '|', '|',-->
+<!--                ('picking_type_id.warehouse_id.name', 'in', ['DMM-Wh1', 'DMM', 'DAMMAM']),-->
+<!--                ('location_id.warehouse_id.name', 'in', ['DMM-Wh1', 'DMM', 'DAMMAM']),-->
+<!--                ('location_dest_id.warehouse_id.name', 'in', ['DMM-Wh1', 'DMM', 'DAMMAM']),-->
+<!--                '&amp;', ('location_id.usage', '=', 'transit'), ('location_dest_id.warehouse_id.name', 'in', ['DMM-Wh1', 'DMM', 'DAMMAM']),-->
+<!--                '&amp;', ('location_dest_id.usage', '=', 'transit'), ('source_warehouse_id.name', 'in', ['DMM-Wh1', 'DMM', 'DAMMAM'])-->
+<!--            ]</field>-->
+<!--            <field name="perm_read" eval="True"/>-->
+<!--            <field name="perm_write" eval="True"/>-->
+<!--            <field name="perm_create" eval="True"/>-->
+<!--            <field name="perm_unlink" eval="True"/>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; BLD Warehouse: See only BLD operations &ndash;&gt;-->
+<!--        <record id="stock_picking_bld_warehouse_rule" model="ir.rule">-->
+<!--            <field name="name">BLD Warehouse: See only BLD operations</field>-->
+<!--            <field name="model_id" ref="stock.model_stock_picking"/>-->
+<!--            <field name="groups" eval="[(4, ref('warehouse_transfer_automation.group_bld_warehouse'))]"/>-->
+<!--            <field name="domain_force">[-->
+<!--                '|', '|', '|', '|',-->
+<!--                ('picking_type_id.warehouse_id.name', 'in', ['JED-Bld', 'BLD', 'BALADIYA', 'BALAD']),-->
+<!--                ('location_id.warehouse_id.name', 'in', ['JED-Bld', 'BLD', 'BALADIYA', 'BALAD']),-->
+<!--                ('location_dest_id.warehouse_id.name', 'in', ['JED-Bld', 'BLD', 'BALADIYA', 'BALAD']),-->
+<!--                '&amp;', ('location_id.usage', '=', 'transit'), ('location_dest_id.warehouse_id.name', 'in', ['JED-Bld', 'BLD', 'BALADIYA', 'BALAD']),-->
+<!--                '&amp;', ('location_dest_id.usage', '=', 'transit'), ('source_warehouse_id.name', 'in', ['JED-Bld', 'BLD', 'BALADIYA', 'BALAD'])-->
+<!--            ]</field>-->
+<!--            <field name="perm_read" eval="True"/>-->
+<!--            <field name="perm_write" eval="True"/>-->
+<!--            <field name="perm_create" eval="True"/>-->
+<!--            <field name="perm_unlink" eval="True"/>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; ========================================== &ndash;&gt;-->
+<!--        &lt;!&ndash; STOCK LOCATION ACCESS RULES - RELAXED &ndash;&gt;-->
+<!--        &lt;!&ndash; ========================================== &ndash;&gt;-->
+
+<!--        &lt;!&ndash; ALL Stock Users: Can see all locations (read-only) &ndash;&gt;-->
+<!--        <record id="stock_location_all_warehouses_read" model="ir.rule">-->
+<!--            <field name="name">All Warehouse Users: See all locations (read-only)</field>-->
+<!--            <field name="model_id" ref="stock.model_stock_location"/>-->
+<!--            <field name="groups" eval="[-->
+<!--                (4, ref('warehouse_transfer_automation.group_fyh_warehouse')),-->
+<!--                (4, ref('warehouse_transfer_automation.group_dmm_warehouse')),-->
+<!--                (4, ref('warehouse_transfer_automation.group_bld_warehouse'))-->
+<!--            ]"/>-->
+<!--            <field name="domain_force">[(1, '=', 1)]</field>-->
+<!--            <field name="perm_read" eval="True"/>-->
+<!--            <field name="perm_write" eval="False"/>-->
+<!--            <field name="perm_create" eval="False"/>-->
+<!--            <field name="perm_unlink" eval="False"/>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; ========================================== &ndash;&gt;-->
+<!--        &lt;!&ndash; OPERATION TYPE ACCESS RULES - RELAXED &ndash;&gt;-->
+<!--        &lt;!&ndash; ========================================== &ndash;&gt;-->
+
+<!--        &lt;!&ndash; ALL Stock Users: Can see all operation types (read-only for others) &ndash;&gt;-->
+<!--        <record id="stock_picking_type_all_warehouses_read" model="ir.rule">-->
+<!--            <field name="name">All Warehouse Users: See all operation types (read-only)</field>-->
+<!--            <field name="model_id" ref="stock.model_stock_picking_type"/>-->
+<!--            <field name="groups" eval="[-->
+<!--                (4, ref('warehouse_transfer_automation.group_fyh_warehouse')),-->
+<!--                (4, ref('warehouse_transfer_automation.group_dmm_warehouse')),-->
+<!--                (4, ref('warehouse_transfer_automation.group_bld_warehouse'))-->
+<!--            ]"/>-->
+<!--            <field name="domain_force">[(1, '=', 1)]</field>-->
+<!--            <field name="perm_read" eval="True"/>-->
+<!--            <field name="perm_write" eval="False"/>-->
+<!--            <field name="perm_create" eval="False"/>-->
+<!--            <field name="perm_unlink" eval="False"/>-->
+<!--        </record>-->
+<!--    </data>-->
+<!--</odoo>-->

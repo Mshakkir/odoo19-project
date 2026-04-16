@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_direct_bill_svl_form" model="ir.ui.view">
+        <field name="name">account.move.direct.bill.svl</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Add Direct Bill toggle after vendor bill header -->
+            <xpath expr="//field[@name='ref']" position="after">
+                <field name="is_direct_bill"
+                    invisible="move_type != 'in_invoice'"
+                    widget="boolean_toggle"/>
+                <field name="auto_create_svl"
+                    invisible="not is_direct_bill or
+                               move_type != 'in_invoice'"/>
+                <field name="svl_created"
+                    invisible="not is_direct_bill or
+                               move_type != 'in_invoice'"
+                    readonly="1"/>
+            </xpath>
+
+            <!-- Add Manual SVL creation button -->
+            <xpath expr="//button[@name='action_post']" position="after">
+                <button name="button_create_svl_manually"
+                    string="Create SVL Manually"
+                    type="object"
+                    class="btn-secondary"
+                    invisible="not is_direct_bill or
+                               svl_created or
+                               state != 'posted'"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

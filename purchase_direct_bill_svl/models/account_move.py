@@ -4,6 +4,12 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+# Possible SVL model names depending on Odoo version / WMS module
+SVL_MODEL_CANDIDATES = [
+    'stock.valuation.layer',
+    'stock.valuation.layer.revaluation',
+]
+
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
@@ -48,48 +54,115 @@ class AccountMove(models.Model):
 
     def _is_storable_product(self, product):
         """
-        Check if product is storable in Odoo 19.
-        In Odoo 17+, storable products use detailed_type='product'
+        Check if product needs stock valuation in Odoo 19 CE.
+
+        Odoo 19 CE: Product Type = 'Goods' + Track Inventory = True
+        Internally this is type='consu' with tracking enabled,
+        OR type='product' depending on the WMS module variant.
         """
         if not product:
             return False
 
-        # Odoo 19 / 17+ way
-        if hasattr(product, 'detailed_type'):
-            return product.detailed_type == 'product'
+        # Method 1: explicit is_storable property (some Odoo 19 builds)
+        if hasattr(product, 'is_storable'):
+            return bool(product.is_storable)
 
-        # Odoo 16 and below fallback
-        return product.type == 'product'
+        # Method 2: detailed_type (Odoo 16-18 style)
+        if hasattr(product, 'detailed_type'):
+            if product.detailed_type == 'product':
+                return True
+            if product.detailed_type == 'consu':
+                return self._product_tracks_inventory(product)
+
+        # Method 3: base type field
+        if product.type == 'product':
+            return True
+
+        # Odoo 19 CE: type='consu' (Goods) + Track Inventory = True
+        if product.type == 'consu':
+            return self._product_tracks_inventory(product)
+
+        return False
+
+    def _product_tracks_inventory(self, product):
+        """
+        Odoo 19 CE: 'Goods' + Track Inventory checkbox ticked.
+        The checkbox is stored in various ways depending on build.
+        """
+        # Check product template level flags
+        tmpl = getattr(product, 'product_tmpl_id', product)
+        for field_name in ['is_storable', 'storable_ok',
+                           'inventory_tracking', 'track_inventory']:
+            if hasattr(tmpl, field_name) and getattr(tmpl, field_name):
+                return True
+
+        # Lot/Serial tracking means inventory is tracked
+        tracking = getattr(product, 'tracking', 'none')
+        if tracking and tracking != 'none':
+            return True
+
+        # Odoo 19 CE: if type='consu' and the Track Inventory box is checked,
+        # Odoo stores this as type='consu' but the product participates in
+        # stock moves. We treat ALL consu products with real_time valuation
+        # as eligible — the _is_auto_valuation check gates this properly.
+        return product.type == 'consu'
 
     def _is_auto_valuation(self, product):
-        """
-        Check if product category uses automated/perpetual valuation.
-        """
+        """Check if product category uses automated/perpetual valuation."""
         categ = product.categ_id
         if not categ:
             return False
-
-        # Check property_valuation on category
-        valuation = categ.property_valuation
+        valuation = getattr(categ, 'property_valuation', None)
         return valuation == 'real_time'
+
+    def _get_svl_model(self):
+        """
+        Safely retrieve the stock.valuation.layer model.
+        Tries multiple known model names for WMS module compatibility.
+        If not found, lists all valuation-related models in the error
+        so you can identify the correct model name.
+        """
+        for model_name in SVL_MODEL_CANDIDATES:
+            if model_name in self.env.registry.models:
+                try:
+                    model = self.env[model_name]
+                    model.search_count([('id', '=', 0)])
+                    _logger.info('Using SVL model: %s', model_name)
+                    return model
+                except Exception as ex:
+                    _logger.warning(
+                        'Model %s in registry but not usable: %s',
+                        model_name, ex
+                    )
+                    continue
+
+        # Collect all valuation-related models to help diagnose
+        valuation_models = sorted([
+            m for m in self.env.registry.models
+            if 'valuation' in m or 'svl' in m or 'layer' in m
+        ])
+
+        _logger.error(
+            'stock.valuation.layer not found. '
+            'Valuation-related models available: %s', valuation_models
+        )
+
+        raise UserError(_(
+            'Cannot find stock.valuation.layer model.\n\n'
+            'Valuation-related models found in your system:\n%s\n\n'
+            'NEXT STEP: Run the diagnostic script (diagnostic_shell.py) '
+            'in Odoo shell and share the output so the correct model '
+            'name can be identified and used.'
+        ) % ('\n'.join('  - ' + m for m in valuation_models)
+             if valuation_models else '  (none found)'))
 
     def _create_svl_for_direct_bill(self):
         """
         Create Stock Valuation Layers and Stock Moves
         for direct vendor bills without PO.
-        Compatible with Odoo 19 CE.
+        Compatible with Odoo 19 CE (Goods + Track Inventory).
         """
-
-        # --- Safety Check: Ensure stock.valuation.layer exists ---
-        if 'stock.valuation.layer' not in self.env:
-            raise UserError(_(
-                'stock.valuation.layer model not found.\n'
-                'Please ensure the following modules are installed:\n'
-                '- stock_account\n'
-                '- stock_landed_costs'
-            ))
-
-        svl_model = self.env['stock.valuation.layer']
+        svl_model = self._get_svl_model()
         stock_move_model = self.env['stock.move']
 
         # Get supplier location
@@ -113,40 +186,34 @@ class AccountMove(models.Model):
         for line in self.invoice_line_ids:
             product = line.product_id
 
-            # --- Check 1: Product must exist ---
             if not product:
                 continue
 
-            # --- Check 2: Must be storable product (Odoo 19 compatible) ---
             if not self._is_storable_product(product):
                 _logger.info(
-                    'Skipping product %s - not a storable product '
-                    '(detailed_type=%s)',
-                    product.name,
-                    getattr(product, 'detailed_type', product.type)
+                    'Skipping %s - not storable '
+                    '(type=%s, tracking=%s, is_storable=%s)',
+                    product.name, product.type,
+                    getattr(product, 'tracking', 'N/A'),
+                    getattr(product, 'is_storable', 'N/A'),
                 )
                 continue
 
-            # --- Check 3: Must use automated/perpetual valuation ---
             if not self._is_auto_valuation(product):
                 _logger.info(
-                    'Skipping product %s - not using automated valuation',
-                    product.name
+                    'Skipping %s - not real_time valuation '
+                    '(property_valuation=%s)',
+                    product.name,
+                    getattr(product.categ_id, 'property_valuation', 'N/A'),
                 )
                 continue
 
-            # --- Check 4: Skip if already linked to PO ---
             if line.purchase_line_id:
                 _logger.info(
-                    'Skipping product %s - already linked to PO',
-                    product.name
-                )
+                    'Skipping %s - linked to PO', product.name)
                 continue
 
-            # --- Get destination location ---
             dest_location = self._get_incoming_location(line)
-
-            # --- Calculate unit cost (price without tax) ---
             unit_cost = line.price_unit
             quantity = line.quantity
 
@@ -154,41 +221,42 @@ class AccountMove(models.Model):
                 continue
 
             _logger.info(
-                'Creating SVL for product %s: qty=%s, cost=%s',
+                'Creating SVL for %s: qty=%s, cost=%s',
                 product.name, quantity, unit_cost
             )
 
             # --- Create Stock Move ---
-            stock_move_vals = {
+            stock_move = stock_move_model.sudo().create({
                 'name': _('Direct Bill: %s') % self.name,
                 'product_id': product.id,
                 'product_uom_qty': quantity,
-                'product_uom': line.product_uom_id.id
-                    if line.product_uom_id
-                    else product.uom_id.id,
+                'product_uom': (
+                    line.product_uom_id.id
+                    if line.product_uom_id else product.uom_id.id
+                ),
                 'location_id': supplier_location.id,
                 'location_dest_id': dest_location.id,
                 'state': 'done',
                 'origin': self.name,
                 'company_id': self.company_id.id,
                 'price_unit': unit_cost,
-            }
-            stock_move = stock_move_model.sudo().create(stock_move_vals)
+            })
 
             # --- Create Stock Move Line ---
             self.env['stock.move.line'].sudo().create({
                 'move_id': stock_move.id,
                 'product_id': product.id,
-                'product_uom_id': line.product_uom_id.id
-                    if line.product_uom_id
-                    else product.uom_id.id,
+                'product_uom_id': (
+                    line.product_uom_id.id
+                    if line.product_uom_id else product.uom_id.id
+                ),
                 'qty_done': quantity,
                 'location_id': supplier_location.id,
                 'location_dest_id': dest_location.id,
                 'company_id': self.company_id.id,
             })
 
-            # --- Create Stock Valuation Layer (SVL) ---
+            # --- Create Stock Valuation Layer ---
             total_value = unit_cost * quantity
             svl_vals = {
                 'product_id': product.id,
@@ -200,60 +268,72 @@ class AccountMove(models.Model):
                 'stock_move_id': stock_move.id,
                 'company_id': self.company_id.id,
                 'description': _(
-                    'Direct Bill %s - %s'
-                ) % (self.name, product.name),
+                    'Direct Bill %s - %s') % (self.name, product.name),
             }
-            svl = svl_model.sudo().create(svl_vals)
+            if 'account_move_id' in svl_model._fields:
+                svl_vals['account_move_id'] = self.id
 
+            svl = svl_model.sudo().create(svl_vals)
             _logger.info(
                 'SVL created: id=%s, product=%s, value=%s',
                 svl.id, product.name, total_value
             )
 
-            # --- Update product standard price if Standard Price method ---
-            costing_method = product.categ_id.property_cost_method
+            # --- Update product cost price ---
+            costing_method = getattr(
+                product.categ_id, 'property_cost_method', False)
             if costing_method == 'standard':
                 product.sudo().write({'standard_price': unit_cost})
-
-            # --- Update AVCO cost ---
             elif costing_method == 'average':
-                # Recalculate average cost
                 existing_qty = product.qty_available - quantity
                 existing_value = existing_qty * product.standard_price
-                new_avg = (existing_value + total_value) / (
-                    existing_qty + quantity
-                ) if (existing_qty + quantity) > 0 else unit_cost
+                new_avg = (
+                    (existing_value + total_value) / (existing_qty + quantity)
+                    if (existing_qty + quantity) > 0 else unit_cost
+                )
                 product.sudo().write({'standard_price': new_avg})
 
             svl_created_count += 1
 
-        # --- Mark SVL as created ---
+        # --- Mark SVL as created or raise helpful error ---
         if svl_created_count > 0:
             self.sudo().write({'svl_created': True})
             _logger.info(
-                'Successfully created %s SVL(s) for bill %s',
+                'Created %s SVL(s) for bill %s',
                 svl_created_count, self.name
             )
         else:
-            _logger.warning(
-                'No SVL created for bill %s - '
-                'check product types and valuation settings',
-                self.name
-            )
+            # Build diagnostic info for the error message
+            diag = []
+            for line in self.invoice_line_ids:
+                p = line.product_id
+                if p:
+                    diag.append(
+                        '• %s: type=%s | tracking=%s | is_storable=%s '
+                        '| valuation=%s | costing=%s' % (
+                            p.name,
+                            p.type,
+                            getattr(p, 'tracking', 'N/A'),
+                            getattr(p, 'is_storable', 'N/A'),
+                            getattr(p.categ_id, 'property_valuation', 'N/A'),
+                            getattr(p.categ_id, 'property_cost_method', 'N/A'),
+                        )
+                    )
+
             raise UserError(_(
                 'No Stock Valuation Layers were created!\n\n'
-                'Please check:\n'
-                '1. Products are set as "Storable Product"\n'
-                '2. Product Category Inventory Valuation = '
-                '"Perpetual (at invoicing)"\n'
-                '3. stock_account module is installed'
-            ))
+                'Product diagnostics:\n%s\n\n'
+                'To fix, go to:\n'
+                'Inventory → Configuration → Product Categories\n'
+                '→ Open "Goods / Pneumatics Items"\n'
+                '→ Set Costing Method (e.g. Average Cost)\n'
+                '→ Set Inventory Valuation = Automated (Perpetual)\n\n'
+                'Also confirm your products have:\n'
+                '  Product Type = Goods  +  Track Inventory ✅ checked'
+            ) % '\n'.join(diag))
 
     def _get_incoming_location(self, line):
-        """
-        Get the correct incoming stock location for the product.
-        """
-        # Try warehouse default location
+        """Get the correct incoming stock location."""
         warehouse = self.env['stock.warehouse'].search([
             ('company_id', '=', self.company_id.id)
         ], limit=1)
@@ -261,7 +341,6 @@ class AccountMove(models.Model):
         if warehouse and warehouse.lot_stock_id:
             return warehouse.lot_stock_id
 
-        # Fallback: search for internal location
         internal_location = self.env['stock.location'].search([
             ('usage', '=', 'internal'),
             ('company_id', '=', self.company_id.id),
@@ -270,7 +349,6 @@ class AccountMove(models.Model):
         if internal_location:
             return internal_location
 
-        # Last fallback
         return self.env.ref(
             'stock.stock_location_stock',
             raise_if_not_found=True
@@ -281,18 +359,14 @@ class AccountMove(models.Model):
         self.ensure_one()
 
         if self.move_type != 'in_invoice':
-            raise UserError(_(
-                'SVL can only be created for vendor bills.'
-            ))
+            raise UserError(_('SVL can only be created for vendor bills.'))
         if self.state != 'posted':
             raise UserError(_(
-                'Please confirm/post the bill first before '
-                'creating SVL manually.'
+                'Please confirm/post the bill first before creating SVL.'
             ))
         if self.svl_created:
             raise UserError(_(
-                'SVL has already been created for this bill. '
-                'Cannot create duplicate SVL.'
+                'SVL has already been created for this bill.'
             ))
 
         self._create_svl_for_direct_bill()
@@ -303,8 +377,7 @@ class AccountMove(models.Model):
             'params': {
                 'title': _('Success!'),
                 'message': _(
-                    'Stock Valuation Layers created successfully '
-                    'for bill %s'
+                    'Stock Valuation Layers created successfully for bill %s'
                 ) % self.name,
                 'type': 'success',
                 'sticky': False,

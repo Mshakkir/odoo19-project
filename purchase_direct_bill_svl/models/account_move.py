@@ -4,10 +4,26 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
-# Possible SVL model names depending on Odoo version / WMS module
+# ============================================================================
+# CRITICAL: Odoo 19 CE has multiple SVL model name variants
+# Try all known variants; the diagnostic script will identify the correct one
+# ============================================================================
 SVL_MODEL_CANDIDATES = [
+    # Standard name (most common)
     'stock.valuation.layer',
+
+    # Odoo 19.0 with stock_account refactoring
+    'stock_account.valuation.layer',
+    'stock.account.valuation.layer',
+
+    # Odoo 18 → 19 migration variant
+    'account.stock.valuation.report',
+
+    # If stock_landed_costs extends the model
     'stock.valuation.layer.revaluation',
+
+    # As a fallback, try the adjustment model
+    'stock.valuation.adjustment.lines',
 ]
 
 
@@ -40,15 +56,25 @@ class AccountMove(models.Model):
                     and not move.svl_created):
                 try:
                     move._create_svl_for_direct_bill()
+                except UserError:
+                    # Re-raise UserError as-is (our diagnostic messages)
+                    raise
                 except Exception as e:
                     _logger.error(
                         'SVL creation failed for bill %s: %s',
-                        move.name, str(e)
+                        move.name, str(e), exc_info=True
                     )
                     raise UserError(
                         _('SVL Creation Error: %s\n\n'
-                          'Please check that stock_account module '
-                          'is installed.') % str(e)
+                          'The stock.valuation.layer model could not be instantiated.\n\n'
+                          'NEXT STEP:\n'
+                          '1. Run: python manage.py shell\n'
+                          '2. Then: exec(open("diagnostic_shell.py").read())\n'
+                          '3. Share the output so the correct model name can be identified.\n\n'
+                          'Technical: %s') % (
+                            str(e)[:200],
+                            str(e)[-100:]
+                        )
                     )
         return res
 
@@ -89,7 +115,6 @@ class AccountMove(models.Model):
         Odoo 19 CE: 'Goods' + Track Inventory checkbox ticked.
         The checkbox is stored in various ways depending on build.
         """
-        # Check product template level flags
         tmpl = getattr(product, 'product_tmpl_id', product)
         for field_name in ['is_storable', 'storable_ok',
                            'inventory_tracking', 'track_inventory']:
@@ -101,10 +126,6 @@ class AccountMove(models.Model):
         if tracking and tracking != 'none':
             return True
 
-        # Odoo 19 CE: if type='consu' and the Track Inventory box is checked,
-        # Odoo stores this as type='consu' but the product participates in
-        # stock moves. We treat ALL consu products with real_time valuation
-        # as eligible — the _is_auto_valuation check gates this properly.
         return product.type == 'consu'
 
     def _is_auto_valuation(self, product):
@@ -119,42 +140,82 @@ class AccountMove(models.Model):
         """
         Safely retrieve the stock.valuation.layer model.
         Tries multiple known model names for WMS module compatibility.
-        If not found, lists all valuation-related models in the error
-        so you can identify the correct model name.
+
+        Returns: model instance or raises UserError with diagnostics.
         """
+        attempted_models = []
+
         for model_name in SVL_MODEL_CANDIDATES:
-            if model_name in self.env.registry.models:
-                try:
-                    model = self.env[model_name]
-                    model.search_count([('id', '=', 0)])
-                    _logger.info('Using SVL model: %s', model_name)
-                    return model
-                except Exception as ex:
-                    _logger.warning(
-                        'Model %s in registry but not usable: %s',
-                        model_name, ex
-                    )
+            try:
+                # Check if model is in registry
+                if model_name not in self.env.registry.models:
+                    attempted_models.append(f"{model_name}: NOT IN REGISTRY")
                     continue
 
-        # Collect all valuation-related models to help diagnose
+                # Try to instantiate
+                model = self.env[model_name]
+
+                # Try a simple search to verify it's actually usable
+                test_count = model.search_count([('id', '=', 0)])
+
+                _logger.info(
+                    'SVL model found and working: %s', model_name
+                )
+                return model
+
+            except Exception as ex:
+                attempted_models.append(
+                    f"{model_name}: {str(ex)[:80]}"
+                )
+                _logger.warning(
+                    'Model %s failed: %s', model_name, str(ex)[:100]
+                )
+                continue
+
+        # If we get here, none of the candidates worked
+        # Collect ALL models for diagnostic purposes
+        all_models = sorted(self.env.registry.models.keys())
         valuation_models = sorted([
-            m for m in self.env.registry.models
-            if 'valuation' in m or 'svl' in m or 'layer' in m
+            m for m in all_models
+            if any(kw in m.lower() for kw in [
+                'valuation', 'svl', 'layer', 'stock.account', 'adjustment'
+            ])
         ])
 
         _logger.error(
-            'stock.valuation.layer not found. '
-            'Valuation-related models available: %s', valuation_models
+            'No SVL model found. '
+            'Attempted: %s. '
+            'Valuation-related models available: %s',
+            attempted_models, valuation_models
         )
 
-        raise UserError(_(
+        # Build user-friendly error with diagnostic data
+        error_msg = (
             'Cannot find stock.valuation.layer model.\n\n'
-            'Valuation-related models found in your system:\n%s\n\n'
-            'NEXT STEP: Run the diagnostic script (diagnostic_shell.py) '
-            'in Odoo shell and share the output so the correct model '
-            'name can be identified and used.'
-        ) % ('\n'.join('  - ' + m for m in valuation_models)
-             if valuation_models else '  (none found)'))
+            'Attempted models:\n'
+        )
+        for attempt in attempted_models:
+            error_msg += f'  ✗ {attempt}\n'
+
+        error_msg += '\n\nValuation-related models in your system:\n'
+        for m in valuation_models:
+            error_msg += f'  ✓ {m}\n'
+
+        error_msg += (
+            '\n\nTO FIX:\n'
+            '1. Ensure stock_account module is INSTALLED (not just enabled)\n'
+            '2. Run this in Odoo shell:\n'
+            '   $ python manage.py shell\n'
+            '   >>> exec(open("diagnostic_shell.py").read())\n'
+            '3. Share the output to identify the correct model name\n'
+            '4. Update SVL_MODEL_CANDIDATES in account_move.py\n\n'
+            'Common causes:\n'
+            '  • stock_account module not installed (stuck in "To Install")\n'
+            '  • Odoo 19 CE variant with different naming\n'
+            '  • stock_landed_costs extends the model with different name\n'
+        )
+
+        raise UserError(error_msg)
 
     def _create_svl_for_direct_bill(self):
         """
@@ -162,6 +223,10 @@ class AccountMove(models.Model):
         for direct vendor bills without PO.
         Compatible with Odoo 19 CE (Goods + Track Inventory).
         """
+        _logger.info(
+            'Starting SVL creation for direct bill: %s', self.name
+        )
+
         svl_model = self._get_svl_model()
         stock_move_model = self.env['stock.move']
 
@@ -178,16 +243,28 @@ class AccountMove(models.Model):
         if not supplier_location:
             raise UserError(_(
                 'Supplier stock location not found. '
-                'Please check your stock configuration.'
+                'Please check your stock configuration.\n\n'
+                'Go to: Inventory → Configuration → Locations\n'
+                'Create a location with Usage = "Supplier"'
             ))
 
         svl_created_count = 0
+        diag_products = []
 
         for line in self.invoice_line_ids:
             product = line.product_id
 
             if not product:
                 continue
+
+            # Diagnostic tracking
+            product_diag = {
+                'name': product.name,
+                'type': product.type,
+                'tracking': getattr(product, 'tracking', 'N/A'),
+                'is_storable': getattr(product, 'is_storable', 'N/A'),
+            }
+            diag_products.append(product_diag)
 
             if not self._is_storable_product(product):
                 _logger.info(
@@ -270,6 +347,8 @@ class AccountMove(models.Model):
                 'description': _(
                     'Direct Bill %s - %s') % (self.name, product.name),
             }
+
+            # Only add account_move_id if the field exists
             if 'account_move_id' in svl_model._fields:
                 svl_vals['account_move_id'] = self.id
 
@@ -305,31 +384,32 @@ class AccountMove(models.Model):
         else:
             # Build diagnostic info for the error message
             diag = []
-            for line in self.invoice_line_ids:
-                p = line.product_id
-                if p:
-                    diag.append(
-                        '• %s: type=%s | tracking=%s | is_storable=%s '
-                        '| valuation=%s | costing=%s' % (
-                            p.name,
-                            p.type,
-                            getattr(p, 'tracking', 'N/A'),
-                            getattr(p, 'is_storable', 'N/A'),
-                            getattr(p.categ_id, 'property_valuation', 'N/A'),
-                            getattr(p.categ_id, 'property_cost_method', 'N/A'),
-                        )
+            for p_diag in diag_products:
+                diag.append(
+                    '• %s: type=%s | tracking=%s | is_storable=%s' % (
+                        p_diag['name'],
+                        p_diag['type'],
+                        p_diag['tracking'],
+                        p_diag['is_storable'],
                     )
+                )
 
             raise UserError(_(
                 'No Stock Valuation Layers were created!\n\n'
-                'Product diagnostics:\n%s\n\n'
-                'To fix, go to:\n'
-                'Inventory → Configuration → Product Categories\n'
-                '→ Open "Goods / Pneumatics Items"\n'
-                '→ Set Costing Method (e.g. Average Cost)\n'
-                '→ Set Inventory Valuation = Automated (Perpetual)\n\n'
-                'Also confirm your products have:\n'
-                '  Product Type = Goods  +  Track Inventory ✅ checked'
+                'This usually means:\n\n'
+                '1. PRODUCT CONFIGURATION:\n'
+                '   Products must have:\n'
+                '     ✓ Type = "Goods"\n'
+                '     ✓ Track Inventory = Checked\n'
+                '   Current products:\n%s\n\n'
+                '2. CATEGORY COSTING METHOD:\n'
+                '   Go to: Inventory → Configuration → Product Categories\n'
+                '   Edit each category used by your products:\n'
+                '     ✓ Costing Method = "Average Cost" or "Standard"\n'
+                '     ✓ Inventory Valuation = "Automated (Perpetual)"\n\n'
+                '3. IF STILL FAILING:\n'
+                '   Run the diagnostic script (see error message from SVL model lookup)\n'
+                '   to identify which model name is being used.'
             ) % '\n'.join(diag))
 
     def _get_incoming_location(self, line):

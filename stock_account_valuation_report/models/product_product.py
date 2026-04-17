@@ -24,11 +24,6 @@ class ProductProduct(models.Model):
     stock_fifo_real_time_aml_ids = fields.Many2many(
         "account.move.line", compute="_compute_inventory_value"
     )
-    # NOTE: stock.valuation.layer is only available when stock_account is installed.
-    # The depends=["stock_account"] in __manifest__.py ensures it is present.
-    stock_valuation_layer_ids = fields.Many2many(
-        "stock.valuation.layer", compute="_compute_inventory_value"
-    )
     valuation_discrepancy = fields.Float(
         compute="_compute_inventory_value",
         search="_search_valuation_discrepancy",
@@ -40,6 +35,21 @@ class ProductProduct(models.Model):
     valuation = fields.Selection(
         related="product_tmpl_id.valuation", search="_search_valuation"
     )
+
+    def _register_hook(self):
+        """Dynamically add stock_valuation_layer_ids only when stock.valuation.layer
+        is available in the pool. This prevents the comodel assertion error in
+        Odoo 19 during incremental _setup_models__ calls."""
+        super()._register_hook()
+        if "stock.valuation.layer" in self.env:
+            if "stock_valuation_layer_ids" not in self._fields:
+                self.__class__._add_field(
+                    "stock_valuation_layer_ids",
+                    fields.Many2many(
+                        "stock.valuation.layer",
+                        compute="_compute_inventory_value",
+                    ),
+                )
 
     @api.model
     def _search_valuation(self, operator, value):
@@ -87,6 +97,9 @@ class ProductProduct(models.Model):
         to_date = self.env.context.get("at_date", False)
         accounting_values = {}
         layer_values = {}
+        has_svl = "stock.valuation.layer" in self.env
+        has_svl_field = "stock_valuation_layer_ids" in self._fields
+
         if not self._ids:
             # Nothing to compute
             for product in self:
@@ -95,7 +108,8 @@ class ProductProduct(models.Model):
                 product.qty_at_date = 0.0
                 product.account_qty_at_date = 0.0
                 product.stock_fifo_real_time_aml_ids = False
-                product.stock_valuation_layer_ids = False
+                if has_svl_field:
+                    product.stock_valuation_layer_ids = False
                 product.valuation_discrepancy = 0.0
                 product.qty_discrepancy = 0.0
             return
@@ -125,32 +139,30 @@ class ProductProduct(models.Model):
         for row in res:
             accounting_values[(row[0], row[1])] = (row[2], row[3], list(row[4]))
 
-        # --- Stock valuation layer query ---
-        # pylint: disable=E8103
-        query = """
-            SELECT product_id, sum(quantity), sum(value), array_agg(svl.id)
-            FROM "stock_valuation_layer" AS svl
-            WHERE svl.product_id IN %s
-            AND svl.company_id = %s {date_filter}
-            GROUP BY product_id
-            """
+        if has_svl:
+            # --- Stock valuation layer query ---
+            # pylint: disable=E8103
+            svl_query = """
+                SELECT product_id, sum(quantity), sum(value), array_agg(svl.id)
+                FROM "stock_valuation_layer" AS svl
+                WHERE svl.product_id IN %s
+                AND svl.company_id = %s {date_filter}
+                GROUP BY product_id
+                """
 
-        if to_date:
-            query = query.format(date_filter="AND svl.create_date <= %s")
-            params = (tuple(self._ids), self.env.company.id, to_date)
-        else:
-            query = query.format(date_filter="")
-            params = (tuple(self._ids), self.env.company.id)
+            if to_date:
+                svl_query = svl_query.format(date_filter="AND svl.create_date <= %s")
+                params = (tuple(self._ids), self.env.company.id, to_date)
+            else:
+                svl_query = svl_query.format(date_filter="")
+                params = (tuple(self._ids), self.env.company.id)
 
-        self.env.cr.execute(query, params=params)
-        res = self.env.cr.fetchall()
-        for row in res:
-            layer_values[row[0]] = (row[1], row[2], list(row[3]))
+            self.env.cr.execute(svl_query, params=params)
+            res = self.env.cr.fetchall()
+            for row in res:
+                layer_values[row[0]] = (row[1], row[2], list(row[3]))
 
         for product in self:
-            # Retrieve accounting values.
-            # We cannot provide location-specific accounting valuation,
-            # so leave data empty in that case.
             if product.valuation == "real_time":
                 valuation_account_id = (
                     product.categ_id.property_stock_valuation_account_id.id
@@ -170,13 +182,13 @@ class ProductProduct(models.Model):
                     self.env["account.move.line"]
                 )
 
-            # Retrieve inventory (stock valuation layer) values.
             quantity, value, svl_ids = layer_values.get(product.id) or (0, 0, [])
             product.stock_value = value
             product.qty_at_date = quantity
-            product.stock_valuation_layer_ids = (
-                self.env["stock.valuation.layer"].browse(svl_ids)
-            )
+            if has_svl_field:
+                product.stock_valuation_layer_ids = (
+                    self.env["stock.valuation.layer"].browse(svl_ids)
+                )
 
             if product.valuation == "real_time":
                 product.valuation_discrepancy = (
@@ -209,6 +221,8 @@ class ProductProduct(models.Model):
 
     def action_view_valuation_layers(self):
         self.ensure_one()
+        if "stock.valuation.layer" not in self.env:
+            return {}
         tree_view_ref = self.env.ref(
             "stock_account.stock_valuation_layer_tree"
         )

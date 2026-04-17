@@ -42,6 +42,9 @@
 # Copyright 2019 Eficent Business and IT Consulting Services, S.L.
 # Copyright 2019 Aleph Objects, Inc.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
+# Copyright 2019 Eficent Business and IT Consulting Services, S.L.
+# Copyright 2019 Aleph Objects, Inc.
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 import ast
 
@@ -61,13 +64,13 @@ class StockValuationHistory(models.TransientModel):
     )
 
     def open_at_date(self):
-        """Return the Stock Valuation (stock.valuation.layer) list action,
-        optionally filtered up to *inventory_datetime*."""
+        """Return the Stock Valuation Layer list action filtered to the chosen date."""
+        # Use the existing SVL action from stock_account
         action = self.env["ir.actions.act_window"]._for_xml_id(
-            "stock_account_valuation_report.stock_valuation_layer_action"
+            "stock_account.stock_valuation_layer_action"
         )
 
-        # Build / merge the context
+        # Build context with at_date
         ctx = {}
         if action.get("context"):
             try:
@@ -80,7 +83,7 @@ class StockValuationHistory(models.TransientModel):
 
         action["context"] = str(ctx)
 
-        # Optionally narrow the domain to a specific product/template
+        # Optionally narrow by product / template from caller context
         domain = []
         product_id = self.env.context.get("product_id", False)
         product_tmpl_id = self.env.context.get("product_tmpl_id", False)
@@ -91,6 +94,7 @@ class StockValuationHistory(models.TransientModel):
                 [domain, [("product_id.product_tmpl_id", "=", product_tmpl_id)]]
             )
 
+        # Filter layers up to the chosen date
         if self.inventory_datetime:
             domain = expression.AND(
                 [domain, [("create_date", "<=", self.inventory_datetime)]]

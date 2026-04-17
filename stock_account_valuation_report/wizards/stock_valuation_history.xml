@@ -21,7 +21,7 @@
         </field>
     </record>
 
-    <!-- Wizard window action (triggered by the "Valuation at Date" button) -->
+    <!-- Wizard action – opens as a dialog (target new) -->
     <record id="history_valuation_action" model="ir.actions.act_window">
         <field name="name">Valuation at Date</field>
         <field name="res_model">stock.valuation.history</field>
@@ -30,13 +30,13 @@
         <field name="target">new</field>
     </record>
 
-    <!-- Menu: opens the Stock Valuation (SVL) list directly -->
+    <!-- Menu item: opens the standard Stock Valuation (SVL) list from stock_account -->
     <menuitem
         id="menu_dual_valuation"
         name="Stock Valuation"
         parent="stock.menu_warehouse_report"
         sequence="120"
-        action="stock_account_valuation_report.stock_valuation_layer_action"
+        action="stock_account.action_stock_account_open_quants"
     />
 
 </odoo>

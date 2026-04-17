@@ -3,53 +3,49 @@
 
     <!-- ===================================================================
          Inherit the Landed Cost form view to add Journal Entry fields
+         Odoo 19 CE - correct view ref: stock_landed_costs.view_stock_landed_cost_form
          =================================================================== -->
     <record id="view_stock_landed_cost_form_inherit_journal" model="ir.ui.view">
         <field name="name">stock.landed.cost.form.inherit.journal.entry</field>
         <field name="model">stock.landed.cost</field>
-        <field name="inherit_id" ref="stock_landed_costs.view_stock_landed_cost_form2"/>
+        <field name="inherit_id" ref="stock_landed_costs.view_stock_landed_cost_form"/>
         <field name="arch" type="xml">
 
-            <!-- 1. ADD SMART BUTTON for Journal Entries count (top stat buttons area) -->
-            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
-                <button name="action_open_all_journal_entries"
-                        type="object"
-                        class="oe_stat_button"
-                        icon="fa-book"
-                        invisible="account_move_count == 0">
-                    <field name="account_move_count"
-                           widget="statinfo"
-                           string="Journal Entries"/>
-                </button>
-            </xpath>
-
-            <!-- 2. ADD inline "Journal Entry" field after the Vendor Bill field
-                    This mirrors the existing Vendor Bill display style -->
-            <xpath expr="//field[@name='vendor_bill_id']" position="after">
-                <label for="account_move_id" string="Journal Entry" class="o_form_label"/>
-                <div class="o_field_widget">
-                    <field name="account_move_id"
-                           readonly="1"
-                           options="{'no_open': False}"
-                           placeholder="No journal entry yet"/>
+            <!-- 1. ADD SMART BUTTON before the sheet (creates button box) -->
+            <xpath expr="//sheet" position="before">
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_open_all_journal_entries"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-book"
+                            invisible="account_move_count == 0">
+                        <field name="account_move_count"
+                               widget="statinfo"
+                               string="Journal Entries"/>
+                    </button>
                 </div>
             </xpath>
 
-            <!-- 3. ADD "Auto-Compute from JE" toggle + Extra Journal Entries
-                    inside the Additional Costs tab, above the cost lines -->
-            <xpath expr="//page[@name='additional_costs']" position="inside">
-                <group string="Journal Entry Configuration" col="2">
-                    <field name="auto_compute_from_moves"
-                           widget="boolean_toggle"
-                           string="Auto-Compute Cost from Journal Entries"/>
-                    <field name="extra_account_move_ids"
-                           string="Extra Journal Entries"
-                           widget="many2many_tags"
-                           domain="[('move_type', '=', 'entry'), ('state', '=', 'posted')]"
-                           options="{'no_create': True}"
-                           placeholder="Link extra journal entries..."
-                           invisible="not auto_compute_from_moves"/>
-                </group>
+            <!-- 2. Replace the existing hidden account_move_id field
+                    to make it always visible with a proper label -->
+            <xpath expr="//field[@name='account_move_id']" position="replace">
+                <field name="account_move_id"
+                       string="Journal Entry"
+                       readonly="1"
+                       invisible="not account_move_id"/>
+            </xpath>
+
+            <!-- 3. ADD Extra Journal Entries + Auto-Compute toggle after vendor_bill_id -->
+            <xpath expr="//field[@name='vendor_bill_id']" position="after">
+                <field name="auto_compute_from_moves"
+                       string="Auto-Compute Cost from Journal Entries"
+                       widget="boolean_toggle"/>
+                <field name="extra_account_move_ids"
+                       string="Extra Journal Entries"
+                       widget="many2many_tags"
+                       domain="[('move_type', '=', 'entry'), ('state', '=', 'posted')]"
+                       options="{'no_create': True}"
+                       invisible="not auto_compute_from_moves"/>
             </xpath>
 
         </field>

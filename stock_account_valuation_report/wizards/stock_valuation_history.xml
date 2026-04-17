@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
-    <!-- Wizard form: date picker -->
     <record id="view_stock_valuation_history" model="ir.ui.view">
         <field name="name">Dual Valuation Report at Date</field>
         <field name="model">stock.valuation.history</field>
@@ -21,74 +19,18 @@
         </field>
     </record>
 
-    <!-- Wizard action (opens as dialog from "Valuation at Date" button) -->
     <record id="history_valuation_action" model="ir.actions.act_window">
-        <field name="name">Valuation at Date</field>
+        <field name="name">Dual Inventory Valuation</field>
         <field name="res_model">stock.valuation.history</field>
-        <field name="view_mode">form</field>
-        <field name="view_id" ref="view_stock_valuation_history" />
-        <field name="target">new</field>
-    </record>
-
-    <!--
-        OUR OWN act_window for stock.valuation.layer.
-        No custom view defined here – Odoo will use its built-in
-        stock_account views, which already look like Image 2.
-        The "Valuation at Date" button is injected via the inherit
-        view in product_product_views.xml.
-    -->
-    <record id="svl_action" model="ir.actions.act_window">
-        <field name="name">Stock Valuation</field>
-        <field name="res_model">stock.valuation.layer</field>
         <field name="view_mode">list,form</field>
-        <field name="context">{'create': False}</field>
+        <field name="view_id" ref="view_stock_valuation_history" />
     </record>
 
-    <!-- Menu: opens the SVL list using our own action (no external XML ID guessing) -->
     <menuitem
         id="menu_dual_valuation"
-        name="Stock Valuation"
+        name="Dual Inventory Valuation"
         parent="stock.menu_warehouse_report"
         sequence="120"
-        action="svl_action"
+        action="history_valuation_action"
     />
-
 </odoo>
-
-
-<!--<?xml version="1.0" encoding="utf-8" ?>-->
-<!--<odoo>-->
-<!--    <record id="view_stock_valuation_history" model="ir.ui.view">-->
-<!--        <field name="name">Dual Valuation Report at Date</field>-->
-<!--        <field name="model">stock.valuation.history</field>-->
-<!--        <field name="arch" type="xml">-->
-<!--            <form string="Choose your date">-->
-<!--                <group>-->
-<!--                    <field name="inventory_datetime" />-->
-<!--                </group>-->
-<!--                <button-->
-<!--                    name="open_at_date"-->
-<!--                    string="Confirm"-->
-<!--                    type="object"-->
-<!--                    class="btn-primary"-->
-<!--                />-->
-<!--                <button string="Cancel" class="btn-secondary" special="cancel" />-->
-<!--            </form>-->
-<!--        </field>-->
-<!--    </record>-->
-
-<!--    <record id="history_valuation_action" model="ir.actions.act_window">-->
-<!--        <field name="name">Dual Inventory Valuation</field>-->
-<!--        <field name="res_model">stock.valuation.history</field>-->
-<!--        <field name="view_mode">list,form</field>-->
-<!--        <field name="view_id" ref="view_stock_valuation_history" />-->
-<!--    </record>-->
-
-<!--    <menuitem-->
-<!--        id="menu_dual_valuation"-->
-<!--        name="Dual Inventory Valuation"-->
-<!--        parent="stock.menu_warehouse_report"-->
-<!--        sequence="120"-->
-<!--        action="history_valuation_action"-->
-<!--    />-->
-<!--</odoo>-->

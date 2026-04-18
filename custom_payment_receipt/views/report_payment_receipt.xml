@@ -203,29 +203,31 @@
                                                     </td>
                                                 </tr>
 
-                                                <!-- PAYMENT ROWS (reconciled partials) -->
-                                                <t t-foreach="inv._get_reconciled_invoices_partials()" t-as="par">
-                                                    <!-- For inbound: payment is on credit side; for outbound: on debit side -->
-                                                    <t t-set="pay_move_line" t-value="par.credit_move_id if inv.move_type in ('out_invoice','out_receipt') else par.debit_move_id"/>
-                                                    <tr>
-                                                        <td style="padding:8px; border:1px solid #000; padding-left:20px;">
-                                                            <span t-field="pay_move_line.date"/>
-                                                        </td>
-
-                                                        <td style="padding:8px; border:1px solid #000; padding-left:20px;">
-                                                            <span t-field="pay_move_line.move_id.name"/>
-                                                        </td>
-
-                                                        <td style="padding:8px; border:1px solid #000;">
-                                                            <span t-field="pay_move_line.payment_id.memo"/>
-                                                        </td>
-
-                                                        <td style="padding:8px; border:1px solid #000; text-align:right;">
-                                                            <t t-esc="'{:,.2f}'.format(-par.amount)" t-if="inv.move_type in ('out_invoice','out_receipt')"/>
-                                                            <t t-esc="'{:,.2f}'.format(-par.amount)" t-if="inv.move_type in ('in_invoice','in_receipt')"/>
-                                                            <t t-esc="inv.currency_id.name"/>
-                                                        </td>
-                                                    </tr>
+                                                <!-- PAYMENT ROWS via partial reconcile on invoice receivable/payable lines -->
+                                                <t t-set="inv_lines" t-value="inv.line_ids.filtered(lambda l: l.account_id.account_type in ('asset_receivable', 'liability_payable'))"/>
+                                                <t t-foreach="inv_lines" t-as="inv_line">
+                                                    <!-- matched_debit_ids = partials where this line is on the credit side (customer invoice) -->
+                                                    <!-- matched_credit_ids = partials where this line is on the debit side (vendor bill) -->
+                                                    <t t-set="partials" t-value="inv_line.matched_debit_ids if inv.move_type in ('out_invoice','out_receipt','out_refund') else inv_line.matched_credit_ids"/>
+                                                    <t t-foreach="partials" t-as="partial">
+                                                        <t t-set="pay_line" t-value="partial.debit_move_id if inv.move_type in ('out_invoice','out_receipt','out_refund') else partial.credit_move_id"/>
+                                                        <t t-set="paid_amount" t-value="partial.amount"/>
+                                                        <tr>
+                                                            <td style="padding:8px; border:1px solid #000; padding-left:20px;">
+                                                                <span t-field="pay_line.date"/>
+                                                            </td>
+                                                            <td style="padding:8px; border:1px solid #000; padding-left:20px;">
+                                                                <span t-field="pay_line.move_id.name"/>
+                                                            </td>
+                                                            <td style="padding:8px; border:1px solid #000;">
+                                                                <span t-field="pay_line.payment_id.memo"/>
+                                                            </td>
+                                                            <td style="padding:8px; border:1px solid #000; text-align:right;">
+                                                                <t t-esc="'{:,.2f}'.format(-paid_amount)"/>
+                                                                <t t-esc="inv.currency_id.name"/>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
                                                 </t>
 
                                                 <!-- DUE AMOUNT ROW -->

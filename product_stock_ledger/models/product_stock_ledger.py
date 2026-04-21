@@ -96,18 +96,18 @@ class ProductStockLedger(models.Model):
         po_inv = 'po.invoice_status' if has_po and self._col_exists('purchase_order', 'invoice_status') else "NULL::varchar"
 
         if has_svl:
-            cost_cte = """
+            cost_cte = """,
 move_cost AS (
     SELECT
         stock_move_id,
         CASE WHEN SUM(ABS(quantity)) > 0
-             THEN SUM(ABS(value)) / SUM(ABS(quantity))
+             THEN ABS(SUM(value)) / SUM(ABS(quantity))
              ELSE 0
         END AS unit_cost
     FROM stock_valuation_layer
     WHERE stock_move_id IS NOT NULL
     GROUP BY stock_move_id
-),"""
+)"""
             cost_join  = "LEFT JOIN move_cost mc ON mc.stock_move_id = sm.id"
             cost_field = "COALESCE(mc.unit_cost, 0)"
         else:
@@ -151,10 +151,10 @@ loc_warehouse AS (
         )
     WHERE sl.usage = 'internal'
     ORDER BY sl.id, sw.id
-),
+)
 {cost_cte}
 
-ledger AS (
+, ledger AS (
     SELECT
         sml.id                                               AS id,
         sml.product_id                                       AS product_id,
@@ -428,8 +428,18 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 
 
 
-# from odoo import models, fields, tools
-# from odoo.exceptions import UserError
+
+
+
+
+
+
+
+
+
+
+# from odoo import models, fields, tools, _
+# from odoo.exceptions import UserError, AccessError
 #
 #
 # class ProductStockLedger(models.Model):
@@ -481,7 +491,6 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 #         return self.env.cr.fetchone()[0]
 #
 #     def _col_type(self, table_name, col_name):
-#         """Return the PostgreSQL data type of a column, or None if not found."""
 #         self.env.cr.execute("""
 #             SELECT data_type FROM information_schema.columns
 #             WHERE table_schema = 'public'
@@ -492,11 +501,6 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 #         return row[0] if row else None
 #
 #     def _jsonb_to_text(self, col_expr):
-#         """
-#         Safely extract text from a jsonb translated field in Odoo 19.
-#         Odoo 19 stores translatable char fields as jsonb like: {"en_US": "Kilogram"}
-#         We use jsonb_each_text to get the first value when 'en_US' is missing.
-#         """
 #         return (
 #             "COALESCE("
 #             f"  ({col_expr})->>'en_US',"
@@ -508,19 +512,16 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 #     def init(self):
 #         tools.drop_view_if_exists(self.env.cr, self._table)
 #
-#         # ── Detect optional tables ────────────────────────────────────
 #         has_svl = self._table_exists('stock_valuation_layer')
 #         has_so  = self._table_exists('sale_order')
 #         has_po  = self._table_exists('purchase_order')
 #
-#         # ── uom_uom.name: jsonb or varchar? ──────────────────────────
 #         uom_name_type = self._col_type('uom_uom', 'name')
 #         if uom_name_type and 'json' in uom_name_type.lower():
 #             uom_name_sql = self._jsonb_to_text('uom_u.name')
 #         else:
 #             uom_name_sql = "COALESCE(uom_u.name::text, '')"
 #
-#         # ── stock_location.complete_name: jsonb or varchar? ───────────
 #         loc_cn_type = self._col_type('stock_location', 'complete_name')
 #         if loc_cn_type and 'json' in loc_cn_type.lower():
 #             sl_cn  = "(sl.complete_name->>'en_US')"
@@ -529,14 +530,11 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 #             sl_cn   = "sl.complete_name"
 #             root_cn = "root.complete_name"
 #
-#         # ── stock_move.reference column ───────────────────────────────
 #         sm_ref = 'sm.reference' if self._col_exists('stock_move', 'reference') else 'sm.origin'
 #
-#         # ── invoice_status columns ────────────────────────────────────
 #         so_inv = 'so.invoice_status' if has_so and self._col_exists('sale_order', 'invoice_status') else "NULL::varchar"
 #         po_inv = 'po.invoice_status' if has_po and self._col_exists('purchase_order', 'invoice_status') else "NULL::varchar"
 #
-#         # ── Cost CTE ─────────────────────────────────────────────────
 #         if has_svl:
 #             cost_cte = """
 # move_cost AS (
@@ -557,7 +555,6 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 #             cost_join  = ""
 #             cost_field = "0::numeric"
 #
-#         # ── Sale order ───────────────────────────────────────────────
 #         if has_so:
 #             so_join = "LEFT JOIN sale_order so ON so.name = sm.origin"
 #             so_name = "so.name"
@@ -567,7 +564,6 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 #             so_name = "NULL::varchar"
 #             so_cond = "FALSE"
 #
-#         # ── Purchase order ───────────────────────────────────────────
 #         if has_po:
 #             po_join = "LEFT JOIN purchase_order po ON po.name = sm.origin"
 #             po_name = "po.name"
@@ -581,7 +577,6 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 # CREATE OR REPLACE VIEW product_stock_ledger AS
 #
 # WITH
-# -- 1. Map every internal stock location to its warehouse
 # loc_warehouse AS (
 #     SELECT DISTINCT ON (sl.id)
 #         sl.id AS location_id,
@@ -599,7 +594,6 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 # ),
 # {cost_cte}
 #
-# -- 2. Main ledger rows
 # ledger AS (
 #     SELECT
 #         sml.id                                               AS id,
@@ -715,14 +709,157 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 #         self.env.cr.execute(sql)
 #
 #     # ------------------------------------------------------------------
+#     def action_open_delete_wizard(self):
+#         """Open confirmation wizard to delete selected ledger entries."""
+#         if not self:
+#             raise UserError(_('Please select at least one record to delete.'))
+#
+#         # Collect stock move IDs from selected ledger rows
+#         move_ids = self.mapped('move_id').ids
+#         if not move_ids:
+#             raise UserError(_('No stock moves linked to the selected records.'))
+#
+#         return {
+#             'type': 'ir.actions.act_window',
+#             'name': _('Delete Ledger Entries'),
+#             'res_model': 'product.stock.ledger.delete.wizard',
+#             'view_mode': 'form',
+#             'target': 'new',
+#             'context': {
+#                 'default_move_ids': move_ids,
+#                 'default_ledger_count': len(self),
+#             },
+#         }
+#
+#     # ------------------------------------------------------------------
 #     def write(self, vals):
-#         raise UserError('Stock Ledger records are read-only.')
+#         raise UserError(_('Stock Ledger records are read-only.'))
 #
 #     def create(self, vals):
-#         raise UserError('Stock Ledger records are read-only.')
+#         raise UserError(_('Stock Ledger records are read-only.'))
 #
 #     def unlink(self):
-#         raise UserError('Stock Ledger records are read-only.')
+#         raise UserError(_('Stock Ledger records are read-only.'))
 #
 #
+# # ======================================================================
+#
+# class ProductStockLedgerDeleteWizard(models.TransientModel):
+#     """Confirmation wizard — deletes underlying stock.move records."""
+#     _name = 'product.stock.ledger.delete.wizard'
+#     _description = 'Delete Stock Ledger Entries'
+#
+#     move_ids = fields.Many2many(
+#         'stock.move',
+#         string='Stock Moves to Delete',
+#         readonly=True,
+#     )
+#     ledger_count = fields.Integer(
+#         string='Selected Rows',
+#         readonly=True,
+#     )
+#     summary = fields.Html(
+#         string='Summary',
+#         compute='_compute_summary',
+#     )
+#
+#     def _compute_summary(self):
+#         for rec in self:
+#             rows = []
+#             for move in rec.move_ids:
+#                 rows.append(
+#                     f"<tr>"
+#                     f"<td style='padding:4px 10px'>{move.reference or ''}</td>"
+#                     f"<td style='padding:4px 10px'>{move.date.strftime('%d/%m/%Y') if move.date else ''}</td>"
+#                     f"<td style='padding:4px 10px'>{move.product_id.display_name or ''}</td>"
+#                     f"<td style='padding:4px 10px; text-align:right'>{move.quantity:.4f}</td>"
+#                     f"</tr>"
+#                 )
+#             table = (
+#                 "<table style='width:100%;border-collapse:collapse;font-size:13px'>"
+#                 "<thead><tr style='background:#f5f5f5'>"
+#                 "<th style='padding:6px 10px;text-align:left'>Reference</th>"
+#                 "<th style='padding:6px 10px;text-align:left'>Date</th>"
+#                 "<th style='padding:6px 10px;text-align:left'>Product</th>"
+#                 "<th style='padding:6px 10px;text-align:right'>Quantity</th>"
+#                 "</tr></thead><tbody>"
+#                 + "".join(rows)
+#                 + "</tbody></table>"
+#             )
+#             rec.summary = table
+#
+#     def _table_exists(self, table_name):
+#         """Check if a PostgreSQL table exists in the public schema."""
+#         self.env.cr.execute("""
+#             SELECT EXISTS (
+#                 SELECT 1 FROM information_schema.tables
+#                 WHERE table_schema = 'public'
+#                   AND table_name = %s
+#             )
+#         """, (table_name,))
+#         return self.env.cr.fetchone()[0]
+#
+#     def action_confirm_delete(self):
+#         """Delete stock moves and all related records."""
+#         self.ensure_one()
+#
+#         # Only inventory managers can delete
+#         if not self.env.user.has_group('stock.group_stock_manager'):
+#             raise AccessError(_('Only Inventory Managers can delete stock ledger entries.'))
+#
+#         move_ids = self.move_ids.ids
+#         if not move_ids:
+#             raise UserError(_('No stock moves to delete.'))
+#
+#         cr = self.env.cr
+#
+#         # 1. Delete stock valuation layers (only if table exists — CE may not have it)
+#         if self._table_exists('stock_valuation_layer'):
+#             cr.execute(
+#                 "DELETE FROM stock_valuation_layer WHERE stock_move_id = ANY(%s)",
+#                 (move_ids,)
+#             )
+#
+#         # 2. Delete stock account move line links (if table exists)
+#         if self._table_exists('stock_move_account_move_line_rel'):
+#             cr.execute(
+#                 "DELETE FROM stock_move_account_move_line_rel WHERE stock_move_id = ANY(%s)",
+#                 (move_ids,)
+#             )
+#
+#         # 3. Delete stock move lines
+#         cr.execute(
+#             "DELETE FROM stock_move_line WHERE move_id = ANY(%s)",
+#             (move_ids,)
+#         )
+#
+#         # 4. Delete stock moves
+#         cr.execute(
+#             "DELETE FROM stock_move WHERE id = ANY(%s)",
+#             (move_ids,)
+#         )
+#
+#         # 4. Clean up orphan zero quants
+#         cr.execute("""
+#             DELETE FROM stock_quant
+#             WHERE quantity = 0
+#               AND reserved_quantity = 0
+#         """)
+#
+#         return {
+#             'type': 'ir.actions.client',
+#             'tag': 'display_notification',
+#             'params': {
+#                 'title': _('Deleted Successfully'),
+#                 'message': _(
+#                     '%d stock move(s) removed from the ledger.'
+#                 ) % len(move_ids),
+#                 'type': 'success',
+#                 'sticky': False,
+#                 'next': {'type': 'ir.actions.act_window_close'},
+#             },
+#         }
+#
+#     def action_cancel(self):
+#         return {'type': 'ir.actions.act_window_close'}
 #

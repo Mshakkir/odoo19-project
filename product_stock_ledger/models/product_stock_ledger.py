@@ -117,7 +117,8 @@ move_cost AS (
             cost_field = "0::numeric"
 
         if has_so:
-            so_join = "LEFT JOIN sale_order so ON so.name = sm.origin"
+            # Join via stock_picking.sale_id (direct FK) — reliable, no string matching
+            so_join = "LEFT JOIN sale_order so ON so.id = sp.sale_id"
             so_name = "so.name"
             so_cond = "so.id IS NOT NULL"
         else:
@@ -126,7 +127,8 @@ move_cost AS (
             so_cond = "FALSE"
 
         if has_po:
-            po_join = "LEFT JOIN purchase_order po ON po.name = sm.origin"
+            # Join via stock_picking.purchase_id (direct FK) — reliable, no string matching
+            po_join = "LEFT JOIN purchase_order po ON po.id = sp.purchase_id"
             po_name = "po.name"
             po_cond = "po.id IS NOT NULL"
         else:
@@ -163,10 +165,12 @@ loc_warehouse AS (
         sm.date                                              AS date,
         TO_CHAR(sm.date AT TIME ZONE 'UTC', 'DD/MM/YY')     AS date_str,
 
-        COALESCE({so_name}, {po_name}, sp.name, sm.origin, {sm_ref}, '')
-                                                             AS voucher,
+        -- Voucher: the physical stock document (picking name)
+        COALESCE(sp.name, sm.origin, {sm_ref}, '')           AS voucher,
 
-        COALESCE(sm.origin, {sm_ref}, sp.name, '')           AS particulars,
+        -- Particulars: the source order (SO/PO) that generated this movement
+        COALESCE({so_name}, {po_name}, sm.origin, {sm_ref}, sp.name, '')
+                                                             AS particulars,
 
         CASE
             WHEN src_loc.usage = 'supplier'                          THEN 'IN'

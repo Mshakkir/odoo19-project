@@ -96,6 +96,22 @@ class ProductStockLedger(models.Model):
         so_inv = 'so.invoice_status' if has_so and self._col_exists('sale_order', 'invoice_status') else "NULL::varchar"
         po_inv = 'po.invoice_status' if has_po and self._col_exists('purchase_order', 'invoice_status') else "NULL::varchar"
 
+        # ── Cost source priority ──────────────────────────────────────
+        # 1. stock_valuation_layer  (most accurate, only if table exists)
+        # 2. purchase_order_line.price_unit via sm.purchase_line_id  (IN moves)
+        # 3. sale_order_line.price_unit    via sm.sale_line_id        (OUT moves)
+        # 4. sm.price_unit                                             (fallback)
+        # ─────────────────────────────────────────────────────────────
+        has_sm_purchase_line = self._col_exists('stock_move', 'purchase_line_id')
+        has_sm_sale_line     = self._col_exists('stock_move', 'sale_line_id')
+        has_sm_price_unit    = self._col_exists('stock_move', 'price_unit')
+        has_pol_price        = has_po and self._col_exists('purchase_order_line', 'price_unit')
+        has_sol              = self._table_exists('sale_order_line')
+        has_sol_price        = has_sol and self._col_exists('sale_order_line', 'price_unit')
+
+        cost_cte  = ""
+        cost_join = ""
+
         if has_svl:
             cost_cte = """,
 move_cost AS (
@@ -110,18 +126,33 @@ move_cost AS (
     GROUP BY stock_move_id
 )"""
             cost_join  = "LEFT JOIN move_cost mc ON mc.stock_move_id = sm.id"
-            cost_field = "COALESCE(mc.unit_cost, 0)"
+            svl_cost   = "COALESCE(mc.unit_cost, 0)"
         else:
-            cost_cte   = ""
-            cost_join  = ""
-            cost_field = "0::numeric"
+            svl_cost   = "NULL::numeric"
 
-        # Detect actual FK column names on stock_picking at runtime
-        sp_sale_col     = 'sale_id'     if self._col_exists('stock_picking', 'sale_id')     else None
-        sp_purchase_col = 'purchase_id' if self._col_exists('stock_picking', 'purchase_id') else None
+        # Build fallback chain: SVL → POL price → SOL price → sm.price_unit → 0
+        pol_price = "pol.price_unit" if has_sm_purchase_line and has_pol_price else "NULL::numeric"
+        sol_price = "sol.price_unit" if has_sm_sale_line and has_sol_price     else "NULL::numeric"
+        sm_price  = "sm.price_unit"  if has_sm_price_unit                      else "NULL::numeric"
+        cost_field = f"COALESCE(NULLIF({svl_cost},0), NULLIF({pol_price},0), NULLIF({sol_price},0), NULLIF({sm_price},0), 0)"
+
+        # Extra joins for cost fallback
+        if has_sm_purchase_line and has_pol_price:
+            cost_join += "\n    LEFT JOIN purchase_order_line pol ON pol.id = sm.purchase_line_id"
+        if has_sm_sale_line and has_sol_price:
+            cost_join += "\n    LEFT JOIN sale_order_line sol ON sol.id = sm.sale_line_id"
+
+        # ── SO/PO joins for voucher/particulars/invoice_status ────────
+        # Use direct FK on stock_picking where available, else sm.origin
+        sp_sale_col     = 'sale_id'  if self._col_exists('stock_picking', 'sale_id')     else None
+        sp_purchase_col = None  # no purchase_id on stock_picking in this version
 
         if has_so and sp_sale_col:
             so_join = f"LEFT JOIN sale_order so ON so.id = sp.{sp_sale_col}"
+            so_name = "so.name"
+            so_cond = "so.id IS NOT NULL"
+        elif has_so and has_sm_sale_line:
+            so_join = "LEFT JOIN sale_order so ON so.id = (SELECT order_id FROM sale_order_line WHERE id = sm.sale_line_id)"
             so_name = "so.name"
             so_cond = "so.id IS NOT NULL"
         elif has_so:
@@ -133,8 +164,9 @@ move_cost AS (
             so_name = "NULL::varchar"
             so_cond = "FALSE"
 
-        if has_po and sp_purchase_col:
-            po_join = f"LEFT JOIN purchase_order po ON po.id = sp.{sp_purchase_col}"
+        if has_po and has_sm_purchase_line:
+            # Join PO via sm.purchase_line_id → purchase_order_line → purchase_order
+            po_join = "LEFT JOIN purchase_order po ON po.id = (SELECT order_id FROM purchase_order_line WHERE id = sm.purchase_line_id)"
             po_name = "po.name"
             po_cond = "po.id IS NOT NULL"
         elif has_po:
@@ -437,7 +469,6 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 
     def action_cancel(self):
         return {'type': 'ir.actions.act_window_close'}
-
 
 
 

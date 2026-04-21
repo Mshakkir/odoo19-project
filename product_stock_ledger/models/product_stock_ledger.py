@@ -116,9 +116,16 @@ move_cost AS (
             cost_join  = ""
             cost_field = "0::numeric"
 
-        if has_so:
-            # Join via stock_picking.sale_id (direct FK) — reliable, no string matching
-            so_join = "LEFT JOIN sale_order so ON so.id = sp.sale_id"
+        # Detect actual FK column names on stock_picking at runtime
+        sp_sale_col     = 'sale_id'     if self._col_exists('stock_picking', 'sale_id')     else None
+        sp_purchase_col = 'purchase_id' if self._col_exists('stock_picking', 'purchase_id') else None
+
+        if has_so and sp_sale_col:
+            so_join = f"LEFT JOIN sale_order so ON so.id = sp.{sp_sale_col}"
+            so_name = "so.name"
+            so_cond = "so.id IS NOT NULL"
+        elif has_so:
+            so_join = "LEFT JOIN sale_order so ON so.name = sm.origin"
             so_name = "so.name"
             so_cond = "so.id IS NOT NULL"
         else:
@@ -126,9 +133,12 @@ move_cost AS (
             so_name = "NULL::varchar"
             so_cond = "FALSE"
 
-        if has_po:
-            # Join via stock_picking.purchase_id (direct FK) — reliable, no string matching
-            po_join = "LEFT JOIN purchase_order po ON po.id = sp.purchase_id"
+        if has_po and sp_purchase_col:
+            po_join = f"LEFT JOIN purchase_order po ON po.id = sp.{sp_purchase_col}"
+            po_name = "po.name"
+            po_cond = "po.id IS NOT NULL"
+        elif has_po:
+            po_join = "LEFT JOIN purchase_order po ON po.name = sm.origin"
             po_name = "po.name"
             po_cond = "po.id IS NOT NULL"
         else:

@@ -153,12 +153,14 @@
                             <tbody>
                                 <!-- Partner Header Row (summary totals) -->
                                 <tr style="background-color: #f8f9fa; border-top: 2px solid #8B1538;">
-                                    <td colspan="6" style="padding: 10px; border: 1px solid #ddd;">
-                                        <strong t-esc="get_partner_label(data, o)"/>:
-                                        <span t-esc="o.ref" t-if="o.ref"/>
-                                        <span t-if="o.ref"> - </span>
-                                        <strong t-esc="o.name"/>
-                                        <span t-if="o.vat" class="text-muted"> (VAT: <t t-esc="o.vat"/>)</span>
+                                    <td colspan="6" style="padding: 10px; border: 1px solid #ddd; max-width: 0; width: 55%;">
+                                        <div style="word-break: break-word; overflow-wrap: break-word; white-space: normal; max-width: 380px;">
+                                            <strong t-esc="get_partner_label(data, o)"/>:
+                                            <span t-esc="o.ref" t-if="o.ref"/>
+                                            <span t-if="o.ref"> - </span>
+                                            <strong t-esc="o.name"/>
+                                            <span t-if="o.vat" class="text-muted"> (VAT: <t t-esc="o.vat"/>)</span>
+                                        </div>
                                     </td>
 
                                     <!-- Debit summary -->
@@ -416,20 +418,24 @@
 <!--                            </div>-->
 <!--                            <div class="col-4">-->
 <!--                                <strong t-esc="partner_type_info['display_label']"/>:-->
-<!--                                <p t-esc="partner_type_info['count']" style="margin: 3px 0;"/>-->
+<!--                                <p style="margin: 3px 0;">-->
+<!--                                    <t t-esc="partner_type_info['count']"/> Partners-->
+<!--                                </p>-->
 <!--                            </div>-->
 <!--                            <div class="col-4">-->
-<!--                                <strong>Reconciled Items:</strong>-->
+<!--                                <strong>Period:</strong>-->
 <!--                                <p style="margin: 3px 0;">-->
-<!--                                    <span t-if="data['form']['reconciled']">Included</span>-->
-<!--                                    <span t-else="">Excluded</span>-->
+<!--                                    <span t-if="data['form'].get('date_from')" t-esc="data['form']['date_from']"/>-->
+<!--                                    <span t-if="data['form'].get('date_from') and data['form'].get('date_to')"> - </span>-->
+<!--                                    <span t-if="data['form'].get('date_to')" t-esc="data['form']['date_to']"/>-->
+<!--                                    <span t-if="not data['form'].get('date_from') and not data['form'].get('date_to')">All Dates</span>-->
 <!--                                </p>-->
 <!--                            </div>-->
 <!--                        </div>-->
 <!--                    </div>-->
 
-<!--                    &lt;!&ndash; Partner Ledger Table - original columns, values already SAR-converted &ndash;&gt;-->
-<!--                    <table class="table table-sm table-bordered ledger-table"-->
+<!--                    &lt;!&ndash; Ledger Table &ndash;&gt;-->
+<!--                    <table class="ledger-table"-->
 <!--                           style="margin-bottom: 15px; width: 100%; border-collapse: collapse;">-->
 <!--                        <thead>-->
 <!--                            <tr style="background-color: #A3AABE; color: black;">-->
@@ -447,8 +453,12 @@
 <!--                            </tr>-->
 <!--                        </thead>-->
 <!--                        <t t-foreach="docs" t-as="o">-->
+<!--                            &lt;!&ndash; FIX: Compute partner summary once using the new helper.-->
+<!--                                 This returns amounts in foreign currency when all lines-->
+<!--                                 use the same foreign currency, otherwise company currency. &ndash;&gt;-->
+<!--                            <t t-set="p_summary" t-value="get_partner_summary(data, o)"/>-->
 <!--                            <tbody>-->
-<!--                                &lt;!&ndash; Partner Header Row &ndash;&gt;-->
+<!--                                &lt;!&ndash; Partner Header Row (summary totals) &ndash;&gt;-->
 <!--                                <tr style="background-color: #f8f9fa; border-top: 2px solid #8B1538;">-->
 <!--                                    <td colspan="6" style="padding: 10px; border: 1px solid #ddd;">-->
 <!--                                        <strong t-esc="get_partner_label(data, o)"/>:-->
@@ -457,18 +467,46 @@
 <!--                                        <strong t-esc="o.name"/>-->
 <!--                                        <span t-if="o.vat" class="text-muted"> (VAT: <t t-esc="o.vat"/>)</span>-->
 <!--                                    </td>-->
+
+<!--                                    &lt;!&ndash; Debit summary &ndash;&gt;-->
 <!--                                    <td class="text-end" style="padding: 10px; border: 1px solid #ddd;">-->
-<!--                                        <strong t-esc="sum_partner(data, o, 'debit')"-->
-<!--                                                t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        <t t-if="p_summary['is_foreign']">-->
+<!--                                            <strong>-->
+<!--                                                <span t-esc="p_summary['currency_symbol']"/>&#160;<span t-esc="'%.2f' % p_summary['debit']"/>-->
+<!--                                            </strong>-->
+<!--                                        </t>-->
+<!--                                        <t t-else="">-->
+<!--                                            <strong t-esc="p_summary['debit']"-->
+<!--                                                    t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </t>-->
 <!--                                    </td>-->
+
+<!--                                    &lt;!&ndash; Credit summary &ndash;&gt;-->
 <!--                                    <td class="text-end" style="padding: 10px; border: 1px solid #ddd;">-->
-<!--                                        <strong t-esc="sum_partner(data, o, 'credit')"-->
-<!--                                                t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        <t t-if="p_summary['is_foreign']">-->
+<!--                                            <strong>-->
+<!--                                                <span t-esc="p_summary['currency_symbol']"/>&#160;<span t-esc="'%.2f' % p_summary['credit']"/>-->
+<!--                                            </strong>-->
+<!--                                        </t>-->
+<!--                                        <t t-else="">-->
+<!--                                            <strong t-esc="p_summary['credit']"-->
+<!--                                                    t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </t>-->
 <!--                                    </td>-->
+
+<!--                                    &lt;!&ndash; Balance summary &ndash;&gt;-->
 <!--                                    <td class="text-end" style="padding: 10px; border: 1px solid #ddd;">-->
-<!--                                        <strong t-esc="sum_partner(data, o, 'debit - credit')"-->
-<!--                                                t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        <t t-if="p_summary['is_foreign']">-->
+<!--                                            <strong>-->
+<!--                                                <span t-esc="p_summary['currency_symbol']"/>&#160;<span t-esc="'%.2f' % p_summary['balance']"/>-->
+<!--                                            </strong>-->
+<!--                                        </t>-->
+<!--                                        <t t-else="">-->
+<!--                                            <strong t-esc="p_summary['balance']"-->
+<!--                                                    t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </t>-->
 <!--                                    </td>-->
+
 <!--                                    <td t-if="data['form']['amount_currency']" style="padding: 10px; border: 1px solid #ddd;"/>-->
 <!--                                </tr>-->
 
@@ -492,21 +530,40 @@
 <!--                                    <td style="padding: 5px; border: 1px solid #ddd;">-->
 <!--                                        <span t-esc="line['po_number']"/>-->
 <!--                                    </td>-->
-<!--                                    &lt;!&ndash; Debit: SAR-converted value already in line['debit'] &ndash;&gt;-->
+
+<!--                                    &lt;!&ndash; Debit: show foreign currency amount with its own symbol, else company currency &ndash;&gt;-->
 <!--                                    <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">-->
-<!--                                        <span t-esc="line['debit']"-->
-<!--                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        <t t-if="line.get('is_foreign_currency') and line['debit']">-->
+<!--                                            <span t-esc="line['display_currency_symbol']"/>&#160;<span t-esc="'%.2f' % line['debit']"/>-->
+<!--                                        </t>-->
+<!--                                        <t t-elif="not line.get('is_foreign_currency')">-->
+<!--                                            <span t-esc="line['debit']"-->
+<!--                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </t>-->
 <!--                                    </td>-->
-<!--                                    &lt;!&ndash; Credit: SAR-converted value already in line['credit'] &ndash;&gt;-->
+
+<!--                                    &lt;!&ndash; Credit: show foreign currency amount with its own symbol, else company currency &ndash;&gt;-->
 <!--                                    <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">-->
-<!--                                        <span t-esc="line['credit']"-->
-<!--                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        <t t-if="line.get('is_foreign_currency') and line['credit']">-->
+<!--                                            <span t-esc="line['display_currency_symbol']"/>&#160;<span t-esc="'%.2f' % line['credit']"/>-->
+<!--                                        </t>-->
+<!--                                        <t t-elif="not line.get('is_foreign_currency')">-->
+<!--                                            <span t-esc="line['credit']"-->
+<!--                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </t>-->
 <!--                                    </td>-->
-<!--                                    &lt;!&ndash; Balance: SAR-converted running balance &ndash;&gt;-->
+
+<!--                                    &lt;!&ndash; Balance: show foreign currency symbol+amount when foreign, else company currency &ndash;&gt;-->
 <!--                                    <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">-->
-<!--                                        <span t-esc="line['progress']"-->
-<!--                                              t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        <t t-if="line.get('is_foreign_currency')">-->
+<!--                                            <span t-esc="line['display_currency_symbol']"/>&#160;<span t-esc="'%.2f' % line['progress']"/>-->
+<!--                                        </t>-->
+<!--                                        <t t-else="">-->
+<!--                                            <span t-esc="line['progress']"-->
+<!--                                                  t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>-->
+<!--                                        </t>-->
 <!--                                    </td>-->
+
 <!--                                    <td class="text-end" t-if="data['form']['amount_currency']"-->
 <!--                                        style="padding: 5px; border: 1px solid #ddd;">-->
 <!--                                        <t t-if="line['currency_id']">-->
@@ -542,4 +599,8 @@
 <!--    </template>-->
 
 <!--</odoo>-->
+
+
+
+
 

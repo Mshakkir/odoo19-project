@@ -70,7 +70,8 @@ class ProductStockLedger(models.Model):
         )
 
     def init(self):
-        tools.drop_view_if_exists(self.env.cr, self._table)
+        # Explicitly drop first so every module upgrade rebuilds the view
+        self.env.cr.execute("DROP VIEW IF EXISTS %s" % self._table)
 
         has_svl = self._table_exists('stock_valuation_layer')
         has_so  = self._table_exists('sale_order')
@@ -422,7 +423,6 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 
     def action_cancel(self):
         return {'type': 'ir.actions.act_window_close'}
-
 
 
 

@@ -270,24 +270,11 @@ sol_cost AS (
             po_cond   = "FALSE"
             po_inv    = "NULL::varchar"
 
-        # ── Assemble all CTEs ─────────────────────────────────────────────
-        # Remove trailing commas from the last CTE before ledger CTE
-        all_ctes = "".join(filter(None, [
-            svl_cte,
-            aml_purchase_cte,
-            aml_sale_cte,
-            pol_cte,
-            sol_cte,
-        ]))
-        # Strip trailing comma+whitespace before "ledger AS"
-        if all_ctes.strip().endswith(','):
-            all_ctes = all_ctes.rstrip().rstrip(',')
-
-        sql = f"""
-CREATE OR REPLACE VIEW product_stock_ledger AS
-
-WITH
-loc_warehouse AS (
+        # ── Assemble CTEs ────────────────────────────────────────────────
+        # Strategy: build a list of CTE blocks (each ends with "),"),
+        # join them, then strip the FINAL trailing comma so "ledger AS ("
+        # is valid SQL regardless of how many optional CTEs are present.
+        loc_warehouse_cte = f"""loc_warehouse AS (
     SELECT DISTINCT ON (sl.id)
         sl.id AS location_id,
         sw.id AS warehouse_id
@@ -301,8 +288,21 @@ loc_warehouse AS (
         )
     WHERE sl.usage = 'internal'
     ORDER BY sl.id, sw.id
-),
-{all_ctes}
+),"""
+
+        all_cte_blocks = [loc_warehouse_cte] + [
+            c for c in [svl_cte, aml_purchase_cte, aml_sale_cte, pol_cte, sol_cte]
+            if c.strip()
+        ]
+        # Each block ends with ")," — strip the trailing comma from the last one
+        all_cte_blocks[-1] = all_cte_blocks[-1].rstrip().rstrip(',')
+        all_ctes_sql = "\n".join(all_cte_blocks)
+
+        sql = f"""
+CREATE OR REPLACE VIEW product_stock_ledger AS
+
+WITH
+{all_ctes_sql}
 
 ledger AS (
     SELECT
@@ -585,8 +585,6 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 
     def action_cancel(self):
         return {'type': 'ir.actions.act_window_close'}
-
-
 
 
 

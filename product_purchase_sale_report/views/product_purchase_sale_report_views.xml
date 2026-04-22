@@ -17,17 +17,14 @@
                        decoration-primary="transaction_type == 'purchase'"/>
                 <field name="product_id" string="Product"/>
                 <field name="categ_id" string="Category"/>
-
                 <field name="vendor_id" string="Vendor" optional="show"/>
                 <field name="purchase_order_name" string="Purchase Order" optional="show"/>
                 <field name="bill_number" string="Bill Number" optional="show"/>
                 <field name="receipt_number" string="Receipt Number" optional="show"/>
-
                 <field name="customer_id" string="Customer" optional="show"/>
                 <field name="sale_order_name" string="Sale Order" optional="show"/>
                 <field name="invoice_number" string="Invoice Number" optional="show"/>
                 <field name="delivery_number" string="Delivery Number" optional="show"/>
-
                 <field name="uom_id" string="UoM" optional="show"/>
                 <field name="qty" string="Quantity" sum="Total Qty"/>
                 <field name="unit_price" string="Unit Rate"
@@ -37,7 +34,7 @@
                        widget="monetary"
                        options="{'currency_field': 'currency_id'}"
                        sum="Total"/>
-                <field name="currency_id" invisible="1"/>
+                <field name="currency_id" column_invisible="1"/>
                 <field name="company_id" optional="hide"/>
             </list>
         </field>
@@ -48,7 +45,7 @@
         <field name="name">product.purchase.sale.report.pivot</field>
         <field name="model">product.purchase.sale.report</field>
         <field name="arch" type="xml">
-            <pivot string="Product Purchase &amp; Sale Report" disable_linking="false">
+            <pivot string="Product Purchase &amp; Sale Report">
                 <field name="product_id" type="row"/>
                 <field name="transaction_type" type="col"/>
                 <field name="price_subtotal" type="measure"/>
@@ -63,7 +60,7 @@
         <field name="name">product.purchase.sale.report.graph</field>
         <field name="model">product.purchase.sale.report</field>
         <field name="arch" type="xml">
-            <graph string="Product Purchase &amp; Sale Report" type="bar" stacked="True">
+            <graph string="Product Purchase &amp; Sale Report" type="bar" stacked="1">
                 <field name="product_id" type="row"/>
                 <field name="price_subtotal" type="measure"/>
             </graph>
@@ -77,17 +74,22 @@
         <field name="arch" type="xml">
             <search string="Search Product Purchase &amp; Sale Report">
 
-                <field name="product_id" string="Product"/>
-                <field name="vendor_id" string="Vendor"/>
-                <field name="customer_id" string="Customer"/>
-                <field name="bill_number" string="Bill Number"/>
-                <field name="receipt_number" string="Receipt Number"/>
-                <field name="invoice_number" string="Invoice Number"/>
-                <field name="delivery_number" string="Delivery Number"/>
-                <field name="purchase_order_name" string="Purchase Order"/>
-                <field name="sale_order_name" string="Sale Order"/>
-                <field name="categ_id" string="Product Category"/>
-                <field name="transaction_date" string="Date"/>
+                <field name="product_id"/>
+                <field name="vendor_id"/>
+                <field name="customer_id"/>
+                <field name="categ_id"/>
+                <field name="bill_number" string="Bill Number"
+                       filter_domain="[('bill_number','ilike',self)]"/>
+                <field name="receipt_number" string="Receipt Number"
+                       filter_domain="[('receipt_number','ilike',self)]"/>
+                <field name="invoice_number" string="Invoice Number"
+                       filter_domain="[('invoice_number','ilike',self)]"/>
+                <field name="delivery_number" string="Delivery Number"
+                       filter_domain="[('delivery_number','ilike',self)]"/>
+                <field name="purchase_order_name" string="Purchase Order"
+                       filter_domain="[('purchase_order_name','ilike',self)]"/>
+                <field name="sale_order_name" string="Sale Order"
+                       filter_domain="[('sale_order_name','ilike',self)]"/>
 
                 <filter string="Purchases" name="filter_purchase"
                         domain="[('transaction_type','=','purchase')]"/>
@@ -99,7 +101,7 @@
                             context="{'group_by': 'product_id'}"/>
                     <filter string="Category" name="group_categ"
                             context="{'group_by': 'categ_id'}"/>
-                    <filter string="Type (Purchase/Sale)" name="group_type"
+                    <filter string="Type" name="group_type"
                             context="{'group_by': 'transaction_type'}"/>
                     <filter string="Vendor" name="group_vendor"
                             context="{'group_by': 'vendor_id'}"/>

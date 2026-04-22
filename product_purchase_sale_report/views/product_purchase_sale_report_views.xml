@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- ══════════════════════════════════════════════════════
-         LIST VIEW
-    ══════════════════════════════════════════════════════ -->
+    <!-- LIST VIEW -->
     <record id="view_product_purchase_sale_report_list" model="ir.ui.view">
         <field name="name">product.purchase.sale.report.list</field>
         <field name="model">product.purchase.sale.report</field>
@@ -20,19 +18,16 @@
                 <field name="product_id" string="Product"/>
                 <field name="categ_id" string="Category"/>
 
-                <!-- PURCHASE columns -->
                 <field name="vendor_id" string="Vendor" optional="show"/>
                 <field name="purchase_order_name" string="Purchase Order" optional="show"/>
                 <field name="bill_number" string="Bill Number" optional="show"/>
                 <field name="receipt_number" string="Receipt Number" optional="show"/>
 
-                <!-- SALE columns -->
                 <field name="customer_id" string="Customer" optional="show"/>
                 <field name="sale_order_name" string="Sale Order" optional="show"/>
                 <field name="invoice_number" string="Invoice Number" optional="show"/>
                 <field name="delivery_number" string="Delivery Number" optional="show"/>
 
-                <!-- Qty &amp; Price -->
                 <field name="uom_id" string="UoM" optional="show"/>
                 <field name="qty" string="Quantity" sum="Total Qty"/>
                 <field name="unit_price" string="Unit Rate"
@@ -48,9 +43,7 @@
         </field>
     </record>
 
-    <!-- ══════════════════════════════════════════════════════
-         PIVOT VIEW
-    ══════════════════════════════════════════════════════ -->
+    <!-- PIVOT VIEW -->
     <record id="view_product_purchase_sale_report_pivot" model="ir.ui.view">
         <field name="name">product.purchase.sale.report.pivot</field>
         <field name="model">product.purchase.sale.report</field>
@@ -65,9 +58,7 @@
         </field>
     </record>
 
-    <!-- ══════════════════════════════════════════════════════
-         GRAPH VIEW
-    ══════════════════════════════════════════════════════ -->
+    <!-- GRAPH VIEW -->
     <record id="view_product_purchase_sale_report_graph" model="ir.ui.view">
         <field name="name">product.purchase.sale.report.graph</field>
         <field name="model">product.purchase.sale.report</field>
@@ -79,16 +70,13 @@
         </field>
     </record>
 
-    <!-- ══════════════════════════════════════════════════════
-         SEARCH VIEW
-    ══════════════════════════════════════════════════════ -->
+    <!-- SEARCH VIEW -->
     <record id="view_product_purchase_sale_report_search" model="ir.ui.view">
         <field name="name">product.purchase.sale.report.search</field>
         <field name="model">product.purchase.sale.report</field>
         <field name="arch" type="xml">
             <search string="Search Product Purchase &amp; Sale Report">
 
-                <!-- Search fields -->
                 <field name="product_id" string="Product"/>
                 <field name="vendor_id" string="Vendor"/>
                 <field name="customer_id" string="Customer"/>
@@ -99,23 +87,13 @@
                 <field name="purchase_order_name" string="Purchase Order"/>
                 <field name="sale_order_name" string="Sale Order"/>
                 <field name="categ_id" string="Product Category"/>
+                <field name="transaction_date" string="Date"/>
 
-                <!-- Filters -->
                 <filter string="Purchases" name="filter_purchase"
                         domain="[('transaction_type','=','purchase')]"/>
                 <filter string="Sales" name="filter_sale"
                         domain="[('transaction_type','=','sale')]"/>
-                <separator/>
-                <filter string="This Month" name="filter_this_month"
-                        domain="[('transaction_date','&gt;=', (context_today() + relativedelta(day=1)).strftime('%Y-%m-%d'))]"/>
-                <filter string="This Year" name="filter_this_year"
-                        domain="[('transaction_date','&gt;=', (context_today() + relativedelta(month=1, day=1)).strftime('%Y-%m-%d'))]"/>
-                <separator/>
-                <filter string="Date" name="filter_date"
-                        domain="[]"
-                        context="{'search_default_transaction_date': 1}"/>
 
-                <!-- Group By -->
                 <group expand="0" string="Group By">
                     <filter string="Product" name="group_product"
                             context="{'group_by': 'product_id'}"/>
@@ -127,8 +105,10 @@
                             context="{'group_by': 'vendor_id'}"/>
                     <filter string="Customer" name="group_customer"
                             context="{'group_by': 'customer_id'}"/>
-                    <filter string="Date" name="group_date"
+                    <filter string="Month" name="group_date_month"
                             context="{'group_by': 'transaction_date:month'}"/>
+                    <filter string="Year" name="group_date_year"
+                            context="{'group_by': 'transaction_date:year'}"/>
                     <filter string="Company" name="group_company"
                             context="{'group_by': 'company_id'}"/>
                 </group>
@@ -136,17 +116,13 @@
         </field>
     </record>
 
-    <!-- ══════════════════════════════════════════════════════
-         ACTION — opens in new window (target="new")
-    ══════════════════════════════════════════════════════ -->
+    <!-- ACTION -->
     <record id="action_product_purchase_sale_report" model="ir.actions.act_window">
         <field name="name">Purchase &amp; Sale Report</field>
         <field name="res_model">product.purchase.sale.report</field>
         <field name="view_mode">list,pivot,graph</field>
         <field name="target">new</field>
-        <field name="context">{
-            'search_default_group_product': 0
-        }</field>
+        <field name="context">{}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No transactions found!

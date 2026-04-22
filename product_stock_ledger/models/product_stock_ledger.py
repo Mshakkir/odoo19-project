@@ -206,7 +206,7 @@ class ProductStockLedger(models.Model):
       AND dest2.usage = 'internal'
       AND src2.usage  != 'internal'
       AND sm2.purchase_line_id IS NULL
-    ORDER BY sm2.id, ABS(EXTRACT(EPOCH FROM (am.invoice_date - sm2.date::date)))
+    ORDER BY sm2.id, ABS((am.invoice_date - sm2.date::date)::integer)
 )""")
 
         # direct_sale_cost — for customer invoices created WITHOUT a sale order
@@ -235,7 +235,7 @@ class ProductStockLedger(models.Model):
       AND src2.usage  = 'internal'
       AND dest2.usage != 'internal'
       AND sm2.sale_line_id IS NULL
-    ORDER BY sm2.id, ABS(EXTRACT(EPOCH FROM (am.invoice_date - sm2.date::date)))
+    ORDER BY sm2.id, ABS((am.invoice_date - sm2.date::date)::integer)
 )""")
 
         # pol_cost — purchase order line price fallback

@@ -64,8 +64,8 @@ class ProductPurchaseSaleReport(models.Model):
         # Link receipts via:  po → pol → stock_move.purchase_line_id → sml → sp
         # Link deliveries via: so → sol → stock_move.sale_line_id   → sml → sp
         #
-        # Also: account_move_line has no sale_line_ids array in plain SQL.
-        # Use sale_order_line_invoice_rel join table instead.
+        # NOTE: stock_picking has NO picking_type_code column.
+        # The code lives in stock_picking_type.code (joined via picking_type_id).
 
         has_sp_purchase_id = self._col_exists('stock_picking', 'purchase_id')
         has_sp_sale_id     = self._col_exists('stock_picking', 'sale_id')
@@ -73,14 +73,17 @@ class ProductPurchaseSaleReport(models.Model):
         has_aml_pol        = self._col_exists('account_move_line', 'purchase_line_id')
 
         # ── Receipt join (purchase side) ──────────────────────────────────────
-        # Preferred: sp.purchase_id (if column exists)
-        # Fallback:  join via stock_move lines
+        # picking_type_code → join stock_picking_type spt ON spt.id = sp.picking_type_id
         if has_sp_purchase_id:
             receipt_join = """
             LEFT JOIN stock_picking sp
                 ON sp.purchase_id = po.id
                AND sp.state = 'done'
-               AND sp.picking_type_code = 'incoming'"""
+               AND EXISTS (
+                   SELECT 1 FROM stock_picking_type spt
+                   WHERE spt.id = sp.picking_type_id
+                     AND spt.code = 'incoming'
+               )"""
         else:
             # CE path: po → pol → stock_move → stock_move_line → stock_picking
             receipt_join = """
@@ -89,9 +92,14 @@ class ProductPurchaseSaleReport(models.Model):
                     SELECT sml.picking_id
                     FROM stock_move sm2
                     JOIN stock_move_line sml ON sml.move_id = sm2.id
+                    JOIN stock_picking_type spt ON spt.id = (
+                        SELECT picking_type_id FROM stock_picking
+                        WHERE id = sml.picking_id LIMIT 1
+                    )
                     WHERE sm2.purchase_line_id = pol.id
                       AND sm2.state = 'done'
                       AND sml.picking_id IS NOT NULL
+                      AND spt.code = 'incoming'
                     LIMIT 1
                 )"""
 
@@ -101,7 +109,11 @@ class ProductPurchaseSaleReport(models.Model):
             LEFT JOIN stock_picking sp
                 ON sp.sale_id = so.id
                AND sp.state = 'done'
-               AND sp.picking_type_code = 'outgoing'"""
+               AND EXISTS (
+                   SELECT 1 FROM stock_picking_type spt
+                   WHERE spt.id = sp.picking_type_id
+                     AND spt.code = 'outgoing'
+               )"""
         else:
             delivery_join = """
             LEFT JOIN stock_picking sp
@@ -109,15 +121,18 @@ class ProductPurchaseSaleReport(models.Model):
                     SELECT sml.picking_id
                     FROM stock_move sm2
                     JOIN stock_move_line sml ON sml.move_id = sm2.id
+                    JOIN stock_picking_type spt ON spt.id = (
+                        SELECT picking_type_id FROM stock_picking
+                        WHERE id = sml.picking_id LIMIT 1
+                    )
                     WHERE sm2.sale_line_id = sol.id
                       AND sm2.state = 'done'
                       AND sml.picking_id IS NOT NULL
+                      AND spt.code = 'outgoing'
                     LIMIT 1
                 )"""
 
         # ── Sale order line join from invoice line ────────────────────────────
-        # account_move_line.sale_line_ids is an ORM Many2many — not a real column.
-        # The actual relation table is sale_order_line_invoice_rel.
         if has_sol_inv_rel:
             sale_line_join = """
             LEFT JOIN sale_order_line_invoice_rel sol_rel
@@ -125,7 +140,6 @@ class ProductPurchaseSaleReport(models.Model):
             LEFT JOIN sale_order_line sol
                 ON sol.id = sol_rel.order_line_id"""
         else:
-            # Older builds may store it differently; fall back to NULL
             sale_line_join = """
             LEFT JOIN sale_order_line sol ON FALSE"""
 

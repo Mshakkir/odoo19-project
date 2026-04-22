@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════
+         LIST VIEW
+    ══════════════════════════════════════════════════════ -->
+    <record id="view_product_purchase_sale_report_list" model="ir.ui.view">
+        <field name="name">product.purchase.sale.report.list</field>
+        <field name="model">product.purchase.sale.report</field>
+        <field name="arch" type="xml">
+            <list string="Product Purchase &amp; Sale Report"
+                  create="false" edit="false" delete="false"
+                  decoration-success="transaction_type == 'sale'"
+                  decoration-info="transaction_type == 'purchase'">
+
+                <field name="transaction_date" string="Date"/>
+                <field name="transaction_type" string="Type" widget="badge"
+                       decoration-success="transaction_type == 'sale'"
+                       decoration-primary="transaction_type == 'purchase'"/>
+                <field name="product_id" string="Product"/>
+                <field name="categ_id" string="Category"/>
+
+                <!-- PURCHASE columns -->
+                <field name="vendor_id" string="Vendor"
+                       optional="show"/>
+                <field name="purchase_order_name" string="Purchase Order"
+                       optional="show"/>
+                <field name="bill_number" string="Bill Number"
+                       optional="show"/>
+                <field name="receipt_number" string="Receipt Number"
+                       optional="show"/>
+
+                <!-- SALE columns -->
+                <field name="customer_id" string="Customer"
+                       optional="show"/>
+                <field name="sale_order_name" string="Sale Order"
+                       optional="show"/>
+                <field name="invoice_number" string="Invoice Number"
+                       optional="show"/>
+                <field name="delivery_number" string="Delivery Number"
+                       optional="show"/>
+
+                <!-- Qty & Price -->
+                <field name="uom_id" string="UoM" optional="show"/>
+                <field name="qty" string="Quantity"
+                       sum="Total Qty"/>
+                <field name="unit_price" string="Unit Rate"
+                       widget="monetary"
+                       options="{'currency_field': 'currency_id'}"/>
+                <field name="price_subtotal" string="Subtotal"
+                       widget="monetary"
+                       options="{'currency_field': 'currency_id'}"
+                       sum="Total"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="company_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════
+         PIVOT VIEW
+    ══════════════════════════════════════════════════════ -->
+    <record id="view_product_purchase_sale_report_pivot" model="ir.ui.view">
+        <field name="name">product.purchase.sale.report.pivot</field>
+        <field name="model">product.purchase.sale.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Product Purchase &amp; Sale Report" disable_linking="false">
+                <field name="product_id" type="row"/>
+                <field name="transaction_type" type="col"/>
+                <field name="price_subtotal" type="measure"/>
+                <field name="qty" type="measure"/>
+                <field name="unit_price" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════
+         GRAPH VIEW
+    ══════════════════════════════════════════════════════ -->
+    <record id="view_product_purchase_sale_report_graph" model="ir.ui.view">
+        <field name="name">product.purchase.sale.report.graph</field>
+        <field name="model">product.purchase.sale.report</field>
+        <field name="arch" type="xml">
+            <graph string="Product Purchase &amp; Sale Report" type="bar" stacked="True">
+                <field name="product_id" type="row"/>
+                <field name="price_subtotal" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════
+         SEARCH VIEW
+    ══════════════════════════════════════════════════════ -->
+    <record id="view_product_purchase_sale_report_search" model="ir.ui.view">
+        <field name="name">product.purchase.sale.report.search</field>
+        <field name="model">product.purchase.sale.report</field>
+        <field name="arch" type="xml">
+            <search string="Search Product Purchase &amp; Sale Report">
+
+                <!-- Search fields -->
+                <field name="product_id" string="Product"/>
+                <field name="vendor_id" string="Vendor"/>
+                <field name="customer_id" string="Customer"/>
+                <field name="bill_number" string="Bill Number"/>
+                <field name="receipt_number" string="Receipt Number"/>
+                <field name="invoice_number" string="Invoice Number"/>
+                <field name="delivery_number" string="Delivery Number"/>
+                <field name="purchase_order_name" string="Purchase Order"/>
+                <field name="sale_order_name" string="Sale Order"/>
+                <field name="categ_id" string="Product Category"/>
+
+                <!-- Filters -->
+                <filter string="Purchases" name="filter_purchase"
+                        domain="[('transaction_type','=','purchase')]"/>
+                <filter string="Sales" name="filter_sale"
+                        domain="[('transaction_type','=','sale')]"/>
+                <separator/>
+                <filter string="This Month" name="filter_this_month"
+                        domain="[('transaction_date','&gt;=', (context_today()).strftime('%Y-%m-01'))]"/>
+                <filter string="This Year" name="filter_this_year"
+                        domain="[('transaction_date','&gt;=', (context_today()).strftime('%Y-01-01'))]"/>
+                <separator/>
+                <filter string="Date" name="filter_date"
+                        date="transaction_date"/>
+
+                <!-- Group By -->
+                <group expand="0" string="Group By">
+                    <filter string="Product" name="group_product"
+                            context="{'group_by': 'product_id'}"/>
+                    <filter string="Category" name="group_categ"
+                            context="{'group_by': 'categ_id'}"/>
+                    <filter string="Type (Purchase/Sale)" name="group_type"
+                            context="{'group_by': 'transaction_type'}"/>
+                    <filter string="Vendor" name="group_vendor"
+                            context="{'group_by': 'vendor_id'}"/>
+                    <filter string="Customer" name="group_customer"
+                            context="{'group_by': 'customer_id'}"/>
+                    <filter string="Date" name="group_date"
+                            context="{'group_by': 'transaction_date:month'}"/>
+                    <filter string="Company" name="group_company"
+                            context="{'group_by': 'company_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════
+         ACTION — opens in new window (target="new")
+    ══════════════════════════════════════════════════════ -->
+    <record id="action_product_purchase_sale_report" model="ir.actions.act_window">
+        <field name="name">Purchase &amp; Sale Report</field>
+        <field name="res_model">product.purchase.sale.report</field>
+        <field name="view_mode">list,pivot,graph</field>
+        <field name="target">new</field>
+        <field name="context">{
+            'search_default_group_product': 0
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No transactions found!
+            </p>
+            <p>
+                This report shows all purchase bills with receipt numbers
+                and sales invoices with delivery numbers per product,
+                including unit rates.
+            </p>
+        </help>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list',  'view_id': ref('view_product_purchase_sale_report_list')}),
+            (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_product_purchase_sale_report_pivot')}),
+            (0, 0, {'view_mode': 'graph', 'view_id': ref('view_product_purchase_sale_report_graph')}),
+        ]"/>
+    </record>
+
+</odoo>

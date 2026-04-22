@@ -11,38 +11,40 @@
                   decoration-success="transaction_type == 'sale'"
                   decoration-info="transaction_type == 'purchase'">
 
-                <field name="transaction_date" string="Date" widget="date"/>
-                <field name="transaction_type" string="Type" widget="badge"
+                <field name="date_str"           string="Date"             optional="show"/>
+                <field name="transaction_type"   string="Type"             widget="badge"
                        decoration-success="transaction_type == 'sale'"
                        decoration-primary="transaction_type == 'purchase'"/>
-                <field name="product_id" string="Product"/>
-                <field name="categ_id" string="Category"/>
-                <field name="warehouse_id" string="Warehouse" optional="show"/>
+                <field name="product_id"         string="Product"/>
+                <field name="categ_id"           string="Category"/>
+                <field name="warehouse_id"       string="Warehouse"        optional="show"/>
 
                 <!-- PURCHASE columns -->
-                <field name="vendor_id" string="Vendor" optional="show"/>
-                <field name="purchase_order_name" string="Purchase Order" optional="show"/>
-                <field name="bill_number" string="Bill Number" optional="show"/>
-                <field name="receipt_number" string="Receipt Number" optional="show"/>
+                <field name="vendor_id"          string="Vendor"           optional="show"/>
+                <field name="purchase_order_name" string="Purchase Order"  optional="show"/>
+                <field name="bill_number"        string="Bill Number"      optional="show"/>
+                <field name="receipt_number"     string="Receipt Number"   optional="show"/>
 
                 <!-- SALE columns -->
-                <field name="customer_id" string="Customer" optional="show"/>
-                <field name="sale_order_name" string="Sale Order" optional="show"/>
-                <field name="invoice_number" string="Invoice Number" optional="show"/>
-                <field name="delivery_number" string="Delivery Number" optional="show"/>
+                <field name="customer_id"        string="Customer"         optional="show"/>
+                <field name="sale_order_name"    string="Sale Order"       optional="show"/>
+                <field name="invoice_number"     string="Invoice Number"   optional="show"/>
+                <field name="delivery_number"    string="Delivery Number"  optional="show"/>
 
                 <!-- Qty &amp; Price -->
-                <field name="uom_id" string="UoM" optional="show"/>
-                <field name="qty" string="Quantity" sum="Total Qty"/>
-                <field name="unit_price" string="Unit Rate"
+                <field name="uom_id"             string="UoM"              optional="show"/>
+                <field name="qty"                string="Quantity"         sum="Total Qty"/>
+                <field name="unit_price"         string="Unit Rate"
                        widget="monetary"
                        options="{'currency_field': 'currency_id'}"/>
-                <field name="price_subtotal" string="Subtotal"
+                <field name="price_subtotal"     string="Subtotal"
                        widget="monetary"
                        options="{'currency_field': 'currency_id'}"
                        sum="Total"/>
-                <field name="currency_id" column_invisible="1"/>
-                <field name="company_id" optional="hide"/>
+                <field name="currency_id"        column_invisible="1"/>
+                <field name="company_id"         optional="hide"/>
+                <!-- hidden: needed for ordering -->
+                <field name="transaction_date"   column_invisible="1"/>
             </list>
         </field>
     </record>
@@ -74,7 +76,7 @@
         </field>
     </record>
 
-    <!-- ACTION — target="current" for full window, not popup -->
+    <!-- ACTION — full window -->
     <record id="action_product_purchase_sale_report" model="ir.actions.act_window">
         <field name="name">Purchase &amp; Sale Report</field>
         <field name="res_model">product.purchase.sale.report</field>

@@ -13,10 +13,10 @@ class ProductPurchaseSaleReport(models.Model):
     product_tmpl_id     = fields.Many2one('product.template',  string='Product Template',  readonly=True)
     categ_id            = fields.Many2one('product.category',  string='Product Category',  readonly=True)
     transaction_date    = fields.Date('Date',                                               readonly=True)
+    date_str            = fields.Char('Date',                                               readonly=True)
     transaction_type    = fields.Selection([('purchase','Purchase'),('sale','Sale')],
                                            string='Type',                                  readonly=True)
     company_id          = fields.Many2one('res.company',       string='Company',           readonly=True)
-
     warehouse_id        = fields.Many2one('stock.warehouse',   string='Warehouse',         readonly=True)
 
     vendor_id           = fields.Many2one('res.partner',       string='Vendor',            readonly=True)
@@ -59,69 +59,28 @@ class ProductPurchaseSaleReport(models.Model):
         """, (table,))
         return self.env.cr.fetchone()[0]
 
+    def _col_type(self, table, col):
+        self.env.cr.execute("""
+            SELECT data_type FROM information_schema.columns
+            WHERE table_schema='public' AND table_name=%s AND column_name=%s
+        """, (table, col))
+        row = self.env.cr.fetchone()
+        return row[0] if row else None
+
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
 
-        has_sp_purchase_id = self._col_exists('stock_picking', 'purchase_id')
-        has_sp_sale_id     = self._col_exists('stock_picking', 'sale_id')
         has_sol_inv_rel    = self._table_exists('sale_order_line_invoice_rel')
         has_aml_pol        = self._col_exists('account_move_line', 'purchase_line_id')
 
-        # ── Receipt join (purchase side) ──────────────────────────────────────
-        # For CE: link via stock_move.purchase_line_id → stock_picking
-        # We join stock_picking directly via stock_move (no stock_move_line needed)
-        if has_sp_purchase_id:
-            receipt_join = """
-            LEFT JOIN stock_picking sp
-                ON sp.purchase_id = po.id
-               AND sp.state = 'done'
-               AND EXISTS (
-                   SELECT 1 FROM stock_picking_type spt
-                   WHERE spt.id = sp.picking_type_id
-                     AND spt.code = 'incoming'
-               )"""
+        # ── Detect jsonb vs varchar for stock_location.complete_name ──────────
+        loc_cn_type = self._col_type('stock_location', 'complete_name')
+        if loc_cn_type and 'json' in loc_cn_type.lower():
+            sl_cn   = "(sl.complete_name->>'en_US')"
+            root_cn = "(root.complete_name->>'en_US')"
         else:
-            # CE: po → pol → stock_move.purchase_line_id → stock_move.picking_id
-            receipt_join = """
-            LEFT JOIN stock_picking sp
-                ON sp.id = (
-                    SELECT sm2.picking_id
-                    FROM stock_move sm2
-                    JOIN stock_picking sp2 ON sp2.id = sm2.picking_id
-                    JOIN stock_picking_type spt2 ON spt2.id = sp2.picking_type_id
-                    WHERE sm2.purchase_line_id = pol.id
-                      AND sm2.state = 'done'
-                      AND sm2.picking_id IS NOT NULL
-                      AND spt2.code = 'incoming'
-                    LIMIT 1
-                )"""
-
-        # ── Delivery join (sale side) ─────────────────────────────────────────
-        if has_sp_sale_id:
-            delivery_join = """
-            LEFT JOIN stock_picking sp
-                ON sp.sale_id = so.id
-               AND sp.state = 'done'
-               AND EXISTS (
-                   SELECT 1 FROM stock_picking_type spt
-                   WHERE spt.id = sp.picking_type_id
-                     AND spt.code = 'outgoing'
-               )"""
-        else:
-            # CE: so → sol → stock_move.sale_line_id → stock_move.picking_id
-            delivery_join = """
-            LEFT JOIN stock_picking sp
-                ON sp.id = (
-                    SELECT sm2.picking_id
-                    FROM stock_move sm2
-                    JOIN stock_picking sp2 ON sp2.id = sm2.picking_id
-                    JOIN stock_picking_type spt2 ON spt2.id = sp2.picking_type_id
-                    WHERE sm2.sale_line_id = sol.id
-                      AND sm2.state = 'done'
-                      AND sm2.picking_id IS NOT NULL
-                      AND spt2.code = 'outgoing'
-                    LIMIT 1
-                )"""
+            sl_cn   = "sl.complete_name"
+            root_cn = "root.complete_name"
 
         # ── Sale order line join from invoice line ────────────────────────────
         if has_sol_inv_rel:
@@ -146,49 +105,71 @@ class ProductPurchaseSaleReport(models.Model):
         sql = """
             CREATE OR REPLACE VIEW %(table)s AS (
 
-            -- ══════════════════════════════════════════════════
-            -- PURCHASE LINES (Vendor Bills linked to Receipts)
-            -- ══════════════════════════════════════════════════
+            -- ══════════════════════════════════════════════════════
+            -- CTE: map every internal stock location to a warehouse
+            -- (same technique as product.stock.ledger)
+            -- ══════════════════════════════════════════════════════
+            WITH loc_warehouse AS (
+                SELECT DISTINCT ON (sl.id)
+                    sl.id  AS location_id,
+                    sw.id  AS warehouse_id
+                FROM stock_location sl
+                JOIN stock_warehouse sw
+                    ON sl.id = sw.lot_stock_id
+                    OR %(sl_cn)s LIKE (
+                        SELECT %(root_cn)s || '/%%'
+                        FROM stock_location root
+                        WHERE root.id = sw.lot_stock_id
+                    )
+                WHERE sl.usage = 'internal'
+                ORDER BY sl.id, sw.id
+            )
+
+            -- ══════════════════════════════════════════════════════
+            -- PURCHASE LINES  (Vendor Bills)
+            -- Receipt = stock.picking linked via stock_move.picking_id
+            -- ══════════════════════════════════════════════════════
             SELECT
-                ROW_NUMBER() OVER ()            AS id,
-                aml.product_id                  AS product_id,
-                pt.id                           AS product_tmpl_id,
-                pt.categ_id                     AS categ_id,
-                am.invoice_date                 AS transaction_date,
-                'purchase'::varchar             AS transaction_type,
-                am.company_id                   AS company_id,
+                ROW_NUMBER() OVER ()                        AS id,
+                aml.product_id                              AS product_id,
+                pt.id                                       AS product_tmpl_id,
+                pt.categ_id                                 AS categ_id,
+                am.invoice_date                             AS transaction_date,
+                TO_CHAR(am.invoice_date, 'DD/MM/YY')        AS date_str,
+                'purchase'::varchar                         AS transaction_type,
+                am.company_id                               AS company_id,
 
-                spt_wh.warehouse_id             AS warehouse_id,
+                lw.warehouse_id                             AS warehouse_id,
 
-                am.partner_id                   AS vendor_id,
-                NULL::integer                   AS customer_id,
+                am.partner_id                               AS vendor_id,
+                NULL::integer                               AS customer_id,
 
-                am.name                         AS bill_number,
-                am.id                           AS bill_id,
+                am.name                                     AS bill_number,
+                am.id                                       AS bill_id,
 
-                sp.name                         AS receipt_number,
-                sp.id                           AS picking_id,
+                sp.name                                     AS receipt_number,
+                sp.id                                       AS picking_id,
 
-                po.id                           AS purchase_order_id,
-                po.name                         AS purchase_order_name,
+                po.id                                       AS purchase_order_id,
+                po.name                                     AS purchase_order_name,
 
-                NULL::varchar                   AS invoice_number,
-                NULL::integer                   AS invoice_id,
-                NULL::varchar                   AS delivery_number,
-                NULL::integer                   AS sale_order_id,
-                NULL::varchar                   AS sale_order_name,
+                NULL::varchar                               AS invoice_number,
+                NULL::integer                               AS invoice_id,
+                NULL::varchar                               AS delivery_number,
+                NULL::integer                               AS sale_order_id,
+                NULL::varchar                               AS sale_order_name,
 
-                aml.quantity                    AS qty,
-                aml.price_unit                  AS unit_price,
-                aml.price_subtotal              AS price_subtotal,
-                am.currency_id                  AS currency_id,
-                aml.product_uom_id              AS uom_id
+                aml.quantity                                AS qty,
+                aml.price_unit                              AS unit_price,
+                aml.price_subtotal                          AS price_subtotal,
+                am.currency_id                              AS currency_id,
+                aml.product_uom_id                          AS uom_id
 
             FROM account_move_line aml
             JOIN account_move am
-                ON am.id = aml.move_id
+                ON am.id        = aml.move_id
                AND am.move_type = 'in_invoice'
-               AND am.state IN ('posted', 'draft')
+               AND am.state     IN ('posted', 'draft')
             JOIN product_product pp
                 ON pp.id = aml.product_id
             JOIN product_template pt
@@ -196,56 +177,69 @@ class ProductPurchaseSaleReport(models.Model):
             %(pur_line_join)s
             LEFT JOIN purchase_order po
                 ON po.id = pol.order_id
-            %(receipt_join)s
-            LEFT JOIN stock_picking_type spt_wh
-                ON spt_wh.id = sp.picking_type_id
+            -- Get the receipt picking directly from stock_move.picking_id
+            LEFT JOIN stock_move sm_pur
+                ON sm_pur.purchase_line_id = pol.id
+               AND sm_pur.state = 'done'
+            LEFT JOIN stock_picking sp
+                ON sp.id = sm_pur.picking_id
+               AND EXISTS (
+                   SELECT 1 FROM stock_picking_type spt
+                   WHERE spt.id = sp.picking_type_id
+                     AND spt.code = 'incoming'
+               )
+            -- Warehouse via the picking's source/dest location
+            LEFT JOIN loc_warehouse lw
+                ON lw.location_id = sp.location_dest_id
             WHERE aml.product_id IS NOT NULL
               AND aml.display_type NOT IN ('line_section', 'line_note')
 
             UNION ALL
 
-            -- ══════════════════════════════════════════════════
-            -- SALE LINES (Customer Invoices linked to Deliveries)
-            -- ══════════════════════════════════════════════════
+            -- ══════════════════════════════════════════════════════
+            -- SALE LINES  (Customer Invoices)
+            -- Delivery = stock.picking linked via stock_move.picking_id
+            -- ══════════════════════════════════════════════════════
             SELECT
-                ROW_NUMBER() OVER ()            AS id,
-                aml.product_id                  AS product_id,
-                pt.id                           AS product_tmpl_id,
-                pt.categ_id                     AS categ_id,
-                am.invoice_date                 AS transaction_date,
-                'sale'::varchar                 AS transaction_type,
-                am.company_id                   AS company_id,
+                ROW_NUMBER() OVER ()                        AS id,
+                aml.product_id                              AS product_id,
+                pt.id                                       AS product_tmpl_id,
+                pt.categ_id                                 AS categ_id,
+                am.invoice_date                             AS transaction_date,
+                TO_CHAR(am.invoice_date, 'DD/MM/YY')        AS date_str,
+                'sale'::varchar                             AS transaction_type,
+                am.company_id                               AS company_id,
 
-                spt_wh.warehouse_id             AS warehouse_id,
+                lw.warehouse_id                             AS warehouse_id,
 
-                NULL::integer                   AS vendor_id,
-                am.partner_id                   AS customer_id,
+                NULL::integer                               AS vendor_id,
+                am.partner_id                               AS customer_id,
 
-                NULL::varchar                   AS bill_number,
-                NULL::integer                   AS bill_id,
-                NULL::varchar                   AS receipt_number,
-                NULL::integer                   AS picking_id,
-                NULL::integer                   AS purchase_order_id,
-                NULL::varchar                   AS purchase_order_name,
+                NULL::varchar                               AS bill_number,
+                NULL::integer                               AS bill_id,
+                NULL::varchar                               AS receipt_number,
+                NULL::integer                               AS picking_id,
+                NULL::integer                               AS purchase_order_id,
+                NULL::varchar                               AS purchase_order_name,
 
-                am.name                         AS invoice_number,
-                am.id                           AS invoice_id,
+                am.name                                     AS invoice_number,
+                am.id                                       AS invoice_id,
 
-                sp.name                         AS delivery_number,
-                so.id                           AS sale_order_id,
-                so.name                         AS sale_order_name,
+                sp.name                                     AS delivery_number,
+                so.id                                       AS sale_order_id,
+                so.name                                     AS sale_order_name,
 
-                aml.quantity                    AS qty,
-                aml.price_unit                  AS unit_price,
-                aml.price_subtotal              AS price_subtotal,
-                am.currency_id                  AS currency_id,
-                aml.product_uom_id              AS uom_id
+                aml.quantity                                AS qty,
+                aml.price_unit                              AS unit_price,
+                aml.price_subtotal                          AS price_subtotal,
+                am.currency_id                              AS currency_id,
+                aml.product_uom_id                          AS uom_id
 
             FROM account_move_line aml
             JOIN account_move am
-                ON am.id = aml.move_id
+                ON am.id        = aml.move_id
                AND am.move_type = 'out_invoice'
-               AND am.state IN ('posted', 'draft')
+               AND am.state     IN ('posted', 'draft')
             JOIN product_product pp
                 ON pp.id = aml.product_id
             JOIN product_template pt
@@ -253,18 +247,29 @@ class ProductPurchaseSaleReport(models.Model):
             %(sale_line_join)s
             LEFT JOIN sale_order so
                 ON so.id = sol.order_id
-            %(delivery_join)s
-            LEFT JOIN stock_picking_type spt_wh
-                ON spt_wh.id = sp.picking_type_id
+            -- Get the delivery picking directly from stock_move.picking_id
+            LEFT JOIN stock_move sm_sal
+                ON sm_sal.sale_line_id = sol.id
+               AND sm_sal.state = 'done'
+            LEFT JOIN stock_picking sp
+                ON sp.id = sm_sal.picking_id
+               AND EXISTS (
+                   SELECT 1 FROM stock_picking_type spt
+                   WHERE spt.id = sp.picking_type_id
+                     AND spt.code = 'outgoing'
+               )
+            -- Warehouse via the picking's source location
+            LEFT JOIN loc_warehouse lw
+                ON lw.location_id = sp.location_id
             WHERE aml.product_id IS NOT NULL
               AND aml.display_type NOT IN ('line_section', 'line_note')
             )
         """ % {
             'table':          self._table,
+            'sl_cn':          sl_cn,
+            'root_cn':        root_cn,
             'pur_line_join':  pur_line_join,
-            'receipt_join':   receipt_join,
             'sale_line_join': sale_line_join,
-            'delivery_join':  delivery_join,
         }
 
         self.env.cr.execute(sql)

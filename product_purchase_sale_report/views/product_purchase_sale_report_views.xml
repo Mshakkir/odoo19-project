@@ -164,7 +164,7 @@
                 and sales invoices with delivery numbers per product,
                 including unit rates.
             </p>
-        </help>
+        </field>
         <field name="view_ids" eval="[
             (5, 0, 0),
             (0, 0, {'view_mode': 'list',  'view_id': ref('view_product_purchase_sale_report_list')}),

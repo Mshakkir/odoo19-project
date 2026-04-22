@@ -106,13 +106,22 @@
                     </select>
                 </div>
 
-                <!-- Invoice Status -->
+                <!--
+                    Invoice Status — values must match the human-readable labels
+                    produced by the CASE statement in the fixed SQL view:
+                        'invoiced'   → 'Invoiced'
+                        'to invoice' → 'To Invoice'
+                        'nothing'    → 'Nothing'
+                        'upselling'  → 'Upselling'  (sale orders only)
+                    We use ilike in the JS domain so title-case matches.
+                -->
                 <div class="slf-field slf-md-field">
                     <select class="slf-input" t-model="state.invoiceStatus">
                         <option value="">Invoice Status</option>
-                        <option value="invoiced">Invoiced</option>
-                        <option value="to invoice">To Invoice</option>
-                        <option value="nothing">Nothing</option>
+                        <option value="Invoiced">Invoiced</option>
+                        <option value="To Invoice">To Invoice</option>
+                        <option value="Nothing">Nothing</option>
+                        <option value="Upselling">Upselling</option>
                     </select>
                 </div>
 
@@ -140,5 +149,165 @@
     </t>
 
 </templates>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="UTF-8"?>-->
+<!--<templates xml:space="preserve">-->
+
+<!--    <t t-name="product_stock_ledger.FilterBar">-->
+<!--        <div class="o_sl_filter_bar">-->
+<!--            <div class="slf-wrap">-->
+
+<!--                &lt;!&ndash; Product with autocomplete &ndash;&gt;-->
+<!--                <div class="slf-field slf-prod-field">-->
+<!--                    <input-->
+<!--                        type="text"-->
+<!--                        class="slf-input"-->
+<!--                        placeholder="Product name or code"-->
+<!--                        autocomplete="off"-->
+<!--                        t-att-value="state.product"-->
+<!--                        t-on-input="onProductInput"-->
+<!--                        t-on-blur="hideAc"-->
+<!--                    />-->
+<!--                    <div class="slf-autocomplete"-->
+<!--                         t-att-style="state.acVisible ? 'display:block' : 'display:none'">-->
+<!--                        <t t-foreach="state.acResults" t-as="p" t-key="p.id">-->
+<!--                            <div class="slf-ac-item"-->
+<!--                                 t-att-data-pid="p.id"-->
+<!--                                 t-att-data-name="p.display_name"-->
+<!--                                 t-on-mousedown="(ev) => this.selectProduct(p)">-->
+<!--                                <t t-if="p.default_code">-->
+<!--                                    <span class="slf-badge">[<t t-esc="p.default_code"/>]</span>-->
+<!--                                </t>-->
+<!--                                <span t-esc="p.display_name"/>-->
+<!--                            </div>-->
+<!--                        </t>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; Warehouse &ndash;&gt;-->
+<!--                <div class="slf-field">-->
+<!--                    <select class="slf-input" t-model="state.warehouseId">-->
+<!--                        <option value="">Warehouse</option>-->
+<!--                        <t t-foreach="state.warehouses" t-as="wh" t-key="wh.id">-->
+<!--                            <option t-att-value="wh.id" t-esc="wh.name"/>-->
+<!--                        </t>-->
+<!--                    </select>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; Date From with calendar icon &ndash;&gt;-->
+<!--                <div class="slf-date-group">-->
+<!--                    <div class="slf-date-wrap">-->
+<!--                        <input-->
+<!--                            type="text"-->
+<!--                            class="slf-input slf-date-text"-->
+<!--                            placeholder="dd/mm/yy"-->
+<!--                            maxlength="8"-->
+<!--                            t-att-value="state.dateFromDisplay"-->
+<!--                            t-on-input="onDateFromInput"-->
+<!--                            t-on-blur="onDateFromBlur"-->
+<!--                        />-->
+<!--                        <input-->
+<!--                            type="date"-->
+<!--                            class="slf-date-hidden"-->
+<!--                            t-att-value="state.dateFrom"-->
+<!--                            t-on-change="onDateFromPicker"-->
+<!--                        />-->
+<!--                        <span class="slf-cal-icon" t-on-click="openDateFrom" title="Pick date">-->
+<!--                            📅-->
+<!--                        </span>-->
+<!--                    </div>-->
+
+<!--                    <span class="slf-arrow">→</span>-->
+
+<!--                    &lt;!&ndash; Date To with calendar icon &ndash;&gt;-->
+<!--                    <div class="slf-date-wrap">-->
+<!--                        <input-->
+<!--                            type="text"-->
+<!--                            class="slf-input slf-date-text"-->
+<!--                            placeholder="dd/mm/yy"-->
+<!--                            maxlength="8"-->
+<!--                            t-att-value="state.dateToDisplay"-->
+<!--                            t-on-input="onDateToInput"-->
+<!--                            t-on-blur="onDateToBlur"-->
+<!--                        />-->
+<!--                        <input-->
+<!--                            type="date"-->
+<!--                            class="slf-date-hidden"-->
+<!--                            t-att-value="state.dateTo"-->
+<!--                            t-on-change="onDateToPicker"-->
+<!--                        />-->
+<!--                        <span class="slf-cal-icon" t-on-click="openDateTo" title="Pick date">-->
+<!--                            📅-->
+<!--                        </span>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; Voucher &ndash;&gt;-->
+<!--                <div class="slf-field">-->
+<!--                    <input type="text" class="slf-input" placeholder="Voucher"-->
+<!--                           t-model="state.voucher"/>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; Type &ndash;&gt;-->
+<!--                <div class="slf-field slf-sm-field">-->
+<!--                    <select class="slf-input" t-model="state.moveType">-->
+<!--                        <option value="">Type</option>-->
+<!--                        <option value="IN">IN</option>-->
+<!--                        <option value="OUT">OUT</option>-->
+<!--                        <option value="INT">INT</option>-->
+<!--                    </select>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; Invoice Status &ndash;&gt;-->
+<!--                <div class="slf-field slf-md-field">-->
+<!--                    <select class="slf-input" t-model="state.invoiceStatus">-->
+<!--                        <option value="">Invoice Status</option>-->
+<!--                        <option value="invoiced">Invoiced</option>-->
+<!--                        <option value="to invoice">To Invoice</option>-->
+<!--                        <option value="nothing">Nothing</option>-->
+<!--                    </select>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; Buttons &ndash;&gt;-->
+<!--                <div class="slf-actions">-->
+<!--                    <button class="slf-btn slf-btn-apply" t-on-click="apply">-->
+<!--                        Apply <kbd>↵</kbd>-->
+<!--                    </button>-->
+<!--                    <button class="slf-btn slf-btn-clear" t-on-click="clear">-->
+<!--                        Clear <kbd>Esc</kbd>-->
+<!--                    </button>-->
+<!--                </div>-->
+
+<!--            </div>-->
+<!--        </div>-->
+<!--    </t>-->
+
+<!--    &lt;!&ndash; Inject before the list renderer, only for stock ledger model &ndash;&gt;-->
+<!--    <t t-name="web.ListRenderer" t-inherit="web.ListRenderer" t-inherit-mode="extension">-->
+<!--        <xpath expr="//div[hasclass('o_list_renderer')]" position="before">-->
+<!--            <t t-if="props.list and props.list.model and props.list.model.config and props.list.model.config.resModel === 'product.stock.ledger'">-->
+<!--                <StockLedgerFilterBar model="props.list.model"/>-->
+<!--            </t>-->
+<!--        </xpath>-->
+<!--    </t>-->
+
+<!--</templates>-->
 
 

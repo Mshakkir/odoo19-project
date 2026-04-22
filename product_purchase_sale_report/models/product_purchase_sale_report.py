@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, tools
+from odoo import models, fields, tools, api
 
 
 class ProductPurchaseSaleReport(models.Model):
@@ -60,20 +60,12 @@ class ProductPurchaseSaleReport(models.Model):
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
 
-        # ── CE-safe: stock_picking does NOT have purchase_id / sale_id in CE ──
-        # Link receipts via:  po → pol → stock_move.purchase_line_id → sml → sp
-        # Link deliveries via: so → sol → stock_move.sale_line_id   → sml → sp
-        #
-        # NOTE: stock_picking has NO picking_type_code column.
-        # The code lives in stock_picking_type.code (joined via picking_type_id).
-
         has_sp_purchase_id = self._col_exists('stock_picking', 'purchase_id')
         has_sp_sale_id     = self._col_exists('stock_picking', 'sale_id')
         has_sol_inv_rel    = self._table_exists('sale_order_line_invoice_rel')
         has_aml_pol        = self._col_exists('account_move_line', 'purchase_line_id')
 
         # ── Receipt join (purchase side) ──────────────────────────────────────
-        # picking_type_code → join stock_picking_type spt ON spt.id = sp.picking_type_id
         if has_sp_purchase_id:
             receipt_join = """
             LEFT JOIN stock_picking sp
@@ -85,7 +77,6 @@ class ProductPurchaseSaleReport(models.Model):
                      AND spt.code = 'incoming'
                )"""
         else:
-            # CE path: po → pol → stock_move → stock_move_line → stock_picking
             receipt_join = """
             LEFT JOIN stock_picking sp
                 ON sp.id = (

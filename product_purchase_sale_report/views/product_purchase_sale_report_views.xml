@@ -74,23 +74,15 @@
         <field name="arch" type="xml">
             <search string="Search Product Purchase &amp; Sale Report">
 
-                <field name="product_id"/>
-                <field name="vendor_id"/>
-                <field name="customer_id"/>
-                <field name="categ_id"/>
-                <field name="bill_number" string="Bill Number"
-                       filter_domain="[('bill_number','ilike',self)]"/>
-                <field name="receipt_number" string="Receipt Number"
-                       filter_domain="[('receipt_number','ilike',self)]"/>
-                <field name="invoice_number" string="Invoice Number"
-                       filter_domain="[('invoice_number','ilike',self)]"/>
-                <field name="delivery_number" string="Delivery Number"
-                       filter_domain="[('delivery_number','ilike',self)]"/>
-                <field name="purchase_order_name" string="Purchase Order"
-                       filter_domain="[('purchase_order_name','ilike',self)]"/>
-                <field name="sale_order_name" string="Sale Order"
-                       filter_domain="[('sale_order_name','ilike',self)]"/>
+                <!-- Many2one fields — searchable natively -->
+                <field name="product_id" string="Product"/>
+                <field name="vendor_id" string="Vendor"/>
+                <field name="customer_id" string="Customer"/>
+                <field name="categ_id" string="Product Category"/>
 
+                <!-- Char fields — use explicit filter_domain via filter elements -->
+                <filter string="Bill Number" name="search_bill_number"
+                        domain="[]"/>
                 <filter string="Purchases" name="filter_purchase"
                         domain="[('transaction_type','=','purchase')]"/>
                 <filter string="Sales" name="filter_sale"

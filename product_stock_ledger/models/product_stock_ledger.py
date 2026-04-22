@@ -114,19 +114,34 @@ class ProductStockLedger(models.Model):
 
         # loc_warehouse — always present
         cte_list.append(f"""loc_warehouse AS (
-    SELECT DISTINCT ON (sl.id)
-        sl.id AS location_id,
-        sw.id AS warehouse_id
-    FROM stock_location sl
-    JOIN stock_warehouse sw
-        ON sl.id = sw.lot_stock_id
-        OR {sl_cn} LIKE (
-            SELECT {root_cn} || '/%'
-            FROM stock_location root
-            WHERE root.id = sw.lot_stock_id
-        )
-    WHERE sl.usage = 'internal'
-    ORDER BY sl.id, sw.id
+    -- Map every internal stock location to its warehouse
+    -- Uses recursive parent traversal to handle deeply nested locations
+    WITH RECURSIVE loc_tree AS (
+        -- Anchor: the lot_stock_id location of each warehouse
+        SELECT
+            sw.id  AS warehouse_id,
+            sl.id  AS location_id,
+            sl.id  AS root_id
+        FROM stock_warehouse sw
+        JOIN stock_location sl ON sl.id = sw.lot_stock_id
+
+        UNION ALL
+
+        -- Recurse into child locations
+        SELECT
+            lt.warehouse_id,
+            child.id AS location_id,
+            lt.root_id
+        FROM stock_location child
+        JOIN loc_tree lt ON child.location_id = lt.location_id
+        WHERE child.usage = 'internal'
+          AND child.active = true
+    )
+    SELECT DISTINCT ON (location_id)
+        location_id,
+        warehouse_id
+    FROM loc_tree
+    ORDER BY location_id, warehouse_id
 )""")
 
         # svl_cost — stock valuation layer (Enterprise / CE with costing)
@@ -482,6 +497,9 @@ ledger AS (
             ELSE 0
         END                                                  AS issue_rate,
 
+        -- Balance = cumulative stock level after this transaction
+        -- Partitioned by product only (warehouse filter applied by user via filter bar)
+        -- ORDER BY date ASC, id ASC so oldest rows accumulate first → correct running total
         SUM(
             CASE
                 WHEN dest_loc.usage = 'internal' AND src_loc.usage != 'internal'
@@ -493,9 +511,8 @@ ledger AS (
                 ELSE 0
             END
         ) OVER (
-            PARTITION BY sml.product_id,
-                         COALESCE(wh_src.warehouse_id, wh_dest.warehouse_id)
-            ORDER BY sm.date, sml.id
+            PARTITION BY sml.product_id
+            ORDER BY sm.date ASC, sml.id ASC
             ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
         )                                                    AS balance,
 

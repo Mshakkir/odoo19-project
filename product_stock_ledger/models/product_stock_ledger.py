@@ -186,7 +186,13 @@ class ProductStockLedger(models.Model):
         cte_list.append("""direct_purchase_cost AS (
     SELECT DISTINCT ON (sm2.id)
         sm2.id         AS stock_move_id,
-        aml.price_unit AS unit_cost
+        aml.price_unit AS unit_cost,
+        am.name        AS invoice_name,
+        CASE am.state
+            WHEN 'posted' THEN 'Invoiced'
+            WHEN 'draft'  THEN 'Draft'
+            ELSE am.state
+        END            AS invoice_status
     FROM stock_move sm2
     JOIN stock_picking sp2
         ON sp2.id = sm2.picking_id
@@ -215,7 +221,13 @@ class ProductStockLedger(models.Model):
         cte_list.append("""direct_sale_cost AS (
     SELECT DISTINCT ON (sm2.id)
         sm2.id         AS stock_move_id,
-        aml.price_unit AS unit_cost
+        aml.price_unit AS unit_cost,
+        am.name        AS invoice_name,
+        CASE am.state
+            WHEN 'posted' THEN 'Invoiced'
+            WHEN 'draft'  THEN 'Draft'
+            ELSE am.state
+        END            AS invoice_status
     FROM stock_move sm2
     JOIN stock_picking sp2
         ON sp2.id = sm2.picking_id
@@ -237,6 +249,62 @@ class ProductStockLedger(models.Model):
       AND sm2.sale_line_id IS NULL
     ORDER BY sm2.id, ABS((am.invoice_date - sm2.date::date)::integer)
 )""")
+
+        # so_invoice_ref — get the invoice number for SO-linked stock moves
+        # Links: stock_move.sale_line_id → sale_order_line_invoice_rel → account_move_line → account_move
+        if has_sol_rel and has_sm_sol:
+            cte_list.append("""so_invoice_ref AS (
+    SELECT DISTINCT ON (sm2.id)
+        sm2.id   AS stock_move_id,
+        am.name  AS invoice_name,
+        CASE {so_inv_status}
+            WHEN 'invoiced'   THEN 'Invoiced'
+            WHEN 'to invoice' THEN 'To Invoice'
+            WHEN 'upselling'  THEN 'Upselling'
+            WHEN 'nothing'    THEN 'Nothing'
+            ELSE COALESCE({so_inv_status}, '')
+        END      AS invoice_status
+    FROM stock_move sm2
+    JOIN sale_order_line_invoice_rel rel
+        ON rel.order_line_id = sm2.sale_line_id
+    JOIN account_move_line aml
+        ON aml.id = rel.invoice_line_id
+    JOIN account_move am
+        ON am.id        = aml.move_id
+       AND am.move_type = 'out_invoice'
+       AND am.state     = 'posted'
+    WHERE sm2.sale_line_id IS NOT NULL
+    ORDER BY sm2.id, am.invoice_date DESC
+)""".format(
+    so_inv_status="so2.invoice_status" if has_so and self._col_exists('sale_order', 'invoice_status') else "am.state"
+))
+
+        # po_invoice_ref — get the invoice number for PO-linked stock moves
+        # Links: stock_move.purchase_line_id → account_move_line.purchase_line_id → account_move
+        if has_aml_pol and has_sm_pol:
+            cte_list.append("""po_invoice_ref AS (
+    SELECT DISTINCT ON (sm2.id)
+        sm2.id   AS stock_move_id,
+        am.name  AS invoice_name,
+        CASE {po_inv_status}
+            WHEN 'invoiced'   THEN 'Invoiced'
+            WHEN 'to invoice' THEN 'To Invoice'
+            WHEN 'nothing'    THEN 'Nothing'
+            ELSE COALESCE({po_inv_status}, '')
+        END      AS invoice_status
+    FROM stock_move sm2
+    JOIN account_move_line aml
+        ON aml.purchase_line_id = sm2.purchase_line_id
+       AND aml.purchase_line_id IS NOT NULL
+    JOIN account_move am
+        ON am.id        = aml.move_id
+       AND am.move_type = 'in_invoice'
+       AND am.state     = 'posted'
+    WHERE sm2.purchase_line_id IS NOT NULL
+    ORDER BY sm2.id, am.invoice_date DESC
+)""".format(
+    po_inv_status="po2.invoice_status" if has_po and self._col_exists('purchase_order', 'invoice_status') else "am.state"
+))
 
         # pol_cost — purchase order line price fallback
         if has_pol_tbl and has_sm_pol:
@@ -293,7 +361,14 @@ class ProductStockLedger(models.Model):
         solc_join = "LEFT JOIN sol_cost solc             ON solc.stock_move_id = sm.id" if has_sol_tbl and has_sm_sol else ""
         # direct cost joins — always active (CTEs are always appended)
         dpc_join  = "LEFT JOIN direct_purchase_cost dpc ON dpc.stock_move_id  = sm.id"
-        dsc_join  = "LEFT JOIN direct_sale_cost dsc     ON dsc.stock_move_id  = sm.id" ""
+        dsc_join  = "LEFT JOIN direct_sale_cost dsc     ON dsc.stock_move_id  = sm.id"
+        # SO/PO invoice ref joins
+        sir_join  = "LEFT JOIN so_invoice_ref sir ON sir.stock_move_id = sm.id" if has_sol_rel and has_sm_sol else ""
+        pir_join  = "LEFT JOIN po_invoice_ref pir ON pir.stock_move_id = sm.id" if has_aml_pol and has_sm_pol else ""
+        sir_inv   = "sir.invoice_name"   if has_sol_rel and has_sm_sol else "NULL::varchar"
+        pir_inv   = "pir.invoice_name"   if has_aml_pol and has_sm_pol else "NULL::varchar"
+        sir_status = "sir.invoice_status" if has_sol_rel and has_sm_sol else "NULL::varchar"
+        pir_status = "pir.invoice_status" if has_aml_pol and has_sm_pol else "NULL::varchar"
 
         # ── Sale Order join ────────────────────────────────────────────────
         if has_so and has_sm_sol:
@@ -341,9 +416,23 @@ ledger AS (
         sm.date                                              AS date,
         TO_CHAR(sm.date AT TIME ZONE 'UTC', 'DD/MM/YY')     AS date_str,
 
-        COALESCE({so_name}, {po_name}, sp.name, sm.origin, {sm_ref}, '')
-                                                             AS voucher,
-        COALESCE(sm.origin, {sm_ref}, sp.name, '')           AS particulars,
+        -- Voucher: for SO/PO entries show the picking (receipt/delivery) number
+        -- For direct invoices sm.origin already holds the invoice ref
+        COALESCE(
+            sp.name,                           -- picking name = WH/IN/xxxxx or WH/OUT/xxxxx (highest priority)
+            {so_name}, {po_name},              -- order ref fallback
+            sm.origin, {sm_ref}, ''
+        )                                                    AS voucher,
+        -- Particulars: show the linked invoice number
+        -- SO/PO entries: get from so_invoice_ref / po_invoice_ref CTEs
+        -- Direct invoice entries: get from direct_purchase_cost / direct_sale_cost CTEs
+        COALESCE(
+            {sir_inv},                        -- SO-linked invoice number
+            {pir_inv},                        -- PO-linked invoice number
+            dpc.invoice_name,                 -- direct purchase invoice number
+            dsc.invoice_name,                 -- direct sale invoice number
+            sm.origin, {sm_ref}, ''
+        )                                                    AS particulars,
 
         CASE
             WHEN src_loc.usage = 'supplier'                          THEN 'IN'
@@ -404,25 +493,16 @@ ledger AS (
 
         {uom_sql}                                            AS uom,
 
+        -- Invoice status: SO/PO entries use order-level status
+        -- Direct invoice entries use the invoice ref CTE status
         COALESCE(
             CASE
-                WHEN {so_cond} THEN
-                    CASE {so_inv}
-                        WHEN 'invoiced'   THEN 'Invoiced'
-                        WHEN 'to invoice' THEN 'To Invoice'
-                        WHEN 'upselling'  THEN 'Upselling'
-                        WHEN 'nothing'    THEN 'Nothing'
-                        ELSE {so_inv}
-                    END
-                WHEN {po_cond} THEN
-                    CASE {po_inv}
-                        WHEN 'invoiced'   THEN 'Invoiced'
-                        WHEN 'to invoice' THEN 'To Invoice'
-                        WHEN 'nothing'    THEN 'Nothing'
-                        ELSE {po_inv}
-                    END
+                WHEN {so_cond} THEN {sir_status}  -- SO-linked: from so_invoice_ref
+                WHEN {po_cond} THEN {pir_status}  -- PO-linked: from po_invoice_ref
                 ELSE NULL
             END,
+            dpc.invoice_status,               -- direct purchase invoice
+            dsc.invoice_status,               -- direct sale invoice
             ''
         )                                                    AS invoice_status,
 
@@ -450,6 +530,8 @@ ledger AS (
     {solc_join}
     {dpc_join}
     {dsc_join}
+    {sir_join}
+    {pir_join}
     {so_join}
     {po_join}
     WHERE sm.state = 'done'
@@ -563,6 +645,7 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 
     def action_cancel(self):
         return {'type': 'ir.actions.act_window_close'}
+
 
 
 

@@ -21,29 +21,20 @@
                 <field name="categ_id" string="Category"/>
 
                 <!-- PURCHASE columns -->
-                <field name="vendor_id" string="Vendor"
-                       optional="show"/>
-                <field name="purchase_order_name" string="Purchase Order"
-                       optional="show"/>
-                <field name="bill_number" string="Bill Number"
-                       optional="show"/>
-                <field name="receipt_number" string="Receipt Number"
-                       optional="show"/>
+                <field name="vendor_id" string="Vendor" optional="show"/>
+                <field name="purchase_order_name" string="Purchase Order" optional="show"/>
+                <field name="bill_number" string="Bill Number" optional="show"/>
+                <field name="receipt_number" string="Receipt Number" optional="show"/>
 
                 <!-- SALE columns -->
-                <field name="customer_id" string="Customer"
-                       optional="show"/>
-                <field name="sale_order_name" string="Sale Order"
-                       optional="show"/>
-                <field name="invoice_number" string="Invoice Number"
-                       optional="show"/>
-                <field name="delivery_number" string="Delivery Number"
-                       optional="show"/>
+                <field name="customer_id" string="Customer" optional="show"/>
+                <field name="sale_order_name" string="Sale Order" optional="show"/>
+                <field name="invoice_number" string="Invoice Number" optional="show"/>
+                <field name="delivery_number" string="Delivery Number" optional="show"/>
 
-                <!-- Qty & Price -->
+                <!-- Qty &amp; Price -->
                 <field name="uom_id" string="UoM" optional="show"/>
-                <field name="qty" string="Quantity"
-                       sum="Total Qty"/>
+                <field name="qty" string="Quantity" sum="Total Qty"/>
                 <field name="unit_price" string="Unit Rate"
                        widget="monetary"
                        options="{'currency_field': 'currency_id'}"/>
@@ -116,12 +107,13 @@
                         domain="[('transaction_type','=','sale')]"/>
                 <separator/>
                 <filter string="This Month" name="filter_this_month"
-                        domain="[('transaction_date','&gt;=', (context_today()).strftime('%Y-%m-01'))]"/>
+                        domain="[('transaction_date','&gt;=', (context_today() + relativedelta(day=1)).strftime('%Y-%m-%d'))]"/>
                 <filter string="This Year" name="filter_this_year"
-                        domain="[('transaction_date','&gt;=', (context_today()).strftime('%Y-01-01'))]"/>
+                        domain="[('transaction_date','&gt;=', (context_today() + relativedelta(month=1, day=1)).strftime('%Y-%m-%d'))]"/>
                 <separator/>
                 <filter string="Date" name="filter_date"
-                        date="transaction_date"/>
+                        domain="[]"
+                        context="{'search_default_transaction_date': 1}"/>
 
                 <!-- Group By -->
                 <group expand="0" string="Group By">

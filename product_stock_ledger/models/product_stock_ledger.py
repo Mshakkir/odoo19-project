@@ -161,7 +161,7 @@ class ProductStockLedger(models.Model):
     ORDER BY sm2.id, am.invoice_date DESC
 )""")
 
-        # aml_sale_cost — unit price from posted customer invoices
+        # aml_sale_cost — unit price from posted customer invoices (via SO link)
         if has_sol_rel and has_sm_sol:
             cte_list.append("""aml_sale_cost AS (
     SELECT DISTINCT ON (sm2.id)
@@ -178,6 +178,64 @@ class ProductStockLedger(models.Model):
        AND am.state     = 'posted'
     WHERE sm2.sale_line_id IS NOT NULL
     ORDER BY sm2.id, am.invoice_date DESC
+)""")
+
+        # direct_purchase_cost — for vendor bills created WITHOUT a purchase order
+        # Match by: same product + same partner (vendor) + invoice date within ±7 days of picking date
+        # Only used when no PO link exists on the stock move
+        cte_list.append("""direct_purchase_cost AS (
+    SELECT DISTINCT ON (sm2.id)
+        sm2.id         AS stock_move_id,
+        aml.price_unit AS unit_cost
+    FROM stock_move sm2
+    JOIN stock_picking sp2
+        ON sp2.id = sm2.picking_id
+    JOIN stock_location src2  ON src2.id  = sm2.location_id
+    JOIN stock_location dest2 ON dest2.id = sm2.location_dest_id
+    JOIN account_move am
+        ON am.partner_id  = sp2.partner_id
+       AND am.move_type   = 'in_invoice'
+       AND am.state       = 'posted'
+       AND am.invoice_date BETWEEN (sm2.date::date - INTERVAL '7 days')
+                                AND (sm2.date::date + INTERVAL '7 days')
+    JOIN account_move_line aml
+        ON aml.move_id    = am.id
+       AND aml.product_id = sm2.product_id
+       AND aml.price_unit > 0
+    WHERE sm2.state = 'done'
+      AND dest2.usage = 'internal'
+      AND src2.usage  != 'internal'
+      AND sm2.purchase_line_id IS NULL
+    ORDER BY sm2.id, ABS(EXTRACT(EPOCH FROM (am.invoice_date - sm2.date::date)))
+)""")
+
+        # direct_sale_cost — for customer invoices created WITHOUT a sale order
+        # Match by: same product + same partner (customer) + invoice date within ±7 days of picking date
+        # Only used when no SO link exists on the stock move
+        cte_list.append("""direct_sale_cost AS (
+    SELECT DISTINCT ON (sm2.id)
+        sm2.id         AS stock_move_id,
+        aml.price_unit AS unit_cost
+    FROM stock_move sm2
+    JOIN stock_picking sp2
+        ON sp2.id = sm2.picking_id
+    JOIN stock_location src2  ON src2.id  = sm2.location_id
+    JOIN stock_location dest2 ON dest2.id = sm2.location_dest_id
+    JOIN account_move am
+        ON am.partner_id  = sp2.partner_id
+       AND am.move_type   = 'out_invoice'
+       AND am.state       = 'posted'
+       AND am.invoice_date BETWEEN (sm2.date::date - INTERVAL '7 days')
+                                AND (sm2.date::date + INTERVAL '7 days')
+    JOIN account_move_line aml
+        ON aml.move_id    = am.id
+       AND aml.product_id = sm2.product_id
+       AND aml.price_unit > 0
+    WHERE sm2.state = 'done'
+      AND src2.usage  = 'internal'
+      AND dest2.usage != 'internal'
+      AND sm2.sale_line_id IS NULL
+    ORDER BY sm2.id, ABS(EXTRACT(EPOCH FROM (am.invoice_date - sm2.date::date)))
 )""")
 
         # pol_cost — purchase order line price fallback
@@ -203,31 +261,39 @@ class ProductStockLedger(models.Model):
         ctes_sql = ",\n".join(cte_list)
 
         # ── Rate field expressions ─────────────────────────────────────────
-        svl_f    = "svl.unit_cost"      if has_svl                          else "NULL::numeric"
-        apc_f    = "apc.unit_cost"      if has_aml_pol and has_sm_pol       else "NULL::numeric"
-        asc_f    = "asc2.unit_cost"     if has_sol_rel and has_sm_sol       else "NULL::numeric"
-        polc_f   = "polc.unit_cost"     if has_pol_tbl and has_sm_pol       else "NULL::numeric"
-        solc_f   = "solc.unit_cost"     if has_sol_tbl and has_sm_sol       else "NULL::numeric"
+        svl_f    = "svl.unit_cost"   if has_svl                    else "NULL::numeric"
+        apc_f    = "apc.unit_cost"   if has_aml_pol and has_sm_pol else "NULL::numeric"
+        asc_f    = "asc2.unit_cost"  if has_sol_rel and has_sm_sol else "NULL::numeric"
+        polc_f   = "polc.unit_cost"  if has_pol_tbl and has_sm_pol else "NULL::numeric"
+        solc_f   = "solc.unit_cost"  if has_sol_tbl and has_sm_sol else "NULL::numeric"
+        # direct invoice rates — always present (CTEs are always added)
+        dpc_f    = "dpc.unit_cost"   # direct_purchase_cost
+        dsc_f    = "dsc.unit_cost"   # direct_sale_cost
 
         cost_field = f"""COALESCE(
             CASE
+                -- IN moves (receipt): order-linked bill first, then direct bill, then SVL/POL
                 WHEN dest_loc.usage = 'internal' AND src_loc.usage != 'internal'
-                    THEN COALESCE({apc_f}, {svl_f}, {polc_f})
+                    THEN COALESCE({apc_f}, {dpc_f}, {svl_f}, {polc_f})
                 WHEN src_loc.usage = 'customer'
-                    THEN COALESCE({apc_f}, {svl_f}, {polc_f})
+                    THEN COALESCE({apc_f}, {dpc_f}, {svl_f}, {polc_f})
+                -- OUT moves (delivery): order-linked invoice first, then direct invoice, then SVL/SOL
                 WHEN src_loc.usage = 'internal' AND dest_loc.usage != 'internal'
-                    THEN COALESCE({asc_f}, {svl_f}, {solc_f})
-                ELSE COALESCE({svl_f}, {apc_f}, {asc_f}, {polc_f}, {solc_f})
+                    THEN COALESCE({asc_f}, {dsc_f}, {svl_f}, {solc_f})
+                ELSE COALESCE({svl_f}, {apc_f}, {dpc_f}, {asc_f}, {dsc_f}, {polc_f}, {solc_f})
             END,
             0
         )"""
 
         # ── JOIN lines ────────────────────────────────────────────────────
-        svl_join  = "LEFT JOIN svl_cost svl        ON svl.stock_move_id   = sm.id" if has_svl else ""
-        apc_join  = "LEFT JOIN aml_purchase_cost apc ON apc.stock_move_id = sm.id" if has_aml_pol and has_sm_pol else ""
-        asc_join  = "LEFT JOIN aml_sale_cost asc2   ON asc2.stock_move_id = sm.id" if has_sol_rel and has_sm_sol else ""
-        polc_join = "LEFT JOIN pol_cost polc         ON polc.stock_move_id = sm.id" if has_pol_tbl and has_sm_pol else ""
-        solc_join = "LEFT JOIN sol_cost solc         ON solc.stock_move_id = sm.id" if has_sol_tbl and has_sm_sol else ""
+        svl_join  = "LEFT JOIN svl_cost svl             ON svl.stock_move_id  = sm.id" if has_svl else ""
+        apc_join  = "LEFT JOIN aml_purchase_cost apc    ON apc.stock_move_id  = sm.id" if has_aml_pol and has_sm_pol else ""
+        asc_join  = "LEFT JOIN aml_sale_cost asc2       ON asc2.stock_move_id = sm.id" if has_sol_rel and has_sm_sol else ""
+        polc_join = "LEFT JOIN pol_cost polc             ON polc.stock_move_id = sm.id" if has_pol_tbl and has_sm_pol else ""
+        solc_join = "LEFT JOIN sol_cost solc             ON solc.stock_move_id = sm.id" if has_sol_tbl and has_sm_sol else ""
+        # direct cost joins — always active (CTEs are always appended)
+        dpc_join  = "LEFT JOIN direct_purchase_cost dpc ON dpc.stock_move_id  = sm.id"
+        dsc_join  = "LEFT JOIN direct_sale_cost dsc     ON dsc.stock_move_id  = sm.id" ""
 
         # ── Sale Order join ────────────────────────────────────────────────
         if has_so and has_sm_sol:
@@ -382,6 +448,8 @@ ledger AS (
     {asc_join}
     {polc_join}
     {solc_join}
+    {dpc_join}
+    {dsc_join}
     {so_join}
     {po_join}
     WHERE sm.state = 'done'
@@ -495,6 +563,7 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 
     def action_cancel(self):
         return {'type': 'ir.actions.act_window_close'}
+
 
 
 

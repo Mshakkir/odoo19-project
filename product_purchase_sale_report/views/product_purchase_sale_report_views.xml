@@ -11,20 +11,27 @@
                   decoration-success="transaction_type == 'sale'"
                   decoration-info="transaction_type == 'purchase'">
 
-                <field name="transaction_date" string="Date"/>
+                <field name="transaction_date" string="Date" widget="date"/>
                 <field name="transaction_type" string="Type" widget="badge"
                        decoration-success="transaction_type == 'sale'"
                        decoration-primary="transaction_type == 'purchase'"/>
                 <field name="product_id" string="Product"/>
                 <field name="categ_id" string="Category"/>
+                <field name="warehouse_id" string="Warehouse" optional="show"/>
+
+                <!-- PURCHASE columns -->
                 <field name="vendor_id" string="Vendor" optional="show"/>
                 <field name="purchase_order_name" string="Purchase Order" optional="show"/>
                 <field name="bill_number" string="Bill Number" optional="show"/>
                 <field name="receipt_number" string="Receipt Number" optional="show"/>
+
+                <!-- SALE columns -->
                 <field name="customer_id" string="Customer" optional="show"/>
                 <field name="sale_order_name" string="Sale Order" optional="show"/>
                 <field name="invoice_number" string="Invoice Number" optional="show"/>
                 <field name="delivery_number" string="Delivery Number" optional="show"/>
+
+                <!-- Qty &amp; Price -->
                 <field name="uom_id" string="UoM" optional="show"/>
                 <field name="qty" string="Quantity" sum="Total Qty"/>
                 <field name="unit_price" string="Unit Rate"
@@ -67,12 +74,12 @@
         </field>
     </record>
 
-    <!-- ACTION -->
+    <!-- ACTION — target="current" for full window, not popup -->
     <record id="action_product_purchase_sale_report" model="ir.actions.act_window">
         <field name="name">Purchase &amp; Sale Report</field>
         <field name="res_model">product.purchase.sale.report</field>
         <field name="view_mode">list,pivot,graph</field>
-        <field name="target">new</field>
+        <field name="target">current</field>
         <field name="context">{}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">

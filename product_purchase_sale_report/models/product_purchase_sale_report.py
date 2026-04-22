@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, tools, api
+from odoo import models, fields, tools
 
 
 class ProductPurchaseSaleReport(models.Model):
@@ -16,6 +16,8 @@ class ProductPurchaseSaleReport(models.Model):
     transaction_type    = fields.Selection([('purchase','Purchase'),('sale','Sale')],
                                            string='Type',                                  readonly=True)
     company_id          = fields.Many2one('res.company',       string='Company',           readonly=True)
+
+    warehouse_id        = fields.Many2one('stock.warehouse',   string='Warehouse',         readonly=True)
 
     vendor_id           = fields.Many2one('res.partner',       string='Vendor',            readonly=True)
     bill_number         = fields.Char('Bill Number',                                        readonly=True)
@@ -66,6 +68,8 @@ class ProductPurchaseSaleReport(models.Model):
         has_aml_pol        = self._col_exists('account_move_line', 'purchase_line_id')
 
         # ── Receipt join (purchase side) ──────────────────────────────────────
+        # For CE: link via stock_move.purchase_line_id → stock_picking
+        # We join stock_picking directly via stock_move (no stock_move_line needed)
         if has_sp_purchase_id:
             receipt_join = """
             LEFT JOIN stock_picking sp
@@ -77,20 +81,18 @@ class ProductPurchaseSaleReport(models.Model):
                      AND spt.code = 'incoming'
                )"""
         else:
+            # CE: po → pol → stock_move.purchase_line_id → stock_move.picking_id
             receipt_join = """
             LEFT JOIN stock_picking sp
                 ON sp.id = (
-                    SELECT sml.picking_id
+                    SELECT sm2.picking_id
                     FROM stock_move sm2
-                    JOIN stock_move_line sml ON sml.move_id = sm2.id
-                    JOIN stock_picking_type spt ON spt.id = (
-                        SELECT picking_type_id FROM stock_picking
-                        WHERE id = sml.picking_id LIMIT 1
-                    )
+                    JOIN stock_picking sp2 ON sp2.id = sm2.picking_id
+                    JOIN stock_picking_type spt2 ON spt2.id = sp2.picking_type_id
                     WHERE sm2.purchase_line_id = pol.id
                       AND sm2.state = 'done'
-                      AND sml.picking_id IS NOT NULL
-                      AND spt.code = 'incoming'
+                      AND sm2.picking_id IS NOT NULL
+                      AND spt2.code = 'incoming'
                     LIMIT 1
                 )"""
 
@@ -106,20 +108,18 @@ class ProductPurchaseSaleReport(models.Model):
                      AND spt.code = 'outgoing'
                )"""
         else:
+            # CE: so → sol → stock_move.sale_line_id → stock_move.picking_id
             delivery_join = """
             LEFT JOIN stock_picking sp
                 ON sp.id = (
-                    SELECT sml.picking_id
+                    SELECT sm2.picking_id
                     FROM stock_move sm2
-                    JOIN stock_move_line sml ON sml.move_id = sm2.id
-                    JOIN stock_picking_type spt ON spt.id = (
-                        SELECT picking_type_id FROM stock_picking
-                        WHERE id = sml.picking_id LIMIT 1
-                    )
+                    JOIN stock_picking sp2 ON sp2.id = sm2.picking_id
+                    JOIN stock_picking_type spt2 ON spt2.id = sp2.picking_type_id
                     WHERE sm2.sale_line_id = sol.id
                       AND sm2.state = 'done'
-                      AND sml.picking_id IS NOT NULL
-                      AND spt.code = 'outgoing'
+                      AND sm2.picking_id IS NOT NULL
+                      AND spt2.code = 'outgoing'
                     LIMIT 1
                 )"""
 
@@ -150,37 +150,39 @@ class ProductPurchaseSaleReport(models.Model):
             -- PURCHASE LINES (Vendor Bills linked to Receipts)
             -- ══════════════════════════════════════════════════
             SELECT
-                ROW_NUMBER() OVER ()        AS id,
-                aml.product_id              AS product_id,
-                pt.id                       AS product_tmpl_id,
-                pt.categ_id                 AS categ_id,
-                am.invoice_date             AS transaction_date,
-                'purchase'::varchar         AS transaction_type,
-                am.company_id               AS company_id,
+                ROW_NUMBER() OVER ()            AS id,
+                aml.product_id                  AS product_id,
+                pt.id                           AS product_tmpl_id,
+                pt.categ_id                     AS categ_id,
+                am.invoice_date                 AS transaction_date,
+                'purchase'::varchar             AS transaction_type,
+                am.company_id                   AS company_id,
 
-                am.partner_id               AS vendor_id,
-                NULL::integer               AS customer_id,
+                spt_wh.warehouse_id             AS warehouse_id,
 
-                am.name                     AS bill_number,
-                am.id                       AS bill_id,
+                am.partner_id                   AS vendor_id,
+                NULL::integer                   AS customer_id,
 
-                sp.name                     AS receipt_number,
-                sp.id                       AS picking_id,
+                am.name                         AS bill_number,
+                am.id                           AS bill_id,
 
-                po.id                       AS purchase_order_id,
-                po.name                     AS purchase_order_name,
+                sp.name                         AS receipt_number,
+                sp.id                           AS picking_id,
 
-                NULL::varchar               AS invoice_number,
-                NULL::integer               AS invoice_id,
-                NULL::varchar               AS delivery_number,
-                NULL::integer               AS sale_order_id,
-                NULL::varchar               AS sale_order_name,
+                po.id                           AS purchase_order_id,
+                po.name                         AS purchase_order_name,
 
-                aml.quantity                AS qty,
-                aml.price_unit              AS unit_price,
-                aml.price_subtotal          AS price_subtotal,
-                am.currency_id              AS currency_id,
-                aml.product_uom_id          AS uom_id
+                NULL::varchar                   AS invoice_number,
+                NULL::integer                   AS invoice_id,
+                NULL::varchar                   AS delivery_number,
+                NULL::integer                   AS sale_order_id,
+                NULL::varchar                   AS sale_order_name,
+
+                aml.quantity                    AS qty,
+                aml.price_unit                  AS unit_price,
+                aml.price_subtotal              AS price_subtotal,
+                am.currency_id                  AS currency_id,
+                aml.product_uom_id              AS uom_id
 
             FROM account_move_line aml
             JOIN account_move am
@@ -195,6 +197,8 @@ class ProductPurchaseSaleReport(models.Model):
             LEFT JOIN purchase_order po
                 ON po.id = pol.order_id
             %(receipt_join)s
+            LEFT JOIN stock_picking_type spt_wh
+                ON spt_wh.id = sp.picking_type_id
             WHERE aml.product_id IS NOT NULL
               AND aml.display_type NOT IN ('line_section', 'line_note')
 
@@ -204,36 +208,38 @@ class ProductPurchaseSaleReport(models.Model):
             -- SALE LINES (Customer Invoices linked to Deliveries)
             -- ══════════════════════════════════════════════════
             SELECT
-                ROW_NUMBER() OVER ()        AS id,
-                aml.product_id              AS product_id,
-                pt.id                       AS product_tmpl_id,
-                pt.categ_id                 AS categ_id,
-                am.invoice_date             AS transaction_date,
-                'sale'::varchar             AS transaction_type,
-                am.company_id               AS company_id,
+                ROW_NUMBER() OVER ()            AS id,
+                aml.product_id                  AS product_id,
+                pt.id                           AS product_tmpl_id,
+                pt.categ_id                     AS categ_id,
+                am.invoice_date                 AS transaction_date,
+                'sale'::varchar                 AS transaction_type,
+                am.company_id                   AS company_id,
 
-                NULL::integer               AS vendor_id,
-                am.partner_id               AS customer_id,
+                spt_wh.warehouse_id             AS warehouse_id,
 
-                NULL::varchar               AS bill_number,
-                NULL::integer               AS bill_id,
-                NULL::varchar               AS receipt_number,
-                NULL::integer               AS picking_id,
-                NULL::integer               AS purchase_order_id,
-                NULL::varchar               AS purchase_order_name,
+                NULL::integer                   AS vendor_id,
+                am.partner_id                   AS customer_id,
 
-                am.name                     AS invoice_number,
-                am.id                       AS invoice_id,
+                NULL::varchar                   AS bill_number,
+                NULL::integer                   AS bill_id,
+                NULL::varchar                   AS receipt_number,
+                NULL::integer                   AS picking_id,
+                NULL::integer                   AS purchase_order_id,
+                NULL::varchar                   AS purchase_order_name,
 
-                sp.name                     AS delivery_number,
-                so.id                       AS sale_order_id,
-                so.name                     AS sale_order_name,
+                am.name                         AS invoice_number,
+                am.id                           AS invoice_id,
 
-                aml.quantity                AS qty,
-                aml.price_unit              AS unit_price,
-                aml.price_subtotal          AS price_subtotal,
-                am.currency_id              AS currency_id,
-                aml.product_uom_id          AS uom_id
+                sp.name                         AS delivery_number,
+                so.id                           AS sale_order_id,
+                so.name                         AS sale_order_name,
+
+                aml.quantity                    AS qty,
+                aml.price_unit                  AS unit_price,
+                aml.price_subtotal              AS price_subtotal,
+                am.currency_id                  AS currency_id,
+                aml.product_uom_id              AS uom_id
 
             FROM account_move_line aml
             JOIN account_move am
@@ -248,6 +254,8 @@ class ProductPurchaseSaleReport(models.Model):
             LEFT JOIN sale_order so
                 ON so.id = sol.order_id
             %(delivery_join)s
+            LEFT JOIN stock_picking_type spt_wh
+                ON spt_wh.id = sp.picking_type_id
             WHERE aml.product_id IS NOT NULL
               AND aml.display_type NOT IN ('line_section', 'line_note')
             )

@@ -1,5 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_product_purchase_sale_report_user,product.purchase.sale.report user,model_product_purchase_sale_report,stock.group_stock_user,1,0,0,0
-access_product_purchase_sale_report_manager,product.purchase.sale.report manager,model_product_purchase_sale_report,stock.group_stock_manager,1,0,0,0
-access_product_purchase_sale_report_purchase_user,product.purchase.sale.report purchase user,model_product_purchase_sale_report,purchase.group_purchase_user,1,0,0,0
-access_product_purchase_sale_report_sale_user,product.purchase.sale.report sale user,model_product_purchase_sale_report,sales_team.group_sale_salesman,1,0,0,0

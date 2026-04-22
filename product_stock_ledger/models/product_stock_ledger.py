@@ -6,6 +6,13 @@ class ProductStockLedger(models.Model):
     """
     SQL-backed read-only model (PostgreSQL VIEW).
     Compatible with Odoo 19 CE. Handles jsonb translated fields (name, complete_name).
+
+    Rate source (CE-safe priority):
+      1. account_move_line.price_unit  — from linked vendor bill / customer invoice line
+      2. stock_valuation_layer         — if available (Enterprise / enabled CE valuation)
+      3. purchase_order_line.price_unit — fallback for receipts
+      4. sale_order_line.price_unit     — fallback for deliveries
+      5. 0                              — if nothing found
     """
     _name = 'product.stock.ledger'
     _description = 'Product Stock Ledger'
@@ -70,12 +77,13 @@ class ProductStockLedger(models.Model):
         )
 
     def init(self):
-        # Explicitly drop first so every module upgrade rebuilds the view
-        self.env.cr.execute("DROP VIEW IF EXISTS %s" % self._table)
+        tools.drop_view_if_exists(self.env.cr, self._table)
 
         has_svl = self._table_exists('stock_valuation_layer')
         has_so  = self._table_exists('sale_order')
         has_po  = self._table_exists('purchase_order')
+        has_pol = self._table_exists('purchase_order_line')
+        has_sol = self._table_exists('sale_order_line')
 
         uom_name_type = self._col_type('uom_uom', 'name')
         if uom_name_type and 'json' in uom_name_type.lower():
@@ -85,7 +93,7 @@ class ProductStockLedger(models.Model):
 
         loc_cn_type = self._col_type('stock_location', 'complete_name')
         if loc_cn_type and 'json' in loc_cn_type.lower():
-            sl_cn  = "(sl.complete_name->>'en_US')"
+            sl_cn   = "(sl.complete_name->>'en_US')"
             root_cn = "(root.complete_name->>'en_US')"
         else:
             sl_cn   = "sl.complete_name"
@@ -93,90 +101,187 @@ class ProductStockLedger(models.Model):
 
         sm_ref = 'sm.reference' if self._col_exists('stock_move', 'reference') else 'sm.origin'
 
-        so_inv = 'so.invoice_status' if has_so and self._col_exists('sale_order', 'invoice_status') else "NULL::varchar"
-        po_inv = 'po.invoice_status' if has_po and self._col_exists('purchase_order', 'invoice_status') else "NULL::varchar"
+        # ── Rate source (CE-safe) ──────────────────────────────────────────
+        # Priority:
+        #   1. Vendor bill line (in_invoice)  → best for purchases
+        #   2. Customer invoice line (out_invoice) → best for sales
+        #   3. stock_valuation_layer if available
+        #   4. purchase_order_line.price_unit fallback
+        #   5. sale_order_line.price_unit fallback
+        #   6. 0
 
-        # ── Cost source priority ──────────────────────────────────────
-        # 1. stock_valuation_layer  (most accurate, only if table exists)
-        # 2. purchase_order_line.price_unit via sm.purchase_line_id  (IN moves)
-        # 3. sale_order_line.price_unit    via sm.sale_line_id        (OUT moves)
-        # 4. sm.price_unit                                             (fallback)
-        # ─────────────────────────────────────────────────────────────
-        has_sm_purchase_line = self._col_exists('stock_move', 'purchase_line_id')
-        has_sm_sale_line     = self._col_exists('stock_move', 'sale_line_id')
-        has_sm_price_unit    = self._col_exists('stock_move', 'price_unit')
-        has_pol_price        = has_po and self._col_exists('purchase_order_line', 'price_unit')
-        has_sol              = self._table_exists('sale_order_line')
-        has_sol_price        = has_sol and self._col_exists('sale_order_line', 'price_unit')
+        # CTE: unit cost from account_move_line (linked via stock_move)
+        # purchase bill lines are linked via purchase_line_id → purchase_order_line → stock_move
+        # sale invoice lines are linked via sale_line_ids (many2many rel table)
 
-        cost_cte  = ""
-        cost_join = ""
+        # Check for the purchase line link on account_move_line
+        has_aml_purchase_link = self._col_exists('account_move_line', 'purchase_line_id')
 
+        # Check sale_order_line_invoice_rel table (links sale lines to invoice lines)
+        has_sol_inv_rel = self._table_exists('sale_order_line_invoice_rel')
+
+        # ── SVL cost CTE ──────────────────────────────────────────────────
         if has_svl:
-            cost_cte = """,
-move_cost AS (
+            svl_cte = """
+svl_cost AS (
     SELECT
         stock_move_id,
         CASE WHEN SUM(ABS(quantity)) > 0
-             THEN ABS(SUM(value)) / SUM(ABS(quantity))
+             THEN SUM(ABS(value)) / SUM(ABS(quantity))
              ELSE 0
         END AS unit_cost
     FROM stock_valuation_layer
     WHERE stock_move_id IS NOT NULL
     GROUP BY stock_move_id
-)"""
-            cost_join  = "LEFT JOIN move_cost mc ON mc.stock_move_id = sm.id"
-            svl_cost   = "COALESCE(mc.unit_cost, 0)"
+),"""
+            svl_join  = "LEFT JOIN svl_cost svl ON svl.stock_move_id = sm.id"
+            svl_field = "svl.unit_cost"
         else:
-            svl_cost   = "NULL::numeric"
+            svl_cte   = ""
+            svl_join  = ""
+            svl_field = "NULL::numeric"
 
-        # Build fallback chain: SVL → POL price → SOL price → sm.price_unit → 0
-        pol_price = "pol.price_unit" if has_sm_purchase_line and has_pol_price else "NULL::numeric"
-        sol_price = "sol.price_unit" if has_sm_sale_line and has_sol_price     else "NULL::numeric"
-        sm_price  = "sm.price_unit"  if has_sm_price_unit                      else "NULL::numeric"
-        cost_field = f"COALESCE(NULLIF({svl_cost},0), NULLIF({pol_price},0), NULLIF({sol_price},0), NULLIF({sm_price},0), 0)"
+        # ── Account Move Line cost CTE (purchase bills) ───────────────────
+        # Link: stock_move.purchase_line_id → purchase_order_line.id
+        #       account_move_line.purchase_line_id → purchase_order_line.id
+        has_sm_pol = self._col_exists('stock_move', 'purchase_line_id')
 
-        # Extra joins for cost fallback
-        if has_sm_purchase_line and has_pol_price:
-            cost_join += "\n    LEFT JOIN purchase_order_line pol ON pol.id = sm.purchase_line_id"
-        if has_sm_sale_line and has_sol_price:
-            cost_join += "\n    LEFT JOIN sale_order_line sol ON sol.id = sm.sale_line_id"
-
-        # ── SO/PO joins for voucher/particulars/invoice_status ────────
-        # Use direct FK on stock_picking where available, else sm.origin
-        sp_sale_col     = 'sale_id'  if self._col_exists('stock_picking', 'sale_id')     else None
-        sp_purchase_col = None  # no purchase_id on stock_picking in this version
-
-        if has_so and sp_sale_col:
-            so_join = f"LEFT JOIN sale_order so ON so.id = sp.{sp_sale_col}"
-            so_name = "so.name"
-            so_cond = "so.id IS NOT NULL"
-        elif has_so and has_sm_sale_line:
-            so_join = "LEFT JOIN sale_order so ON so.id = (SELECT order_id FROM sale_order_line WHERE id = sm.sale_line_id)"
-            so_name = "so.name"
-            so_cond = "so.id IS NOT NULL"
-        elif has_so:
-            so_join = "LEFT JOIN sale_order so ON so.name = sm.origin"
-            so_name = "so.name"
-            so_cond = "so.id IS NOT NULL"
+        if has_aml_purchase_link and has_sm_pol:
+            aml_purchase_cte = """
+aml_purchase_cost AS (
+    SELECT
+        sm_inner.id AS stock_move_id,
+        aml.price_unit AS unit_cost
+    FROM stock_move sm_inner
+    JOIN account_move_line aml
+        ON aml.purchase_line_id = sm_inner.purchase_line_id
+       AND aml.purchase_line_id IS NOT NULL
+    JOIN account_move am
+        ON am.id = aml.move_id
+       AND am.move_type = 'in_invoice'
+       AND am.state = 'posted'
+    WHERE sm_inner.purchase_line_id IS NOT NULL
+),"""
+            aml_pur_join  = "LEFT JOIN aml_purchase_cost apc ON apc.stock_move_id = sm.id"
+            aml_pur_field = "apc.unit_cost"
         else:
-            so_join = ""
-            so_name = "NULL::varchar"
-            so_cond = "FALSE"
+            aml_purchase_cte = ""
+            aml_pur_join     = ""
+            aml_pur_field    = "NULL::numeric"
 
-        if has_po and has_sm_purchase_line:
-            # Join PO via sm.purchase_line_id → purchase_order_line → purchase_order
-            po_join = "LEFT JOIN purchase_order po ON po.id = (SELECT order_id FROM purchase_order_line WHERE id = sm.purchase_line_id)"
-            po_name = "po.name"
-            po_cond = "po.id IS NOT NULL"
-        elif has_po:
-            po_join = "LEFT JOIN purchase_order po ON po.name = sm.origin"
-            po_name = "po.name"
-            po_cond = "po.id IS NOT NULL"
+        # ── Account Move Line cost CTE (customer invoices / sale) ─────────
+        has_sm_sol = self._col_exists('stock_move', 'sale_line_id')
+
+        if has_sol_inv_rel and has_sm_sol:
+            aml_sale_cte = """
+aml_sale_cost AS (
+    SELECT
+        sm_inner.id  AS stock_move_id,
+        aml.price_unit AS unit_cost
+    FROM stock_move sm_inner
+    JOIN sale_order_line_invoice_rel rel
+        ON rel.order_line_id = sm_inner.sale_line_id
+    JOIN account_move_line aml
+        ON aml.id = rel.invoice_line_id
+    JOIN account_move am
+        ON am.id = aml.move_id
+       AND am.move_type = 'out_invoice'
+       AND am.state = 'posted'
+    WHERE sm_inner.sale_line_id IS NOT NULL
+),"""
+            aml_sale_join  = "LEFT JOIN aml_sale_cost asc2 ON asc2.stock_move_id = sm.id"
+            aml_sale_field = "asc2.unit_cost"
         else:
-            po_join = ""
-            po_name = "NULL::varchar"
-            po_cond = "FALSE"
+            aml_sale_cte  = ""
+            aml_sale_join = ""
+            aml_sale_field = "NULL::numeric"
+
+        # ── Purchase Order Line price fallback ────────────────────────────
+        if has_pol and has_sm_pol:
+            pol_cte = """
+pol_cost AS (
+    SELECT sm_inner.id AS stock_move_id, pol.price_unit AS unit_cost
+    FROM stock_move sm_inner
+    JOIN purchase_order_line pol ON pol.id = sm_inner.purchase_line_id
+    WHERE sm_inner.purchase_line_id IS NOT NULL
+),"""
+            pol_join  = "LEFT JOIN pol_cost polc ON polc.stock_move_id = sm.id"
+            pol_field = "polc.unit_cost"
+        else:
+            pol_cte   = ""
+            pol_join  = ""
+            pol_field = "NULL::numeric"
+
+        # ── Sale Order Line price fallback ────────────────────────────────
+        if has_sol and has_sm_sol:
+            sol_cte = """
+sol_cost AS (
+    SELECT sm_inner.id AS stock_move_id, sol.price_unit AS unit_cost
+    FROM stock_move sm_inner
+    JOIN sale_order_line sol ON sol.id = sm_inner.sale_line_id
+    WHERE sm_inner.sale_line_id IS NOT NULL
+),"""
+            sol_join  = "LEFT JOIN sol_cost solc ON solc.stock_move_id = sm.id"
+            sol_field = "solc.unit_cost"
+        else:
+            sol_cte   = ""
+            sol_join  = ""
+            sol_field = "NULL::numeric"
+
+        # ── Final COALESCE for unit cost ──────────────────────────────────
+        # For IN moves (receipts): prefer purchase bill rate, then SVL, then POL
+        # For OUT moves (issues):  prefer sale invoice rate, then SVL, then SOL
+        cost_field = f"""COALESCE(
+                CASE
+                    WHEN dest_loc.usage = 'internal' AND src_loc.usage != 'internal'
+                        THEN COALESCE({aml_pur_field}, {svl_field}, {pol_field})
+                    WHEN src_loc.usage = 'customer'
+                        THEN COALESCE({aml_pur_field}, {svl_field}, {pol_field})
+                    WHEN src_loc.usage = 'internal' AND dest_loc.usage != 'internal'
+                        THEN COALESCE({aml_sale_field}, {svl_field}, {sol_field})
+                    ELSE COALESCE({svl_field}, {aml_pur_field}, {aml_sale_field}, {pol_field}, {sol_field})
+                END,
+                0
+            )"""
+
+        # ── SO / PO joins ─────────────────────────────────────────────────
+        # Use direct FK links instead of origin string matching (much more reliable)
+        if has_so and has_sm_sol:
+            so_join   = "LEFT JOIN sale_order so ON so.id = sm.sale_id" if self._col_exists('stock_move', 'sale_id') else \
+                        "LEFT JOIN sale_order_line sol_ref ON sol_ref.id = sm.sale_line_id LEFT JOIN sale_order so ON so.id = sol_ref.order_id"
+            so_name   = "so.name"
+            so_cond   = "so.id IS NOT NULL"
+            so_inv    = "so.invoice_status" if self._col_exists('sale_order', 'invoice_status') else "NULL::varchar"
+        else:
+            so_join   = ""
+            so_name   = "NULL::varchar"
+            so_cond   = "FALSE"
+            so_inv    = "NULL::varchar"
+
+        if has_po and has_sm_pol:
+            po_join   = "LEFT JOIN purchase_order po ON po.id = sm.purchase_id" if self._col_exists('stock_move', 'purchase_id') else \
+                        "LEFT JOIN purchase_order_line pol_ref ON pol_ref.id = sm.purchase_line_id LEFT JOIN purchase_order po ON po.id = pol_ref.order_id"
+            po_name   = "po.name"
+            po_cond   = "po.id IS NOT NULL"
+            po_inv    = "po.invoice_status" if self._col_exists('purchase_order', 'invoice_status') else "NULL::varchar"
+        else:
+            po_join   = ""
+            po_name   = "NULL::varchar"
+            po_cond   = "FALSE"
+            po_inv    = "NULL::varchar"
+
+        # ── Assemble all CTEs ─────────────────────────────────────────────
+        # Remove trailing commas from the last CTE before ledger CTE
+        all_ctes = "".join(filter(None, [
+            svl_cte,
+            aml_purchase_cte,
+            aml_sale_cte,
+            pol_cte,
+            sol_cte,
+        ]))
+        # Strip trailing comma+whitespace before "ledger AS"
+        if all_ctes.strip().endswith(','):
+            all_ctes = all_ctes.rstrip().rstrip(',')
 
         sql = f"""
 CREATE OR REPLACE VIEW product_stock_ledger AS
@@ -196,10 +301,10 @@ loc_warehouse AS (
         )
     WHERE sl.usage = 'internal'
     ORDER BY sl.id, sw.id
-)
-{cost_cte}
+),
+{all_ctes}
 
-, ledger AS (
+ledger AS (
     SELECT
         sml.id                                               AS id,
         sml.product_id                                       AS product_id,
@@ -207,12 +312,10 @@ loc_warehouse AS (
         sm.date                                              AS date,
         TO_CHAR(sm.date AT TIME ZONE 'UTC', 'DD/MM/YY')     AS date_str,
 
-        -- Voucher: the physical stock document (picking name)
-        COALESCE(sp.name, sm.origin, {sm_ref}, '')           AS voucher,
+        COALESCE({so_name}, {po_name}, sp.name, sm.origin, {sm_ref}, '')
+                                                             AS voucher,
 
-        -- Particulars: the source order (SO/PO) that generated this movement
-        COALESCE({so_name}, {po_name}, sm.origin, {sm_ref}, sp.name, '')
-                                                             AS particulars,
+        COALESCE(sm.origin, {sm_ref}, sp.name, '')           AS particulars,
 
         CASE
             WHEN src_loc.usage = 'supplier'                          THEN 'IN'
@@ -273,11 +376,28 @@ loc_warehouse AS (
 
         {uom_name_sql}                                       AS uom,
 
-        COALESCE(CASE
-            WHEN {so_cond} THEN {so_inv}
-            WHEN {po_cond} THEN {po_inv}
-            ELSE NULL
-        END, '')                                             AS invoice_status,
+        -- invoice_status: use direct FK join (reliable) with human-readable label
+        COALESCE(
+            CASE
+                WHEN {so_cond} THEN
+                    CASE {so_inv}
+                        WHEN 'invoiced'    THEN 'Invoiced'
+                        WHEN 'to invoice'  THEN 'To Invoice'
+                        WHEN 'upselling'   THEN 'Upselling'
+                        WHEN 'nothing'     THEN 'Nothing'
+                        ELSE {so_inv}
+                    END
+                WHEN {po_cond} THEN
+                    CASE {po_inv}
+                        WHEN 'invoiced'    THEN 'Invoiced'
+                        WHEN 'to invoice'  THEN 'To Invoice'
+                        WHEN 'nothing'     THEN 'Nothing'
+                        ELSE {po_inv}
+                    END
+                ELSE NULL
+            END,
+            ''
+        )                                                    AS invoice_status,
 
         sm.id         AS move_id,
         sm.company_id AS company_id
@@ -302,7 +422,11 @@ loc_warehouse AS (
     LEFT JOIN uom_uom    uom_u ON uom_u.id = sml.product_uom_id
     LEFT JOIN stock_picking sp ON sp.id    = sml.picking_id
 
-    {cost_join}
+    {svl_join}
+    {aml_pur_join}
+    {aml_sale_join}
+    {pol_join}
+    {sol_join}
     {so_join}
     {po_join}
 
@@ -321,7 +445,6 @@ SELECT * FROM ledger
         if not self:
             raise UserError(_('Please select at least one record to delete.'))
 
-        # Collect stock move IDs from selected ledger rows
         move_ids = self.mapped('move_id').ids
         if not move_ids:
             raise UserError(_('No stock moves linked to the selected records.'))
@@ -396,7 +519,6 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
             rec.summary = table
 
     def _table_exists(self, table_name):
-        """Check if a PostgreSQL table exists in the public schema."""
         self.env.cr.execute("""
             SELECT EXISTS (
                 SELECT 1 FROM information_schema.tables
@@ -410,7 +532,6 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
         """Delete stock moves and all related records."""
         self.ensure_one()
 
-        # Only inventory managers can delete
         if not self.env.user.has_group('stock.group_stock_manager'):
             raise AccessError(_('Only Inventory Managers can delete stock ledger entries.'))
 
@@ -420,33 +541,28 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 
         cr = self.env.cr
 
-        # 1. Delete stock valuation layers (only if table exists — CE may not have it)
         if self._table_exists('stock_valuation_layer'):
             cr.execute(
                 "DELETE FROM stock_valuation_layer WHERE stock_move_id = ANY(%s)",
                 (move_ids,)
             )
 
-        # 2. Delete stock account move line links (if table exists)
         if self._table_exists('stock_move_account_move_line_rel'):
             cr.execute(
                 "DELETE FROM stock_move_account_move_line_rel WHERE stock_move_id = ANY(%s)",
                 (move_ids,)
             )
 
-        # 3. Delete stock move lines
         cr.execute(
             "DELETE FROM stock_move_line WHERE move_id = ANY(%s)",
             (move_ids,)
         )
 
-        # 4. Delete stock moves
         cr.execute(
             "DELETE FROM stock_move WHERE id = ANY(%s)",
             (move_ids,)
         )
 
-        # 4. Clean up orphan zero quants
         cr.execute("""
             DELETE FROM stock_quant
             WHERE quantity = 0
@@ -469,6 +585,7 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 
     def action_cancel(self):
         return {'type': 'ir.actions.act_window_close'}
+
 
 
 

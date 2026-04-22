@@ -253,17 +253,23 @@ class ProductStockLedger(models.Model):
         # so_invoice_ref — get the invoice number for SO-linked stock moves
         # Links: stock_move.sale_line_id → sale_order_line_invoice_rel → account_move_line → account_move
         if has_sol_rel and has_sm_sol:
-            cte_list.append("""so_invoice_ref AS (
-    SELECT DISTINCT ON (sm2.id)
-        sm2.id   AS stock_move_id,
-        am.name  AS invoice_name,
-        CASE {so_inv_status}
+            _so_has_inv_status = has_so and self._col_exists('sale_order', 'invoice_status')
+            _sir_inv_expr = """
+        CASE so_lnk.invoice_status
             WHEN 'invoiced'   THEN 'Invoiced'
             WHEN 'to invoice' THEN 'To Invoice'
             WHEN 'upselling'  THEN 'Upselling'
             WHEN 'nothing'    THEN 'Nothing'
-            ELSE COALESCE({so_inv_status}, '')
-        END      AS invoice_status
+            ELSE COALESCE(so_lnk.invoice_status, 'Invoiced')
+        END""" if _so_has_inv_status else "'Invoiced'"
+            _sir_so_join = """
+    LEFT JOIN sale_order_line sol_lnk ON sol_lnk.id = sm2.sale_line_id
+    LEFT JOIN sale_order so_lnk ON so_lnk.id = sol_lnk.order_id""" if _so_has_inv_status else ""
+            cte_list.append(f"""so_invoice_ref AS (
+    SELECT DISTINCT ON (sm2.id)
+        sm2.id   AS stock_move_id,
+        am.name  AS invoice_name,
+        {_sir_inv_expr}      AS invoice_status
     FROM stock_move sm2
     JOIN sale_order_line_invoice_rel rel
         ON rel.order_line_id = sm2.sale_line_id
@@ -272,26 +278,30 @@ class ProductStockLedger(models.Model):
     JOIN account_move am
         ON am.id        = aml.move_id
        AND am.move_type = 'out_invoice'
-       AND am.state     = 'posted'
+       AND am.state     = 'posted'{_sir_so_join}
     WHERE sm2.sale_line_id IS NOT NULL
     ORDER BY sm2.id, am.invoice_date DESC
-)""".format(
-    so_inv_status="so2.invoice_status" if has_so and self._col_exists('sale_order', 'invoice_status') else "am.state"
-))
+)""")
 
         # po_invoice_ref — get the invoice number for PO-linked stock moves
         # Links: stock_move.purchase_line_id → account_move_line.purchase_line_id → account_move
         if has_aml_pol and has_sm_pol:
-            cte_list.append("""po_invoice_ref AS (
-    SELECT DISTINCT ON (sm2.id)
-        sm2.id   AS stock_move_id,
-        am.name  AS invoice_name,
-        CASE {po_inv_status}
+            _po_has_inv_status = has_po and self._col_exists('purchase_order', 'invoice_status')
+            _pir_inv_expr = """
+        CASE po_lnk.invoice_status
             WHEN 'invoiced'   THEN 'Invoiced'
             WHEN 'to invoice' THEN 'To Invoice'
             WHEN 'nothing'    THEN 'Nothing'
-            ELSE COALESCE({po_inv_status}, '')
-        END      AS invoice_status
+            ELSE COALESCE(po_lnk.invoice_status, 'Invoiced')
+        END""" if _po_has_inv_status else "'Invoiced'"
+            _pir_po_join = """
+    LEFT JOIN purchase_order_line pol_lnk ON pol_lnk.id = sm2.purchase_line_id
+    LEFT JOIN purchase_order po_lnk ON po_lnk.id = pol_lnk.order_id""" if _po_has_inv_status else ""
+            cte_list.append(f"""po_invoice_ref AS (
+    SELECT DISTINCT ON (sm2.id)
+        sm2.id   AS stock_move_id,
+        am.name  AS invoice_name,
+        {_pir_inv_expr}      AS invoice_status
     FROM stock_move sm2
     JOIN account_move_line aml
         ON aml.purchase_line_id = sm2.purchase_line_id
@@ -299,12 +309,10 @@ class ProductStockLedger(models.Model):
     JOIN account_move am
         ON am.id        = aml.move_id
        AND am.move_type = 'in_invoice'
-       AND am.state     = 'posted'
+       AND am.state     = 'posted'{_pir_po_join}
     WHERE sm2.purchase_line_id IS NOT NULL
     ORDER BY sm2.id, am.invoice_date DESC
-)""".format(
-    po_inv_status="po2.invoice_status" if has_po and self._col_exists('purchase_order', 'invoice_status') else "am.state"
-))
+)""")
 
         # pol_cost — purchase order line price fallback
         if has_pol_tbl and has_sm_pol:
@@ -645,6 +653,7 @@ class ProductStockLedgerDeleteWizard(models.TransientModel):
 
     def action_cancel(self):
         return {'type': 'ir.actions.act_window_close'}
+
 
 
 

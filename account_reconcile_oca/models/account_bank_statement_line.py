@@ -1417,6 +1417,10 @@ from collections import defaultdict
 # Copyright 2025 Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
+# Copyright 2023 Dixmit
+# Copyright 2025 Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+
 from collections import defaultdict
 
 from dateutil import rrule
@@ -1758,7 +1762,7 @@ class AccountBankStatementLine(models.Model):
                 not float_is_zero(
                     self.manual_amount - line["amount"],
                     precision_digits=self.company_id.currency_id.decimal_places,
-                )
+                    )
                 or self.manual_account_id.id != line["account_id"][0]
                 or self.manual_name != line["name"]
                 or (
@@ -1839,7 +1843,6 @@ class AccountBankStatementLine(models.Model):
             self.manual_move_type = self.manual_line_id.move_id.move_type
         self.manual_kind = line["kind"]
         self.manual_original_amount = line.get("original_amount", 0.0)
-
     # def _process_manual_reconcile_from_line(self, line):
     #     self.manual_account_id = line["account_id"][0]
     #     self.manual_amount = line["amount"]
@@ -1963,10 +1966,14 @@ class AccountBankStatementLine(models.Model):
         )
 
         # ── base line tag_ids (for tax report base amount) ──────────────────
-        # compute_all returns base_tags as a list of account.tax.repartition.line ids
+        # compute_all returns base_tags as signed ints: positive = normal tag,
+        # negative = tag applied in "negate" mode. We must pass only the positive
+        # (real) IDs to Command.set(); the ORM handles sign through the repartition
+        # line, not through the tag ID itself.
         base_tag_ids = [
-            t if isinstance(t, int) else t.id
+            abs(t) if isinstance(t, int) else abs(t.id)
             for t in (tax_results.get("base_tags") or [])
+            if (t if isinstance(t, int) else t.id)  # skip zeros
         ]
 
         tax_lines_data = []
@@ -1989,9 +1996,11 @@ class AccountBankStatementLine(models.Model):
             tax_rep_line_id = tax_line.get("tax_repartition_line_id") or False
 
             # tag_ids for this tax line (for tax report tax amount)
+            # compute_all returns signed ints; use abs() for Command.set()
             tag_ids = [
-                t if isinstance(t, int) else t.id
+                abs(t) if isinstance(t, int) else abs(t.id)
                 for t in (tax_line.get("tag_ids") or [])
+                if (t if isinstance(t, int) else t.id)
             ]
 
             line = {
@@ -2194,7 +2203,7 @@ class AccountBankStatementLine(models.Model):
                     self.journal_id.currency_id or self.company_currency_id,
                     self.company_id,
                     self.date,
-                )
+                    )
             if currency != self.company_id.currency_id:
                 currency_amount = self.company_id.currency_id._convert(
                     amount,

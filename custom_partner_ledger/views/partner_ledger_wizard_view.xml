@@ -12,6 +12,14 @@
                 <attribute name="string">Customers &amp; Vendors</attribute>
             </xpath>
 
+            <!-- Add Show PO Number checkbox before the footer -->
+            <xpath expr="//footer" position="before">
+                <div class="o_row">
+                    <field name="show_po_number"/>
+                    <label for="show_po_number" string="Show PO Number Column in Report"/>
+                </div>
+            </xpath>
+
             <!-- Add Show Details button in the footer -->
             <xpath expr="//footer" position="inside">
                 <button string="Show Details"
@@ -24,3 +32,38 @@
     </record>
 
 </odoo>
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+
+<!--    &lt;!&ndash; Inherit the Partner Ledger Wizard View &ndash;&gt;-->
+<!--    <record id="account_report_partner_ledger_custom_view" model="ir.ui.view">-->
+<!--        <field name="name">Custom Partner Ledger Wizard</field>-->
+<!--        <field name="model">account.report.partner.ledger</field>-->
+<!--        <field name="inherit_id" ref="accounting_pdf_reports.account_report_partner_ledger_view"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            &lt;!&ndash; Change the label of partner_ids field &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='partner_ids']" position="attributes">-->
+<!--                <attribute name="string">Customers &amp; Vendors</attribute>-->
+<!--            </xpath>-->
+
+<!--            &lt;!&ndash; Add Show Details button in the footer &ndash;&gt;-->
+<!--            <xpath expr="//footer" position="inside">-->
+<!--                <button string="Show Details"-->
+<!--                        name="action_show_details"-->
+<!--                        type="object"-->
+<!--                        class="btn-primary"-->
+<!--                        data-hotkey="d"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--</odoo>-->

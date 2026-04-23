@@ -142,11 +142,11 @@
                             <col style="width: 70px;"/>
                             <col style="width: 90px;"/>
                             <col style="width: 90px;"/>
-                            <col  style="width: 200px;"/>
+                            <col style="width: 200px;"/>
                             <col style="width: 85px;"/>
                             <col style="width: 85px;"/>
                             <col style="width: 85px;"/>
-                            <col style="width: 120px;"/>
+                            <col t-if="data['form'].get('show_po_number')" style="width: 120px;"/>
                         </colgroup>
                         <thead>
                             <tr style="background-color: #A3AABE; color: black;">
@@ -158,7 +158,7 @@
                                 <th style="padding: 6px 4px; text-align: right; border: 1px solid #ddd; white-space: nowrap;">Debit</th>
                                 <th style="padding: 6px 4px; text-align: right; border: 1px solid #ddd; white-space: nowrap;">Credit</th>
                                 <th style="padding: 6px 4px; text-align: right; border: 1px solid #ddd; white-space: nowrap;">Balance</th>
-                                <th style="padding: 6px 4px; text-align: left; border: 1px solid #ddd;">PO Number</th>
+                                <th t-if="data['form'].get('show_po_number')" style="padding: 6px 4px; text-align: left; border: 1px solid #ddd;">PO Number</th>
                                 <th t-if="data['form']['amount_currency']"
                                     style="padding: 6px 4px; text-align: right; border: 1px solid #ddd;">Currency</th>
                             </tr>
@@ -218,7 +218,7 @@
                                     </td>
 
                                     <!-- PO Number (empty in summary row) -->
-                                    <td style="padding: 8px 4px; border: 1px solid #ddd;"/>
+                                    <td t-if="data['form'].get('show_po_number')" style="padding: 8px 4px; border: 1px solid #ddd;"/>
 
                                     <td t-if="data['form']['amount_currency']" style="padding: 8px 4px; border: 1px solid #ddd;"/>
                                 </tr>
@@ -274,8 +274,8 @@
                                         </t>
                                     </td>
 
-                                    <!-- PO Number (moved after Balance) -->
-                                    <td style="padding: 4px; border: 1px solid #ddd; word-break: break-word; overflow-wrap: break-word;">
+                                    <!-- PO Number (moved after Balance, shown only if selected) -->
+                                    <td t-if="data['form'].get('show_po_number')" style="padding: 4px; border: 1px solid #ddd; word-break: break-word; overflow-wrap: break-word;">
                                         <span t-esc="line['po_number']"/>
                                     </td>
 
@@ -314,6 +314,12 @@
     </template>
 
 </odoo>
+
+
+
+
+
+
 
 
 
@@ -453,32 +459,47 @@
 <!--                    </div>-->
 
 <!--                    &lt;!&ndash; Ledger Table &ndash;&gt;-->
+<!--                    &lt;!&ndash;-->
+<!--                        Column order: Date | Due Date | JRNL | Account | Ref | Debit | Credit | Balance | PO Number | [Currency]-->
+<!--                        Widths (A4 landscape ~760px usable):-->
+<!--                          Date     : 70px   Due Date : 70px   JRNL    : 55px-->
+<!--                          Account  : 90px   Ref      : auto   Debit   : 88px-->
+<!--                          Credit   : 88px   Balance  : 92px   PO Num  : 90px-->
+<!--                    &ndash;&gt;-->
 <!--                    <table class="ledger-table"-->
-<!--                           style="margin-bottom: 15px; width: 100%; border-collapse: collapse;">-->
+<!--                           style="margin-bottom: 15px; width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 11px;">-->
+<!--                        <colgroup>-->
+<!--                            <col style="width: 70px;"/>-->
+<!--                            <col style="width: 70px;"/>-->
+<!--                            <col style="width: 90px;"/>-->
+<!--                            <col style="width: 90px;"/>-->
+<!--                            <col  style="width: 200px;"/>-->
+<!--                            <col style="width: 85px;"/>-->
+<!--                            <col style="width: 85px;"/>-->
+<!--                            <col style="width: 85px;"/>-->
+<!--                            <col style="width: 120px;"/>-->
+<!--                        </colgroup>-->
 <!--                        <thead>-->
 <!--                            <tr style="background-color: #A3AABE; color: black;">-->
-<!--                                <th style="padding: 6px; text-align: left; border: 1px solid #ddd;">Date</th>-->
-<!--                                <th style="padding: 6px; text-align: left; border: 1px solid #ddd;">Due Date</th>-->
-<!--                                <th style="padding: 6px; text-align: left; border: 1px solid #ddd;">JRNL</th>-->
-<!--                                <th style="padding: 6px; text-align: left; border: 1px solid #ddd;">Account</th>-->
-<!--                                <th style="padding: 6px; text-align: left; border: 1px solid #ddd;">Ref</th>-->
-<!--                                <th style="padding: 6px; text-align: left; border: 1px solid #ddd;">PO Number</th>-->
-<!--                                <th style="padding: 6px; text-align: right; border: 1px solid #ddd;">Debit</th>-->
-<!--                                <th style="padding: 6px; text-align: right; border: 1px solid #ddd;">Credit</th>-->
-<!--                                <th style="padding: 6px; text-align: right; border: 1px solid #ddd;">Balance</th>-->
+<!--                                <th style="padding: 6px 4px; text-align: left; border: 1px solid #ddd; white-space: nowrap;">Date</th>-->
+<!--                                <th style="padding: 6px 4px; text-align: left; border: 1px solid #ddd; white-space: nowrap;">Due Date</th>-->
+<!--                                <th style="padding: 6px 4px; text-align: left; border: 1px solid #ddd; white-space: nowrap;">JRNL</th>-->
+<!--                                <th style="padding: 6px 4px; text-align: left; border: 1px solid #ddd;">Account</th>-->
+<!--                                <th style="padding: 6px 4px; text-align: left; border: 1px solid #ddd;">Ref</th>-->
+<!--                                <th style="padding: 6px 4px; text-align: right; border: 1px solid #ddd; white-space: nowrap;">Debit</th>-->
+<!--                                <th style="padding: 6px 4px; text-align: right; border: 1px solid #ddd; white-space: nowrap;">Credit</th>-->
+<!--                                <th style="padding: 6px 4px; text-align: right; border: 1px solid #ddd; white-space: nowrap;">Balance</th>-->
+<!--                                <th style="padding: 6px 4px; text-align: left; border: 1px solid #ddd;">PO Number</th>-->
 <!--                                <th t-if="data['form']['amount_currency']"-->
-<!--                                    style="padding: 6px; text-align: right; border: 1px solid #ddd;">Currency</th>-->
+<!--                                    style="padding: 6px 4px; text-align: right; border: 1px solid #ddd;">Currency</th>-->
 <!--                            </tr>-->
 <!--                        </thead>-->
 <!--                        <t t-foreach="docs" t-as="o">-->
-<!--                            &lt;!&ndash; FIX: Compute partner summary once using the new helper.-->
-<!--                                 This returns amounts in foreign currency when all lines-->
-<!--                                 use the same foreign currency, otherwise company currency. &ndash;&gt;-->
 <!--                            <t t-set="p_summary" t-value="get_partner_summary(data, o)"/>-->
 <!--                            <tbody>-->
-<!--                                &lt;!&ndash; Partner Header Row (summary totals) &ndash;&gt;-->
+<!--                                &lt;!&ndash; Partner Header Row — colspan 5 covers Date..Ref &ndash;&gt;-->
 <!--                                <tr style="background-color: #f8f9fa; border-top: 2px solid #8B1538;">-->
-<!--                                    <td colspan="6" style="padding: 10px; border: 1px solid #ddd; max-width: 0; width: 55%;">-->
+<!--                                    <td colspan="5" style="padding: 8px 6px; border: 1px solid #ddd; overflow: hidden;">-->
 <!--                                        <div style="word-break: break-word; overflow-wrap: break-word; white-space: normal; max-width: 380px;">-->
 <!--                                            <strong t-esc="get_partner_label(data, o)"/>:-->
 <!--                                            <span t-esc="o.ref" t-if="o.ref"/>-->
@@ -489,7 +510,7 @@
 <!--                                    </td>-->
 
 <!--                                    &lt;!&ndash; Debit summary &ndash;&gt;-->
-<!--                                    <td class="text-end" style="padding: 10px; border: 1px solid #ddd;">-->
+<!--                                    <td class="text-end" style="padding: 8px 4px; border: 1px solid #ddd; white-space: nowrap;">-->
 <!--                                        <t t-if="p_summary['is_foreign']">-->
 <!--                                            <strong>-->
 <!--                                                <span t-esc="p_summary['currency_symbol']"/>&#160;<span t-esc="'%.2f' % p_summary['debit']"/>-->
@@ -502,7 +523,7 @@
 <!--                                    </td>-->
 
 <!--                                    &lt;!&ndash; Credit summary &ndash;&gt;-->
-<!--                                    <td class="text-end" style="padding: 10px; border: 1px solid #ddd;">-->
+<!--                                    <td class="text-end" style="padding: 8px 4px; border: 1px solid #ddd; white-space: nowrap;">-->
 <!--                                        <t t-if="p_summary['is_foreign']">-->
 <!--                                            <strong>-->
 <!--                                                <span t-esc="p_summary['currency_symbol']"/>&#160;<span t-esc="'%.2f' % p_summary['credit']"/>-->
@@ -515,7 +536,7 @@
 <!--                                    </td>-->
 
 <!--                                    &lt;!&ndash; Balance summary &ndash;&gt;-->
-<!--                                    <td class="text-end" style="padding: 10px; border: 1px solid #ddd;">-->
+<!--                                    <td class="text-end" style="padding: 8px 4px; border: 1px solid #ddd; white-space: nowrap;">-->
 <!--                                        <t t-if="p_summary['is_foreign']">-->
 <!--                                            <strong>-->
 <!--                                                <span t-esc="p_summary['currency_symbol']"/>&#160;<span t-esc="'%.2f' % p_summary['balance']"/>-->
@@ -527,32 +548,32 @@
 <!--                                        </t>-->
 <!--                                    </td>-->
 
-<!--                                    <td t-if="data['form']['amount_currency']" style="padding: 10px; border: 1px solid #ddd;"/>-->
+<!--                                    &lt;!&ndash; PO Number (empty in summary row) &ndash;&gt;-->
+<!--                                    <td style="padding: 8px 4px; border: 1px solid #ddd;"/>-->
+
+<!--                                    <td t-if="data['form']['amount_currency']" style="padding: 8px 4px; border: 1px solid #ddd;"/>-->
 <!--                                </tr>-->
 
 <!--                                &lt;!&ndash; Transaction Lines &ndash;&gt;-->
 <!--                                <tr t-foreach="lines(data, o)" t-as="line">-->
-<!--                                    <td style="padding: 5px; border: 1px solid #ddd;">-->
+<!--                                    <td style="padding: 4px; border: 1px solid #ddd; white-space: nowrap;">-->
 <!--                                        <span t-esc="line['date']"/>-->
 <!--                                    </td>-->
-<!--                                    <td style="padding: 5px; border: 1px solid #ddd;">-->
+<!--                                    <td style="padding: 4px; border: 1px solid #ddd; white-space: nowrap;">-->
 <!--                                        <span t-esc="line['invoice_date_due']"/>-->
 <!--                                    </td>-->
-<!--                                    <td style="padding: 5px; border: 1px solid #ddd;">-->
+<!--                                    <td style="padding: 4px; border: 1px solid #ddd; white-space: nowrap;">-->
 <!--                                        <span t-esc="line['code']"/>-->
 <!--                                    </td>-->
-<!--                                    <td style="padding: 5px; border: 1px solid #ddd;">-->
+<!--                                    <td style="padding: 4px; border: 1px solid #ddd; word-break: break-word; overflow-wrap: break-word;">-->
 <!--                                        <span t-esc="line['a_name']"/>-->
 <!--                                    </td>-->
-<!--                                    <td style="padding: 5px; border: 1px solid #ddd;">-->
+<!--                                    <td style="padding: 4px; border: 1px solid #ddd; word-break: break-word; overflow-wrap: break-word;">-->
 <!--                                        <span t-esc="line['displayed_name']"/>-->
 <!--                                    </td>-->
-<!--                                    <td style="padding: 5px; border: 1px solid #ddd;">-->
-<!--                                        <span t-esc="line['po_number']"/>-->
-<!--                                    </td>-->
 
-<!--                                    &lt;!&ndash; Debit: show foreign currency amount with its own symbol, else company currency &ndash;&gt;-->
-<!--                                    <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">-->
+<!--                                    &lt;!&ndash; Debit &ndash;&gt;-->
+<!--                                    <td class="text-end" style="padding: 4px; border: 1px solid #ddd; white-space: nowrap;">-->
 <!--                                        <t t-if="line.get('is_foreign_currency') and line['debit']">-->
 <!--                                            <span t-esc="line['display_currency_symbol']"/>&#160;<span t-esc="'%.2f' % line['debit']"/>-->
 <!--                                        </t>-->
@@ -562,8 +583,8 @@
 <!--                                        </t>-->
 <!--                                    </td>-->
 
-<!--                                    &lt;!&ndash; Credit: show foreign currency amount with its own symbol, else company currency &ndash;&gt;-->
-<!--                                    <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">-->
+<!--                                    &lt;!&ndash; Credit &ndash;&gt;-->
+<!--                                    <td class="text-end" style="padding: 4px; border: 1px solid #ddd; white-space: nowrap;">-->
 <!--                                        <t t-if="line.get('is_foreign_currency') and line['credit']">-->
 <!--                                            <span t-esc="line['display_currency_symbol']"/>&#160;<span t-esc="'%.2f' % line['credit']"/>-->
 <!--                                        </t>-->
@@ -573,8 +594,8 @@
 <!--                                        </t>-->
 <!--                                    </td>-->
 
-<!--                                    &lt;!&ndash; Balance: show foreign currency symbol+amount when foreign, else company currency &ndash;&gt;-->
-<!--                                    <td class="text-end" style="padding: 5px; border: 1px solid #ddd;">-->
+<!--                                    &lt;!&ndash; Balance &ndash;&gt;-->
+<!--                                    <td class="text-end" style="padding: 4px; border: 1px solid #ddd; white-space: nowrap;">-->
 <!--                                        <t t-if="line.get('is_foreign_currency')">-->
 <!--                                            <span t-esc="line['display_currency_symbol']"/>&#160;<span t-esc="'%.2f' % line['progress']"/>-->
 <!--                                        </t>-->
@@ -584,8 +605,13 @@
 <!--                                        </t>-->
 <!--                                    </td>-->
 
+<!--                                    &lt;!&ndash; PO Number (moved after Balance) &ndash;&gt;-->
+<!--                                    <td style="padding: 4px; border: 1px solid #ddd; word-break: break-word; overflow-wrap: break-word;">-->
+<!--                                        <span t-esc="line['po_number']"/>-->
+<!--                                    </td>-->
+
 <!--                                    <td class="text-end" t-if="data['form']['amount_currency']"-->
-<!--                                        style="padding: 5px; border: 1px solid #ddd;">-->
+<!--                                        style="padding: 4px; border: 1px solid #ddd; white-space: nowrap;">-->
 <!--                                        <t t-if="line['currency_id']">-->
 <!--                                            <span t-esc="line['amount_currency']"-->
 <!--                                                  t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>-->
@@ -619,3 +645,4 @@
 <!--    </template>-->
 
 <!--</odoo>-->
+

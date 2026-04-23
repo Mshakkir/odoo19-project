@@ -131,9 +131,9 @@
                     <!--
                         Column order: Date | Due Date | JRNL | Account | Ref | Debit | Credit | Balance | PO Number | [Currency]
                         Widths (A4 landscape ~760px usable):
-                          Date     : 70px   Due Date : 70px   JRNL    : 55px
-                          Account  : 90px   Ref      : auto   Debit   : 88px
-                          Credit   : 88px   Balance  : 92px   PO Num  : 90px
+                          Date     : 70px   Due Date : 70px   JRNL    : 90px
+                          Account  : 90px   Ref      : 200px  Debit   : 80px
+                          Credit   : 80px   Balance  : 80px   PO Num  : 150px
                     -->
                     <table class="ledger-table"
                            style="margin-bottom: 15px; width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 11px;">
@@ -143,24 +143,24 @@
                             <col style="width: 90px;"/>
                             <col style="width: 90px;"/>
                             <col style="width: 200px;"/>
-                            <col style="width: 85px;"/>
-                            <col style="width: 85px;"/>
-                            <col style="width: 85px;"/>
-                            <col t-if="data['form'].get('show_po_number')" style="width: 120px;"/>
+                            <col style="width: 80px;"/>
+                            <col style="width: 80px;"/>
+                            <col style="width: 80px;"/>
+                            <col t-if="data['form'].get('show_po_number')" style="width: 150px;"/>
                         </colgroup>
                         <thead>
                             <tr style="background-color: #A3AABE; color: black;">
-                                <th style="padding: 6px 4px; text-align: left; border: 1px solid #ddd; white-space: nowrap;">Date</th>
-                                <th style="padding: 6px 4px; text-align: left; border: 1px solid #ddd; white-space: nowrap;">Due Date</th>
-                                <th style="padding: 6px 4px; text-align: left; border: 1px solid #ddd; white-space: nowrap;">JRNL</th>
-                                <th style="padding: 6px 4px; text-align: left; border: 1px solid #ddd;">Account</th>
-                                <th style="padding: 6px 4px; text-align: left; border: 1px solid #ddd;">Ref</th>
-                                <th style="padding: 6px 4px; text-align: right; border: 1px solid #ddd; white-space: nowrap;">Debit</th>
-                                <th style="padding: 6px 4px; text-align: right; border: 1px solid #ddd; white-space: nowrap;">Credit</th>
-                                <th style="padding: 6px 4px; text-align: right; border: 1px solid #ddd; white-space: nowrap;">Balance</th>
-                                <th t-if="data['form'].get('show_po_number')" style="padding: 6px 4px; text-align: left; border: 1px solid #ddd;">PO Number</th>
+                                <th style="padding: 6px 4px; text-align: center; border: 1px solid #ddd; white-space: nowrap;">Date</th>
+                                <th style="padding: 6px 4px; text-align: center; border: 1px solid #ddd; white-space: nowrap;">Due Date</th>
+                                <th style="padding: 6px 4px; text-align: center; border: 1px solid #ddd; white-space: nowrap;">JRNL</th>
+                                <th style="padding: 6px 4px; text-align: center; border: 1px solid #ddd;">Account</th>
+                                <th style="padding: 6px 4px; text-align: center; border: 1px solid #ddd;">Ref</th>
+                                <th style="padding: 6px 4px; text-align: center; border: 1px solid #ddd; white-space: nowrap;">Debit</th>
+                                <th style="padding: 6px 4px; text-align: center; border: 1px solid #ddd; white-space: nowrap;">Credit</th>
+                                <th style="padding: 6px 4px; text-align: center; border: 1px solid #ddd; white-space: nowrap;">Balance</th>
+                                <th t-if="data['form'].get('show_po_number')" style="padding: 6px 4px; text-align: center; border: 1px solid #ddd;">PO Number</th>
                                 <th t-if="data['form']['amount_currency']"
-                                    style="padding: 6px 4px; text-align: right; border: 1px solid #ddd;">Currency</th>
+                                    style="padding: 6px 4px; text-align: center; border: 1px solid #ddd;">Currency</th>
                             </tr>
                         </thead>
                         <t t-foreach="docs" t-as="o">

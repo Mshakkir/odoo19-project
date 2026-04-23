@@ -1413,6 +1413,12 @@
 
 from collections import defaultdict
 
+# Copyright 2023 Dixmit
+# Copyright 2025 Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+
+from collections import defaultdict
+
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 
@@ -1952,6 +1958,24 @@ class AccountBankStatementLine(models.Model):
                 continue
             tax_account = self.env["account.account"].browse(tax_account_id)
             tax_amount = sign * tax_line["amount"]
+
+            # group_tax_id may be a recordset — extract plain int id or False
+            group_tax_raw = tax_line.get("group")
+            group_tax_id = (
+                group_tax_raw.id
+                if hasattr(group_tax_raw, "id")
+                else (group_tax_raw if isinstance(group_tax_raw, int) else False)
+            )
+
+            # tax_repartition_line_id is already an int from compute_all
+            tax_rep_line_id = tax_line.get("tax_repartition_line_id") or False
+
+            # tag_ids is a list of ints from compute_all
+            tag_ids = [
+                t if isinstance(t, int) else t.id
+                for t in (tax_line.get("tag_ids") or [])
+            ]
+
             line = {
                 "reference": f"reconcile_auxiliary;{reconcile_auxiliary_id}",
                 "id": False,
@@ -1967,9 +1991,9 @@ class AccountBankStatementLine(models.Model):
                 "line_currency_id": currency.id,
                 "currency_amount": tax_amount,
                 "analytic_distribution": self.analytic_distribution,
-                "tax_repartition_line_id": tax_line.get("tax_repartition_line_id"),
-                "tax_tag_ids": tax_line.get("tag_ids", []),
-                "group_tax_id": tax_line.get("group"),
+                "tax_repartition_line_id": tax_rep_line_id,
+                "tax_tag_ids": tag_ids,
+                "group_tax_id": group_tax_id,
                 "_is_tax_line_for": base_vals.get("reference"),
             }
             reconcile_auxiliary_id += 1

@@ -1430,6 +1430,10 @@ from dateutil.relativedelta import relativedelta
 # Copyright 2025 Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
+# Copyright 2023 Dixmit
+# Copyright 2025 Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+
 from collections import defaultdict
 
 from dateutil import rrule
@@ -2031,6 +2035,7 @@ class AccountBankStatementLine(models.Model):
                 "tax_tag_ids": tag_ids,
                 "group_tax_id": group_tax_id,
                 "_is_tax_line_for": base_vals.get("reference"),
+                "tax_names": [tax_line.get("name")] if tax_line.get("name") else [],
             }
             reconcile_auxiliary_id += 1
             tax_lines_data.append(line)
@@ -2051,6 +2056,8 @@ class AccountBankStatementLine(models.Model):
                 # should not be regenerated during journal entry posting.
                 "tax_ids": self.manual_tax_ids.ids,
                 "tax_tag_ids": base_tag_ids,
+                # tax_names: list of tax names shown as badges in the Taxes column
+                "tax_names": self.manual_tax_ids.mapped("name"),
             }
         )
         return updated_base, tax_lines_data, reconcile_auxiliary_id

@@ -1426,6 +1426,15 @@ from collections import defaultdict
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 
+# Copyright 2023 Dixmit
+# Copyright 2025 Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+
+from collections import defaultdict
+
+from dateutil import rrule
+from dateutil.relativedelta import relativedelta
+
 from odoo import Command, _, api, fields, models, tools
 from odoo.exceptions import UserError
 
@@ -2034,11 +2043,13 @@ class AccountBankStatementLine(models.Model):
                 "amount": net_amount,
                 "credit": -net_amount if net_amount < 0 else 0.0,
                 "debit": net_amount if net_amount > 0 else 0.0,
-                # Do NOT set tax_ids here — Odoo would recompute taxes on posting
-                # and create duplicate tax lines in the journal entry.
-                # Instead, carry the base report tags so the tax report shows the
-                # correct base amount for this line.
-                "tax_ids": [],
+                # Keep tax_ids on the base line — the tax report module needs this
+                # to display the "15%" badge and to attribute the base amount to the
+                # correct tax. Duplicate tax lines are avoided because our separate
+                # tax line entries each carry a tax_repartition_line_id, which tells
+                # Odoo's tax computation that these lines are already finalised and
+                # should not be regenerated during journal entry posting.
+                "tax_ids": self.manual_tax_ids.ids,
                 "tax_tag_ids": base_tag_ids,
             }
         )
@@ -2426,26 +2437,90 @@ class AccountBankStatementLine(models.Model):
                     "line_ids": lines_to_remove,
                 }
             )
+            # Separate data into base lines and their associated manual tax lines.
+            # We collect each base line together with its tax lines and write them
+            # to the move in a single create call so that Odoo sees the tax lines
+            # already present and does NOT auto-generate duplicates.
+            pending_base = None
+            pending_tax_vals = []
+
+            def _flush_pending():
+                nonlocal pending_base, pending_tax_vals
+                if pending_base is None:
+                    return
+                base_line_vals = self._reconcile_move_line_vals(pending_base)
+
+                if pending_tax_vals:
+                    # There are pre-computed tax lines for this base line.
+                    # Strategy to avoid Odoo auto-generating duplicate tax lines:
+                    #   1. Create base line WITHOUT tax_ids (no auto-generation)
+                    #   2. Create our pre-computed tax lines explicitly
+                    #   3. Update the base line with tax_ids so the Taxes column
+                    #      and tax report base amount work correctly
+                    tax_ids_for_base = base_line_vals.pop("tax_ids", [])
+                    base_line = (
+                        self.env["account.move.line"]
+                        .with_context(
+                            check_move_validity=False,
+                            skip_sync_invoice=True,
+                            skip_invoice_sync=True,
+                            validate_analytic=True,
+                        )
+                        .create(base_line_vals)
+                    )
+                    # Create explicit tax lines
+                    for tax_vals_raw in pending_tax_vals:
+                        tax_line_vals = self._reconcile_move_line_vals(tax_vals_raw)
+                        tax_line_vals.pop("_is_manual_tax_line", None)
+                        self.env["account.move.line"].with_context(
+                            check_move_validity=False,
+                            skip_sync_invoice=True,
+                            skip_invoice_sync=True,
+                            validate_analytic=True,
+                        ).create(tax_line_vals)
+                    # Now set tax_ids on the base line — tax lines already exist
+                    # so Odoo will not generate more
+                    base_line.with_context(
+                        check_move_validity=False,
+                        skip_account_move_synchronization=True,
+                        skip_invoice_sync=True,
+                        skip_readonly_check=True,
+                    ).write({"tax_ids": tax_ids_for_base})
+                else:
+                    # Normal line with no manual tax split — create as-is
+                    base_line = (
+                        self.env["account.move.line"]
+                        .with_context(
+                            check_move_validity=False,
+                            skip_sync_invoice=True,
+                            skip_invoice_sync=True,
+                            validate_analytic=True,
+                        )
+                        .create(base_line_vals)
+                    )
+                if pending_base.get("counterpart_line_ids"):
+                    to_reconcile.append(
+                        self.env["account.move.line"].browse(
+                            pending_base.get("counterpart_line_ids")
+                        )
+                        + base_line
+                    )
+                pending_base = None
+                pending_tax_vals = []
+
             for line_vals in data:
                 if line_vals["kind"] == "liquidity":
                     continue
-                line = (
-                    self.env["account.move.line"]
-                    .with_context(
-                        check_move_validity=False,
-                        skip_sync_invoice=True,
-                        skip_invoice_sync=True,
-                        validate_analytic=True,
-                    )
-                    .create(self._reconcile_move_line_vals(line_vals))
-                )
-                if line_vals.get("counterpart_line_ids"):
-                    to_reconcile.append(
-                        self.env["account.move.line"].browse(
-                            line_vals.get("counterpart_line_ids")
-                        )
-                        + line
-                    )
+                computed_vals = self._reconcile_move_line_vals(line_vals)
+                if computed_vals.pop("_is_manual_tax_line", False):
+                    # Queue this tax line to be written with the preceding base line
+                    pending_tax_vals.append(line_vals)
+                else:
+                    # New base line — flush the previous base+tax group first
+                    _flush_pending()
+                    pending_base = line_vals
+            _flush_pending()
+
         for reconcile_items in to_reconcile:
             reconcile_items.reconcile()
 
@@ -2571,6 +2646,11 @@ class AccountBankStatementLine(models.Model):
                 "line_currency_id"
         ):
             vals["amount_currency"] = line["currency_amount"]
+        # If this line has a tax_repartition_line_id it is already a finalised tax
+        # line — flag it so _reconcile_bank_line_edit can write base + tax lines
+        # together in one move.write() and prevent Odoo auto-generating duplicates.
+        if line.get("tax_repartition_line_id"):
+            vals["_is_manual_tax_line"] = True
         return vals
 
     @api.model_create_multi

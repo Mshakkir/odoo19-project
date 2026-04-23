@@ -1417,6 +1417,10 @@ from collections import defaultdict
 # Copyright 2025 Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
+# Copyright 2023 Dixmit
+# Copyright 2025 Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+
 from collections import defaultdict
 
 from dateutil import rrule
@@ -1943,7 +1947,10 @@ class AccountBankStatementLine(models.Model):
         sign = -1.0 if amount < 0 else 1.0
         is_refund = amount > 0  # bank credit = purchase refund direction
 
-        tax_results = taxes.compute_all(
+        # Always treat the entered amount as tax-inclusive (VAT is within the amount).
+        # This mirrors the behaviour shown in the reconcile model view where
+        # e.g. 100 SR splits into 86.96 SR base + 13.04 SR VAT (15% included).
+        tax_results = taxes.with_context(force_price_include=True).compute_all(
             abs(amount),
             currency=currency,
             quantity=1.0,

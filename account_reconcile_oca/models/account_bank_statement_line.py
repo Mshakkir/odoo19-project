@@ -1417,10 +1417,6 @@ from collections import defaultdict
 # Copyright 2025 Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-# Copyright 2023 Dixmit
-# Copyright 2025 Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
-# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-
 from collections import defaultdict
 
 from dateutil import rrule
@@ -1762,7 +1758,7 @@ class AccountBankStatementLine(models.Model):
                 not float_is_zero(
                     self.manual_amount - line["amount"],
                     precision_digits=self.company_id.currency_id.decimal_places,
-                    )
+                )
                 or self.manual_account_id.id != line["account_id"][0]
                 or self.manual_name != line["name"]
                 or (
@@ -1843,6 +1839,7 @@ class AccountBankStatementLine(models.Model):
             self.manual_move_type = self.manual_line_id.move_id.move_type
         self.manual_kind = line["kind"]
         self.manual_original_amount = line.get("original_amount", 0.0)
+
     # def _process_manual_reconcile_from_line(self, line):
     #     self.manual_account_id = line["account_id"][0]
     #     self.manual_amount = line["amount"]
@@ -1935,6 +1932,15 @@ class AccountBankStatementLine(models.Model):
         Compute separate tax lines from manual_tax_ids and split the base amount
         into net + tax entries for display in reconcile_data_info.
         Returns (updated_base_vals, list_of_tax_lines, new_reconcile_auxiliary_id).
+
+        The entered amount is treated as tax-inclusive (VAT within the total),
+        so e.g. 100 SR at 15% → 86.96 SR base + 13.04 SR VAT.
+
+        We do NOT put tax_ids on the base line written to the journal entry —
+        instead we set tax_tag_ids (base report tags) on the base line and write
+        the tax lines with their own tax_repartition_line_id + tax_tag_ids.
+        This is the same pattern used by account.reconcile.model and ensures the
+        tax report picks up both base amount and tax amount correctly.
         """
         if not self.manual_tax_ids or not self.manual_account_id:
             return base_vals, [], reconcile_auxiliary_id
@@ -1947,9 +1953,7 @@ class AccountBankStatementLine(models.Model):
         sign = -1.0 if amount < 0 else 1.0
         is_refund = amount > 0  # bank credit = purchase refund direction
 
-        # Always treat the entered amount as tax-inclusive (VAT is within the amount).
-        # This mirrors the behaviour shown in the reconcile model view where
-        # e.g. 100 SR splits into 86.96 SR base + 13.04 SR VAT (15% included).
+        # force_price_include=True → entered amount is treated as tax-inclusive
         tax_results = taxes.with_context(force_price_include=True).compute_all(
             abs(amount),
             currency=currency,
@@ -1957,6 +1961,13 @@ class AccountBankStatementLine(models.Model):
             partner=self.manual_partner_id or None,
             is_refund=is_refund,
         )
+
+        # ── base line tag_ids (for tax report base amount) ──────────────────
+        # compute_all returns base_tags as a list of account.tax.repartition.line ids
+        base_tag_ids = [
+            t if isinstance(t, int) else t.id
+            for t in (tax_results.get("base_tags") or [])
+        ]
 
         tax_lines_data = []
         for tax_line in tax_results.get("taxes", []):
@@ -1977,7 +1988,7 @@ class AccountBankStatementLine(models.Model):
             # tax_repartition_line_id is already an int from compute_all
             tax_rep_line_id = tax_line.get("tax_repartition_line_id") or False
 
-            # tag_ids is a list of ints from compute_all
+            # tag_ids for this tax line (for tax report tax amount)
             tag_ids = [
                 t if isinstance(t, int) else t.id
                 for t in (tax_line.get("tag_ids") or [])
@@ -2006,7 +2017,7 @@ class AccountBankStatementLine(models.Model):
             reconcile_auxiliary_id += 1
             tax_lines_data.append(line)
 
-        # Update base line to net amount (price excluding tax)
+        # ── Update base line ─────────────────────────────────────────────────
         net_amount = sign * tax_results["total_excluded"]
         updated_base = dict(base_vals)
         updated_base.update(
@@ -2014,8 +2025,12 @@ class AccountBankStatementLine(models.Model):
                 "amount": net_amount,
                 "credit": -net_amount if net_amount < 0 else 0.0,
                 "debit": net_amount if net_amount > 0 else 0.0,
-                # keep tax_ids on base line so the journal entry is written correctly
-                "tax_ids": self.manual_tax_ids.ids,
+                # Do NOT set tax_ids here — Odoo would recompute taxes on posting
+                # and create duplicate tax lines in the journal entry.
+                # Instead, carry the base report tags so the tax report shows the
+                # correct base amount for this line.
+                "tax_ids": [],
+                "tax_tag_ids": base_tag_ids,
             }
         )
         return updated_base, tax_lines_data, reconcile_auxiliary_id
@@ -2179,7 +2194,7 @@ class AccountBankStatementLine(models.Model):
                     self.journal_id.currency_id or self.company_currency_id,
                     self.company_id,
                     self.date,
-                    )
+                )
             if currency != self.company_id.currency_id:
                 currency_amount = self.company_id.currency_id._convert(
                     amount,
@@ -2525,6 +2540,9 @@ class AccountBankStatementLine(models.Model):
             to_reverse._reverse_moves(default_values_list, cancel=True)
 
     def _reconcile_move_line_vals(self, line, move_id=False):
+        # tax_ids and tax_tag_ids are many2many — must use Command.set()
+        tax_ids = line.get("tax_ids") or []
+        tax_tag_ids = line.get("tax_tag_ids") or []
         vals = {
             "move_id": move_id or self.move_id.id,
             "account_id": line["account_id"][0],
@@ -2532,8 +2550,8 @@ class AccountBankStatementLine(models.Model):
             "credit": line["credit"],
             "debit": line["debit"],
             "currency_id": line.get("line_currency_id", self.company_id.currency_id.id),
-            "tax_ids": line.get("tax_ids", []),
-            "tax_tag_ids": line.get("tax_tag_ids", []),
+            "tax_ids": [Command.set(tax_ids)] if tax_ids else [],
+            "tax_tag_ids": [Command.set(tax_tag_ids)] if tax_tag_ids else [],
             "group_tax_id": line.get("group_tax_id"),
             "tax_repartition_line_id": line.get("tax_repartition_line_id"),
             "analytic_distribution": line.get("analytic_distribution"),

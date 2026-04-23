@@ -154,7 +154,7 @@
                                 <th style="padding: 6px 4px; text-align: center; border: 1px solid #ddd; white-space: nowrap;">Due Date</th>
                                 <th style="padding: 6px 4px; text-align: center; border: 1px solid #ddd; white-space: nowrap;">JRNL</th>
                                 <th style="padding: 6px 4px; text-align: center; border: 1px solid #ddd;">Account</th>
-                                <th style="padding: 6px 4px; text-align: center; border: 1px solid #ddd;">Ref</th>
+                                <th style="padding: 6px 4px; text-align: center; border: 1px solid #ddd;">Reference</th>
                                 <th style="padding: 6px 4px; text-align: center; border: 1px solid #ddd; white-space: nowrap;">Debit</th>
                                 <th style="padding: 6px 4px; text-align: center; border: 1px solid #ddd; white-space: nowrap;">Credit</th>
                                 <th style="padding: 6px 4px; text-align: center; border: 1px solid #ddd; white-space: nowrap;">Balance</th>

@@ -140,13 +140,13 @@
                         <colgroup>
                             <col style="width: 70px;"/>
                             <col style="width: 70px;"/>
-                            <col style="width: 55px;"/>
                             <col style="width: 90px;"/>
-                            <col/>
-                            <col style="width: 88px;"/>
-                            <col style="width: 88px;"/>
-                            <col style="width: 92px;"/>
                             <col style="width: 90px;"/>
+                            <col  style="width: 200px;"/>
+                            <col style="width: 85px;"/>
+                            <col style="width: 85px;"/>
+                            <col style="width: 85px;"/>
+                            <col style="width: 120px;"/>
                         </colgroup>
                         <thead>
                             <tr style="background-color: #A3AABE; color: black;">

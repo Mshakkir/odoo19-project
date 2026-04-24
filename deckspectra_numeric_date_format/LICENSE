@@ -1,0 +1,15 @@
+DeckSpectra Proprietary License v1.1
+
+This software and associated files (the "Software") may only be installed, used, executed, or modified if a valid license has been purchased or granted by DeckSpectra Technologies LLP. Licenses are typically obtained through the Odoo App Store or via a written agreement directly with DeckSpectra Technologies LLP.
+
+You are granted a limited, non-exclusive, non-transferable, and revocable license to use the Software solely for internal business purposes within the scope defined in your valid license. You may develop independent Odoo modules that interact with this Software, provided that such modules do not copy or include any part of the Software’s source code or resources. You may distribute those independent modules under the license of your choice, provided that this license is compatible with the terms of this Proprietary License.
+
+It is strictly forbidden to publish, distribute, sublicense, rent, lease, sell, or otherwise make copies (original or modified) of the Software available to any third party. You may not upload, share, or host the Software or its source code on public repositories or any online platform. Reverse engineering, decompilation, or disassembly of the Software is not permitted except where required by law. Any violation of these restrictions will automatically terminate your license without refund.
+
+Each valid license allows usage on one Odoo production database instance and its associated test or staging environments, for a single legal entity. The license remains valid only as long as the licensee complies with the terms of this agreement and Odoo App Store policies. Updates, bug fixes, or new versions of the Software may be released at DeckSpectra Technologies' discretion, and access to such updates may require a valid maintenance plan or repurchase as per the applicable policy.
+
+All intellectual property rights, including but not limited to copyright, design, code, and logic, are the exclusive property of DeckSpectra Technologies LLP. This license does not convey ownership or grant any rights other than those expressly stated herein.
+
+The Software is provided "AS IS," without any warranty of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement. DeckSpectra Technologies LLP shall not be liable for any damages, direct or indirect, including loss of data, profits, or business interruption, arising from the use or inability to use the Software, even if advised of the possibility of such damages.
+
+By installing, using, or modifying the Software, you acknowledge that you have read, understood, and agreed to the terms of this License.
